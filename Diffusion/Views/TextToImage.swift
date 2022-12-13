@@ -23,7 +23,7 @@ func generate(pipeline: Pipeline?, prompt: String) async -> CGImage? {
 enum GenerationState {
     case startup
     case running(StableDiffusionProgress?)
-    case idle
+    case idle(String)
 }
 
 struct ImageWithPlaceholder: View {
@@ -42,7 +42,7 @@ struct ImageWithPlaceholder: View {
             let fraction = Double(step) / Double(progress.stepCount)
             let label = "Step \(step) of \(progress.stepCount)"
             return AnyView(ProgressView(label, value: fraction, total: 1).padding())
-        default:
+        case .idle(let lastPrompt):
             guard let theImage = image.wrappedValue else {
                 return AnyView(Image(systemName: "exclamationmark.triangle").resizable())
             }
@@ -51,7 +51,7 @@ struct ImageWithPlaceholder: View {
             return AnyView(
                 VStack {
                 imageView.resizable().clipShape(RoundedRectangle(cornerRadius: 20))
-                ShareLink(item: imageView, preview: SharePreview("Generated image", image: imageView))
+                    ShareLink(item: imageView, preview: SharePreview(lastPrompt, image: imageView))
             })
         }
     }
@@ -71,7 +71,7 @@ struct TextToImage: View {
         Task {
             state = .running(nil)
             image = await generate(pipeline: context.pipeline, prompt: prompt)
-            state = .idle
+            state = .idle(prompt)
         }
     }
     
