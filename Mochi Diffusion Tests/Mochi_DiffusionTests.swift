@@ -1,13 +1,14 @@
 //
-//  DiffusionTests.swift
-//  DiffusionTests
+//  Mochi_DiffusionTests.swift
+//  Mochi DiffusionTests
 //
-//  Created by Pedro Cuenca on December 2022.
+//  Created by Joshua Park on 12/15/22.
 //
 
 import XCTest
+@testable import Mochi_Diffusion
 
-final class DiffusionTests: XCTestCase {
+final class Mochi_DiffusionTests: XCTestCase {
 
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.
@@ -27,7 +28,7 @@ final class DiffusionTests: XCTestCase {
 
     func testPerformanceExample() throws {
         // This is an example of a performance test case.
-        measure {
+        self.measure {
             // Put the code you want to measure the time of here.
         }
     }

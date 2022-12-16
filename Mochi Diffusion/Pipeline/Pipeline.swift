@@ -23,21 +23,31 @@ class Pipeline {
         }
     }
     lazy private(set) var progressPublisher: CurrentValueSubject<StableDiffusionProgress?, Never> = CurrentValueSubject(progress)
-
-
+    
+    
     init(_ pipeline: StableDiffusionPipeline) {
         self.pipeline = pipeline
     }
     
-    func generate(prompt: String, scheduler: StableDiffusionScheduler, numInferenceSteps stepCount: Int = 50, seed: UInt32? = nil) throws -> CGImage {
+    func generate(
+        prompt: String,
+        negativePrompt: String = "",
+        numInferenceSteps stepCount: Int = 50,
+        seed: UInt32? = nil,
+        guidanceScale: Float = 7.5,
+        scheduler: StableDiffusionScheduler
+    ) throws -> CGImage {
         let beginDate = Date()
         print("Generating...")
         let theSeed = seed ?? UInt32.random(in: 0..<UInt32.max)
         let images = try pipeline.generateImages(
             prompt: prompt,
+            negativePrompt: negativePrompt,
             imageCount: 1,
             stepCount: stepCount,
             seed: theSeed,
+            guidanceScale: guidanceScale,
+            disableSafety: true,
             scheduler: scheduler
         ) { progress in
             handleProgress(progress)
@@ -49,7 +59,7 @@ class Pipeline {
         guard let image = images.compactMap({ $0 }).first else { throw "Generation failed" }
         return image
     }
-
+    
     func handleProgress(_ progress: StableDiffusionPipeline.Progress) {
         self.progress = progress
     }

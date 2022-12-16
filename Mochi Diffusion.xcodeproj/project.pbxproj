@@ -1,0 +1,682 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0307B0D7294C171D00A9BD55 /* TextToImage_playground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0307B0D6294C171D00A9BD55 /* TextToImage_playground.swift */; };
+		036BFC22294B9F7500D8AD04 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 036BFC21294B9F7500D8AD04 /* App.swift */; };
+		036BFC26294B9F7600D8AD04 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 036BFC25294B9F7600D8AD04 /* Assets.xcassets */; };
+		036BFC29294B9F7600D8AD04 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 036BFC28294B9F7600D8AD04 /* Preview Assets.xcassets */; };
+		036BFC34294B9F7600D8AD04 /* Mochi_DiffusionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 036BFC33294B9F7600D8AD04 /* Mochi_DiffusionTests.swift */; };
+		036BFC3E294B9F7600D8AD04 /* Mochi_DiffusionUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 036BFC3D294B9F7600D8AD04 /* Mochi_DiffusionUITests.swift */; };
+		036BFC40294B9F7600D8AD04 /* Mochi_DiffusionUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 036BFC3F294B9F7600D8AD04 /* Mochi_DiffusionUITestsLaunchTests.swift */; };
+		036BFC4E294B9FDB00D8AD04 /* Path in Frameworks */ = {isa = PBXBuildFile; productRef = 036BFC4D294B9FDB00D8AD04 /* Path */; };
+		036BFC51294B9FF500D8AD04 /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = 036BFC50294B9FF500D8AD04 /* ZIPFoundation */; };
+		036BFC57294BA13100D8AD04 /* Pipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 036BFC56294BA13100D8AD04 /* Pipeline.swift */; };
+		036BFC59294BA15B00D8AD04 /* PipelineLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 036BFC58294BA15B00D8AD04 /* PipelineLoader.swift */; };
+		036BFC5B294BA19400D8AD04 /* Downloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 036BFC5A294BA19400D8AD04 /* Downloader.swift */; };
+		036BFC5E294BA22000D8AD04 /* Loading.swift in Sources */ = {isa = PBXBuildFile; fileRef = 036BFC5D294BA22000D8AD04 /* Loading.swift */; };
+		036BFC60294BA25200D8AD04 /* TextToImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 036BFC5F294BA25200D8AD04 /* TextToImage.swift */; };
+		0397C070294BDC8C003762E0 /* StableDiffusion in Frameworks */ = {isa = PBXBuildFile; productRef = 0397C06F294BDC8C003762E0 /* StableDiffusion */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		036BFC30294B9F7600D8AD04 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 036BFC16294B9F7500D8AD04 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 036BFC1D294B9F7500D8AD04;
+			remoteInfo = "Mochi Diffusion";
+		};
+		036BFC3A294B9F7600D8AD04 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 036BFC16294B9F7500D8AD04 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 036BFC1D294B9F7500D8AD04;
+			remoteInfo = "Mochi Diffusion";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		0307B0D6294C171D00A9BD55 /* TextToImage_playground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextToImage_playground.swift; sourceTree = "<group>"; };
+		036BFC1E294B9F7500D8AD04 /* Mochi Diffusion.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Mochi Diffusion.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		036BFC21294B9F7500D8AD04 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
+		036BFC25294B9F7600D8AD04 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		036BFC28294B9F7600D8AD04 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		036BFC2A294B9F7600D8AD04 /* App.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = App.entitlements; sourceTree = "<group>"; };
+		036BFC2F294B9F7600D8AD04 /* Mochi Diffusion Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Mochi Diffusion Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		036BFC33294B9F7600D8AD04 /* Mochi_DiffusionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Mochi_DiffusionTests.swift; sourceTree = "<group>"; };
+		036BFC39294B9F7600D8AD04 /* Mochi Diffusion UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Mochi Diffusion UITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		036BFC3D294B9F7600D8AD04 /* Mochi_DiffusionUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Mochi_DiffusionUITests.swift; sourceTree = "<group>"; };
+		036BFC3F294B9F7600D8AD04 /* Mochi_DiffusionUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Mochi_DiffusionUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		036BFC56294BA13100D8AD04 /* Pipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pipeline.swift; sourceTree = "<group>"; };
+		036BFC58294BA15B00D8AD04 /* PipelineLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PipelineLoader.swift; sourceTree = "<group>"; };
+		036BFC5A294BA19400D8AD04 /* Downloader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Downloader.swift; sourceTree = "<group>"; };
+		036BFC5D294BA22000D8AD04 /* Loading.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Loading.swift; sourceTree = "<group>"; };
+		036BFC5F294BA25200D8AD04 /* TextToImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextToImage.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		036BFC1B294B9F7500D8AD04 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				036BFC4E294B9FDB00D8AD04 /* Path in Frameworks */,
+				0397C070294BDC8C003762E0 /* StableDiffusion in Frameworks */,
+				036BFC51294B9FF500D8AD04 /* ZIPFoundation in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		036BFC2C294B9F7600D8AD04 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		036BFC36294B9F7600D8AD04 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		036BFC15294B9F7500D8AD04 = {
+			isa = PBXGroup;
+			children = (
+				036BFC20294B9F7500D8AD04 /* Mochi Diffusion */,
+				036BFC32294B9F7600D8AD04 /* Mochi Diffusion Tests */,
+				036BFC3C294B9F7600D8AD04 /* Mochi Diffusion UITests */,
+				036BFC1F294B9F7500D8AD04 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		036BFC1F294B9F7500D8AD04 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				036BFC1E294B9F7500D8AD04 /* Mochi Diffusion.app */,
+				036BFC2F294B9F7600D8AD04 /* Mochi Diffusion Tests.xctest */,
+				036BFC39294B9F7600D8AD04 /* Mochi Diffusion UITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		036BFC20294B9F7500D8AD04 /* Mochi Diffusion */ = {
+			isa = PBXGroup;
+			children = (
+				036BFC55294BA0F500D8AD04 /* Pipeline */,
+				036BFC5C294BA20A00D8AD04 /* Views */,
+				036BFC21294B9F7500D8AD04 /* App.swift */,
+				036BFC5A294BA19400D8AD04 /* Downloader.swift */,
+				036BFC25294B9F7600D8AD04 /* Assets.xcassets */,
+				036BFC2A294B9F7600D8AD04 /* App.entitlements */,
+				036BFC27294B9F7600D8AD04 /* Preview Content */,
+			);
+			path = "Mochi Diffusion";
+			sourceTree = "<group>";
+		};
+		036BFC27294B9F7600D8AD04 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				036BFC28294B9F7600D8AD04 /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		036BFC32294B9F7600D8AD04 /* Mochi Diffusion Tests */ = {
+			isa = PBXGroup;
+			children = (
+				036BFC33294B9F7600D8AD04 /* Mochi_DiffusionTests.swift */,
+			);
+			path = "Mochi Diffusion Tests";
+			sourceTree = "<group>";
+		};
+		036BFC3C294B9F7600D8AD04 /* Mochi Diffusion UITests */ = {
+			isa = PBXGroup;
+			children = (
+				036BFC3D294B9F7600D8AD04 /* Mochi_DiffusionUITests.swift */,
+				036BFC3F294B9F7600D8AD04 /* Mochi_DiffusionUITestsLaunchTests.swift */,
+			);
+			path = "Mochi Diffusion UITests";
+			sourceTree = "<group>";
+		};
+		036BFC55294BA0F500D8AD04 /* Pipeline */ = {
+			isa = PBXGroup;
+			children = (
+				036BFC56294BA13100D8AD04 /* Pipeline.swift */,
+				036BFC58294BA15B00D8AD04 /* PipelineLoader.swift */,
+			);
+			path = Pipeline;
+			sourceTree = "<group>";
+		};
+		036BFC5C294BA20A00D8AD04 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				036BFC5D294BA22000D8AD04 /* Loading.swift */,
+				036BFC5F294BA25200D8AD04 /* TextToImage.swift */,
+				0307B0D6294C171D00A9BD55 /* TextToImage_playground.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		036BFC1D294B9F7500D8AD04 /* Mochi Diffusion */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 036BFC43294B9F7600D8AD04 /* Build configuration list for PBXNativeTarget "Mochi Diffusion" */;
+			buildPhases = (
+				036BFC1A294B9F7500D8AD04 /* Sources */,
+				036BFC1B294B9F7500D8AD04 /* Frameworks */,
+				036BFC1C294B9F7500D8AD04 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Mochi Diffusion";
+			packageProductDependencies = (
+				036BFC4D294B9FDB00D8AD04 /* Path */,
+				036BFC50294B9FF500D8AD04 /* ZIPFoundation */,
+				0397C06F294BDC8C003762E0 /* StableDiffusion */,
+			);
+			productName = "Mochi Diffusion";
+			productReference = 036BFC1E294B9F7500D8AD04 /* Mochi Diffusion.app */;
+			productType = "com.apple.product-type.application";
+		};
+		036BFC2E294B9F7600D8AD04 /* Mochi Diffusion Tests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 036BFC46294B9F7600D8AD04 /* Build configuration list for PBXNativeTarget "Mochi Diffusion Tests" */;
+			buildPhases = (
+				036BFC2B294B9F7600D8AD04 /* Sources */,
+				036BFC2C294B9F7600D8AD04 /* Frameworks */,
+				036BFC2D294B9F7600D8AD04 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				036BFC31294B9F7600D8AD04 /* PBXTargetDependency */,
+			);
+			name = "Mochi Diffusion Tests";
+			productName = "Mochi DiffusionTests";
+			productReference = 036BFC2F294B9F7600D8AD04 /* Mochi Diffusion Tests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		036BFC38294B9F7600D8AD04 /* Mochi Diffusion UITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 036BFC49294B9F7600D8AD04 /* Build configuration list for PBXNativeTarget "Mochi Diffusion UITests" */;
+			buildPhases = (
+				036BFC35294B9F7600D8AD04 /* Sources */,
+				036BFC36294B9F7600D8AD04 /* Frameworks */,
+				036BFC37294B9F7600D8AD04 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				036BFC3B294B9F7600D8AD04 /* PBXTargetDependency */,
+			);
+			name = "Mochi Diffusion UITests";
+			productName = "Mochi DiffusionUITests";
+			productReference = 036BFC39294B9F7600D8AD04 /* Mochi Diffusion UITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		036BFC16294B9F7500D8AD04 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1420;
+				LastUpgradeCheck = 1420;
+				TargetAttributes = {
+					036BFC1D294B9F7500D8AD04 = {
+						CreatedOnToolsVersion = 14.2;
+					};
+					036BFC2E294B9F7600D8AD04 = {
+						CreatedOnToolsVersion = 14.2;
+						TestTargetID = 036BFC1D294B9F7500D8AD04;
+					};
+					036BFC38294B9F7600D8AD04 = {
+						CreatedOnToolsVersion = 14.2;
+						TestTargetID = 036BFC1D294B9F7500D8AD04;
+					};
+				};
+			};
+			buildConfigurationList = 036BFC19294B9F7500D8AD04 /* Build configuration list for PBXProject "Mochi Diffusion" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 036BFC15294B9F7500D8AD04;
+			packageReferences = (
+				036BFC4C294B9FDB00D8AD04 /* XCRemoteSwiftPackageReference "Path.swift" */,
+				036BFC4F294B9FF500D8AD04 /* XCRemoteSwiftPackageReference "ZIPFoundation" */,
+				0397C06E294BDC8C003762E0 /* XCRemoteSwiftPackageReference "ml-stable-diffusion" */,
+			);
+			productRefGroup = 036BFC1F294B9F7500D8AD04 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				036BFC1D294B9F7500D8AD04 /* Mochi Diffusion */,
+				036BFC2E294B9F7600D8AD04 /* Mochi Diffusion Tests */,
+				036BFC38294B9F7600D8AD04 /* Mochi Diffusion UITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		036BFC1C294B9F7500D8AD04 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				036BFC29294B9F7600D8AD04 /* Preview Assets.xcassets in Resources */,
+				036BFC26294B9F7600D8AD04 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		036BFC2D294B9F7600D8AD04 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		036BFC37294B9F7600D8AD04 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		036BFC1A294B9F7500D8AD04 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				036BFC5B294BA19400D8AD04 /* Downloader.swift in Sources */,
+				036BFC59294BA15B00D8AD04 /* PipelineLoader.swift in Sources */,
+				036BFC5E294BA22000D8AD04 /* Loading.swift in Sources */,
+				036BFC57294BA13100D8AD04 /* Pipeline.swift in Sources */,
+				036BFC22294B9F7500D8AD04 /* App.swift in Sources */,
+				036BFC60294BA25200D8AD04 /* TextToImage.swift in Sources */,
+				0307B0D7294C171D00A9BD55 /* TextToImage_playground.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		036BFC2B294B9F7600D8AD04 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				036BFC34294B9F7600D8AD04 /* Mochi_DiffusionTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		036BFC35294B9F7600D8AD04 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				036BFC3E294B9F7600D8AD04 /* Mochi_DiffusionUITests.swift in Sources */,
+				036BFC40294B9F7600D8AD04 /* Mochi_DiffusionUITestsLaunchTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		036BFC31294B9F7600D8AD04 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 036BFC1D294B9F7500D8AD04 /* Mochi Diffusion */;
+			targetProxy = 036BFC30294B9F7600D8AD04 /* PBXContainerItemProxy */;
+		};
+		036BFC3B294B9F7600D8AD04 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 036BFC1D294B9F7500D8AD04 /* Mochi Diffusion */;
+			targetProxy = 036BFC3A294B9F7600D8AD04 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		036BFC41294B9F7600D8AD04 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.1;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		036BFC42294B9F7600D8AD04 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.1;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+			};
+			name = Release;
+		};
+		036BFC44294B9F7600D8AD04 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Mochi Diffusion/App.entitlements";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Mochi Diffusion/Preview Content\"";
+				DEVELOPMENT_TEAM = TCQ6328PP6;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Mochi Diffusion";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "joshua-park.Mochi-Diffusion";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		036BFC45294B9F7600D8AD04 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Mochi Diffusion/App.entitlements";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Mochi Diffusion/Preview Content\"";
+				DEVELOPMENT_TEAM = TCQ6328PP6;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Mochi Diffusion";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "joshua-park.Mochi-Diffusion";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		036BFC47294B9F7600D8AD04 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = TCQ6328PP6;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "joshua-park.Mochi-Diffusion-Tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Mochi Diffusion.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Mochi Diffusion";
+			};
+			name = Debug;
+		};
+		036BFC48294B9F7600D8AD04 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = TCQ6328PP6;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "joshua-park.Mochi-Diffusion-Tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Mochi Diffusion.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Mochi Diffusion";
+			};
+			name = Release;
+		};
+		036BFC4A294B9F7600D8AD04 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = TCQ6328PP6;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "joshua-park.Mochi-Diffusion-UITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = "Mochi Diffusion";
+			};
+			name = Debug;
+		};
+		036BFC4B294B9F7600D8AD04 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = TCQ6328PP6;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "joshua-park.Mochi-Diffusion-UITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = "Mochi Diffusion";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		036BFC19294B9F7500D8AD04 /* Build configuration list for PBXProject "Mochi Diffusion" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				036BFC41294B9F7600D8AD04 /* Debug */,
+				036BFC42294B9F7600D8AD04 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		036BFC43294B9F7600D8AD04 /* Build configuration list for PBXNativeTarget "Mochi Diffusion" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				036BFC44294B9F7600D8AD04 /* Debug */,
+				036BFC45294B9F7600D8AD04 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		036BFC46294B9F7600D8AD04 /* Build configuration list for PBXNativeTarget "Mochi Diffusion Tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				036BFC47294B9F7600D8AD04 /* Debug */,
+				036BFC48294B9F7600D8AD04 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		036BFC49294B9F7600D8AD04 /* Build configuration list for PBXNativeTarget "Mochi Diffusion UITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				036BFC4A294B9F7600D8AD04 /* Debug */,
+				036BFC4B294B9F7600D8AD04 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		036BFC4C294B9FDB00D8AD04 /* XCRemoteSwiftPackageReference "Path.swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/mxcl/Path.swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
+		036BFC4F294B9FF500D8AD04 /* XCRemoteSwiftPackageReference "ZIPFoundation" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/weichsel/ZIPFoundation.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.9.9;
+			};
+		};
+		0397C06E294BDC8C003762E0 /* XCRemoteSwiftPackageReference "ml-stable-diffusion" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/godly-devotion/ml-stable-diffusion";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		036BFC4D294B9FDB00D8AD04 /* Path */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 036BFC4C294B9FDB00D8AD04 /* XCRemoteSwiftPackageReference "Path.swift" */;
+			productName = Path;
+		};
+		036BFC50294B9FF500D8AD04 /* ZIPFoundation */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 036BFC4F294B9FF500D8AD04 /* XCRemoteSwiftPackageReference "ZIPFoundation" */;
+			productName = ZIPFoundation;
+		};
+		0397C06F294BDC8C003762E0 /* StableDiffusion */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0397C06E294BDC8C003762E0 /* XCRemoteSwiftPackageReference "ml-stable-diffusion" */;
+			productName = StableDiffusion;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 036BFC16294B9F7500D8AD04 /* Project object */;
+}

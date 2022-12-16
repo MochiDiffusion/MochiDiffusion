@@ -19,13 +19,13 @@ class PipelineLoader {
     
     let url: URL
     private var downloadSubscriber: Cancellable?
-
+    
     init(url: URL) {
         self.url = url
         state = .undetermined
         setInitialState()
     }
-        
+    
     enum PipelinePreparationPhase {
         case undetermined
         case waitingToDownload
@@ -43,7 +43,7 @@ class PipelineLoader {
         }
     }
     private(set) lazy var statePublisher: CurrentValueSubject<PipelinePreparationPhase, Never> = CurrentValueSubject(state)
-        
+    
     func setInitialState() {
         if ready {
             state = .readyOnDisk
@@ -70,12 +70,12 @@ extension PipelineLoader {
     
     var downloadedPath: Path { PipelineLoader.models / filename }
     var downloadedURL: URL { downloadedPath.url }
-
+    
     var uncompressPath: Path { downloadedPath.parent }
     
     var packagesFilename: String { downloadedPath.basename(dropExtension: true) }
     var compiledPath: Path { downloadedPath.parent/packagesFilename }
-
+    
     var downloaded: Bool {
         return downloadedPath.exists
     }
@@ -83,7 +83,7 @@ extension PipelineLoader {
     var ready: Bool {
         return compiledPath.exists
     }
-        
+    
     // TODO: maybe receive Progress to add another progress as child
     func prepare() async throws -> Pipeline {
         do {

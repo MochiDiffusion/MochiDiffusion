@@ -1,13 +1,13 @@
 //
-//  DiffusionUITestsLaunchTests.swift
-//  DiffusionUITests
+//  Mochi_DiffusionUITestsLaunchTests.swift
+//  Mochi DiffusionUITests
 //
-//  Created by Pedro Cuenca on December 2022.
+//  Created by Joshua Park on 12/15/22.
 //
 
 import XCTest
 
-final class DiffusionUITestsLaunchTests: XCTestCase {
+final class Mochi_DiffusionUITestsLaunchTests: XCTestCase {
 
     override class var runsForEachTargetApplicationUIConfiguration: Bool {
         true

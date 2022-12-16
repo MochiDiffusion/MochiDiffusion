@@ -28,7 +28,7 @@ class Downloader: NSObject, ObservableObject {
         super.init()
         
         // .background allows downloads to proceed in the background
-        let config = URLSessionConfiguration.background(withIdentifier: "net.pcuenca.diffusion.download")
+        let config = URLSessionConfiguration.background(withIdentifier: "com.joshua-park.mochi-diffusion.download")
         let urlSession = URLSession(configuration: config, delegate: self, delegateQueue: OperationQueue())
         downloadState.value = .downloading(0)
         urlSession.getAllTasks { tasks in
@@ -65,7 +65,7 @@ extension Downloader: URLSessionDelegate, URLSessionDownloadDelegate {
     func urlSession(_: URLSession, downloadTask: URLSessionDownloadTask, didWriteData _: Int64, totalBytesWritten _: Int64, totalBytesExpectedToWrite _: Int64) {
         downloadState.value = .downloading(downloadTask.progress.fractionCompleted)
     }
-
+    
     func urlSession(_: URLSession, downloadTask _: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
         guard let path = Path(url: location) else {
             downloadState.value = .failed("Invalid download location received: \(location)")
@@ -82,7 +82,7 @@ extension Downloader: URLSessionDelegate, URLSessionDownloadDelegate {
             downloadState.value = .failed(error)
         }
     }
-
+    
     func urlSession(_: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
         if let error = error {
             downloadState.value = .failed(error)

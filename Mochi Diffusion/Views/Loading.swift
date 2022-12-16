@@ -17,7 +17,7 @@ class DiffusionGlobals: ObservableObject {
 
 struct LoadingView: View {
     @StateObject var context = DiffusionGlobals()
-
+    
     @State private var preparationPhase = "Downloading…"
     @State private var downloadProgress: Double = 0
     
@@ -29,7 +29,7 @@ struct LoadingView: View {
     @State private var currentView: CurrentView = .loading
     
     @State private var stateSubscriber: Cancellable?
-
+    
     var body: some View {
         VStack {
             switch currentView {
@@ -68,7 +68,7 @@ struct LoadingView: View {
                 } catch {
                     self.currentView = .error("Could not load model, error: \(error)")
                 }
-            }            
+            }
         }
     }
 }
@@ -78,7 +78,7 @@ extension LoadingView.CurrentView: Equatable {}
 
 struct ErrorPopover: View {
     var errorMessage: String
-
+    
     var body: some View {
         Text(errorMessage)
             .font(.headline)
