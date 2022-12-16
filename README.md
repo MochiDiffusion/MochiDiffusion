@@ -1,6 +1,8 @@
 #  Mochi Diffusion
 
-Fully Native Stable Diffusion for Apple Silicon Macs.
+![Screenshot](.github/images/screenshot.png)
+
+Run Stable Diffusion on Apple Silicon Macs
 
 ## Description
 
