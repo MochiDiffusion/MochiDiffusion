@@ -2,7 +2,7 @@
 
 ![Screenshot](.github/images/screenshot.png)
 
-Run Stable Diffusion on Apple Silicon Macs
+Run Stable Diffusion on Apple Silicon Macs natively
 
 ## Description
 
@@ -14,7 +14,7 @@ For faster inference, we use a very fast scheduler: [DPM-Solver++](https://githu
 
 ## Compatibility
 
-- Apple Silicon (M1 and later), macOS Ventura 13.1, Xcode 14.2 (to build)
+- Apple Silicon (M1 and later), macOS Ventura 13.1 and later, Xcode 14.2 (to build)
 - Performance (after initial generation, which is slower)
   * ~10s in macOS on MacBook Pro M1 Max (64 GB).
   * ~20s in macOS on MacBook Pro M1 Pro (32 GB).
