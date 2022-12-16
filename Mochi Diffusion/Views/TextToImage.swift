@@ -109,27 +109,34 @@ struct TextToImage: View {
                 
                 Divider()
                 
-                Text("Steps: \(steps, specifier: "%.0f")")
-                Slider(
-                    value: $steps,
-                    in: 1...200,
-                    step: 1
-                )
+                Group {
+                    Text("Steps: \(steps, specifier: "%.0f")")
+                    Slider(
+                        value: $steps,
+                        in: 1...200,
+                        step: 1
+                    )
+                }
                 
-                Text("Guidance Scale: \(guidanceScale, specifier: "%.1f")")
-                Slider(
-                    value: $guidanceScale,
-                    in: 1...20,
-                    step: 0.5
-                )
+                Group {
+                    Text("Guidance Scale: \(guidanceScale, specifier: "%.1f")")
+                    Slider(
+                        value: $guidanceScale,
+                        in: 1...20,
+                        step: 0.5
+                    )
+                }
                 
-                Text("Seed: ")
-                TextField("random", value: $seed, format: .number)
-                    .textFieldStyle(.roundedBorder)
-                    .onSubmit {
-                        submit()
-                    }
+                Group {
+                    Text("Seed: ")
+                    TextField("random", value: $seed, format: .number)
+                        .textFieldStyle(.roundedBorder)
+                        .onSubmit {
+                            submit()
+                        }
+                }
                 
+                Spacer()
             }
             .padding()
             
