@@ -12,6 +12,14 @@ On first launch, the application downloads a zipped archive with a Core ML versi
 
 For faster inference, we use a very fast scheduler: [DPM-Solver++](https://github.com/LuChengTHU/dpm-solver) that we ported to Swift. Since this scheduler is still not available in Apple's GitHub repository, the application depends on the following fork instead: https://github.com/pcuenca/ml-stable-diffusion. Our Swift port is based on [Diffusers' DPMSolverMultistepScheduler](https://github.com/huggingface/diffusers/blob/main/src/diffusers/schedulers/scheduling_dpmsolver_multistep.py), with a number of simplifications.
 
+## Releases
+
+Download the latest version from the [releases](https://github.com/godly-devotion/mochi-diffusion/releases) page.
+
+## Running
+
+When trying to open the app for the first time, Gatekeeper will prevent you from doing so because the app is not code signed. In order to bypass this warning, you need to right-click on the app and select "Open". You will have to do this twice in order to get the option to open the app.
+
 ## Compatibility
 
 - Apple Silicon (M1 and later), macOS Ventura 13.1 and later, Xcode 14.2 (to build)
