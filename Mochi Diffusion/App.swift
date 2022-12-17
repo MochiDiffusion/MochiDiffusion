@@ -9,11 +9,14 @@
 import SwiftUI
 
 @main
-struct DiffusionApp: App {
+struct MochiDiffusionApp: App {
     var body: some Scene {
         WindowGroup {
             LoadingView()
         }
+//        .commands{
+//            SaveCommands()
+//        }
     }
 }
 

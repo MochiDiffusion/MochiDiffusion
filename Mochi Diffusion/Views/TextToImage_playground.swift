@@ -17,7 +17,7 @@ struct TextToImage_playground: View {
     func submit() { }
     
     var body: some View {
-        GeometryReader { geo in
+        NavigationView {
             HStack(alignment: .top) {
                 VStack(alignment: .leading) {
                     TextField("Prompt", text: $prompt, axis: .vertical)
@@ -79,7 +79,6 @@ struct TextToImage_playground: View {
                         .font(.system(size: 150.0))
                         .foregroundColor(.gray)
                         .scaledToFit()
-                        .frame(width: geo.size.width * 0.6)
                     Button("Save") {
                         
                     }

@@ -28,15 +28,45 @@ struct ImageWithPlaceholder: View {
     var image: Binding<CGImage?>
     var state: Binding<GenerationState>
     
+    func showSavePanel() -> URL? {
+        let savePanel = NSSavePanel()
+        savePanel.allowedContentTypes = [.png]
+        savePanel.canCreateDirectories = true
+        savePanel.isExtensionHidden = false
+        savePanel.title = "Save Image"
+        savePanel.message = "Choose a folder and a name to store the image."
+        savePanel.nameFieldLabel = "File name:"
+        
+        let response = savePanel.runModal()
+        return response == .OK ? savePanel.url : nil
+    }
+    
+    func saveImage(cgImage: CGImage, path: URL) {
+        let image = NSImage(cgImage: cgImage, size: .zero)
+        let imageRepresentation = NSBitmapImageRep(data: image.tiffRepresentation!)
+        let pngData = imageRepresentation?.representation(using: .png, properties: [:])
+        do {
+            try pngData!.write(to: path)
+        } catch {
+            print(error)
+        }
+    }
+    
     var body: some View {
         switch state.wrappedValue {
-        case .startup: return AnyView(Image(systemName: "photo").resizable())
+        case .startup:
+            return AnyView(
+                Image(systemName: "paintbrush.pointed")
+                    .resizable()
+                    .foregroundColor(.white.opacity(0.2))
+                    .frame(maxWidth: 100, maxHeight: 100)
+            )
         case .running(let progress):
             guard let progress = progress, progress.stepCount > 0 else {
                 // The first time it takes a little bit before generation starts
                 return AnyView(ProgressView())
             }
-            let step = Int(progress.step) + 1
+            let step = Int(progress.step)
             let fraction = Double(step) / Double(progress.stepCount)
             let label = "Step \(step) of \(progress.stepCount)"
             return AnyView(ProgressView(label, value: fraction, total: 1).padding())
@@ -49,7 +79,14 @@ struct ImageWithPlaceholder: View {
             return AnyView(
                 VStack {
                     imageView.resizable()
-                    ShareLink(item: imageView, preview: SharePreview(lastPrompt, image: imageView))
+                    HStack {
+                        ShareLink(item: imageView, preview: SharePreview(lastPrompt, image: imageView))
+                        Button("Save Image...") {
+                            if let url = showSavePanel() {
+                                saveImage(cgImage: theImage, path: url)
+                            }
+                        }
+                    }
                 })
         }
     }
@@ -60,8 +97,8 @@ struct TextToImage: View {
     
     @State private var prompt = ""
     @State private var negativePrompt = ""
-    @State private var steps = 28.0
-    @State private var guidanceScale = 11.0
+    @AppStorage("steps") private var steps = 28.0
+    @AppStorage("scale") private var guidanceScale = 11.0
     @State private var seed: UInt32? = nil
     @State private var image: CGImage? = nil
     @State private var state: GenerationState = .startup
@@ -83,18 +120,16 @@ struct TextToImage: View {
     }
     
     var body: some View {
-        HSplitView() {
+        NavigationView {
             VStack(alignment: .leading) {
                 TextField("Prompt", text: $prompt, axis: .vertical)
-                    .lineLimit(4, reservesSpace: true)
-                    .textFieldStyle(.roundedBorder)
+                    .lineLimit(6, reservesSpace: true)
                     .onSubmit {
                         submit()
                     }
                 
                 TextField("Negative Prompt", text: $negativePrompt, axis: .vertical)
-                    .lineLimit(4, reservesSpace: true)
-                    .textFieldStyle(.roundedBorder)
+                    .lineLimit(6, reservesSpace: true)
                     .onSubmit {
                         submit()
                     }
@@ -111,20 +146,20 @@ struct TextToImage: View {
                 
                 Group {
                     Text("Steps: \(steps, specifier: "%.0f")")
-                    Slider(
+                    SliderView(
                         value: $steps,
-                        in: 1...200,
-                        step: 1
+                        sliderRange: 1...200
                     )
+                    .frame(height: 18)
                 }
                 
                 Group {
                     Text("Guidance Scale: \(guidanceScale, specifier: "%.1f")")
-                    Slider(
+                    SliderView(
                         value: $guidanceScale,
-                        in: 1...20,
-                        step: 0.5
+                        sliderRange: 1...20
                     )
+                    .frame(height: 18)
                 }
                 
                 Group {
@@ -146,7 +181,6 @@ struct TextToImage: View {
             }
             .padding()
         }
-        .padding()
         .onAppear {
             progressSubscriber = context.pipeline!.progressPublisher.sink { progress in
                 guard let progress = progress else { return }
