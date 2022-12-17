@@ -13,9 +13,20 @@ import StableDiffusion
 // TODO: bind to UI controls
 let scheduler = StableDiffusionScheduler.pndmScheduler
 
-func generate(pipeline: Pipeline?, prompt: String, negativePrompt: String, steps: Int, seed: UInt32?) async -> CGImage? {
+func generate(
+    pipeline: Pipeline?,
+    prompt: String,
+    negativePrompt: String,
+    steps: Int,
+    seed: UInt32?
+) async -> CGImage? {
     guard let pipeline = pipeline else { return nil }
-    return try? pipeline.generate(prompt: prompt, negativePrompt: negativePrompt, numInferenceSteps: steps, seed: seed, scheduler: scheduler)
+    return try? pipeline.generate(
+        prompt: prompt,
+        negativePrompt: negativePrompt,
+        numInferenceSteps: steps,
+        seed: seed,
+        scheduler: scheduler)
 }
 
 enum GenerationState {
@@ -59,8 +70,7 @@ struct ImageWithPlaceholder: View {
                 Image(systemName: "paintbrush.pointed")
                     .resizable()
                     .foregroundColor(.white.opacity(0.2))
-                    .frame(maxWidth: 100, maxHeight: 100)
-            )
+                    .frame(maxWidth: 100, maxHeight: 100))
         case .running(let progress):
             guard let progress = progress, progress.stepCount > 0 else {
                 // The first time it takes a little bit before generation starts

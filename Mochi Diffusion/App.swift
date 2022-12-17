@@ -1,9 +1,8 @@
 //
-//  DiffusionApp.swift
-//  Diffusion
+//  App.swift
+//  Mochi Diffusion
 //
-//  Created by Pedro Cuenca on December 2022.
-//  See LICENSE at https://github.com/huggingface/swift-coreml-diffusers/LICENSE
+//  Created by Joshua Park on 12/16/22.
 //
 
 import SwiftUI
@@ -14,9 +13,12 @@ struct MochiDiffusionApp: App {
         WindowGroup {
             LoadingView()
         }
-//        .commands{
+        .commands{
+            HelpCommands()
 //            SaveCommands()
-//        }
+            SidebarCommands()
+            TextEditingCommands()
+        }
     }
 }
 
