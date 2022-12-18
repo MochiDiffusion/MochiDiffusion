@@ -1,0 +1,15 @@
+<?xml version="1.0" standalone="yes"?>
+<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
+  <channel>
+    <title>Mochi Diffusion</title>
+    <language>en</language>
+
+    <item>
+      <title>v0.2</title>
+      <sparkle:version>0.2</sparkle:version>
+      <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
+      <pubDate>Sat, 17 Dec 2022 02:29:49 +0000</pubDate>
+      <link>https://github.com/godly-devotion/mochi-diffusion/releases/tag/v0.2</link>
+    </item>
+  </channel>
+</rss>
