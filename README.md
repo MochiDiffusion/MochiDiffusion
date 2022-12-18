@@ -1,14 +1,12 @@
 #  Mochi Diffusion
 
-![Screenshot](.github/images/screenshot.png)
-
 Run Stable Diffusion on Apple Silicon Macs natively
+
+![Screenshot](.github/images/screenshot.png)
 
 ## Description
 
 This app uses [Apple's Core ML Stable Diffusion implementation](https://github.com/apple/ml-stable-diffusion) to achieve maximum performance and speed on Apple Silicon based Macs while reducing memory requirements.
-
-For faster inference, we use a very fast scheduler: [DPM-Solver++](https://github.com/LuChengTHU/dpm-solver) that we ported to Swift. Since this scheduler is still not available in Apple's GitHub repository, the application depends on the following fork instead: https://github.com/pcuenca/ml-stable-diffusion. Our Swift port is based on [Diffusers' DPMSolverMultistepScheduler](https://github.com/huggingface/diffusers/blob/main/src/diffusers/schedulers/scheduling_dpmsolver_multistep.py), with a number of simplifications.
 
 ## Releases
 
@@ -36,11 +34,6 @@ You will need to convert or download Core ML models in order to use Mochi Diffus
 - Performance (after initial generation, which is slower)
   * ~10s in macOS on MacBook Pro M1 Max (64 GB).
   * ~20s in macOS on MacBook Pro M1 Pro (32 GB).
-  * ~3.5 GB memory usage
-
-## Limitations
-
-- A single model (Stable Diffusion v1.5) is considered. The Core ML compute units have been hardcoded to CPU and GPU, since that's what gives best results on my Mac (M1 Max MacBook Pro).
 
 ## Credits
 
