@@ -37,43 +37,13 @@ struct MainAppView: View {
     @State private var progressSubs: Cancellable?
     
     var body: some View {
-        NavigationView {
+        NavigationSplitView {
             VStack(alignment: .leading) {
                 Group {
-                    TextField("Prompt", text: $prompt, axis: .vertical)
-                        .lineLimit(6, reservesSpace: true)
-                        .onSubmit {
-                            submit()
-                        }
-                        .padding(.bottom, 4)
+                    PromptView(prompt: $prompt, negativePrompt: $negativePrompt, submit: self.submit)
                     
-                    Spacer().frame(height: 8)
+                    Divider().frame(height: 16)
                 }
-                
-                Group {
-                    TextField("Negative Prompt", text: $negativePrompt, axis: .vertical)
-                        .lineLimit(6, reservesSpace: true)
-                        .onSubmit {
-                            submit()
-                        }
-                        .padding(.bottom, 4)
-                    
-                    Spacer().frame(height: 8)
-                }
-                
-                Group {
-                    HStack {
-                        Spacer()
-                        Button("Generate") {
-                            submit()
-                        }
-                        .buttonStyle(.borderedProminent)
-                    }
-                    
-                    Spacer().frame(height: 8)
-                }
-                
-                Divider().padding(.bottom, 4)
                 
                 Group {
                     HStack {
@@ -153,7 +123,7 @@ struct MainAppView: View {
                 }
             }
             .padding()
-            
+        } detail: {
             VStack(alignment: .center) {
                 if case .loading = state {
 //                    ErrorBanner(errorMessage: "Loading...")
@@ -186,7 +156,7 @@ struct MainAppView: View {
                             }
                         }
                     }
-                    .frame(height: 116)
+                    .frame(height: 112)
                 }
             }
         }
