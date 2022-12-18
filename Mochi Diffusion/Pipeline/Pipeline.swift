@@ -33,12 +33,12 @@ class Pipeline {
         negativePrompt: String = "",
         imageCount: Int = 1,
         numInferenceSteps stepCount: Int = 50,
-        seed: UInt32? = nil,
+        seed: UInt32,
         guidanceScale: Float = 7.5
     ) throws -> [CGImage] {
         let beginDate = Date()
         print("Generating...")
-        let theSeed = seed ?? UInt32.random(in: 0..<UInt32.max)
+        let theSeed = seed == 0 ? UInt32.random(in: 0..<UInt32.max) : seed
         let images = try pipeline.generateImages(
             prompt: prompt,
             negativePrompt: negativePrompt,

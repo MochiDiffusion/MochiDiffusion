@@ -27,7 +27,7 @@ struct MainAppView: View {
     @State private var width = 512
     @State private var height = 512
     @State private var imageCount = 1
-    @State private var seed: UInt32? = nil
+    @State private var seed = 0
     @State private var image: CGImage? = nil
     @State private var images = [CGImage]()
     @State private var state: MainViewState = .loading
@@ -36,57 +36,60 @@ struct MainAppView: View {
     @State private var progressSubscriber: Cancellable?
     @State private var progressSubs: Cancellable?
     
-    var isBusy: Bool {
-        if case .loading = state {
-            return true
-        }
-        if case .running = state {
-            return true
-        }
-        return false
-    }
-    
     var body: some View {
         NavigationView {
             VStack(alignment: .leading) {
-                TextField("Prompt", text: $prompt, axis: .vertical)
-                    .lineLimit(6, reservesSpace: true)
-                    .onSubmit {
-                        submit()
-                    }
-                    .padding(.bottom, 8)
-                
-                TextField("Negative Prompt", text: $negativePrompt, axis: .vertical)
-                    .lineLimit(6, reservesSpace: true)
-                    .onSubmit {
-                        submit()
-                    }
-                    .padding(.bottom, 8)
-                
-                HStack {
-                    Spacer()
-                    Button("Generate") {
-                        submit()
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .padding(.bottom, 8)
+                Group {
+                    TextField("Prompt", text: $prompt, axis: .vertical)
+                        .lineLimit(6, reservesSpace: true)
+                        .onSubmit {
+                            submit()
+                        }
+                        .padding(.bottom, 4)
+                    
+                    Spacer().frame(height: 8)
                 }
                 
-                Divider().padding(.bottom, 8)
+                Group {
+                    TextField("Negative Prompt", text: $negativePrompt, axis: .vertical)
+                        .lineLimit(6, reservesSpace: true)
+                        .onSubmit {
+                            submit()
+                        }
+                        .padding(.bottom, 4)
+                    
+                    Spacer().frame(height: 8)
+                }
                 
-                HStack {
-                    Picker("Model: ", selection: $context.currentModel) {
-                        ForEach(context.models, id: \.self) { s in
-                            Text(s).tag(s)
+                Group {
+                    HStack {
+                        Spacer()
+                        Button("Generate") {
+                            submit()
+                        }
+                        .buttonStyle(.borderedProminent)
+                    }
+                    
+                    Spacer().frame(height: 8)
+                }
+                
+                Divider().padding(.bottom, 4)
+                
+                Group {
+                    HStack {
+                        Picker("Model: ", selection: $context.currentModel) {
+                            ForEach(context.models, id: \.self) { s in
+                                Text(s).tag(s)
+                            }
+                        }
+                        Button(action: {
+                            NSWorkspace.shared.activateFileViewerSelecting([$context.modelDir.wrappedValue.absoluteURL])
+                        }) {
+                            Image(systemName: "folder")
                         }
                     }
-                    Button(action: {
-                        NSWorkspace.shared.activateFileViewerSelecting([$context.modelDir.wrappedValue.absoluteURL])
-                    }) {
-                        Image(systemName: "folder")
-                    }
+                    Spacer().frame(height: 16)
                 }
-                .padding(.bottom, 8)
                 
                 Group {
                     Text("Steps: \(steps)")
@@ -102,8 +105,8 @@ struct MainAppView: View {
                                 options: .interactiveTrack
                             )
                         )
-                    .frame(height: 18)
-                    .padding(.bottom, 8)
+                        .frame(height: 12)
+                    Spacer().frame(height: 16)
                 }
                 
                 Group {
@@ -120,10 +123,8 @@ struct MainAppView: View {
                                 options: .interactiveTrack
                             )
                         )
-                        .frame(height: 18)
-                        .padding(.bottom, 8)
-                    .frame(height: 18)
-                    .padding(.bottom, 8)
+                        .frame(height: 12)
+                    Spacer().frame(height: 16)
                 }
                 
                 Group {
@@ -140,23 +141,16 @@ struct MainAppView: View {
                                 options: .interactiveTrack
                             )
                         )
-                        .frame(height: 18)
-                        .padding(.bottom, 8)
-                    .frame(height: 18)
-                    .padding(.bottom, 8)
+                        .frame(height: 12)
+                    Spacer().frame(height: 16)
                 }
                 
                 Group {
-                    Text("Seed: ")
-                    TextField("random", value: $seed, format: .number)
+                    Text("Seed (0 for random):")
+                    TextField("random", value: $seed, formatter: Formatter.seedFormatter)
                         .textFieldStyle(.roundedBorder)
-                        .onSubmit {
-                            submit()
-                        }
-                        .padding(.bottom, 8)
+                    Spacer()
                 }
-                
-                Spacer()
             }
             .padding()
             
@@ -183,17 +177,16 @@ struct MainAppView: View {
                     Divider()
                     
                     ScrollView {
-                        HStack {
+                        HStack(spacing: 12) {
                             ForEach(Array(images.enumerated()), id: \.offset) { i, img in
                                 Image(img, scale: 5, label: Text(""))
                                     .onTapGesture {
                                         selectImage(index: i)
                                     }
-                                    .padding(8)
                             }
                         }
                     }
-                    .frame(height: 130)
+                    .frame(height: 116)
                 }
             }
         }
@@ -248,7 +241,7 @@ struct MainAppView: View {
                     negativePrompt: negativePrompt,
                     imageCount: Int(imageCount),
                     numInferenceSteps: Int(steps),
-                    seed: seed,
+                    seed: UInt32(seed),
                     guidanceScale: Float(guidanceScale))
                 progressSubs?.cancel()
                 DispatchQueue.main.async {
