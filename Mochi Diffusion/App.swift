@@ -48,7 +48,7 @@ struct MochiDiffusionApp: App {
     
     var body: some Scene {
         WindowGroup {
-            LoadingView()
+            MainAppView()
         }
         .commands{
             HelpCommands()
@@ -61,5 +61,3 @@ struct MochiDiffusionApp: App {
         }
     }
 }
-
-extension String: Error {}

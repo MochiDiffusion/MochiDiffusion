@@ -24,7 +24,6 @@ class Pipeline {
     }
     lazy private(set) var progressPublisher: CurrentValueSubject<StableDiffusionProgress?, Never> = CurrentValueSubject(progress)
     
-    
     init(_ pipeline: StableDiffusionPipeline) {
         self.pipeline = pipeline
     }
@@ -32,32 +31,34 @@ class Pipeline {
     func generate(
         prompt: String,
         negativePrompt: String = "",
+        imageCount: Int = 1,
         numInferenceSteps stepCount: Int = 50,
         seed: UInt32? = nil,
-        guidanceScale: Float = 7.5,
-        scheduler: StableDiffusionScheduler
-    ) throws -> CGImage {
+        guidanceScale: Float = 7.5
+    ) throws -> [CGImage] {
         let beginDate = Date()
         print("Generating...")
         let theSeed = seed ?? UInt32.random(in: 0..<UInt32.max)
         let images = try pipeline.generateImages(
             prompt: prompt,
             negativePrompt: negativePrompt,
-            imageCount: 1,
+            imageCount: imageCount,
             stepCount: stepCount,
             seed: theSeed,
             guidanceScale: guidanceScale,
             disableSafety: true,
-            scheduler: scheduler
+            scheduler: StableDiffusionScheduler.dpmSolverMultistepScheduler
         ) { progress in
             handleProgress(progress)
             return true
         }
         print("Got images: \(images) in \(Date().timeIntervalSince(beginDate))")
         
-        // unwrap the 1 image we asked for
-        guard let image = images.compactMap({ $0 }).first else { throw "Generation failed" }
-        return image
+        let imgs = images.compactMap({$0})
+        if imgs.count != imageCount {
+            throw "Generation failed: got \(imgs.count) instead of \(imageCount)"
+        }
+        return imgs
     }
     
     func handleProgress(_ progress: StableDiffusionPipeline.Progress) {
