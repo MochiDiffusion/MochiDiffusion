@@ -20,9 +20,6 @@
 		036BFC22294B9F7500D8AD04 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 036BFC21294B9F7500D8AD04 /* App.swift */; };
 		036BFC26294B9F7600D8AD04 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 036BFC25294B9F7600D8AD04 /* Assets.xcassets */; };
 		036BFC29294B9F7600D8AD04 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 036BFC28294B9F7600D8AD04 /* Preview Assets.xcassets */; };
-		036BFC34294B9F7600D8AD04 /* Mochi_DiffusionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 036BFC33294B9F7600D8AD04 /* Mochi_DiffusionTests.swift */; };
-		036BFC3E294B9F7600D8AD04 /* Mochi_DiffusionUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 036BFC3D294B9F7600D8AD04 /* Mochi_DiffusionUITests.swift */; };
-		036BFC40294B9F7600D8AD04 /* Mochi_DiffusionUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 036BFC3F294B9F7600D8AD04 /* Mochi_DiffusionUITestsLaunchTests.swift */; };
 		036BFC4E294B9FDB00D8AD04 /* Path in Frameworks */ = {isa = PBXBuildFile; productRef = 036BFC4D294B9FDB00D8AD04 /* Path */; };
 		036BFC51294B9FF500D8AD04 /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = 036BFC50294B9FF500D8AD04 /* ZIPFoundation */; };
 		036BFC57294BA13100D8AD04 /* Pipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 036BFC56294BA13100D8AD04 /* Pipeline.swift */; };
@@ -63,10 +60,7 @@
 		036BFC28294B9F7600D8AD04 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		036BFC2A294B9F7600D8AD04 /* App.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = App.entitlements; sourceTree = "<group>"; };
 		036BFC2F294B9F7600D8AD04 /* Mochi Diffusion Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Mochi Diffusion Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		036BFC33294B9F7600D8AD04 /* Mochi_DiffusionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Mochi_DiffusionTests.swift; sourceTree = "<group>"; };
 		036BFC39294B9F7600D8AD04 /* Mochi Diffusion UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Mochi Diffusion UITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		036BFC3D294B9F7600D8AD04 /* Mochi_DiffusionUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Mochi_DiffusionUITests.swift; sourceTree = "<group>"; };
-		036BFC3F294B9F7600D8AD04 /* Mochi_DiffusionUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Mochi_DiffusionUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		036BFC56294BA13100D8AD04 /* Pipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pipeline.swift; sourceTree = "<group>"; };
 		036BFC5A294BA19400D8AD04 /* Downloader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Downloader.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -124,8 +118,6 @@
 			isa = PBXGroup;
 			children = (
 				036BFC20294B9F7500D8AD04 /* Mochi Diffusion */,
-				036BFC32294B9F7600D8AD04 /* Mochi Diffusion Tests */,
-				036BFC3C294B9F7600D8AD04 /* Mochi Diffusion UITests */,
 				036BFC1F294B9F7500D8AD04 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -163,23 +155,6 @@
 				036BFC28294B9F7600D8AD04 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
-			sourceTree = "<group>";
-		};
-		036BFC32294B9F7600D8AD04 /* Mochi Diffusion Tests */ = {
-			isa = PBXGroup;
-			children = (
-				036BFC33294B9F7600D8AD04 /* Mochi_DiffusionTests.swift */,
-			);
-			path = "Mochi Diffusion Tests";
-			sourceTree = "<group>";
-		};
-		036BFC3C294B9F7600D8AD04 /* Mochi Diffusion UITests */ = {
-			isa = PBXGroup;
-			children = (
-				036BFC3D294B9F7600D8AD04 /* Mochi_DiffusionUITests.swift */,
-				036BFC3F294B9F7600D8AD04 /* Mochi_DiffusionUITestsLaunchTests.swift */,
-			);
-			path = "Mochi Diffusion UITests";
 			sourceTree = "<group>";
 		};
 		036BFC55294BA0F500D8AD04 /* Pipeline */ = {
@@ -362,7 +337,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				036BFC34294B9F7600D8AD04 /* Mochi_DiffusionTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -370,8 +344,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				036BFC3E294B9F7600D8AD04 /* Mochi_DiffusionUITests.swift in Sources */,
-				036BFC40294B9F7600D8AD04 /* Mochi_DiffusionUITestsLaunchTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
