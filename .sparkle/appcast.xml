@@ -5,10 +5,18 @@
     <language>en</language>
 
     <item>
+      <title>v0.4</title>
+      <sparkle:version>0.4</sparkle:version>
+      <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
+      <pubDate>Sun, 18 Dec 2022 06:38:58 +0000</pubDate>
+      <link>https://github.com/godly-devotion/mochi-diffusion/releases/tag/v0.4</link>
+    </item>
+
+    <item>
       <title>v0.3</title>
       <sparkle:version>0.3</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
-      <pubDate>Sat, 18 Dec 2022 00:55:43 +0000</pubDate>
+      <pubDate>Sun, 18 Dec 2022 00:55:43 +0000</pubDate>
       <link>https://github.com/godly-devotion/mochi-diffusion/releases/tag/v0.3</link>
     </item>
 
