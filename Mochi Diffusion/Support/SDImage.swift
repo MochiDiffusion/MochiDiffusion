@@ -35,6 +35,7 @@ struct SDImage {
         panel.title = "Save Image"
         panel.message = "Choose a folder and a name to store the image."
         panel.nameFieldLabel = "Image file name:"
+        panel.nameFieldStringValue = "\(seed) - \(String(prompt.prefix(50))).png"
         let resp = panel.runModal()
         if resp != .OK {
             return
@@ -43,7 +44,7 @@ struct SDImage {
         let ext = url.pathExtension.lowercased()
         guard let data = CFDataCreateMutable(nil, 0) else { return }
         guard let destination = CGImageDestinationCreateWithData(data, (ext == "jpg" ? UTType.jpeg.identifier : UTType.png.identifier) as CFString, 1, nil) else { return }
-        let iptc = [kCGImagePropertyIPTCOriginatingProgram: metadata(), kCGImagePropertyIPTCCaptionAbstract: title(), kCGImagePropertyIPTCProgramVersion: "\(seed)"]
+        let iptc = [kCGImagePropertyIPTCOriginatingProgram: "Mochi Diffusion", kCGImagePropertyIPTCCaptionAbstract: metadata(), kCGImagePropertyIPTCProgramVersion: "\(seed)"]
         let meta = [kCGImagePropertyIPTCDictionary: iptc]
         CGImageDestinationAddImage(destination, img, meta as CFDictionary)
         guard CGImageDestinationFinalize(destination) else { return }
@@ -56,10 +57,10 @@ struct SDImage {
     }
 
     private func metadata() -> String {
-        return title() + " Seed: \(seed), Model: \(model), Scheduler: \(scheduler), Seed: \(seed), Steps: \(steps), Guidance: \(guidanceScale), Index: \(imageIndex)"
+        return title() + ", Seed: \(seed), Model: \(model), Scheduler: \(scheduler), Steps: \(steps), Guidance: \(guidanceScale), Index: \(imageIndex)"
     }
 
     private func title() -> String {
-        return "Prompt: \(prompt) + Negative: \(negativePrompt)"
+        return "Prompt: \(prompt), Negative: \(negativePrompt)"
     }
 }

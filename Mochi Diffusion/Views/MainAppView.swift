@@ -197,7 +197,7 @@ struct MainAppView: View {
                     .padding())
         }
         // The first time it takes a little bit before generation starts
-        return AnyView(ProgressView(label: { Text("Loading...") }).progressViewStyle(.linear).padding())
+        return AnyView(ProgressView(label: { Text("Loading Model...") }).progressViewStyle(.linear).padding())
     }
 
     private func submit() {
