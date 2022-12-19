@@ -5,17 +5,20 @@
 //  Created by Fahim Farook on 12/18/2022.
 //
 
+import AppKit
 import Foundation
 import CoreGraphics
 import UniformTypeIdentifiers
-import AppKit
+import StableDiffusion
 
 struct SDImage {
     var image: CGImage?
     var prompt = ""
     var negativePrompt = ""
+    var width = 0
+    var height = 0
     var model = ""
-    var scheduler = ""
+    var scheduler: StableDiffusionScheduler = StableDiffusionScheduler.dpmSolverMultistepScheduler
     var seed: UInt32 = 0
     var steps = 28
     var guidanceScale = 11.0

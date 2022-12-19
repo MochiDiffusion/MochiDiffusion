@@ -9,33 +9,19 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct PreviewView: View {
-    @State private var isInfoPopoverShown = false
     var image: Binding<SDImage?>
     
     var body: some View {
         if let sdi = image.wrappedValue, let img = sdi.image {
             let imageView = Image(img, scale: 1, label: Text("generated"))
+            let caption = sdi.prompt.count > 120 ? "\(String(sdi.prompt.prefix(120)))..." : sdi.prompt
             return AnyView(
                 VStack {
                     imageView.resizable()
-                    HStack {
-                        Button(action: { self.isInfoPopoverShown.toggle() }) {
-                            Image(systemName: "info.circle")
-                            Text("Show Info")
-                        }
-                        .popover(isPresented: self.$isInfoPopoverShown, arrowEdge: .bottom) {
-                            InspectorView(image: image)
-                                .padding()
-                        }
-                        
-                        Spacer()
-                        
-                        ShareLink(item: imageView, preview: SharePreview(sdi.prompt, image: imageView))
-                        Button("Save Image", action: {
-                            sdi.save()
-                        })
-                    }
-                })
+                    
+                    Text(caption).textSelection(.enabled)
+                }
+            )
         }
         return AnyView(Image(systemName: "paintbrush.pointed")
             .resizable()

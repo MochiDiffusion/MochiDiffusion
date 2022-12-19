@@ -48,12 +48,15 @@ struct MainAppView: View {
                 }
 
                 Group {
+                    Text("Model:")
                     HStack {
-                        Picker("Model: ", selection: $context.currentModel) {
+                        Picker("", selection: $context.currentModel) {
                             ForEach(context.models, id: \.self) { s in
                                 Text(s).tag(s)
                             }
                         }
+                        .labelsHidden()
+                        
                         Button(action: {
                             NSWorkspace.shared.activateFileViewerSelecting([$context.modelDir.wrappedValue.absoluteURL])
                         }) {
@@ -64,11 +67,14 @@ struct MainAppView: View {
                 }
                 
                 Group {
-                    Picker("Scheduler", selection: $scheduler) {
+                    Text("Scheduler:")
+                    Picker("", selection: $scheduler) {
                         ForEach(StableDiffusionScheduler.allCases, id: \.self) { s in
                             Text(s.rawValue).tag(s)
                         }
                     }
+                    .labelsHidden()
+                    
                     Spacer().frame(height: 16)
                 }
 
@@ -170,6 +176,9 @@ struct MainAppView: View {
                     .frame(height: 112)
                 }
             }
+            .toolbar {
+                MainToolbar(image: $image, copyToPrompt: self.copyToPrompt)
+            }
         }
         .onAppear {
             // AppState state subscriber
@@ -184,6 +193,18 @@ struct MainAppView: View {
                 state = .running(progress)
             }
         }
+    }
+    
+    private func copyToPrompt() {
+        guard let image = image else { return }
+        prompt = image.prompt
+        negativePrompt = image.negativePrompt
+        steps = image.steps
+        guidanceScale = image.guidanceScale
+        width = image.width
+        height = image.height
+        seed = Int(image.seed)
+        scheduler = image.scheduler
     }
 
     private func getProgressView(progress: StableDiffusionProgress?) -> AnyView {
@@ -216,6 +237,15 @@ struct MainAppView: View {
         }
         DispatchQueue.global(qos: .default).async {
             do {
+                // Save settings used to generate
+                var s = SDImage()
+                s.prompt = prompt
+                s.negativePrompt = negativePrompt
+                s.model = context.currentModel
+                s.scheduler = scheduler
+                s.steps = steps
+                s.guidanceScale = guidanceScale
+                
                 // Generate
                 let (imgs, seed) = try pipeline.generate(
                     prompt: prompt,
@@ -226,17 +256,11 @@ struct MainAppView: View {
                     guidanceScale: Float(guidanceScale),
                     scheduler: scheduler)
                 progressSubs?.cancel()
+                
                 var simgs = [SDImage]()
                 for (ndx, img) in imgs.enumerated() {
-                    var s = SDImage()
                     s.image = img
-                    s.prompt = prompt
-                    s.negativePrompt = negativePrompt
-                    s.model = context.currentModel
-                    s.scheduler = scheduler.rawValue
                     s.seed = seed
-                    s.steps = steps
-                    s.guidanceScale = guidanceScale
                     s.imageIndex = ndx
                     simgs.append(s)
                 }

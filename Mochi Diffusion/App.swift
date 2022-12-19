@@ -51,13 +51,14 @@ struct MochiDiffusionApp: App {
             MainAppView()
         }
         .commands{
-            HelpCommands()
-//            SaveCommands()
-            SidebarCommands()
-            TextEditingCommands()
             CommandGroup(after: .appInfo) {
                 CheckForUpdatesView(updater: updaterController.updater)
             }
+            CommandGroup(replacing: CommandGroupPlacement.newItem) { /* hide new window */ }
+//            FileCommands()
+            TextEditingCommands()
+            SidebarCommands()
+            HelpCommands()
         }
     }
 }
