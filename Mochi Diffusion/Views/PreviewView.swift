@@ -9,10 +9,10 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct PreviewView: View {
-    var image: Binding<SDImage?>
+    @EnvironmentObject var store: Store
     
     var body: some View {
-        if let sdi = image.wrappedValue, let img = sdi.image {
+        if let sdi = $store.selectedImage.wrappedValue, let img = sdi.image {
             let imageView = Image(img, scale: 1, label: Text("generated"))
             let caption = sdi.prompt.count > 120 ? "\(String(sdi.prompt.prefix(120)))..." : sdi.prompt
             return AnyView(
@@ -32,8 +32,7 @@ struct PreviewView: View {
 
 struct PreviewView_Previews: PreviewProvider {
     static var previews: some View {
-        var sd = SDImage()
-        sd.prompt = "Test Prompt"
-        return PreviewView(image: .constant(sd))
+        PreviewView()
     }
 }
+

@@ -40,6 +40,7 @@ struct CheckForUpdatesView: View {
 
 @main
 struct MochiDiffusionApp: App {
+    @StateObject private var store = Store()
     private let updaterController: SPUStandardUpdaterController
     
     init() {
@@ -49,13 +50,14 @@ struct MochiDiffusionApp: App {
     var body: some Scene {
         WindowGroup {
             MainAppView()
+                .environmentObject(store)
         }
         .commands{
             CommandGroup(after: .appInfo) {
                 CheckForUpdatesView(updater: updaterController.updater)
             }
             CommandGroup(replacing: CommandGroupPlacement.newItem) { /* hide new window */ }
-//            FileCommands()
+            FileCommands(store: store)
             TextEditingCommands()
             SidebarCommands()
             HelpCommands()

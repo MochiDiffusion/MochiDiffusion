@@ -19,19 +19,16 @@ enum MainViewState {
 }
 
 struct MainAppView: View {
-    @StateObject var context = AppState.shared
-
+    @EnvironmentObject var store: Store
     @AppStorage("prompt") private var prompt = ""
     @AppStorage("negativePrompt") private var negativePrompt = ""
     @AppStorage("steps") private var steps = 28
     @AppStorage("scale") private var guidanceScale = 11.0
+    @AppStorage("scheduler") private var scheduler = StableDiffusionScheduler.dpmSolverMultistepScheduler
     @State private var width = 512
     @State private var height = 512
     @State private var imageCount = 1
     @State private var seed = 0
-    @AppStorage("scheduler") private var scheduler = StableDiffusionScheduler.dpmSolverMultistepScheduler
-    @State private var image: SDImage? = nil
-    @State private var images = [SDImage]()
     @State private var state: MainViewState = .loading
 
     @State private var stateSubscriber: Cancellable?
@@ -50,15 +47,15 @@ struct MainAppView: View {
                 Group {
                     Text("Model:")
                     HStack {
-                        Picker("", selection: $context.currentModel) {
-                            ForEach(context.models, id: \.self) { s in
+                        Picker("", selection: $store.currentModel) {
+                            ForEach(store.models, id: \.self) { s in
                                 Text(s).tag(s)
                             }
                         }
                         .labelsHidden()
                         
                         Button(action: {
-                            NSWorkspace.shared.activateFileViewerSelecting([$context.modelDir.wrappedValue.absoluteURL])
+                            NSWorkspace.shared.activateFileViewerSelecting([$store.modelDir.wrappedValue.absoluteURL])
                         }) {
                             Image(systemName: "folder")
                         }
@@ -154,21 +151,21 @@ struct MainAppView: View {
                     // TODO figure out how this works in Swift...
                 }
                 else {
-                    PreviewView(image: $image)
+                    PreviewView()
                         .scaledToFit()
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .padding()
                 }
 
-                if images.count > 0 {
+                if store.images.count > 0 {
                     Divider()
 
                     ScrollView {
                         HStack(spacing: 12) {
-                            ForEach(Array(images.enumerated()), id: \.offset) { i, img in
+                            ForEach(Array(store.images.enumerated()), id: \.offset) { i, img in
                                 Image(img.image!, scale: 5, label: Text(String(img.seed)))
                                     .onTapGesture {
-                                        selectImage(index: i)
+                                        store.selectImage(index: i)
                                     }
                             }
                         }
@@ -177,18 +174,18 @@ struct MainAppView: View {
                 }
             }
             .toolbar {
-                MainToolbar(image: $image, copyToPrompt: self.copyToPrompt)
+                MainToolbar(copyToPrompt: self.copyToPrompt)
             }
         }
         .onAppear {
-            // AppState state subscriber
-            stateSubscriber = context.statePublisher.sink { state in
+            // Store state subscriber
+            stateSubscriber = store.statePublisher.sink { state in
                 DispatchQueue.main.async {
                     self.state = state
                 }
             }
             // Pipeline progress subscriber
-            progressSubscriber = context.pipeline?.progressPublisher.sink { progress in
+            progressSubscriber = store.pipeline?.progressPublisher.sink { progress in
                 guard let progress = progress else { return }
                 state = .running(progress)
             }
@@ -196,7 +193,7 @@ struct MainAppView: View {
     }
     
     private func copyToPrompt() {
-        guard let image = image else { return }
+        guard let image = store.selectedImage else { return }
         prompt = image.prompt
         negativePrompt = image.negativePrompt
         steps = image.steps
@@ -223,7 +220,7 @@ struct MainAppView: View {
 
     private func submit() {
         if case .running = state { return }
-        guard let pipeline = context.pipeline else {
+        guard let pipeline = store.pipeline else {
             state = .error("No pipeline available!")
             return
         }
@@ -241,7 +238,9 @@ struct MainAppView: View {
                 var s = SDImage()
                 s.prompt = prompt
                 s.negativePrompt = negativePrompt
-                s.model = context.currentModel
+                s.width = width
+                s.height = height
+                s.model = store.currentModel
                 s.scheduler = scheduler
                 s.steps = steps
                 s.guidanceScale = guidanceScale
@@ -265,8 +264,8 @@ struct MainAppView: View {
                     simgs.append(s)
                 }
                 DispatchQueue.main.async {
-                    image = simgs.first
-                    images.append(contentsOf: simgs)
+                    store.selectedImage = simgs.first
+                    store.images.append(contentsOf: simgs)
                     state = .ready("Image generation complete")
                 }
             } catch {
@@ -277,10 +276,6 @@ struct MainAppView: View {
                 }
             }
         }
-    }
-
-    private func selectImage(index: Int) {
-        image = images[index]
     }
 }
 

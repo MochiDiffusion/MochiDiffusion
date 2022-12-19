@@ -14,7 +14,7 @@
 		0352E2AC294EA1B4003FBF25 /* PreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0352E2AB294EA1B4003FBF25 /* PreviewView.swift */; };
 		0352E2AE294EA2B4003FBF25 /* ErrorBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0352E2AD294EA2B4003FBF25 /* ErrorBanner.swift */; };
 		0352E2B1294EA30D003FBF25 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0352E2B0294EA30D003FBF25 /* Extensions.swift */; };
-		0352E2B3294EA326003FBF25 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0352E2B2294EA326003FBF25 /* AppState.swift */; };
+		0352E2B3294EA326003FBF25 /* Store.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0352E2B2294EA326003FBF25 /* Store.swift */; };
 		0352E2B5294EA887003FBF25 /* Functions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0352E2B4294EA887003FBF25 /* Functions.swift */; };
 		0352E2B8294ED502003FBF25 /* Sliders in Frameworks */ = {isa = PBXBuildFile; productRef = 0352E2B7294ED502003FBF25 /* Sliders */; };
 		036BFC22294B9F7500D8AD04 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 036BFC21294B9F7500D8AD04 /* App.swift */; };
@@ -56,7 +56,7 @@
 		0352E2AB294EA1B4003FBF25 /* PreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewView.swift; sourceTree = "<group>"; };
 		0352E2AD294EA2B4003FBF25 /* ErrorBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorBanner.swift; sourceTree = "<group>"; };
 		0352E2B0294EA30D003FBF25 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
-		0352E2B2294EA326003FBF25 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		0352E2B2294EA326003FBF25 /* Store.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Store.swift; sourceTree = "<group>"; };
 		0352E2B4294EA887003FBF25 /* Functions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Functions.swift; sourceTree = "<group>"; };
 		036BFC1E294B9F7500D8AD04 /* Mochi Diffusion.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Mochi Diffusion.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		036BFC21294B9F7500D8AD04 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
@@ -115,11 +115,9 @@
 		0352E2AF294EA2F3003FBF25 /* Support */ = {
 			isa = PBXGroup;
 			children = (
-				0352E2B2294EA326003FBF25 /* AppState.swift */,
 				0352E2B0294EA30D003FBF25 /* Extensions.swift */,
 				0352E2B4294EA887003FBF25 /* Functions.swift */,
 				036BFC56294BA13100D8AD04 /* Pipeline.swift */,
-				03E89F3B294FE6ED0067457E /* SDImage.swift */,
 			);
 			path = Support;
 			sourceTree = "<group>";
@@ -147,10 +145,11 @@
 			children = (
 				036BFC2A294B9F7600D8AD04 /* App.entitlements */,
 				036BFC21294B9F7500D8AD04 /* App.swift */,
-				036BFC5A294BA19400D8AD04 /* Downloader.swift */,
 				036BFC25294B9F7600D8AD04 /* Assets.xcassets */,
+				036BFC5A294BA19400D8AD04 /* Downloader.swift */,
 				0352E2A8294E414D003FBF25 /* Info.plist */,
 				0307B0D8294D4A1D00A9BD55 /* Main Menu */,
+				0386DF8E29510D8700CA4CEB /* Model */,
 				036BFC27294B9F7600D8AD04 /* Preview Content */,
 				0352E2AF294EA2F3003FBF25 /* Support */,
 				036BFC5C294BA20A00D8AD04 /* Views */,
@@ -177,6 +176,15 @@
 				03D280F1294FD60E00C7D184 /* PromptView.swift */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		0386DF8E29510D8700CA4CEB /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				03E89F3B294FE6ED0067457E /* SDImage.swift */,
+				0352E2B2294EA326003FBF25 /* Store.swift */,
+			);
+			path = Model;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -334,7 +342,7 @@
 				0352E2AA294EA0E1003FBF25 /* MainAppView.swift in Sources */,
 				0352E2B5294EA887003FBF25 /* Functions.swift in Sources */,
 				0352E2B1294EA30D003FBF25 /* Extensions.swift in Sources */,
-				0352E2B3294EA326003FBF25 /* AppState.swift in Sources */,
+				0352E2B3294EA326003FBF25 /* Store.swift in Sources */,
 				036BFC57294BA13100D8AD04 /* Pipeline.swift in Sources */,
 				036BFC22294B9F7500D8AD04 /* App.swift in Sources */,
 				0307B0DA294D4AE500A9BD55 /* FileCommands.swift in Sources */,

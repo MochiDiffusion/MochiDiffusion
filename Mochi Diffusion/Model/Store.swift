@@ -8,15 +8,14 @@
 import Foundation
 import CoreML
 import Combine
-
 import StableDiffusion
 
-class AppState: ObservableObject {
-    static let shared = AppState()
-    
+final class Store: ObservableObject {
     @Published var pipeline: Pipeline? = nil
     @Published var modelDir = URL(string: "temp")!
     @Published var models = [String]()
+    @Published var images = [SDImage]()
+    @Published var selectedImage: SDImage? = nil
     
     private(set) lazy var statePublisher: CurrentValueSubject<MainViewState, Never> = CurrentValueSubject(state)
     
@@ -36,7 +35,7 @@ class AppState: ObservableObject {
         }
     }
     
-    private init() {
+    init() {
         NSLog("*** AppState initialized")
         // Does the model path exist?
         guard var dir = docDir else {
@@ -100,5 +99,9 @@ class AppState: ObservableObject {
                 self.state = .error(error.localizedDescription)
             }
         }
+    }
+    
+    func selectImage(index: Int) {
+        selectedImage = images[index]
     }
 }

@@ -8,19 +8,17 @@
 import SwiftUI
 
 struct FileCommands: Commands {
+    @ObservedObject var store: Store
+    
     var body: some Commands {
         CommandGroup(replacing: .saveItem) {
             Section {
                 Button("Save Image...") {
-                    
+                    guard let sdi = store.selectedImage else { return }
+                    sdi.save()
                 }
                 .keyboardShortcut("S", modifiers: .command)
-            }
-            Section {
-                Button("Get Info") {
-                    
-                }
-                .keyboardShortcut("I", modifiers: .command)
+                .disabled(store.selectedImage == nil)
             }
         }
     }
