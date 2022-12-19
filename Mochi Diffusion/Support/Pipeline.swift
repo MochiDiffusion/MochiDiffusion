@@ -33,9 +33,10 @@ class Pipeline {
         negativePrompt: String = "",
         imageCount: Int = 1,
         numInferenceSteps stepCount: Int = 50,
-        seed: UInt32,
-        guidanceScale: Float = 7.5
-    ) throws -> [CGImage] {
+        seed: UInt32 = 0,
+        guidanceScale: Float = 7.5,
+        scheduler: StableDiffusionScheduler
+    ) throws -> ([CGImage], UInt32) {
         let beginDate = Date()
         print("Generating...")
         let theSeed = seed == 0 ? UInt32.random(in: 0..<UInt32.max) : seed
@@ -47,7 +48,7 @@ class Pipeline {
             seed: theSeed,
             guidanceScale: guidanceScale,
             disableSafety: true,
-            scheduler: StableDiffusionScheduler.dpmSolverMultistepScheduler
+            scheduler: scheduler
         ) { progress in
             handleProgress(progress)
             return true
@@ -58,7 +59,7 @@ class Pipeline {
         if imgs.count != imageCount {
             throw "Generation failed: got \(imgs.count) instead of \(imageCount)"
         }
-        return imgs
+        return (imgs, theSeed)
     }
     
     func handleProgress(_ progress: StableDiffusionPipeline.Progress) {

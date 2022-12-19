@@ -8,6 +8,7 @@
 import SwiftUI
 import Sliders
 import Combine
+import StableDiffusion
 
 enum MainViewState {
     case loading
@@ -19,7 +20,7 @@ enum MainViewState {
 
 struct MainAppView: View {
     @StateObject var context = AppState.shared
-    
+
     @State private var prompt = ""
     @State private var negativePrompt = ""
     @AppStorage("steps") private var steps = 28
@@ -28,23 +29,24 @@ struct MainAppView: View {
     @State private var height = 512
     @State private var imageCount = 1
     @State private var seed = 0
-    @State private var image: CGImage? = nil
-    @State private var images = [CGImage]()
+    @State private var scheduler = StableDiffusionScheduler.dpmSolverMultistepScheduler
+    @State private var image: SDImage? = nil
+    @State private var images = [SDImage]()
     @State private var state: MainViewState = .loading
-    
+
     @State private var stateSubscriber: Cancellable?
     @State private var progressSubscriber: Cancellable?
     @State private var progressSubs: Cancellable?
-    
+
     var body: some View {
         NavigationSplitView {
             VStack(alignment: .leading) {
                 Group {
                     PromptView(prompt: $prompt, negativePrompt: $negativePrompt, submit: self.submit)
-                    
+
                     Divider().frame(height: 16)
                 }
-                
+
                 Group {
                     HStack {
                         Picker("Model: ", selection: $context.currentModel) {
@@ -60,7 +62,7 @@ struct MainAppView: View {
                     }
                     Spacer().frame(height: 16)
                 }
-                
+
                 Group {
                     Text("Steps: \(steps)")
                     ValueSlider(value: $steps, in: 1 ... 200, step: 1)
@@ -78,7 +80,7 @@ struct MainAppView: View {
                         .frame(height: 12)
                     Spacer().frame(height: 16)
                 }
-                
+
                 Group {
                     Text("Guidance Scale: \(guidanceScale, specifier: "%.1f")")
                     ValueSlider(value: $guidanceScale, in: 1 ... 20, step: 0.5)
@@ -96,7 +98,7 @@ struct MainAppView: View {
                         .frame(height: 12)
                     Spacer().frame(height: 16)
                 }
-                
+
                 Group {
                     Text("Number of Images: \(imageCount)")
                     ValueSlider(value: $imageCount, in: 1 ... 8, step: 1)
@@ -114,7 +116,7 @@ struct MainAppView: View {
                         .frame(height: 12)
                     Spacer().frame(height: 16)
                 }
-                
+
                 Group {
                     Text("Seed (0 for random):")
                     TextField("random", value: $seed, formatter: Formatter.seedFormatter)
@@ -132,24 +134,24 @@ struct MainAppView: View {
                 } else if case let .running(progress) = state {
                     getProgressView(progress: progress)
                 }
-                
+
                 if case .running = state {
                     // TODO figure out how this works in Swift...
                 }
                 else {
-                    PreviewView(image: $image, prompt: $prompt)
+                    PreviewView(image: $image)
                         .scaledToFit()
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .padding()
                 }
-                
+
                 if images.count > 0 {
                     Divider()
-                    
+
                     ScrollView {
                         HStack(spacing: 12) {
                             ForEach(Array(images.enumerated()), id: \.offset) { i, img in
-                                Image(img, scale: 5, label: Text(""))
+                                Image(img.image!, scale: 5, label: Text(String(img.seed)))
                                     .onTapGesture {
                                         selectImage(index: i)
                                     }
@@ -174,7 +176,7 @@ struct MainAppView: View {
             }
         }
     }
-    
+
     private func getProgressView(progress: StableDiffusionProgress?) -> AnyView {
         if let progress = progress, progress.stepCount > 0 {
             let step = Int(progress.step) + 1
@@ -188,7 +190,7 @@ struct MainAppView: View {
         // The first time it takes a little bit before generation starts
         return AnyView(ProgressView(label: { Text("Loading...") }).progressViewStyle(.linear).padding())
     }
-    
+
     private func submit() {
         if case .running = state { return }
         guard let pipeline = context.pipeline else {
@@ -206,17 +208,32 @@ struct MainAppView: View {
         DispatchQueue.global(qos: .default).async {
             do {
                 // Generate
-                let imgs = try pipeline.generate(
+                let (imgs, seed) = try pipeline.generate(
                     prompt: prompt,
                     negativePrompt: negativePrompt,
                     imageCount: Int(imageCount),
                     numInferenceSteps: Int(steps),
                     seed: UInt32(seed),
-                    guidanceScale: Float(guidanceScale))
+                    guidanceScale: Float(guidanceScale),
+                    scheduler: scheduler)
                 progressSubs?.cancel()
+                var simgs = [SDImage]()
+                for (ndx, img) in imgs.enumerated() {
+                    var s = SDImage()
+                    s.image = img
+                    s.prompt = prompt
+                    s.negativePrompt = negativePrompt
+                    s.model = context.currentModel
+                    s.scheduler = scheduler.rawValue
+                    s.seed = seed
+                    s.steps = steps
+                    s.guidanceScale = guidanceScale
+                    s.imageIndex = ndx
+                    simgs.append(s)
+                }
                 DispatchQueue.main.async {
-                    image = imgs.first
-                    images.append(contentsOf: imgs)
+                    image = simgs.first
+                    images.append(contentsOf: simgs)
                     state = .ready("Image generation complete")
                 }
             } catch {
@@ -228,7 +245,7 @@ struct MainAppView: View {
             }
         }
     }
-    
+
     private func selectImage(index: Int) {
         image = images[index]
     }
