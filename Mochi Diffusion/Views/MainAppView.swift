@@ -21,8 +21,8 @@ enum MainViewState {
 struct MainAppView: View {
     @StateObject var context = AppState.shared
 
-    @State private var prompt = ""
-    @State private var negativePrompt = ""
+    @AppStorage("prompt") private var prompt = ""
+    @AppStorage("negativePrompt") private var negativePrompt = ""
     @AppStorage("steps") private var steps = 28
     @AppStorage("scale") private var guidanceScale = 11.0
     @State private var width = 512
