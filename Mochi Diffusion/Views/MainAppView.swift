@@ -29,7 +29,7 @@ struct MainAppView: View {
     @State private var height = 512
     @State private var imageCount = 1
     @State private var seed = 0
-    @State private var scheduler = StableDiffusionScheduler.dpmSolverMultistepScheduler
+    @AppStorage("scheduler") private var scheduler = StableDiffusionScheduler.dpmSolverMultistepScheduler
     @State private var image: SDImage? = nil
     @State private var images = [SDImage]()
     @State private var state: MainViewState = .loading
@@ -58,6 +58,15 @@ struct MainAppView: View {
                             NSWorkspace.shared.activateFileViewerSelecting([$context.modelDir.wrappedValue.absoluteURL])
                         }) {
                             Image(systemName: "folder")
+                        }
+                    }
+                    Spacer().frame(height: 16)
+                }
+                
+                Group {
+                    Picker("Scheduler", selection: $scheduler) {
+                        ForEach(StableDiffusionScheduler.allCases, id: \.self) { s in
+                            Text(s.rawValue).tag(s)
                         }
                     }
                     Spacer().frame(height: 16)
