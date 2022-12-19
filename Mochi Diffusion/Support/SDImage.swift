@@ -40,16 +40,20 @@ struct SDImage {
         if resp != .OK {
             return
         }
+        
         guard let url = panel.url else { return }
         let ext = url.pathExtension.lowercased()
         guard let data = CFDataCreateMutable(nil, 0) else { return }
-        guard let destination = CGImageDestinationCreateWithData(data, (ext == "jpg" ? UTType.jpeg.identifier : UTType.png.identifier) as CFString, 1, nil) else { return }
-        let iptc = [kCGImagePropertyIPTCOriginatingProgram: "Mochi Diffusion", kCGImagePropertyIPTCCaptionAbstract: metadata(), kCGImagePropertyIPTCProgramVersion: "\(seed)"]
+        guard let destination = CGImageDestinationCreateWithData(data, (ext == "png" ? UTType.png.identifier : UTType.jpeg.identifier) as CFString, 1, nil) else { return }
+        let iptc = [
+            kCGImagePropertyIPTCOriginatingProgram: "Mochi Diffusion",
+            kCGImagePropertyIPTCCaptionAbstract: metadata(),
+            kCGImagePropertyIPTCProgramVersion: "\(seed)"]
         let meta = [kCGImagePropertyIPTCDictionary: iptc]
         CGImageDestinationAddImage(destination, img, meta as CFDictionary)
         guard CGImageDestinationFinalize(destination) else { return }
         do {
-            // Try save image that now has metadata
+            // Try save image with metadata
             try (data as Data).write(to: url)
         } catch {
             NSLog("*** Error saving image file: \(error)")

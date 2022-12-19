@@ -9,6 +9,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct PreviewView: View {
+    @State private var isInfoPopoverShown = false
     var image: Binding<SDImage?>
     
     var body: some View {
@@ -18,13 +19,13 @@ struct PreviewView: View {
                 VStack {
                     imageView.resizable()
                     HStack {
-                        Text(verbatim: "Seed: \(sdi.seed)")
-                        Button(action: {
-                            let pb = NSPasteboard.general
-                            pb.declareTypes([.string], owner: nil)
-                            pb.setString(String(sdi.seed), forType: .string)
-                        }) {
-                            Image(systemName: "doc.on.doc")
+                        Button(action: { self.isInfoPopoverShown.toggle() }) {
+                            Image(systemName: "info.circle")
+                            Text("Show Info")
+                        }
+                        .popover(isPresented: self.$isInfoPopoverShown, arrowEdge: .bottom) {
+                            InspectorView(image: image)
+                                .padding()
                         }
                         
                         Spacer()
