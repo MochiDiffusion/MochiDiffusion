@@ -8,6 +8,13 @@ Run Stable Diffusion on Apple Silicon Macs natively
 
 This app uses [Apple's Core ML Stable Diffusion implementation](https://github.com/apple/ml-stable-diffusion) to achieve maximum performance and speed on Apple Silicon based Macs while reducing memory requirements.
 
+## Features
+
+- Extremely memory effecient compared to PyTorch (~4GB)
+- Use custom Stable Diffusion Core ML models
+- Generated images are saved with prompt info inside EXIF metadata
+- macOS native app using SwiftUI
+
 ## Releases
 
 Download the latest version from the [releases](https://github.com/godly-devotion/mochi-diffusion/releases) page.
