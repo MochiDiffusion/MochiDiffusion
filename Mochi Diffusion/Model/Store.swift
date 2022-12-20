@@ -17,8 +17,6 @@ final class Store: ObservableObject {
     @Published var images = [SDImage]()
     @Published var selectedImage: SDImage? = nil
     @Published var mainViewStatus: MainViewStatus = .loading
-    @Published var width = 512
-    @Published var height = 512
     @Published var imageCount = 1
     @Published var seed = 0
     @AppStorage("WorkingDir") var workingDir = ""
@@ -26,6 +24,8 @@ final class Store: ObservableObject {
     @AppStorage("NegativePrompt") var negativePrompt = ""
     @AppStorage("Steps") var steps = 28
     @AppStorage("Scale") var guidanceScale = 11.0
+    @AppStorage("ImageWidth") var width = 512
+    @AppStorage("ImageHeight") var height = 512
     @AppStorage("Scheduler") var scheduler = StableDiffusionScheduler.dpmSolverMultistepScheduler
     @AppStorage("MLComputeUnit") var mlComputeUnit: MLComputeUnits = .cpuAndGPU
     @AppStorage("Model") private var model = ""

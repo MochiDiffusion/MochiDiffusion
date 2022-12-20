@@ -14,7 +14,6 @@ struct PreviewView: View {
     var body: some View {
         if let sdi = $store.selectedImage.wrappedValue, let img = sdi.image {
             let imageView = Image(img, scale: 1, label: Text("generated"))
-            let caption = sdi.prompt.count > 120 ? "\(String(sdi.prompt.prefix(120)))..." : sdi.prompt
             return AnyView(imageView.resizable())
         }
         return AnyView(Image(systemName: "paintbrush.pointed")

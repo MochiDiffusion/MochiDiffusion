@@ -108,6 +108,28 @@ struct MainAppView: View {
                         .frame(height: 12)
                     Spacer().frame(height: 16)
                 }
+                
+//                Group {
+//                    HStack {
+//                        VStack(alignment: .leading) {
+//                            Text("Width:")
+//                            Picker("", selection: $store.width) {
+//                                Text("512").tag(512)
+//                                Text("768").tag(768)
+//                            }
+//                            .labelsHidden()
+//                        }
+//                        VStack(alignment: .leading) {
+//                            Text("Height:")
+//                            Picker("", selection: $store.height) {
+//                                Text("512").tag(512)
+//                                Text("768").tag(768)
+//                            }
+//                            .labelsHidden()
+//                        }
+//                    }
+//                    Spacer().frame(height: 16)
+//                }
 
                 Group {
                     Text("Seed (0 for random):")
