@@ -62,5 +62,9 @@ struct MochiDiffusionApp: App {
             SidebarCommands()
             HelpCommands()
         }
+        Settings {
+            SettingsView()
+                .environmentObject(store)
+        }
     }
 }

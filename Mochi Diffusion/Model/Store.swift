@@ -1,8 +1,8 @@
 //
-//  AppState.swift
-//  Diffusion
+//  Store.swift
+//  Mochi Diffusion
 //
-//  Created by Fahim Farook on 12/17/2022.
+//  Created by Joshua Park on 12/17/2022.
 //
 
 import Foundation
@@ -13,7 +13,6 @@ import StableDiffusion
 
 final class Store: ObservableObject {
     @Published var pipeline: Pipeline? = nil
-    @Published var modelDir = URL(string: "temp")!
     @Published var models = [String]()
     @Published var images = [SDImage]()
     @Published var selectedImage: SDImage? = nil
@@ -22,12 +21,14 @@ final class Store: ObservableObject {
     @Published var height = 512
     @Published var imageCount = 1
     @Published var seed = 0
-    @AppStorage("prompt") var prompt = ""
-    @AppStorage("negativePrompt") var negativePrompt = ""
-    @AppStorage("steps") var steps = 28
-    @AppStorage("scale") var guidanceScale = 11.0
-    @AppStorage("scheduler") var scheduler = StableDiffusionScheduler.dpmSolverMultistepScheduler
-    @AppStorage("model") private var model = ""
+    @AppStorage("WorkingDir") var workingDir = ""
+    @AppStorage("Prompt") var prompt = ""
+    @AppStorage("NegativePrompt") var negativePrompt = ""
+    @AppStorage("Steps") var steps = 28
+    @AppStorage("Scale") var guidanceScale = 11.0
+    @AppStorage("Scheduler") var scheduler = StableDiffusionScheduler.dpmSolverMultistepScheduler
+    @AppStorage("MLComputeUnit") var mlComputeUnit: MLComputeUnits = .cpuAndGPU
+    @AppStorage("Model") private var model = ""
 
     var currentModel: String {
         set {
@@ -35,7 +36,7 @@ final class Store: ObservableObject {
             model = newValue
             Task {
                 NSLog("*** Loading model")
-                await load(model: newValue)
+                await loadModel(model: newValue)
             }
         }
         get {
@@ -45,19 +46,33 @@ final class Store: ObservableObject {
 
     init() {
         NSLog("*** AppState initialized")
-        // Does the model path exist?
-        guard var dir = docDir else {
-            model = ""
-            mainViewStatus = .error("Could not get user document directory")
-            return
+        loadModels()
+    }
+
+    func loadModels() {
+        var dir: URL
+        let appDir = "MochiDiffusion/models/"
+        if workingDir.isEmpty {
+            guard let docDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
+                self.model = ""
+                mainViewStatus = .error("Could not get working directory")
+                return
+            }
+            dir = docDir
+            dir.append(path: appDir, directoryHint: .isDirectory)
         }
-        dir.append(path: "MochiDiffusion/models", directoryHint: .isDirectory)
+        else {
+            dir = URL(fileURLWithPath: workingDir, isDirectory: true)
+            if !dir.path(percentEncoded: false).hasSuffix(appDir) {
+                dir.append(path: appDir, directoryHint: .isDirectory)
+            }
+        }
         let fm = FileManager.default
         if !fm.fileExists(atPath: dir.path) {
             NSLog("Models directory does not exist at: \(dir.path). Creating ...")
             try? fm.createDirectory(at: dir, withIntermediateDirectories: true)
         }
-        modelDir = dir
+        workingDir = dir.path(percentEncoded: false)
         // Find models in model dir
         do {
             let subs = try dir.subDirectories()
@@ -65,23 +80,23 @@ final class Store: ObservableObject {
                 models.append(sub.lastPathComponent)
             }
         } catch {
-            model = ""
+            self.model = ""
             mainViewStatus = .error("Could not get sub-folders under model directory: \(dir.path)")
             return
         }
         NSLog("*** Setting model")
-        if let firstModel = models.first {
-            self.currentModel = model.isEmpty ? firstModel : model
-        } else {
-            model = ""
+        guard let firstModel = models.first else {
+            self.model = ""
             mainViewStatus = .error("No models found under model directory: \(dir.path)")
             return
         }
+        self.currentModel = model.isEmpty ? firstModel : model
     }
 
-    func load(model: String) async {
+    @MainActor
+    func loadModel(model: String) async {
         NSLog("*** Loading model: \(model)")
-        let dir = modelDir.appending(component: model, directoryHint: .isDirectory)
+        let dir = URL(fileURLWithPath: workingDir, isDirectory: true).appending(component: model, directoryHint: .isDirectory)
         let fm = FileManager.default
         if !fm.fileExists(atPath: dir.path) {
             let msg = "Model \(model) does not exist at: \(dir.path)"
@@ -93,8 +108,7 @@ final class Store: ObservableObject {
         }
         let beginDate = Date()
         let configuration = MLModelConfiguration()
-        // .all works for v1.4, but not for v1.5
-        configuration.computeUnits = .cpuAndGPU
+        configuration.computeUnits = mlComputeUnit
         do {
             let pipeline = try StableDiffusionPipeline(resourcesAt: dir, configuration: configuration, disableSafety: true)
             NSLog("Pipeline loaded in \(Date().timeIntervalSince(beginDate))")

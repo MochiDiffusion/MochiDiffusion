@@ -35,9 +35,9 @@ struct MainAppView: View {
                         .labelsHidden()
                         
                         Button(action: {
-                            NSWorkspace.shared.activateFileViewerSelecting([$store.modelDir.wrappedValue.absoluteURL])
+                            store.loadModels()
                         }) {
-                            Image(systemName: "folder")
+                            Image(systemName: "arrow.clockwise")
                         }
                     }
                     Spacer().frame(height: 16)
