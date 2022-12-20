@@ -155,15 +155,15 @@ struct MainAppView: View {
                 else {
                     PreviewView()
                         .scaledToFit()
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .padding()
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
 
                 if store.images.count > 0 {
                     Divider()
 
-                    ScrollView {
-                        HStack(spacing: 12) {
+                    ScrollView(.horizontal) {
+                        HStack(alignment: .center, spacing: 12) {
                             ForEach(Array(store.images.enumerated()), id: \.offset) { i, img in
                                 Image(img.image!, scale: 5, label: Text(String(img.seed)))
                                     .onTapGesture {
@@ -171,8 +171,9 @@ struct MainAppView: View {
                                     }
                             }
                         }
+                        .padding([.leading, .trailing], 12)
                     }
-                    .frame(height: 112)
+                    .frame(height: 125)
                 }
             }
             .toolbar {

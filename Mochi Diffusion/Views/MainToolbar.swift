@@ -31,7 +31,7 @@ struct MainToolbar: View {
             }
             .disabled(true)
             Button(action: {}) {
-                Label("Save", systemImage: "square.and.arrow.down")
+                Label("Save Image", systemImage: "square.and.arrow.down")
             }
             .disabled(true)
             Button(action: {}) {

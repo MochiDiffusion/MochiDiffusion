@@ -16,10 +16,12 @@ struct InspectorView: View {
             let info = getHumanReadableInfo(sdi: sdi)
 
             VStack {
-                VStack(alignment: .leading) {
-                    Text(info)
-                        .textSelection(.enabled)
-                        .frame(maxWidth: 300)
+                ScrollView {
+                    VStack(alignment: .leading) {
+                        Text(info)
+                            .textSelection(.enabled)
+                            .frame(maxWidth: 300)
+                    }
                 }
 
                 Spacer().frame(height: 12)
