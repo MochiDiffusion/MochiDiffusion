@@ -20,7 +20,7 @@ struct SettingsView: View {
                     Text("All").tag(MLComputeUnits.all)
                 }
                 .fixedSize()
-                Text("Note: The \"All\" option is known to have issues with some models")
+                Text("Note: Options other than \"CPU & GPU\" may not work correctly")
                     .foregroundColor(.secondary)
                 
                 Spacer().frame(height: 12)
