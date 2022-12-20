@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 import CoreML
 import Combine
 import StableDiffusion
@@ -16,30 +17,37 @@ final class Store: ObservableObject {
     @Published var models = [String]()
     @Published var images = [SDImage]()
     @Published var selectedImage: SDImage? = nil
-    
-    private(set) lazy var statePublisher: CurrentValueSubject<MainViewState, Never> = CurrentValueSubject(state)
-    
-    var state: MainViewState = .loading {
-        didSet {
-            statePublisher.value = state
-        }
-    }
-    
-    var currentModel: String = "" {
-        didSet {
+    @Published var mainViewStatus: MainViewStatus = .loading
+    @Published var width = 512
+    @Published var height = 512
+    @Published var imageCount = 1
+    @Published var seed = 0
+    @AppStorage("prompt") var prompt = ""
+    @AppStorage("negativePrompt") var negativePrompt = ""
+    @AppStorage("steps") var steps = 28
+    @AppStorage("scale") var guidanceScale = 11.0
+    @AppStorage("model") var model = ""
+    @AppStorage("scheduler") var scheduler = StableDiffusionScheduler.dpmSolverMultistepScheduler
+
+    var currentModel: String {
+        set {
             NSLog("*** Model set")
             Task {
                 NSLog("*** Loading model")
-                await load(model: currentModel)
+                model = newValue
+                await load(model: newValue)
             }
         }
+        get {
+            return model
+        }
     }
-    
+
     init() {
         NSLog("*** AppState initialized")
         // Does the model path exist?
         guard var dir = docDir else {
-            state = .error("Could not get user document directory")
+            mainViewStatus = .error("Could not get user document directory")
             return
         }
         dir.append(path: "MochiDiffusion/models", directoryHint: .isDirectory)
@@ -56,22 +64,18 @@ final class Store: ObservableObject {
                 models.append(sub.lastPathComponent)
             }
         } catch {
-            state = .error("Could not get sub-folders under model directory: \(dir.path)")
-            return
-        }
-        // Use first model for now
-        guard let model = models.first else {
-            state = .error("No models found under model directory: \(dir.path). Quit and reopen the app after copying models here.")
+            mainViewStatus = .error("Could not get sub-folders under model directory: \(dir.path)")
             return
         }
         NSLog("*** Setting model")
-        self.currentModel = model
-        // On start, didSet does not appear to fire
-        Task {
-            await load(model: currentModel)
+        if let firstModel = models.first {
+            self.currentModel = model.isEmpty ? firstModel : model
+        } else {
+            mainViewStatus = .error("No models found under model directory: \(dir.path)")
+            return
         }
     }
-    
+
     func load(model: String) async {
         NSLog("*** Loading model: \(model)")
         let dir = modelDir.appending(component: model, directoryHint: .isDirectory)
@@ -79,7 +83,7 @@ final class Store: ObservableObject {
         if !fm.fileExists(atPath: dir.path) {
             let msg = "Model directory: \(model) does not exist at: \(dir.path). Cannot proceed."
             NSLog(msg)
-            state = .error(msg)
+            mainViewStatus = .error(msg)
             return
         }
         let beginDate = Date()
@@ -91,17 +95,29 @@ final class Store: ObservableObject {
             NSLog("Pipeline loaded in \(Date().timeIntervalSince(beginDate))")
             DispatchQueue.main.async {
                 self.pipeline = Pipeline(pipeline)
-                self.state = .ready("Ready")
+                self.mainViewStatus = .ready("Ready")
             }
         } catch {
             NSLog("Error loading model: \(error)")
             DispatchQueue.main.async {
-                self.state = .error(error.localizedDescription)
+                self.mainViewStatus = .error(error.localizedDescription)
             }
         }
     }
-    
+
     func selectImage(index: Int) {
         selectedImage = images[index]
+    }
+
+    func copyToPrompt() {
+        guard let image = selectedImage else { return }
+        prompt = image.prompt
+        negativePrompt = image.negativePrompt
+        steps = image.steps
+        guidanceScale = image.guidanceScale
+        width = image.width
+        height = image.height
+        seed = Int(image.seed)
+        scheduler = image.scheduler
     }
 }

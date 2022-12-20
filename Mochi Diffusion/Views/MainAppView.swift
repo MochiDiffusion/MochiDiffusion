@@ -10,28 +10,8 @@ import Sliders
 import Combine
 import StableDiffusion
 
-enum MainViewState {
-    case loading
-    case idle
-    case ready(String)
-    case error(String)
-    case running(StableDiffusionProgress?)
-}
-
 struct MainAppView: View {
     @EnvironmentObject var store: Store
-    @AppStorage("prompt") private var prompt = ""
-    @AppStorage("negativePrompt") private var negativePrompt = ""
-    @AppStorage("steps") private var steps = 28
-    @AppStorage("scale") private var guidanceScale = 11.0
-    @AppStorage("scheduler") private var scheduler = StableDiffusionScheduler.dpmSolverMultistepScheduler
-    @State private var width = 512
-    @State private var height = 512
-    @State private var imageCount = 1
-    @State private var seed = 0
-    @State private var state: MainViewState = .loading
-
-    @State private var stateSubscriber: Cancellable?
     @State private var progressSubscriber: Cancellable?
     @State private var progressSubs: Cancellable?
 
@@ -39,7 +19,7 @@ struct MainAppView: View {
         NavigationSplitView {
             VStack(alignment: .leading) {
                 Group {
-                    PromptView(prompt: $prompt, negativePrompt: $negativePrompt, submit: self.submit)
+                    PromptView(prompt: $store.prompt, negativePrompt: $store.negativePrompt, submit: self.submit)
 
                     Divider().frame(height: 16)
                 }
@@ -65,7 +45,7 @@ struct MainAppView: View {
                 
                 Group {
                     Text("Scheduler:")
-                    Picker("", selection: $scheduler) {
+                    Picker("", selection: $store.scheduler) {
                         ForEach(StableDiffusionScheduler.allCases, id: \.self) { s in
                             Text(s.rawValue).tag(s)
                         }
@@ -76,8 +56,8 @@ struct MainAppView: View {
                 }
 
                 Group {
-                    Text("Steps: \(steps)")
-                    ValueSlider(value: $steps, in: 1 ... 200, step: 1)
+                    Text("Steps: \(store.steps)")
+                    ValueSlider(value: $store.steps, in: 1 ... 200, step: 1)
                         .valueSliderStyle(
                             HorizontalValueSliderStyle(
                                 track:
@@ -94,8 +74,8 @@ struct MainAppView: View {
                 }
 
                 Group {
-                    Text("Guidance Scale: \(guidanceScale, specifier: "%.1f")")
-                    ValueSlider(value: $guidanceScale, in: 1 ... 20, step: 0.5)
+                    Text("Guidance Scale: \(store.guidanceScale, specifier: "%.1f")")
+                    ValueSlider(value: $store.guidanceScale, in: 1 ... 20, step: 0.5)
                         .valueSliderStyle(
                             HorizontalValueSliderStyle(
                                 track:
@@ -112,8 +92,8 @@ struct MainAppView: View {
                 }
 
                 Group {
-                    Text("Number of Images: \(imageCount)")
-                    ValueSlider(value: $imageCount, in: 1 ... 8, step: 1)
+                    Text("Number of Images: \(store.imageCount)")
+                    ValueSlider(value: $store.imageCount, in: 1 ... 8, step: 1)
                         .valueSliderStyle(
                             HorizontalValueSliderStyle(
                                 track:
@@ -131,7 +111,7 @@ struct MainAppView: View {
 
                 Group {
                     Text("Seed (0 for random):")
-                    TextField("random", value: $seed, formatter: Formatter.seedFormatter)
+                    TextField("random", value: $store.seed, formatter: Formatter.seedFormatter)
                         .textFieldStyle(.roundedBorder)
                     Spacer()
                 }
@@ -139,15 +119,15 @@ struct MainAppView: View {
             .padding()
         } detail: {
             VStack(alignment: .center) {
-                if case .loading = state {
+                if case .loading = store.mainViewStatus {
 //                    ErrorBanner(errorMessage: "Loading...")
-                } else if case let .error(msg) = state {
+                } else if case let .error(msg) = store.mainViewStatus {
                     ErrorBanner(errorMessage: msg)
-                } else if case let .running(progress) = state {
+                } else if case let .running(progress) = store.mainViewStatus {
                     getProgressView(progress: progress)
                 }
 
-                if case .running = state {
+                if case .running = store.mainViewStatus {
                     // TODO figure out how this works in Swift...
                 }
                 else {
@@ -174,34 +154,16 @@ struct MainAppView: View {
                 }
             }
             .toolbar {
-                MainToolbar(copyToPrompt: self.copyToPrompt)
+                MainToolbar()
             }
         }
         .onAppear {
-            // Store state subscriber
-            stateSubscriber = store.statePublisher.sink { state in
-                DispatchQueue.main.async {
-                    self.state = state
-                }
-            }
             // Pipeline progress subscriber
             progressSubscriber = store.pipeline?.progressPublisher.sink { progress in
                 guard let progress = progress else { return }
-                state = .running(progress)
+                store.mainViewStatus = .running(progress)
             }
         }
-    }
-    
-    private func copyToPrompt() {
-        guard let image = store.selectedImage else { return }
-        prompt = image.prompt
-        negativePrompt = image.negativePrompt
-        steps = image.steps
-        guidanceScale = image.guidanceScale
-        width = image.width
-        height = image.height
-        seed = Int(image.seed)
-        scheduler = image.scheduler
     }
 
     private func getProgressView(progress: StableDiffusionProgress?) -> AnyView {
@@ -219,41 +181,41 @@ struct MainAppView: View {
     }
 
     private func submit() {
-        if case .running = state { return }
+        if case .running = store.mainViewStatus { return }
         guard let pipeline = store.pipeline else {
-            state = .error("No pipeline available!")
+            store.mainViewStatus = .error("No pipeline available!")
             return
         }
-        state = .running(nil)
+        store.mainViewStatus = .running(nil)
         // Pipeline progress subscriber
         progressSubs = pipeline.progressPublisher.sink { progress in
             guard let progress = progress else { return }
             DispatchQueue.main.async {
-                state = .running(progress)
+                store.mainViewStatus = .running(progress)
             }
         }
         DispatchQueue.global(qos: .default).async {
             do {
                 // Save settings used to generate
                 var s = SDImage()
-                s.prompt = prompt
-                s.negativePrompt = negativePrompt
-                s.width = width
-                s.height = height
+                s.prompt = store.prompt
+                s.negativePrompt = store.negativePrompt
+                s.width = store.width
+                s.height = store.height
                 s.model = store.currentModel
-                s.scheduler = scheduler
-                s.steps = steps
-                s.guidanceScale = guidanceScale
+                s.scheduler = store.scheduler
+                s.steps = store.steps
+                s.guidanceScale = store.guidanceScale
                 
                 // Generate
                 let (imgs, seed) = try pipeline.generate(
-                    prompt: prompt,
-                    negativePrompt: negativePrompt,
-                    imageCount: Int(imageCount),
-                    numInferenceSteps: Int(steps),
-                    seed: UInt32(seed),
-                    guidanceScale: Float(guidanceScale),
-                    scheduler: scheduler)
+                    prompt: store.prompt,
+                    negativePrompt: store.negativePrompt,
+                    imageCount: Int(store.imageCount),
+                    numInferenceSteps: Int(store.steps),
+                    seed: UInt32(store.seed),
+                    guidanceScale: Float(store.guidanceScale),
+                    scheduler: store.scheduler)
                 progressSubs?.cancel()
                 
                 var simgs = [SDImage]()
@@ -266,13 +228,13 @@ struct MainAppView: View {
                 DispatchQueue.main.async {
                     store.selectedImage = simgs.first
                     store.images.append(contentsOf: simgs)
-                    state = .ready("Image generation complete")
+                    store.mainViewStatus = .ready("Image generation complete")
                 }
             } catch {
                 let msg = "Error generating images: \(error)"
                 NSLog(msg)
                 DispatchQueue.main.async {
-                    state = .error(msg)
+                    store.mainViewStatus = .error(msg)
                 }
             }
         }

@@ -10,7 +10,6 @@ import SwiftUI
 struct MainToolbar: View {
     @EnvironmentObject var store: Store
     @State private var isInfoPopoverShown = false
-    var copyToPrompt: () -> ()
 
     var body: some View {
         if let sdi = $store.selectedImage.wrappedValue, let img = sdi.image {
@@ -19,8 +18,7 @@ struct MainToolbar: View {
                 Label("Get Info", systemImage: "info.circle")
             }
             .popover(isPresented: self.$isInfoPopoverShown, arrowEdge: .bottom) {
-                InspectorView(copyToPrompt: self.copyToPrompt)
-                    .padding()
+                InspectorView().padding()
             }
             Button(action: sdi.save) {
                 Label("Save", systemImage: "square.and.arrow.down")
@@ -46,6 +44,6 @@ struct MainToolbar: View {
 
 struct MainToolbar_Previews: PreviewProvider {
     static var previews: some View {
-        MainToolbar(copyToPrompt: {})
+        MainToolbar()
     }
 }

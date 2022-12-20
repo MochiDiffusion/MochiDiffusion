@@ -10,7 +10,6 @@ import StableDiffusion
 
 struct InspectorView: View {
     @EnvironmentObject var store: Store
-    var copyToPrompt: () -> ()
 
     var body: some View {
         if let sdi = $store.selectedImage.wrappedValue {
@@ -27,7 +26,7 @@ struct InspectorView: View {
 
                 HStack(alignment: .center) {
                     Button("Copy to Prompt") {
-                        copyToPrompt()
+                        store.copyToPrompt()
                     }
                     Button("Copy") {
                         let pb = NSPasteboard.general
@@ -45,6 +44,6 @@ struct InspectorView: View {
 
 struct InspectorView_Previews: PreviewProvider {
     static var previews: some View {
-        InspectorView(copyToPrompt: {})
+        InspectorView()
     }
 }
