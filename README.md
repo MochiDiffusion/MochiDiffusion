@@ -10,9 +10,11 @@ This app uses [Apple's Core ML Stable Diffusion implementation](https://github.c
 
 ## Features
 
+- Generates images locally and completely offline
 - Extremely memory effecient compared to PyTorch (~4GB)
-- Use custom Stable Diffusion Core ML models
 - Generated images are saved with prompt info inside EXIF metadata
+- Can use custom Stable Diffusion Core ML models
+- No worries about pickled models
 - macOS native app using SwiftUI
 
 ## Releases
@@ -41,6 +43,10 @@ Download preconverted Stable Diffusion v1.5 model [here](https://huggingface.co/
 - Performance (after initial generation, which is slower)
   * ~10s in macOS on MacBook Pro M1 Max (64 GB).
   * ~20s in macOS on MacBook Pro M1 Pro (32 GB).
+
+## Privacy
+
+All generation happens locally and absolutely nothing is sent to the cloud.
 
 ## Credits
 
