@@ -27,9 +27,9 @@ When trying to open the app for the first time, Gatekeeper will prevent you from
 
 You will need to convert or download Core ML models in order to use Mochi Diffusion.
 
-1. Convert or download Core ML models (do one of the following)
-   - Follow the steps [here](https://github.com/apple/ml-stable-diffusion#-converting-models-to-core-ml) to convert existing models to Core ML
-   - Download the preconverted Stable Diffusion Core ML model from [here](https://huggingface.co/pcuenq/coreml-stable-diffusion/tree/main)
+Download preconverted Stable Diffusion v1.5 model [here](https://huggingface.co/pcuenq/coreml-stable-diffusion/tree/main) or few others I've converted [here](https://huggingface.co/godly-devotion/apple-coreml-models/tree/main).
+
+1. [Convert](https://github.com/apple/ml-stable-diffusion#-converting-models-to-core-ml) or download Core ML models (do one of the following)
 2. Open Mochi Diffusion and in the sidebar click the button with the Folder icon next to the Models list to open the models folder
 3. Create a new folder with the name of the model you want displayed in Mochi Diffusion
 4. Move all Core ML model & related files to the newly created folder
