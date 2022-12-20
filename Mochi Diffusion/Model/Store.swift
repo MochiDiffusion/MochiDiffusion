@@ -26,15 +26,15 @@ final class Store: ObservableObject {
     @AppStorage("negativePrompt") var negativePrompt = ""
     @AppStorage("steps") var steps = 28
     @AppStorage("scale") var guidanceScale = 11.0
-    @AppStorage("model") var model = ""
     @AppStorage("scheduler") var scheduler = StableDiffusionScheduler.dpmSolverMultistepScheduler
+    @AppStorage("model") private var model = ""
 
     var currentModel: String {
         set {
             NSLog("*** Model set")
+            model = newValue
             Task {
                 NSLog("*** Loading model")
-                model = newValue
                 await load(model: newValue)
             }
         }
@@ -47,6 +47,7 @@ final class Store: ObservableObject {
         NSLog("*** AppState initialized")
         // Does the model path exist?
         guard var dir = docDir else {
+            model = ""
             mainViewStatus = .error("Could not get user document directory")
             return
         }
@@ -64,6 +65,7 @@ final class Store: ObservableObject {
                 models.append(sub.lastPathComponent)
             }
         } catch {
+            model = ""
             mainViewStatus = .error("Could not get sub-folders under model directory: \(dir.path)")
             return
         }
@@ -71,6 +73,7 @@ final class Store: ObservableObject {
         if let firstModel = models.first {
             self.currentModel = model.isEmpty ? firstModel : model
         } else {
+            model = ""
             mainViewStatus = .error("No models found under model directory: \(dir.path)")
             return
         }
@@ -81,8 +84,10 @@ final class Store: ObservableObject {
         let dir = modelDir.appending(component: model, directoryHint: .isDirectory)
         let fm = FileManager.default
         if !fm.fileExists(atPath: dir.path) {
-            let msg = "Model directory: \(model) does not exist at: \(dir.path). Cannot proceed."
+            let msg = "Model \(model) does not exist at: \(dir.path)"
             NSLog(msg)
+            self.model = ""
+            models.removeAll { $0 == model }
             mainViewStatus = .error(msg)
             return
         }
@@ -99,6 +104,7 @@ final class Store: ObservableObject {
             }
         } catch {
             NSLog("Error loading model: \(error)")
+            self.model = ""
             DispatchQueue.main.async {
                 self.mainViewStatus = .error(error.localizedDescription)
             }

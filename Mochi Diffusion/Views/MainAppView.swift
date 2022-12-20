@@ -19,7 +19,7 @@ struct MainAppView: View {
         NavigationSplitView {
             VStack(alignment: .leading) {
                 Group {
-                    PromptView(prompt: $store.prompt, negativePrompt: $store.negativePrompt, submit: self.submit)
+                    PromptView(submit: self.submit)
 
                     Divider().frame(height: 16)
                 }
@@ -177,7 +177,11 @@ struct MainAppView: View {
                     .padding())
         }
         // The first time it takes a little bit before generation starts
-        return AnyView(ProgressView(label: { Text("Loading Model...") }).progressViewStyle(.linear).padding())
+        return AnyView(
+            ProgressView(label: { Text("Loading Model...") })
+                .progressViewStyle(.linear)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .padding())
     }
 
     private func submit() {

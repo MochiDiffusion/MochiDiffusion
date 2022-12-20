@@ -8,14 +8,13 @@
 import SwiftUI
 
 struct PromptView: View {
-    var prompt: Binding<String>
-    var negativePrompt: Binding<String>
+    @EnvironmentObject var store: Store
     var submit: () -> ()
     
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             Text("Prompt:")
-            TextEditor(text: prompt)
+            TextEditor(text: $store.prompt)
                 .scrollContentBackground(.hidden)
                 .background(Color.black.opacity(0.2))
                 .font(.system(size: 14))
@@ -24,7 +23,7 @@ struct PromptView: View {
                 .cornerRadius(4)
             
             Text("Negative Prompt:")
-            TextEditor(text: negativePrompt)
+            TextEditor(text: $store.negativePrompt)
                 .scrollContentBackground(.hidden)
                 .background(Color.black.opacity(0.2))
                 .font(.system(size: 14))
@@ -37,6 +36,7 @@ struct PromptView: View {
                 Button("Generate") {
                     submit()
                 }
+                .disabled($store.currentModel.wrappedValue.isEmpty)
                 .buttonStyle(.borderedProminent)
                 .padding(.top, 6)
             }
