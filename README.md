@@ -11,7 +11,7 @@ This app uses [Apple's Core ML Stable Diffusion implementation](https://github.c
 ## Features
 
 - Generates images locally and completely offline
-- Extremely memory effecient compared to PyTorch (~4GB)
+- Extremely memory efficient compared to PyTorch (~4GB)
 - Generated images are saved with prompt info inside EXIF metadata
 - Can use custom Stable Diffusion Core ML models
 - No worries about pickled models
