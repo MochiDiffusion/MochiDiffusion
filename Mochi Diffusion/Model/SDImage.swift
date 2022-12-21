@@ -38,7 +38,7 @@ struct SDImage {
         panel.title = "Save Image"
         panel.message = "Choose a folder and a name to store the image."
         panel.nameFieldLabel = "Image file name:"
-        panel.nameFieldStringValue = "\(seed) - \(String(prompt.prefix(50))).png"
+        panel.nameFieldStringValue = "\(String(prompt.prefix(50))).\(seed).png"
         let resp = panel.runModal()
         if resp != .OK {
             return
