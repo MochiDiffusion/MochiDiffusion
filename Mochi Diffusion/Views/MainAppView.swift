@@ -15,7 +15,7 @@ struct MainAppView: View {
 
     var body: some View {
         NavigationSplitView {
-            VStack(alignment: .leading) {
+            VStack(alignment: .leading, spacing: 6) {
                 Group {
                     PromptView()
 
@@ -38,7 +38,7 @@ struct MainAppView: View {
                             Image(systemName: "arrow.clockwise")
                         }
                     }
-                    Spacer().frame(height: 16)
+                    Spacer().frame(height: 6)
                 }
                 
                 Group {
@@ -50,7 +50,7 @@ struct MainAppView: View {
                     }
                     .labelsHidden()
                     
-                    Spacer().frame(height: 16)
+                    Spacer().frame(height: 6)
                 }
 
                 Group {
@@ -68,7 +68,7 @@ struct MainAppView: View {
                             )
                         )
                         .frame(height: 12)
-                    Spacer().frame(height: 16)
+                    Spacer().frame(height: 6)
                 }
 
                 Group {
@@ -86,7 +86,7 @@ struct MainAppView: View {
                             )
                         )
                         .frame(height: 12)
-                    Spacer().frame(height: 16)
+                    Spacer().frame(height: 6)
                 }
 
                 Group {
@@ -104,7 +104,7 @@ struct MainAppView: View {
                             )
                         )
                         .frame(height: 12)
-                    Spacer().frame(height: 16)
+                    Spacer().frame(height: 6)
                 }
                 
 //                Group {
@@ -126,7 +126,7 @@ struct MainAppView: View {
 //                            .labelsHidden()
 //                        }
 //                    }
-//                    Spacer().frame(height: 16)
+//                    Spacer().frame(height: 6)
 //                }
 
                 Group {
