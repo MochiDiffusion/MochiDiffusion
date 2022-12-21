@@ -32,7 +32,7 @@ For the compute unit option, `CPU & Neural Engine` is recommended for M1 and lat
 
 You will need to convert or download Core ML models in order to use Mochi Diffusion.
 
-A few models have been converted and uploaded [here](https://huggingface.co/godly-devotion/apple-coreml-models/tree/main).
+A few models have been converted and uploaded [here](https://huggingface.co/godly-devotion/apple-coreml-models/tree/main). These models were built using `ORIGINAL` attention and are compatible with compute unit `CPU & GPU`. If you'd rather use the `CPU & NLE` option you should convert the models using `SPLIT_EINSUM` option.
 
 Download the `original` version if using `CPU & GPU` compute option. Otherwise download the `split_einsum` version.
 
