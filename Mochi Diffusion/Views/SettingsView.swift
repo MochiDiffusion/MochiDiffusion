@@ -20,7 +20,11 @@ struct SettingsView: View {
                     Text("All").tag(MLComputeUnits.all)
                 }
                 .fixedSize()
-                Text("Options other than CPU & GPU may not work correctly")
+                Text("CPU & Neural Engine option works best with M1 and later or for saving battery")
+                    .foregroundColor(.secondary)
+                Text("CPU & GPU option works best with M1 Pro, Max, Ultra and later")
+                    .foregroundColor(.secondary)
+                Text("Appropriate model will need to be provided based on the option selected")
                     .foregroundColor(.secondary)
                 
                 Spacer().frame(height: 12)
@@ -43,7 +47,7 @@ struct SettingsView: View {
             }
         }
         .padding()
-        .frame(width: 550, height: 150, alignment: .top)
+        .frame(width: 620, height: 180, alignment: .top)
     }
 }
 
