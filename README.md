@@ -29,7 +29,7 @@ When trying to open the app for the first time, Gatekeeper will prevent you from
 
 You will need to convert or download Core ML models in order to use Mochi Diffusion.
 
-A few models have been converted and uploaded [here](https://huggingface.co/godly-devotion/apple-coreml-models/tree/main).
+A few models have been converted and uploaded [here](https://huggingface.co/godly-devotion/apple-coreml-models/tree/main). These models were built using `ORIGINAL` attention and are compatible with compute unit `CPU & GPU`. If you'd rather use the `CPU & NLE` option you should convert the models using `SPLIT_EINSUM` option.
 
 1. [Convert](https://github.com/apple/ml-stable-diffusion#-converting-models-to-core-ml) or download Core ML models
 2. By default, the app's working directory will be created under the Documents folder. This location can be customized under Settings
