@@ -20,6 +20,13 @@ struct FileCommands: Commands {
                 .keyboardShortcut("S", modifiers: .command)
                 .disabled(store.selectedImage == nil)
             }
+            Section {
+                Button("Generate") {
+                    store.generate()
+                }
+                .keyboardShortcut("G", modifiers: .command)
+                .disabled(store.currentModel.isEmpty)
+            }
         }
     }
 }

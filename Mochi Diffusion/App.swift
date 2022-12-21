@@ -58,7 +58,6 @@ struct MochiDiffusionApp: App {
             }
             CommandGroup(replacing: CommandGroupPlacement.newItem) { /* hide new window */ }
             FileCommands(store: store)
-            TextEditingCommands()
             SidebarCommands()
             HelpCommands()
         }

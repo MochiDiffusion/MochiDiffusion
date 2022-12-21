@@ -12,14 +12,12 @@ import StableDiffusion
 
 struct MainAppView: View {
     @EnvironmentObject var store: Store
-    @State private var progressSubscriber: Cancellable?
-    @State private var progressSubs: Cancellable?
 
     var body: some View {
         NavigationSplitView {
             VStack(alignment: .leading) {
                 Group {
-                    PromptView(submit: self.submit)
+                    PromptView()
 
                     Divider().frame(height: 16)
                 }
@@ -180,13 +178,6 @@ struct MainAppView: View {
                 MainToolbar()
             }
         }
-        .onAppear {
-            // Pipeline progress subscriber
-            progressSubscriber = store.pipeline?.progressPublisher.sink { progress in
-                guard let progress = progress else { return }
-                store.mainViewStatus = .running(progress)
-            }
-        }
     }
 
     private func getProgressView(progress: StableDiffusionProgress?) -> AnyView {
@@ -205,66 +196,6 @@ struct MainAppView: View {
                 .progressViewStyle(.linear)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .padding())
-    }
-
-    private func submit() {
-        if case .running = store.mainViewStatus { return }
-        guard let pipeline = store.pipeline else {
-            store.mainViewStatus = .error("No pipeline available!")
-            return
-        }
-        store.mainViewStatus = .running(nil)
-        // Pipeline progress subscriber
-        progressSubs = pipeline.progressPublisher.sink { progress in
-            guard let progress = progress else { return }
-            DispatchQueue.main.async {
-                store.mainViewStatus = .running(progress)
-            }
-        }
-        DispatchQueue.global(qos: .default).async {
-            do {
-                // Save settings used to generate
-                var s = SDImage()
-                s.prompt = store.prompt
-                s.negativePrompt = store.negativePrompt
-                s.width = store.width
-                s.height = store.height
-                s.model = store.currentModel
-                s.scheduler = store.scheduler
-                s.steps = store.steps
-                s.guidanceScale = store.guidanceScale
-                
-                // Generate
-                let (imgs, seed) = try pipeline.generate(
-                    prompt: store.prompt,
-                    negativePrompt: store.negativePrompt,
-                    imageCount: Int(store.imageCount),
-                    numInferenceSteps: Int(store.steps),
-                    seed: UInt32(store.seed),
-                    guidanceScale: Float(store.guidanceScale),
-                    scheduler: store.scheduler)
-                progressSubs?.cancel()
-                
-                var simgs = [SDImage]()
-                for (ndx, img) in imgs.enumerated() {
-                    s.image = img
-                    s.seed = seed
-                    s.imageIndex = ndx
-                    simgs.append(s)
-                }
-                DispatchQueue.main.async {
-                    store.selectedImage = simgs.first
-                    store.images.append(contentsOf: simgs)
-                    store.mainViewStatus = .ready("Image generation complete")
-                }
-            } catch {
-                let msg = "Error generating images: \(error)"
-                NSLog(msg)
-                DispatchQueue.main.async {
-                    store.mainViewStatus = .error(msg)
-                }
-            }
-        }
     }
 }
 

@@ -9,7 +9,6 @@ import SwiftUI
 
 struct PromptView: View {
     @EnvironmentObject var store: Store
-    var submit: () -> ()
     
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -34,7 +33,7 @@ struct PromptView: View {
             HStack {
                 Spacer()
                 Button("Generate") {
-                    submit()
+                    store.generate()
                 }
                 .disabled($store.currentModel.wrappedValue.isEmpty)
                 .buttonStyle(.borderedProminent)

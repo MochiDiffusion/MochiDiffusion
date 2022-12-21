@@ -29,6 +29,7 @@ final class Store: ObservableObject {
     @AppStorage("Scheduler") var scheduler = StableDiffusionScheduler.dpmSolverMultistepScheduler
     @AppStorage("MLComputeUnit") var mlComputeUnit: MLComputeUnits = .cpuAndGPU
     @AppStorage("Model") private var model = ""
+    private var progressSubscriber: Cancellable?
 
     var currentModel: String {
         set {
@@ -124,6 +125,65 @@ final class Store: ObservableObject {
             }
         }
     }
+    
+    func generate() {
+        if case .running = mainViewStatus { return }
+        guard let pipeline = pipeline else {
+            mainViewStatus = .error("No pipeline available!")
+            return
+        }
+        mainViewStatus = .running(nil)
+        // Pipeline progress subscriber
+        progressSubscriber = pipeline.progressPublisher.sink { progress in
+            guard let progress = progress else { return }
+            DispatchQueue.main.async {
+                self.mainViewStatus = .running(progress)
+            }
+        }
+        DispatchQueue.global(qos: .default).async {
+            do {
+                // Save settings used to generate
+                var s = SDImage()
+                s.prompt = self.prompt
+                s.negativePrompt = self.negativePrompt
+                s.width = self.width
+                s.height = self.height
+                s.model = self.currentModel
+                s.scheduler = self.scheduler
+                s.steps = self.steps
+                s.guidanceScale = self.guidanceScale
+                
+                // Generate
+                let (imgs, seed) = try pipeline.generate(
+                    prompt: self.prompt,
+                    negativePrompt: self.negativePrompt,
+                    imageCount: Int(self.imageCount),
+                    numInferenceSteps: Int(self.steps),
+                    seed: UInt32(self.seed),
+                    guidanceScale: Float(self.guidanceScale),
+                    scheduler: self.scheduler)
+                self.progressSubscriber?.cancel()
+                
+                var simgs = [SDImage]()
+                for (ndx, img) in imgs.enumerated() {
+                    s.image = img
+                    s.seed = seed
+                    s.imageIndex = ndx
+                    simgs.append(s)
+                }
+                DispatchQueue.main.async {
+                    self.imagesReady(simgs: simgs)
+                    self.mainViewStatus = .ready("Image generation complete")
+                }
+            } catch {
+                let msg = "Error generating images: \(error)"
+                NSLog(msg)
+                DispatchQueue.main.async {
+                    self.mainViewStatus = .error(msg)
+                }
+            }
+        }
+    }
 
     func selectImage(index: Int) {
         selectedImage = images[index]
@@ -139,5 +199,11 @@ final class Store: ObservableObject {
         height = image.height
         seed = Int(image.seed)
         scheduler = image.scheduler
+    }
+    
+    @MainActor
+    private func imagesReady(simgs: [SDImage]) {
+        self.selectedImage = simgs.first
+        self.images.append(contentsOf: simgs)
     }
 }
