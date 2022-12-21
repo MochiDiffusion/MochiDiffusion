@@ -16,7 +16,6 @@
 		0352E2B1294EA30D003FBF25 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0352E2B0294EA30D003FBF25 /* Extensions.swift */; };
 		0352E2B3294EA326003FBF25 /* Store.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0352E2B2294EA326003FBF25 /* Store.swift */; };
 		0352E2B5294EA887003FBF25 /* Functions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0352E2B4294EA887003FBF25 /* Functions.swift */; };
-		0352E2B8294ED502003FBF25 /* Sliders in Frameworks */ = {isa = PBXBuildFile; productRef = 0352E2B7294ED502003FBF25 /* Sliders */; };
 		036BFC22294B9F7500D8AD04 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 036BFC21294B9F7500D8AD04 /* App.swift */; };
 		036BFC26294B9F7600D8AD04 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 036BFC25294B9F7600D8AD04 /* Assets.xcassets */; };
 		036BFC29294B9F7600D8AD04 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 036BFC28294B9F7600D8AD04 /* Preview Assets.xcassets */; };
@@ -27,6 +26,7 @@
 		0386DF8B2950D29400CA4CEB /* InspectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0386DF8A2950D29400CA4CEB /* InspectorView.swift */; };
 		0386DF8D2950F25500CA4CEB /* MainToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0386DF8C2950F25500CA4CEB /* MainToolbar.swift */; };
 		0397C070294BDC8C003762E0 /* StableDiffusion in Frameworks */ = {isa = PBXBuildFile; productRef = 0397C06F294BDC8C003762E0 /* StableDiffusion */; };
+		03A935652952949600CABA71 /* Sliders in Frameworks */ = {isa = PBXBuildFile; productRef = 03A935642952949600CABA71 /* Sliders */; };
 		03B1ACA8295167B900302F54 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03B1ACA7295167B900302F54 /* SettingsView.swift */; };
 		03D280F2294FD60E00C7D184 /* PromptView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03D280F1294FD60E00C7D184 /* PromptView.swift */; };
 		03E89F3C294FE6ED0067457E /* SDImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E89F3B294FE6ED0067457E /* SDImage.swift */; };
@@ -82,7 +82,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0352E2B8294ED502003FBF25 /* Sliders in Frameworks */,
+				03A935652952949600CABA71 /* Sliders in Frameworks */,
 				036BFC4E294B9FDB00D8AD04 /* Path in Frameworks */,
 				0352E2A5294E2591003FBF25 /* Sparkle in Frameworks */,
 				0397C070294BDC8C003762E0 /* StableDiffusion in Frameworks */,
@@ -214,7 +214,7 @@
 				036BFC50294B9FF500D8AD04 /* ZIPFoundation */,
 				0397C06F294BDC8C003762E0 /* StableDiffusion */,
 				0352E2A4294E2591003FBF25 /* Sparkle */,
-				0352E2B7294ED502003FBF25 /* Sliders */,
+				03A935642952949600CABA71 /* Sliders */,
 			);
 			productName = "Mochi Diffusion";
 			productReference = 036BFC1E294B9F7500D8AD04 /* Mochi Diffusion.app */;
@@ -293,7 +293,7 @@
 				036BFC4F294B9FF500D8AD04 /* XCRemoteSwiftPackageReference "ZIPFoundation" */,
 				0397C06E294BDC8C003762E0 /* XCRemoteSwiftPackageReference "ml-stable-diffusion" */,
 				0352E2A3294E2591003FBF25 /* XCRemoteSwiftPackageReference "Sparkle" */,
-				0352E2B6294ED502003FBF25 /* XCRemoteSwiftPackageReference "swiftui-sliders" */,
+				03A935632952949600CABA71 /* XCRemoteSwiftPackageReference "swiftui-sliders" */,
 			);
 			productRefGroup = 036BFC1F294B9F7500D8AD04 /* Products */;
 			projectDirPath = "";
@@ -690,14 +690,6 @@
 				minimumVersion = 2.0.0;
 			};
 		};
-		0352E2B6294ED502003FBF25 /* XCRemoteSwiftPackageReference "swiftui-sliders" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "git@github.com:spacenation/swiftui-sliders.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.0.0;
-			};
-		};
 		036BFC4C294B9FDB00D8AD04 /* XCRemoteSwiftPackageReference "Path.swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/mxcl/Path.swift.git";
@@ -722,6 +714,14 @@
 				kind = branch;
 			};
 		};
+		03A935632952949600CABA71 /* XCRemoteSwiftPackageReference "swiftui-sliders" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/spacenation/swiftui-sliders.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -729,11 +729,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 0352E2A3294E2591003FBF25 /* XCRemoteSwiftPackageReference "Sparkle" */;
 			productName = Sparkle;
-		};
-		0352E2B7294ED502003FBF25 /* Sliders */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 0352E2B6294ED502003FBF25 /* XCRemoteSwiftPackageReference "swiftui-sliders" */;
-			productName = Sliders;
 		};
 		036BFC4D294B9FDB00D8AD04 /* Path */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -749,6 +744,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 0397C06E294BDC8C003762E0 /* XCRemoteSwiftPackageReference "ml-stable-diffusion" */;
 			productName = StableDiffusion;
+		};
+		03A935642952949600CABA71 /* Sliders */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 03A935632952949600CABA71 /* XCRemoteSwiftPackageReference "swiftui-sliders" */;
+			productName = Sliders;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
