@@ -53,6 +53,7 @@ final class Store: ObservableObject {
     func loadModels() {
         var dir: URL
         let appDir = "MochiDiffusion/models/"
+        models = []
         if workingDir.isEmpty {
             guard let docDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
                 self.model = ""
