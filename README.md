@@ -10,11 +10,11 @@ This app uses [Apple's Core ML Stable Diffusion implementation](https://github.c
 
 ## Features
 
-- Generates images locally and completely offline
+- Generate images locally and completely offline
 - Fully utilize Apple Silicon's Neural Engine
 - Extremely memory efficient compared to PyTorch (~4GB)
 - Generated images are saved with prompt info inside EXIF metadata
-- Can use custom Stable Diffusion Core ML models
+- Use custom Stable Diffusion Core ML models
 - No worries about pickled models
 - macOS native app using SwiftUI
 
@@ -38,7 +38,7 @@ Download the `original` version if using `CPU & GPU` compute option. Otherwise d
 
 1. [Convert](https://github.com/apple/ml-stable-diffusion#-converting-models-to-core-ml) or download Core ML models
 2. By default, the app's working directory will be created under the Documents folder. This location can be customized under Settings
-3. In the working folder, create a new folder with the name you'd like displayed in the app then move or extract the converted models here.
+3. In the working folder, create a new folder with the name you'd like displayed in the app then move or extract the converted models here
 4. Your directory should look like this: `~/Documents/MochiDiffusion/models/[Model Folder Name]/[Model's Files]`
 
 ## Compatibility
