@@ -28,6 +28,7 @@ final class Store: ObservableObject {
     @AppStorage("ImageHeight") var height = 512
     @AppStorage("Scheduler") var scheduler = StableDiffusionScheduler.dpmSolverMultistepScheduler
     @AppStorage("MLComputeUnit") var mlComputeUnit: MLComputeUnits = .cpuAndGPU
+    @AppStorage("ReduceMemory") var reduceMemory = false
     @AppStorage("Model") private var model = ""
     private var progressSubscriber: Cancellable?
 
@@ -112,7 +113,11 @@ final class Store: ObservableObject {
         let configuration = MLModelConfiguration()
         configuration.computeUnits = mlComputeUnit
         do {
-            let pipeline = try StableDiffusionPipeline(resourcesAt: dir, configuration: configuration, disableSafety: true)
+            let pipeline = try StableDiffusionPipeline(
+                resourcesAt: dir,
+                configuration: configuration,
+                disableSafety: true,
+                reduceMemory: reduceMemory)
             NSLog("Pipeline loaded in \(Date().timeIntervalSince(beginDate))")
             DispatchQueue.main.async {
                 self.pipeline = Pipeline(pipeline)

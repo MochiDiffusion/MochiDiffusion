@@ -21,10 +21,22 @@ struct SettingsView: View {
                 }
                 .fixedSize()
                 Text("CPU & Neural Engine option works best with M1 and later or for saving battery")
+                    .font(.callout)
                     .foregroundColor(.secondary)
                 Text("CPU & GPU option works best with M1 Pro, Max, Ultra and later")
+                    .font(.callout)
                     .foregroundColor(.secondary)
                 Text("Appropriate model will need to be provided based on the option selected")
+                    .font(.callout)
+                    .foregroundColor(.secondary)
+                
+                Spacer().frame(height: 12)
+                
+                
+                Toggle("Reduce Memory Pressure:", isOn: $store.reduceMemory)
+                    .toggleStyle(.switch)
+                Text("Recommended for Macs with 8GB of memory")
+                    .font(.callout)
                     .foregroundColor(.secondary)
                 
                 Spacer().frame(height: 12)
@@ -47,7 +59,7 @@ struct SettingsView: View {
             }
         }
         .padding()
-        .frame(width: 620, height: 180, alignment: .top)
+        .frame(width: 700, height: 250, alignment: .top)
     }
 }
 
