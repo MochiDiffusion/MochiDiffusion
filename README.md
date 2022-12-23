@@ -12,7 +12,7 @@ This app uses [Apple's Core ML Stable Diffusion implementation](https://github.c
 
 - Generate images locally and completely offline
 - Fully utilize Apple Silicon's Neural Engine
-- Extremely memory efficient compared to PyTorch (~4GB)
+- Extremely memory efficient compared to PyTorch (~150MB with Neural Engine)
 - Generated images are saved with prompt info inside EXIF metadata
 - Use custom Stable Diffusion Core ML models
 - No worries about pickled models
