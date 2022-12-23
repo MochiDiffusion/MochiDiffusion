@@ -56,7 +56,7 @@ struct MainAppView: View {
                     
                     Group {
                         Text("Steps: \(store.steps)")
-                        ValueSlider(value: $store.steps, in: 1 ... 200, step: 1)
+                        ValueSlider(value: $store.steps, in: 2 ... 200, step: 1)
                             .valueSliderStyle(
                                 HorizontalValueSliderStyle(
                                     track:
