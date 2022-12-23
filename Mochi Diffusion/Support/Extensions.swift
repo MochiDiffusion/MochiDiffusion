@@ -21,7 +21,7 @@ extension Formatter {
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
         formatter.minimum = 0
-        formatter.maximum = 2_147_483_647 // UInt32.max
+        formatter.maximum = 4_294_967_295 // UInt32.max
         formatter.maximumFractionDigits = 0
         formatter.usesGroupingSeparator = false
         formatter.hasThousandSeparators = false
