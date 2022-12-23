@@ -14,8 +14,6 @@ struct PromptView: View {
         VStack(alignment: .leading, spacing: 6) {
             Text("Prompt:")
             TextEditor(text: $store.prompt)
-                .scrollContentBackground(.hidden)
-                .background(Color.black.opacity(0.15))
                 .font(.system(size: 14))
                 .frame(maxHeight: 85)
                 .border(Color.black.opacity(0.1))
@@ -25,8 +23,6 @@ struct PromptView: View {
             
             Text("Negative Prompt:")
             TextEditor(text: $store.negativePrompt)
-                .scrollContentBackground(.hidden)
-                .background(Color.black.opacity(0.15))
                 .font(.system(size: 14))
                 .frame(maxHeight: 52)
                 .border(Color.black.opacity(0.1))

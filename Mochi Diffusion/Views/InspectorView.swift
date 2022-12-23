@@ -10,6 +10,7 @@ import StableDiffusion
 
 struct InspectorView: View {
     @EnvironmentObject var store: Store
+    @Environment(\.colorScheme) var colorScheme
 
     var body: some View {
         if let sdi = $store.selectedImage.wrappedValue {
@@ -20,6 +21,7 @@ struct InspectorView: View {
                     VStack(alignment: .leading) {
                         Text(info)
                             .textSelection(.enabled)
+                            .foregroundColor(colorScheme == .dark ? .white : .black)
                             .frame(maxWidth: 300)
                     }
                 }
