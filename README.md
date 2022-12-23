@@ -10,9 +10,9 @@ This app uses [Apple's Core ML Stable Diffusion implementation](https://github.c
 
 ## Features
 
+- Extremely fast and memory efficient (~150MB with Neural Engine)
+- Runs well on all Apple Silicon Macs by fully utilizing Neural Engine
 - Generate images locally and completely offline
-- Fully utilize Apple Silicon's Neural Engine
-- Extremely memory efficient compared to PyTorch (~150MB with Neural Engine)
 - Generated images are saved with prompt info inside EXIF metadata
 - Use custom Stable Diffusion Core ML models
 - No worries about pickled models
@@ -26,7 +26,7 @@ Download the latest version from the [releases](https://github.com/godly-devotio
 
 When trying to open the app for the first time, Gatekeeper will prevent you from doing so because the app is not code signed. In order to bypass this warning, you need to right-click on the app and select "Open". You will have to do this twice in order to get the option to open the app.
 
-For the compute unit option, `CPU & Neural Engine` is recommended for M1 and later or for saving battery. `CPU & GPU` is recommended for M1 Pro, Max, Ultra and later. Depending on the option chosen, you will need to provide the correct models (see Models section for details).
+For the compute unit option, `CPU & Neural Engine` is recommended for M1 and later or for reducing memory. `CPU & GPU` is recommended for M1 Pro, Max, Ultra and later. Depending on the option chosen, you will need to provide the correct models (see Models section for details).
 
 ## Models
 
