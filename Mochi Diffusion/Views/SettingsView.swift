@@ -59,7 +59,7 @@ struct SettingsView: View {
             }
         }
         .padding()
-        .frame(width: 700, height: 250, alignment: .top)
+        .frame(width: 690, height: 240, alignment: .top)
     }
 }
 

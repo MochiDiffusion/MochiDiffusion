@@ -152,8 +152,6 @@ final class Store: ObservableObject {
                 var s = SDImage()
                 s.prompt = self.prompt
                 s.negativePrompt = self.negativePrompt
-                s.width = self.width
-                s.height = self.height
                 s.model = self.currentModel
                 s.scheduler = self.scheduler
                 s.steps = self.steps
@@ -173,6 +171,8 @@ final class Store: ObservableObject {
                 var simgs = [SDImage]()
                 for (ndx, img) in imgs.enumerated() {
                     s.image = img
+                    s.width = img.width
+                    s.height = img.height
                     s.seed = seed
                     s.imageIndex = ndx
                     simgs.append(s)
