@@ -15,7 +15,7 @@ struct PromptView: View {
             Text("Prompt:")
             TextEditor(text: $store.prompt)
                 .font(.system(size: 14))
-                .frame(maxHeight: 85)
+                .frame(height: 85)
                 .border(Color.black.opacity(0.1))
                 .cornerRadius(4)
                 
@@ -24,7 +24,7 @@ struct PromptView: View {
             Text("Negative Prompt:")
             TextEditor(text: $store.negativePrompt)
                 .font(.system(size: 14))
-                .frame(maxHeight: 52)
+                .frame(height: 52)
                 .border(Color.black.opacity(0.1))
                 .cornerRadius(4)
             
