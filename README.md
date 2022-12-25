@@ -55,3 +55,4 @@ All generation happens locally and absolutely nothing is sent to the cloud.
 
 - [Apple's Core ML Stable Diffusion implementation](https://github.com/apple/ml-stable-diffusion)
 - [HuggingFace's Swift UI sample implementation](https://github.com/huggingface/swift-coreml-diffusers)
+- App Icon by [Zabriskije](https://github.com/Zabriskije)
