@@ -223,7 +223,8 @@ final class Store: ObservableObject {
     
     @MainActor
     private func imagesReady(simgs: [SDImage]) {
-        self.selectedImageIndex = 0
+        let newImageIndex = self.images.count
         self.images.append(contentsOf: simgs)
+        self.selectedImageIndex = newImageIndex
     }
 }
