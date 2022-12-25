@@ -14,11 +14,11 @@ struct FileCommands: Commands {
         CommandGroup(replacing: .saveItem) {
             Section {
                 Button("Save Image...") {
-                    guard let sdi = store.selectedImage else { return }
+                    guard let sdi = store.getSelectedImage() else { return }
                     sdi.save()
                 }
                 .keyboardShortcut("S", modifiers: .command)
-                .disabled(store.selectedImage == nil)
+                .disabled(store.getSelectedImage() == nil)
             }
             Section {
                 Button("Generate") {

@@ -15,7 +15,7 @@ final class Store: ObservableObject {
     @Published var pipeline: Pipeline? = nil
     @Published var models = [String]()
     @Published var images = [SDImage]()
-    @Published var selectedImage: SDImage? = nil
+    @Published var selectedImageIndex = -1
     @Published var mainViewStatus: MainViewStatus = .loading
     @Published var imageCount = 1
     @Published var seed = 0
@@ -44,6 +44,13 @@ final class Store: ObservableObject {
         get {
             return model
         }
+    }
+    
+    func getSelectedImage() -> SDImage? {
+        if (selectedImageIndex == -1) {
+            return nil
+        }
+        return images[selectedImageIndex]
     }
 
     init() {
@@ -192,11 +199,18 @@ final class Store: ObservableObject {
     }
 
     func selectImage(index: Int) {
-        selectedImage = images[index]
+        selectedImageIndex = index
+    }
+    
+    func removeImage(index: Int) {
+        images.remove(at: index)
+        if (selectedImageIndex > images.count - 1) {
+            selectedImageIndex -= 1
+        }
     }
 
     func copyToPrompt() {
-        guard let image = selectedImage else { return }
+        guard let image = getSelectedImage() else { return }
         prompt = image.prompt
         negativePrompt = image.negativePrompt
         steps = image.steps
@@ -209,7 +223,7 @@ final class Store: ObservableObject {
     
     @MainActor
     private func imagesReady(simgs: [SDImage]) {
-        self.selectedImage = simgs.first
+        self.selectedImageIndex = 0
         self.images.append(contentsOf: simgs)
     }
 }

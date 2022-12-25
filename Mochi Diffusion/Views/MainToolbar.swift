@@ -12,7 +12,7 @@ struct MainToolbar: View {
     @State private var isInfoPopoverShown = false
 
     var body: some View {
-        if let sdi = $store.selectedImage.wrappedValue, let img = sdi.image {
+        if let sdi = store.getSelectedImage(), let img = sdi.image {
             let imageView = Image(img, scale: 1, label: Text("generated"))
             Button(action: { self.isInfoPopoverShown.toggle() }) {
                 Label("Get Info", systemImage: "info.circle")

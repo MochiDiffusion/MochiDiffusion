@@ -41,6 +41,14 @@ struct GalleryView: View {
                                 .onTapGesture {
                                     store.selectImage(index: i)
                                 }
+                                .contextMenu {
+                                    Button("Save...") {
+                                        img.save()
+                                    }
+                                    Button("Remove") {
+                                        store.removeImage(index: i)
+                                    }
+                                }
                         }
                     }
                     .padding([.leading, .trailing], 12)
@@ -54,19 +62,19 @@ struct GalleryView: View {
     }
     
     private func getProgressView(progress: StableDiffusionProgress?) -> AnyView {
-        if let progress = progress, progress.stepCount > 0 {
-            let step = Int(progress.step) + 1
-            let fraction = Double(step) / Double(progress.stepCount)
-            let label = "Step \(step) of \(progress.stepCount)"
+        guard let progress = progress, progress.stepCount > 0 else {
+            // The first time it takes a little bit before generation starts
             return AnyView(
-                ProgressView(label, value: fraction, total: 1)
+                ProgressView(label: { Text("Loading Model...") })
+                    .progressViewStyle(.linear)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .padding())
         }
-        // The first time it takes a little bit before generation starts
+        let step = Int(progress.step) + 1
+        let fraction = Double(step) / Double(progress.stepCount)
+        let label = "Step \(step) of \(progress.stepCount)"
         return AnyView(
-            ProgressView(label: { Text("Loading Model...") })
-                .progressViewStyle(.linear)
+            ProgressView(label, value: fraction, total: 1)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .padding())
     }

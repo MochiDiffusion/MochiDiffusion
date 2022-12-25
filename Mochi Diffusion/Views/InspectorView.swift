@@ -13,7 +13,7 @@ struct InspectorView: View {
     @Environment(\.colorScheme) var colorScheme
 
     var body: some View {
-        if let sdi = $store.selectedImage.wrappedValue {
+        if let sdi = store.getSelectedImage() {
             let info = getHumanReadableInfo(sdi: sdi)
 
             VStack {

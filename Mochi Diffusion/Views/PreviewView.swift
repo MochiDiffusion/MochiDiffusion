@@ -10,16 +10,18 @@ import UniformTypeIdentifiers
 
 struct PreviewView: View {
     @EnvironmentObject var store: Store
-    
+
     var body: some View {
-        if let sdi = $store.selectedImage.wrappedValue, let img = sdi.image {
+        if let sdi = store.getSelectedImage(), let img = sdi.image {
             let imageView = Image(img, scale: 1, label: Text("generated"))
-            return AnyView(imageView.resizable())
+            imageView.resizable()
         }
-        return AnyView(Image(systemName: "paintbrush.pointed")
-            .resizable()
-            .foregroundColor(.white.opacity(0.2))
-            .frame(maxWidth: 100, maxHeight: 100))
+        else {
+            Image(systemName: "paintbrush.pointed")
+                .resizable()
+                .foregroundColor(.white.opacity(0.2))
+                .frame(maxWidth: 100, maxHeight: 100)
+        }
     }
 }
 
@@ -28,4 +30,3 @@ struct PreviewView_Previews: PreviewProvider {
         PreviewView()
     }
 }
-
