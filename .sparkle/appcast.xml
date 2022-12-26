@@ -5,11 +5,19 @@
     <language>en</language>
 
     <item>
+      <title>v1.1.3</title>
+      <sparkle:version>1.1.3</sparkle:version>
+      <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
+      <pubDate>Mon, 26 Dec 2022 17:00:30 +0000</pubDate>
+      <link>https://github.com/godly-devotion/mochi-diffusion/releases</link>
+    </item>
+
+    <item>
       <title>v1.1.2</title>
       <sparkle:version>1.1.2</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
       <pubDate>Mon, 26 Dec 2022 01:03:08 +0000</pubDate>
-      <link>https://github.com/godly-devotion/mochi-diffusion/releases/tag/v1.1.2</link>
+      <link>https://github.com/godly-devotion/mochi-diffusion/releases</link>
     </item>
 
     <item>
@@ -17,7 +25,7 @@
       <sparkle:version>1.1.1</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
       <pubDate>Sun, 25 Dec 2022 22:44:00 +0000</pubDate>
-      <link>https://github.com/godly-devotion/mochi-diffusion/releases/tag/v1.1.1</link>
+      <link>https://github.com/godly-devotion/mochi-diffusion/releases</link>
     </item>
 
     <item>
@@ -25,7 +33,7 @@
       <sparkle:version>1.1</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
       <pubDate>Sun, 25 Dec 2022 02:12:08 +0000</pubDate>
-      <link>https://github.com/godly-devotion/mochi-diffusion/releases/tag/v1.1</link>
+      <link>https://github.com/godly-devotion/mochi-diffusion/releases</link>
     </item>
 
     <item>
@@ -33,7 +41,7 @@
       <sparkle:version>1.0.6</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
       <pubDate>Fri, 23 Dec 2022 03:41:36 +0000</pubDate>
-      <link>https://github.com/godly-devotion/mochi-diffusion/releases/tag/v1.0.6</link>
+      <link>https://github.com/godly-devotion/mochi-diffusion/releases</link>
     </item>
 
     <item>
@@ -41,7 +49,7 @@
       <sparkle:version>1.0.5</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
       <pubDate>Thu, 22 Dec 2022 03:11:51 +0000</pubDate>
-      <link>https://github.com/godly-devotion/mochi-diffusion/releases/tag/v1.0.5</link>
+      <link>https://github.com/godly-devotion/mochi-diffusion/releases</link>
     </item>
 
     <item>
@@ -49,7 +57,7 @@
       <sparkle:version>1.0.4</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
       <pubDate>Wed, 21 Dec 2022 19:33:53 +0000</pubDate>
-      <link>https://github.com/godly-devotion/mochi-diffusion/releases/tag/v1.0.4</link>
+      <link>https://github.com/godly-devotion/mochi-diffusion/releases</link>
     </item>
 
     <item>
@@ -57,7 +65,7 @@
       <sparkle:version>1.0.3</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
       <pubDate>Wed, 21 Dec 2022 17:04:55 +0000</pubDate>
-      <link>https://github.com/godly-devotion/mochi-diffusion/releases/tag/v1.0.3</link>
+      <link>https://github.com/godly-devotion/mochi-diffusion/releases</link>
     </item>
 
     <item>
@@ -65,7 +73,7 @@
       <sparkle:version>1.0.2</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
       <pubDate>Tue, 20 Dec 2022 08:53:32 +0000</pubDate>
-      <link>https://github.com/godly-devotion/mochi-diffusion/releases/tag/v1.0.2</link>
+      <link>https://github.com/godly-devotion/mochi-diffusion/releases</link>
     </item>
 
     <item>
@@ -73,7 +81,7 @@
       <sparkle:version>1.0.1</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
       <pubDate>Tue, 20 Dec 2022 08:13:22 +0000</pubDate>
-      <link>https://github.com/godly-devotion/mochi-diffusion/releases/tag/v1.0.1</link>
+      <link>https://github.com/godly-devotion/mochi-diffusion/releases</link>
     </item>
 
     <item>
@@ -81,7 +89,7 @@
       <sparkle:version>1.0</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
       <pubDate>Tue, 20 Dec 2022 06:38:18 +0000</pubDate>
-      <link>https://github.com/godly-devotion/mochi-diffusion/releases/tag/v1.0</link>
+      <link>https://github.com/godly-devotion/mochi-diffusion/releases</link>
     </item>
 
     <item>
@@ -89,7 +97,7 @@
       <sparkle:version>0.6.2</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
       <pubDate>Tue, 20 Dec 2022 00:33:47 +0000</pubDate>
-      <link>https://github.com/godly-devotion/mochi-diffusion/releases/tag/v0.6.2</link>
+      <link>https://github.com/godly-devotion/mochi-diffusion/releases</link>
     </item>
 
     <item>
@@ -97,7 +105,7 @@
       <sparkle:version>0.6.1</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
       <pubDate>Mon, 19 Dec 2022 23:09:57 +0000</pubDate>
-      <link>https://github.com/godly-devotion/mochi-diffusion/releases/tag/v0.6.1</link>
+      <link>https://github.com/godly-devotion/mochi-diffusion/releases</link>
     </item>
 
     <item>
@@ -105,7 +113,7 @@
       <sparkle:version>0.6</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
       <pubDate>Mon, 19 Dec 2022 18:12:39 +0000</pubDate>
-      <link>https://github.com/godly-devotion/mochi-diffusion/releases/tag/v0.6</link>
+      <link>https://github.com/godly-devotion/mochi-diffusion/releases</link>
     </item>
 
     <item>
@@ -113,7 +121,7 @@
       <sparkle:version>0.5</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
       <pubDate>Mon, 19 Dec 2022 00:00:41 +0000</pubDate>
-      <link>https://github.com/godly-devotion/mochi-diffusion/releases/tag/v0.5</link>
+      <link>https://github.com/godly-devotion/mochi-diffusion/releases</link>
     </item>
 
     <item>
@@ -121,7 +129,7 @@
       <sparkle:version>0.4</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
       <pubDate>Sun, 18 Dec 2022 06:38:58 +0000</pubDate>
-      <link>https://github.com/godly-devotion/mochi-diffusion/releases/tag/v0.4</link>
+      <link>https://github.com/godly-devotion/mochi-diffusion/releases</link>
     </item>
 
     <item>
@@ -129,7 +137,7 @@
       <sparkle:version>0.3</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
       <pubDate>Sun, 18 Dec 2022 00:55:43 +0000</pubDate>
-      <link>https://github.com/godly-devotion/mochi-diffusion/releases/tag/v0.3</link>
+      <link>https://github.com/godly-devotion/mochi-diffusion/releases</link>
     </item>
 
     <item>
@@ -137,7 +145,7 @@
       <sparkle:version>0.2</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
       <pubDate>Sat, 17 Dec 2022 02:29:49 +0000</pubDate>
-      <link>https://github.com/godly-devotion/mochi-diffusion/releases/tag/v0.2</link>
+      <link>https://github.com/godly-devotion/mochi-diffusion/releases</link>
     </item>
   </channel>
 </rss>
