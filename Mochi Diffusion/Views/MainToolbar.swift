@@ -14,28 +14,42 @@ struct MainToolbar: View {
     var body: some View {
         if let sdi = store.getSelectedImage(), let img = sdi.image {
             let imageView = Image(img, scale: 1, label: Text("generated"))
+            
+            Button(action: { store.removeCurrentImage() }) {
+                Label("Remove", systemImage: "trash")
+            }
+            
+            Spacer()
+            
             Button(action: { self.isInfoPopoverShown.toggle() }) {
                 Label("Get Info", systemImage: "info.circle")
             }
-            .popover(isPresented: self.$isInfoPopoverShown, arrowEdge: .bottom) {
+            .popover(isPresented: self.$isInfoPopoverShown, arrowEdge: .top) {
                 InspectorView().padding()
             }
             Button(action: sdi.save) {
-                Label("Save", systemImage: "square.and.arrow.down")
+                Label("Save Image...", systemImage: "square.and.arrow.down")
             }
             ShareLink(item: imageView, preview: SharePreview(sdi.prompt, image: imageView))
         }
         else {
             Button(action: {}) {
+                Label("Remove", systemImage: "trash")
+            }
+            .disabled(true)
+
+            Spacer()
+            
+            Button(action: {}) {
                 Label("Get Info", systemImage: "info.circle")
             }
             .disabled(true)
             Button(action: {}) {
-                Label("Save Image", systemImage: "square.and.arrow.down")
+                Label("Save Image...", systemImage: "square.and.arrow.down")
             }
             .disabled(true)
             Button(action: {}) {
-                Label("Share", systemImage: "square.and.arrow.up")
+                Label("Share...", systemImage: "square.and.arrow.up")
             }
             .disabled(true)
         }

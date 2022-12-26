@@ -210,6 +210,10 @@ final class Store: ObservableObject {
             }
         }
     }
+    
+    func removeCurrentImage() {
+        removeImage(index: selectedImageIndex)
+    }
 
     func copyToPrompt() {
         guard let image = getSelectedImage() else { return }

@@ -44,7 +44,7 @@ struct GalleryView: View {
                                 }
                                 .contextMenu {
                                     Section {
-                                        Button("Save...") {
+                                        Button("Save Image...") {
                                             img.save()
                                         }
                                     }
