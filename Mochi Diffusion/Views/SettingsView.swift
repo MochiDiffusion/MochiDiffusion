@@ -20,20 +20,20 @@ struct SettingsView: View {
                     Text("All").tag(MLComputeUnits.all)
                 }
                 .fixedSize()
-                Text("CPU & Neural Engine option works best with M1 and later or for reducing memory.")
+                Text("CPU & Neural Engine provides a good balance between speed and low memory usage.")
                     .font(.callout)
                     .foregroundColor(.secondary)
-                Text("CPU & GPU option works best with M1 Pro, Max, Ultra and later.")
+                Text("CPU & GPU may be faster on M1 Max, Ultra and later but will use more memory.")
                     .font(.callout)
                     .foregroundColor(.secondary)
-                Text("Appropriate model will need to be provided based on the option selected.")
+                Text("Based on the option selected the correct model version will need to be used.")
                     .font(.callout)
                     .foregroundColor(.secondary)
                 
                 Spacer().frame(height: 12)
                 
                 
-                Toggle("Reduce Memory Pressure:", isOn: $store.reduceMemory)
+                Toggle("Reduce Memory Usage:", isOn: $store.reduceMemory)
                     .toggleStyle(.switch)
                 Text("Recommended for Macs with 8GB of memory.")
                     .font(.callout)
