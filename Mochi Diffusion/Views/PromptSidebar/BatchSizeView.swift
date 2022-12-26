@@ -32,7 +32,7 @@ Images in a batch are generated at the same time and require more memory.
                     .padding()
             }
         }
-        ValueSlider(value: $store.batchSize, in: 1 ... 8, step: 1)
+        ValueSlider(value: $store.batchSize, in: 1 ... 16, step: 1)
             .valueSliderStyle(
                 HorizontalValueSliderStyle(
                     track:
