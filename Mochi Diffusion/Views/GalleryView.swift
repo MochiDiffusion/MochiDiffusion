@@ -43,11 +43,15 @@ struct GalleryView: View {
                                     store.selectImage(index: i)
                                 }
                                 .contextMenu {
-                                    Button("Save...") {
-                                        img.save()
+                                    Section {
+                                        Button("Save...") {
+                                            img.save()
+                                        }
                                     }
-                                    Button("Remove") {
-                                        store.removeImage(index: i)
+                                    Section {
+                                        Button("Remove") {
+                                            store.removeImage(index: i)
+                                        }
                                     }
                                 }
                         }
