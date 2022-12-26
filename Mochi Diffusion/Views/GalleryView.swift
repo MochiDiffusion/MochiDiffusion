@@ -21,14 +21,9 @@ struct GalleryView: View {
                 getProgressView(progress: progress)
             }
 
-            if case .running = store.mainViewStatus {
-                // TODO figure out how this works in Swift...
-            }
-            else {
-                PreviewView()
-                    .padding()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
+            PreviewView()
+                .padding()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             if store.images.count > 0 {
                 Divider()
@@ -72,16 +67,14 @@ struct GalleryView: View {
             return AnyView(
                 ProgressView(label: { Text("Loading Model...") })
                     .progressViewStyle(.linear)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .padding())
+                    .padding([.top, .horizontal]))
         }
         let step = Int(progress.step) + 1
         let fraction = Double(step) / Double(progress.stepCount)
         let label = "Step \(step) of \(progress.stepCount)"
         return AnyView(
             ProgressView(label, value: fraction, total: 1)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .padding())
+                .padding([.top, .horizontal]))
     }
 }
 

@@ -17,9 +17,9 @@ final class Store: ObservableObject {
     @Published var images = [SDImage]()
     @Published var selectedImageIndex = -1
     @Published var mainViewStatus: MainViewStatus = .loading
-    @Published var imageCount = 1
+    @Published var numberOfBatches = 1
     @Published var batchSize = 1
-    @Published var seed = 0
+    @Published var seed: UInt32 = 0
     @AppStorage("WorkingDir") var workingDir = ""
     @AppStorage("Prompt") var prompt = ""
     @AppStorage("NegativePrompt") var negativePrompt = ""
@@ -87,7 +87,7 @@ final class Store: ObservableObject {
         // Find models in model dir
         do {
             let subs = try dir.subDirectories()
-            subs.forEach {sub in
+            subs.forEach { sub in
                 models.append(sub.lastPathComponent)
             }
         } catch {
@@ -166,27 +166,33 @@ final class Store: ObservableObject {
                 s.guidanceScale = self.guidanceScale
                 
                 // Generate
-                let (imgs, seed) = try pipeline.generate(
-                    prompt: self.prompt,
-                    negativePrompt: self.negativePrompt,
-                    imageCount: Int(self.batchSize),
-                    numInferenceSteps: Int(self.steps),
-                    seed: UInt32(self.seed),
-                    guidanceScale: Float(self.guidanceScale),
-                    scheduler: self.scheduler)
+                var seedUsed = self.seed == 0 ? UInt32.random(in: 0 ..< UInt32.max) : self.seed
+                for _ in 0 ..< self.numberOfBatches {
+                    let (imgs, seed) = try pipeline.generate(
+                        prompt: self.prompt,
+                        negativePrompt: self.negativePrompt,
+                        batchSize: self.batchSize,
+                        numInferenceSteps: self.steps,
+                        seed: seedUsed,
+                        guidanceScale: Float(self.guidanceScale),
+                        scheduler: self.scheduler)
+                    var simgs = [SDImage]()
+                    for (ndx, img) in imgs.enumerated() {
+                        s.image = img
+                        s.width = img.width
+                        s.height = img.height
+                        s.seed = seed
+                        s.imageIndex = ndx
+                        simgs.append(s)
+                    }
+                    DispatchQueue.main.async {
+                        self.imagesReady(simgs: simgs)
+                    }
+                    seedUsed += 1
+                }
                 self.progressSubscriber?.cancel()
                 
-                var simgs = [SDImage]()
-                for (ndx, img) in imgs.enumerated() {
-                    s.image = img
-                    s.width = img.width
-                    s.height = img.height
-                    s.seed = seed
-                    s.imageIndex = ndx
-                    simgs.append(s)
-                }
                 DispatchQueue.main.async {
-                    self.imagesReady(simgs: simgs)
                     self.mainViewStatus = .ready("Image generation complete")
                 }
             } catch {
@@ -224,7 +230,7 @@ final class Store: ObservableObject {
         guidanceScale = image.guidanceScale
         width = image.width
         height = image.height
-        seed = Int(image.seed)
+        seed = image.seed
         scheduler = image.scheduler
     }
     

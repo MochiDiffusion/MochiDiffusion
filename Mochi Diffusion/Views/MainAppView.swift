@@ -19,10 +19,10 @@ struct MainAppView: View {
                         Divider().frame(height: 16)
                     }
 
-//                    Group {
-//                        ImageCountView()
-//                        Spacer()
-//                    }
+                    Group {
+                        NumberOfBatchesView()
+                        Spacer()
+                    }
                     
                     Group {
                         BatchSizeView()

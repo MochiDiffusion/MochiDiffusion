@@ -61,7 +61,7 @@ struct MochiDiffusionApp: App {
             SidebarCommands()
             HelpCommands()
         }
-        .defaultSize(width: 800, height: 700)
+        .defaultSize(width: 820, height: 720)
         Settings {
             SettingsView()
                 .environmentObject(store)

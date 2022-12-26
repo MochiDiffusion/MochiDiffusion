@@ -16,7 +16,7 @@
 		0352E2B1294EA30D003FBF25 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0352E2B0294EA30D003FBF25 /* Extensions.swift */; };
 		0352E2B3294EA326003FBF25 /* Store.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0352E2B2294EA326003FBF25 /* Store.swift */; };
 		0352E2B5294EA887003FBF25 /* Functions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0352E2B4294EA887003FBF25 /* Functions.swift */; };
-		035EDFF3295A1FBF00080D18 /* ImageCountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035EDFF2295A1FBF00080D18 /* ImageCountView.swift */; };
+		035EDFF3295A1FBF00080D18 /* NumberOfBatchesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035EDFF2295A1FBF00080D18 /* NumberOfBatchesView.swift */; };
 		035EDFF6295A208100080D18 /* BatchSizeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035EDFF5295A208100080D18 /* BatchSizeView.swift */; };
 		035EDFF8295A216500080D18 /* StepsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035EDFF7295A216500080D18 /* StepsView.swift */; };
 		035EDFFA295A219200080D18 /* GuidanceScaleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035EDFF9295A219200080D18 /* GuidanceScaleView.swift */; };
@@ -69,7 +69,7 @@
 		0352E2B0294EA30D003FBF25 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		0352E2B2294EA326003FBF25 /* Store.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Store.swift; sourceTree = "<group>"; };
 		0352E2B4294EA887003FBF25 /* Functions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Functions.swift; sourceTree = "<group>"; };
-		035EDFF2295A1FBF00080D18 /* ImageCountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCountView.swift; sourceTree = "<group>"; };
+		035EDFF2295A1FBF00080D18 /* NumberOfBatchesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberOfBatchesView.swift; sourceTree = "<group>"; };
 		035EDFF5295A208100080D18 /* BatchSizeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatchSizeView.swift; sourceTree = "<group>"; };
 		035EDFF7295A216500080D18 /* StepsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepsView.swift; sourceTree = "<group>"; };
 		035EDFF9295A219200080D18 /* GuidanceScaleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuidanceScaleView.swift; sourceTree = "<group>"; };
@@ -149,8 +149,8 @@
 			children = (
 				035EDFF5295A208100080D18 /* BatchSizeView.swift */,
 				035EDFF9295A219200080D18 /* GuidanceScaleView.swift */,
-				035EDFF2295A1FBF00080D18 /* ImageCountView.swift */,
 				035EDFFF295A224900080D18 /* ModelView.swift */,
+				035EDFF2295A1FBF00080D18 /* NumberOfBatchesView.swift */,
 				03D280F1294FD60E00C7D184 /* PromptView.swift */,
 				035EE002295A227100080D18 /* SchedulerView.swift */,
 				035EDFFD295A220F00080D18 /* SeedView.swift */,
@@ -373,7 +373,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				03E89F3C294FE6ED0067457E /* SDImage.swift in Sources */,
-				035EDFF3295A1FBF00080D18 /* ImageCountView.swift in Sources */,
+				035EDFF3295A1FBF00080D18 /* NumberOfBatchesView.swift in Sources */,
 				036BFC5B294BA19400D8AD04 /* Downloader.swift in Sources */,
 				035EDFF6295A208100080D18 /* BatchSizeView.swift in Sources */,
 				0386DF8D2950F25500CA4CEB /* MainToolbar.swift in Sources */,

@@ -31,7 +31,7 @@ class Pipeline {
     func generate(
         prompt: String,
         negativePrompt: String = "",
-        imageCount: Int = 1,
+        batchSize: Int = 1,
         numInferenceSteps stepCount: Int = 50,
         seed: UInt32 = 0,
         guidanceScale: Float = 7.5,
@@ -39,13 +39,12 @@ class Pipeline {
     ) throws -> ([CGImage], UInt32) {
         let beginDate = Date()
         print("Generating...")
-        let theSeed = seed == 0 ? UInt32.random(in: 0..<UInt32.max) : seed
         let images = try pipeline.generateImages(
             prompt: prompt,
             negativePrompt: negativePrompt,
-            imageCount: imageCount,
+            imageCount: batchSize,
             stepCount: stepCount,
-            seed: theSeed,
+            seed: seed,
             guidanceScale: guidanceScale,
             disableSafety: true,
             scheduler: scheduler
@@ -56,10 +55,10 @@ class Pipeline {
         print("Got images: \(images) in \(Date().timeIntervalSince(beginDate))")
         
         let imgs = images.compactMap({$0})
-        if imgs.count != imageCount {
-            throw "Generation failed: got \(imgs.count) instead of \(imageCount)"
+        if imgs.count != batchSize {
+            throw "Generation failed: got \(imgs.count) instead of \(batchSize)"
         }
-        return (imgs, theSeed)
+        return (imgs, seed)
     }
     
     func handleProgress(_ progress: StableDiffusionPipeline.Progress) {

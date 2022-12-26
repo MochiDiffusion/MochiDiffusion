@@ -14,7 +14,7 @@ struct BatchSizeView: View {
     
     var body: some View {
         HStack {
-            Text("Batch Size: \(store.batchSize)")
+            Text("Images per Batch: \(store.batchSize)")
             
             Spacer()
             
@@ -24,7 +24,11 @@ struct BatchSizeView: View {
             }
             .buttonStyle(PlainButtonStyle())
             .popover(isPresented: self.$isBatchSizePopoverShown, arrowEdge: .top) {
-                Text("Number of images generated at the same time (larger batches require more memory)")
+                let imageCount = store.numberOfBatches * store.batchSize
+                Text("""
+Images in a batch are generated at the same time and require more memory.
+\(imageCount) \(imageCount > 1 ? "images" : "image") will be generated in total.
+""")
                     .padding()
             }
         }
