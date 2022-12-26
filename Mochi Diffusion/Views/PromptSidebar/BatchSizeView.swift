@@ -1,0 +1,51 @@
+//
+//  BatchSizeView.swift
+//  Mochi Diffusion
+//
+//  Created by Joshua Park on 12/26/22.
+//
+
+import SwiftUI
+import Sliders
+
+struct BatchSizeView: View {
+    @EnvironmentObject var store: Store
+    @State private var isBatchSizePopoverShown = false
+    
+    var body: some View {
+        HStack {
+            Text("Batch Size: \(store.batchSize)")
+            
+            Spacer()
+            
+            Button(action: { self.isBatchSizePopoverShown.toggle() }) {
+                Image(systemName: "info.circle")
+                    .foregroundColor(Color.secondary)
+            }
+            .buttonStyle(PlainButtonStyle())
+            .popover(isPresented: self.$isBatchSizePopoverShown, arrowEdge: .top) {
+                Text("Number of images generated at the same time (larger batches require more memory)")
+                    .padding()
+            }
+        }
+        ValueSlider(value: $store.batchSize, in: 1 ... 8, step: 1)
+            .valueSliderStyle(
+                HorizontalValueSliderStyle(
+                    track:
+                        HorizontalTrack(view: Color.accentColor)
+                        .frame(height: 12)
+                        .background(Color.black.opacity(0.2))
+                        .cornerRadius(6),
+                    thumbSize: CGSize(width: 12, height: 12),
+                    options: .interactiveTrack
+                )
+            )
+            .frame(height: 12)
+    }
+}
+
+struct BatchSizeView_Previews: PreviewProvider {
+    static var previews: some View {
+        BatchSizeView()
+    }
+}

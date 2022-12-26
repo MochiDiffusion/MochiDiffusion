@@ -16,6 +16,14 @@
 		0352E2B1294EA30D003FBF25 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0352E2B0294EA30D003FBF25 /* Extensions.swift */; };
 		0352E2B3294EA326003FBF25 /* Store.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0352E2B2294EA326003FBF25 /* Store.swift */; };
 		0352E2B5294EA887003FBF25 /* Functions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0352E2B4294EA887003FBF25 /* Functions.swift */; };
+		035EDFF3295A1FBF00080D18 /* ImageCountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035EDFF2295A1FBF00080D18 /* ImageCountView.swift */; };
+		035EDFF6295A208100080D18 /* BatchSizeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035EDFF5295A208100080D18 /* BatchSizeView.swift */; };
+		035EDFF8295A216500080D18 /* StepsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035EDFF7295A216500080D18 /* StepsView.swift */; };
+		035EDFFA295A219200080D18 /* GuidanceScaleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035EDFF9295A219200080D18 /* GuidanceScaleView.swift */; };
+		035EDFFC295A21D600080D18 /* SizeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035EDFFB295A21D600080D18 /* SizeView.swift */; };
+		035EDFFE295A220F00080D18 /* SeedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035EDFFD295A220F00080D18 /* SeedView.swift */; };
+		035EE000295A224900080D18 /* ModelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035EDFFF295A224900080D18 /* ModelView.swift */; };
+		035EE003295A227100080D18 /* SchedulerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035EE002295A227100080D18 /* SchedulerView.swift */; };
 		036BFC22294B9F7500D8AD04 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 036BFC21294B9F7500D8AD04 /* App.swift */; };
 		036BFC26294B9F7600D8AD04 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 036BFC25294B9F7600D8AD04 /* Assets.xcassets */; };
 		036BFC29294B9F7600D8AD04 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 036BFC28294B9F7600D8AD04 /* Preview Assets.xcassets */; };
@@ -61,6 +69,14 @@
 		0352E2B0294EA30D003FBF25 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		0352E2B2294EA326003FBF25 /* Store.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Store.swift; sourceTree = "<group>"; };
 		0352E2B4294EA887003FBF25 /* Functions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Functions.swift; sourceTree = "<group>"; };
+		035EDFF2295A1FBF00080D18 /* ImageCountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCountView.swift; sourceTree = "<group>"; };
+		035EDFF5295A208100080D18 /* BatchSizeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatchSizeView.swift; sourceTree = "<group>"; };
+		035EDFF7295A216500080D18 /* StepsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepsView.swift; sourceTree = "<group>"; };
+		035EDFF9295A219200080D18 /* GuidanceScaleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuidanceScaleView.swift; sourceTree = "<group>"; };
+		035EDFFB295A21D600080D18 /* SizeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SizeView.swift; sourceTree = "<group>"; };
+		035EDFFD295A220F00080D18 /* SeedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeedView.swift; sourceTree = "<group>"; };
+		035EDFFF295A224900080D18 /* ModelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelView.swift; sourceTree = "<group>"; };
+		035EE002295A227100080D18 /* SchedulerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchedulerView.swift; sourceTree = "<group>"; };
 		036BFC1E294B9F7500D8AD04 /* Mochi Diffusion.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Mochi Diffusion.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		036BFC21294B9F7500D8AD04 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
 		036BFC25294B9F7600D8AD04 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -128,6 +144,22 @@
 			path = Support;
 			sourceTree = "<group>";
 		};
+		035EDFF1295A1F8F00080D18 /* PromptSidebar */ = {
+			isa = PBXGroup;
+			children = (
+				035EDFF5295A208100080D18 /* BatchSizeView.swift */,
+				035EDFF9295A219200080D18 /* GuidanceScaleView.swift */,
+				035EDFF2295A1FBF00080D18 /* ImageCountView.swift */,
+				035EDFFF295A224900080D18 /* ModelView.swift */,
+				03D280F1294FD60E00C7D184 /* PromptView.swift */,
+				035EE002295A227100080D18 /* SchedulerView.swift */,
+				035EDFFD295A220F00080D18 /* SeedView.swift */,
+				035EDFFB295A21D600080D18 /* SizeView.swift */,
+				035EDFF7295A216500080D18 /* StepsView.swift */,
+			);
+			path = PromptSidebar;
+			sourceTree = "<group>";
+		};
 		036BFC15294B9F7500D8AD04 = {
 			isa = PBXGroup;
 			children = (
@@ -174,13 +206,13 @@
 		036BFC5C294BA20A00D8AD04 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				035EDFF1295A1F8F00080D18 /* PromptSidebar */,
 				0352E2AD294EA2B4003FBF25 /* ErrorBanner.swift */,
 				03B8C11729536B9400DE5934 /* GalleryView.swift */,
 				0386DF8A2950D29400CA4CEB /* InspectorView.swift */,
 				0352E2A9294EA0E1003FBF25 /* MainAppView.swift */,
 				0386DF8C2950F25500CA4CEB /* MainToolbar.swift */,
 				0352E2AB294EA1B4003FBF25 /* PreviewView.swift */,
-				03D280F1294FD60E00C7D184 /* PromptView.swift */,
 				03B1ACA7295167B900302F54 /* SettingsView.swift */,
 			);
 			path = Views;
@@ -341,23 +373,31 @@
 			buildActionMask = 2147483647;
 			files = (
 				03E89F3C294FE6ED0067457E /* SDImage.swift in Sources */,
+				035EDFF3295A1FBF00080D18 /* ImageCountView.swift in Sources */,
 				036BFC5B294BA19400D8AD04 /* Downloader.swift in Sources */,
+				035EDFF6295A208100080D18 /* BatchSizeView.swift in Sources */,
 				0386DF8D2950F25500CA4CEB /* MainToolbar.swift in Sources */,
 				03F3179929512BAB00F06D25 /* MainViewStatus.swift in Sources */,
 				0352E2A7294E3148003FBF25 /* HelpCommands.swift in Sources */,
 				03B1ACA8295167B900302F54 /* SettingsView.swift in Sources */,
+				035EDFFC295A21D600080D18 /* SizeView.swift in Sources */,
 				0352E2AE294EA2B4003FBF25 /* ErrorBanner.swift in Sources */,
 				03B8C11829536B9400DE5934 /* GalleryView.swift in Sources */,
 				0386DF8B2950D29400CA4CEB /* InspectorView.swift in Sources */,
 				0352E2AC294EA1B4003FBF25 /* PreviewView.swift in Sources */,
 				03D280F2294FD60E00C7D184 /* PromptView.swift in Sources */,
+				035EE000295A224900080D18 /* ModelView.swift in Sources */,
 				0352E2AA294EA0E1003FBF25 /* MainAppView.swift in Sources */,
+				035EE003295A227100080D18 /* SchedulerView.swift in Sources */,
 				0352E2B5294EA887003FBF25 /* Functions.swift in Sources */,
 				0352E2B1294EA30D003FBF25 /* Extensions.swift in Sources */,
 				0352E2B3294EA326003FBF25 /* Store.swift in Sources */,
+				035EDFF8295A216500080D18 /* StepsView.swift in Sources */,
 				036BFC57294BA13100D8AD04 /* Pipeline.swift in Sources */,
 				036BFC22294B9F7500D8AD04 /* App.swift in Sources */,
+				035EDFFE295A220F00080D18 /* SeedView.swift in Sources */,
 				0307B0DA294D4AE500A9BD55 /* FileCommands.swift in Sources */,
+				035EDFFA295A219200080D18 /* GuidanceScaleView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

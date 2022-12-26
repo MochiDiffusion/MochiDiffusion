@@ -18,6 +18,7 @@ final class Store: ObservableObject {
     @Published var selectedImageIndex = -1
     @Published var mainViewStatus: MainViewStatus = .loading
     @Published var imageCount = 1
+    @Published var batchSize = 1
     @Published var seed = 0
     @AppStorage("WorkingDir") var workingDir = ""
     @AppStorage("Prompt") var prompt = ""
@@ -168,7 +169,7 @@ final class Store: ObservableObject {
                 let (imgs, seed) = try pipeline.generate(
                     prompt: self.prompt,
                     negativePrompt: self.negativePrompt,
-                    imageCount: Int(self.imageCount),
+                    imageCount: Int(self.batchSize),
                     numInferenceSteps: Int(self.steps),
                     seed: UInt32(self.seed),
                     guidanceScale: Float(self.guidanceScale),
