@@ -13,12 +13,14 @@ struct PreviewView: View {
 
     var body: some View {
         if let sdi = store.getSelectedImage(), let img = sdi.image {
-            let imageView = Image(img, scale: 1, label: Text("generated"))
-            imageView.resizable()
+            Image(img, scale: 1, label: Text("generated"))
+                .resizable()
+                .aspectRatio(contentMode: .fit)
         }
         else {
             Image(systemName: "paintbrush.pointed")
                 .resizable()
+                .aspectRatio(contentMode: .fit)
                 .foregroundColor(.white.opacity(0.2))
                 .frame(maxWidth: 100, maxHeight: 100)
         }

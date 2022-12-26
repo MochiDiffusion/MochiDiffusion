@@ -204,8 +204,10 @@ final class Store: ObservableObject {
     
     func removeImage(index: Int) {
         images.remove(at: index)
-        if (selectedImageIndex > images.count - 1) {
-            selectedImageIndex -= 1
+        if index <= selectedImageIndex {
+            if selectedImageIndex != 0 || images.count == 0 {
+                selectedImageIndex -= 1
+            }
         }
     }
 

@@ -10,34 +10,35 @@ import Combine
 
 struct GalleryView: View {
     @EnvironmentObject var store: Store
-    
+
     var body: some View {
-        VStack(alignment: .center) {
+        VStack(alignment: .center, spacing: 0) {
             if case .loading = store.mainViewStatus {
-//                    ErrorBanner(errorMessage: "Loading...")
+//                ErrorBanner(errorMessage: "Loading...")
             } else if case let .error(msg) = store.mainViewStatus {
                 ErrorBanner(errorMessage: msg)
             } else if case let .running(progress) = store.mainViewStatus {
                 getProgressView(progress: progress)
             }
-            
+
             if case .running = store.mainViewStatus {
                 // TODO figure out how this works in Swift...
             }
             else {
                 PreviewView()
-                    .scaledToFit()
                     .padding()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-            
+
             if store.images.count > 0 {
                 Divider()
-                
+
                 ScrollView(.horizontal) {
                     HStack(alignment: .center, spacing: 12) {
                         ForEach(Array(store.images.enumerated()), id: \.offset) { i, img in
-                            Image(img.image!, scale: 5, label: Text(String(img.seed)))
+                            Image(img.image!, scale: 1, label: Text(String(img.seed)))
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
                                 .onTapGesture {
                                     store.selectImage(index: i)
                                 }
@@ -51,16 +52,16 @@ struct GalleryView: View {
                                 }
                         }
                     }
-                    .padding([.leading, .trailing], 12)
+                    .padding()
                 }
-                .frame(height: 125)
+                .frame(height: 130)
             }
         }
         .toolbar {
             MainToolbar()
         }
     }
-    
+
     private func getProgressView(progress: StableDiffusionProgress?) -> AnyView {
         guard let progress = progress, progress.stepCount > 0 else {
             // The first time it takes a little bit before generation starts
