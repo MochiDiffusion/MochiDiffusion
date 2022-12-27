@@ -46,7 +46,7 @@ final class Store: ObservableObject {
             return model
         }
     }
-    
+
     func getSelectedImage() -> SDImage? {
         if (selectedImageIndex == -1) {
             return nil
@@ -139,7 +139,7 @@ final class Store: ObservableObject {
             }
         }
     }
-    
+
     func generate() {
         if case .running = mainViewStatus { return }
         guard let pipeline = pipeline else {
@@ -164,18 +164,19 @@ final class Store: ObservableObject {
                 s.scheduler = self.scheduler
                 s.steps = self.steps
                 s.guidanceScale = self.guidanceScale
-                
+
                 // Generate
+                let batchSize = self.batchSize
                 var seedUsed = self.seed == 0 ? UInt32.random(in: 0 ..< UInt32.max) : self.seed
                 for _ in 0 ..< self.numberOfBatches {
                     let (imgs, seed) = try pipeline.generate(
-                        prompt: self.prompt,
-                        negativePrompt: self.negativePrompt,
-                        batchSize: self.batchSize,
-                        numInferenceSteps: self.steps,
+                        prompt: s.prompt,
+                        negativePrompt: s.negativePrompt,
+                        batchSize: batchSize,
+                        numInferenceSteps: s.steps,
                         seed: seedUsed,
-                        guidanceScale: Float(self.guidanceScale),
-                        scheduler: self.scheduler)
+                        guidanceScale: Float(s.guidanceScale),
+                        scheduler: s.scheduler)
                     var simgs = [SDImage]()
                     for (ndx, img) in imgs.enumerated() {
                         s.image = img
@@ -191,7 +192,7 @@ final class Store: ObservableObject {
                     seedUsed += 1
                 }
                 self.progressSubscriber?.cancel()
-                
+
                 DispatchQueue.main.async {
                     self.mainViewStatus = .ready("Image generation complete")
                 }
@@ -208,7 +209,7 @@ final class Store: ObservableObject {
     func selectImage(index: Int) {
         selectedImageIndex = index
     }
-    
+
     func removeImage(index: Int) {
         images.remove(at: index)
         if index <= selectedImageIndex {
@@ -217,7 +218,7 @@ final class Store: ObservableObject {
             }
         }
     }
-    
+
     func removeCurrentImage() {
         removeImage(index: selectedImageIndex)
     }
@@ -233,7 +234,7 @@ final class Store: ObservableObject {
         seed = image.seed
         scheduler = image.scheduler
     }
-    
+
     @MainActor
     private func imagesReady(simgs: [SDImage]) {
         let newImageIndex = self.images.count
