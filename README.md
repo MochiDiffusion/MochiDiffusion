@@ -1,6 +1,10 @@
-#  Mochi Diffusion
+<p align="center">
+<img height="256" src="https://github.com/godly-devotion/mochi-diffusion/raw/main/Mochi Diffusion/Assets.xcassets/AppIcon.appiconset/AppIcon.png" />
+</p>
 
-Run Stable Diffusion on Apple Silicon Macs natively
+<h1 align="center">Mochi Diffusion</h1>
+
+<p align="center">Run Stable Diffusion on Apple Silicon Macs natively</p>
 
 ![Screenshot](.github/images/screenshot.png)
 
