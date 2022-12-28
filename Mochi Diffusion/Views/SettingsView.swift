@@ -35,7 +35,7 @@ struct SettingsView: View {
                 
                 Toggle("Reduce Memory Usage:", isOn: $store.reduceMemory)
                     .toggleStyle(.switch)
-                Text("Recommended for Macs with 8GB of memory.")
+                Text("Reduce memory usage further at the cost of speed.")
                     .font(.callout)
                     .foregroundColor(.secondary)
                 
