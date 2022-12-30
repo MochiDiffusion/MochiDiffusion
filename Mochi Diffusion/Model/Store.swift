@@ -177,6 +177,9 @@ final class Store: ObservableObject {
                         seed: seedUsed,
                         guidanceScale: Float(s.guidanceScale),
                         scheduler: s.scheduler)
+                    if pipeline.hasGenerationBeenStopped {
+                        break
+                    }
                     var simgs = [SDImage]()
                     for (ndx, img) in imgs.enumerated() {
                         s.image = img
@@ -185,9 +188,6 @@ final class Store: ObservableObject {
                         s.seed = seed
                         s.imageIndex = ndx
                         simgs.append(s)
-                    }
-                    if pipeline.generationStopped {
-                        break
                     }
                     DispatchQueue.main.async {
                         self.imagesReady(simgs: simgs)
