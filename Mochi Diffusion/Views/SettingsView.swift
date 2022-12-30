@@ -7,6 +7,7 @@
 
 import SwiftUI
 import CoreML
+import StableDiffusion
 
 struct SettingsView: View {
     @EnvironmentObject var store: Store
@@ -14,30 +15,44 @@ struct SettingsView: View {
     var body: some View {
         VStack(alignment: .leading) {
             Form {
-                Picker("ML Compute Unit:", selection: $store.mlComputeUnit) {
-                    Text("CPU & Neural Engine").tag(MLComputeUnits.cpuAndNeuralEngine)
-                    Text("CPU & GPU").tag(MLComputeUnits.cpuAndGPU)
-                    Text("All").tag(MLComputeUnits.all)
+                Group {
+                    Picker("Scheduler:", selection: $store.scheduler) {
+                        ForEach(StableDiffusionScheduler.allCases, id: \.self) { s in
+                            Text(s.rawValue).tag(s)
+                        }
+                    }
+                    .fixedSize()
                 }
-                .fixedSize()
-                Text("CPU & Neural Engine provides a good balance between speed and low memory usage.")
-                    .font(.callout)
-                    .foregroundColor(.secondary)
-                Text("CPU & GPU may be faster on M1 Max, Ultra and later but will use more memory.")
-                    .font(.callout)
-                    .foregroundColor(.secondary)
-                Text("Based on the option selected the correct model version will need to be used.")
-                    .font(.callout)
-                    .foregroundColor(.secondary)
                 
                 Spacer().frame(height: 12)
                 
+                Group {
+                    Picker("ML Compute Unit:", selection: $store.mlComputeUnit) {
+                        Text("CPU & Neural Engine").tag(MLComputeUnits.cpuAndNeuralEngine)
+                        Text("CPU & GPU").tag(MLComputeUnits.cpuAndGPU)
+                        Text("All").tag(MLComputeUnits.all)
+                    }
+                    .fixedSize()
+                    Text("CPU & Neural Engine provides a good balance between speed and low memory usage.")
+                        .font(.callout)
+                        .foregroundColor(.secondary)
+                    Text("CPU & GPU may be faster on M1 Max, Ultra and later but will use more memory.")
+                        .font(.callout)
+                        .foregroundColor(.secondary)
+                    Text("Based on the option selected the correct model version will need to be used.")
+                        .font(.callout)
+                        .foregroundColor(.secondary)
+                }
                 
-                Toggle("Reduce Memory Usage:", isOn: $store.reduceMemory)
-                    .toggleStyle(.switch)
-                Text("Reduce memory usage further at the cost of speed.")
-                    .font(.callout)
-                    .foregroundColor(.secondary)
+                Spacer().frame(height: 12)
+                
+                Group {
+                    Toggle("Reduce Memory Usage:", isOn: $store.reduceMemory)
+                        .toggleStyle(.switch)
+                    Text("Reduce memory usage further at the cost of speed.")
+                        .font(.callout)
+                        .foregroundColor(.secondary)
+                }
                 
                 Spacer().frame(height: 12)
                 
@@ -69,7 +84,7 @@ struct SettingsView: View {
             }
         }
         .padding()
-        .frame(width: 690, height: 240, alignment: .top)
+        .frame(width: 690, height: 280, alignment: .top)
     }
 }
 

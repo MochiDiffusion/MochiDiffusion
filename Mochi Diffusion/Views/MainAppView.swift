@@ -18,7 +18,7 @@ struct MainAppView: View {
                         PromptView()
                         Divider().frame(height: 16)
                     }
-
+                    
                     Group {
                         NumberOfBatchesView()
                         Spacer()
@@ -46,11 +46,6 @@ struct MainAppView: View {
                     
                     Group {
                         ModelView()
-                        Spacer()
-                    }
-                    
-                    Group {
-                        SchedulerView()
                     }
                 }
                 .padding([.horizontal, .bottom])
