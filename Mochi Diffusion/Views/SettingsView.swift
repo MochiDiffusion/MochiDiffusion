@@ -41,11 +41,21 @@ struct SettingsView: View {
                 
                 Spacer().frame(height: 12)
                 
-                TextField(text: $store.workingDir) {
-                    Text("Working Directory:")
+                HStack {
+                    TextField(text: $store.workingDir) {
+                        Text("Working Directory:")
+                    }
+                    .disableAutocorrection(true)
+                    .textFieldStyle(.roundedBorder)
+                    
+                    Button(action: {
+                        NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: store.workingDir).absoluteURL])
+                    }) {
+                        Image(systemName: "arrow.right.circle.fill")
+                            .foregroundColor(Color.secondary)
+                    }
+                    .buttonStyle(PlainButtonStyle())
                 }
-                .disableAutocorrection(true)
-                .textFieldStyle(.roundedBorder)
             }
             
             Spacer()
