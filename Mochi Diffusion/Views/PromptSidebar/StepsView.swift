@@ -13,7 +13,7 @@ struct StepsView: View {
     
     var body: some View {
         Text("Steps: \(store.steps)")
-        ValueSlider(value: $store.steps, in: 2 ... 200, step: 1)
+        ValueSlider(value: $store.steps, in: 2 ... 100, step: 1)
             .valueSliderStyle(
                 HorizontalValueSliderStyle(
                     track:
