@@ -16,7 +16,8 @@ typealias StableDiffusionProgress = StableDiffusionPipeline.Progress
 
 class Pipeline {
     let pipeline: StableDiffusionPipeline
-    
+    var generationStopped = false
+
     var progress: StableDiffusionProgress? = nil {
         didSet {
             progressPublisher.value = progress
@@ -27,7 +28,7 @@ class Pipeline {
     init(_ pipeline: StableDiffusionPipeline) {
         self.pipeline = pipeline
     }
-    
+
     func generate(
         prompt: String,
         negativePrompt: String = "",
@@ -39,6 +40,7 @@ class Pipeline {
     ) throws -> ([CGImage], UInt32) {
         let beginDate = Date()
         print("Generating...")
+        generationStopped = false
         let images = try pipeline.generateImages(
             prompt: prompt,
             negativePrompt: negativePrompt,
@@ -49,19 +51,20 @@ class Pipeline {
             disableSafety: true,
             scheduler: scheduler
         ) { progress in
-            handleProgress(progress)
-            return true
+            return handleProgress(progress)
         }
         print("Got images: \(images) in \(Date().timeIntervalSince(beginDate))")
-        
+
         let imgs = images.compactMap({$0})
-        if imgs.count != batchSize {
-            throw "Generation failed: got \(imgs.count) instead of \(batchSize)"
-        }
         return (imgs, seed)
     }
-    
-    func handleProgress(_ progress: StableDiffusionPipeline.Progress) {
+
+    func stopGeneration() {
+         generationStopped = true
+    }
+
+    private func handleProgress(_ progress: StableDiffusionPipeline.Progress) -> Bool {
         self.progress = progress
+        return !generationStopped
     }
 }

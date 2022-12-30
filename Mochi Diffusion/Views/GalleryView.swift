@@ -29,7 +29,7 @@ struct GalleryView: View {
                 Divider()
 
                 ScrollView(.horizontal) {
-                    HStack(alignment: .center, spacing: 12) {
+                    LazyHStack(alignment: .center, spacing: 12) {
                         ForEach(Array(store.images.enumerated()), id: \.offset) { i, img in
                             Image(img.image!, scale: 1, label: Text(String(img.seed)))
                                 .resizable()
@@ -73,8 +73,17 @@ struct GalleryView: View {
         let fraction = Double(step) / Double(progress.stepCount)
         let label = "Step \(step) of \(progress.stepCount)"
         return AnyView(
-            ProgressView(label, value: fraction, total: 1)
-                .padding([.top, .horizontal]))
+            HStack(alignment: .center, spacing: 12) {
+                ProgressView(label, value: fraction, total: 1)
+
+                Button(action: { store.stopGeneration() }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(Color.secondary)
+                }
+                .buttonStyle(PlainButtonStyle())
+            }
+            .padding([.top, .horizontal])
+        )
     }
 }
 

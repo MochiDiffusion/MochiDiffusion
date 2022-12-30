@@ -186,8 +186,10 @@ final class Store: ObservableObject {
                         s.imageIndex = ndx
                         simgs.append(s)
                     }
-                    DispatchQueue.main.async {
-                        self.imagesReady(simgs: simgs)
+                    if !pipeline.generationStopped {
+                        DispatchQueue.main.async {
+                            self.imagesReady(simgs: simgs)
+                        }
                     }
                     seedUsed += 1
                 }
@@ -204,6 +206,10 @@ final class Store: ObservableObject {
                 }
             }
         }
+    }
+    
+    func stopGeneration() {
+        pipeline?.stopGeneration()
     }
 
     func selectImage(index: Int) {
