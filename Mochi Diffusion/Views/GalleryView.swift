@@ -29,11 +29,16 @@ struct GalleryView: View {
                 Divider()
 
                 ScrollView(.horizontal) {
-                    LazyHStack(alignment: .center, spacing: 12) {
+                    LazyHStack(alignment: .center, spacing: 14) {
                         ForEach(Array(store.images.enumerated()), id: \.offset) { i, img in
                             Image(img.image!, scale: 1, label: Text(String(img.seed)))
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
+                                .padding(4)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 2)
+                                        .stroke(i == store.selectedImageIndex ? Color.accentColor : Color.clear, lineWidth: 3)
+                                )
                                 .onTapGesture {
                                     store.selectImage(index: i)
                                 }
@@ -73,7 +78,7 @@ struct GalleryView: View {
         let fraction = Double(step) / Double(progress.stepCount)
         let label = "Step \(step) of \(progress.stepCount)"
         return AnyView(
-            HStack(alignment: .center, spacing: 12) {
+            HStack(alignment: .center, spacing: 14) {
                 ProgressView(label, value: fraction, total: 1)
 
                 Button(action: { store.stopGeneration() }) {

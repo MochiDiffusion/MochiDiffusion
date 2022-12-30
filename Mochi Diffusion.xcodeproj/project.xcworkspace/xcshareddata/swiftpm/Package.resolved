@@ -6,7 +6,7 @@
       "location" : "https://github.com/godly-devotion/ml-stable-diffusion",
       "state" : {
         "branch" : "main",
-        "revision" : "e782bbe9d8fe25209b7015eb6d404da2b9b1dfc8"
+        "revision" : "61dc64ae2159fcebcb6c41618982031f8731efa7"
       }
     },
     {
@@ -23,8 +23,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/sparkle-project/Sparkle",
       "state" : {
-        "revision" : "2a98381dfe72e24bf593c5c06d2c4fc1763c3f19",
-        "version" : "2.3.0"
+        "revision" : "9d85a02fe7916caa7531847452c4933d331503a5",
+        "version" : "2.3.1"
       }
     },
     {
