@@ -186,10 +186,11 @@ final class Store: ObservableObject {
                         s.imageIndex = ndx
                         simgs.append(s)
                     }
-                    if !pipeline.generationStopped {
-                        DispatchQueue.main.async {
-                            self.imagesReady(simgs: simgs)
-                        }
+                    if pipeline.generationStopped {
+                        break
+                    }
+                    DispatchQueue.main.async {
+                        self.imagesReady(simgs: simgs)
                     }
                     seedUsed += 1
                 }
