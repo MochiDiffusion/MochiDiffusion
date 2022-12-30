@@ -26,7 +26,7 @@ Model:
 \(sdi.model)
 
 Size:
-\(sdi.width) x \(sdi.height)
+\(sdi.width) x \(sdi.height)\(sdi.isUpscaled ? " (Converted to High Resolution)" : "")
 
 Prompt:
 \(sdi.prompt)

@@ -18,6 +18,7 @@ This app uses [Apple's Core ML Stable Diffusion implementation](https://github.c
 - Runs well on all Apple Silicon Macs by fully utilizing Neural Engine
 - Generate images locally and completely offline
 - Generated images are saved with prompt info inside EXIF metadata
+- Convert generated images to high resolution (using RealESRGAN)
 - Use custom Stable Diffusion Core ML models
 - No worries about pickled models
 - macOS native app using SwiftUI

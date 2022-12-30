@@ -13,6 +13,7 @@ import StableDiffusion
 
 final class Store: ObservableObject {
     @Published var pipeline: Pipeline? = nil
+    @Published var upscaler = Upscaler()
     @Published var models = [String]()
     @Published var images = [SDImage]()
     @Published var selectedImageIndex = -1
@@ -191,7 +192,7 @@ final class Store: ObservableObject {
                         simgs.append(s)
                     }
                     DispatchQueue.main.async {
-                        self.imagesReady(simgs: simgs)
+                        self.addImages(simgs: simgs)
                     }
                     seedUsed += 1
                 }
@@ -213,6 +214,36 @@ final class Store: ObservableObject {
     func stopGeneration() {
         pipeline?.stopGeneration()
     }
+    
+    func upscaleImage(sdImage: SDImage) {
+        if sdImage.isUpscaled { return }
+        guard let img = sdImage.image else { return }
+        guard let upscaledImage = upscaler.upscale(cgImage: img) else { return }
+        let newImageIndex = images.count
+        var sdi = sdImage
+        sdi.image = upscaledImage
+        sdi.width = upscaledImage.width
+        sdi.height = upscaledImage.height
+        sdi.isUpscaled = true
+        sdi.generatedDate = Date.now
+        images.append(sdi)
+        selectedImageIndex = newImageIndex
+    }
+    
+    func upscaleCurrentImage() {
+        guard var sdi = getSelectedImage(), let img = sdi.image else { return }
+        if sdi.isUpscaled { return }
+        
+        guard let upscaledImage = upscaler.upscale(cgImage: img) else { return }
+        let newImageIndex = images.count
+        sdi.image = upscaledImage
+        sdi.width = upscaledImage.width
+        sdi.height = upscaledImage.height
+        sdi.isUpscaled = true
+        sdi.generatedDate = Date.now
+        images.append(sdi)
+        selectedImageIndex = newImageIndex
+    }
 
     func selectImage(index: Int) {
         selectedImageIndex = index
@@ -232,49 +263,49 @@ final class Store: ObservableObject {
     }
 
     func copyToPrompt() {
-        guard let image = getSelectedImage() else { return }
-        prompt = image.prompt
-        negativePrompt = image.negativePrompt
-        steps = image.steps
-        guidanceScale = image.guidanceScale
-        width = image.width
-        height = image.height
-        seed = image.seed
-        scheduler = image.scheduler
+        guard let sdi = getSelectedImage() else { return }
+        prompt = sdi.prompt
+        negativePrompt = sdi.negativePrompt
+        steps = sdi.steps
+        guidanceScale = sdi.guidanceScale
+        width = sdi.width
+        height = sdi.height
+        seed = sdi.seed
+        scheduler = sdi.scheduler
     }
     
     func copyPromptToPrompt() {
-        guard let image = getSelectedImage() else { return }
-        prompt = image.prompt
+        guard let sdi = getSelectedImage() else { return }
+        prompt = sdi.prompt
     }
 
     func copyNegativePromptToPrompt() {
-        guard let image = getSelectedImage() else { return }
-        negativePrompt = image.negativePrompt
+        guard let sdi = getSelectedImage() else { return }
+        negativePrompt = sdi.negativePrompt
     }
     
     func copySchedulerToPrompt() {
-        guard let image = getSelectedImage() else { return }
-        scheduler = image.scheduler
+        guard let sdi = getSelectedImage() else { return }
+        scheduler = sdi.scheduler
     }
     
     func copySeedToPrompt() {
-        guard let image = getSelectedImage() else { return }
-        seed = image.seed
+        guard let sdi = getSelectedImage() else { return }
+        seed = sdi.seed
     }
     
     func copyStepsToPrompt() {
-        guard let image = getSelectedImage() else { return }
-        steps = image.steps
+        guard let sdi = getSelectedImage() else { return }
+        steps = sdi.steps
     }
     
     func copyGuidanceScaleToPrompt() {
-        guard let image = getSelectedImage() else { return }
-        guidanceScale = image.guidanceScale
+        guard let sdi = getSelectedImage() else { return }
+        guidanceScale = sdi.guidanceScale
     }
     
     @MainActor
-    private func imagesReady(simgs: [SDImage]) {
+    private func addImages(simgs: [SDImage]) {
         let newImageIndex = self.images.count
         self.images.append(contentsOf: simgs)
         self.selectedImageIndex = newImageIndex

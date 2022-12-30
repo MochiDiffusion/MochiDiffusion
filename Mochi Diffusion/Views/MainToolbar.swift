@@ -18,6 +18,9 @@ struct MainToolbar: View {
             Button(action: { store.removeCurrentImage() }) {
                 Label("Remove", systemImage: "trash")
             }
+            Button(action: { store.upscaleCurrentImage() }) {
+                Label("Convert to High Resolution", systemImage: "wand.and.stars")
+            }
             
             Spacer()
             
@@ -35,6 +38,10 @@ struct MainToolbar: View {
         else {
             Button(action: {}) {
                 Label("Remove", systemImage: "trash")
+            }
+            .disabled(true)
+            Button(action: {}) {
+                Label("Convert to High Resolution", systemImage: "wand.and.stars")
             }
             .disabled(true)
 

@@ -24,6 +24,7 @@ struct SDImage {
     var guidanceScale = 11.0
     var imageIndex = 0
     var generatedDate = Date()
+    var isUpscaled = false
 
     // Save image with metadata
     func save() {
@@ -63,7 +64,7 @@ struct SDImage {
             NSLog("*** Error saving image file: \(error)")
         }
     }
-
+    
     private func metadata() -> String {
         return title() + ", Seed: \(seed), Model: \(model), Scheduler: \(scheduler), Steps: \(steps), Guidance: \(guidanceScale), Index: \(imageIndex)"
     }

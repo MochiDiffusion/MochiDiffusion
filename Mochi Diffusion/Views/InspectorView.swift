@@ -25,7 +25,7 @@ struct InspectorView: View {
                         showCopyToPromptOption: false)
                     InfoGridRow(
                         type: "Size",
-                        text: "\(sdi.width) x \(sdi.height)",
+                        text: "\(sdi.width) x \(sdi.height)\(sdi.isUpscaled ? " (Converted to High Resolution)" : "")",
                         showCopyToPromptOption: false)
                     InfoGridRow(
                         type: "Prompt",

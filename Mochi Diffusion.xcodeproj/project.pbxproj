@@ -41,6 +41,9 @@
 		03E89F3C294FE6ED0067457E /* SDImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E89F3B294FE6ED0067457E /* SDImage.swift */; };
 		03F3179929512BAB00F06D25 /* MainViewStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03F3179829512BAB00F06D25 /* MainViewStatus.swift */; };
 		03FD2317295F480F006EEEE2 /* ViewModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03FD2316295F480F006EEEE2 /* ViewModifiers.swift */; };
+		03FD2319295F74B6006EEEE2 /* RealESRGAN.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 03FD2318295F74B6006EEEE2 /* RealESRGAN.mlmodel */; };
+		03FD231B295F7A81006EEEE2 /* Upscaler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03FD231A295F7A81006EEEE2 /* Upscaler.swift */; };
+		03FD231D295FA3BE006EEEE2 /* GalleryImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03FD231C295FA3BE006EEEE2 /* GalleryImageView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -95,6 +98,9 @@
 		03E89F3B294FE6ED0067457E /* SDImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDImage.swift; sourceTree = "<group>"; };
 		03F3179829512BAB00F06D25 /* MainViewStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewStatus.swift; sourceTree = "<group>"; };
 		03FD2316295F480F006EEEE2 /* ViewModifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModifiers.swift; sourceTree = "<group>"; };
+		03FD2318295F74B6006EEEE2 /* RealESRGAN.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = RealESRGAN.mlmodel; sourceTree = "<group>"; };
+		03FD231A295F7A81006EEEE2 /* Upscaler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Upscaler.swift; sourceTree = "<group>"; };
+		03FD231C295FA3BE006EEEE2 /* GalleryImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryImageView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -142,6 +148,7 @@
 				0352E2B0294EA30D003FBF25 /* Extensions.swift */,
 				0352E2B4294EA887003FBF25 /* Functions.swift */,
 				036BFC56294BA13100D8AD04 /* Pipeline.swift */,
+				03FD231A295F7A81006EEEE2 /* Upscaler.swift */,
 				03FD2316295F480F006EEEE2 /* ViewModifiers.swift */,
 			);
 			path = Support;
@@ -189,6 +196,7 @@
 				036BFC25294B9F7600D8AD04 /* Assets.xcassets */,
 				036BFC5A294BA19400D8AD04 /* Downloader.swift */,
 				0352E2A8294E414D003FBF25 /* Info.plist */,
+				03FD2318295F74B6006EEEE2 /* RealESRGAN.mlmodel */,
 				0307B0D8294D4A1D00A9BD55 /* Main Menu */,
 				0386DF8E29510D8700CA4CEB /* Model */,
 				036BFC27294B9F7600D8AD04 /* Preview Content */,
@@ -211,6 +219,7 @@
 			children = (
 				035EDFF1295A1F8F00080D18 /* PromptSidebar */,
 				0352E2AD294EA2B4003FBF25 /* ErrorBanner.swift */,
+				03FD231C295FA3BE006EEEE2 /* GalleryImageView.swift */,
 				03B8C11729536B9400DE5934 /* GalleryView.swift */,
 				0386DF8A2950D29400CA4CEB /* InspectorView.swift */,
 				0352E2A9294EA0E1003FBF25 /* MainAppView.swift */,
@@ -389,14 +398,17 @@
 				0386DF8B2950D29400CA4CEB /* InspectorView.swift in Sources */,
 				0352E2AC294EA1B4003FBF25 /* PreviewView.swift in Sources */,
 				03D280F2294FD60E00C7D184 /* PromptView.swift in Sources */,
+				03FD2319295F74B6006EEEE2 /* RealESRGAN.mlmodel in Sources */,
 				035EE000295A224900080D18 /* ModelView.swift in Sources */,
 				0352E2AA294EA0E1003FBF25 /* MainAppView.swift in Sources */,
 				035EE003295A227100080D18 /* SchedulerView.swift in Sources */,
 				0352E2B5294EA887003FBF25 /* Functions.swift in Sources */,
+				03FD231D295FA3BE006EEEE2 /* GalleryImageView.swift in Sources */,
 				0352E2B1294EA30D003FBF25 /* Extensions.swift in Sources */,
 				0352E2B3294EA326003FBF25 /* Store.swift in Sources */,
 				035EDFF8295A216500080D18 /* StepsView.swift in Sources */,
 				03FD2317295F480F006EEEE2 /* ViewModifiers.swift in Sources */,
+				03FD231B295F7A81006EEEE2 /* Upscaler.swift in Sources */,
 				036BFC57294BA13100D8AD04 /* Pipeline.swift in Sources */,
 				036BFC22294B9F7500D8AD04 /* App.swift in Sources */,
 				035EDFFE295A220F00080D18 /* SeedView.swift in Sources */,

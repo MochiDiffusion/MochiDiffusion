@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import Combine
 
 struct GalleryView: View {
     @EnvironmentObject var store: Store
@@ -30,33 +29,8 @@ struct GalleryView: View {
 
                 ScrollView(.horizontal) {
                     LazyHStack(alignment: .center, spacing: 14) {
-                        ForEach(Array(store.images.enumerated()), id: \.offset) { i, img in
-                            Image(img.image!, scale: 1, label: Text(String(img.seed)))
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .padding(4)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 2)
-                                        .stroke(i == store.selectedImageIndex ? Color.accentColor : Color.clear, lineWidth: 3)
-                                )
-                                .onTapGesture {
-                                    store.selectImage(index: i)
-                                }
-                                .contextMenu {
-                                    Section {
-                                        Button("Copy to Prompt") {
-                                            store.copyToPrompt()
-                                        }
-                                        Button("Save Image...") {
-                                            img.save()
-                                        }
-                                    }
-                                    Section {
-                                        Button("Remove") {
-                                            store.removeImage(index: i)
-                                        }
-                                    }
-                                }
+                        ForEach(Array(store.images.enumerated()), id: \.offset) { i, sdi in
+                            GalleryImageView(i: i, sdi: sdi)
                         }
                     }
                     .padding()
