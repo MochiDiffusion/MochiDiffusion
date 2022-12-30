@@ -44,6 +44,9 @@ struct GalleryView: View {
                                 }
                                 .contextMenu {
                                     Section {
+                                        Button("Copy to Prompt") {
+                                            store.copyToPrompt()
+                                        }
                                         Button("Save Image...") {
                                             img.save()
                                         }
