@@ -34,14 +34,11 @@ struct SettingsView: View {
                     }
                     .fixedSize()
                     Text("CPU & Neural Engine provides a good balance between speed and low memory usage.")
-                        .font(.callout)
-                        .foregroundColor(.secondary)
+                        .helpTextFormat()
                     Text("CPU & GPU may be faster on M1 Max, Ultra and later but will use more memory.")
-                        .font(.callout)
-                        .foregroundColor(.secondary)
+                        .helpTextFormat()
                     Text("Based on the option selected the correct model version will need to be used.")
-                        .font(.callout)
-                        .foregroundColor(.secondary)
+                        .helpTextFormat()
                 }
                 
                 Spacer().frame(height: 12)
@@ -50,8 +47,7 @@ struct SettingsView: View {
                     Toggle("Reduce Memory Usage:", isOn: $store.reduceMemory)
                         .toggleStyle(.switch)
                     Text("Reduce memory usage further at the cost of speed.")
-                        .font(.callout)
-                        .foregroundColor(.secondary)
+                        .helpTextFormat()
                 }
                 
                 Spacer().frame(height: 12)

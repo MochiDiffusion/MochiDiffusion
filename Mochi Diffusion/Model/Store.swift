@@ -187,6 +187,7 @@ final class Store: ObservableObject {
                         s.height = img.height
                         s.seed = seed
                         s.imageIndex = ndx
+                        s.generatedDate = Date.now
                         simgs.append(s)
                     }
                     DispatchQueue.main.async {
@@ -241,7 +242,37 @@ final class Store: ObservableObject {
         seed = image.seed
         scheduler = image.scheduler
     }
+    
+    func copyPromptToPrompt() {
+        guard let image = getSelectedImage() else { return }
+        prompt = image.prompt
+    }
 
+    func copyNegativePromptToPrompt() {
+        guard let image = getSelectedImage() else { return }
+        negativePrompt = image.negativePrompt
+    }
+    
+    func copySchedulerToPrompt() {
+        guard let image = getSelectedImage() else { return }
+        scheduler = image.scheduler
+    }
+    
+    func copySeedToPrompt() {
+        guard let image = getSelectedImage() else { return }
+        seed = image.seed
+    }
+    
+    func copyStepsToPrompt() {
+        guard let image = getSelectedImage() else { return }
+        steps = image.steps
+    }
+    
+    func copyGuidanceScaleToPrompt() {
+        guard let image = getSelectedImage() else { return }
+        guidanceScale = image.guidanceScale
+    }
+    
     @MainActor
     private func imagesReady(simgs: [SDImage]) {
         let newImageIndex = self.images.count

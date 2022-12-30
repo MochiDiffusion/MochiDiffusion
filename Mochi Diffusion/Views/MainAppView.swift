@@ -18,32 +18,26 @@ struct MainAppView: View {
                         PromptView()
                         Divider().frame(height: 16)
                     }
-                    
                     Group {
                         NumberOfBatchesView()
                         Spacer()
                     }
-                    
                     Group {
                         BatchSizeView()
                         Spacer()
                     }
-                    
                     Group {
                         StepsView()
                         Spacer()
                     }
-                    
                     Group {
                         GuidanceScaleView()
                         Spacer()
                     }
-                    
                     Group {
                         SeedView()
                         Spacer()
                     }
-                    
                     Group {
                         ModelView()
                     }

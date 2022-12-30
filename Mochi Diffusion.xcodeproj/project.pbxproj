@@ -40,6 +40,7 @@
 		03D280F2294FD60E00C7D184 /* PromptView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03D280F1294FD60E00C7D184 /* PromptView.swift */; };
 		03E89F3C294FE6ED0067457E /* SDImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E89F3B294FE6ED0067457E /* SDImage.swift */; };
 		03F3179929512BAB00F06D25 /* MainViewStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03F3179829512BAB00F06D25 /* MainViewStatus.swift */; };
+		03FD2317295F480F006EEEE2 /* ViewModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03FD2316295F480F006EEEE2 /* ViewModifiers.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -93,6 +94,7 @@
 		03D280F1294FD60E00C7D184 /* PromptView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptView.swift; sourceTree = "<group>"; };
 		03E89F3B294FE6ED0067457E /* SDImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDImage.swift; sourceTree = "<group>"; };
 		03F3179829512BAB00F06D25 /* MainViewStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewStatus.swift; sourceTree = "<group>"; };
+		03FD2316295F480F006EEEE2 /* ViewModifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModifiers.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -140,6 +142,7 @@
 				0352E2B0294EA30D003FBF25 /* Extensions.swift */,
 				0352E2B4294EA887003FBF25 /* Functions.swift */,
 				036BFC56294BA13100D8AD04 /* Pipeline.swift */,
+				03FD2316295F480F006EEEE2 /* ViewModifiers.swift */,
 			);
 			path = Support;
 			sourceTree = "<group>";
@@ -393,6 +396,7 @@
 				0352E2B1294EA30D003FBF25 /* Extensions.swift in Sources */,
 				0352E2B3294EA326003FBF25 /* Store.swift in Sources */,
 				035EDFF8295A216500080D18 /* StepsView.swift in Sources */,
+				03FD2317295F480F006EEEE2 /* ViewModifiers.swift in Sources */,
 				036BFC57294BA13100D8AD04 /* Pipeline.swift in Sources */,
 				036BFC22294B9F7500D8AD04 /* App.swift in Sources */,
 				035EDFFE295A220F00080D18 /* SeedView.swift in Sources */,

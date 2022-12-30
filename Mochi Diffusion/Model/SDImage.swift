@@ -23,6 +23,7 @@ struct SDImage {
     var steps = 28
     var guidanceScale = 11.0
     var imageIndex = 0
+    var generatedDate = Date()
 
     // Save image with metadata
     func save() {

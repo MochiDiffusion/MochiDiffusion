@@ -7,16 +7,32 @@
 
 import Foundation
 
+let dateFormatter: DateFormatter = {
+    let formatter = DateFormatter()
+    formatter.locale = Locale.autoupdatingCurrent
+    formatter.timeZone = TimeZone.autoupdatingCurrent
+    formatter.dateStyle = .long
+    formatter.timeStyle = .medium
+    formatter.doesRelativeDateFormatting = true
+    return formatter
+}()
+
 func getHumanReadableInfo(sdi: SDImage) -> String {
     return """
+Date:
+\(dateFormatter.string(from: sdi.generatedDate))
+
+Model:
+\(sdi.model)
+
+Size:
+\(sdi.width) x \(sdi.height)
+
 Prompt:
 \(sdi.prompt)
 
 Negative Prompt:
 \(sdi.negativePrompt)
-
-Size:
-\(sdi.width) x \(sdi.height)
 
 Scheduler:
 \(sdi.scheduler.rawValue)
@@ -32,8 +48,5 @@ Guidance Scale:
 
 Image Index:
 \(sdi.imageIndex)
-
-Model:
-\(sdi.model)
 """
 }
