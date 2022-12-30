@@ -30,6 +30,8 @@ Download the latest version from the [releases](https://github.com/godly-devotio
 
 When trying to open the app for the first time, Gatekeeper will prevent you from doing so because the app is not code signed. In order to bypass this warning, you need to right-click on the app and select "Open". You will have to do this twice in order to get the option to open the app.
 
+When using a model for the very first time, it may take up to 30 seconds for the Neural Engine to compile a cached version. Afterwards, subsequent generations will be much faster.
+
 ## Compute Unit
 
 - `CPU & Neural Engine` provides a good balance between speed and low memory usage
