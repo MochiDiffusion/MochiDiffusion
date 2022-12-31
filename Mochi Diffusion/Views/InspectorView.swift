@@ -14,7 +14,7 @@ struct InspectorView: View {
     var body: some View {
         if let sdi = store.getSelectedImage() {
             ScrollView(.vertical) {
-                Grid(alignment: .leading, horizontalSpacing: 2) {
+                Grid(alignment: .leading, horizontalSpacing: 4) {
                     InfoGridRow(
                         type: "Date",
                         text: dateFormatter.string(from: sdi.generatedDate),

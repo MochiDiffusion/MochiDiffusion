@@ -17,23 +17,28 @@ struct MainToolbar: View {
             
             Button(action: { store.removeCurrentImage() }) {
                 Label("Remove", systemImage: "trash")
+                    .help("Remove")
             }
             Button(action: { store.upscaleCurrentImage() }) {
                 Label("Convert to High Resolution", systemImage: "wand.and.stars")
+                    .help("Convert to High Resolution")
             }
             
             Spacer()
             
             Button(action: { self.isInfoPopoverShown.toggle() }) {
                 Label("Get Info", systemImage: "info.circle")
+                    .help("Get Info")
             }
             .popover(isPresented: self.$isInfoPopoverShown, arrowEdge: .top) {
                 InspectorView().padding()
             }
             Button(action: sdi.save) {
                 Label("Save Image...", systemImage: "square.and.arrow.down")
+                    .help("Save Image")
             }
             ShareLink(item: imageView, preview: SharePreview(sdi.prompt, image: imageView))
+                .help("Share Image")
         }
         else {
             Button(action: {}) {

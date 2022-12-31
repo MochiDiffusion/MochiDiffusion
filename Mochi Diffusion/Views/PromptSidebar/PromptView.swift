@@ -28,8 +28,15 @@ struct PromptView: View {
                 .border(Color.black.opacity(0.1))
                 .cornerRadius(4)
             
-            HStack {
+            HStack(alignment: .center) {
+                Toggle(isOn: $store.upscaleGeneratedImages) {
+                    Image(systemName: "wand.and.stars")
+                        .font(.system(size: 15))
+                }
+                .help("Convert all images to High Resolution (this will use more memory)")
+                
                 Spacer()
+                
                 Button("Generate") {
                     store.generate()
                 }

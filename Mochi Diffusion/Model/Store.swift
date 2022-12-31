@@ -29,6 +29,7 @@ final class Store: ObservableObject {
     @AppStorage("ImageWidth") var width = 512
     @AppStorage("ImageHeight") var height = 512
     @AppStorage("Scheduler") var scheduler = StableDiffusionScheduler.dpmSolverMultistepScheduler
+    @AppStorage("UpscaleGeneratedImages") var upscaleGeneratedImages = false
     @AppStorage("MLComputeUnit") var mlComputeUnit: MLComputeUnits = .cpuAndNeuralEngine
     @AppStorage("ReduceMemory") var reduceMemory = false
     @AppStorage("Model") private var model = ""
@@ -192,7 +193,12 @@ final class Store: ObservableObject {
                         simgs.append(s)
                     }
                     DispatchQueue.main.async {
-                        self.addImages(simgs: simgs)
+                        if self.upscaleGeneratedImages {
+                            self.upscaleThenAddImages(simgs: simgs)
+                        }
+                        else {
+                            self.addImages(simgs: simgs)
+                        }
                     }
                     seedUsed += 1
                 }
@@ -210,11 +216,11 @@ final class Store: ObservableObject {
             }
         }
     }
-    
+
     func stopGeneration() {
         pipeline?.stopGeneration()
     }
-    
+
     func upscaleImage(sdImage: SDImage) {
         if sdImage.isUpscaled { return }
         guard let img = sdImage.image else { return }
@@ -229,11 +235,11 @@ final class Store: ObservableObject {
         images.append(sdi)
         selectedImageIndex = newImageIndex
     }
-    
+
     func upscaleCurrentImage() {
         guard var sdi = getSelectedImage(), let img = sdi.image else { return }
         if sdi.isUpscaled { return }
-        
+
         guard let upscaledImage = upscaler.upscale(cgImage: img) else { return }
         let newImageIndex = images.count
         sdi.image = upscaledImage
@@ -273,7 +279,7 @@ final class Store: ObservableObject {
         seed = sdi.seed
         scheduler = sdi.scheduler
     }
-    
+
     func copyPromptToPrompt() {
         guard let sdi = getSelectedImage() else { return }
         prompt = sdi.prompt
@@ -283,31 +289,47 @@ final class Store: ObservableObject {
         guard let sdi = getSelectedImage() else { return }
         negativePrompt = sdi.negativePrompt
     }
-    
+
     func copySchedulerToPrompt() {
         guard let sdi = getSelectedImage() else { return }
         scheduler = sdi.scheduler
     }
-    
+
     func copySeedToPrompt() {
         guard let sdi = getSelectedImage() else { return }
         seed = sdi.seed
     }
-    
+
     func copyStepsToPrompt() {
         guard let sdi = getSelectedImage() else { return }
         steps = sdi.steps
     }
-    
+
     func copyGuidanceScaleToPrompt() {
         guard let sdi = getSelectedImage() else { return }
         guidanceScale = sdi.guidanceScale
     }
-    
+
     @MainActor
     private func addImages(simgs: [SDImage]) {
         let newImageIndex = self.images.count
         self.images.append(contentsOf: simgs)
         self.selectedImageIndex = newImageIndex
+    }
+
+    @MainActor
+    private func upscaleThenAddImages(simgs: [SDImage]) {
+        var upscaledSDImgs = [SDImage]()
+        for simg in simgs {
+            guard let img = simg.image else { continue }
+            guard let upscaledImage = upscaler.upscale(cgImage: img) else { continue }
+            var sdi = simg
+            sdi.image = upscaledImage
+            sdi.width = upscaledImage.width
+            sdi.height = upscaledImage.height
+            sdi.isUpscaled = true
+            upscaledSDImgs.append(sdi)
+        }
+        self.addImages(simgs: upscaledSDImgs)
     }
 }
