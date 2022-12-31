@@ -40,7 +40,7 @@ struct SDImage {
         panel.title = "Save Image"
         panel.message = "Choose a folder and a name to store the image."
         panel.nameFieldLabel = "Image file name:"
-        panel.nameFieldStringValue = "\(String(prompt.prefix(50))).\(seed).png"
+        panel.nameFieldStringValue = "\(String(prompt.prefix(50))).\(seed).\(imageIndex).png"
         let resp = panel.runModal()
         if resp != .OK {
             return
@@ -66,7 +66,7 @@ struct SDImage {
     }
     
     private func metadata() -> String {
-        return title() + ", Seed: \(seed), Model: \(model), Scheduler: \(scheduler), Steps: \(steps), Guidance: \(guidanceScale), Index: \(imageIndex)"
+        return title() + ", Model: \(model), Scheduler: \(scheduler), Seed: \(seed), Steps: \(steps), Guidance: \(guidanceScale), Index: \(imageIndex)"
     }
 
     private func title() -> String {
