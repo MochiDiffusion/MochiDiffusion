@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		03021B512960E513001E88C0 /* BatchProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03021B502960E513001E88C0 /* BatchProgress.swift */; };
 		0307B0DA294D4AE500A9BD55 /* FileCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0307B0D9294D4AE500A9BD55 /* FileCommands.swift */; };
 		0352E2A5294E2591003FBF25 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 0352E2A4294E2591003FBF25 /* Sparkle */; };
 		0352E2A7294E3148003FBF25 /* HelpCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0352E2A6294E3148003FBF25 /* HelpCommands.swift */; };
@@ -64,6 +65,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		03021B502960E513001E88C0 /* BatchProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatchProgress.swift; sourceTree = "<group>"; };
 		0307B0D9294D4AE500A9BD55 /* FileCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileCommands.swift; sourceTree = "<group>"; };
 		0352E2A6294E3148003FBF25 /* HelpCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpCommands.swift; sourceTree = "<group>"; };
 		0352E2A8294E414D003FBF25 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = SOURCE_ROOT; };
@@ -233,6 +235,7 @@
 		0386DF8E29510D8700CA4CEB /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				03021B502960E513001E88C0 /* BatchProgress.swift */,
 				03F3179829512BAB00F06D25 /* MainViewStatus.swift */,
 				03E89F3B294FE6ED0067457E /* SDImage.swift */,
 				0352E2B2294EA326003FBF25 /* Store.swift */,
@@ -386,6 +389,7 @@
 			files = (
 				03E89F3C294FE6ED0067457E /* SDImage.swift in Sources */,
 				035EDFF3295A1FBF00080D18 /* NumberOfBatchesView.swift in Sources */,
+				03021B512960E513001E88C0 /* BatchProgress.swift in Sources */,
 				036BFC5B294BA19400D8AD04 /* Downloader.swift in Sources */,
 				035EDFF6295A208100080D18 /* BatchSizeView.swift in Sources */,
 				0386DF8D2950F25500CA4CEB /* MainToolbar.swift in Sources */,

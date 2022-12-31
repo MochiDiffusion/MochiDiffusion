@@ -21,6 +21,7 @@ final class Store: ObservableObject {
     @Published var numberOfBatches = 1
     @Published var batchSize = 1
     @Published var seed: UInt32 = 0
+    @Published var batchProgress = BatchProgress()
     @AppStorage("WorkingDir") var workingDir = ""
     @AppStorage("Prompt") var prompt = ""
     @AppStorage("NegativePrompt") var negativePrompt = ""
@@ -159,6 +160,8 @@ final class Store: ObservableObject {
         DispatchQueue.global(qos: .default).async {
             do {
                 // Save settings used to generate
+                let batchSize = self.batchSize
+                let numberOfBatches = self.numberOfBatches
                 var s = SDImage()
                 s.prompt = self.prompt
                 s.negativePrompt = self.negativePrompt
@@ -166,11 +169,13 @@ final class Store: ObservableObject {
                 s.scheduler = self.scheduler
                 s.steps = self.steps
                 s.guidanceScale = self.guidanceScale
-
+                
                 // Generate
-                let batchSize = self.batchSize
                 var seedUsed = self.seed == 0 ? UInt32.random(in: 0 ..< UInt32.max) : self.seed
-                for _ in 0 ..< self.numberOfBatches {
+                for i in 0 ..< numberOfBatches {
+                    DispatchQueue.main.async {
+                        self.batchProgress = BatchProgress(index: i, total: numberOfBatches)
+                    }
                     let (imgs, seed) = try pipeline.generate(
                         prompt: s.prompt,
                         negativePrompt: s.negativePrompt,

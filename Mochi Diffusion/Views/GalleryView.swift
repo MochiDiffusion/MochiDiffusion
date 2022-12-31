@@ -53,7 +53,7 @@ struct GalleryView: View {
         }
         let step = Int(progress.step) + 1
         let fraction = Double(step) / Double(progress.stepCount)
-        let label = "Step \(step) of \(progress.stepCount)"
+        let label = "Batch \(store.batchProgress.index+1) of \(store.batchProgress.total)"
         return AnyView(
             HStack(alignment: .center, spacing: 14) {
                 ProgressView(label, value: fraction, total: 1)
