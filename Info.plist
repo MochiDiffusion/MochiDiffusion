@@ -4,5 +4,7 @@
 <dict>
 	<key>SUFeedURL</key>
 	<string>https://github.com/godly-devotion/mochi-diffusion/raw/main/.sparkle/appcast.xml</string>
+	<key>SUEnableAutomaticChecks</key>
+	<true/>
 </dict>
 </plist>
