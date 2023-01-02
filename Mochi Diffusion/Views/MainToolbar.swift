@@ -44,12 +44,12 @@ struct MainToolbar: View {
                 Button(action: { self.isStatusPopoverShown.toggle() }) {
                     ProgressView()
                         .progressViewStyle(.circular)
-                        .scaleEffect(0.6)
+                        .scaleEffect(0.5)
                 }
                 .popover(isPresented: self.$isStatusPopoverShown, arrowEdge: .bottom) {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Loading Models...")
-                        Text("This will take no more than 30 seconds")
+                        Text("Loading Model...")
+                        Text("This wont take long")
                             .foregroundColor(.secondary)
                     }
                     .padding()
@@ -60,11 +60,11 @@ struct MainToolbar: View {
         if let sdi = store.getSelectedImage(), let img = sdi.image {
             let imageView = Image(img, scale: 1, label: Text("generated"))
             
-            Button(action: { store.removeCurrentImage() }) {
+            Button(action: store.removeCurrentImage) {
                 Label("Remove", systemImage: "trash")
                     .help("Remove")
             }
-            Button(action: { store.upscaleCurrentImage() }) {
+            Button(action: store.upscaleCurrentImage) {
                 Label("Convert to High Resolution", systemImage: "wand.and.stars")
                     .help("Convert to High Resolution")
             }

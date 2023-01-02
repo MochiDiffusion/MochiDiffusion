@@ -318,7 +318,9 @@ final class Store: ObservableObject {
     @MainActor
     private func addImages(simgs: [SDImage]) {
         let newImageIndex = self.images.count
-        self.images.append(contentsOf: simgs)
+        withAnimation(.default.speed(1.5)) {
+            self.images.append(contentsOf: simgs)
+        }
         self.selectedImageIndex = newImageIndex
     }
 

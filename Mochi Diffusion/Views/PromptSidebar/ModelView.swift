@@ -20,9 +20,7 @@ struct ModelView: View {
             }
             .labelsHidden()
             
-            Button(action: {
-                store.loadModels()
-            }) {
+            Button(action: store.loadModels) {
                 Image(systemName: "arrow.clockwise")
             }
         }

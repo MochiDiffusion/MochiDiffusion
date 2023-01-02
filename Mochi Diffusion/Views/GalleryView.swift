@@ -26,7 +26,7 @@ struct GalleryView: View {
                 Divider()
 
                 ScrollView(.horizontal) {
-                    LazyHStack(alignment: .center, spacing: 14) {
+                    HStack(alignment: .center, spacing: 14) {
                         ForEach(Array(store.images.enumerated()), id: \.offset) { i, sdi in
                             GalleryImageView(i: i, sdi: sdi)
                                 .overlay(
