@@ -326,8 +326,8 @@ final class Store: ObservableObject {
     private func upscaleThenAddImages(simgs: [SDImage]) {
         var upscaledSDImgs = [SDImage]()
         for simg in simgs {
-            guard let img = simg.image else { continue }
-            guard let upscaledImage = upscaler.upscale(cgImage: img) else { continue }
+            guard let image = simg.image else { continue }
+            guard let upscaledImage = upscaler.upscale(cgImage: image) else { continue }
             var sdi = simg
             sdi.image = upscaledImage
             sdi.width = upscaledImage.width

@@ -66,6 +66,7 @@ struct SettingsView: View {
                             .foregroundColor(Color.secondary)
                     }
                     .buttonStyle(PlainButtonStyle())
+                    .help("Open in Finder")
                 }
             }
             

@@ -16,8 +16,6 @@ struct GalleryView: View {
 //                ErrorBanner(errorMessage: "Loading...")
             } else if case let .error(msg) = store.mainViewStatus {
                 ErrorBanner(errorMessage: msg)
-            } else if case let .running(progress) = store.mainViewStatus {
-                getProgressView(progress: progress)
             }
 
             PreviewView()
@@ -31,6 +29,31 @@ struct GalleryView: View {
                     LazyHStack(alignment: .center, spacing: 14) {
                         ForEach(Array(store.images.enumerated()), id: \.offset) { i, sdi in
                             GalleryImageView(i: i, sdi: sdi)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 2)
+                                        .stroke(i == store.selectedImageIndex ? Color.accentColor : Color.clear, lineWidth: 3)
+                                )
+                                .onTapGesture {
+                                    store.selectImage(index: i)
+                                }
+                                .contextMenu {
+                                    Section {
+                                        Button("Copy to Prompt") {
+                                            store.copyToPrompt()
+                                        }
+                                        Button("Convert to High Resolution") {
+                                            store.upscaleImage(sdImage: sdi)
+                                        }
+                                        Button("Save Image...") {
+                                            sdi.save()
+                                        }
+                                    }
+                                    Section {
+                                        Button("Remove") {
+                                            store.removeImage(index: i)
+                                        }
+                                    }
+                                }
                         }
                     }
                     .padding()
@@ -41,31 +64,6 @@ struct GalleryView: View {
         .toolbar {
             MainToolbar()
         }
-    }
-
-    private func getProgressView(progress: StableDiffusionProgress?) -> AnyView {
-        guard let progress = progress, progress.stepCount > 0 else {
-            // The first time it takes a little bit before generation starts
-            return AnyView(
-                ProgressView(label: { Text("Loading Model...") })
-                    .progressViewStyle(.linear)
-                    .padding([.top, .horizontal]))
-        }
-        let step = Int(progress.step) + 1
-        let fraction = Double(step) / Double(progress.stepCount)
-        let label = "Batch \(store.batchProgress.index+1) of \(store.batchProgress.total)"
-        return AnyView(
-            HStack(alignment: .center, spacing: 14) {
-                ProgressView(label, value: fraction, total: 1)
-
-                Button(action: { store.stopGeneration() }) {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundColor(Color.secondary)
-                }
-                .buttonStyle(PlainButtonStyle())
-            }
-            .padding([.top, .horizontal])
-        )
     }
 }
 

@@ -9,9 +9,54 @@ import SwiftUI
 
 struct MainToolbar: View {
     @EnvironmentObject var store: Store
+    @State private var isStatusPopoverShown = false
     @State private var isInfoPopoverShown = false
 
     var body: some View {
+        if case let .running(progress) = store.mainViewStatus {
+            if let progress = progress, progress.stepCount > 0 {
+                let step = Int(progress.step) + 1
+                let stepValue = Double(step) / Double(progress.stepCount)
+                let batchValue = Double(store.batchProgress.index+1) / Double(store.batchProgress.total)
+                
+                Button(action: { self.isStatusPopoverShown.toggle() }) {
+                    ProgressView(value: stepValue, total: 1)
+                        .progressViewStyle(.circular)
+                        .scaleEffect(0.5)
+                }
+                .popover(isPresented: self.$isStatusPopoverShown, arrowEdge: .bottom) {
+                    let stepLabel = "Step \(step) of \(progress.stepCount)"
+                    let batchLabel = "Batch \(store.batchProgress.index+1) of \(store.batchProgress.total)"
+                    VStack(alignment: .center, spacing: 12) {
+                        ProgressView(stepLabel, value: stepValue, total: 1)
+                        
+                        ProgressView(batchLabel, value: batchValue, total: 1)
+                        
+                        Button("Stop Generation") {
+                            store.stopGeneration()
+                        }
+                    }
+                    .padding()
+                    .frame(width: 300)
+                }
+            }
+            else {
+                Button(action: { self.isStatusPopoverShown.toggle() }) {
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                        .scaleEffect(0.6)
+                }
+                .popover(isPresented: self.$isStatusPopoverShown, arrowEdge: .bottom) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Loading Models...")
+                        Text("This will take no more than 30 seconds")
+                            .foregroundColor(.secondary)
+                    }
+                    .padding()
+                }
+            }
+        }
+        
         if let sdi = store.getSelectedImage(), let img = sdi.image {
             let imageView = Image(img, scale: 1, label: Text("generated"))
             

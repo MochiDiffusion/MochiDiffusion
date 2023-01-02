@@ -28,7 +28,7 @@ struct SDImage {
 
     // Save image with metadata
     func save() {
-        guard let img = image else {
+        guard let image = image else {
             NSLog("*** Image was not valid!")
             return
         }
@@ -40,7 +40,7 @@ struct SDImage {
         panel.title = "Save Image"
         panel.message = "Choose a folder and a name to store the image."
         panel.nameFieldLabel = "Image file name:"
-        panel.nameFieldStringValue = "\(String(prompt.prefix(50))).\(seed).\(imageIndex).png"
+        panel.nameFieldStringValue = "\(String(prompt.prefix(50)).trimmingCharacters(in: .whitespacesAndNewlines)).\(seed).\(imageIndex).png"
         let resp = panel.runModal()
         if resp != .OK {
             return
@@ -55,7 +55,7 @@ struct SDImage {
             kCGImagePropertyIPTCCaptionAbstract: metadata(),
             kCGImagePropertyIPTCProgramVersion: "\(seed)"]
         let meta = [kCGImagePropertyIPTCDictionary: iptc]
-        CGImageDestinationAddImage(destination, img, meta as CFDictionary)
+        CGImageDestinationAddImage(destination, image, meta as CFDictionary)
         guard CGImageDestinationFinalize(destination) else { return }
         do {
             // Try save image with metadata
