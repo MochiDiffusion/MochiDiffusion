@@ -5,6 +5,34 @@
     <language>en</language>
 
     <item>
+      <title>v1.4.2</title>
+      <link>https://github.com/godly-devotion/mochi-diffusion</link>
+      <sparkle:version>1.4.2</sparkle:version>
+      <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
+      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/mochi-diffusion/releases</sparkle:fullReleaseNotesLink>
+      <pubDate>Tue, 03 Jan 2023 02:50:40 +0000</pubDate>
+      <enclosure
+        url="https://github.com/godly-devotion/mochi-diffusion/releases/download/v1.4.2/Mochi.Diffusion.1.4.2.dmg"
+        sparkle:edSignature="Layf06bxGWzNqeZ8nu7VbdFCzc2vhg43e9kAMlVZqRdb9MQQ+YyyU8qLrxdaQB1KM9eqVRsgM0WiVnt09tLABQ=="
+        length="66348530"
+        type="application/x-diskcopy" />
+      <description><![CDATA[
+      <ul>
+        <li>Image generation progress was moved to the toolbar
+          <ul>
+            <li>View both step and batch progress</li>
+            <li>Cancel generation</li>
+          </ul>
+        </li>
+        <li>Updates can now be downloaded and installed directly from the app</li>
+      </ul>
+      <div>Special thanks to the following for supporting me 🎉</div>
+      <div>serovar, orange-wedge, julien-c, Quick-Eyed-Sky, BirdSesame, Da-mi-en</div>
+      ]]>
+      </description>
+    </item>
+
+    <item>
       <title>v1.4.1</title>
       <sparkle:version>1.4.1</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
