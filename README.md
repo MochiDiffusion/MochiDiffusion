@@ -66,6 +66,14 @@ A few models have been converted and uploaded [here](https://huggingface.co/godl
 
 All generation happens locally and absolutely nothing is sent to the cloud.
 
+## Contributing
+
+Mochi Diffusion is always looking for contributions, whether it's through bug reports, code, or new translations.
+
+- If you find a bug, or would like to suggest a new feature or enhancement, try [searching for your problem first](https://github.com/godly-devotion/MochiDiffusion/discussions) as it helps avoid duplicates. If you can't find your issue, feel free to [create a new discussion](https://github.com/godly-devotion/MochiDiffusion/discussions/new).
+
+- If you're looking to contribute code, feel free to [open a Pull Request](https://github.com/godly-devotion/MochiDiffusion/pulls) or [create a new discussion](https://github.com/godly-devotion/MochiDiffusion/discussions) to talk about it first.
+
 ## Credits
 
 - [Apple's Core ML Stable Diffusion implementation](https://github.com/apple/ml-stable-diffusion)
