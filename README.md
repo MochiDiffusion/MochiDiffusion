@@ -1,5 +1,5 @@
 <p align="center">
-<img height="256" src="https://github.com/godly-devotion/mochi-diffusion/raw/main/Mochi Diffusion/Assets.xcassets/AppIcon.appiconset/AppIcon.png" />
+<img height="256" src="https://github.com/godly-devotion/MochiDiffusion/raw/main/Mochi Diffusion/Assets.xcassets/AppIcon.appiconset/AppIcon.png" />
 </p>
 
 <h1 align="center">Mochi Diffusion</h1>
@@ -25,7 +25,7 @@ This app uses [Apple's Core ML Stable Diffusion implementation](https://github.c
 
 ## Releases
 
-Download the latest version from the [releases](https://github.com/godly-devotion/mochi-diffusion/releases) page.
+Download the latest version from the [releases](https://github.com/godly-devotion/MochiDiffusion/releases) page.
 
 ## Running
 
