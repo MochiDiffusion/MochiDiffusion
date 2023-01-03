@@ -2,9 +2,11 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>SUFeedURL</key>
-	<string>https://github.com/godly-devotion/mochi-diffusion/raw/main/.sparkle/appcast.xml</string>
 	<key>SUEnableAutomaticChecks</key>
 	<true/>
+	<key>SUFeedURL</key>
+	<string>https://github.com/godly-devotion/mochi-diffusion/raw/main/.sparkle/appcast.xml</string>
+	<key>SUPublicEDKey</key>
+	<string>j1emFUOJ+3Pou9kvxoeZIOTIFTeg1RWsfPuOoecgk/c=</string>
 </dict>
 </plist>
