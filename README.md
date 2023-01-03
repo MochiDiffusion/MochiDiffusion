@@ -6,6 +6,11 @@
 
 <p align="center">Run Stable Diffusion on Apple Silicon Macs natively</p>
 
+<p align="center">
+<a href="https://github.com/godly-devotion/MochiDiffusion/blob/main/README.md">English</a>,
+<a href="https://github.com/godly-devotion/MochiDiffusion/blob/main/README.ko.md">한국어</a>
+</p>
+
 ![Screenshot](.github/images/screenshot.png)
 
 ## Description
