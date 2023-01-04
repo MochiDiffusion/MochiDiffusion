@@ -237,9 +237,7 @@ final class Store: ObservableObject {
         sdi.height = upscaledImage.height
         sdi.isUpscaled = true
         sdi.generatedDate = Date.now
-        withAnimation(.default.speed(1.5)) {
-            images.append(sdi)
-        }
+        images.append(sdi)
         selectedImageIndex = newImageIndex
     }
 
@@ -254,9 +252,7 @@ final class Store: ObservableObject {
         sdi.height = upscaledImage.height
         sdi.isUpscaled = true
         sdi.generatedDate = Date.now
-        withAnimation(.default.speed(1.5)) {
-            images.append(sdi)
-        }
+        images.append(sdi)
         selectedImageIndex = newImageIndex
     }
 
