@@ -28,6 +28,8 @@ struct PromptView: View {
                 .border(Color.black.opacity(0.1))
                 .cornerRadius(4)
             
+            Spacer().frame(height: 2)
+            
             HStack(alignment: .center) {
                 Toggle(isOn: $store.upscaleGeneratedImages) {
                     Image(systemName: "wand.and.stars")
@@ -42,7 +44,6 @@ struct PromptView: View {
                 }
                 .disabled($store.currentModel.wrappedValue.isEmpty)
                 .buttonStyle(.borderedProminent)
-                .padding(.top, 6)
             }
         }
     }
