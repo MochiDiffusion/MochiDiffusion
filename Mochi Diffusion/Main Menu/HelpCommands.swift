@@ -15,6 +15,9 @@ struct HelpCommands: Commands {
                 Link("Website", destination: URL(string: "https://github.com/godly-devotion/MochiDiffusion")!)
             }
             Section {
+                Link("Download Models", destination: URL(string: "https://huggingface.co/godly-devotion")!)
+            }
+            Section {
                 Link("Support Me ♥", destination: URL(string: "https://liberapay.com/joshuapark/")!)
             }
         }
