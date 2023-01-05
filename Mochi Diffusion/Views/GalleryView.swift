@@ -12,7 +12,7 @@ struct GalleryView: View {
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var store: Store
     @State private var quicklookImage: URL? = nil
-    private var gridColumns = Array(repeating: GridItem(.adaptive(minimum: 170), spacing: 10), count: 3)
+    private var gridColumns = Array(repeating: GridItem(.adaptive(minimum: 170), spacing: 16), count: 3)
     
     var body: some View {
         VStack(spacing: 0) {
@@ -22,7 +22,7 @@ struct GalleryView: View {
             
             if store.images.count > 0 {
                 ScrollView {
-                    LazyVGrid(columns: gridColumns) {
+                    LazyVGrid(columns: gridColumns, spacing: 16) {
                         ForEach(Array(searchResults.enumerated()), id: \.offset) { i, sdi in
                             GeometryReader { geo in
                                 GalleryItemView(size: geo.size.width, sdi: sdi, i: i)
@@ -30,7 +30,7 @@ struct GalleryView: View {
                             .aspectRatio(1, contentMode: .fit)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 2)
-                                    .stroke(i == store.selectedImageIndex ? Color.accentColor : Color.clear, lineWidth: 4)
+                                    .stroke(i == store.selectedImageIndex ? Color.accentColor : Color(nsColor: .controlBackgroundColor), lineWidth: 4)
                             )
                             .gesture(TapGesture(count: 2).onEnded {
                                 quicklookImage = try? sdi.image?.asNSImage().temporaryFileURL()
