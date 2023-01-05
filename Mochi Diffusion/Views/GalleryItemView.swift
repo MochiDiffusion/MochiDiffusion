@@ -1,20 +1,22 @@
 //
-//  GalleryImageView.swift
+//  GalleryItemView.swift
 //  Mochi Diffusion
 //
-//  Created by Joshua Park on 12/30/22.
+//  Created by Joshua Park on 1/4/23.
 //
 
 import SwiftUI
 
-struct GalleryImageView: View {
-    var i: Int
-    var sdi: SDImage
-
+struct GalleryItemView: View {
+    let size: Double
+    let sdi: SDImage
+    let i: Int
+    
     var body: some View {
         Image(sdi.image!, scale: 1, label: Text(String(sdi.seed)))
             .resizable()
             .aspectRatio(contentMode: .fit)
             .padding(4)
+            .frame(width: size, height: size)
     }
 }

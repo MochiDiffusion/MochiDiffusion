@@ -16,7 +16,8 @@ final class Store: ObservableObject {
     @Published var upscaler = Upscaler()
     @Published var models = [String]()
     @Published var images = [SDImage]()
-    @Published var selectedImageIndex = -1
+    @Published var selectedImageIndex = -1 // TODO: replace with selectedItemIds
+    @Published var selectedItemIds = Set<UUID>()
     @Published var mainViewStatus: MainViewStatus = .loading
     @Published var numberOfBatches = 1
     @Published var batchSize = 1
@@ -50,6 +51,15 @@ final class Store: ObservableObject {
         }
     }
 
+    var getSelectedItems: [SDImage]? {
+        get {
+            if (selectedItemIds.count == 0) {
+                return []
+            }
+            return images.filter { selectedItemIds.contains($0.id) }
+        }
+    }
+    
     func getSelectedImage() -> SDImage? {
         if (selectedImageIndex == -1) {
             return nil
@@ -189,6 +199,7 @@ final class Store: ObservableObject {
                     }
                     var simgs = [SDImage]()
                     for (ndx, img) in imgs.enumerated() {
+                        s.id = UUID()
                         s.image = img
                         s.width = img.width
                         s.height = img.height
@@ -321,7 +332,7 @@ final class Store: ObservableObject {
         withAnimation(.default.speed(1.5)) {
             self.images.append(contentsOf: simgs)
         }
-        self.selectedImageIndex = newImageIndex
+//        self.selectedImageIndex = newImageIndex
     }
 
     @MainActor

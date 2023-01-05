@@ -1,5 +1,5 @@
 //
-//  MainToolbar.swift
+//  GalleryToolbarView.swift
 //  Mochi Diffusion
 //
 //  Created by Joshua Park on 12/19/22.
@@ -7,10 +7,9 @@
 
 import SwiftUI
 
-struct MainToolbar: View {
+struct GalleryToolbarView: View {
     @EnvironmentObject var store: Store
     @State private var isStatusPopoverShown = false
-    @State private var isInfoPopoverShown = false
 
     var body: some View {
         if case let .running(progress) = store.mainViewStatus {
@@ -70,20 +69,13 @@ struct MainToolbar: View {
             }
             
             Spacer()
-            
-            Button(action: { self.isInfoPopoverShown.toggle() }) {
-                Label("Get Info", systemImage: "info.circle")
-                    .help("Get Info")
-            }
-            .popover(isPresented: self.$isInfoPopoverShown, arrowEdge: .top) {
-                InspectorView().padding()
-            }
+
             Button(action: sdi.save) {
                 Label("Save Image...", systemImage: "square.and.arrow.down")
                     .help("Save Image")
             }
             ShareLink(item: imageView, preview: SharePreview(sdi.prompt, image: imageView))
-                .help("Share Image")
+                .help("Share...")
         }
         else {
             Button(action: {}) {
@@ -98,10 +90,6 @@ struct MainToolbar: View {
             Spacer()
             
             Button(action: {}) {
-                Label("Get Info", systemImage: "info.circle")
-            }
-            .disabled(true)
-            Button(action: {}) {
                 Label("Save Image...", systemImage: "square.and.arrow.down")
             }
             .disabled(true)
@@ -113,8 +101,8 @@ struct MainToolbar: View {
     }
 }
 
-struct MainToolbar_Previews: PreviewProvider {
+struct GalleryToolbarView_Previews: PreviewProvider {
     static var previews: some View {
-        MainToolbar()
+        GalleryToolbarView()
     }
 }

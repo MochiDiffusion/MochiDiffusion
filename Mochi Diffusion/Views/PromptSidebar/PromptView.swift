@@ -12,7 +12,7 @@ struct PromptView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("Prompt:")
+            Text("Include in Image:")
             TextEditor(text: $store.prompt)
                 .font(.system(size: 14))
                 .frame(height: 85)
@@ -21,7 +21,7 @@ struct PromptView: View {
                 
             Spacer().frame(height: 6)
             
-            Text("Negative Prompt:")
+            Text("Exclude from Image:")
             TextEditor(text: $store.negativePrompt)
                 .font(.system(size: 14))
                 .frame(height: 52)

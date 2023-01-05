@@ -49,7 +49,7 @@ struct MochiDiffusionApp: App {
     
     var body: some Scene {
         WindowGroup {
-            MainAppView()
+            AppView()
                 .environmentObject(store)
         }
         .commands{
@@ -61,7 +61,7 @@ struct MochiDiffusionApp: App {
             SidebarCommands()
             HelpCommands()
         }
-        .defaultSize(width: 820, height: 670)
+        .defaultSize(width: 1000, height: 670)
         Settings {
             SettingsView()
                 .environmentObject(store)

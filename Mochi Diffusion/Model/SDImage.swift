@@ -1,8 +1,8 @@
 //
 //  SDImage.swift
-//  Diffusion
+//  Mochi Diffusion
 //
-//  Created by Fahim Farook on 12/18/2022.
+//  Created by Joshua Park on 12/18/2022.
 //
 
 import AppKit
@@ -11,7 +11,8 @@ import CoreGraphics
 import UniformTypeIdentifiers
 import StableDiffusion
 
-struct SDImage {
+struct SDImage: Identifiable {
+    var id = UUID()
     var image: CGImage?
     var prompt = ""
     var negativePrompt = ""

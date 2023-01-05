@@ -1,11 +1,11 @@
 //
 //  Extensions.swift
-//  Diffusion
+//  Mochi Diffusion
 //
-//  Created by Fahim Farook on 12/17/2022.
+//  Created by Joshua Park on 12/17/2022.
 //
 
-import Foundation
+import SwiftUI
 
 extension String: Error {}
 
@@ -13,6 +13,43 @@ extension URL {
     func subDirectories() throws -> [URL] {
         guard hasDirectoryPath else { return [] }
         return try FileManager.default.contentsOfDirectory(at: self, includingPropertiesForKeys: nil, options: [.skipsHiddenFiles]).filter(\.hasDirectoryPath)
+    }
+}
+
+extension NSImage {
+    func toPngData() -> Data {
+        let imageRepresentation = NSBitmapImageRep(data: self.tiffRepresentation!)
+        return (imageRepresentation?.representation(using: .png, properties: [:])!)!
+    }
+}
+
+extension NSImage: Transferable {
+    private static var urlCache = [Int: URL]()
+    
+    func temporaryFileURL() throws -> URL {
+        if let cachedURL = NSImage.urlCache[self.hash] {
+            return cachedURL
+        }
+        let name = String(self.hash)
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent(name, conformingTo: .png)
+        let fileWrapper = FileWrapper(regularFileWithContents: self.toPngData())
+        try fileWrapper.write(to: url, originalContentsURL: nil)
+        NSImage.urlCache[self.hash] = url
+        return url
+    }
+    
+    public static var transferRepresentation: some TransferRepresentation {
+        /// Allow dragging NSImage into Finder as a file.
+        ProxyRepresentation<NSImage, URL>(exporting: { image in
+            let nsImage: NSImage = image
+            return try nsImage.temporaryFileURL()
+        })
+    }
+}
+
+extension CGImage {
+    func asNSImage() -> NSImage {
+        return NSImage(cgImage: self, size: NSSize(width: width, height: height))
     }
 }
 

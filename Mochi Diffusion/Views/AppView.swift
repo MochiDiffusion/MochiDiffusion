@@ -1,5 +1,5 @@
 //
-//  MainAppView.swift
+//  AppView.swift
 //  Mochi Diffusion
 //
 //  Created by Joshua Park on 12/17/22.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct MainAppView: View {
+struct AppView: View {
     @EnvironmentObject var store: Store
 
     var body: some View {
@@ -46,13 +46,21 @@ struct MainAppView: View {
             }
             .navigationSplitViewColumnWidth(min: 250, ideal: 300)
         } detail: {
-            GalleryView()
+            HStack(alignment: .center, spacing: 0) {
+                GalleryView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                
+                Divider()
+                
+                InspectorView()
+                    .frame(maxWidth: 300)
+            }
         }
     }
 }
 
-struct MainAppView_Previews: PreviewProvider {
+struct AppView_Previews: PreviewProvider {
     static var previews: some View {
-        MainAppView().previewLayout(.sizeThatFits)
+        AppView().previewLayout(.sizeThatFits)
     }
 }

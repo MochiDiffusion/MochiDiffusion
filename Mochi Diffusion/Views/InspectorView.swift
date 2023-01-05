@@ -12,73 +12,87 @@ struct InspectorView: View {
     @EnvironmentObject var store: Store
 
     var body: some View {
-        if let sdi = store.getSelectedImage() {
-            ScrollView(.vertical) {
-                Grid(alignment: .leading, horizontalSpacing: 4) {
-                    InfoGridRow(
-                        type: "Date",
-                        text: dateFormatter.string(from: sdi.generatedDate),
-                        showCopyToPromptOption: false)
-                    InfoGridRow(
-                        type: "Model",
-                        text: sdi.model,
-                        showCopyToPromptOption: false)
-                    InfoGridRow(
-                        type: "Size",
-                        text: "\(sdi.width) x \(sdi.height)\(sdi.isUpscaled ? " (Converted to High Resolution)" : "")",
-                        showCopyToPromptOption: false)
-                    InfoGridRow(
-                        type: "Prompt",
-                        text: sdi.prompt,
-                        showCopyToPromptOption: true,
-                        callback: store.copyPromptToPrompt)
-                    InfoGridRow(
-                        type: "Negative Prompt",
-                        text: sdi.negativePrompt,
-                        showCopyToPromptOption: true,
-                        callback: store.copyNegativePromptToPrompt)
-                    InfoGridRow(
-                        type: "Scheduler",
-                        text: sdi.scheduler.rawValue,
-                        showCopyToPromptOption: true,
-                        callback: store.copySchedulerToPrompt)
-                    InfoGridRow(
-                        type: "Seed",
-                        text: String(sdi.seed),
-                        showCopyToPromptOption: true,
-                        callback: store.copySeedToPrompt)
-                    InfoGridRow(
-                        type: "Steps",
-                        text: String(sdi.steps),
-                        showCopyToPromptOption: true,
-                        callback: store.copyStepsToPrompt)
-                    InfoGridRow(
-                        type: "Guidance Scale",
-                        text: String(sdi.guidanceScale),
-                        showCopyToPromptOption: true,
-                        callback: store.copyGuidanceScaleToPrompt)
-                    InfoGridRow(
-                        type: "Image Index",
-                        text: String(sdi.imageIndex),
-                        showCopyToPromptOption: false)
+        VStack(alignment: .center, spacing: 0) {
+            if let sdi = store.getSelectedImage(), let img = sdi.image {
+                Image(img, scale: 1, label: Text(String(sdi.prompt)))
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .padding(4)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 2)
+                            .stroke(.secondary, lineWidth: 4)
+                    )
+                    .padding()
+                
+                ScrollView(.vertical) {
+                    Grid(alignment: .leading, horizontalSpacing: 4) {
+                        InfoGridRow(
+                            type: "Date",
+                            text: dateFormatter.string(from: sdi.generatedDate),
+                            showCopyToPromptOption: false)
+                        InfoGridRow(
+                            type: "Model",
+                            text: sdi.model,
+                            showCopyToPromptOption: false)
+                        InfoGridRow(
+                            type: "Size",
+                            text: "\(sdi.width) x \(sdi.height)\(sdi.isUpscaled ? " (Converted to High Resolution)" : "")",
+                            showCopyToPromptOption: false)
+                        InfoGridRow(
+                            type: "Prompt",
+                            text: sdi.prompt,
+                            showCopyToPromptOption: true,
+                            callback: store.copyPromptToPrompt)
+                        InfoGridRow(
+                            type: "Negative Prompt",
+                            text: sdi.negativePrompt,
+                            showCopyToPromptOption: true,
+                            callback: store.copyNegativePromptToPrompt)
+                        InfoGridRow(
+                            type: "Scheduler",
+                            text: sdi.scheduler.rawValue,
+                            showCopyToPromptOption: true,
+                            callback: store.copySchedulerToPrompt)
+                        InfoGridRow(
+                            type: "Seed",
+                            text: String(sdi.seed),
+                            showCopyToPromptOption: true,
+                            callback: store.copySeedToPrompt)
+                        InfoGridRow(
+                            type: "Steps",
+                            text: String(sdi.steps),
+                            showCopyToPromptOption: true,
+                            callback: store.copyStepsToPrompt)
+                        InfoGridRow(
+                            type: "Guidance Scale",
+                            text: String(sdi.guidanceScale),
+                            showCopyToPromptOption: true,
+                            callback: store.copyGuidanceScaleToPrompt)
+                        InfoGridRow(
+                            type: "Image Index",
+                            text: String(sdi.imageIndex),
+                            showCopyToPromptOption: false)
+                    }
                 }
-                .frame(width: 350)
+                .padding([.horizontal])
+                
+                HStack(alignment: .center) {
+                    Button("Copy to Prompt") {
+                        store.copyToPrompt()
+                    }
+                    Button("Copy") {
+                        let info = getHumanReadableInfo(sdi: sdi)
+                        let pb = NSPasteboard.general
+                        pb.declareTypes([.string], owner: nil)
+                        pb.setString(info, forType: .string)
+                    }
+                }
+                .padding()
             }
-            
-            HStack(alignment: .center) {
-                Button("Copy to Prompt") {
-                    store.copyToPrompt()
-                }
-                Button("Copy") {
-                    let info = getHumanReadableInfo(sdi: sdi)
-                    let pb = NSPasteboard.general
-                    pb.declareTypes([.string], owner: nil)
-                    pb.setString(info, forType: .string)
-                }
+            else {
+                Text("Select image to view info")
+                    .foregroundColor(.secondary)
             }
-        }
-        else {
-            Text("No info")
         }
     }
 }
