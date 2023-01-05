@@ -15,7 +15,7 @@ struct GalleryView: View {
     private var gridColumns = Array(repeating: GridItem(.adaptive(minimum: 170), spacing: 10), count: 3)
     
     var body: some View {
-        VStack {
+        VStack(spacing: 0) {
             if case let .error(msg) = store.mainViewStatus {
                 ErrorBanner(errorMessage: msg)
             }
@@ -71,6 +71,7 @@ struct GalleryView: View {
                 .resizable(resizingMode: .tile)
                 .foregroundColor(Color.black.opacity(colorScheme == .dark ? 0.05 : 0.02))
         )
+        .navigationSubtitle("\(store.images.count) \(store.images.count == 1 ? "image" : "images")")
         .toolbar {
             GalleryToolbarView()
         }

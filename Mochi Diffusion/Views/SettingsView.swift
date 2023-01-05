@@ -62,7 +62,7 @@ struct SettingsView: View {
                     Button(action: {
                         NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: store.workingDir).absoluteURL])
                     }) {
-                        Image(systemName: "arrow.right.circle.fill")
+                        Image(systemName: "magnifyingglass.circle.fill")
                             .foregroundColor(Color.secondary)
                     }
                     .buttonStyle(PlainButtonStyle())

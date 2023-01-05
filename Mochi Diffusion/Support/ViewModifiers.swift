@@ -26,11 +26,9 @@ private struct HelpTextFormat: ViewModifier {
 }
 
 private struct SelectableTextFormat: ViewModifier {
-    @Environment(\.colorScheme) var colorScheme
-    
     func body(content: Content) -> some View {
         content
             .textSelection(.enabled)
-            .foregroundColor(colorScheme == .dark ? .white : .black) // Fixes dark text in dark mode SwiftUI bug
+            .foregroundColor(Color(nsColor: .textColor)) // Fixes dark text in dark mode SwiftUI bug
     }
 }
