@@ -23,7 +23,7 @@ struct GalleryView: View {
             if store.images.count > 0 {
                 ScrollView {
                     LazyVGrid(columns: gridColumns) {
-                        ForEach(Array(store.images.enumerated()), id: \.offset) { i, sdi in
+                        ForEach(Array(searchResults.enumerated()), id: \.offset) { i, sdi in
                             GeometryReader { geo in
                                 GalleryItemView(size: geo.size.width, sdi: sdi, i: i)
                             }
@@ -71,9 +71,17 @@ struct GalleryView: View {
                 .resizable(resizingMode: .tile)
                 .foregroundColor(Color.black.opacity(colorScheme == .dark ? 0.05 : 0.02))
         )
-        .navigationSubtitle("\(store.images.count) \(store.images.count == 1 ? "image" : "images")")
+        .navigationTitle(store.searchText.isEmpty ? "Mochi Diffusion" : "Searching: \(store.searchText)")
+        .navigationSubtitle(store.searchText.isEmpty ? "\(store.images.count) \(store.images.count == 1 ? "image" : "images")" : "")
         .toolbar {
             GalleryToolbarView()
         }
+    }
+    
+    var searchResults: [SDImage] {
+        if $store.searchText.wrappedValue.isEmpty {
+            return store.images
+        }
+        return store.images.filter { $0.prompt.contains(store.searchText) }
     }
 }

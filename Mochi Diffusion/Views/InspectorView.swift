@@ -90,7 +90,8 @@ struct InspectorView: View {
                 .padding()
             }
             else {
-                Text("Select image to view info")
+                Text("No Info")
+                    .font(.title2)
                     .foregroundColor(.secondary)
             }
         }

@@ -23,6 +23,7 @@ final class Store: ObservableObject {
     @Published var batchSize = 1
     @Published var seed: UInt32 = 0
     @Published var batchProgress = BatchProgress()
+    @Published var searchText = ""
     @AppStorage("WorkingDir") var workingDir = ""
     @AppStorage("Prompt") var prompt = ""
     @AppStorage("NegativePrompt") var negativePrompt = ""

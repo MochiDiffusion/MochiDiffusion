@@ -53,9 +53,10 @@ struct AppView: View {
                 Divider()
                 
                 InspectorView()
-                    .frame(maxWidth: 300)
+                    .frame(maxWidth: 340)
             }
         }
+        .searchable(text: $store.searchText, prompt: "Search")
     }
 }
 
