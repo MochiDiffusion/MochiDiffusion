@@ -60,7 +60,7 @@ A few models have been converted and uploaded [here](https://huggingface.co/godl
 
 ## Compatibility
 
-- Apple Silicon (M1 and later) or Intel Mac (not officially supported)
+- Apple Silicon (M1 and later) or Intel Mac (high performance CPU & GPU required)
 - macOS Ventura 13.1 and later
 - Xcode 14.2 (to build)
 
