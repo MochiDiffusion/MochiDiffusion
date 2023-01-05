@@ -32,8 +32,7 @@ struct PromptView: View {
             
             HStack(alignment: .center) {
                 Toggle(isOn: $store.upscaleGeneratedImages) {
-                    Image(systemName: "wand.and.stars")
-                        .font(.system(size: 15))
+                    Label("HD", systemImage: "wand.and.stars")
                 }
                 .help("Convert all images to High Resolution (this will use more memory)")
                 
