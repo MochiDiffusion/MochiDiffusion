@@ -11,7 +11,9 @@ struct ModelView: View {
     @EnvironmentObject var store: Store
     
     var body: some View {
-        Text("Model:")
+        Text("Model:",
+             tableName: "Prompt",
+             comment: "Label for Model picker")
         HStack {
             Picker("", selection: $store.currentModel) {
                 ForEach(store.models, id: \.self) { s in

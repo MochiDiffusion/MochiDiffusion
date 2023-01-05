@@ -76,7 +76,7 @@ struct GalleryView: View {
                 .foregroundColor(Color.black.opacity(colorScheme == .dark ? 0.05 : 0.02))
         )
         .navigationTitle(store.searchText.isEmpty ? "Mochi Diffusion" : "Searching: \(store.searchText)")
-        .navigationSubtitle(store.searchText.isEmpty ? "\(store.images.count) \(store.images.count == 1 ? "image" : "images")" : "")
+        .navigationSubtitle(store.searchText.isEmpty ? "^[\(store.images.count) images](inflect: true)" : "")
         .toolbar {
             GalleryToolbarView()
         }

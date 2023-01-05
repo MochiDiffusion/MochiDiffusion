@@ -14,7 +14,7 @@ struct InspectorView: View {
     var body: some View {
         VStack(alignment: .center, spacing: 0) {
             if let sdi = store.getSelectedImage(), let img = sdi.image {
-                Image(img, scale: 1, label: Text(String(sdi.prompt)))
+                Image(img, scale: 1, label: Text(verbatim: String(sdi.prompt)))
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .padding(4)
@@ -90,7 +90,9 @@ struct InspectorView: View {
                 .padding()
             }
             else {
-                Text("No Info")
+                Text("No Info",
+                     tableName: "Inspector",
+                     comment: "Placeholder text for image inspector")
                     .font(.title2)
                     .foregroundColor(.secondary)
             }
@@ -99,7 +101,7 @@ struct InspectorView: View {
 }
 
 struct InfoGridRow: View {
-    var type: String
+    var type: LocalizedStringKey
     var text: String
     var showCopyToPromptOption: Bool
     var callback: (() -> ())? = nil

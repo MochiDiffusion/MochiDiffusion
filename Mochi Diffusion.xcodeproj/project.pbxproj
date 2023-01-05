@@ -193,9 +193,9 @@
 			children = (
 				036BFC2A294B9F7600D8AD04 /* App.entitlements */,
 				036BFC21294B9F7500D8AD04 /* App.swift */,
-				036BFC25294B9F7600D8AD04 /* Assets.xcassets */,
 				036BFC5A294BA19400D8AD04 /* Downloader.swift */,
 				0352E2A8294E414D003FBF25 /* Info.plist */,
+				036BFC25294B9F7600D8AD04 /* Assets.xcassets */,
 				03FD2318295F74B6006EEEE2 /* RealESRGAN.mlmodel */,
 				0307B0D8294D4A1D00A9BD55 /* Main Menu */,
 				0386DF8E29510D8700CA4CEB /* Model */,
@@ -333,6 +333,41 @@
 			knownRegions = (
 				en,
 				Base,
+				ar,
+				ca,
+				"zh-HK",
+				"zh-Hans",
+				"zh-Hant",
+				hr,
+				cs,
+				da,
+				nl,
+				fi,
+				fr,
+				"fr-CA",
+				de,
+				el,
+				he,
+				hi,
+				hu,
+				id,
+				it,
+				ja,
+				ko,
+				ms,
+				nb,
+				pl,
+				"pt-BR",
+				"pt-PT",
+				ro,
+				ru,
+				sk,
+				es,
+				sv,
+				th,
+				tr,
+				uk,
+				vi,
 			);
 			mainGroup = 036BFC15294B9F7500D8AD04;
 			packageReferences = (
@@ -503,6 +538,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
@@ -556,6 +592,7 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = macosx;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 			};
 			name = Release;

@@ -12,7 +12,9 @@ struct StepsView: View {
     @EnvironmentObject var store: Store
     
     var body: some View {
-        Text("Steps: \(store.steps)")
+        Text("Steps: \(store.steps)",
+             tableName: "Prompt",
+             comment: "Label for Steps slider with value")
         ValueSlider(value: $store.steps, in: 2 ... 100, step: 1)
             .valueSliderStyle(
                 HorizontalValueSliderStyle(

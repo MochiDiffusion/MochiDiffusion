@@ -24,8 +24,12 @@ struct GalleryToolbarView: View {
                         .scaleEffect(0.5)
                 }
                 .popover(isPresented: self.$isStatusPopoverShown, arrowEdge: .bottom) {
-                    let stepLabel = "Step \(step) of \(progress.stepCount)"
-                    let batchLabel = "Batch \(store.batchProgress.index+1) of \(store.batchProgress.total)"
+                    let stepLabel = String(localized: "Step \(step) of \(progress.stepCount)",
+                                           table: "Gallery Toolbar",
+                                           comment: "Step progress text showing current step progress and total steps selected")
+                    let batchLabel = String(localized: "Batch \(store.batchProgress.index+1) of \(store.batchProgress.total)",
+                                            table: "Gallery Toolbar",
+                                            comment: "Batch progress text showing current batch progress and total batches selected")
                     VStack(alignment: .center, spacing: 12) {
                         ProgressView(stepLabel, value: stepValue, total: 1)
                         
@@ -48,7 +52,9 @@ struct GalleryToolbarView: View {
                 .popover(isPresented: self.$isStatusPopoverShown, arrowEdge: .bottom) {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Loading Model...")
-                        Text("This wont take long")
+                        Text("This wont take long",
+                             tableName: "Gallery Toolbar",
+                             comment: "Text explaining that loading the model wont take long")
                             .foregroundColor(.secondary)
                     }
                     .padding()
@@ -57,7 +63,7 @@ struct GalleryToolbarView: View {
         }
         
         if let sdi = store.getSelectedImage(), let img = sdi.image {
-            let imageView = Image(img, scale: 1, label: Text("generated"))
+            let imageView = Image(img, scale: 1, label: Text(verbatim: sdi.prompt))
             
             Button(action: store.removeCurrentImage) {
                 Label("Remove", systemImage: "trash")

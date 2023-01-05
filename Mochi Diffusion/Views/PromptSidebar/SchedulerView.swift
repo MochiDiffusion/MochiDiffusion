@@ -12,7 +12,9 @@ struct SchedulerView: View {
     @EnvironmentObject var store: Store
     
     var body: some View {
-        Text("Scheduler:")
+        Text("Scheduler:",
+             tableName: "Prompt",
+             comment: "Label for Scheduler picker")
         Picker("", selection: $store.scheduler) {
             ForEach(StableDiffusionScheduler.allCases, id: \.self) { s in
                 Text(s.rawValue).tag(s)

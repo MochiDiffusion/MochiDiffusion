@@ -13,7 +13,7 @@ struct GalleryItemView: View {
     let i: Int
     
     var body: some View {
-        Image(sdi.image!, scale: 1, label: Text(String(sdi.seed)))
+        Image(sdi.image!, scale: 1, label: Text(verbatim: String(sdi.seed)))
             .resizable()
             .aspectRatio(contentMode: .fit)
             .padding(4)
