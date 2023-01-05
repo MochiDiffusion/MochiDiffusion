@@ -122,6 +122,7 @@ struct InfoGridRow: View {
                         .foregroundColor(Color.secondary)
                 }
                 .buttonStyle(PlainButtonStyle())
+                .help("Copy Option to Sidebar")
             }
             else {
                 Text("")
