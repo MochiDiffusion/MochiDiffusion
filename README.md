@@ -4,7 +4,7 @@
 
 <h1 align="center">Mochi Diffusion</h1>
 
-<p align="center">Run Stable Diffusion on Apple Silicon Macs natively</p>
+<p align="center">Run Stable Diffusion on Mac natively</p>
 
 <p align="center">
 <a href="https://github.com/godly-devotion/MochiDiffusion/blob/main/README.md">English</a>,
@@ -15,7 +15,7 @@
 
 ## Description
 
-This app uses [Apple's Core ML Stable Diffusion implementation](https://github.com/apple/ml-stable-diffusion) to achieve maximum performance and speed on Apple Silicon based Macs while reducing memory requirements.
+This app uses [Apple's Core ML Stable Diffusion implementation](https://github.com/apple/ml-stable-diffusion) to achieve maximum performance and speed on Apple Silicon based Macs while reducing memory requirements. It also runs on Intel based Macs too.
 
 ## Features
 
@@ -43,6 +43,8 @@ When using a model for the very first time, it may take up to 30 seconds for the
 
 Depending on the option chosen, you will need to use the correct model version (see Models section for details).
 
+Intel Macs uses `CPU & GPU` as it doesn't have Neural Engine.
+
 ## Models
 
 You will need to convert or download Core ML models in order to use Mochi Diffusion.
@@ -58,7 +60,7 @@ A few models have been converted and uploaded [here](https://huggingface.co/godl
 
 ## Compatibility
 
-- Apple Silicon (M1 and later)
+- Apple Silicon (M1 and later) or Intel Mac (not officially supported)
 - macOS Ventura 13.1 and later
 - Xcode 14.2 (to build)
 

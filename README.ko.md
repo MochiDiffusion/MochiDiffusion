@@ -2,9 +2,9 @@
 <img height="256" src="https://github.com/godly-devotion/MochiDiffusion/raw/main/Mochi Diffusion/Assets.xcassets/AppIcon.appiconset/AppIcon.png" />
 </p>
 
-<h1 align="center">Mochi Diffusion (모치)</h1>
+<h1 align="center">Mochi Diffusion (모찌)</h1>
 
-<p align="center">Apple Silicon Mac을 위한 Stable Diffusion</p>
+<p align="center">Mac을 위한 Stable Diffusion</p>
 
 <p align="center">
 <a href="https://github.com/godly-devotion/MochiDiffusion/blob/main/README.md">English</a>,
@@ -15,7 +15,7 @@
 
 ## 설명
 
-이 앱은 [Apple Core ML Stable Diffusion](https://github.com/apple/ml-stable-diffusion)을 사용하여 메모리 요구 사항을 줄이면서 Apple Silicon Mac에서 최대 성능과 속도를 달성합니다.
+이 앱은 [Apple Core ML Stable Diffusion](https://github.com/apple/ml-stable-diffusion)을 사용하여 메모리 요구 사항을 줄이면서 Apple Silicon Mac에서 최대 성능과 속도를 달성합니다. Intel Mac에서도 사용가능합니다.
 
 ## 기능
 
@@ -43,6 +43,8 @@
 
 선택한 옵션에 따라 적절한 모델 버전을 사용해야 합니다 (자세한 내용은 모델 섹션 참조).
 
+Intel Mac은 Neural Engine이 없기 때문에 `CPU & GPU`를 사용합니다.
+
 ## 모델
 
 Mochi Diffusion을 사용하려면 모델 파일을 Core ML 포맷으로 변환하거나 다운로드해야 합니다.
@@ -58,13 +60,21 @@ Mochi Diffusion을 사용하려면 모델 파일을 Core ML 포맷으로 변환�
 
 ## 시스템 요구 사항
 
-- Apple Silicon칩 (M1와 이후 모델)
+- Apple Silicon칩 (M1와 이후 모델) 또는 Intel Mac
 - macOS Ventura 13.1 와 이후 버전
 - Xcode 14.2 (to build)
 
 ## 개인 정보
 
 모든 생성은 본인의 맥에서 발생하며 클라우드로 전송되는 것은 전혀 없습니다.
+
+## 기여
+
+Mochi Diffusion은 버그 보고서, 코드 또는 새로운 번역을 통해서든 항상 기여를 찾고 있습니다.
+
+- 버그를 발견했거나 새로운 기능이나 개선 사항을 제안하고 싶다면 [문제를 먼저 검색](https://github.com/godly-devotion/MochiDiffusion/discussions)해 보세요. 중복을 방지하는 데 도움이 됩니다. 문제를 찾을 수 없으면 [새 토론을 생성](https://github.com/godly-devotion/MochiDiffusion/discussions/new)하세요.
+
+- 코드를 제공하고 싶다면 언제든지 [Pull Request 열기](https://github.com/godly-devotion/MochiDiffusion/pulls) 또는 [새 토론](https://github.com/godly-devotion/MochiDiffusion/discussions)에서 먼저 문이 하실수 있습니다.
 
 ## Credits
 

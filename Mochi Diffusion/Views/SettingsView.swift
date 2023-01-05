@@ -26,6 +26,7 @@ struct SettingsView: View {
                 
                 Spacer().frame(height: 12)
                 
+#if arch(arm64)
                 Group {
                     Picker("ML Compute Unit:", selection: $store.mlComputeUnit) {
                         Text("CPU & Neural Engine").tag(MLComputeUnits.cpuAndNeuralEngine)
@@ -42,6 +43,7 @@ struct SettingsView: View {
                 }
                 
                 Spacer().frame(height: 12)
+#endif
                 
                 Group {
                     Toggle("Reduce Memory Usage:", isOn: $store.reduceMemory)

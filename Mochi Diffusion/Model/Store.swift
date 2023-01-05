@@ -33,7 +33,11 @@ final class Store: ObservableObject {
     @AppStorage("ImageHeight") var height = 512
     @AppStorage("Scheduler") var scheduler = StableDiffusionScheduler.dpmSolverMultistepScheduler
     @AppStorage("UpscaleGeneratedImages") var upscaleGeneratedImages = false
+#if arch(arm64)
     @AppStorage("MLComputeUnit") var mlComputeUnit: MLComputeUnits = .cpuAndNeuralEngine
+#else
+    private var mlComputeUnit: MLComputeUnits = .cpuAndGPU
+#endif
     @AppStorage("ReduceMemory") var reduceMemory = false
     @AppStorage("Model") private var model = ""
     private var progressSubscriber: Cancellable?
