@@ -37,6 +37,10 @@ struct GalleryView: View {
                             })
                             .simultaneousGesture(TapGesture().onEnded {
                                 store.selectImage(index: i)
+                                // If quicklook is open show selected image on single click
+                                if quicklookImage != nil {
+                                    quicklookImage = try? sdi.image?.asNSImage().temporaryFileURL()
+                                }
                             })
                             .contextMenu {
                                 Section {
