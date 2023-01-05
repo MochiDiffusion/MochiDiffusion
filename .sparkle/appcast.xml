@@ -5,6 +5,50 @@
     <language>en</language>
 
     <item>
+      <title>v2.0</title>
+      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <sparkle:version>2.0</sparkle:version>
+      <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
+      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <pubDate>Thu, 05 Jan 2023 17:32:45 +0000</pubDate>
+      <enclosure
+        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v2.0/MochiDiffusion_v2.0.dmg"
+        sparkle:edSignature="5RZfMk6l2sQrrvxIHQGKki6imBfUeeJGHFb0kMvtu+ySxyOFoV7H2B3Lz/I88BabO+wQ+baZJNsmh4cUdERnCA=="
+        length="66871770"
+        type="application/x-diskcopy" />
+      <description><![CDATA[
+      <ul>
+        <li>Added support for Intel Macs (universal binary)
+            <ul>
+              <li>CPU & GPU compute unit will be used</li>
+              <li>High performance CPU & GPU is required</li>
+            </ul>
+        </li>
+        <li>Updated Gallery UI
+            <ul>
+              <li>Images are displayed in a grid</li>
+              <li>Added ability to view images in Quick Look (double click on image)</li>
+              <li>Added ability to search generated images by prompt</li>
+              <li>Added total generated image count</li>
+            </ul>
+        </li>
+        <li>Update Inspector UI
+            <ul>
+              <li>Moved to sidebar to allow easier at a glance view</li>
+            </ul>
+        </li>
+        <li>Updated names of buttons & labels</li>
+        <li>Added menu option to download pre-converted models (Help > Download Models)</li>
+        <li>Added menu option to support this project (Help > Support Me)</li>
+        <li>Added support for localization</li>
+      </ul>
+      <div>Special thanks to the following for supporting me and making this app possible 🎉</div>
+      <div>serovar, orange-wedge, julien-c, Quick-Eyed-Sky, BirdSesame, Da-mi-en, eidermar, Draxredd</div>
+      ]]>
+      </description>
+    </item>
+
+    <item>
       <title>v1.4.2</title>
       <link>https://github.com/godly-devotion/MochiDiffusion</link>
       <sparkle:version>1.4.2</sparkle:version>
