@@ -39,12 +39,12 @@ struct InspectorView: View {
                             text: "\(sdi.width) x \(sdi.height)\(sdi.isUpscaled ? " (Converted to High Resolution)" : "")",
                             showCopyToPromptOption: false)
                         InfoGridRow(
-                            type: "Prompt",
+                            type: "Include in Image",
                             text: sdi.prompt,
                             showCopyToPromptOption: true,
                             callback: store.copyPromptToPrompt)
                         InfoGridRow(
-                            type: "Negative Prompt",
+                            type: "Exclude from Image",
                             text: sdi.negativePrompt,
                             showCopyToPromptOption: true,
                             callback: store.copyNegativePromptToPrompt)
@@ -77,7 +77,7 @@ struct InspectorView: View {
                 .padding([.horizontal])
                 
                 HStack(alignment: .center) {
-                    Button("Copy to Prompt") {
+                    Button("Copy Options to Sidebar") {
                         store.copyToPrompt()
                     }
                     Button("Copy") {

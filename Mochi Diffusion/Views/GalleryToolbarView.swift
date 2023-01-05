@@ -71,8 +71,8 @@ struct GalleryToolbarView: View {
             Spacer()
 
             Button(action: sdi.save) {
-                Label("Save Image...", systemImage: "square.and.arrow.down")
-                    .help("Save Image")
+                Label("Save As...", systemImage: "square.and.arrow.down")
+                    .help("Save As...")
             }
             ShareLink(item: imageView, preview: SharePreview(sdi.prompt, image: imageView))
                 .help("Share...")
@@ -90,7 +90,7 @@ struct GalleryToolbarView: View {
             Spacer()
             
             Button(action: {}) {
-                Label("Save Image...", systemImage: "square.and.arrow.down")
+                Label("Save As...", systemImage: "square.and.arrow.down")
             }
             .disabled(true)
             Button(action: {}) {

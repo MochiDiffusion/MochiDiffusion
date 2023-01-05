@@ -40,13 +40,13 @@ struct GalleryView: View {
                             })
                             .contextMenu {
                                 Section {
-                                    Button("Copy to Prompt") {
+                                    Button("Copy Options to Sidebar") {
                                         store.copyToPrompt()
                                     }
                                     Button("Convert to High Resolution") {
                                         store.upscaleImage(sdImage: sdi)
                                     }
-                                    Button("Save Image...") {
+                                    Button("Save As...") {
                                         sdi.save()
                                     }
                                 }

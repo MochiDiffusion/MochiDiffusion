@@ -13,7 +13,7 @@ struct FileCommands: Commands {
     var body: some Commands {
         CommandGroup(replacing: .saveItem) {
             Section {
-                Button("Save Image...") {
+                Button("Save As...") {
                     guard let sdi = store.getSelectedImage() else { return }
                     sdi.save()
                 }

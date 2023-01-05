@@ -27,7 +27,6 @@ struct SDImage: Identifiable {
     var generatedDate = Date()
     var isUpscaled = false
 
-    // Save image with metadata
     func save() {
         guard let image = image else {
             NSLog("*** Image was not valid!")
