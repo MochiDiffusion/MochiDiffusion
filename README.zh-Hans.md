@@ -4,7 +4,7 @@
 
 <h1 align="center">Mochi Diffusion</h1>
 
-<p align="center">Run Stable Diffusion on Mac natively</p>
+<p align="center">在 Mac 上原生运行 Stable Diffusion</p>
 
 <p align="center">
 <a href="https://github.com/godly-devotion/MochiDiffusion/blob/main/README.md">English</a>,
