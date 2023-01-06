@@ -1,0 +1,30 @@
+/* Label for Exclude from Image text field */
+"Exclude from Image:" = "从图像中排除";
+
+/* Label for image height picker */
+"Height:" = "高度:";
+
+/* Label for Images per Batch slider */
+"Images per Batch: %lld" = "单个样本的图像数: %lld";
+
+/* Label for Include in Image text field */
+"Include in Image:" = "包含在图像中";
+
+/* Label for Model picker */
+"Model:" = "模型:";
+
+/* Label for Number of Batches picker */
+"Number of Batches:" = "样本数量:";
+
+/* Label for Scheduler picker */
+"Scheduler:" = "优化器:";
+
+/* Label for Seed text field */
+"Seed (0 for random):" = "随机种 (0代表随机)";
+
+/* Label for Steps slider with value */
+"Steps: %lld" = "迭代步数: %lld";
+
+/* Label for image width picker */
+"Width:" = "宽度:";
+

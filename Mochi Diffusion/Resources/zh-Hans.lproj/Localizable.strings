@@ -1,0 +1,105 @@
+/* No comment provided by engineer. */
+"^[%lld images](inflect: true)" = "^[%lld 张图片](inflect: true)";
+
+/* No comment provided by engineer. */
+"Apply" = "应用";
+
+/* No comment provided by engineer. */
+"Check for Updates…" = "检查更新";
+
+/* No comment provided by engineer. */
+"Convert all images to High Resolution (this will use more memory)" = "全部转换为高分辨率图像(将占用更多内存)";
+
+/* No comment provided by engineer. */
+"Convert to High Resolution" = "转换为高分辨率图像";
+
+/* No comment provided by engineer. */
+"Copy" = "拷贝";
+
+/* No comment provided by engineer. */
+"Copy Options to Sidebar" = "将选项拷贝到侧边栏";
+
+/* No comment provided by engineer. */
+"Date" = "日期";
+
+/* No comment provided by engineer. */
+"Download Models" = "下载模型";
+
+/* No comment provided by engineer. */
+"Exclude from Image" = "从图像中排除";
+
+/* No comment provided by engineer. */
+"Generate" = "生成";
+
+/* No comment provided by engineer. */
+"Guidance Scale" = "关键词权重";
+
+/* No comment provided by engineer. */
+"Image Index" = "图像指数";
+
+/* Help text for Image per Batch. */
+"Images in a batch are generated at the same time and require more memory.\n^[%lld images](inflect: true) will be generated in total." = "单个样本中的图像将会同时生成并占用更多内存。共计生成^[%lld 张图片](inflect: true)";
+
+/* No comment provided by engineer. */
+"Include in Image" = "包含在图片中";
+
+/* No comment provided by engineer. */
+"Loading Model..." = "加载模型中...";
+
+/* No comment provided by engineer. */
+"ML Compute Unit:" = "ML 计算单元:";
+
+/* No comment provided by engineer. */
+"Model" = "模型";
+
+/* No comment provided by engineer. */
+"Open in Finder" = "在访达中打开";
+
+/* No comment provided by engineer. */
+"random" = "随机";
+
+/* No comment provided by engineer. */
+"Reduce Memory Usage:" = "减少内存占用:";
+
+/* No comment provided by engineer. */
+"Release Notes" = "版本说明";
+
+/* No comment provided by engineer. */
+"Remove" = "移除";
+
+/* No comment provided by engineer. */
+"Save As..." = "另存为...";
+
+/* No comment provided by engineer. */
+"Scheduler" = "优化器";
+
+/* No comment provided by engineer. */
+"Scheduler:" = "优化器:";
+
+/* No comment provided by engineer. */
+"Search" = "搜索";
+
+/* No comment provided by engineer. */
+"Searching: %@" = "搜索中: %@";
+
+/* No comment provided by engineer. */
+"Seed" = "随机种";
+
+/* No comment provided by engineer. */
+"Share..." = "分享...";
+
+/* No comment provided by engineer. */
+"Size" = "大小";
+
+/* No comment provided by engineer. */
+"Steps" = "迭代步数";
+
+/* No comment provided by engineer. */
+"Stop Generation" = "终止生成";
+
+/* No comment provided by engineer. */
+"Support Me ♥" = "支持我 ♥";
+
+/* No comment provided by engineer. */
+"Website" = "官网";
+

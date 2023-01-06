@@ -1,0 +1,9 @@
+/* Batch progress text showing current batch progress and total batches selected */
+"Batch %lld of %lld" = "样本 %lld/%lld";
+
+/* Step progress text showing current step progress and total steps selected */
+"Step %lld of %lld" = "迭代步数 %lld/%lld";
+
+/* Text explaining that loading the model wont take long */
+"This wont take long" = "即将完成";
+
