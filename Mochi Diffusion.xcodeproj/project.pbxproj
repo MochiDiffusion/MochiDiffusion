@@ -41,6 +41,8 @@
 		03D43B7A29660A2600604911 /* GalleryItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03D43B7929660A2600604911 /* GalleryItemView.swift */; };
 		03E89F3C294FE6ED0067457E /* SDImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E89F3B294FE6ED0067457E /* SDImage.swift */; };
 		03F3179929512BAB00F06D25 /* MainViewStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03F3179829512BAB00F06D25 /* MainViewStatus.swift */; };
+		03F578642967CE9A003A815F /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 03F578622967CE9A003A815F /* Localizable.strings */; };
+		03F578672967DAE6003A815F /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 03F578652967DAE6003A815F /* InfoPlist.strings */; };
 		03FD2317295F480F006EEEE2 /* ViewModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03FD2316295F480F006EEEE2 /* ViewModifiers.swift */; };
 		03FD2319295F74B6006EEEE2 /* RealESRGAN.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 03FD2318295F74B6006EEEE2 /* RealESRGAN.mlmodel */; };
 		03FD231B295F7A81006EEEE2 /* Upscaler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03FD231A295F7A81006EEEE2 /* Upscaler.swift */; };
@@ -98,6 +100,9 @@
 		03D43B7929660A2600604911 /* GalleryItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryItemView.swift; sourceTree = "<group>"; };
 		03E89F3B294FE6ED0067457E /* SDImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDImage.swift; sourceTree = "<group>"; };
 		03F3179829512BAB00F06D25 /* MainViewStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewStatus.swift; sourceTree = "<group>"; };
+		03F578632967CE9A003A815F /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/Localizable.strings; sourceTree = "<group>"; };
+		03F578662967DAE6003A815F /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
+		03F578682967DAE6003A815F /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		03FD2316295F480F006EEEE2 /* ViewModifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModifiers.swift; sourceTree = "<group>"; };
 		03FD2318295F74B6006EEEE2 /* RealESRGAN.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = RealESRGAN.mlmodel; sourceTree = "<group>"; };
 		03FD231A295F7A81006EEEE2 /* Upscaler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Upscaler.swift; sourceTree = "<group>"; };
@@ -195,6 +200,8 @@
 				036BFC21294B9F7500D8AD04 /* App.swift */,
 				036BFC5A294BA19400D8AD04 /* Downloader.swift */,
 				0352E2A8294E414D003FBF25 /* Info.plist */,
+				03F578652967DAE6003A815F /* InfoPlist.strings */,
+				03F578622967CE9A003A815F /* Localizable.strings */,
 				0307B0D8294D4A1D00A9BD55 /* Main Menu */,
 				0386DF8E29510D8700CA4CEB /* Model */,
 				036BFC27294B9F7600D8AD04 /* Preview Content */,
@@ -402,6 +409,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				036BFC29294B9F7600D8AD04 /* Preview Assets.xcassets in Resources */,
+				03F578672967DAE6003A815F /* InfoPlist.strings in Resources */,
+				03F578642967CE9A003A815F /* Localizable.strings in Resources */,
 				036BFC26294B9F7600D8AD04 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -488,6 +497,28 @@
 			targetProxy = 036BFC3A294B9F7600D8AD04 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		03F578622967CE9A003A815F /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				03F578632967CE9A003A815F /* ko */,
+				03F578682967DAE6003A815F /* zh-Hans */,
+			);
+			name = Localizable.strings;
+			path = ..;
+			sourceTree = "<group>";
+		};
+		03F578652967DAE6003A815F /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				03F578662967DAE6003A815F /* zh-Hans */,
+			);
+			name = InfoPlist.strings;
+			path = ..;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		036BFC41294B9F7600D8AD04 /* Debug */ = {

@@ -1,0 +1,9 @@
+/* Button to copy the currently selected image's generation options to the clipboard */
+"Copy" = "복사";
+
+/* Label for toggle to auto convert generated images to high resolution */
+"HD" = "고화질";
+
+/* Placeholder text for image inspector */
+"No Info" = "정보 없음";
+

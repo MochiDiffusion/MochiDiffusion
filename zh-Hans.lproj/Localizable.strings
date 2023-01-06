@@ -1,0 +1,175 @@
+/* No comment provided by engineer. */
+"^[%lld images](inflect: true)" = "^[%lld 张图片](inflect: true)";
+
+/* Option to use all CPU, GPU, & Neural Engine for compute unit */
+"All" = "全部";
+
+/* Button to apply the selected settings */
+"Apply" = "应用";
+
+/* No comment provided by engineer. */
+"Based on the option selected the correct model version will need to be used." = "不同的计算单元需要搭配使用正确的模型";
+
+/* Batch progress text showing current batch progress and total batches selected */
+"Batch %lld of %lld" = "样本 %lld / %lld";
+
+/* No comment provided by engineer. */
+"Check for Updates…" = "检查更新...";
+
+/* No comment provided by engineer. */
+"Convert all images to High Resolution (this will use more memory)" = "全部转换为高分辨率图像(将占用更多内存)";
+
+/* Right click menu option to convert the image to high resolution */
+"Convert to High Resolution" = "全部转换为高分辨率图像";
+
+/* Button to copy the currently selected image's generation options to the clipboard */
+"Copy" = "拷贝";
+
+/* No comment provided by engineer. */
+"Copy Option to Sidebar" = "将设置拷贝到侧边栏";
+
+/* Button to copy the currently selected image's generation options to the prompt input sidebar */
+"Copy Options to Sidebar" = "将设置拷贝到侧边栏";
+
+/* No comment provided by engineer. */
+"CPU & GPU" = "CPU 和 GPU";
+
+/* No comment provided by engineer. */
+"CPU & GPU may be faster on M1 Max, Ultra and later but will use more memory." = "CPU 和 GPU 在 M1 Max/Ultra及后续型号上可能更快但会占用更多内存";
+
+/* No comment provided by engineer. */
+"CPU & Neural Engine" = "CPU 和神经网络引擎";
+
+/* No comment provided by engineer. */
+"CPU & Neural Engine provides a good balance between speed and low memory usage." = "CPU 和神经网络引擎可以很好地平衡性能和内存占用";
+
+/* No comment provided by engineer. */
+"Date" = "日期";
+
+/* No comment provided by engineer. */
+"Download Models" = "下载模型";
+
+/* No comment provided by engineer. */
+"Exclude from Image" = "反向关键词";
+
+/* Label for negative prompt text field */
+"Exclude from Image:" = "反向关键词:";
+
+/* Button to generate image */
+"Generate" = "生成";
+
+/* No comment provided by engineer. */
+"Guidance Scale" = "关键词权重";
+
+/* Label for Guidance Scale slider with value */
+"Guidance Scale: %@" = "关键词权重: %@";
+
+/* Label for image height picker */
+"Height:" = "高度:";
+
+/* No comment provided by engineer. */
+"Image Index" = "图像索引";
+
+/* No comment provided by engineer. */
+"Images in a batch are generated at the same time and require more memory.\n^[%lld images](inflect: true) will be generated in total." = "单个样本中的图像将会同时生成并占用更多内存。共计生成^[%lld 张图片](inflect: true)";
+
+/* No comment provided by engineer. */
+"Images per Batch: %lld" = "单个样本的图像数: %lld";
+
+/* No comment provided by engineer. */
+"Include in Image" = "关键词";
+
+/* Label for prompt text field */
+"Include in Image:" = "关键词:";
+
+/* No comment provided by engineer. */
+"Loading Model..." = "加载模型中...";
+
+/* No comment provided by engineer. */
+"ML Compute Unit:" = "ML 计算单元";
+
+/* No comment provided by engineer. */
+"Model" = "模型";
+
+/* Label for Model picker */
+"Model:" = "模型:";
+
+/* Placeholder text for image inspector */
+"No Info" = "无";
+
+/* No comment provided by engineer. */
+"Number of Batches:" = "样本数量:";
+
+/* No comment provided by engineer. */
+"Open in Finder" = "在访达中打开";
+
+/* No comment provided by engineer. */
+"random" = "随机";
+
+/* Help text for Reduce Memory Usage option */
+"Reduce memory usage further at the cost of speed." = "牺牲性能以换取更低的内存占用";
+
+/* No comment provided by engineer. */
+"Reduce Memory Usage:" = "减少内存占用:";
+
+/* No comment provided by engineer. */
+"Release Notes" = "版本说明";
+
+/* Right click menu option to remove image from the gallery */
+"Remove" = "移除";
+
+/* File menu option to show the save image dialog
+Right click menu option to show the save image dialog */
+"Save As..." = "另存为...";
+
+/* No comment provided by engineer. */
+"Scheduler" = "优化器";
+
+/* Label for Scheduler picker */
+"Scheduler:" = "优化器:";
+
+/* No comment provided by engineer. */
+"Search" = "搜索";
+
+/* No comment provided by engineer. */
+"Searching: %@" = "搜索中: %@";
+
+/* No comment provided by engineer. */
+"Seed" = "随机种";
+
+/* Label for Seed text field */
+"Seed (0 for random):" = "随机种 (0代表随机)";
+
+/* No comment provided by engineer. */
+"Share..." = "分享...";
+
+/* No comment provided by engineer. */
+"Size" = "大小";
+
+/* Step progress text showing current step progress and total steps selected */
+"Step %lld of %lld" = "迭代步数 %lld / %lld";
+
+/* No comment provided by engineer. */
+"Steps" = "迭代步数";
+
+/* Label for Steps slider with value */
+"Steps: %lld" = "迭代步数: %lld";
+
+/* No comment provided by engineer. */
+"Stop Generation" = "终止生成";
+
+/* No comment provided by engineer. */
+"Support Me ♥" = "支持我 ♥";
+
+/* Text explaining that loading the model wont take long */
+"This wont take long" = "即将完成";
+
+/* No comment provided by engineer. */
+"Website" = "网站";
+
+/* Label for image width picker */
+"Width:" = "宽度：";
+
+/* Label for changing the working directory */
+"Working Directory:" = "工作目录:";
+
