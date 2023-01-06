@@ -8,7 +8,8 @@
 
 <p align="center">
 <a href="https://github.com/godly-devotion/MochiDiffusion/blob/main/README.md">English</a>,
-<a href="https://github.com/godly-devotion/MochiDiffusion/blob/main/README.ko.md">한국어</a>
+<a href="https://github.com/godly-devotion/MochiDiffusion/blob/main/README.ko.md">한국어</a>,
+<a href="https://github.com/godly-devotion/MochiDiffusion/blob/main/README.zh-Hans.md">中文</a>
 </p>
 
 ![Screenshot](.github/images/screenshot.png)
