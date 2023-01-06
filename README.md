@@ -77,7 +77,7 @@ Mochi Diffusion is always looking for contributions, whether it's through bug re
 
 - If you're looking to contribute code, feel free to [open a Pull Request](https://github.com/godly-devotion/MochiDiffusion/pulls) or [create a new discussion](https://github.com/godly-devotion/MochiDiffusion/discussions) to talk about it first.
 
-- If you'd like to translate Mochi Diffusion to your language, feel free to [create a new discussion](https://github.com/godly-devotion/MochiDiffusion/discussions) and I will provide the files needed for translation.
+- If you'd like to translate Mochi Diffusion to your language, please visit the [project page on Crowdin](https://crowdin.com/project/mochi-diffusion). You can create an account for free and start translating and/or approving. If you want to translate Mochi Diffusion into a new language that is currently not in the list, [create a new discussion](https://github.com/godly-devotion/MochiDiffusion/discussions).
 
 ## Credits
 
