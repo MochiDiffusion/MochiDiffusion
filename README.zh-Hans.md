@@ -20,7 +20,7 @@
 
 <a href="https://github.com/godly-devotion/MochiDiffusion/blob/main/README.ko.md">한국어</a>,
 
-<a href="https://github.com/godly-devotion/MochiDiffusion/blob/main/README.zh.md">中文</a>
+<a href="https://github.com/godly-devotion/MochiDiffusion/blob/main/README.zh-Hans.md">中文</a>
 
 </p>
 
