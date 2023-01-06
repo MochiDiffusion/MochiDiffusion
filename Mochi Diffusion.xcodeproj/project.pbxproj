@@ -39,6 +39,7 @@
 		03D280F2294FD60E00C7D184 /* PromptView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03D280F1294FD60E00C7D184 /* PromptView.swift */; };
 		03D43B7829660A1300604911 /* GalleryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03D43B7729660A1300604911 /* GalleryView.swift */; };
 		03D43B7A29660A2600604911 /* GalleryItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03D43B7929660A2600604911 /* GalleryItemView.swift */; };
+		03E075792968A153003488F9 /* CircularProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E075782968A153003488F9 /* CircularProgressView.swift */; };
 		03E89F3C294FE6ED0067457E /* SDImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E89F3B294FE6ED0067457E /* SDImage.swift */; };
 		03F3179929512BAB00F06D25 /* MainViewStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03F3179829512BAB00F06D25 /* MainViewStatus.swift */; };
 		03F578642967CE9A003A815F /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 03F578622967CE9A003A815F /* Localizable.strings */; };
@@ -101,6 +102,7 @@
 		03D280F1294FD60E00C7D184 /* PromptView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptView.swift; sourceTree = "<group>"; };
 		03D43B7729660A1300604911 /* GalleryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryView.swift; sourceTree = "<group>"; };
 		03D43B7929660A2600604911 /* GalleryItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryItemView.swift; sourceTree = "<group>"; };
+		03E075782968A153003488F9 /* CircularProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircularProgressView.swift; sourceTree = "<group>"; };
 		03E89F3B294FE6ED0067457E /* SDImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDImage.swift; sourceTree = "<group>"; };
 		03F3179829512BAB00F06D25 /* MainViewStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewStatus.swift; sourceTree = "<group>"; };
 		03F578632967CE9A003A815F /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -228,6 +230,7 @@
 			children = (
 				035EDFF1295A1F8F00080D18 /* PromptSidebar */,
 				0352E2A9294EA0E1003FBF25 /* AppView.swift */,
+				03E075782968A153003488F9 /* CircularProgressView.swift */,
 				0352E2AD294EA2B4003FBF25 /* ErrorBanner.swift */,
 				03D43B7729660A1300604911 /* GalleryView.swift */,
 				03D43B7929660A2600604911 /* GalleryItemView.swift */,
@@ -454,6 +457,7 @@
 				03D280F2294FD60E00C7D184 /* PromptView.swift in Sources */,
 				03FD2319295F74B6006EEEE2 /* RealESRGAN.mlmodel in Sources */,
 				035EE000295A224900080D18 /* ModelView.swift in Sources */,
+				03E075792968A153003488F9 /* CircularProgressView.swift in Sources */,
 				0352E2AA294EA0E1003FBF25 /* AppView.swift in Sources */,
 				035EE003295A227100080D18 /* SchedulerView.swift in Sources */,
 				0352E2B5294EA887003FBF25 /* Functions.swift in Sources */,

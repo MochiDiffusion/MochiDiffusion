@@ -19,9 +19,8 @@ struct GalleryToolbarView: View {
                 let batchValue = Double(store.batchProgress.index+1) / Double(store.batchProgress.total)
                 
                 Button(action: { self.isStatusPopoverShown.toggle() }) {
-                    ProgressView(value: stepValue, total: 1)
-                        .progressViewStyle(.circular)
-                        .scaleEffect(0.5)
+                    CircularProgressView(progress: stepValue)
+                        .frame(width: 16, height: 16)
                 }
                 .popover(isPresented: self.$isStatusPopoverShown, arrowEdge: .bottom) {
                     let stepLabel = String(localized: "Step \(step) of \(progress.stepCount)",
