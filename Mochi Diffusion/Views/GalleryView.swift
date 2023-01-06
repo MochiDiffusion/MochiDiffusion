@@ -44,19 +44,27 @@ struct GalleryView: View {
                             })
                             .contextMenu {
                                 Section {
-                                    Button("Copy Options to Sidebar") {
-                                        store.copyToPrompt()
+                                    Button(action: store.copyToPrompt) {
+                                        Text("Copy Options to Sidebar",
+                                             tableName: "Gallery",
+                                             comment: "Button to copy the currently selected image's generation options to the prompt input sidebar")
                                     }
-                                    Button("Convert to High Resolution") {
-                                        store.upscaleImage(sdImage: sdi)
+                                    Button(action: { store.upscaleImage(sdImage: sdi) }) {
+                                        Text("Convert to High Resolution",
+                                             tableName: "Gallery",
+                                             comment: "Right click menu option to convert the image to high resolution")
                                     }
-                                    Button("Save As...") {
-                                        sdi.save()
+                                    Button(action: sdi.save) {
+                                        Text("Save As...",
+                                             tableName: "Gallery",
+                                             comment: "Right click menu option to show the save image dialog")
                                     }
                                 }
                                 Section {
-                                    Button("Remove") {
-                                        store.removeImage(index: i)
+                                    Button(action: { store.removeImage(index: i) }) {
+                                        Text("Remove",
+                                             tableName: "Gallery",
+                                             comment: "Right click menu option to remove image from the gallery")
                                     }
                                 }
                             }

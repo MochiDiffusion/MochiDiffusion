@@ -97,8 +97,10 @@ struct SettingsView: View {
             HStack {
                 Spacer()
                 
-                Button("Apply") {
-                    store.loadModels()
+                Button(action: store.loadModels) {
+                    Text("Apply",
+                         tableName: "Settings",
+                         comment: "Button to apply the selected settings")
                 }
             }
         }

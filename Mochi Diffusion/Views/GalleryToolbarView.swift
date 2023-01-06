@@ -35,8 +35,10 @@ struct GalleryToolbarView: View {
                         
                         ProgressView(batchLabel, value: batchValue, total: 1)
                         
-                        Button("Stop Generation") {
-                            store.stopGeneration()
+                        Button(action: store.stopGeneration) {
+                            Text("Stop Generation",
+                                 tableName: "Gallery Toolbar",
+                                 comment: "Button to stop the ongoing image generation")
                         }
                     }
                     .padding()
@@ -66,41 +68,83 @@ struct GalleryToolbarView: View {
             let imageView = Image(img, scale: 1, label: Text(verbatim: sdi.prompt))
             
             Button(action: store.removeCurrentImage) {
-                Label("Remove", systemImage: "trash")
-                    .help("Remove")
+                Label {
+                    Text("Remove",
+                         tableName: "Gallery Toolbar",
+                         comment: "Toolbar button to remove the selected image")
+                } icon: {
+                    Image(systemName: "trash")
+                }
+                .help("Remove")
             }
             Button(action: store.upscaleCurrentImage) {
-                Label("Convert to High Resolution", systemImage: "wand.and.stars")
-                    .help("Convert to High Resolution")
+                Label {
+                    Text("Convert to High Resolution",
+                         tableName: "Gallery Toolbar",
+                         comment: "Toolbar button to convert image to high resolution")
+                } icon: {
+                    Image(systemName: "wand.and.stars")
+                }
+                .help("Convert to High Resolution")
             }
             
             Spacer()
 
             Button(action: sdi.save) {
-                Label("Save As...", systemImage: "square.and.arrow.down")
-                    .help("Save As...")
+                Label {
+                    Text("Save As...",
+                         tableName: "Gallery Toolbar",
+                         comment: "Toolbar button to show the save image dialog")
+                } icon: {
+                    Image(systemName: "square.and.arrow.down")
+                }
+                .help("Save As...")
             }
             ShareLink(item: imageView, preview: SharePreview(sdi.prompt, image: imageView))
                 .help("Share...")
         }
         else {
             Button(action: {}) {
-                Label("Remove", systemImage: "trash")
+                Label {
+                    Text("Remove",
+                         tableName: "Gallery Toolbar",
+                         comment: "Toolbar button to remove the selected image")
+                } icon: {
+                    Image(systemName: "trash")
+                }
             }
             .disabled(true)
             Button(action: {}) {
-                Label("Convert to High Resolution", systemImage: "wand.and.stars")
+                Label {
+                    Text("Convert to High Resolution",
+                         tableName: "Gallery Toolbar",
+                         comment: "Toolbar button to convert image to high resolution")
+                } icon: {
+                    Image(systemName: "wand.and.stars")
+                }
             }
             .disabled(true)
 
             Spacer()
             
             Button(action: {}) {
-                Label("Save As...", systemImage: "square.and.arrow.down")
+                Label {
+                    Text("Save As...",
+                         tableName: "Gallery Toolbar",
+                         comment: "Toolbar button to show the save image dialog")
+                } icon: {
+                    Image(systemName: "square.and.arrow.down")
+                }
             }
             .disabled(true)
             Button(action: {}) {
-                Label("Share...", systemImage: "square.and.arrow.up")
+                Label {
+                    Text("Share...",
+                         tableName: "Gallery Toolbar",
+                         comment: "Toolbar button to show the system share sheet")
+                } icon: {
+                    Image(systemName: "square.and.arrow.up")
+                }
             }
             .disabled(true)
         }

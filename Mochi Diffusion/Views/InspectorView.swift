@@ -77,14 +77,20 @@ struct InspectorView: View {
                 .padding([.horizontal])
                 
                 HStack(alignment: .center) {
-                    Button("Copy Options to Sidebar") {
-                        store.copyToPrompt()
+                    Button(action: store.copyToPrompt) {
+                        Text("Copy Options to Sidebar",
+                             tableName: "Inspector",
+                             comment: "Button to copy the currently selected image's generation options to the prompt input sidebar")
                     }
-                    Button("Copy") {
+                    Button(action: {
                         let info = getHumanReadableInfo(sdi: sdi)
                         let pb = NSPasteboard.general
                         pb.declareTypes([.string], owner: nil)
                         pb.setString(info, forType: .string)
+                    }) {
+                        Text("Copy",
+                             tableName: "Inspector",
+                             comment: "Button to copy the currently selected image's generation options to the clipboard")
                     }
                 }
                 .padding()
