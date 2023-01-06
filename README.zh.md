@@ -34,7 +34,7 @@
 
   
 
-本应用内置 [Apple 的 Core ML Stable Diffusion 框架](https://github.com/apple/ml-stable-diffusion) 以实现在搭载 Apple 芯片的 Mac 上以极低低内存占用发挥出最优性能，并同时兼容搭载 Intel 芯片的 Mac。
+本应用内置 [Apple 的 Core ML Stable Diffusion 框架](https://github.com/apple/ml-stable-diffusion) 以实现在搭载 Apple 芯片的 Mac 上用极低的内存占用发挥出最优性能，并同时兼容搭载 Intel 芯片的 Mac。
 
   
 
@@ -44,7 +44,7 @@
 
 - 极致性能和极低内存占用 (使用神经网络引擎时 ~150MB)
 
-- 在所有搭载Apple 芯片的 Mac 上充分发挥神经网络引擎的优势
+- 在所有搭载 Apple 芯片的 Mac 上充分发挥神经网络引擎的优势
 
 - 生成图像时无需联网
 
@@ -56,7 +56,7 @@
 
 - 无需担心损坏的模型
 
-- 使用macOS原生框架SwiftUI开发
+- 使用 macOS 原生框架 SwiftUI 开发
 
   
 
@@ -64,7 +64,7 @@
 
   
 
-在 [发行版](https://github.com/godly-devotion/MochiDiffusion/releases) 页面下载最新版本。
+在 [发行](https://github.com/godly-devotion/MochiDiffusion/releases) 页面下载最新版本。
 
   
 
@@ -72,7 +72,7 @@
 
   
 
-在初次运行一个模型时, 神经网络引擎可能需要约30秒编译一个缓存版本。 后续运行速度会显著提高。
+在初次运行一个模型时, 神经网络引擎可能需要约30秒编译一个缓存版本，后续运行速度会显著提高。
 
   
 
@@ -82,7 +82,7 @@
 
 - `CPU 和神经网络引擎` 能很好地平衡性能和内存占用
 
-- `CPU 和 GPU` 在 M1 Max/Ultra及后续型号上可能更快，但会占用更多内存
+- `CPU 和 GPU` 在 M1 Max/Ultra 及后续型号上可能更快，但会占用更多内存
 
   
 
@@ -148,7 +148,7 @@ Mochi Diffusion 欢迎贡献者，不管是修复bug，新增代码，还是完�
 
   
 
-- 如果你找到一个bug，对现有功能有意见和想法，或者想请求一个新功能，先 [在这里搜索你的问题](https://github.com/godly-devotion/MochiDiffusion/discussions) 以避免重复。如果你没看到和你一样的问题，请 [发起一个新的讨论](https://github.com/godly-devotion/MochiDiffusion/discussions/new)。
+- 如果你找到一个bug，对现有功能有意见和想法，或者想要一个新功能，请先 [在这里搜索你的问题](https://github.com/godly-devotion/MochiDiffusion/discussions) 以避免重复。如果你没看到和你一样的问题，请 [发起一个新的讨论](https://github.com/godly-devotion/MochiDiffusion/discussions/new)。
 
   
 
