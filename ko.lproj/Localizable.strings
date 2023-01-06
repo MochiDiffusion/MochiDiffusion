@@ -1,9 +1,93 @@
+/* Button to apply the selected settings */
+"Apply" = "적용";
+
+/* No comment provided by engineer. */
+"Check for Updates…" = "업데이트 확인…";
+
 /* Button to copy the currently selected image's generation options to the clipboard */
 "Copy" = "복사";
+
+/* No comment provided by engineer. */
+"Exclude from Image" = "네거티브 프롬프트";
+
+/* Label for negative prompt text field */
+"Exclude from Image:" = "네거티브 프롬프트:";
+
+/* Button to generate image */
+"Generate" = "생성";
+
+/* No comment provided by engineer. */
+"Guidance Scale" = "스케일";
+
+/* Label for Guidance Scale slider with value */
+"Guidance Scale: %@" = "스케일: %@";
 
 /* Label for toggle to auto convert generated images to high resolution */
 "HD" = "고화질";
 
+/* Label for image height picker */
+"Height:" = "가로길이:";
+
+/* No comment provided by engineer. */
+"Images per Batch: %lld" = "배치 크기: %lld";
+
+/* No comment provided by engineer. */
+"Include in Image" = "프롬프트";
+
+/* Label for prompt text field */
+"Include in Image:" = "프롬프트:";
+
+/* No comment provided by engineer. */
+"Loading Model..." = "모델 로딩 중...";
+
+/* No comment provided by engineer. */
+"Model" = "모델";
+
+/* Label for Model picker */
+"Model:" = "모델:";
+
 /* Placeholder text for image inspector */
 "No Info" = "정보 없음";
+
+/* No comment provided by engineer. */
+"Number of Batches:" = "배치 수:";
+
+/* No comment provided by engineer. */
+"Open in Finder" = "파인더에서 열기";
+
+/* No comment provided by engineer. */
+"random" = "랜덤";
+
+/* Right click menu option to remove image from the gallery */
+"Remove" = "삭제";
+
+/* No comment provided by engineer. */
+"Search" = "검색";
+
+/* No comment provided by engineer. */
+"Searching: %@" = "검색: %@";
+
+/* No comment provided by engineer. */
+"Seed" = "씨드";
+
+/* No comment provided by engineer. */
+"Size" = "크기";
+
+/* No comment provided by engineer. */
+"Steps" = "스텝 수";
+
+/* Label for Steps slider with value */
+"Steps: %lld" = "스텝 수: %lld";
+
+/* No comment provided by engineer. */
+"Stop Generation" = "생성 중단";
+
+/* No comment provided by engineer. */
+"Website" = "웹사이트";
+
+/* Label for image width picker */
+"Width:" = "세로길이:";
+
+/* Label for changing the working directory */
+"Working Directory:" = "작업 폴더:";
 
