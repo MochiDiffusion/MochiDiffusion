@@ -12,7 +12,7 @@ struct GalleryView: View {
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var store: Store
     @State private var quicklookImage: URL? = nil
-    private var gridColumns = Array(repeating: GridItem(.adaptive(minimum: 170), spacing: 16), count: 3)
+    private var gridColumns = [GridItem(.adaptive(minimum: 200), spacing: 16)]
     
     var body: some View {
         VStack(spacing: 0) {
