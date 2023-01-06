@@ -12,7 +12,7 @@ struct GuidanceScaleView: View {
     @EnvironmentObject var store: Store
     
     var body: some View {
-        Text("Guidance Scale: \(store.guidanceScale, specifier: "%.1f")",
+        Text("Guidance Scale: \(store.guidanceScale.formatted(.number.precision(.fractionLength(1))))",
              tableName: "Prompt",
              comment: "Label for Guidance Scale slider with value")
         ValueSlider(value: $store.guidanceScale, in: 1 ... 20, step: 0.5)

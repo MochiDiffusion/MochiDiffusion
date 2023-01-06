@@ -7,20 +7,10 @@
 
 import Foundation
 
-let dateFormatter: DateFormatter = {
-    let formatter = DateFormatter()
-    formatter.locale = Locale.autoupdatingCurrent
-    formatter.timeZone = TimeZone.autoupdatingCurrent
-    formatter.dateStyle = .long
-    formatter.timeStyle = .medium
-    formatter.doesRelativeDateFormatting = true
-    return formatter
-}()
-
 func getHumanReadableInfo(sdi: SDImage) -> String {
     return """
 Date:
-\(dateFormatter.string(from: sdi.generatedDate))
+\(sdi.generatedDate.formatted(date: .long, time: .standard))
 
 Model:
 \(sdi.model)

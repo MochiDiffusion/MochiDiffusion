@@ -28,7 +28,7 @@ struct InspectorView: View {
                     Grid(alignment: .leading, horizontalSpacing: 4) {
                         InfoGridRow(
                             type: "Date",
-                            text: dateFormatter.string(from: sdi.generatedDate),
+                            text: sdi.generatedDate.formatted(date: .long, time: .standard),
                             showCopyToPromptOption: false)
                         InfoGridRow(
                             type: "Model",
