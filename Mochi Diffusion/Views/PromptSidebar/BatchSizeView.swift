@@ -14,9 +14,7 @@ struct BatchSizeView: View {
     
     var body: some View {
         HStack {
-            Text("Images per Batch: \(store.batchSize)",
-                 tableName: "Prompt",
-                 comment: "Label for Images per Batch slider")
+            Text("Images per Batch: \(store.batchSize)")
             
             Spacer()
             
@@ -30,8 +28,7 @@ struct BatchSizeView: View {
                 Text("""
                     Images in a batch are generated at the same time and require more memory.
                     ^[\(imageCount) images](inflect: true) will be generated in total.
-                    """,
-                     comment: "Help text for Image per Batch.")
+                    """)
                     .padding()
             }
         }

@@ -79,7 +79,6 @@ struct InspectorView: View {
                 HStack(alignment: .center) {
                     Button(action: store.copyToPrompt) {
                         Text("Copy Options to Sidebar",
-                             tableName: "Inspector",
                              comment: "Button to copy the currently selected image's generation options to the prompt input sidebar")
                     }
                     Button(action: {
@@ -89,7 +88,6 @@ struct InspectorView: View {
                         pb.setString(info, forType: .string)
                     }) {
                         Text("Copy",
-                             tableName: "Inspector",
                              comment: "Button to copy the currently selected image's generation options to the clipboard")
                     }
                 }
@@ -97,7 +95,6 @@ struct InspectorView: View {
             }
             else {
                 Text("No Info",
-                     tableName: "Inspector",
                      comment: "Placeholder text for image inspector")
                     .font(.title2)
                     .foregroundColor(.secondary)

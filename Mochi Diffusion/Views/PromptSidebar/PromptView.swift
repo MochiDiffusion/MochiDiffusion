@@ -13,8 +13,7 @@ struct PromptView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             Text("Include in Image:",
-                 tableName: "Prompt",
-                 comment: "Label for Include in Image text field")
+                 comment: "Label for prompt text field")
             TextEditor(text: $store.prompt)
                 .font(.system(size: 14))
                 .frame(height: 85)
@@ -24,8 +23,7 @@ struct PromptView: View {
             Spacer().frame(height: 6)
             
             Text("Exclude from Image:",
-                 tableName: "Prompt",
-                 comment: "Label for Exclude from Image text field")
+                 comment: "Label for negative prompt text field")
             TextEditor(text: $store.negativePrompt)
                 .font(.system(size: 14))
                 .frame(height: 52)
@@ -38,7 +36,6 @@ struct PromptView: View {
                 Toggle(isOn: $store.upscaleGeneratedImages) {
                     Label {
                         Text("HD",
-                             tableName: "Prompt",
                              comment: "Label for toggle to auto convert generated images to high resolution")
                     } icon: {
                         Image(systemName: "wand.and.stars")
@@ -50,7 +47,6 @@ struct PromptView: View {
                 
                 Button(action: store.generate) {
                     Text("Generate",
-                         tableName: "Prompt",
                          comment: "Button to generate image")
                 }
                 .disabled($store.currentModel.wrappedValue.isEmpty)

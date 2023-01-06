@@ -12,7 +12,6 @@ struct SeedView: View {
     
     var body: some View {
         Text("Seed (0 for random):",
-             tableName: "Prompt",
              comment: "Label for Seed text field")
         TextField("random", value: $store.seed, formatter: Formatter.seedFormatter)
             .textFieldStyle(.roundedBorder)

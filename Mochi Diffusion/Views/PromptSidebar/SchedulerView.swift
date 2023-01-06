@@ -13,7 +13,6 @@ struct SchedulerView: View {
     
     var body: some View {
         Text("Scheduler:",
-             tableName: "Prompt",
              comment: "Label for Scheduler picker")
         Picker("", selection: $store.scheduler) {
             ForEach(StableDiffusionScheduler.allCases, id: \.self) { s in

@@ -15,9 +15,7 @@ struct NumberOfBatchesView: View {
     ]
 
     var body: some View {
-        Text("Number of Batches:",
-             tableName: "Prompt",
-             comment: "Label for Number of Batches picker")
+        Text("Number of Batches:")
         Picker("", selection: $store.numberOfBatches) {
             ForEach(imageCountValues, id: \.self) { s in
                 Text(String(s)).tag(s)

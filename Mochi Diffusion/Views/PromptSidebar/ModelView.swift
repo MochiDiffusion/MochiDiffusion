@@ -12,7 +12,6 @@ struct ModelView: View {
     
     var body: some View {
         Text("Model:",
-             tableName: "Prompt",
              comment: "Label for Model picker")
         HStack {
             Picker("", selection: $store.currentModel) {

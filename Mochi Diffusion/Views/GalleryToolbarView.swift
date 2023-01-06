@@ -36,9 +36,7 @@ struct GalleryToolbarView: View {
                         ProgressView(batchLabel, value: batchValue, total: 1)
                         
                         Button(action: store.stopGeneration) {
-                            Text("Stop Generation",
-                                 tableName: "Gallery Toolbar",
-                                 comment: "Button to stop the ongoing image generation")
+                            Text("Stop Generation")
                         }
                     }
                     .padding()
@@ -55,7 +53,6 @@ struct GalleryToolbarView: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Loading Model...")
                         Text("This wont take long",
-                             tableName: "Gallery Toolbar",
                              comment: "Text explaining that loading the model wont take long")
                             .foregroundColor(.secondary)
                     }
@@ -70,7 +67,6 @@ struct GalleryToolbarView: View {
             Button(action: store.removeCurrentImage) {
                 Label {
                     Text("Remove",
-                         tableName: "Gallery Toolbar",
                          comment: "Toolbar button to remove the selected image")
                 } icon: {
                     Image(systemName: "trash")
@@ -79,9 +75,7 @@ struct GalleryToolbarView: View {
             }
             Button(action: store.upscaleCurrentImage) {
                 Label {
-                    Text("Convert to High Resolution",
-                         tableName: "Gallery Toolbar",
-                         comment: "Toolbar button to convert image to high resolution")
+                    Text("Convert to High Resolution")
                 } icon: {
                     Image(systemName: "wand.and.stars")
                 }
@@ -93,7 +87,6 @@ struct GalleryToolbarView: View {
             Button(action: sdi.save) {
                 Label {
                     Text("Save As...",
-                         tableName: "Gallery Toolbar",
                          comment: "Toolbar button to show the save image dialog")
                 } icon: {
                     Image(systemName: "square.and.arrow.down")
@@ -107,7 +100,6 @@ struct GalleryToolbarView: View {
             Button(action: {}) {
                 Label {
                     Text("Remove",
-                         tableName: "Gallery Toolbar",
                          comment: "Toolbar button to remove the selected image")
                 } icon: {
                     Image(systemName: "trash")
@@ -116,9 +108,7 @@ struct GalleryToolbarView: View {
             .disabled(true)
             Button(action: {}) {
                 Label {
-                    Text("Convert to High Resolution",
-                         tableName: "Gallery Toolbar",
-                         comment: "Toolbar button to convert image to high resolution")
+                    Text("Convert to High Resolution")
                 } icon: {
                     Image(systemName: "wand.and.stars")
                 }
@@ -130,7 +120,6 @@ struct GalleryToolbarView: View {
             Button(action: {}) {
                 Label {
                     Text("Save As...",
-                         tableName: "Gallery Toolbar",
                          comment: "Toolbar button to show the save image dialog")
                 } icon: {
                     Image(systemName: "square.and.arrow.down")
@@ -140,7 +129,6 @@ struct GalleryToolbarView: View {
             Button(action: {}) {
                 Label {
                     Text("Share...",
-                         tableName: "Gallery Toolbar",
                          comment: "Toolbar button to show the system share sheet")
                 } icon: {
                     Image(systemName: "square.and.arrow.up")

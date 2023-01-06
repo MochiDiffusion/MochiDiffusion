@@ -18,17 +18,14 @@ struct FileCommands: Commands {
                     sdi.save()
                 }) {
                     Text("Save As...",
-                         tableName: "File Menu",
-                         comment: "Menu option to show the save image dialog")
+                         comment: "File menu option to show the save image dialog")
                 }
                 .keyboardShortcut("S", modifiers: .command)
                 .disabled(store.getSelectedImage() == nil)
             }
             Section {
                 Button(action: store.generate) {
-                    Text("Generate",
-                         tableName: "File Menu",
-                         comment: "Menu option to generate image")
+                    Text("Generate")
                 }
                 .keyboardShortcut("G", modifiers: .command)
                 .disabled(store.currentModel.isEmpty)
