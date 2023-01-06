@@ -1,5 +1,5 @@
 <p align="center">
-<img height="256" src="https://github.com/godly-devotion/MochiDiffusion/raw/main/Mochi Diffusion/Assets.xcassets/AppIcon.appiconset/AppIcon.png" />
+<img height="256" src="https://github.com/godly-devotion/MochiDiffusion/raw/main/Mochi Diffusion/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon.png" />
 </p>
 
 <h1 align="center">Mochi Diffusion</h1>
@@ -75,6 +75,8 @@ Mochi Diffusion is always looking for contributions, whether it's through bug re
 - If you find a bug, or would like to suggest a new feature or enhancement, try [searching for your problem first](https://github.com/godly-devotion/MochiDiffusion/discussions) as it helps avoid duplicates. If you can't find your issue, feel free to [create a new discussion](https://github.com/godly-devotion/MochiDiffusion/discussions/new).
 
 - If you're looking to contribute code, feel free to [open a Pull Request](https://github.com/godly-devotion/MochiDiffusion/pulls) or [create a new discussion](https://github.com/godly-devotion/MochiDiffusion/discussions) to talk about it first.
+
+- If you'd like to translate Mochi Diffusion to your language, feel free to [create a new discussion](https://github.com/godly-devotion/MochiDiffusion/discussions) and I will provide the files needed for translation.
 
 ## Credits
 

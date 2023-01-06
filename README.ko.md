@@ -1,5 +1,5 @@
 <p align="center">
-<img height="256" src="https://github.com/godly-devotion/MochiDiffusion/raw/main/Mochi Diffusion/Assets.xcassets/AppIcon.appiconset/AppIcon.png" />
+<img height="256" src="https://github.com/godly-devotion/MochiDiffusion/raw/main/Mochi Diffusion/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon.png" />
 </p>
 
 <h1 align="center">Mochi Diffusion (모찌)</h1>
