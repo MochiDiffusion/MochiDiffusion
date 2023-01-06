@@ -25,10 +25,8 @@ struct GalleryToolbarView: View {
                 }
                 .popover(isPresented: self.$isStatusPopoverShown, arrowEdge: .bottom) {
                     let stepLabel = String(localized: "Step \(step) of \(progress.stepCount)",
-                                           table: "Gallery Toolbar",
                                            comment: "Step progress text showing current step progress and total steps selected")
                     let batchLabel = String(localized: "Batch \(store.batchProgress.index+1) of \(store.batchProgress.total)",
-                                            table: "Gallery Toolbar",
                                             comment: "Batch progress text showing current batch progress and total batches selected")
                     VStack(alignment: .center, spacing: 12) {
                         ProgressView(stepLabel, value: stepValue, total: 1)
