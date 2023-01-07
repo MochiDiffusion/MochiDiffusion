@@ -98,6 +98,7 @@ struct GalleryView: View {
         if $store.searchText.wrappedValue.isEmpty {
             return store.images
         }
-        return store.images.filter { $0.prompt.contains(store.searchText) }
+        return store.images.filter { $0.prompt.lowercased().contains(store.searchText.lowercased())
+        }
     }
 }
