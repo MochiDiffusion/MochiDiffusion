@@ -1,0 +1,28 @@
+name: Export Localizations
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    name: Export Localizations
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Xcode Version
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Export
+        run: |
+          xcodebuild -exportLocalizations -project "Mochi Diffusion.xcodeproj" -localizationPath "./.localization" -exportLanguage de -exportLanguage ja -exportLanguage ko -exportLanguage zh-Hans
+
+      - name: Archive language file artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: xcloc-files
+          path: ./.localization
