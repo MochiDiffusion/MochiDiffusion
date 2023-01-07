@@ -24,15 +24,12 @@ jobs:
           -exportLocalizations
           -project "Mochi Diffusion.xcodeproj"
           -scheme "Mochi Diffusion"
-          -localizationPath "./.localization"
-          -exportLanguage de
-          -exportLanguage ja
-          -exportLanguage ko
-          -exportLanguage zh-Hans
+          -localizationPath "./localization"
+          -exportLanguage en
           CODE_SIGNING_ALLOWED=NO | xcpretty && exit ${PIPESTATUS[0]}
 
       - name: Archive language file artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: xcloc-files
-          path: ./.localization
+          name: en-source-xcloc
+          path: ./localization
