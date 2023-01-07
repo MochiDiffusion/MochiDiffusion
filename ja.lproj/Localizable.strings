@@ -1,0 +1,178 @@
+/* Window title bar label displaying the number of images */
+"^[%lld images](inflect: true)" = "^[%lld 画像](inflect: true)";
+
+/* Option to use all CPU, GPU, & Neural Engine for compute unit */
+"All" = "全て";
+
+/* Button to apply the selected settings */
+"Apply" = "適用";
+
+/* Help text for ML Compute Unit option under Settings */
+"Based on the option selected the correct model version will need to be used." = "選択したオプションに基づいて、正しいモデルのバージョンを使用する必要があります。";
+
+/* Text displaying the current batch progress and count */
+"Batch %lld of %lld" = "バッチ %lld / %lld";
+
+/* No comment provided by engineer. */
+"Check for Updates…" = "アップデートの確認...";
+
+/* No comment provided by engineer. */
+"Convert all images to High Resolution (this will use more memory)" = "すべての画像を高解像度に変換します（これはより多くのメモリを使用します）";
+
+/* Right click menu option to convert the image to high resolution */
+"Convert to High Resolution" = "高解像度へ変換";
+
+/* Button to copy the currently selected image's generation options to the clipboard */
+"Copy" = "コピー";
+
+/* No comment provided by engineer. */
+"Copy Option to Sidebar" = "オプションをサイドバーにコピー";
+
+/* Button to copy the currently selected image's generation options to the prompt input sidebar */
+"Copy Options to Sidebar" = "オプションをサイドバーにコピー";
+
+/* No comment provided by engineer. */
+"CPU & GPU" = "CPU & GPU";
+
+/* No comment provided by engineer. */
+"CPU & GPU may be faster on M1 Max, Ultra and later but will use more memory." = "CPU & GPU は M1 Max, Ultra およびそれ以降で速くなる可能性がありますが、より多くのメモリを使用します。";
+
+/* No comment provided by engineer. */
+"CPU & Neural Engine" = "CPU & Neural Engine";
+
+/* No comment provided by engineer. */
+"CPU & Neural Engine provides a good balance between speed and low memory usage." = "CPU & Neural Engineは、速度と低いメモリ使用量をバランス良く提供します。";
+
+/* No comment provided by engineer. */
+"Date" = "日付";
+
+/* No comment provided by engineer. */
+"Download Models" = "モデルをダウンロード";
+
+/* No comment provided by engineer. */
+"Exclude from Image" = "画像から除外";
+
+/* Label for negative prompt text field */
+"Exclude from Image:" = "画像から除外:";
+
+/* Button to generate image */
+"Generate" = "画像の生成";
+
+/* No comment provided by engineer. */
+"Guidance Scale" = "ガイダンス スケール";
+
+/* Label for Guidance Scale slider with value */
+"Guidance Scale: %@" = "ガイダンス スケール: %@";
+
+/* Label for toggle to auto convert generated images to high resolution */
+"HD" = "HD";
+
+/* Label for image height picker */
+"Height:" = "高さ:";
+
+/* No comment provided by engineer. */
+"Image Index" = "画像インデックス";
+
+/* No comment provided by engineer. */
+"Images in a batch are generated at the same time and require more memory.\n^[%lld images](inflect: true) will be generated in total." = "バッチ内の画像は同時に生成され、より多くのメモリが必要です。\n合計で^[%lld images](inflect: true) が生成されます。";
+
+/* No comment provided by engineer. */
+"Images per Batch: %lld" = "バッチごとの画像数: %lld";
+
+/* No comment provided by engineer. */
+"Include in Image" = "画像に含める";
+
+/* Label for prompt text field */
+"Include in Image:" = "画像に含める:";
+
+/* No comment provided by engineer. */
+"Loading Model..." = "モデルを読み込み中...";
+
+/* No comment provided by engineer. */
+"ML Compute Unit:" = "ML Compute Unit:";
+
+/* No comment provided by engineer. */
+"Model" = "モデル";
+
+/* Label for Model picker */
+"Model:" = "モデル:";
+
+/* Placeholder text for image inspector */
+"No Info" = "情報はありません";
+
+/* No comment provided by engineer. */
+"Number of Batches:" = "バッチ数:";
+
+/* No comment provided by engineer. */
+"Open in Finder" = "Finderに表示";
+
+/* No comment provided by engineer. */
+"random" = "ランダム";
+
+/* Help text for Reduce Memory Usage option */
+"Reduce memory usage further at the cost of speed." = "スピードを犠牲にしてメモリ使用量をさらに削減。";
+
+/* No comment provided by engineer. */
+"Reduce Memory Usage:" = "メモリ使用量の削減:";
+
+/* No comment provided by engineer. */
+"Release Notes" = "リリースノート";
+
+/* Right click menu option to remove image from the gallery */
+"Remove" = "消去";
+
+/* File menu option to show the save image dialog
+Right click menu option to show the save image dialog */
+"Save As..." = "別名で保存...";
+
+/* No comment provided by engineer. */
+"Scheduler" = "スケジューラ";
+
+/* Label for Scheduler picker */
+"Scheduler:" = "スケジューラ:";
+
+/* No comment provided by engineer. */
+"Search" = "検索";
+
+/* Window title bar label displaying the searched text */
+"Searching: %@" = "検索中: %@";
+
+/* No comment provided by engineer. */
+"Seed" = "シード";
+
+/* Label for Seed text field */
+"Seed (0 for random):" = "シード（0の場合はランダム）";
+
+/* No comment provided by engineer. */
+"Share..." = "共有...";
+
+/* No comment provided by engineer. */
+"Size" = "サイズ";
+
+/* Text displaying the current step progress and count */
+"Step %lld of %lld" = "ステップ %lld / %lld";
+
+/* No comment provided by engineer. */
+"Steps" = "ステップ";
+
+/* Label for Steps slider with value */
+"Steps: %lld" = "ステップ: %lld";
+
+/* No comment provided by engineer. */
+"Stop Generation" = "画像生成の中止";
+
+/* No comment provided by engineer. */
+"Support Me ♥" = "サポートお願いします♥";
+
+/* Text explaining that loading the model wont take long */
+"This wont take long" = "しばらくお待ちください";
+
+/* No comment provided by engineer. */
+"Website" = "Web サイト";
+
+/* Label for image width picker */
+"Width:" = "幅:";
+
+/* Label for changing the working directory */
+"Working Directory:" = "作業ディレクトリ:";
+

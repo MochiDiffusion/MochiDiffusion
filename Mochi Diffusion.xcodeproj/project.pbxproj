@@ -96,6 +96,8 @@
 		036BFC39294B9F7600D8AD04 /* Mochi Diffusion UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Mochi Diffusion UITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		036BFC56294BA13100D8AD04 /* Pipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pipeline.swift; sourceTree = "<group>"; };
 		036BFC5A294BA19400D8AD04 /* Downloader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Downloader.swift; sourceTree = "<group>"; };
+		03732B71296948360042C8B1 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		03732B72296948360042C8B1 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
 		0386DF8A2950D29400CA4CEB /* InspectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InspectorView.swift; sourceTree = "<group>"; };
 		0386DF8C2950F25500CA4CEB /* GalleryToolbarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryToolbarView.swift; sourceTree = "<group>"; };
 		03B1ACA7295167B900302F54 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
@@ -509,9 +511,10 @@
 		03F578622967CE9A003A815F /* Localizable.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
+				031AC9D3296881F500F95E4B /* de */,
+				03732B72296948360042C8B1 /* ja */,
 				03F578632967CE9A003A815F /* ko */,
 				03F578682967DAE6003A815F /* zh-Hans */,
-				031AC9D3296881F500F95E4B /* de */,
 			);
 			name = Localizable.strings;
 			path = ..;
@@ -520,9 +523,10 @@
 		03F578652967DAE6003A815F /* InfoPlist.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
-				03F578662967DAE6003A815F /* zh-Hans */,
 				031AC9D2296881F500F95E4B /* de */,
+				03732B71296948360042C8B1 /* ja */,
 				031AC9D429688D9600F95E4B /* ko */,
+				03F578662967DAE6003A815F /* zh-Hans */,
 			);
 			name = InfoPlist.strings;
 			path = ..;
