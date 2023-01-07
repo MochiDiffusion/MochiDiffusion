@@ -79,8 +79,16 @@ struct GalleryView: View {
                 .resizable(resizingMode: .tile)
                 .foregroundColor(Color.black.opacity(colorScheme == .dark ? 0.05 : 0.02))
         )
-        .navigationTitle(store.searchText.isEmpty ? "Mochi Diffusion" : "Searching: \(store.searchText)")
-        .navigationSubtitle(store.searchText.isEmpty ? "^[\(store.images.count) images](inflect: true)" : "")
+        .navigationTitle(
+            store.searchText.isEmpty ?
+                "Mochi Diffusion" :
+                String(localized: "Searching: \(store.searchText)",
+                       comment: "Window title bar label displaying the searched text"))
+        .navigationSubtitle(
+            store.searchText.isEmpty ?
+                String(localized: "^[\(store.images.count) images](inflect: true)",
+                       comment: "Window title bar label displaying the number of images") :
+                "")
         .toolbar {
             GalleryToolbarView()
         }

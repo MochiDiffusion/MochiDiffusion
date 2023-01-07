@@ -45,7 +45,8 @@ struct SettingsView: View {
                     Text("CPU & GPU may be faster on M1 Max, Ultra and later but will use more memory.")
                         .helpTextFormat()
                     
-                    Text("Based on the option selected the correct model version will need to be used.")
+                    Text("Based on the option selected the correct model version will need to be used.",
+                         comment: "Help text for ML Compute Unit option under Settings")
                         .helpTextFormat()
                 }
                 
