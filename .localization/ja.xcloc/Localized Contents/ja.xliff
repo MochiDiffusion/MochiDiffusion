@@ -1,0 +1,1787 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+  <file id="5" original="/de.xliff" source-language="en" target-language="ja" datatype="plaintext" project-id="558381" tool-id="crowdin">
+    <header>
+      <tool tool-id="crowdin" tool-name="Crowdin" tool-version="1.1"/>
+    </header>
+    <body>
+      <trans-unit id="3" resname="CFBundleDisplayName">
+        <source>Mochi Diffusion</source>
+        <target state="needs-translation">Mochi Diffusion</target>
+        <note from="Crowdin" priority="2">en.lproj/InfoPlist.strings
+CFBundleDisplayName&#13;
+Bundle display name</note>
+      </trans-unit>
+      <trans-unit id="5" resname="CFBundleName">
+        <source>Mochi Diffusion</source>
+        <target state="needs-translation">Mochi Diffusion</target>
+        <note from="Crowdin" priority="2">en.lproj/InfoPlist.strings
+CFBundleName&#13;
+Bundle name</note>
+      </trans-unit>
+      <trans-unit id="7" resname="NSHumanReadableCopyright">
+        <source>By Joshua Park</source>
+        <target state="needs-translation">By Joshua Park</target>
+        <note from="Crowdin" priority="2">en.lproj/InfoPlist.strings
+NSHumanReadableCopyright&#13;
+Copyright (human-readable)</note>
+      </trans-unit>
+      <trans-unit id="9" resname="All">
+        <source>All</source>
+        <target state="needs-translation">All</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+All&#13;
+Option to use all CPU, GPU, &amp;amp; Neural Engine for compute unit</note>
+      </trans-unit>
+      <trans-unit id="11" resname="Apply">
+        <source>Apply</source>
+        <target state="needs-translation">Apply</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Apply&#13;
+Button to apply the selected settings</note>
+      </trans-unit>
+      <trans-unit id="13" resname="Based on the option selected the correct model version will need to be used.">
+        <source>Based on the option selected the correct model version will need to be used.</source>
+        <target state="needs-translation">Based on the option selected the correct model version will need to be used.</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Based on the option selected the correct model version will need to be used.&#13;
+Help text for ML Compute Unit option under Settings</note>
+      </trans-unit>
+      <trans-unit id="15" resname="Batch %lld of %lld">
+        <source>Batch %lld of %lld</source>
+        <target state="needs-translation">Batch %lld of %lld</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Batch %lld of %lld&#13;
+Text displaying the current batch progress and count</note>
+      </trans-unit>
+      <trans-unit id="17" resname="CPU &amp; GPU">
+        <source>CPU &amp;amp; GPU</source>
+        <target state="needs-translation">CPU &amp;amp; GPU</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+CPU &amp; GPU&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="19" resname="CPU &amp; GPU may be faster on M1 Max, Ultra and later but will use more memory.">
+        <source>CPU &amp;amp; GPU may be faster on M1 Max, Ultra and later but will use more memory.</source>
+        <target state="needs-translation">CPU &amp;amp; GPU may be faster on M1 Max, Ultra and later but will use more memory.</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+CPU &amp; GPU may be faster on M1 Max, Ultra and later but will use more memory.&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="21" resname="CPU &amp; Neural Engine">
+        <source>CPU &amp;amp; Neural Engine</source>
+        <target state="needs-translation">CPU &amp;amp; Neural Engine</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+CPU &amp; Neural Engine&#13;
+No comment provided by engineer.</note>
+        <note from="eidermar" priority="4">I don't think this needs translation</note>
+      </trans-unit>
+      <trans-unit id="23" resname="CPU &amp; Neural Engine provides a good balance between speed and low memory usage.">
+        <source>CPU &amp;amp; Neural Engine provides a good balance between speed and low memory usage.</source>
+        <target state="needs-translation">CPU &amp;amp; Neural Engine provides a good balance between speed and low memory usage.</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+CPU &amp; Neural Engine provides a good balance between speed and low memory usage.&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="25" resname="Check for Updates…">
+        <source>Check for Updates…</source>
+        <target state="needs-translation">Check for Updates…</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Check for Updates…&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="27" resname="Convert all images to High Resolution (this will use more memory)">
+        <source>Convert all images to High Resolution (this will use more memory)</source>
+        <target state="needs-translation">Convert all images to High Resolution (this will use more memory)</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Convert all images to High Resolution (this will use more memory)&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="29" resname="Convert to High Resolution">
+        <source>Convert to High Resolution</source>
+        <target state="needs-translation">Convert to High Resolution</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Convert to High Resolution&#13;
+Right click menu option to convert the image to high resolution</note>
+      </trans-unit>
+      <trans-unit id="31" resname="Copy">
+        <source>Copy</source>
+        <target state="needs-translation">Copy</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Copy&#13;
+Button to copy the currently selected image's generation options to the clipboard</note>
+      </trans-unit>
+      <trans-unit id="33" resname="Copy Option to Sidebar">
+        <source>Copy Option to Sidebar</source>
+        <target state="needs-translation">Copy Option to Sidebar</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Copy Option to Sidebar&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="35" resname="Copy Options to Sidebar">
+        <source>Copy Options to Sidebar</source>
+        <target state="needs-translation">Copy Options to Sidebar</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Copy Options to Sidebar&#13;
+Button to copy the currently selected image's generation options to the prompt input sidebar</note>
+      </trans-unit>
+      <trans-unit id="37" resname="Date">
+        <source>Date</source>
+        <target state="needs-translation">Date</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Date&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="39" resname="Download Models">
+        <source>Download Models</source>
+        <target state="needs-translation">Download Models</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Download Models&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="41" resname="Exclude from Image">
+        <source>Exclude from Image</source>
+        <target state="needs-translation">Exclude from Image</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Exclude from Image&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="43" resname="Exclude from Image:">
+        <source>Exclude from Image:</source>
+        <target state="needs-translation">Exclude from Image:</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Exclude from Image:&#13;
+Label for negative prompt text field</note>
+      </trans-unit>
+      <trans-unit id="45" resname="Generate">
+        <source>Generate</source>
+        <target state="needs-translation">Generate</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Generate&#13;
+Button to generate image</note>
+        <note from="eidermar" priority="4">This could also be called just &quot;Start&quot; IMO. I kept it like this for consistency</note>
+      </trans-unit>
+      <trans-unit id="47" resname="Guidance Scale">
+        <source>Guidance Scale</source>
+        <target state="needs-translation">Guidance Scale</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Guidance Scale&#13;
+No comment provided by engineer.</note>
+        <note from="eidermar" priority="4">99% of the documentation for stable diffusion online in in EN. Introducing a different localized term here might be confusing for people. I still tried to translate it best as I could.</note>
+      </trans-unit>
+      <trans-unit id="49" resname="Guidance Scale: %@">
+        <source>Guidance Scale: %@</source>
+        <target state="needs-translation">Guidance Scale: %@</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Guidance Scale: %@&#13;
+Label for Guidance Scale slider with value</note>
+        <note from="eidermar" priority="4">99% of the documentation for stable diffusion online in in EN. Introducing a different localized term here might be confusing for people. I still tried to translate it best as I could.</note>
+      </trans-unit>
+      <trans-unit id="51" resname="HD">
+        <source>HD</source>
+        <target state="needs-translation">HD</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+HD&#13;
+Label for toggle to auto convert generated images to high resolution</note>
+      </trans-unit>
+      <trans-unit id="53" resname="Height:">
+        <source>Height:</source>
+        <target state="needs-translation">Height:</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Height:&#13;
+Label for image height picker</note>
+      </trans-unit>
+      <trans-unit id="55" resname="Image Index">
+        <source>Image Index</source>
+        <target state="needs-translation">Image Index</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Image Index&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="57" resname="Images in a batch are generated at the same time and require more memory.&#10;^[%lld images](inflect: true) will be generated in total.">
+        <source>Images in a batch are generated at the same time and require more memory.
+^[%lld images](inflect: true) will be generated in total.</source>
+        <target state="needs-translation">Images in a batch are generated at the same time and require more memory.
+^[%lld images](inflect: true) will be generated in total.</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Images in a batch are generated at the same time and require more memory.
+^[%lld images](inflect: true) will be generated in total.&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="59" resname="Images per Batch: %lld">
+        <source>Images per Batch: %lld</source>
+        <target state="needs-translation">Images per Batch: %lld</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Images per Batch: %lld&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="61" resname="Include in Image">
+        <source>Include in Image</source>
+        <target state="needs-translation">Include in Image</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Include in Image&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="63" resname="Include in Image:">
+        <source>Include in Image:</source>
+        <target state="needs-translation">Include in Image:</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Include in Image:&#13;
+Label for prompt text field</note>
+      </trans-unit>
+      <trans-unit id="65" resname="Loading Model...">
+        <source>Loading Model...</source>
+        <target state="needs-translation">Loading Model...</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Loading Model...&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="67" resname="ML Compute Unit:">
+        <source>ML Compute Unit:</source>
+        <target state="needs-translation">ML Compute Unit:</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+ML Compute Unit:&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="71" resname="Model">
+        <source>Model</source>
+        <target state="needs-translation">Model</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Model&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="73" resname="Model:">
+        <source>Model:</source>
+        <target state="needs-translation">Model:</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Model:&#13;
+Label for Model picker</note>
+      </trans-unit>
+      <trans-unit id="75" resname="No Info">
+        <source>No Info</source>
+        <target state="needs-translation">No Info</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+No Info&#13;
+Placeholder text for image inspector</note>
+      </trans-unit>
+      <trans-unit id="77" resname="Number of Batches:">
+        <source>Number of Batches:</source>
+        <target state="needs-translation">Number of Batches:</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Number of Batches:&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="79" resname="Open in Finder">
+        <source>Open in Finder</source>
+        <target state="needs-translation">Open in Finder</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Open in Finder&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="81" resname="Reduce Memory Usage:">
+        <source>Reduce Memory Usage:</source>
+        <target state="needs-translation">Reduce Memory Usage:</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Reduce Memory Usage:&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="83" resname="Reduce memory usage further at the cost of speed.">
+        <source>Reduce memory usage further at the cost of speed.</source>
+        <target state="needs-translation">Reduce memory usage further at the cost of speed.</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Reduce memory usage further at the cost of speed.&#13;
+Help text for Reduce Memory Usage option</note>
+      </trans-unit>
+      <trans-unit id="85" resname="Release Notes">
+        <source>Release Notes</source>
+        <target state="needs-translation">Release Notes</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Release Notes&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="87" resname="Remove">
+        <source>Remove</source>
+        <target state="needs-translation">Remove</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Remove&#13;
+Right click menu option to remove image from the gallery</note>
+      </trans-unit>
+      <trans-unit id="89" resname="Save As...">
+        <source>Save As...</source>
+        <target state="needs-translation">Save As...</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Save As...&#13;
+File menu option to show the save image dialog
+Right click menu option to show the save image dialog</note>
+      </trans-unit>
+      <trans-unit id="91" resname="Scheduler">
+        <source>Scheduler</source>
+        <target state="needs-translation">Scheduler</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Scheduler&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="93" resname="Scheduler:">
+        <source>Scheduler:</source>
+        <target state="needs-translation">Scheduler:</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Scheduler:&#13;
+Label for Scheduler picker</note>
+      </trans-unit>
+      <trans-unit id="95" resname="Search">
+        <source>Search</source>
+        <target state="needs-translation">Search</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Search&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="97" resname="Searching: %@">
+        <source>Searching: %@</source>
+        <target state="needs-translation">Searching: %@</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Searching: %@&#13;
+Window title bar label displaying the searched text</note>
+      </trans-unit>
+      <trans-unit id="99" resname="Seed">
+        <source>Seed</source>
+        <target state="needs-translation">Seed</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Seed&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="101" resname="Seed (0 for random):">
+        <source>Seed (0 for random):</source>
+        <target state="needs-translation">Seed (0 for random):</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Seed (0 for random):&#13;
+Label for Seed text field</note>
+      </trans-unit>
+      <trans-unit id="103" resname="Share...">
+        <source>Share...</source>
+        <target state="needs-translation">Share...</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Share...&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="105" resname="Size">
+        <source>Size</source>
+        <target state="needs-translation">Size</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Size&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="107" resname="Step %lld of %lld">
+        <source>Step %lld of %lld</source>
+        <target state="needs-translation">Step %lld of %lld</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Step %lld of %lld&#13;
+Text displaying the current step progress and count</note>
+      </trans-unit>
+      <trans-unit id="109" resname="Steps">
+        <source>Steps</source>
+        <target state="needs-translation">Steps</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Steps&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="111" resname="Steps: %lld">
+        <source>Steps: %lld</source>
+        <target state="needs-translation">Steps: %lld</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Steps: %lld&#13;
+Label for Steps slider with value</note>
+      </trans-unit>
+      <trans-unit id="113" resname="Stop Generation">
+        <source>Stop Generation</source>
+        <target state="needs-translation">Stop Generation</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Stop Generation&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="115" resname="Support Me ♥">
+        <source>Support Me ♥</source>
+        <target state="needs-translation">Support Me ♥</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Support Me ♥&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="117" resname="This wont take long">
+        <source>This wont take long</source>
+        <target state="needs-translation">This wont take long</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+This wont take long&#13;
+Text explaining that loading the model wont take long</note>
+      </trans-unit>
+      <trans-unit id="119" resname="Website">
+        <source>Website</source>
+        <target state="needs-translation">Website</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Website&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="121" resname="Width:">
+        <source>Width:</source>
+        <target state="needs-translation">Width:</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Width:&#13;
+Label for image width picker</note>
+      </trans-unit>
+      <trans-unit id="123" resname="Working Directory:">
+        <source>Working Directory:</source>
+        <target state="needs-translation">Working Directory:</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Working Directory:&#13;
+Label for changing the working directory</note>
+      </trans-unit>
+      <trans-unit id="125" resname="^[%lld images](inflect: true)">
+        <source>^[%lld images](inflect: true)</source>
+        <target state="needs-translation">^[%lld images](inflect: true)</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+^[%lld images](inflect: true)&#13;
+Window title bar label displaying the number of images</note>
+      </trans-unit>
+      <trans-unit id="127" resname="random">
+        <source>random</source>
+        <target state="needs-translation">random</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+random&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file id="7" original="/zh-Hans.xliff" source-language="en" target-language="ja" datatype="plaintext" project-id="558381" tool-id="crowdin">
+    <header>
+      <tool tool-id="crowdin" tool-name="Crowdin" tool-version="1.1"/>
+    </header>
+    <body>
+      <trans-unit id="129" resname="CFBundleDisplayName">
+        <source>Mochi Diffusion</source>
+        <target state="needs-translation">Mochi Diffusion</target>
+        <note from="Crowdin" priority="2">en.lproj/InfoPlist.strings
+CFBundleDisplayName&#13;
+Bundle display name</note>
+      </trans-unit>
+      <trans-unit id="131" resname="CFBundleName">
+        <source>Mochi Diffusion</source>
+        <target state="needs-translation">Mochi Diffusion</target>
+        <note from="Crowdin" priority="2">en.lproj/InfoPlist.strings
+CFBundleName&#13;
+Bundle name</note>
+      </trans-unit>
+      <trans-unit id="133" resname="NSHumanReadableCopyright">
+        <source>By Joshua Park</source>
+        <target state="needs-translation">By Joshua Park</target>
+        <note from="Crowdin" priority="2">en.lproj/InfoPlist.strings
+NSHumanReadableCopyright&#13;
+Copyright (human-readable)</note>
+      </trans-unit>
+      <trans-unit id="135" resname="All">
+        <source>All</source>
+        <target state="needs-translation">All</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+All&#13;
+Option to use all CPU, GPU, &amp;amp; Neural Engine for compute unit</note>
+      </trans-unit>
+      <trans-unit id="137" resname="Apply">
+        <source>Apply</source>
+        <target state="needs-translation">Apply</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Apply&#13;
+Button to apply the selected settings</note>
+      </trans-unit>
+      <trans-unit id="139" resname="Based on the option selected the correct model version will need to be used.">
+        <source>Based on the option selected the correct model version will need to be used.</source>
+        <target state="needs-translation">Based on the option selected the correct model version will need to be used.</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Based on the option selected the correct model version will need to be used.&#13;
+Help text for ML Compute Unit option under Settings</note>
+      </trans-unit>
+      <trans-unit id="141" resname="Batch %lld of %lld">
+        <source>Batch %lld of %lld</source>
+        <target state="needs-translation">Batch %lld of %lld</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Batch %lld of %lld&#13;
+Text displaying the current batch progress and count</note>
+      </trans-unit>
+      <trans-unit id="143" resname="CPU &amp; GPU">
+        <source>CPU &amp;amp; GPU</source>
+        <target state="needs-translation">CPU &amp;amp; GPU</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+CPU &amp; GPU&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="145" resname="CPU &amp; GPU may be faster on M1 Max, Ultra and later but will use more memory.">
+        <source>CPU &amp;amp; GPU may be faster on M1 Max, Ultra and later but will use more memory.</source>
+        <target state="needs-translation">CPU &amp;amp; GPU may be faster on M1 Max, Ultra and later but will use more memory.</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+CPU &amp; GPU may be faster on M1 Max, Ultra and later but will use more memory.&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="147" resname="CPU &amp; Neural Engine">
+        <source>CPU &amp;amp; Neural Engine</source>
+        <target state="needs-translation">CPU &amp;amp; Neural Engine</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+CPU &amp; Neural Engine&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="149" resname="CPU &amp; Neural Engine provides a good balance between speed and low memory usage.">
+        <source>CPU &amp;amp; Neural Engine provides a good balance between speed and low memory usage.</source>
+        <target state="needs-translation">CPU &amp;amp; Neural Engine provides a good balance between speed and low memory usage.</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+CPU &amp; Neural Engine provides a good balance between speed and low memory usage.&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="151" resname="Check for Updates…">
+        <source>Check for Updates…</source>
+        <target state="needs-translation">Check for Updates…</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Check for Updates…&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="153" resname="Convert all images to High Resolution (this will use more memory)">
+        <source>Convert all images to High Resolution (this will use more memory)</source>
+        <target state="needs-translation">Convert all images to High Resolution (this will use more memory)</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Convert all images to High Resolution (this will use more memory)&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="155" resname="Convert to High Resolution">
+        <source>Convert to High Resolution</source>
+        <target state="needs-translation">Convert to High Resolution</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Convert to High Resolution&#13;
+Right click menu option to convert the image to high resolution</note>
+      </trans-unit>
+      <trans-unit id="157" resname="Copy">
+        <source>Copy</source>
+        <target state="needs-translation">Copy</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Copy&#13;
+Button to copy the currently selected image's generation options to the clipboard</note>
+      </trans-unit>
+      <trans-unit id="159" resname="Copy Option to Sidebar">
+        <source>Copy Option to Sidebar</source>
+        <target state="needs-translation">Copy Option to Sidebar</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Copy Option to Sidebar&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="161" resname="Copy Options to Sidebar">
+        <source>Copy Options to Sidebar</source>
+        <target state="needs-translation">Copy Options to Sidebar</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Copy Options to Sidebar&#13;
+Button to copy the currently selected image's generation options to the prompt input sidebar</note>
+      </trans-unit>
+      <trans-unit id="163" resname="Date">
+        <source>Date</source>
+        <target state="needs-translation">Date</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Date&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="165" resname="Download Models">
+        <source>Download Models</source>
+        <target state="needs-translation">Download Models</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Download Models&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="167" resname="Exclude from Image">
+        <source>Exclude from Image</source>
+        <target state="needs-translation">Exclude from Image</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Exclude from Image&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="169" resname="Exclude from Image:">
+        <source>Exclude from Image:</source>
+        <target state="needs-translation">Exclude from Image:</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Exclude from Image:&#13;
+Label for negative prompt text field</note>
+      </trans-unit>
+      <trans-unit id="171" resname="Generate">
+        <source>Generate</source>
+        <target state="needs-translation">Generate</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Generate&#13;
+Button to generate image</note>
+      </trans-unit>
+      <trans-unit id="173" resname="Guidance Scale">
+        <source>Guidance Scale</source>
+        <target state="needs-translation">Guidance Scale</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Guidance Scale&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="175" resname="Guidance Scale: %@">
+        <source>Guidance Scale: %@</source>
+        <target state="needs-translation">Guidance Scale: %@</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Guidance Scale: %@&#13;
+Label for Guidance Scale slider with value</note>
+      </trans-unit>
+      <trans-unit id="177" resname="HD">
+        <source>HD</source>
+        <target state="needs-translation">HD</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+HD&#13;
+Label for toggle to auto convert generated images to high resolution</note>
+      </trans-unit>
+      <trans-unit id="179" resname="Height:">
+        <source>Height:</source>
+        <target state="needs-translation">Height:</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Height:&#13;
+Label for image height picker</note>
+      </trans-unit>
+      <trans-unit id="181" resname="Image Index">
+        <source>Image Index</source>
+        <target state="needs-translation">Image Index</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Image Index&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="183" resname="Images in a batch are generated at the same time and require more memory.&#10;^[%lld images](inflect: true) will be generated in total.">
+        <source>Images in a batch are generated at the same time and require more memory.
+^[%lld images](inflect: true) will be generated in total.</source>
+        <target state="needs-translation">Images in a batch are generated at the same time and require more memory.
+^[%lld images](inflect: true) will be generated in total.</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Images in a batch are generated at the same time and require more memory.
+^[%lld images](inflect: true) will be generated in total.&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="185" resname="Images per Batch: %lld">
+        <source>Images per Batch: %lld</source>
+        <target state="needs-translation">Images per Batch: %lld</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Images per Batch: %lld&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="187" resname="Include in Image">
+        <source>Include in Image</source>
+        <target state="needs-translation">Include in Image</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Include in Image&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="189" resname="Include in Image:">
+        <source>Include in Image:</source>
+        <target state="needs-translation">Include in Image:</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Include in Image:&#13;
+Label for prompt text field</note>
+      </trans-unit>
+      <trans-unit id="191" resname="Loading Model...">
+        <source>Loading Model...</source>
+        <target state="needs-translation">Loading Model...</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Loading Model...&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="193" resname="ML Compute Unit:">
+        <source>ML Compute Unit:</source>
+        <target state="needs-translation">ML Compute Unit:</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+ML Compute Unit:&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="197" resname="Model">
+        <source>Model</source>
+        <target state="needs-translation">Model</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Model&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="199" resname="Model:">
+        <source>Model:</source>
+        <target state="needs-translation">Model:</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Model:&#13;
+Label for Model picker</note>
+      </trans-unit>
+      <trans-unit id="201" resname="No Info">
+        <source>No Info</source>
+        <target state="needs-translation">No Info</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+No Info&#13;
+Placeholder text for image inspector</note>
+      </trans-unit>
+      <trans-unit id="203" resname="Number of Batches:">
+        <source>Number of Batches:</source>
+        <target state="needs-translation">Number of Batches:</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Number of Batches:&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="205" resname="Open in Finder">
+        <source>Open in Finder</source>
+        <target state="needs-translation">Open in Finder</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Open in Finder&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="207" resname="Reduce Memory Usage:">
+        <source>Reduce Memory Usage:</source>
+        <target state="needs-translation">Reduce Memory Usage:</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Reduce Memory Usage:&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="209" resname="Reduce memory usage further at the cost of speed.">
+        <source>Reduce memory usage further at the cost of speed.</source>
+        <target state="needs-translation">Reduce memory usage further at the cost of speed.</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Reduce memory usage further at the cost of speed.&#13;
+Help text for Reduce Memory Usage option</note>
+      </trans-unit>
+      <trans-unit id="211" resname="Release Notes">
+        <source>Release Notes</source>
+        <target state="needs-translation">Release Notes</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Release Notes&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="213" resname="Remove">
+        <source>Remove</source>
+        <target state="needs-translation">Remove</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Remove&#13;
+Right click menu option to remove image from the gallery</note>
+      </trans-unit>
+      <trans-unit id="215" resname="Save As...">
+        <source>Save As...</source>
+        <target state="needs-translation">Save As...</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Save As...&#13;
+File menu option to show the save image dialog
+Right click menu option to show the save image dialog</note>
+      </trans-unit>
+      <trans-unit id="217" resname="Scheduler">
+        <source>Scheduler</source>
+        <target state="needs-translation">Scheduler</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Scheduler&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="219" resname="Scheduler:">
+        <source>Scheduler:</source>
+        <target state="needs-translation">Scheduler:</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Scheduler:&#13;
+Label for Scheduler picker</note>
+      </trans-unit>
+      <trans-unit id="221" resname="Search">
+        <source>Search</source>
+        <target state="needs-translation">Search</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Search&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="223" resname="Searching: %@">
+        <source>Searching: %@</source>
+        <target state="needs-translation">Searching: %@</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Searching: %@&#13;
+Window title bar label displaying the searched text</note>
+      </trans-unit>
+      <trans-unit id="225" resname="Seed">
+        <source>Seed</source>
+        <target state="needs-translation">Seed</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Seed&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="227" resname="Seed (0 for random):">
+        <source>Seed (0 for random):</source>
+        <target state="needs-translation">Seed (0 for random):</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Seed (0 for random):&#13;
+Label for Seed text field</note>
+      </trans-unit>
+      <trans-unit id="229" resname="Share...">
+        <source>Share...</source>
+        <target state="needs-translation">Share...</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Share...&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="231" resname="Size">
+        <source>Size</source>
+        <target state="needs-translation">Size</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Size&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="233" resname="Step %lld of %lld">
+        <source>Step %lld of %lld</source>
+        <target state="needs-translation">Step %lld of %lld</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Step %lld of %lld&#13;
+Text displaying the current step progress and count</note>
+      </trans-unit>
+      <trans-unit id="235" resname="Steps">
+        <source>Steps</source>
+        <target state="needs-translation">Steps</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Steps&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="237" resname="Steps: %lld">
+        <source>Steps: %lld</source>
+        <target state="needs-translation">Steps: %lld</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Steps: %lld&#13;
+Label for Steps slider with value</note>
+      </trans-unit>
+      <trans-unit id="239" resname="Stop Generation">
+        <source>Stop Generation</source>
+        <target state="needs-translation">Stop Generation</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Stop Generation&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="241" resname="Support Me ♥">
+        <source>Support Me ♥</source>
+        <target state="needs-translation">Support Me ♥</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Support Me ♥&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="243" resname="This wont take long">
+        <source>This wont take long</source>
+        <target state="needs-translation">This wont take long</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+This wont take long&#13;
+Text explaining that loading the model wont take long</note>
+      </trans-unit>
+      <trans-unit id="245" resname="Website">
+        <source>Website</source>
+        <target state="needs-translation">Website</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Website&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="247" resname="Width:">
+        <source>Width:</source>
+        <target state="needs-translation">Width:</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Width:&#13;
+Label for image width picker</note>
+      </trans-unit>
+      <trans-unit id="249" resname="Working Directory:">
+        <source>Working Directory:</source>
+        <target state="needs-translation">Working Directory:</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Working Directory:&#13;
+Label for changing the working directory</note>
+      </trans-unit>
+      <trans-unit id="251" resname="^[%lld images](inflect: true)">
+        <source>^[%lld images](inflect: true)</source>
+        <target state="needs-translation">^[%lld images](inflect: true)</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+^[%lld images](inflect: true)&#13;
+Window title bar label displaying the number of images</note>
+      </trans-unit>
+      <trans-unit id="253" resname="random">
+        <source>random</source>
+        <target state="needs-translation">random</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+random&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file id="9" original="/ko.xliff" source-language="en" target-language="ja" datatype="plaintext" project-id="558381" tool-id="crowdin">
+    <header>
+      <tool tool-id="crowdin" tool-name="Crowdin" tool-version="1.1"/>
+    </header>
+    <body>
+      <trans-unit id="255" resname="CFBundleDisplayName">
+        <source>Mochi Diffusion</source>
+        <target state="needs-translation">Mochi Diffusion</target>
+        <note from="Crowdin" priority="2">en.lproj/InfoPlist.strings
+CFBundleDisplayName&#13;
+Bundle display name</note>
+      </trans-unit>
+      <trans-unit id="257" resname="CFBundleName">
+        <source>Mochi Diffusion</source>
+        <target state="needs-translation">Mochi Diffusion</target>
+        <note from="Crowdin" priority="2">en.lproj/InfoPlist.strings
+CFBundleName&#13;
+Bundle name</note>
+      </trans-unit>
+      <trans-unit id="259" resname="NSHumanReadableCopyright">
+        <source>By Joshua Park</source>
+        <target state="needs-translation">By Joshua Park</target>
+        <note from="Crowdin" priority="2">en.lproj/InfoPlist.strings
+NSHumanReadableCopyright&#13;
+Copyright (human-readable)</note>
+      </trans-unit>
+      <trans-unit id="261" resname="All">
+        <source>All</source>
+        <target state="needs-translation">All</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+All&#13;
+Option to use all CPU, GPU, &amp;amp; Neural Engine for compute unit</note>
+      </trans-unit>
+      <trans-unit id="263" resname="Apply">
+        <source>Apply</source>
+        <target state="needs-translation">Apply</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Apply&#13;
+Button to apply the selected settings</note>
+      </trans-unit>
+      <trans-unit id="265" resname="Based on the option selected the correct model version will need to be used.">
+        <source>Based on the option selected the correct model version will need to be used.</source>
+        <target state="needs-translation">Based on the option selected the correct model version will need to be used.</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Based on the option selected the correct model version will need to be used.&#13;
+Help text for ML Compute Unit option under Settings</note>
+      </trans-unit>
+      <trans-unit id="267" resname="Batch %lld of %lld">
+        <source>Batch %lld of %lld</source>
+        <target state="needs-translation">Batch %lld of %lld</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Batch %lld of %lld&#13;
+Text displaying the current batch progress and count</note>
+      </trans-unit>
+      <trans-unit id="269" resname="CPU &amp; GPU">
+        <source>CPU &amp;amp; GPU</source>
+        <target state="needs-translation">CPU &amp;amp; GPU</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+CPU &amp; GPU&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="271" resname="CPU &amp; GPU may be faster on M1 Max, Ultra and later but will use more memory.">
+        <source>CPU &amp;amp; GPU may be faster on M1 Max, Ultra and later but will use more memory.</source>
+        <target state="needs-translation">CPU &amp;amp; GPU may be faster on M1 Max, Ultra and later but will use more memory.</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+CPU &amp; GPU may be faster on M1 Max, Ultra and later but will use more memory.&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="273" resname="CPU &amp; Neural Engine">
+        <source>CPU &amp;amp; Neural Engine</source>
+        <target state="needs-translation">CPU &amp;amp; Neural Engine</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+CPU &amp; Neural Engine&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="275" resname="CPU &amp; Neural Engine provides a good balance between speed and low memory usage.">
+        <source>CPU &amp;amp; Neural Engine provides a good balance between speed and low memory usage.</source>
+        <target state="needs-translation">CPU &amp;amp; Neural Engine provides a good balance between speed and low memory usage.</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+CPU &amp; Neural Engine provides a good balance between speed and low memory usage.&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="277" resname="Check for Updates…">
+        <source>Check for Updates…</source>
+        <target state="needs-translation">Check for Updates…</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Check for Updates…&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="279" resname="Convert all images to High Resolution (this will use more memory)">
+        <source>Convert all images to High Resolution (this will use more memory)</source>
+        <target state="needs-translation">Convert all images to High Resolution (this will use more memory)</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Convert all images to High Resolution (this will use more memory)&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="281" resname="Convert to High Resolution">
+        <source>Convert to High Resolution</source>
+        <target state="needs-translation">Convert to High Resolution</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Convert to High Resolution&#13;
+Right click menu option to convert the image to high resolution</note>
+      </trans-unit>
+      <trans-unit id="283" resname="Copy">
+        <source>Copy</source>
+        <target state="needs-translation">Copy</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Copy&#13;
+Button to copy the currently selected image's generation options to the clipboard</note>
+      </trans-unit>
+      <trans-unit id="285" resname="Copy Option to Sidebar">
+        <source>Copy Option to Sidebar</source>
+        <target state="needs-translation">Copy Option to Sidebar</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Copy Option to Sidebar&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="287" resname="Copy Options to Sidebar">
+        <source>Copy Options to Sidebar</source>
+        <target state="needs-translation">Copy Options to Sidebar</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Copy Options to Sidebar&#13;
+Button to copy the currently selected image's generation options to the prompt input sidebar</note>
+      </trans-unit>
+      <trans-unit id="289" resname="Date">
+        <source>Date</source>
+        <target state="needs-translation">Date</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Date&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="291" resname="Download Models">
+        <source>Download Models</source>
+        <target state="needs-translation">Download Models</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Download Models&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="293" resname="Exclude from Image">
+        <source>Exclude from Image</source>
+        <target state="needs-translation">Exclude from Image</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Exclude from Image&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="295" resname="Exclude from Image:">
+        <source>Exclude from Image:</source>
+        <target state="needs-translation">Exclude from Image:</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Exclude from Image:&#13;
+Label for negative prompt text field</note>
+      </trans-unit>
+      <trans-unit id="297" resname="Generate">
+        <source>Generate</source>
+        <target state="needs-translation">Generate</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Generate&#13;
+Button to generate image</note>
+      </trans-unit>
+      <trans-unit id="299" resname="Guidance Scale">
+        <source>Guidance Scale</source>
+        <target state="needs-translation">Guidance Scale</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Guidance Scale&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="301" resname="Guidance Scale: %@">
+        <source>Guidance Scale: %@</source>
+        <target state="needs-translation">Guidance Scale: %@</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Guidance Scale: %@&#13;
+Label for Guidance Scale slider with value</note>
+      </trans-unit>
+      <trans-unit id="303" resname="HD">
+        <source>HD</source>
+        <target state="needs-translation">HD</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+HD&#13;
+Label for toggle to auto convert generated images to high resolution</note>
+      </trans-unit>
+      <trans-unit id="305" resname="Height:">
+        <source>Height:</source>
+        <target state="needs-translation">Height:</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Height:&#13;
+Label for image height picker</note>
+      </trans-unit>
+      <trans-unit id="307" resname="Image Index">
+        <source>Image Index</source>
+        <target state="needs-translation">Image Index</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Image Index&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="309" resname="Images in a batch are generated at the same time and require more memory.&#10;^[%lld images](inflect: true) will be generated in total.">
+        <source>Images in a batch are generated at the same time and require more memory.
+^[%lld images](inflect: true) will be generated in total.</source>
+        <target state="needs-translation">Images in a batch are generated at the same time and require more memory.
+^[%lld images](inflect: true) will be generated in total.</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Images in a batch are generated at the same time and require more memory.
+^[%lld images](inflect: true) will be generated in total.&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="311" resname="Images per Batch: %lld">
+        <source>Images per Batch: %lld</source>
+        <target state="needs-translation">Images per Batch: %lld</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Images per Batch: %lld&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="313" resname="Include in Image">
+        <source>Include in Image</source>
+        <target state="needs-translation">Include in Image</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Include in Image&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="315" resname="Include in Image:">
+        <source>Include in Image:</source>
+        <target state="needs-translation">Include in Image:</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Include in Image:&#13;
+Label for prompt text field</note>
+      </trans-unit>
+      <trans-unit id="317" resname="Loading Model...">
+        <source>Loading Model...</source>
+        <target state="needs-translation">Loading Model...</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Loading Model...&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="319" resname="ML Compute Unit:">
+        <source>ML Compute Unit:</source>
+        <target state="needs-translation">ML Compute Unit:</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+ML Compute Unit:&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="323" resname="Model">
+        <source>Model</source>
+        <target state="needs-translation">Model</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Model&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="325" resname="Model:">
+        <source>Model:</source>
+        <target state="needs-translation">Model:</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Model:&#13;
+Label for Model picker</note>
+      </trans-unit>
+      <trans-unit id="327" resname="No Info">
+        <source>No Info</source>
+        <target state="needs-translation">No Info</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+No Info&#13;
+Placeholder text for image inspector</note>
+      </trans-unit>
+      <trans-unit id="329" resname="Number of Batches:">
+        <source>Number of Batches:</source>
+        <target state="needs-translation">Number of Batches:</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Number of Batches:&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="331" resname="Open in Finder">
+        <source>Open in Finder</source>
+        <target state="needs-translation">Open in Finder</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Open in Finder&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="333" resname="Reduce Memory Usage:">
+        <source>Reduce Memory Usage:</source>
+        <target state="needs-translation">Reduce Memory Usage:</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Reduce Memory Usage:&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="335" resname="Reduce memory usage further at the cost of speed.">
+        <source>Reduce memory usage further at the cost of speed.</source>
+        <target state="needs-translation">Reduce memory usage further at the cost of speed.</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Reduce memory usage further at the cost of speed.&#13;
+Help text for Reduce Memory Usage option</note>
+      </trans-unit>
+      <trans-unit id="337" resname="Release Notes">
+        <source>Release Notes</source>
+        <target state="needs-translation">Release Notes</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Release Notes&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="339" resname="Remove">
+        <source>Remove</source>
+        <target state="needs-translation">Remove</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Remove&#13;
+Right click menu option to remove image from the gallery</note>
+      </trans-unit>
+      <trans-unit id="341" resname="Save As...">
+        <source>Save As...</source>
+        <target state="needs-translation">Save As...</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Save As...&#13;
+File menu option to show the save image dialog
+Right click menu option to show the save image dialog</note>
+      </trans-unit>
+      <trans-unit id="343" resname="Scheduler">
+        <source>Scheduler</source>
+        <target state="needs-translation">Scheduler</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Scheduler&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="345" resname="Scheduler:">
+        <source>Scheduler:</source>
+        <target state="needs-translation">Scheduler:</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Scheduler:&#13;
+Label for Scheduler picker</note>
+      </trans-unit>
+      <trans-unit id="347" resname="Search">
+        <source>Search</source>
+        <target state="needs-translation">Search</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Search&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="349" resname="Searching: %@">
+        <source>Searching: %@</source>
+        <target state="needs-translation">Searching: %@</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Searching: %@&#13;
+Window title bar label displaying the searched text</note>
+      </trans-unit>
+      <trans-unit id="351" resname="Seed">
+        <source>Seed</source>
+        <target state="needs-translation">Seed</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Seed&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="353" resname="Seed (0 for random):">
+        <source>Seed (0 for random):</source>
+        <target state="needs-translation">Seed (0 for random):</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Seed (0 for random):&#13;
+Label for Seed text field</note>
+      </trans-unit>
+      <trans-unit id="355" resname="Share...">
+        <source>Share...</source>
+        <target state="needs-translation">Share...</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Share...&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="357" resname="Size">
+        <source>Size</source>
+        <target state="needs-translation">Size</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Size&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="359" resname="Step %lld of %lld">
+        <source>Step %lld of %lld</source>
+        <target state="needs-translation">Step %lld of %lld</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Step %lld of %lld&#13;
+Text displaying the current step progress and count</note>
+      </trans-unit>
+      <trans-unit id="361" resname="Steps">
+        <source>Steps</source>
+        <target state="needs-translation">Steps</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Steps&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="363" resname="Steps: %lld">
+        <source>Steps: %lld</source>
+        <target state="needs-translation">Steps: %lld</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Steps: %lld&#13;
+Label for Steps slider with value</note>
+      </trans-unit>
+      <trans-unit id="365" resname="Stop Generation">
+        <source>Stop Generation</source>
+        <target state="needs-translation">Stop Generation</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Stop Generation&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="367" resname="Support Me ♥">
+        <source>Support Me ♥</source>
+        <target state="needs-translation">Support Me ♥</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Support Me ♥&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="369" resname="This wont take long">
+        <source>This wont take long</source>
+        <target state="needs-translation">This wont take long</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+This wont take long&#13;
+Text explaining that loading the model wont take long</note>
+      </trans-unit>
+      <trans-unit id="371" resname="Website">
+        <source>Website</source>
+        <target state="needs-translation">Website</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Website&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="373" resname="Width:">
+        <source>Width:</source>
+        <target state="needs-translation">Width:</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Width:&#13;
+Label for image width picker</note>
+      </trans-unit>
+      <trans-unit id="375" resname="Working Directory:">
+        <source>Working Directory:</source>
+        <target state="needs-translation">Working Directory:</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Working Directory:&#13;
+Label for changing the working directory</note>
+      </trans-unit>
+      <trans-unit id="377" resname="^[%lld images](inflect: true)">
+        <source>^[%lld images](inflect: true)</source>
+        <target state="needs-translation">^[%lld images](inflect: true)</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+^[%lld images](inflect: true)&#13;
+Window title bar label displaying the number of images</note>
+      </trans-unit>
+      <trans-unit id="379" resname="random">
+        <source>random</source>
+        <target state="needs-translation">random</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+random&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+  <file id="11" original="/ja.xliff" source-language="en" target-language="ja" datatype="plaintext" project-id="558381" tool-id="crowdin">
+    <header>
+      <tool tool-id="crowdin" tool-name="Crowdin" tool-version="1.1"/>
+    </header>
+    <body>
+      <trans-unit id="381" resname="CFBundleDisplayName">
+        <source>Mochi Diffusion</source>
+        <target state="translated">Mochi Diffusion</target>
+        <note from="Crowdin" priority="2">en.lproj/InfoPlist.strings
+CFBundleDisplayName&#13;
+Bundle display name</note>
+      </trans-unit>
+      <trans-unit id="383" resname="CFBundleName">
+        <source>Mochi Diffusion</source>
+        <target state="translated">Mochi Diffusion</target>
+        <note from="Crowdin" priority="2">en.lproj/InfoPlist.strings
+CFBundleName&#13;
+Bundle name</note>
+      </trans-unit>
+      <trans-unit id="385" resname="NSHumanReadableCopyright">
+        <source>By Joshua Park</source>
+        <target state="translated">By Joshua Park</target>
+        <note from="Crowdin" priority="2">en.lproj/InfoPlist.strings
+NSHumanReadableCopyright&#13;
+Copyright (human-readable)</note>
+      </trans-unit>
+      <trans-unit id="387" resname="All">
+        <source>All</source>
+        <target state="translated">全て</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+All&#13;
+Option to use all CPU, GPU, &amp;amp; Neural Engine for compute unit</note>
+      </trans-unit>
+      <trans-unit id="389" resname="Apply">
+        <source>Apply</source>
+        <target state="translated">適用</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Apply&#13;
+Button to apply the selected settings</note>
+      </trans-unit>
+      <trans-unit id="391" resname="Based on the option selected the correct model version will need to be used.">
+        <source>Based on the option selected the correct model version will need to be used.</source>
+        <target state="translated">選択したオプションに基づいて、正しいモデルのバージョンを使用する必要があります。</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Based on the option selected the correct model version will need to be used.&#13;
+Help text for ML Compute Unit option under Settings</note>
+      </trans-unit>
+      <trans-unit id="393" resname="Batch %lld of %lld">
+        <source>Batch %lld of %lld</source>
+        <target state="translated">バッチ %lld / %lld</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Batch %lld of %lld&#13;
+Text displaying the current batch progress and count</note>
+      </trans-unit>
+      <trans-unit id="395" resname="CPU &amp; GPU">
+        <source>CPU &amp;amp; GPU</source>
+        <target state="translated">CPU &amp;amp; GPU</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+CPU &amp; GPU&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="397" resname="CPU &amp; GPU may be faster on M1 Max, Ultra and later but will use more memory.">
+        <source>CPU &amp;amp; GPU may be faster on M1 Max, Ultra and later but will use more memory.</source>
+        <target state="translated">CPU &amp;amp; GPU は M1 Max, Ultra およびそれ以降で速くなる可能性がありますが、より多くのメモリを使用します。</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+CPU &amp; GPU may be faster on M1 Max, Ultra and later but will use more memory.&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="399" resname="CPU &amp; Neural Engine">
+        <source>CPU &amp;amp; Neural Engine</source>
+        <target state="translated">CPU &amp;amp; Neural Engine</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+CPU &amp; Neural Engine&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="401" resname="CPU &amp; Neural Engine provides a good balance between speed and low memory usage.">
+        <source>CPU &amp;amp; Neural Engine provides a good balance between speed and low memory usage.</source>
+        <target state="translated">CPU &amp;amp; Neural Engineは、速度と低いメモリ使用量をバランス良く提供します。</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+CPU &amp; Neural Engine provides a good balance between speed and low memory usage.&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="403" resname="Check for Updates…">
+        <source>Check for Updates…</source>
+        <target state="translated">アップデートの確認...</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Check for Updates…&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="405" resname="Convert all images to High Resolution (this will use more memory)">
+        <source>Convert all images to High Resolution (this will use more memory)</source>
+        <target state="translated">すべての画像を高解像度に変換します（これはより多くのメモリを使用します）</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Convert all images to High Resolution (this will use more memory)&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="407" resname="Convert to High Resolution">
+        <source>Convert to High Resolution</source>
+        <target state="translated">高解像度へ変換</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Convert to High Resolution&#13;
+Right click menu option to convert the image to high resolution</note>
+      </trans-unit>
+      <trans-unit id="409" resname="Copy">
+        <source>Copy</source>
+        <target state="translated">コピー</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Copy&#13;
+Button to copy the currently selected image's generation options to the clipboard</note>
+      </trans-unit>
+      <trans-unit id="411" resname="Copy Option to Sidebar">
+        <source>Copy Option to Sidebar</source>
+        <target state="translated">オプションをサイドバーにコピー</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Copy Option to Sidebar&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="413" resname="Copy Options to Sidebar">
+        <source>Copy Options to Sidebar</source>
+        <target state="translated">オプションをサイドバーにコピー</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Copy Options to Sidebar&#13;
+Button to copy the currently selected image's generation options to the prompt input sidebar</note>
+      </trans-unit>
+      <trans-unit id="415" resname="Date">
+        <source>Date</source>
+        <target state="translated">日付</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Date&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="417" resname="Download Models">
+        <source>Download Models</source>
+        <target state="translated">モデルをダウンロード</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Download Models&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="419" resname="Exclude from Image">
+        <source>Exclude from Image</source>
+        <target state="translated">画像から除外</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Exclude from Image&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="421" resname="Exclude from Image:">
+        <source>Exclude from Image:</source>
+        <target state="translated">画像から除外:</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Exclude from Image:&#13;
+Label for negative prompt text field</note>
+      </trans-unit>
+      <trans-unit id="423" resname="Generate">
+        <source>Generate</source>
+        <target state="translated">画像の生成</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Generate&#13;
+Button to generate image</note>
+      </trans-unit>
+      <trans-unit id="425" resname="Guidance Scale">
+        <source>Guidance Scale</source>
+        <target state="translated">ガイダンス スケール</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Guidance Scale&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="427" resname="Guidance Scale: %@">
+        <source>Guidance Scale: %@</source>
+        <target state="translated">ガイダンス スケール: %@</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Guidance Scale: %@&#13;
+Label for Guidance Scale slider with value</note>
+      </trans-unit>
+      <trans-unit id="429" resname="HD">
+        <source>HD</source>
+        <target state="translated">HD</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+HD&#13;
+Label for toggle to auto convert generated images to high resolution</note>
+      </trans-unit>
+      <trans-unit id="431" resname="Height:">
+        <source>Height:</source>
+        <target state="translated">高さ:</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Height:&#13;
+Label for image height picker</note>
+      </trans-unit>
+      <trans-unit id="433" resname="Image Index">
+        <source>Image Index</source>
+        <target state="translated">画像インデックス</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Image Index&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="435" resname="Images in a batch are generated at the same time and require more memory.&#10;^[%lld images](inflect: true) will be generated in total.">
+        <source>Images in a batch are generated at the same time and require more memory.
+^[%lld images](inflect: true) will be generated in total.</source>
+        <target state="translated">バッチ内の画像は同時に生成され、より多くのメモリが必要です。
+合計で^[%lld images](inflect: true) が生成されます。</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Images in a batch are generated at the same time and require more memory.
+^[%lld images](inflect: true) will be generated in total.&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="437" resname="Images per Batch: %lld">
+        <source>Images per Batch: %lld</source>
+        <target state="translated">バッチごとの画像数: %lld</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Images per Batch: %lld&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="439" resname="Include in Image">
+        <source>Include in Image</source>
+        <target state="translated">画像に含める</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Include in Image&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="441" resname="Include in Image:">
+        <source>Include in Image:</source>
+        <target state="translated">画像に含める:</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Include in Image:&#13;
+Label for prompt text field</note>
+      </trans-unit>
+      <trans-unit id="443" resname="Loading Model...">
+        <source>Loading Model...</source>
+        <target state="translated">モデルを読み込み中...</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Loading Model...&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="445" resname="ML Compute Unit:">
+        <source>ML Compute Unit:</source>
+        <target state="translated">ML Compute Unit:</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+ML Compute Unit:&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="449" resname="Model">
+        <source>Model</source>
+        <target state="translated">モデル</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Model&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="451" resname="Model:">
+        <source>Model:</source>
+        <target state="translated">モデル:</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Model:&#13;
+Label for Model picker</note>
+      </trans-unit>
+      <trans-unit id="453" resname="No Info">
+        <source>No Info</source>
+        <target state="translated">情報はありません</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+No Info&#13;
+Placeholder text for image inspector</note>
+      </trans-unit>
+      <trans-unit id="455" resname="Number of Batches:">
+        <source>Number of Batches:</source>
+        <target state="translated">バッチ数:</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Number of Batches:&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="457" resname="Open in Finder">
+        <source>Open in Finder</source>
+        <target state="translated">Finderに表示</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Open in Finder&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="459" resname="Reduce Memory Usage:">
+        <source>Reduce Memory Usage:</source>
+        <target state="translated">メモリ使用量の削減:</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Reduce Memory Usage:&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="461" resname="Reduce memory usage further at the cost of speed.">
+        <source>Reduce memory usage further at the cost of speed.</source>
+        <target state="translated">スピードを犠牲にしてメモリ使用量をさらに削減。</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Reduce memory usage further at the cost of speed.&#13;
+Help text for Reduce Memory Usage option</note>
+      </trans-unit>
+      <trans-unit id="463" resname="Release Notes">
+        <source>Release Notes</source>
+        <target state="translated">リリースノート</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Release Notes&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="465" resname="Remove">
+        <source>Remove</source>
+        <target state="translated">消去</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Remove&#13;
+Right click menu option to remove image from the gallery</note>
+      </trans-unit>
+      <trans-unit id="467" resname="Save As...">
+        <source>Save As...</source>
+        <target state="translated">別名で保存...</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Save As...&#13;
+File menu option to show the save image dialog
+Right click menu option to show the save image dialog</note>
+      </trans-unit>
+      <trans-unit id="469" resname="Scheduler">
+        <source>Scheduler</source>
+        <target state="translated">スケジューラ</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Scheduler&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="471" resname="Scheduler:">
+        <source>Scheduler:</source>
+        <target state="translated">スケジューラ:</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Scheduler:&#13;
+Label for Scheduler picker</note>
+      </trans-unit>
+      <trans-unit id="473" resname="Search">
+        <source>Search</source>
+        <target state="translated">検索</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Search&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="475" resname="Searching: %@">
+        <source>Searching: %@</source>
+        <target state="translated">検索中: %@</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Searching: %@&#13;
+Window title bar label displaying the searched text</note>
+      </trans-unit>
+      <trans-unit id="477" resname="Seed">
+        <source>Seed</source>
+        <target state="translated">シード</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Seed&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="479" resname="Seed (0 for random):">
+        <source>Seed (0 for random):</source>
+        <target state="translated">シード（0の場合はランダム）</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Seed (0 for random):&#13;
+Label for Seed text field</note>
+      </trans-unit>
+      <trans-unit id="481" resname="Share...">
+        <source>Share...</source>
+        <target state="translated">共有...</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Share...&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="483" resname="Size">
+        <source>Size</source>
+        <target state="translated">サイズ</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Size&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="485" resname="Step %lld of %lld">
+        <source>Step %lld of %lld</source>
+        <target state="translated">ステップ %lld / %lld</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Step %lld of %lld&#13;
+Text displaying the current step progress and count</note>
+      </trans-unit>
+      <trans-unit id="487" resname="Steps">
+        <source>Steps</source>
+        <target state="translated">ステップ</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Steps&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="489" resname="Steps: %lld">
+        <source>Steps: %lld</source>
+        <target state="translated">ステップ: %lld</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Steps: %lld&#13;
+Label for Steps slider with value</note>
+      </trans-unit>
+      <trans-unit id="491" resname="Stop Generation">
+        <source>Stop Generation</source>
+        <target state="translated">画像生成の中止</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Stop Generation&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="493" resname="Support Me ♥">
+        <source>Support Me ♥</source>
+        <target state="translated">サポートしてください♥</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Support Me ♥&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="495" resname="This wont take long">
+        <source>This wont take long</source>
+        <target state="translated">しばらくお待ちください</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+This wont take long&#13;
+Text explaining that loading the model wont take long</note>
+      </trans-unit>
+      <trans-unit id="497" resname="Website">
+        <source>Website</source>
+        <target state="translated">Web サイト</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Website&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+      <trans-unit id="499" resname="Width:">
+        <source>Width:</source>
+        <target state="translated">幅:</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Width:&#13;
+Label for image width picker</note>
+      </trans-unit>
+      <trans-unit id="501" resname="Working Directory:">
+        <source>Working Directory:</source>
+        <target state="translated">作業フォルダ:</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+Working Directory:&#13;
+Label for changing the working directory</note>
+      </trans-unit>
+      <trans-unit id="503" resname="^[%lld images](inflect: true)">
+        <source>^[%lld images](inflect: true)</source>
+        <target state="translated">^[%lld 画像](inflect: true)</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+^[%lld images](inflect: true)&#13;
+Window title bar label displaying the number of images</note>
+      </trans-unit>
+      <trans-unit id="505" resname="random">
+        <source>random</source>
+        <target state="translated">ランダム</target>
+        <note from="Crowdin" priority="2">en.lproj/Localizable.strings
+random&#13;
+No comment provided by engineer.</note>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>
