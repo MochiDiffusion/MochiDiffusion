@@ -20,4 +20,10 @@ jobs:
 
       - name: Build and Analyze
         run: |
-          xcodebuild clean build analyze -project "Mochi Diffusion.xcodeproj" -scheme "Mochi Diffusion" CODE_SIGNING_ALLOWED=NO | xcpretty && exit ${PIPESTATUS[0]}
+          xcodebuild clean build analyze -exportLocalizations -project "Mochi Diffusion.xcodeproj" -scheme "Mochi Diffusion" -localizationPath "./.localization" -exportLanguage de -exportLanguage ja -exportLanguage ko -exportLanguage zh-Hans CODE_SIGNING_ALLOWED=NO | xcpretty && exit ${PIPESTATUS[0]}
+
+      - name: Archive language file artifacts
+         uses: actions/upload-artifact@v3
+         with:
+           name: xcloc-files
+           path: ./.localization
