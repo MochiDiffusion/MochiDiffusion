@@ -40,7 +40,7 @@ struct SDImage: Identifiable {
         panel.title = "Save Image"
         panel.message = "Choose a folder and a name to store the image."
         panel.nameFieldLabel = "Image file name:"
-        panel.nameFieldStringValue = "\(String(prompt.prefix(50)).trimmingCharacters(in: .whitespacesAndNewlines)).\(seed).\(imageIndex).png"
+        panel.nameFieldStringValue = "\(String(prompt.prefix(70)).trimmingCharacters(in: .whitespacesAndNewlines)).\(seed).\(imageIndex).png"
         let resp = panel.runModal()
         if resp != .OK {
             return
