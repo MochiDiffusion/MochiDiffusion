@@ -3,8 +3,6 @@ name: CI
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
 
 jobs:
   build:
@@ -24,12 +22,33 @@ jobs:
           -exportLocalizations
           -project "Mochi Diffusion.xcodeproj"
           -scheme "Mochi Diffusion"
-          -localizationPath "./localization"
+          -localizationPath "./locale"
           -exportLanguage en
           CODE_SIGNING_ALLOWED=NO | xcpretty && exit ${PIPESTATUS[0]}
 
-      - name: Archive language file artifacts
+      - name: Upload source locale artifact
         uses: actions/upload-artifact@v3
         with:
-          name: en-source-xcloc
-          path: ./localization
+          name: en-source-locale
+          path: './locale/en.xcloc/Localized Contents/en.xliff'
+
+  crowdin:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: en-source-locale
+
+      - name: Upload source to Crowdin
+        uses: crowdin/github-action@1.5.2
+        with:
+          upload_sources: true
+          upload_translations: false
+          download_translations: false
+
+          source: en.xliff
+          translation: '%osx_locale%.xliff'
+
+          project_id: ${{ secrets.CROWDIN_PROJECT_ID }}
+          token: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
