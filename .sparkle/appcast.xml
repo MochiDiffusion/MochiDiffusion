@@ -5,6 +5,42 @@
     <language>en</language>
 
     <item>
+      <title>v2.0.1</title>
+      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <sparkle:version>2.0.1</sparkle:version>
+      <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
+      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <pubDate>Sun, 08 Jan 2023 21:29:24 +0000</pubDate>
+      <enclosure
+        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v2.0.1/MochiDiffusion_v2.0.1.dmg"
+        sparkle:edSignature="yCOJfdGGeyOxgcT+CywRrLfefwbYYPvXbA0y9b3ZMSPOxlfSMZa/Olv6tcTyp4+4wkY7VzK+KYfN9RExlK3EAg=="
+        length="66892958"
+        type="application/x-diskcopy" />
+      <description><![CDATA[
+      <ul>
+      <li>New Translations<ul>
+      <li>Simplified Chinese (@Jerry23011)</li>
+      <li>Finnish (tuhoojabotti)</li>
+      <li>German (@eidermar)</li>
+      <li>Japanese (@atatakun)</li>
+      <li>Korean (@godly-devotion)</li>
+      </ul>
+      </li>
+      <li>Added Simplified Chinese &amp; Korean translations for README</li>
+      <li>Added app version info to EXIF data</li>
+      <li>Fixed generation progress not displaying for some users</li>
+      <li>Changed search to be case insensitive</li>
+      <li>Changed minimum Gallery columns from 3 to 1</li>
+      <li>Include up to 70 characters of prompt text in default image filename</li>
+      </ul>
+      <p>Can you speak another language? Visit the <a href="https://crowdin.com/project/mochi-diffusion">project page on Crowdin</a>!</p>
+      <p>Special thanks to the following for supporting me and making this app possible 🎉
+      <strong>serovar</strong>, <strong>orange-wedge</strong>, <strong>julien-c</strong>, <strong>Quick-Eyed-Sky</strong>, <strong>BirdSesame</strong>, <strong>Da-mi-en</strong>, <strong>eidermar</strong>, <strong>Draxredd</strong>, <strong>kayzen</strong></p>
+      ]]>
+      </description>
+    </item>
+
+    <item>
       <title>v2.0</title>
       <link>https://github.com/godly-devotion/MochiDiffusion</link>
       <sparkle:version>2.0</sparkle:version>
@@ -18,32 +54,29 @@
         type="application/x-diskcopy" />
       <description><![CDATA[
       <ul>
-        <li>Added support for Intel Macs (universal binary)
-            <ul>
-              <li>CPU & GPU compute unit will be used</li>
-              <li>High performance CPU & GPU is required</li>
-            </ul>
-        </li>
-        <li>Updated Gallery UI
-            <ul>
-              <li>Images are displayed in a grid</li>
-              <li>Added ability to view images in Quick Look (double click on image)</li>
-              <li>Added ability to search generated images by prompt</li>
-              <li>Added total generated image count</li>
-            </ul>
-        </li>
-        <li>Update Inspector UI
-            <ul>
-              <li>Moved to sidebar to allow easier at a glance view</li>
-            </ul>
-        </li>
-        <li>Updated names of buttons & labels</li>
-        <li>Added menu option to download pre-converted models (Help > Download Models)</li>
-        <li>Added menu option to support this project (Help > Support Me)</li>
-        <li>Added support for localization</li>
+      <li>Added support for Intel Macs (universal binary)<ul>
+      <li><code>CPU &amp; GPU</code> compute unit will be used</li>
+      <li>High performance CPU &amp; GPU is required</li>
       </ul>
-      <div>Special thanks to the following for supporting me and making this app possible 🎉</div>
-      <div>serovar, orange-wedge, julien-c, Quick-Eyed-Sky, BirdSesame, Da-mi-en, eidermar, Draxredd</div>
+      </li>
+      <li>Updated Gallery UI<ul>
+      <li>Images are displayed in a grid</li>
+      <li>Added ability to view images in Quick Look (double click on image)</li>
+      <li>Added ability to search generated images by prompt</li>
+      <li>Added total generated image count</li>
+      </ul>
+      </li>
+      <li>Update Inspector UI<ul>
+      <li>Moved to sidebar to allow easier at a glance view</li>
+      </ul>
+      </li>
+      <li>Updated names of buttons &amp; labels</li>
+      <li>Added menu option to download pre-converted models (Help &gt; Download Models)</li>
+      <li>Added menu option to support this project (Help &gt; Support Me)</li>
+      <li>Added support for localization</li>
+      </ul>
+      <p>Special thanks to the following for supporting me and making this app possible 🎉
+      <strong>serovar</strong>, <strong>orange-wedge</strong>, <strong>julien-c</strong>, <strong>Quick-Eyed-Sky</strong>, <strong>BirdSesame</strong>, <strong>Da-mi-en</strong>, <strong>eidermar</strong>, <strong>Draxredd</strong>, <strong>kayzen</strong></p>
       ]]>
       </description>
     </item>
@@ -62,16 +95,15 @@
         type="application/x-diskcopy" />
       <description><![CDATA[
       <ul>
-        <li>Image generation progress was moved to the toolbar
-          <ul>
-            <li>View both step and batch progress</li>
-            <li>Cancel generation</li>
-          </ul>
-        </li>
-        <li>Updates can now be downloaded and installed directly from the app</li>
+      <li>Image generation progress was moved to the toolbar<ul>
+      <li>View both step and batch progress</li>
+      <li>Cancel generation</li>
       </ul>
-      <div>Special thanks to the following for supporting me and making this app possible 🎉</div>
-      <div>serovar, orange-wedge, julien-c, Quick-Eyed-Sky, BirdSesame, Da-mi-en</div>
+      </li>
+      <li>Updates can now be downloaded and installed directly from the app</li>
+      </ul>
+      <p>Special thanks to the following for supporting me and making this app possible 🎉
+      <strong>serovar</strong>, <strong>orange-wedge</strong>, <strong>julien-c</strong>, <strong>Quick-Eyed-Sky</strong>, <strong>BirdSesame</strong>, <strong>Da-mi-en</strong>, <strong>eidermar</strong>, <strong>Draxredd</strong></p>
       ]]>
       </description>
     </item>
