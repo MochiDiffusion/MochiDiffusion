@@ -15,7 +15,7 @@
         url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v2.0.1/MochiDiffusion_v2.0.1.dmg"
         sparkle:edSignature="yCOJfdGGeyOxgcT+CywRrLfefwbYYPvXbA0y9b3ZMSPOxlfSMZa/Olv6tcTyp4+4wkY7VzK+KYfN9RExlK3EAg=="
         length="66892958"
-        type="application/x-diskcopy" />
+        type="application/octet-stream" />
       <description><![CDATA[
       <ul>
       <li>New Translations<ul>
@@ -51,7 +51,7 @@
         url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v2.0/MochiDiffusion_v2.0.dmg"
         sparkle:edSignature="5RZfMk6l2sQrrvxIHQGKki6imBfUeeJGHFb0kMvtu+ySxyOFoV7H2B3Lz/I88BabO+wQ+baZJNsmh4cUdERnCA=="
         length="66871770"
-        type="application/x-diskcopy" />
+        type="application/octet-stream" />
       <description><![CDATA[
       <ul>
       <li>Added support for Intel Macs (universal binary)<ul>
@@ -92,7 +92,7 @@
         url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v1.4.2/MochiDiffusion_v1.4.2.dmg"
         sparkle:edSignature="Layf06bxGWzNqeZ8nu7VbdFCzc2vhg43e9kAMlVZqRdb9MQQ+YyyU8qLrxdaQB1KM9eqVRsgM0WiVnt09tLABQ=="
         length="66348530"
-        type="application/x-diskcopy" />
+        type="application/octet-stream" />
       <description><![CDATA[
       <ul>
       <li>Image generation progress was moved to the toolbar<ul>
