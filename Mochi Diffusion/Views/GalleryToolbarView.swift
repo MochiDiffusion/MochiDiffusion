@@ -45,6 +45,7 @@ struct GalleryToolbarView: View {
                     ProgressView()
                         .progressViewStyle(.circular)
                         .scaleEffect(0.5)
+                        .frame(width: 16)
                 }
                 .popover(isPresented: self.$isStatusPopoverShown, arrowEdge: .bottom) {
                     VStack(alignment: .leading, spacing: 4) {

@@ -84,11 +84,7 @@ struct GalleryView: View {
                 "Mochi Diffusion" :
                 String(localized: "Searching: \(store.searchText)",
                        comment: "Window title bar label displaying the searched text"))
-        .navigationSubtitle(
-            store.searchText.isEmpty ?
-                String(localized: "^[\(store.images.count) images](inflect: true)",
-                       comment: "Window title bar label displaying the number of images") :
-                "")
+        .navigationSubtitle(store.searchText.isEmpty ? "^[\(store.images.count) images](inflect: true)" : "")
         .toolbar {
             GalleryToolbarView()
         }
