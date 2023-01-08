@@ -7,10 +7,10 @@
 /* Button to apply the selected settings */
 "Apply" = "Bestätigen";
 
-/* No comment provided by engineer. */
+/* Help text for ML Compute Unit option under Settings */
 "Based on the option selected the correct model version will need to be used." = "Basierend auf der gewählten Option muss die richtige Modellversion verwendet werden.";
 
-/* Batch progress text showing current batch progress and total batches selected */
+/* Text displaying the current batch progress and count */
 "Batch %lld of %lld" = "Batch %lld von %lld";
 
 /* No comment provided by engineer. */
@@ -92,9 +92,6 @@
 "ML Compute Unit:" = "ML Recheneinheit:";
 
 /* No comment provided by engineer. */
-"Mochi Diffusion" = "Mochi Diffusion";
-
-/* No comment provided by engineer. */
 "Model" = "Modell";
 
 /* Label for Model picker */
@@ -137,7 +134,7 @@ Right click menu option to show the save image dialog */
 /* No comment provided by engineer. */
 "Search" = "Suchen";
 
-/* No comment provided by engineer. */
+/* Window title bar label displaying the searched text */
 "Searching: %@" = "Suche: %@";
 
 /* No comment provided by engineer. */
@@ -152,7 +149,7 @@ Right click menu option to show the save image dialog */
 /* No comment provided by engineer. */
 "Size" = "Größe";
 
-/* Step progress text showing current step progress and total steps selected */
+/* Text displaying the current step progress and count */
 "Step %lld of %lld" = "Arbeitsschritt %lld von %lld";
 
 /* No comment provided by engineer. */

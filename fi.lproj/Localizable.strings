@@ -1,0 +1,178 @@
+/* No comment provided by engineer. */
+"^[%lld images](inflect: true)" = "^[%lld kuvaa](inflect: true)";
+
+/* Option to use all CPU, GPU, & Neural Engine for compute unit */
+"All" = "Kaikki";
+
+/* Button to apply the selected settings */
+"Apply" = "Käytä";
+
+/* Help text for ML Compute Unit option under Settings */
+"Based on the option selected the correct model version will need to be used." = "Valitun vaihtoehdon perusteella on käytettävä oikeaa mallin versiota.";
+
+/* Text displaying the current batch progress and count */
+"Batch %lld of %lld" = "Erä %lld / %lld";
+
+/* No comment provided by engineer. */
+"Check for Updates…" = "Tarkista päivitykset…";
+
+/* No comment provided by engineer. */
+"Convert all images to High Resolution (this will use more memory)" = "Muunna kaikki kuvat korkeaan resoluutioon (tämä käyttää enemmän muistia)";
+
+/* Right click menu option to convert the image to high resolution */
+"Convert to High Resolution" = "Muunna korkeaksi resoluutioksi";
+
+/* Button to copy the currently selected image's generation options to the clipboard */
+"Copy" = "Kopioi";
+
+/* No comment provided by engineer. */
+"Copy Option to Sidebar" = "Kopioi asetus sivupalkkiin";
+
+/* Button to copy the currently selected image's generation options to the prompt input sidebar */
+"Copy Options to Sidebar" = "Kopioi asetukset sivupalkkiin";
+
+/* No comment provided by engineer. */
+"CPU & GPU" = "CPU & GPU";
+
+/* No comment provided by engineer. */
+"CPU & GPU may be faster on M1 Max, Ultra and later but will use more memory." = "CPU & GPU voi olla nopeampi M1 Max, Ultra ja uudemmilla, mutta käyttää enemmän muistia.";
+
+/* No comment provided by engineer. */
+"CPU & Neural Engine" = "CPU & Neural Engine";
+
+/* No comment provided by engineer. */
+"CPU & Neural Engine provides a good balance between speed and low memory usage." = "CPU & Neural Engine tarjoaa hyvän tasapainon nopeuden ja muistinkäytön välillä.";
+
+/* No comment provided by engineer. */
+"Date" = "Pvm";
+
+/* No comment provided by engineer. */
+"Download Models" = "Lataa Mallit";
+
+/* No comment provided by engineer. */
+"Exclude from Image" = "Jätä pois kuvasta";
+
+/* Label for negative prompt text field */
+"Exclude from Image:" = "Jätä pois kuvasta:";
+
+/* Button to generate image */
+"Generate" = "Generoi";
+
+/* No comment provided by engineer. */
+"Guidance Scale" = "Ohjeiden Skaalaus";
+
+/* Label for Guidance Scale slider with value */
+"Guidance Scale: %@" = "Ohjeiden Skaalaus: %@";
+
+/* Label for toggle to auto convert generated images to high resolution */
+"HD" = "HD";
+
+/* Label for image height picker */
+"Height:" = "Korkeus:";
+
+/* No comment provided by engineer. */
+"Image Index" = "Kuvan indeksi";
+
+/* No comment provided by engineer. */
+"Images in a batch are generated at the same time and require more memory.\n^[%lld images](inflect: true) will be generated in total." = "Erän kuvat luodaan samaan aikaan ja se vaatii enemmän muistia.\n^[%lld kuvaa](inflect: true) luodaan yhteensä.";
+
+/* No comment provided by engineer. */
+"Images per Batch: %lld" = "Kuvia erässä: %lld";
+
+/* No comment provided by engineer. */
+"Include in Image" = "Sisällytä kuvaan";
+
+/* Label for prompt text field */
+"Include in Image:" = "Sisällytä kuvaan:";
+
+/* No comment provided by engineer. */
+"Loading Model..." = "Ladataan Mallia...";
+
+/* No comment provided by engineer. */
+"ML Compute Unit:" = "ML-laskentayksikkö:";
+
+/* No comment provided by engineer. */
+"Model" = "Malli";
+
+/* Label for Model picker */
+"Model:" = "Malli:";
+
+/* Placeholder text for image inspector */
+"No Info" = "Ei tietoa";
+
+/* No comment provided by engineer. */
+"Number of Batches:" = "Erien lukumäärä:";
+
+/* No comment provided by engineer. */
+"Open in Finder" = "Avaa Finderissa";
+
+/* No comment provided by engineer. */
+"random" = "satunnainen";
+
+/* Help text for Reduce Memory Usage option */
+"Reduce memory usage further at the cost of speed." = "Vähennä muistin käyttöä entisestään nopeuden kustannuksella.";
+
+/* No comment provided by engineer. */
+"Reduce Memory Usage:" = "Vähennä muistin Käyttöä:";
+
+/* No comment provided by engineer. */
+"Release Notes" = "Julkaisutiedot";
+
+/* Right click menu option to remove image from the gallery */
+"Remove" = "Poista";
+
+/* File menu option to show the save image dialog
+Right click menu option to show the save image dialog */
+"Save As..." = "Tallenna nimellä...";
+
+/* No comment provided by engineer. */
+"Scheduler" = "Ajastus";
+
+/* Label for Scheduler picker */
+"Scheduler:" = "Ajastus:";
+
+/* No comment provided by engineer. */
+"Search" = "Etsi";
+
+/* Window title bar label displaying the searched text */
+"Searching: %@" = "Etsitään: %@";
+
+/* No comment provided by engineer. */
+"Seed" = "Seed-luku";
+
+/* Label for Seed text field */
+"Seed (0 for random):" = "Seed (0 satunnaiselle):";
+
+/* No comment provided by engineer. */
+"Share..." = "Jaa...";
+
+/* No comment provided by engineer. */
+"Size" = "Koko";
+
+/* Text displaying the current step progress and count */
+"Step %lld of %lld" = "Vaihe %lld / %lld";
+
+/* No comment provided by engineer. */
+"Steps" = "Vaiheet";
+
+/* Label for Steps slider with value */
+"Steps: %lld" = "Vaiheet: %lld";
+
+/* No comment provided by engineer. */
+"Stop Generation" = "Pysäytä generointi";
+
+/* No comment provided by engineer. */
+"Support Me ♥" = "Tue minua ♥";
+
+/* Text explaining that loading the model wont take long */
+"This wont take long" = "Tähän ei pitäisi mennä kauan";
+
+/* No comment provided by engineer. */
+"Website" = "Nettisivu";
+
+/* Label for image width picker */
+"Width:" = "Leveys:";
+
+/* Label for changing the working directory */
+"Working Directory:" = "Työhakemisto:";
+

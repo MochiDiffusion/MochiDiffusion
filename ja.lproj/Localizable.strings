@@ -1,4 +1,4 @@
-/* Window title bar label displaying the number of images */
+/* No comment provided by engineer. */
 "^[%lld images](inflect: true)" = "^[%lld 画像](inflect: true)";
 
 /* Option to use all CPU, GPU, & Neural Engine for compute unit */
