@@ -9,6 +9,12 @@ import SwiftUI
 
 extension String: Error {}
 
+extension NSApplication {
+    static var appVersion: String {
+        return Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as! String
+    }
+}
+
 extension URL {
     func subDirectories() throws -> [URL] {
         guard hasDirectoryPath else { return [] }

@@ -66,7 +66,7 @@ struct SDImage: Identifiable {
     }
     
     private func metadata() -> String {
-        return title() + ", Model: \(model), Scheduler: \(scheduler), Seed: \(seed), Steps: \(steps), Guidance: \(guidanceScale), Index: \(imageIndex)"
+        return title() + ", Model: \(model), Scheduler: \(scheduler), Seed: \(seed), Steps: \(steps), Guidance: \(guidanceScale), Index: \(imageIndex), Generator: Mochi Diffusion \(NSApplication.appVersion)"
     }
 
     private func title() -> String {
