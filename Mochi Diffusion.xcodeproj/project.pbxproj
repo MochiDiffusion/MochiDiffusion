@@ -103,6 +103,8 @@
 		0386DF8A2950D29400CA4CEB /* InspectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InspectorView.swift; sourceTree = "<group>"; };
 		0386DF8C2950F25500CA4CEB /* GalleryToolbarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryToolbarView.swift; sourceTree = "<group>"; };
 		03B1ACA7295167B900302F54 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		03BFB2FE296C684C005E849D /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		03BFB2FF296C684C005E849D /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/Localizable.strings; sourceTree = "<group>"; };
 		03D280F1294FD60E00C7D184 /* PromptView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptView.swift; sourceTree = "<group>"; };
 		03D43B7729660A1300604911 /* GalleryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryView.swift; sourceTree = "<group>"; };
 		03D43B7929660A2600604911 /* GalleryItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryItemView.swift; sourceTree = "<group>"; };
@@ -518,6 +520,7 @@
 				03F578632967CE9A003A815F /* ko */,
 				03F578682967DAE6003A815F /* zh-Hans */,
 				03408EBD296B5A25001CBCC4 /* fi */,
+				03BFB2FF296C684C005E849D /* it */,
 			);
 			name = Localizable.strings;
 			path = ..;
@@ -531,6 +534,7 @@
 				031AC9D429688D9600F95E4B /* ko */,
 				03F578662967DAE6003A815F /* zh-Hans */,
 				03408EBC296B5A25001CBCC4 /* fi */,
+				03BFB2FE296C684C005E849D /* it */,
 			);
 			name = InfoPlist.strings;
 			path = ..;
