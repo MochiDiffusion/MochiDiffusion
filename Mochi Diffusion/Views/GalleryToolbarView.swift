@@ -50,8 +50,8 @@ struct GalleryToolbarView: View {
                 .popover(isPresented: self.$isStatusPopoverShown, arrowEdge: .bottom) {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Loading Model...")
-                        Text("This wont take long",
-                             comment: "Text explaining that loading the model wont take long")
+                        Text("This may take up to 2 minutes if a model is used for the first time",
+                             comment: "Help text for the loading model message")
                             .foregroundColor(.secondary)
                     }
                     .padding()
