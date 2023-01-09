@@ -35,7 +35,7 @@ Download the latest version from the [releases](https://github.com/godly-devotio
 
 ## Running
 
-When using a model for the very first time, it may take up to 30 seconds for the Neural Engine to compile a cached version. Afterwards, subsequent generations will be much faster.
+When using a model for the very first time, it may take up to 2 minutes for the Neural Engine to compile a cached version. Afterwards, subsequent generations will be much faster.
 
 ## Compute Unit
 
