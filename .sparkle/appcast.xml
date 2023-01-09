@@ -17,6 +17,7 @@
         length="66892958"
         type="application/octet-stream" />
       <description><![CDATA[
+      <p><strong>I&#39;ve figured out how to convert the models to export 512x768 sized images. I will add these new models to the existing list of models I&#39;ve converted <a href="https://huggingface.co/godly-devotion">here</a> under the folder <code>original</code>. Note that it only supports running with <code>CPU &amp; GPU</code> compute unit. See <a href="https://github.com/godly-devotion/MochiDiffusion/wiki/How-to-convert-ckpt-files-to-Core-ML">the wiki</a> for details on the updated steps to create these new models.</strong></p>
       <ul>
       <li>New Translations<ul>
       <li>Simplified Chinese (@Jerry23011)</li>
