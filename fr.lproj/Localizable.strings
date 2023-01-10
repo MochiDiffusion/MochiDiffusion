@@ -1,0 +1,178 @@
+/* No comment provided by engineer. */
+"^[%lld images](inflect: true)" = "^[%lld images](inflect: true)";
+
+/* Option to use all CPU, GPU, & Neural Engine for compute unit */
+"All" = "Tout";
+
+/* Button to apply the selected settings */
+"Apply" = "Appliquer";
+
+/* Help text for ML Compute Unit option under Settings */
+"Based on the option selected the correct model version will need to be used." = "Selon l'option sélectionnée, un modèle compatible devra être utilisé.";
+
+/* Text displaying the current batch progress and count */
+"Batch %lld of %lld" = "Lot %lld de %lld";
+
+/* No comment provided by engineer. */
+"Check for Updates…" = "Rechercher des mises à jour…";
+
+/* No comment provided by engineer. */
+"Convert all images to High Resolution (this will use more memory)" = "Convertir toutes les images en haute résolution (cela utilisera plus de mémoire)";
+
+/* Right click menu option to convert the image to high resolution */
+"Convert to High Resolution" = "Convertir en haute résolution";
+
+/* Button to copy the currently selected image's generation options to the clipboard */
+"Copy" = "Copier";
+
+/* No comment provided by engineer. */
+"Copy Option to Sidebar" = "Copier l’option dans la barre latérale";
+
+/* Button to copy the currently selected image's generation options to the prompt input sidebar */
+"Copy Options to Sidebar" = "Copier toutes les options vers la barre latérale";
+
+/* No comment provided by engineer. */
+"CPU & GPU" = "Processeur & carte graphique";
+
+/* No comment provided by engineer. */
+"CPU & GPU may be faster on M1 Max, Ultra and later but will use more memory." = "L'option processeur & carte graphique peut être plus rapide sur M1 Max, Ultra et ultérieurs mais utilisera plus de mémoire.";
+
+/* No comment provided by engineer. */
+"CPU & Neural Engine" = "Processeur & moteur neuronal";
+
+/* No comment provided by engineer. */
+"CPU & Neural Engine provides a good balance between speed and low memory usage." = "L'option processeur et & moteur neuronal fournit un bon équilibre entre vitesse et faible utilisation de la mémoire.";
+
+/* No comment provided by engineer. */
+"Date" = "Date";
+
+/* No comment provided by engineer. */
+"Download Models" = "Télécharger des modèles";
+
+/* No comment provided by engineer. */
+"Exclude from Image" = "Exclure de l'image";
+
+/* Label for negative prompt text field */
+"Exclude from Image:" = "Exclure de l'image :";
+
+/* Button to generate image */
+"Generate" = "Générer";
+
+/* No comment provided by engineer. */
+"Guidance Scale" = "Echelle de guidage";
+
+/* Label for Guidance Scale slider with value */
+"Guidance Scale: %@" = "Échelle de guidage : %@";
+
+/* Label for toggle to auto convert generated images to high resolution */
+"HD" = "HD";
+
+/* Label for image height picker */
+"Height:" = "Hauteur:";
+
+/* No comment provided by engineer. */
+"Image Index" = "Index de l'image";
+
+/* No comment provided by engineer. */
+"Images in a batch are generated at the same time and require more memory.\n^[%lld images](inflect: true) will be generated in total." = "Les images dans un lot sont générées en même temps et nécessitent plus de mémoire.\n^[%lld images](inflect: true) seront générées au total.";
+
+/* No comment provided by engineer. */
+"Images per Batch: %lld" = "Images par lot : %lld";
+
+/* No comment provided by engineer. */
+"Include in Image" = "Inclure dans l'image";
+
+/* Label for prompt text field */
+"Include in Image:" = "Inclure dans l'Image:";
+
+/* No comment provided by engineer. */
+"Loading Model..." = "Chargement du modèle...";
+
+/* No comment provided by engineer. */
+"ML Compute Unit:" = "Mode de calcul :";
+
+/* No comment provided by engineer. */
+"Model" = "Modèle";
+
+/* Label for Model picker */
+"Model:" = "Modèle :";
+
+/* Placeholder text for image inspector */
+"No Info" = "Aucune Information";
+
+/* No comment provided by engineer. */
+"Number of Batches:" = "Nombre de lots :";
+
+/* No comment provided by engineer. */
+"Open in Finder" = "Afficher dans le Finder";
+
+/* No comment provided by engineer. */
+"random" = "aléatoire";
+
+/* Help text for Reduce Memory Usage option */
+"Reduce memory usage further at the cost of speed." = "Réduire davantage l'utilisation de la mémoire en ralentissant le calcul.";
+
+/* No comment provided by engineer. */
+"Reduce Memory Usage:" = "Réduire l'utilisation de la mémoire :";
+
+/* No comment provided by engineer. */
+"Release Notes" = "Notes de version";
+
+/* Right click menu option to remove image from the gallery */
+"Remove" = "Supprimer";
+
+/* File menu option to show the save image dialog
+Right click menu option to show the save image dialog */
+"Save As..." = "Enregistrer sous...";
+
+/* No comment provided by engineer. */
+"Scheduler" = "Planificateur";
+
+/* Label for Scheduler picker */
+"Scheduler:" = "Planificateur :";
+
+/* No comment provided by engineer. */
+"Search" = "Rechercher";
+
+/* Window title bar label displaying the searched text */
+"Searching: %@" = "Recherche en cours: %@";
+
+/* No comment provided by engineer. */
+"Seed" = "Graine";
+
+/* Label for Seed text field */
+"Seed (0 for random):" = "Graine (0 pour aléatoire) :";
+
+/* No comment provided by engineer. */
+"Share..." = "Partager...";
+
+/* No comment provided by engineer. */
+"Size" = "Taille";
+
+/* Text displaying the current step progress and count */
+"Step %lld of %lld" = "Étape %lld de %lld";
+
+/* No comment provided by engineer. */
+"Steps" = "Étapes";
+
+/* Label for Steps slider with value */
+"Steps: %lld" = "Étapes : %lld";
+
+/* No comment provided by engineer. */
+"Stop Generation" = "Arrêter la génération";
+
+/* No comment provided by engineer. */
+"Support Me ♥" = "Soutenez-moi ♥";
+
+/* Help text for the loading model message */
+"This may take up to 2 minutes if a model is used for the first time" = "Ceci peut prendre jusqu'à 2 minutes si un modèle est utilisé pour la première fois";
+
+/* No comment provided by engineer. */
+"Website" = "Site Web";
+
+/* Label for image width picker */
+"Width:" = "Largeur :";
+
+/* Label for changing the working directory */
+"Working Directory:" = "Dossier de travail :";
+

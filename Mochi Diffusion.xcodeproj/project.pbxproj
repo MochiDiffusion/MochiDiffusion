@@ -106,6 +106,8 @@
 		03BFB2FE296C684C005E849D /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		03BFB2FF296C684C005E849D /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/Localizable.strings; sourceTree = "<group>"; };
 		03D280F1294FD60E00C7D184 /* PromptView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptView.swift; sourceTree = "<group>"; };
+		03D3EFD9296DE647000ABA61 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		03D3EFDA296DE647000ABA61 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		03D43B7729660A1300604911 /* GalleryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryView.swift; sourceTree = "<group>"; };
 		03D43B7929660A2600604911 /* GalleryItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryItemView.swift; sourceTree = "<group>"; };
 		03E075782968A153003488F9 /* CircularProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircularProgressView.swift; sourceTree = "<group>"; };
@@ -521,6 +523,7 @@
 				03F578682967DAE6003A815F /* zh-Hans */,
 				03408EBD296B5A25001CBCC4 /* fi */,
 				03BFB2FF296C684C005E849D /* it */,
+				03D3EFDA296DE647000ABA61 /* fr */,
 			);
 			name = Localizable.strings;
 			path = ..;
@@ -535,6 +538,7 @@
 				03F578662967DAE6003A815F /* zh-Hans */,
 				03408EBC296B5A25001CBCC4 /* fi */,
 				03BFB2FE296C684C005E849D /* it */,
+				03D3EFD9296DE647000ABA61 /* fr */,
 			);
 			name = InfoPlist.strings;
 			path = ..;
