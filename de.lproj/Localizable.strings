@@ -164,8 +164,8 @@ Right click menu option to show the save image dialog */
 /* No comment provided by engineer. */
 "Support Me ♥" = "Unterstütze mich ♥";
 
-/* Text explaining that loading the model wont take long */
-"This wont take long" = "Das dauert nicht lange";
+/* Help text for the loading model message */
+"This may take up to 2 minutes if a model is used for the first time" = "Dies kann bis zu 2 Minuten dauern, wenn ein Modell zum ersten Mal verwendet wird";
 
 /* No comment provided by engineer. */
 "Website" = "Webseite";
