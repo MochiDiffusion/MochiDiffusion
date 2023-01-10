@@ -164,8 +164,8 @@ Right click menu option to show the save image dialog */
 /* No comment provided by engineer. */
 "Support Me ♥" = "기부 ♥";
 
-/* Text explaining that loading the model wont take long */
-"This wont take long" = "잠시만 기다려주세요.";
+/* Help text for the loading model message */
+"This may take up to 2 minutes if a model is used for the first time" = "모델을 처음 사용하는 경우 최대 2분 정도 걸릴 수 있습니다.";
 
 /* No comment provided by engineer. */
 "Website" = "웹사이트";
