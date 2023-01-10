@@ -7,10 +7,10 @@
 /* Button to apply the selected settings */
 "Apply" = "应用";
 
-/* No comment provided by engineer. */
+/* Help text for ML Compute Unit option under Settings */
 "Based on the option selected the correct model version will need to be used." = "不同的计算单元需要搭配使用正确的模型";
 
-/* Batch progress text showing current batch progress and total batches selected */
+/* Text displaying the current batch progress and count */
 "Batch %lld of %lld" = "样本 %lld / %lld";
 
 /* No comment provided by engineer. */
@@ -63,6 +63,9 @@
 
 /* Label for Guidance Scale slider with value */
 "Guidance Scale: %@" = "关键词权重: %@";
+
+/* Label for toggle to auto convert generated images to high resolution */
+"HD" = "HD";
 
 /* Label for image height picker */
 "Height:" = "高度:";
@@ -131,7 +134,7 @@ Right click menu option to show the save image dialog */
 /* No comment provided by engineer. */
 "Search" = "搜索";
 
-/* No comment provided by engineer. */
+/* Window title bar label displaying the searched text */
 "Searching: %@" = "搜索中: %@";
 
 /* No comment provided by engineer. */
@@ -146,7 +149,7 @@ Right click menu option to show the save image dialog */
 /* No comment provided by engineer. */
 "Size" = "大小";
 
-/* Step progress text showing current step progress and total steps selected */
+/* Text displaying the current step progress and count */
 "Step %lld of %lld" = "迭代步数 %lld / %lld";
 
 /* No comment provided by engineer. */
@@ -161,8 +164,8 @@ Right click menu option to show the save image dialog */
 /* No comment provided by engineer. */
 "Support Me ♥" = "支持我 ♥";
 
-/* Text explaining that loading the model wont take long */
-"This wont take long" = "即将完成";
+/* Help text for the loading model message */
+"This may take up to 2 minutes if a model is used for the first time" = "如果这是首次载入模型，则需要约2分钟的时间";
 
 /* No comment provided by engineer. */
 "Website" = "网站";

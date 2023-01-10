@@ -1,3 +1,9 @@
+/* Bundle display name */
+"CFBundleDisplayName" = "Mochi Diffusion";
+
+/* Bundle name */
+"CFBundleName" = "Mochi Diffusion";
+
 /* Copyright (human-readable) */
 "NSHumanReadableCopyright" = "作者 Joshua Park";
 
