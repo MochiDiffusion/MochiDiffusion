@@ -35,7 +35,7 @@
 
 ## 运行
 
-在初次运行一个模型时, 神经网络引擎可能需要约30秒编译一个缓存版本，后续运行速度会显著提高。
+在初次运行模型时, 神经网络引擎可能需要约2分钟编译缓存，但后续运行速度会显著提高。
 
 ## 计算单元
 
@@ -55,7 +55,7 @@
 1. [转换](https://github.com/apple/ml-stable-diffusion#-converting-models-to-core-ml) 或下载 Core ML 模型
     - `split_einsum` 版本适用于包括神经网络引擎在内的所有计算单元
     - `original` 版本仅适用于 `CPU 和 GPU`
-2. 本应用会在默认将工作目录创建在 文稿 文件夹中，但在应用设置中可以自定义其路径。
+2. 本应用会默认将工作目录创建在 文稿 文件夹中，但在应用设置中可以自定义其路径。
 3. 在工作目录中，你可以创建一个文件夹，以自己想在应用内显示的名字为其重命名，再将转换好的模型放到文件夹中
 4. 你的文件夹路径应该像这样: `~/文稿/MochiDiffusion/models/[Model Folder Name]/[Model's Files]`
 
@@ -73,11 +73,11 @@
 
 Mochi Diffusion 欢迎贡献者，不管是修复bug，新增代码，还是完善翻译。
 
-- 如果你找到一个bug，对现有功能有意见和想法，或者想要一个新功能，请先 [在这里搜索你的问题](https://github.com/godly-devotion/MochiDiffusion/discussions) 以避免重复。如果你没看到和你一样的问题，请 [发起一个新的讨论](https://github.com/godly-devotion/MochiDiffusion/discussions/new)。
+- 如果你找到一个bug，对现有功能有意见和想法，或者想要一个新功能，请先在这里 [搜索你的问题](https://github.com/godly-devotion/MochiDiffusion/discussions) 以避免重复。如果你没看到和你一样的问题，请 [发起一个新的讨论](https://github.com/godly-devotion/MochiDiffusion/discussions/new)。
 
 - 如果你想贡献代码，请 [创建拉取请求](https://github.com/godly-devotion/MochiDiffusion/pulls) 或 [发起一个新的讨论](https://github.com/godly-devotion/MochiDiffusion/discussions) 来探讨。
 
-- 如果你想对 Mochi Diffusion 贡献翻译，请 [发起一个讨论](https://github.com/godly-devotion/MochiDiffusion/discussions)，我会提供所需的文件。
+- 如果你想对 Mochi Diffusion 贡献翻译，请到项目的 [Crowdin 页面](https://github.com/godly-devotion/MochiDiffusion/discussions)，你可以免费创建一个账户然后开始翻译。
 
 ## 致谢
 
