@@ -1,0 +1,178 @@
+/* No comment provided by engineer. */
+"^[%lld images](inflect: true)" = "^[%lld imagens](inflect: true)";
+
+/* Option to use all CPU, GPU, & Neural Engine for compute unit */
+"All" = "Todos";
+
+/* Button to apply the selected settings */
+"Apply" = "Aplicar";
+
+/* Help text for ML Compute Unit option under Settings */
+"Based on the option selected the correct model version will need to be used." = "Com base na opção selecionada, a versão correta do modelo precisará ser usada.";
+
+/* Text displaying the current batch progress and count */
+"Batch %lld of %lld" = "Lote %lld de %lld";
+
+/* No comment provided by engineer. */
+"Check for Updates…" = "Buscar atualizações…";
+
+/* No comment provided by engineer. */
+"Convert all images to High Resolution (this will use more memory)" = "Converter todas as imagens em alta resolução (isso usará mais memória)";
+
+/* Right click menu option to convert the image to high resolution */
+"Convert to High Resolution" = "Converter em alta resolução";
+
+/* Button to copy the currently selected image's generation options to the clipboard */
+"Copy" = "Copiar";
+
+/* No comment provided by engineer. */
+"Copy Option to Sidebar" = "Copiar configuração para Barra Lateral";
+
+/* Button to copy the currently selected image's generation options to the prompt input sidebar */
+"Copy Options to Sidebar" = "Copiar configurações para Barra Lateral";
+
+/* No comment provided by engineer. */
+"CPU & GPU" = "CPU & GPU";
+
+/* No comment provided by engineer. */
+"CPU & GPU may be faster on M1 Max, Ultra and later but will use more memory." = "CPU & GPU podem ser mais rápidas no M1 Max, Ultra e posteriores, mas usarão mais memória.";
+
+/* No comment provided by engineer. */
+"CPU & Neural Engine" = "CPU & Neural Engine";
+
+/* No comment provided by engineer. */
+"CPU & Neural Engine provides a good balance between speed and low memory usage." = "CPU & Neural Engine fornecem um bom equilíbrio entre velocidade e baixo uso de memória.";
+
+/* No comment provided by engineer. */
+"Date" = "Data";
+
+/* No comment provided by engineer. */
+"Download Models" = "Baixar Modelos";
+
+/* No comment provided by engineer. */
+"Exclude from Image" = "Remover da imagem";
+
+/* Label for negative prompt text field */
+"Exclude from Image:" = "Remover da imagem:";
+
+/* Button to generate image */
+"Generate" = "Gerar";
+
+/* No comment provided by engineer. */
+"Guidance Scale" = "Escala de Orientação";
+
+/* Label for Guidance Scale slider with value */
+"Guidance Scale: %@" = "Escala de Orientação: %@";
+
+/* Label for toggle to auto convert generated images to high resolution */
+"HD" = "HD";
+
+/* Label for image height picker */
+"Height:" = "Altura:";
+
+/* No comment provided by engineer. */
+"Image Index" = "Índice da imagem";
+
+/* No comment provided by engineer. */
+"Images in a batch are generated at the same time and require more memory.\n^[%lld images](inflect: true) will be generated in total." = "As imagens em um lote são geradas ao mesmo tempo e requerem mais memória.\n^[%lld imagens](inflect: true) serão geradas no total.";
+
+/* No comment provided by engineer. */
+"Images per Batch: %lld" = "Imagens por lote: %lld";
+
+/* No comment provided by engineer. */
+"Include in Image" = "Incluir na imagem";
+
+/* Label for prompt text field */
+"Include in Image:" = "Incluir nas imagens:";
+
+/* No comment provided by engineer. */
+"Loading Model..." = "Carregando modelos...";
+
+/* No comment provided by engineer. */
+"ML Compute Unit:" = "Unidade de computação ML:";
+
+/* No comment provided by engineer. */
+"Model" = "Modelo";
+
+/* Label for Model picker */
+"Model:" = "Modelo:";
+
+/* Placeholder text for image inspector */
+"No Info" = "Sem informações";
+
+/* No comment provided by engineer. */
+"Number of Batches:" = "Número de lotes:";
+
+/* No comment provided by engineer. */
+"Open in Finder" = "Mostrar no Finder";
+
+/* No comment provided by engineer. */
+"random" = "randômico";
+
+/* Help text for Reduce Memory Usage option */
+"Reduce memory usage further at the cost of speed." = "Reduzir o uso de memória ainda mais ao custo da velocidade.";
+
+/* No comment provided by engineer. */
+"Reduce Memory Usage:" = "Reduzir uso de memória:";
+
+/* No comment provided by engineer. */
+"Release Notes" = "Notas de Lançamento";
+
+/* Right click menu option to remove image from the gallery */
+"Remove" = "Remover";
+
+/* File menu option to show the save image dialog
+Right click menu option to show the save image dialog */
+"Save As..." = "Salvar como...";
+
+/* No comment provided by engineer. */
+"Scheduler" = "Programador";
+
+/* Label for Scheduler picker */
+"Scheduler:" = "Programador:";
+
+/* No comment provided by engineer. */
+"Search" = "Buscar";
+
+/* Window title bar label displaying the searched text */
+"Searching: %@" = "Buscando: %@";
+
+/* No comment provided by engineer. */
+"Seed" = "Semente";
+
+/* Label for Seed text field */
+"Seed (0 for random):" = "Semente (0 para aleatório):";
+
+/* No comment provided by engineer. */
+"Share..." = "Compartilhar...";
+
+/* No comment provided by engineer. */
+"Size" = "Tamanho";
+
+/* Text displaying the current step progress and count */
+"Step %lld of %lld" = "Passo %lld de %lld";
+
+/* No comment provided by engineer. */
+"Steps" = "Passos";
+
+/* Label for Steps slider with value */
+"Steps: %lld" = "Passos: %lld";
+
+/* No comment provided by engineer. */
+"Stop Generation" = "Parar criação";
+
+/* No comment provided by engineer. */
+"Support Me ♥" = "Me apoie ♥";
+
+/* Help text for the loading model message */
+"This may take up to 2 minutes if a model is used for the first time" = "Isto pode levar até 2 minutos se um modelo é usado pela primeira vez";
+
+/* No comment provided by engineer. */
+"Website" = "Site";
+
+/* Label for image width picker */
+"Width:" = "Largura:";
+
+/* Label for changing the working directory */
+"Working Directory:" = "Pasta de trabalho:";
+
