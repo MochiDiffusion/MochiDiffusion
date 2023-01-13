@@ -5,6 +5,36 @@
     <language>en</language>
 
     <item>
+      <title>v2.0.2</title>
+      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <sparkle:version>2.0.2</sparkle:version>
+      <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
+      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <pubDate>Fri, 13 Jan 2023 03:20:18 +0000</pubDate>
+      <enclosure
+        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v2.0.2/MochiDiffusion_v2.0.2.dmg"
+        sparkle:edSignature="96Q4CX3LseUTlxvucjOXcbkW6FS1K/V/vMxsWcI+Bz+4UVinDPEEi1TkUuYYnZZgPifobd1VqtNWnuFDL1DBDQ=="\
+        length="66904952"
+        type="application/octet-stream" />
+      <description><![CDATA[
+      <ul>
+      <li>New Translations<ul>
+      <li>Brazilian Portuguese (thiagomsoares)</li>
+      <li>French (Draxredd)</li>
+      <li>Italian (Zabriskije)</li>
+      </ul>
+      </li>
+      <li>Fixed converting non-square images to high resolution</li>
+      <li>Clicking Apply button in Settings closes the window</li>
+      </ul>
+      <p>Can you speak another language? Visit the <a href="https://crowdin.com/project/mochi-diffusion">project page on Crowdin</a>!</p>
+      <p>Special thanks to the following for supporting me and making this app possible 🎉
+      <strong>serovar</strong>, <strong>orange-wedge</strong>, <strong>julien-c</strong>, <strong>Quick-Eyed-Sky</strong>, <strong>BirdSesame</strong>, <strong>Da-mi-en</strong>, <strong>eidermar</strong>, <strong>Draxredd</strong>, &amp; anonymous donors</p>
+      ]]>
+      </description>
+    </item>
+
+    <item>
       <title>v2.0.1</title>
       <link>https://github.com/godly-devotion/MochiDiffusion</link>
       <sparkle:version>2.0.1</sparkle:version>
