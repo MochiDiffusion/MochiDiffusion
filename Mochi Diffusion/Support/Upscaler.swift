@@ -27,7 +27,7 @@ class Upscaler {
             }
         }
         
-        self.request.imageCropAndScaleOption = .scaleFit
+        self.request.imageCropAndScaleOption = .scaleFill // output image's ratio will be fixed later
         self.request.usesCPUOnly = false
     }
     
@@ -37,7 +37,12 @@ class Upscaler {
         
         try? handler.perform(requests)
         guard let observation = self.request.results?.first as? VNPixelBufferObservation else { return nil }
-        return self.convertPixelBufferToCGImage(pixelBuffer: observation.pixelBuffer)
+        let upscaledWidth = cgImage.width * 4
+        let upscaledHeight = cgImage.height * 4
+        guard let pixelBuffer = resizePixelBuffer(observation.pixelBuffer,
+                                                  width: upscaledWidth,
+                                                  height: upscaledHeight) else { return nil }
+        return self.convertPixelBufferToCGImage(pixelBuffer: pixelBuffer)
     }
     
     private func convertPixelBufferToCGImage(pixelBuffer: CVPixelBuffer) -> CGImage? {
