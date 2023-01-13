@@ -87,7 +87,10 @@ struct SettingsView: View {
             HStack {
                 Spacer()
                 
-                Button(action: store.loadModels) {
+                Button(action: {
+                    store.loadModels()
+                    NSApplication.shared.keyWindow?.close()
+                }) {
                     Text("Apply",
                          comment: "Button to apply the selected settings")
                 }
