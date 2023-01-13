@@ -11,14 +11,18 @@ struct HelpCommands: Commands {
     var body: some Commands {
         CommandGroup(replacing: .help) {
             Section {
-                Link("Release Notes", destination: URL(string: "https://github.com/godly-devotion/MochiDiffusion/releases")!)
-                Link("Website", destination: URL(string: "https://github.com/godly-devotion/MochiDiffusion")!)
+                Link("Release Notes",
+                     destination: URL(string: "https://github.com/godly-devotion/MochiDiffusion/releases")!)
+                Link("Website",
+                     destination: URL(string: "https://github.com/godly-devotion/MochiDiffusion")!)
             }
             Section {
-                Link("Download Models", destination: URL(string: "https://huggingface.co/godly-devotion")!)
+                Link("Download Models",
+                     destination: URL(string: "https://huggingface.co/godly-devotion")!)
             }
             Section {
-                Link("Support Me ♥", destination: URL(string: "https://liberapay.com/joshuapark/")!)
+                Link("Support Me ♥",
+                     destination: URL(string: "https://liberapay.com/joshuapark/")!)
             }
         }
     }

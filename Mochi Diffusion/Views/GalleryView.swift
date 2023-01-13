@@ -4,6 +4,7 @@
 //
 //  Created by Joshua Park on 1/4/23.
 //
+// swiftlint:disable line_length
 
 import SwiftUI
 import QuickLook
@@ -11,32 +12,36 @@ import QuickLook
 struct GalleryView: View {
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var store: Store
-    @State private var quicklookImage: URL? = nil
+    @State private var quicklookImage: URL?
     private var gridColumns = [GridItem(.adaptive(minimum: 200), spacing: 16)]
-    
+
     var body: some View {
         VStack(spacing: 0) {
             if case let .error(msg) = store.mainViewStatus {
                 ErrorBanner(errorMessage: msg)
             }
-            
+
             if store.images.count > 0 {
                 ScrollView {
                     LazyVGrid(columns: gridColumns, spacing: 16) {
-                        ForEach(Array(searchResults.enumerated()), id: \.offset) { i, sdi in
+                        ForEach(Array(searchResults.enumerated()), id: \.offset) { index, sdi in
                             GeometryReader { geo in
-                                GalleryItemView(size: geo.size.width, sdi: sdi, i: i)
+                                GalleryItemView(width: geo.size.width, height: geo.size.height, sdi: sdi, index: index)
                             }
                             .aspectRatio(1, contentMode: .fit)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 2)
-                                    .stroke(i == store.selectedImageIndex ? Color.accentColor : Color(nsColor: .controlBackgroundColor), lineWidth: 4)
+                                    .stroke(
+                                        index == store.selectedImageIndex ?
+                                            Color.accentColor :
+                                            Color(nsColor: .controlBackgroundColor),
+                                        lineWidth: 4)
                             )
                             .gesture(TapGesture(count: 2).onEnded {
                                 quicklookImage = try? sdi.image?.asNSImage().temporaryFileURL()
                             })
                             .simultaneousGesture(TapGesture().onEnded {
-                                store.selectImage(index: i)
+                                store.selectImage(index: index)
                                 // If quicklook is open show selected image on single click
                                 if quicklookImage != nil {
                                     quicklookImage = try? sdi.image?.asNSImage().temporaryFileURL()
@@ -48,7 +53,9 @@ struct GalleryView: View {
                                         Text("Copy Options to Sidebar",
                                              comment: "Button to copy the currently selected image's generation options to the prompt input sidebar")
                                     }
-                                    Button(action: { store.upscaleImage(sdImage: sdi) }) {
+                                    Button {
+                                        store.upscaleImage(sdImage: sdi)
+                                    } label: {
                                         Text("Convert to High Resolution",
                                              comment: "Right click menu option to convert the image to high resolution")
                                     }
@@ -58,7 +65,9 @@ struct GalleryView: View {
                                     }
                                 }
                                 Section {
-                                    Button(action: { store.removeImage(index: i) }) {
+                                    Button {
+                                        store.removeImage(index: index)
+                                    } label: {
                                         Text("Remove",
                                              comment: "Right click menu option to remove image from the gallery")
                                     }
@@ -69,8 +78,7 @@ struct GalleryView: View {
                     .quickLookPreview($quicklookImage)
                     .padding()
                 }
-            }
-            else {
+            } else {
                 Color.clear
             }
         }
@@ -89,7 +97,7 @@ struct GalleryView: View {
             GalleryToolbarView()
         }
     }
-    
+
     var searchResults: [SDImage] {
         if $store.searchText.wrappedValue.isEmpty {
             return store.images

@@ -17,8 +17,8 @@ struct NumberOfBatchesView: View {
     var body: some View {
         Text("Number of Batches:")
         Picker("", selection: $store.numberOfBatches) {
-            ForEach(imageCountValues, id: \.self) { s in
-                Text(String(s)).tag(s)
+            ForEach(imageCountValues, id: \.self) { number in
+                Text(String(number)).tag(number)
             }
         }
         .labelsHidden()

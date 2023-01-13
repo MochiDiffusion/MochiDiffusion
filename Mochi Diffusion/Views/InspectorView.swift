@@ -4,6 +4,7 @@
 //
 //  Created by Joshua Park on 12/19/22.
 //
+// swiftlint:disable line_length
 
 import SwiftUI
 import StableDiffusion
@@ -13,7 +14,7 @@ struct InspectorView: View {
 
     var body: some View {
         VStack(alignment: .center, spacing: 0) {
-            if let sdi = store.getSelectedImage(), let img = sdi.image {
+            if let sdi = store.getSelectedImage, let img = sdi.image {
                 Image(img, scale: 1, label: Text(verbatim: String(sdi.prompt)))
                     .resizable()
                     .aspectRatio(contentMode: .fit)
@@ -23,7 +24,7 @@ struct InspectorView: View {
                             .stroke(.secondary, lineWidth: 4)
                     )
                     .padding()
-                
+
                 ScrollView(.vertical) {
                     Grid(alignment: .leading, horizontalSpacing: 4) {
                         InfoGridRow(
@@ -75,25 +76,24 @@ struct InspectorView: View {
                     }
                 }
                 .padding([.horizontal])
-                
+
                 HStack(alignment: .center) {
                     Button(action: store.copyToPrompt) {
                         Text("Copy Options to Sidebar",
                              comment: "Button to copy the currently selected image's generation options to the prompt input sidebar")
                     }
-                    Button(action: {
+                    Button {
                         let info = getHumanReadableInfo(sdi: sdi)
-                        let pb = NSPasteboard.general
-                        pb.declareTypes([.string], owner: nil)
-                        pb.setString(info, forType: .string)
-                    }) {
+                        let pasteboard = NSPasteboard.general
+                        pasteboard.declareTypes([.string], owner: nil)
+                        pasteboard.setString(info, forType: .string)
+                    } label: {
                         Text("Copy",
                              comment: "Button to copy the currently selected image's generation options to the clipboard")
                     }
                 }
                 .padding()
-            }
-            else {
+            } else {
                 Text("No Info",
                      comment: "Placeholder text for image inspector")
                     .font(.title2)
@@ -107,8 +107,8 @@ struct InfoGridRow: View {
     var type: LocalizedStringKey
     var text: String
     var showCopyToPromptOption: Bool
-    var callback: (() -> ())? = nil
-    
+    var callback: (() -> Void)?
+
     var body: some View {
         GridRow {
             Text("")
@@ -117,20 +117,19 @@ struct InfoGridRow: View {
         }
         GridRow {
             if showCopyToPromptOption {
-                Button(action: {
+                Button {
                     guard let callbackFn = callback else { return }
                     callbackFn()
-                }) {
+                } label: {
                     Image(systemName: "arrow.left.circle.fill")
                         .foregroundColor(Color.secondary)
                 }
                 .buttonStyle(PlainButtonStyle())
                 .help("Copy Option to Sidebar")
-            }
-            else {
+            } else {
                 Text("")
             }
-            
+
             Text(text)
                 .selectableTextFormat()
         }

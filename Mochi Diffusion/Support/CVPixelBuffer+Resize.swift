@@ -19,6 +19,7 @@
   FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
   IN THE SOFTWARE.
 */
+// swiftlint:disable function_parameter_count
 
 import Foundation
 import Accelerate
@@ -31,15 +32,16 @@ import CoreImage
   pixel buffers. The dimensions of destination pixel buffer should be at least
   `scaleWidth` x `scaleHeight` pixels.
 */
-public func resizePixelBuffer(from srcPixelBuffer: CVPixelBuffer,
-                              to dstPixelBuffer: CVPixelBuffer,
-                              cropX: Int,
-                              cropY: Int,
-                              cropWidth: Int,
-                              cropHeight: Int,
-                              scaleWidth: Int,
-                              scaleHeight: Int) {
-
+public func resizePixelBuffer(
+  from srcPixelBuffer: CVPixelBuffer,
+  to dstPixelBuffer: CVPixelBuffer,
+  cropX: Int,
+  cropY: Int,
+  cropWidth: Int,
+  cropHeight: Int,
+  scaleWidth: Int,
+  scaleHeight: Int
+) {
   assert(CVPixelBufferGetWidth(dstPixelBuffer) >= scaleWidth)
   assert(CVPixelBufferGetHeight(dstPixelBuffer) >= scaleHeight)
 
@@ -88,14 +90,15 @@ public func resizePixelBuffer(from srcPixelBuffer: CVPixelBuffer,
 
   This allocates a new destination pixel buffer that is Metal-compatible.
 */
-public func resizePixelBuffer(_ srcPixelBuffer: CVPixelBuffer,
-                              cropX: Int,
-                              cropY: Int,
-                              cropWidth: Int,
-                              cropHeight: Int,
-                              scaleWidth: Int,
-                              scaleHeight: Int) -> CVPixelBuffer? {
-
+public func resizePixelBuffer(
+  _ srcPixelBuffer: CVPixelBuffer,
+  cropX: Int,
+  cropY: Int,
+  cropWidth: Int,
+  cropHeight: Int,
+  scaleWidth: Int,
+  scaleHeight: Int
+) -> CVPixelBuffer? {
   let pixelFormat = CVPixelBufferGetPixelFormatType(srcPixelBuffer)
   let dstPixelBuffer = createPixelBuffer(width: scaleWidth, height: scaleHeight,
                                          pixelFormat: pixelFormat)
@@ -117,8 +120,11 @@ public func resizePixelBuffer(_ srcPixelBuffer: CVPixelBuffer,
 
   This allocates a new destination pixel buffer that is Metal-compatible.
 */
-public func resizePixelBuffer(_ pixelBuffer: CVPixelBuffer,
-                              width: Int, height: Int) -> CVPixelBuffer? {
+public func resizePixelBuffer(
+  _ pixelBuffer: CVPixelBuffer,
+  width: Int,
+  height: Int
+) -> CVPixelBuffer? {
   return resizePixelBuffer(pixelBuffer, cropX: 0, cropY: 0,
                            cropWidth: CVPixelBufferGetWidth(pixelBuffer),
                            cropHeight: CVPixelBufferGetHeight(pixelBuffer),

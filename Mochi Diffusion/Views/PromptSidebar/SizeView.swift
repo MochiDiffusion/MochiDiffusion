@@ -12,15 +12,15 @@ struct SizeView: View {
     private var imageSizes = [
         256, 320, 384, 448, 512, 576, 640, 704, 768
     ]
-    
+
     var body: some View {
         HStack {
             VStack(alignment: .leading) {
                 Text("Width:",
                      comment: "Label for image width picker")
                 Picker("", selection: $store.width) {
-                    ForEach(imageSizes, id: \.self) { s in
-                        Text(String(s)).tag(s)
+                    ForEach(imageSizes, id: \.self) { size in
+                        Text(String(size)).tag(size)
                     }
                 }
                 .labelsHidden()
@@ -29,8 +29,8 @@ struct SizeView: View {
                 Text("Height:",
                      comment: "Label for image height picker")
                 Picker("", selection: $store.height) {
-                    ForEach(imageSizes, id: \.self) { s in
-                        Text(String(s)).tag(s)
+                    ForEach(imageSizes, id: \.self) { size in
+                        Text(String(size)).tag(size)
                     }
                 }
                 .labelsHidden()

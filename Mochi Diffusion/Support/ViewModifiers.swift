@@ -11,7 +11,7 @@ extension Text {
     func helpTextFormat() -> some View {
         modifier(HelpTextFormat())
     }
-    
+
     func selectableTextFormat() -> some View {
         modifier(SelectableTextFormat())
     }

@@ -18,7 +18,11 @@ extension NSApplication {
 extension URL {
     func subDirectories() throws -> [URL] {
         guard hasDirectoryPath else { return [] }
-        return try FileManager.default.contentsOfDirectory(at: self, includingPropertiesForKeys: nil, options: [.skipsHiddenFiles]).filter(\.hasDirectoryPath)
+        return try FileManager.default.contentsOfDirectory(
+            at: self,
+            includingPropertiesForKeys: nil,
+            options: [.skipsHiddenFiles]
+        ).filter(\.hasDirectoryPath)
     }
 }
 
@@ -31,7 +35,7 @@ extension NSImage {
 
 extension NSImage: Transferable {
     private static var urlCache = [Int: URL]()
-    
+
     func temporaryFileURL() throws -> URL {
         if let cachedURL = NSImage.urlCache[self.hash] {
             return cachedURL
@@ -43,7 +47,7 @@ extension NSImage: Transferable {
         NSImage.urlCache[self.hash] = url
         return url
     }
-    
+
     public static var transferRepresentation: some TransferRepresentation {
         /// Allow dragging NSImage into Finder as a file.
         ProxyRepresentation<NSImage, URL>(exporting: { image in

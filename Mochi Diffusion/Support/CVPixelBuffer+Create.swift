@@ -23,7 +23,7 @@
 import Foundation
 import Accelerate
 
-fileprivate func metalCompatiblityAttributes() -> [String: Any] {
+private func metalCompatiblityAttributes() -> [String: Any] {
   let attributes: [String: Any] = [
     String(kCVPixelBufferMetalCompatibilityKey): true,
     String(kCVPixelBufferIOSurfacePropertiesKey): [
@@ -57,41 +57,6 @@ public func createPixelBuffer(width: Int, height: Int) -> CVPixelBuffer? {
   createPixelBuffer(width: width, height: height, pixelFormat: kCVPixelFormatType_32BGRA)
 }
 
-/**
-  Creates a pixel buffer of the specified width, height, and pixel format.
-
-  You probably shouldn't use this one!
-
-  - Note: The new CVPixelBuffer is *not* backed by an IOSurface and therefore
-    cannot be turned into a Metal texture.
-*/
-public func _createPixelBuffer(width: Int, height: Int, pixelFormat: OSType) -> CVPixelBuffer? {
-  let bytesPerRow = width * 4
-  guard let data = malloc(height * bytesPerRow) else {
-    print("Error: out of memory")
-    return nil
-  }
-
-  let releaseCallback: CVPixelBufferReleaseBytesCallback = { _, ptr in
-    if let ptr = ptr {
-      free(UnsafeMutableRawPointer(mutating: ptr))
-    }
-  }
-
-  var pixelBuffer: CVPixelBuffer?
-  let status = CVPixelBufferCreateWithBytes(nil, width, height,
-                                            pixelFormat, data,
-                                            bytesPerRow, releaseCallback,
-                                            nil, nil, &pixelBuffer)
-  if status != kCVReturnSuccess {
-    print("Error: could not create new pixel buffer")
-    free(data)
-    return nil
-  }
-
-  return pixelBuffer
-}
-
 public extension CVPixelBuffer {
   /**
     Copies a CVPixelBuffer to a new CVPixelBuffer that is compatible with Metal.
@@ -122,7 +87,7 @@ public extension CVPixelBuffer {
     var combinedAttributes: [String: Any] = [:]
 
     // Copy attachment attributes.
-    if let attachments = CVBufferGetAttachments(srcPixelBuffer, .shouldPropagate) as? [String: Any] {
+      if let attachments = CVBufferCopyAttachments(srcPixelBuffer, .shouldPropagate) as? [String: Any] {
       for (key, value) in attachments {
         combinedAttributes[key] = value
       }
@@ -155,9 +120,9 @@ public extension CVPixelBuffer {
         let srcBytesPerRow = CVPixelBufferGetBytesPerRowOfPlane(srcPixelBuffer, plane)
         let dstBytesPerRow = CVPixelBufferGetBytesPerRowOfPlane(dstPixelBuffer, plane)
 
-        for h in 0..<CVPixelBufferGetHeightOfPlane(srcPixelBuffer, plane) {
-          let srcPtr = srcAddr.advanced(by: h*srcBytesPerRow)
-          let dstPtr = dstAddr.advanced(by: h*dstBytesPerRow)
+        for height in 0..<CVPixelBufferGetHeightOfPlane(srcPixelBuffer, plane) {
+          let srcPtr = srcAddr.advanced(by: height*srcBytesPerRow)
+          let dstPtr = dstAddr.advanced(by: height*dstBytesPerRow)
           dstPtr.copyMemory(from: srcPtr, byteCount: srcBytesPerRow)
         }
       }

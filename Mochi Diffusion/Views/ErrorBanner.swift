@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ErrorBanner: View {
     var errorMessage: String
-    
+
     var body: some View {
         Text(errorMessage)
             .font(.headline)

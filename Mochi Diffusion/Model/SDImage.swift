@@ -40,16 +40,23 @@ struct SDImage: Identifiable {
         panel.title = "Save Image"
         panel.message = "Choose a folder and a name to store the image."
         panel.nameFieldLabel = "Image file name:"
-        panel.nameFieldStringValue = "\(String(prompt.prefix(70)).trimmingCharacters(in: .whitespacesAndNewlines)).\(seed).\(imageIndex).png"
+        panel.nameFieldStringValue =
+            "\(String(prompt.prefix(70)).trimmingCharacters(in: .whitespacesAndNewlines)).\(seed).\(imageIndex).png"
         let resp = panel.runModal()
         if resp != .OK {
             return
         }
-        
+
         guard let url = panel.url else { return }
         let ext = url.pathExtension.lowercased()
         guard let data = CFDataCreateMutable(nil, 0) else { return }
-        guard let destination = CGImageDestinationCreateWithData(data, (ext == "png" ? UTType.png.identifier : UTType.jpeg.identifier) as CFString, 1, nil) else { return }
+        guard let destination = CGImageDestinationCreateWithData(
+            data,
+            (ext == "png" ?
+                UTType.png.identifier :
+                UTType.jpeg.identifier) as CFString,
+             1,
+             nil) else { return }
         let iptc = [
             kCGImagePropertyIPTCOriginatingProgram: "Mochi Diffusion",
             kCGImagePropertyIPTCCaptionAbstract: metadata(),
@@ -58,18 +65,29 @@ struct SDImage: Identifiable {
         CGImageDestinationAddImage(destination, image, meta as CFDictionary)
         guard CGImageDestinationFinalize(destination) else { return }
         do {
-            // Try save image with metadata
             try (data as Data).write(to: url)
         } catch {
             NSLog("*** Error saving image file: \(error)")
         }
     }
-    
+
     private func metadata() -> String {
-        return title() + ", Model: \(model), Scheduler: \(scheduler), Seed: \(seed), Steps: \(steps), Guidance: \(guidanceScale), Index: \(imageIndex), Generator: Mochi Diffusion \(NSApplication.appVersion)"
+        return """
+        \(title()), \
+        Model: \(model), \
+        Scheduler: \(scheduler), \
+        Seed: \(seed), \
+        Steps: \(steps), \
+        Guidance: \(guidanceScale), \
+        Index: \(imageIndex), \
+        Generator: Mochi Diffusion \(NSApplication.appVersion)
+        """
     }
 
     private func title() -> String {
-        return "Prompt: \(prompt), Negative: \(negativePrompt)"
+        return """
+        Prompt: \(prompt), \
+        Negative: \(negativePrompt)
+        """
     }
 }

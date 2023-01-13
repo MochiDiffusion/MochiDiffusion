@@ -11,7 +11,7 @@ struct CircularProgressView: View {
     let progress: Double
     let color = Color.accentColor
     let lineWidth = 3.0
-    
+
     var body: some View {
         ZStack {
             Circle()
@@ -30,7 +30,6 @@ struct CircularProgressView: View {
                 )
                 .rotationEffect(.degrees(-90))
                 .animation(.easeOut, value: min(progress, 1.0))
-            
         }
     }
 }

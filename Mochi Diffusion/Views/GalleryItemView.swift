@@ -8,15 +8,16 @@
 import SwiftUI
 
 struct GalleryItemView: View {
-    let size: Double
+    let width: Double
+    let height: Double
     let sdi: SDImage
-    let i: Int
-    
+    let index: Int
+
     var body: some View {
         Image(sdi.image!, scale: 1, label: Text(verbatim: String(sdi.seed)))
             .resizable()
             .aspectRatio(contentMode: .fit)
             .padding(4)
-            .frame(width: size, height: size)
+            .frame(width: width, height: height)
     }
 }

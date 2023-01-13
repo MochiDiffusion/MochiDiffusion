@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SeedView: View {
     @EnvironmentObject var store: Store
-    
+
     var body: some View {
         Text("Seed (0 for random):",
              comment: "Label for Seed text field")

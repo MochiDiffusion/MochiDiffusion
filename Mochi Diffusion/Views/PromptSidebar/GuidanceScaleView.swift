@@ -10,7 +10,7 @@ import Sliders
 
 struct GuidanceScaleView: View {
     @EnvironmentObject var store: Store
-    
+
     var body: some View {
         Text("Guidance Scale: \(store.guidanceScale.formatted(.number.precision(.fractionLength(1))))",
              comment: "Label for Guidance Scale slider with value")

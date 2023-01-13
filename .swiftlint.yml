@@ -1,0 +1,4 @@
+disabled_rules:
+  - force_cast
+opt_in_rules:
+  - multiline_parameters

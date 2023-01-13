@@ -12,21 +12,21 @@ import Path
 
 class Downloader: NSObject, ObservableObject {
     private(set) var destination: URL
-    
+
     enum DownloadState {
         case notStarted
         case downloading(Double)
         case completed(URL)
         case failed(Error)
     }
-    
+
     private(set) lazy var downloadState: CurrentValueSubject<DownloadState, Never> = CurrentValueSubject(.notStarted)
     private var stateSubscriber: Cancellable?
-    
+
     init(from url: URL, to destination: URL) {
         self.destination = destination
         super.init()
-        
+
         // .background allows downloads to proceed in the background
         let config = URLSessionConfiguration.background(withIdentifier: "com.joshua-park.mochi-diffusion.download")
         let urlSession = URLSession(configuration: config, delegate: self, delegateQueue: OperationQueue())
@@ -39,7 +39,7 @@ class Downloader: NSObject, ObservableObject {
             }
         }
     }
-    
+
     @discardableResult
     func waitUntilDone() throws -> URL {
         // It's either this, or stream the bytes ourselves (add to a buffer, save to disk, etc; boring and finicky)
@@ -52,7 +52,7 @@ class Downloader: NSObject, ObservableObject {
             }
         }
         semaphore.wait()
-        
+
         switch downloadState.value {
         case .completed(let url): return url
         case .failed(let error):  throw error
@@ -62,11 +62,21 @@ class Downloader: NSObject, ObservableObject {
 }
 
 extension Downloader: URLSessionDelegate, URLSessionDownloadDelegate {
-    func urlSession(_: URLSession, downloadTask: URLSessionDownloadTask, didWriteData _: Int64, totalBytesWritten _: Int64, totalBytesExpectedToWrite _: Int64) {
+    func urlSession(
+        _: URLSession,
+        downloadTask: URLSessionDownloadTask,
+        didWriteData _: Int64,
+        totalBytesWritten _: Int64,
+        totalBytesExpectedToWrite _: Int64
+    ) {
         downloadState.value = .downloading(downloadTask.progress.fractionCompleted)
     }
-    
-    func urlSession(_: URLSession, downloadTask _: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
+
+    func urlSession(
+        _: URLSession,
+        downloadTask _: URLSessionDownloadTask,
+        didFinishDownloadingTo location: URL
+    ) {
         guard let path = Path(url: location) else {
             downloadState.value = .failed("Invalid download location received: \(location)")
             return
@@ -82,8 +92,12 @@ extension Downloader: URLSessionDelegate, URLSessionDownloadDelegate {
             downloadState.value = .failed(error)
         }
     }
-    
-    func urlSession(_: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+
+    func urlSession(
+        _: URLSession,
+        task: URLSessionTask,
+        didCompleteWithError error: Error?
+    ) {
         if let error = error {
             downloadState.value = .failed(error)
         }

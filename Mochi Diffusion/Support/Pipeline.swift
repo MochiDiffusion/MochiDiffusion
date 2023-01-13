@@ -16,20 +16,19 @@ typealias StableDiffusionProgress = StableDiffusionPipeline.Progress
 
 class Pipeline {
     let pipeline: StableDiffusionPipeline
-    var progress: StableDiffusionProgress? = nil {
+    var progress: StableDiffusionProgress? {
         didSet {
             progressPublisher.value = progress
         }
     }
     var hasGenerationBeenStopped: Bool {
-        get {
-            return generationStopped
-        }
+        return generationStopped
     }
-    
+
+    // swiftlint:disable:next line_length
     lazy private(set) var progressPublisher: CurrentValueSubject<StableDiffusionProgress?, Never> = CurrentValueSubject(progress)
     private var generationStopped = false
-    
+
     init(_ pipeline: StableDiffusionPipeline) {
         self.pipeline = pipeline
     }

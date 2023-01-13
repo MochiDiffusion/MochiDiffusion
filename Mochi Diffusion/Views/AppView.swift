@@ -49,9 +49,9 @@ struct AppView: View {
             HStack(alignment: .center, spacing: 0) {
                 GalleryView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                
+
                 Divider()
-                
+
                 InspectorView()
                     .frame(maxWidth: 340)
             }

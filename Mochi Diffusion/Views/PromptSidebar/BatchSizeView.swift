@@ -11,14 +11,16 @@ import Sliders
 struct BatchSizeView: View {
     @EnvironmentObject var store: Store
     @State private var isBatchSizePopoverShown = false
-    
+
     var body: some View {
         HStack {
             Text("Images per Batch: \(store.batchSize)")
-            
+
             Spacer()
-            
-            Button(action: { self.isBatchSizePopoverShown.toggle() }) {
+
+            Button {
+                self.isBatchSizePopoverShown.toggle()
+            } label: {
                 Image(systemName: "info.circle")
                     .foregroundColor(Color.secondary)
             }

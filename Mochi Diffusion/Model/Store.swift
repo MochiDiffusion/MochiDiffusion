@@ -12,7 +12,7 @@ import Combine
 import StableDiffusion
 
 final class Store: ObservableObject {
-    @Published var pipeline: Pipeline? = nil
+    @Published var pipeline: Pipeline?
     @Published var upscaler = Upscaler()
     @Published var models = [String]()
     @Published var images = [SDImage]()
@@ -43,6 +43,9 @@ final class Store: ObservableObject {
     private var progressSubscriber: Cancellable?
 
     var currentModel: String {
+        get {
+            return model
+        }
         set {
             NSLog("*** Model set")
             model = newValue
@@ -51,22 +54,17 @@ final class Store: ObservableObject {
                 await loadModel(model: newValue)
             }
         }
-        get {
-            return model
-        }
     }
 
     var getSelectedItems: [SDImage]? {
-        get {
-            if (selectedItemIds.count == 0) {
-                return []
-            }
-            return images.filter { selectedItemIds.contains($0.id) }
+        if selectedItemIds.count == 0 {
+            return []
         }
+        return images.filter { selectedItemIds.contains($0.id) }
     }
-    
-    func getSelectedImage() -> SDImage? {
-        if (selectedImageIndex == -1) {
+
+    var getSelectedImage: SDImage? {
+        if selectedImageIndex == -1 {
             return nil
         }
         return images[selectedImageIndex]
@@ -89,8 +87,7 @@ final class Store: ObservableObject {
             }
             dir = docDir
             dir.append(path: appDir, directoryHint: .isDirectory)
-        }
-        else {
+        } else {
             dir = URL(fileURLWithPath: workingDir, isDirectory: true)
             if !dir.path(percentEncoded: false).hasSuffix(appDir) {
                 dir.append(path: appDir, directoryHint: .isDirectory)
@@ -125,7 +122,13 @@ final class Store: ObservableObject {
     @MainActor
     func loadModel(model: String) async {
         NSLog("*** Loading model: \(model)")
-        let dir = URL(fileURLWithPath: workingDir, isDirectory: true).appending(component: model, directoryHint: .isDirectory)
+        let dir = URL(
+            fileURLWithPath: workingDir,
+            isDirectory: true
+        ).appending(
+            component: model,
+            directoryHint: .isDirectory
+        )
         let fm = FileManager.default
         if !fm.fileExists(atPath: dir.path) {
             let msg = "Model \(model) does not exist at: \(dir.path)"
@@ -177,47 +180,46 @@ final class Store: ObservableObject {
                 // Save settings used to generate
                 let batchSize = self.batchSize
                 let numberOfBatches = self.numberOfBatches
-                var s = SDImage()
-                s.prompt = self.prompt
-                s.negativePrompt = self.negativePrompt
-                s.model = self.currentModel
-                s.scheduler = self.scheduler
-                s.steps = self.steps
-                s.guidanceScale = self.guidanceScale
-                
+                var sdi = SDImage()
+                sdi.prompt = self.prompt
+                sdi.negativePrompt = self.negativePrompt
+                sdi.model = self.currentModel
+                sdi.scheduler = self.scheduler
+                sdi.steps = self.steps
+                sdi.guidanceScale = self.guidanceScale
+
                 // Generate
                 var seedUsed = self.seed == 0 ? UInt32.random(in: 0 ..< UInt32.max) : self.seed
-                for i in 0 ..< numberOfBatches {
+                for index in 0 ..< numberOfBatches {
                     DispatchQueue.main.async {
-                        self.batchProgress = BatchProgress(index: i, total: numberOfBatches)
+                        self.batchProgress = BatchProgress(index: index, total: numberOfBatches)
                     }
                     let (imgs, seed) = try pipeline.generate(
-                        prompt: s.prompt,
-                        negativePrompt: s.negativePrompt,
+                        prompt: sdi.prompt,
+                        negativePrompt: sdi.negativePrompt,
                         batchSize: batchSize,
-                        numInferenceSteps: s.steps,
+                        numInferenceSteps: sdi.steps,
                         seed: seedUsed,
-                        guidanceScale: Float(s.guidanceScale),
-                        scheduler: s.scheduler)
+                        guidanceScale: Float(sdi.guidanceScale),
+                        scheduler: sdi.scheduler)
                     if pipeline.hasGenerationBeenStopped {
                         break
                     }
                     var simgs = [SDImage]()
                     for (ndx, img) in imgs.enumerated() {
-                        s.id = UUID()
-                        s.image = img
-                        s.width = img.width
-                        s.height = img.height
-                        s.seed = seed
-                        s.imageIndex = ndx
-                        s.generatedDate = Date.now
-                        simgs.append(s)
+                        sdi.id = UUID()
+                        sdi.image = img
+                        sdi.width = img.width
+                        sdi.height = img.height
+                        sdi.seed = seed
+                        sdi.imageIndex = ndx
+                        sdi.generatedDate = Date.now
+                        simgs.append(sdi)
                     }
                     DispatchQueue.main.async {
                         if self.upscaleGeneratedImages {
                             self.upscaleThenAddImages(simgs: simgs)
-                        }
-                        else {
+                        } else {
                             self.addImages(simgs: simgs)
                         }
                     }
@@ -258,7 +260,7 @@ final class Store: ObservableObject {
     }
 
     func upscaleCurrentImage() {
-        guard var sdi = getSelectedImage(), let img = sdi.image else { return }
+        guard var sdi = getSelectedImage, let img = sdi.image else { return }
         if sdi.isUpscaled { return }
 
         guard let upscaledImage = upscaler.upscale(cgImage: img) else { return }
@@ -290,7 +292,7 @@ final class Store: ObservableObject {
     }
 
     func copyToPrompt() {
-        guard let sdi = getSelectedImage() else { return }
+        guard let sdi = getSelectedImage else { return }
         prompt = sdi.prompt
         negativePrompt = sdi.negativePrompt
         steps = sdi.steps
@@ -302,38 +304,38 @@ final class Store: ObservableObject {
     }
 
     func copyPromptToPrompt() {
-        guard let sdi = getSelectedImage() else { return }
+        guard let sdi = getSelectedImage else { return }
         prompt = sdi.prompt
     }
 
     func copyNegativePromptToPrompt() {
-        guard let sdi = getSelectedImage() else { return }
+        guard let sdi = getSelectedImage else { return }
         negativePrompt = sdi.negativePrompt
     }
 
     func copySchedulerToPrompt() {
-        guard let sdi = getSelectedImage() else { return }
+        guard let sdi = getSelectedImage else { return }
         scheduler = sdi.scheduler
     }
 
     func copySeedToPrompt() {
-        guard let sdi = getSelectedImage() else { return }
+        guard let sdi = getSelectedImage else { return }
         seed = sdi.seed
     }
 
     func copyStepsToPrompt() {
-        guard let sdi = getSelectedImage() else { return }
+        guard let sdi = getSelectedImage else { return }
         steps = sdi.steps
     }
 
     func copyGuidanceScaleToPrompt() {
-        guard let sdi = getSelectedImage() else { return }
+        guard let sdi = getSelectedImage else { return }
         guidanceScale = sdi.guidanceScale
     }
 
     @MainActor
     private func addImages(simgs: [SDImage]) {
-        let newImageIndex = self.images.count
+//        let newImageIndex = self.images.count
         withAnimation(.default.speed(1.5)) {
             self.images.append(contentsOf: simgs)
         }

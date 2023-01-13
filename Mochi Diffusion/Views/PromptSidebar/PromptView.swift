@@ -9,7 +9,7 @@ import SwiftUI
 
 struct PromptView: View {
     @EnvironmentObject var store: Store
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             Text("Include in Image:",
@@ -19,9 +19,9 @@ struct PromptView: View {
                 .frame(height: 85)
                 .border(Color(nsColor: .gridColor))
                 .cornerRadius(4)
-                
+
             Spacer().frame(height: 6)
-            
+
             Text("Exclude from Image:",
                  comment: "Label for negative prompt text field")
             TextEditor(text: $store.negativePrompt)
@@ -29,9 +29,9 @@ struct PromptView: View {
                 .frame(height: 52)
                 .border(Color(nsColor: .gridColor))
                 .cornerRadius(4)
-            
+
             Spacer().frame(height: 2)
-            
+
             HStack(alignment: .center) {
                 Toggle(isOn: $store.upscaleGeneratedImages) {
                     Label {
@@ -42,9 +42,9 @@ struct PromptView: View {
                     }
                 }
                 .help("Convert all images to High Resolution (this will use more memory)")
-                
+
                 Spacer()
-                
+
                 Button(action: store.generate) {
                     Text("Generate",
                          comment: "Button to generate image")

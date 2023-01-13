@@ -10,7 +10,7 @@ import Sliders
 
 struct StepsView: View {
     @EnvironmentObject var store: Store
-    
+
     var body: some View {
         Text("Steps: \(store.steps)",
              comment: "Label for Steps slider with value")

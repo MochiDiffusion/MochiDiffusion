@@ -11,7 +11,7 @@ import Sparkle
 // This view model class publishes when new updates can be checked by the user
 final class CheckForUpdatesViewModel: ObservableObject {
     @Published var canCheckForUpdates = false
-    
+
     init(updater: SPUUpdater) {
         updater.publisher(for: \.canCheckForUpdates)
             .assign(to: &$canCheckForUpdates)
@@ -24,14 +24,14 @@ final class CheckForUpdatesViewModel: ObservableObject {
 struct CheckForUpdatesView: View {
     @ObservedObject private var checkForUpdatesViewModel: CheckForUpdatesViewModel
     private let updater: SPUUpdater
-    
+
     init(updater: SPUUpdater) {
         self.updater = updater
-        
+
         // Create our view model for our CheckForUpdatesView
         self.checkForUpdatesViewModel = CheckForUpdatesViewModel(updater: updater)
     }
-    
+
     var body: some View {
         Button("Check for Updates…", action: updater.checkForUpdates)
             .disabled(!checkForUpdatesViewModel.canCheckForUpdates)
@@ -42,17 +42,20 @@ struct CheckForUpdatesView: View {
 struct MochiDiffusionApp: App {
     @StateObject private var store = Store()
     private let updaterController: SPUStandardUpdaterController
-    
+
     init() {
-        updaterController = SPUStandardUpdaterController(startingUpdater: true, updaterDelegate: nil, userDriverDelegate: nil)
+        updaterController = SPUStandardUpdaterController(
+            startingUpdater: true,
+            updaterDelegate: nil,
+            userDriverDelegate: nil)
     }
-    
+
     var body: some Scene {
         WindowGroup {
             AppView()
                 .environmentObject(store)
         }
-        .commands{
+        .commands {
             CommandGroup(after: .appInfo) {
                 CheckForUpdatesView(updater: updaterController.updater)
             }

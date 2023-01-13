@@ -11,21 +11,21 @@ import StableDiffusion
 
 struct SettingsView: View {
     @EnvironmentObject var store: Store
-    
+
     var body: some View {
         VStack(alignment: .leading) {
             Form {
                 Group {
                     Picker("Scheduler:", selection: $store.scheduler) {
-                        ForEach(StableDiffusionScheduler.allCases, id: \.self) { s in
-                            Text(s.rawValue).tag(s)
+                        ForEach(StableDiffusionScheduler.allCases, id: \.self) { scheduler in
+                            Text(scheduler.rawValue).tag(scheduler)
                         }
                     }
                     .fixedSize()
                 }
-                
+
                 Spacer().frame(height: 12)
-                
+
 #if arch(arm64)
                 Group {
                     Picker("ML Compute Unit:", selection: $store.mlComputeUnit) {
@@ -38,21 +38,21 @@ struct SettingsView: View {
                             .tag(MLComputeUnits.all)
                     }
                     .fixedSize()
-                    
+
                     Text("CPU & Neural Engine provides a good balance between speed and low memory usage.")
                         .helpTextFormat()
-                    
+
                     Text("CPU & GPU may be faster on M1 Max, Ultra and later but will use more memory.")
                         .helpTextFormat()
-                    
+
                     Text("Based on the option selected the correct model version will need to be used.",
                          comment: "Help text for ML Compute Unit option under Settings")
                         .helpTextFormat()
                 }
-                
+
                 Spacer().frame(height: 12)
 #endif
-                
+
                 Group {
                     Toggle("Reduce Memory Usage:", isOn: $store.reduceMemory)
                         .toggleStyle(.switch)
@@ -60,9 +60,9 @@ struct SettingsView: View {
                          comment: "Help text for Reduce Memory Usage option")
                         .helpTextFormat()
                 }
-                
+
                 Spacer().frame(height: 12)
-                
+
                 HStack {
                     TextField(text: $store.workingDir) {
                         Text("Working Directory:",
@@ -70,10 +70,11 @@ struct SettingsView: View {
                     }
                     .disableAutocorrection(true)
                     .textFieldStyle(.roundedBorder)
-                    
-                    Button(action: {
+
+                    Button {
+                        // swiftlint:disable:next line_length
                         NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: store.workingDir).absoluteURL])
-                    }) {
+                    } label: {
                         Image(systemName: "magnifyingglass.circle.fill")
                             .foregroundColor(Color.secondary)
                     }
@@ -81,16 +82,16 @@ struct SettingsView: View {
                     .help("Open in Finder")
                 }
             }
-            
+
             Spacer()
-            
+
             HStack {
                 Spacer()
-                
-                Button(action: {
+
+                Button {
                     store.loadModels()
                     NSApplication.shared.keyWindow?.close()
-                }) {
+                } label: {
                     Text("Apply",
                          comment: "Button to apply the selected settings")
                 }
