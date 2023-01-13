@@ -18,7 +18,7 @@ struct HelpCommands: Commands {
             }
             Section {
                 Link("Download Models",
-                     destination: URL(string: "https://huggingface.co/godly-devotion")!)
+                     destination: URL(string: "https://huggingface.co/coreml")!)
             }
             Section {
                 Link("Support Me ♥",
