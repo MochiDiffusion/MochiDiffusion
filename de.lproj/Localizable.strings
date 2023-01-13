@@ -89,7 +89,7 @@
 "Loading Model..." = "Modell wird geladen...";
 
 /* No comment provided by engineer. */
-"ML Compute Unit:" = "ML Recheneinheit:";
+"ML Compute Unit" = "ML Recheneinheit";
 
 /* No comment provided by engineer. */
 "Model" = "Modell";
@@ -109,11 +109,11 @@
 /* No comment provided by engineer. */
 "random" = "zufällig";
 
+/* No comment provided by engineer. */
+"Reduce Memory Usage" = "Speicherauslastung reduzieren";
+
 /* Help text for Reduce Memory Usage option */
 "Reduce memory usage further at the cost of speed." = "Reduziert die Speicherauslastung auf Kosten der Geschwindigkeit.";
-
-/* No comment provided by engineer. */
-"Reduce Memory Usage:" = "Speicherauslastung reduzieren:";
 
 /* No comment provided by engineer. */
 "Release Notes" = "Versionshinweise";
@@ -159,9 +159,6 @@ Right click menu option to show the save image dialog */
 "Steps: %lld" = "Arbeitsschritte: %lld";
 
 /* No comment provided by engineer. */
-"Stop Generation" = "Generierung stoppen";
-
-/* No comment provided by engineer. */
 "Support Me ♥" = "Unterstütze mich ♥";
 
 /* Help text for the loading model message */
@@ -174,5 +171,5 @@ Right click menu option to show the save image dialog */
 "Width:" = "Breite:";
 
 /* Label for changing the working directory */
-"Working Directory:" = "Arbeitsverzeichnis:";
+"Working Directory" = "Arbeitsverzeichnis";
 

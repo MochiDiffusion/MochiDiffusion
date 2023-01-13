@@ -89,7 +89,7 @@
 "Loading Model..." = "モデルを読み込み中...";
 
 /* No comment provided by engineer. */
-"ML Compute Unit:" = "ML Compute Unit:";
+"ML Compute Unit" = "ML Compute Unit";
 
 /* No comment provided by engineer. */
 "Model" = "モデル";
@@ -109,11 +109,11 @@
 /* No comment provided by engineer. */
 "random" = "ランダム";
 
+/* No comment provided by engineer. */
+"Reduce Memory Usage" = "メモリ使用量の削減";
+
 /* Help text for Reduce Memory Usage option */
 "Reduce memory usage further at the cost of speed." = "スピードを犠牲にしてメモリ使用量をさらに削減。";
-
-/* No comment provided by engineer. */
-"Reduce Memory Usage:" = "メモリ使用量の削減:";
 
 /* No comment provided by engineer. */
 "Release Notes" = "リリースノート";
@@ -159,13 +159,10 @@ Right click menu option to show the save image dialog */
 "Steps: %lld" = "ステップ: %lld";
 
 /* No comment provided by engineer. */
-"Stop Generation" = "画像生成の中止";
-
-/* No comment provided by engineer. */
 "Support Me ♥" = "サポートお願いします♥";
 
-/* Text explaining that loading the model wont take long */
-"This wont take long" = "しばらくお待ちください";
+/* Help text for the loading model message */
+"This may take up to 2 minutes if a model is used for the first time" = "モデルを初めて使用する場合、最大2分かかることがあります";
 
 /* No comment provided by engineer. */
 "Website" = "Web サイト";
@@ -174,5 +171,5 @@ Right click menu option to show the save image dialog */
 "Width:" = "幅:";
 
 /* Label for changing the working directory */
-"Working Directory:" = "作業ディレクトリ:";
+"Working Directory" = "作業ディレクトリ";
 

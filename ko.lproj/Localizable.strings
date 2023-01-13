@@ -89,7 +89,7 @@
 "Loading Model..." = "모델 로딩 중...";
 
 /* No comment provided by engineer. */
-"ML Compute Unit:" = "ML Compute Unit:";
+"ML Compute Unit" = "ML Compute Unit";
 
 /* No comment provided by engineer. */
 "Model" = "모델";
@@ -109,11 +109,11 @@
 /* No comment provided by engineer. */
 "random" = "랜덤";
 
+/* No comment provided by engineer. */
+"Reduce Memory Usage" = "메모리 사용량 줄이기";
+
 /* Help text for Reduce Memory Usage option */
 "Reduce memory usage further at the cost of speed." = "속도를 희생해서 메모리 사용을 더 주림.";
-
-/* No comment provided by engineer. */
-"Reduce Memory Usage:" = "메모리 사용량 줄이기:";
 
 /* No comment provided by engineer. */
 "Release Notes" = "릴리스 노트";
@@ -159,9 +159,6 @@ Right click menu option to show the save image dialog */
 "Steps: %lld" = "스텝 수: %lld";
 
 /* No comment provided by engineer. */
-"Stop Generation" = "생성 중단";
-
-/* No comment provided by engineer. */
 "Support Me ♥" = "기부 ♥";
 
 /* Help text for the loading model message */
@@ -174,5 +171,5 @@ Right click menu option to show the save image dialog */
 "Width:" = "세로길이:";
 
 /* Label for changing the working directory */
-"Working Directory:" = "작업 폴더:";
+"Working Directory" = "작업 폴더";
 
