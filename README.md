@@ -50,7 +50,7 @@ Intel Macs uses `CPU & GPU` as it doesn't have Neural Engine.
 
 You will need to convert or download Core ML models in order to use Mochi Diffusion.
 
-A few models have been converted and uploaded [here](https://huggingface.co/godly-devotion).
+A few models have been converted and uploaded [here](https://huggingface.co/coreml).
 
 1. [Convert](https://github.com/apple/ml-stable-diffusion#-converting-models-to-core-ml) or download Core ML models
     - `split_einsum` version is compatible with all compute unit options including Neural Engine
