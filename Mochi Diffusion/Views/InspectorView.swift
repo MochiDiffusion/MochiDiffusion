@@ -69,10 +69,6 @@ struct InspectorView: View {
                             text: String(sdi.guidanceScale),
                             showCopyToPromptOption: true,
                             callback: store.copyGuidanceScaleToPrompt)
-                        InfoGridRow(
-                            type: "Image Index",
-                            text: String(sdi.imageIndex),
-                            showCopyToPromptOption: false)
                     }
                 }
                 .padding([.horizontal])

@@ -23,7 +23,6 @@ struct SDImage: Identifiable {
     var seed: UInt32 = 0
     var steps = 28
     var guidanceScale = 11.0
-    var imageIndex = 0
     var generatedDate = Date()
     var isUpscaled = false
 
@@ -41,7 +40,7 @@ struct SDImage: Identifiable {
         panel.message = "Choose a folder and a name to store the image."
         panel.nameFieldLabel = "Image file name:"
         panel.nameFieldStringValue =
-            "\(String(prompt.prefix(70)).trimmingCharacters(in: .whitespacesAndNewlines)).\(seed).\(imageIndex).png"
+            "\(String(prompt.prefix(70)).trimmingCharacters(in: .whitespacesAndNewlines)).\(seed).png"
         let resp = panel.runModal()
         if resp != .OK {
             return
@@ -79,7 +78,6 @@ struct SDImage: Identifiable {
         Seed: \(seed), \
         Steps: \(steps), \
         Guidance: \(guidanceScale), \
-        Index: \(imageIndex), \
         Generator: Mochi Diffusion \(NSApplication.appVersion)
         """
     }

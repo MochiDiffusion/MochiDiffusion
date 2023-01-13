@@ -19,10 +19,9 @@ final class Store: ObservableObject {
     @Published var selectedImageIndex = -1 // TODO: replace with selectedItemIds
     @Published var selectedItemIds = Set<UUID>()
     @Published var mainViewStatus: MainViewStatus = .loading
-    @Published var numberOfBatches = 1
-    @Published var batchSize = 1
+    @Published var numberOfImages = 1
     @Published var seed: UInt32 = 0
-    @Published var batchProgress = BatchProgress()
+    @Published var generationProgress = GenerationProgress()
     @Published var searchText = ""
     @AppStorage("WorkingDir") var workingDir = ""
     @AppStorage("Prompt") var prompt = ""
@@ -178,8 +177,7 @@ final class Store: ObservableObject {
         DispatchQueue.global(qos: .default).async {
             do {
                 // Save settings used to generate
-                let batchSize = self.batchSize
-                let numberOfBatches = self.numberOfBatches
+                let numberOfImages = self.numberOfImages
                 var sdi = SDImage()
                 sdi.prompt = self.prompt
                 sdi.negativePrompt = self.negativePrompt
@@ -190,14 +188,13 @@ final class Store: ObservableObject {
 
                 // Generate
                 var seedUsed = self.seed == 0 ? UInt32.random(in: 0 ..< UInt32.max) : self.seed
-                for index in 0 ..< numberOfBatches {
+                for index in 0 ..< numberOfImages {
                     DispatchQueue.main.async {
-                        self.batchProgress = BatchProgress(index: index, total: numberOfBatches)
+                        self.generationProgress = GenerationProgress(index: index, total: numberOfImages)
                     }
                     let (imgs, seed) = try pipeline.generate(
                         prompt: sdi.prompt,
                         negativePrompt: sdi.negativePrompt,
-                        batchSize: batchSize,
                         numInferenceSteps: sdi.steps,
                         seed: seedUsed,
                         guidanceScale: Float(sdi.guidanceScale),
@@ -206,13 +203,12 @@ final class Store: ObservableObject {
                         break
                     }
                     var simgs = [SDImage]()
-                    for (ndx, img) in imgs.enumerated() {
+                    for img in imgs {
                         sdi.id = UUID()
                         sdi.image = img
                         sdi.width = img.width
                         sdi.height = img.height
                         sdi.seed = seed
-                        sdi.imageIndex = ndx
                         sdi.generatedDate = Date.now
                         simgs.append(sdi)
                     }

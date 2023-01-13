@@ -36,7 +36,6 @@ class Pipeline {
     func generate(
         prompt: String,
         negativePrompt: String = "",
-        batchSize: Int = 1,
         numInferenceSteps stepCount: Int = 50,
         seed: UInt32 = 0,
         guidanceScale: Float = 7.5,
@@ -48,7 +47,7 @@ class Pipeline {
         let images = try pipeline.generateImages(
             prompt: prompt,
             negativePrompt: negativePrompt,
-            imageCount: batchSize,
+            imageCount: 1,
             stepCount: stepCount,
             seed: seed,
             guidanceScale: guidanceScale,

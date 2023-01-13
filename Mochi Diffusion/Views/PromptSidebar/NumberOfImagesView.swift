@@ -1,5 +1,5 @@
 //
-//  NumberOfBatchesView.swift
+//  NumberOfImagesView.swift
 //  Mochi Diffusion
 //
 //  Created by Joshua Park on 12/26/22.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct NumberOfBatchesView: View {
+struct NumberOfImagesView: View {
     @EnvironmentObject var store: Store
     @State private var isImageCountPopoverShown = false
     private var imageCountValues = [
@@ -15,8 +15,8 @@ struct NumberOfBatchesView: View {
     ]
 
     var body: some View {
-        Text("Number of Batches:")
-        Picker("", selection: $store.numberOfBatches) {
+        Text("Number of Images:")
+        Picker("", selection: $store.numberOfImages) {
             ForEach(imageCountValues, id: \.self) { number in
                 Text(String(number)).tag(number)
             }
@@ -25,8 +25,8 @@ struct NumberOfBatchesView: View {
     }
 }
 
-struct NumberOfBatchesView_Previews: PreviewProvider {
+struct NumberOfImagesView_Previews: PreviewProvider {
     static var previews: some View {
-        NumberOfBatchesView()
+        NumberOfImagesView()
     }
 }

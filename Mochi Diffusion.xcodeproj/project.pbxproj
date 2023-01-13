@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		03021B512960E513001E88C0 /* BatchProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03021B502960E513001E88C0 /* BatchProgress.swift */; };
+		03021B512960E513001E88C0 /* GenerationProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03021B502960E513001E88C0 /* GenerationProgress.swift */; };
 		0307B0DA294D4AE500A9BD55 /* FileCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0307B0D9294D4AE500A9BD55 /* FileCommands.swift */; };
 		0352E2A5294E2591003FBF25 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 0352E2A4294E2591003FBF25 /* Sparkle */; };
 		0352E2A7294E3148003FBF25 /* HelpCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0352E2A6294E3148003FBF25 /* HelpCommands.swift */; };
@@ -18,8 +18,7 @@
 		0352E2B5294EA887003FBF25 /* Functions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0352E2B4294EA887003FBF25 /* Functions.swift */; };
 		035E76F42970E79A008DDFDE /* CVPixelBuffer+Resize.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035E76F32970E79A008DDFDE /* CVPixelBuffer+Resize.swift */; };
 		035E76F62970E809008DDFDE /* CVPixelBuffer+Create.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035E76F52970E809008DDFDE /* CVPixelBuffer+Create.swift */; };
-		035EDFF3295A1FBF00080D18 /* NumberOfBatchesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035EDFF2295A1FBF00080D18 /* NumberOfBatchesView.swift */; };
-		035EDFF6295A208100080D18 /* BatchSizeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035EDFF5295A208100080D18 /* BatchSizeView.swift */; };
+		035EDFF3295A1FBF00080D18 /* NumberOfImagesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035EDFF2295A1FBF00080D18 /* NumberOfImagesView.swift */; };
 		035EDFF8295A216500080D18 /* StepsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035EDFF7295A216500080D18 /* StepsView.swift */; };
 		035EDFFA295A219200080D18 /* GuidanceScaleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035EDFF9295A219200080D18 /* GuidanceScaleView.swift */; };
 		035EDFFC295A21D600080D18 /* SizeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035EDFFB295A21D600080D18 /* SizeView.swift */; };
@@ -69,7 +68,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		03021B502960E513001E88C0 /* BatchProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatchProgress.swift; sourceTree = "<group>"; };
+		03021B502960E513001E88C0 /* GenerationProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationProgress.swift; sourceTree = "<group>"; };
 		0307B0D9294D4AE500A9BD55 /* FileCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileCommands.swift; sourceTree = "<group>"; };
 		031AC9D2296881F500F95E4B /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		031AC9D3296881F500F95E4B /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -85,8 +84,7 @@
 		0352E2B4294EA887003FBF25 /* Functions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Functions.swift; sourceTree = "<group>"; };
 		035E76F32970E79A008DDFDE /* CVPixelBuffer+Resize.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "CVPixelBuffer+Resize.swift"; sourceTree = "<group>"; };
 		035E76F52970E809008DDFDE /* CVPixelBuffer+Create.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "CVPixelBuffer+Create.swift"; sourceTree = "<group>"; };
-		035EDFF2295A1FBF00080D18 /* NumberOfBatchesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberOfBatchesView.swift; sourceTree = "<group>"; };
-		035EDFF5295A208100080D18 /* BatchSizeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatchSizeView.swift; sourceTree = "<group>"; };
+		035EDFF2295A1FBF00080D18 /* NumberOfImagesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberOfImagesView.swift; sourceTree = "<group>"; };
 		035EDFF7295A216500080D18 /* StepsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepsView.swift; sourceTree = "<group>"; };
 		035EDFF9295A219200080D18 /* GuidanceScaleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuidanceScaleView.swift; sourceTree = "<group>"; };
 		035EDFFB295A21D600080D18 /* SizeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SizeView.swift; sourceTree = "<group>"; };
@@ -183,10 +181,9 @@
 		035EDFF1295A1F8F00080D18 /* PromptSidebar */ = {
 			isa = PBXGroup;
 			children = (
-				035EDFF5295A208100080D18 /* BatchSizeView.swift */,
 				035EDFF9295A219200080D18 /* GuidanceScaleView.swift */,
 				035EDFFF295A224900080D18 /* ModelView.swift */,
-				035EDFF2295A1FBF00080D18 /* NumberOfBatchesView.swift */,
+				035EDFF2295A1FBF00080D18 /* NumberOfImagesView.swift */,
 				03D280F1294FD60E00C7D184 /* PromptView.swift */,
 				035EE002295A227100080D18 /* SchedulerView.swift */,
 				035EDFFD295A220F00080D18 /* SeedView.swift */,
@@ -260,7 +257,7 @@
 		0386DF8E29510D8700CA4CEB /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				03021B502960E513001E88C0 /* BatchProgress.swift */,
+				03021B502960E513001E88C0 /* GenerationProgress.swift */,
 				03F3179829512BAB00F06D25 /* MainViewStatus.swift */,
 				03E89F3B294FE6ED0067457E /* SDImage.swift */,
 				0352E2B2294EA326003FBF25 /* Store.swift */,
@@ -480,10 +477,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				03E89F3C294FE6ED0067457E /* SDImage.swift in Sources */,
-				035EDFF3295A1FBF00080D18 /* NumberOfBatchesView.swift in Sources */,
-				03021B512960E513001E88C0 /* BatchProgress.swift in Sources */,
+				035EDFF3295A1FBF00080D18 /* NumberOfImagesView.swift in Sources */,
+				03021B512960E513001E88C0 /* GenerationProgress.swift in Sources */,
 				036BFC5B294BA19400D8AD04 /* Downloader.swift in Sources */,
-				035EDFF6295A208100080D18 /* BatchSizeView.swift in Sources */,
 				0386DF8D2950F25500CA4CEB /* GalleryToolbarView.swift in Sources */,
 				03F3179929512BAB00F06D25 /* MainViewStatus.swift in Sources */,
 				035E76F42970E79A008DDFDE /* CVPixelBuffer+Resize.swift in Sources */,

@@ -16,7 +16,7 @@ struct GalleryToolbarView: View {
             if let progress = progress, progress.stepCount > 0 {
                 let step = Int(progress.step) + 1
                 let stepValue = Double(step) / Double(progress.stepCount)
-                let batchValue = Double(store.batchProgress.index+1) / Double(store.batchProgress.total)
+                let progressValue = Double(store.generationProgress.index+1) / Double(store.generationProgress.total)
 
                 Button {
                     self.isStatusPopoverShown.toggle()
@@ -28,11 +28,11 @@ struct GalleryToolbarView: View {
                     let stepLabel = String(localized: "Step \(step) of \(progress.stepCount)",
                                            comment: "Text displaying the current step progress and count")
                     // swiftlint:disable:next line_length
-                    let batchLabel = String(localized: "Batch \(store.batchProgress.index+1) of \(store.batchProgress.total)",
-                                            comment: "Text displaying the current batch progress and count")
+                    let imageCountLabel = String(localized: "Image \(store.generationProgress.index+1) of \(store.generationProgress.total)",
+                                                 comment: "Text displaying the image generation progress and count")
                     VStack(alignment: .center, spacing: 12) {
                         ProgressView(stepLabel, value: stepValue, total: 1)
-                        ProgressView(batchLabel, value: batchValue, total: 1)
+                        ProgressView(imageCountLabel, value: progressValue, total: 1)
                     }
                     .padding()
                     .frame(width: 300)

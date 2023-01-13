@@ -35,8 +35,5 @@ Steps:
 
 Guidance Scale:
 \(sdi.guidanceScale)
-
-Image Index:
-\(sdi.imageIndex)
 """
 }
