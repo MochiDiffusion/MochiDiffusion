@@ -57,7 +57,20 @@ A few models have been converted and uploaded [here](https://huggingface.co/core
     - `original` version is only compatible with `CPU & GPU` option
 2. By default, the app's working directory will be created under the Documents folder. This location can be customized under Settings
 3. In the working folder, create a new folder with the name you'd like displayed in the app then move or extract the converted models here
-4. Your directory should look like this: `~/Documents/MochiDiffusion/models/[Model Folder Name]/[Model's Files]`
+4. Your directory should look like this:
+```
+Documents/
+└── MochiDiffusion/
+    └── models/
+        ├── stable-diffusion-2-1_split-einsum_compiled/
+        │   ├── merges.txt
+        │   ├── TextEncoder.mlmodelc
+        │   ├── Unet.mlmodelc
+        │   ├── VAEDecoder.mlmodelc
+        │   └── vocab.json
+        ├── ...
+        └── ...
+```
 
 ## Compatibility
 

@@ -57,7 +57,20 @@
     - `original` 版本仅适用于 `CPU 和 GPU`
 2. 本应用默认在 文稿 文件夹中创建工作目录，但在应用设置中可以自定义其路径。
 3. 在工作目录中，你可以创建一个文件夹，以自己想在应用内显示的名字为其重命名，再将转换好的模型放到文件夹中
-4. 你的文件夹路径应该像这样: `~/文稿/MochiDiffusion/models/[Model Folder Name]/[Model's Files]`
+4. 你的文件夹路径应该像这样:
+```
+文稿/
+└── MochiDiffusion/
+    └── models/
+        ├── stable-diffusion-2-1_split-einsum_compiled/
+        │   ├── merges.txt
+        │   ├── TextEncoder.mlmodelc
+        │   ├── Unet.mlmodelc
+        │   ├── VAEDecoder.mlmodelc
+        │   └── vocab.json
+        ├── ...
+        └── ...
+```
 
 ## 兼容性
 
