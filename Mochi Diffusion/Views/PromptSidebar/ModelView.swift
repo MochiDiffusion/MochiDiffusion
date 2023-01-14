@@ -24,6 +24,7 @@ struct ModelView: View {
 
             Button(action: store.loadModels) {
                 Image(systemName: "arrow.clockwise")
+                    .frame(minWidth: 18)
             }
         }
     }

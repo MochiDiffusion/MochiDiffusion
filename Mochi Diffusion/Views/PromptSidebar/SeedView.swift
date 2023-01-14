@@ -9,12 +9,25 @@ import SwiftUI
 
 struct SeedView: View {
     @EnvironmentObject var store: Store
+    @FocusState private var randomFieldIsFocused: Bool
 
     var body: some View {
-        Text("Seed (0 for random):",
+        Text("Seed:",
              comment: "Label for Seed text field")
-        TextField("random", value: $store.seed, formatter: Formatter.seedFormatter)
-            .textFieldStyle(.roundedBorder)
+        HStack {
+            TextField("random", value: $store.seed, formatter: Formatter.seedFormatter)
+                .focused($randomFieldIsFocused)
+                .textFieldStyle(.roundedBorder)
+            Button {
+                randomFieldIsFocused = false
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { // TODO: Find reliable way to clear textfield
+                    self.store.seed = 0
+                }
+            } label: {
+                Image(systemName: "shuffle")
+                    .frame(minWidth: 18)
+            }
+        }
     }
 }
 
