@@ -45,12 +45,18 @@ struct PromptView: View {
 
                 Spacer()
 
-                Button(action: store.generate) {
-                    Text("Generate",
-                         comment: "Button to generate image")
+                if case .running = store.mainViewStatus {
+                    Button(action: store.stopGeneration) {
+                        Text("Stop Generation")
+                    }
+                } else {
+                    Button(action: store.generate) {
+                        Text("Generate",
+                             comment: "Button to generate image")
+                    }
+                    .disabled($store.currentModel.wrappedValue.isEmpty)
+                    .buttonStyle(.borderedProminent)
                 }
-                .disabled($store.currentModel.wrappedValue.isEmpty)
-                .buttonStyle(.borderedProminent)
             }
         }
     }

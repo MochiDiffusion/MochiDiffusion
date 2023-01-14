@@ -18,7 +18,7 @@ final class Store: ObservableObject {
     @Published var images = [SDImage]()
     @Published var selectedImageIndex = -1 // TODO: replace with selectedItemIds
     @Published var selectedItemIds = Set<UUID>()
-    @Published var mainViewStatus: MainViewStatus = .loading
+    @Published var mainViewStatus: MainViewStatus = .idle
     @Published var numberOfImages = 1
     @Published var seed: UInt32 = 0
     @Published var generationProgress = GenerationProgress()
@@ -161,12 +161,13 @@ final class Store: ObservableObject {
     }
 
     func generate() {
+        if case .loading = mainViewStatus { return }
         if case .running = mainViewStatus { return }
         guard let pipeline = pipeline else {
             mainViewStatus = .error("No pipeline available!")
             return
         }
-        mainViewStatus = .running(nil)
+        mainViewStatus = .loading
         // Pipeline progress subscriber
         progressSubscriber = pipeline.progressPublisher.sink { progress in
             guard let progress = progress else { return }

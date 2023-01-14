@@ -8,9 +8,9 @@
 import StableDiffusion
 
 enum MainViewStatus {
-    case loading
     case idle
     case ready(String)
     case error(String)
+    case loading
     case running(StableDiffusionProgress?)
 }

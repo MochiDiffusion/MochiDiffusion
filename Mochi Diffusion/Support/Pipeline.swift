@@ -56,7 +56,7 @@ class Pipeline {
         ) { progress in
             return handleProgress(progress)
         }
-        print("Got images: \(images) in \(Date().timeIntervalSince(beginDate))")
+        print("Generation took \(Date().timeIntervalSince(beginDate))")
 
         let imgs = images.compactMap({$0})
         return (imgs, seed)
