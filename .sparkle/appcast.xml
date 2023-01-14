@@ -5,6 +5,33 @@
     <language>en</language>
 
     <item>
+      <title>v2.0.3</title>
+      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <sparkle:version>2.0.3</sparkle:version>
+      <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
+      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <pubDate>Sat, 14 Jan 2023 02:34:10 +0000</pubDate>
+      <enclosure
+        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v2.0.3/MochiDiffusion_v2.0.3.dmg"
+        sparkle:edSignature="p22Wt8bDy6HIIb6AK1+4X6JTh9QP0lyelDXgHzu9TkQlExLY0BK/BCCHLqVK+zdFUqobOC8qlPk7X7IOO3OCAA=="
+        length="66905219"
+        type="application/octet-stream" />
+      <description><![CDATA[
+      <ul>
+      <li>Changed Batches option to Number of Images for simplicity</li>
+      <li>Updated Settings layout for different languages</li>
+      <li>Updated Generate button to Stop Generation as well</li>
+      <li>Updated Download Model menu link</li>
+      <li>Added button to set random seed</li>
+      </ul>
+      <p>Do you have a model that was converted and wish to upload? Join our community on <a href="https://huggingface.co/coreml">Hugging Face</a> or create a Pull Request to get started!</p>
+      <p>Special thanks to the following for supporting me and making this app possible 🎉
+      <strong>serovar</strong>, <strong>orange-wedge</strong>, <strong>julien-c</strong>, <strong>Quick-Eyed-Sky</strong>, <strong>BirdSesame</strong>, <strong>Da-mi-en</strong>, <strong>eidermar</strong>, <strong>Draxredd</strong>, &amp; anonymous donors</p>
+      ]]>
+      </description>
+    </item>
+
+    <item>
       <title>v2.0.2</title>
       <link>https://github.com/godly-devotion/MochiDiffusion</link>
       <sparkle:version>2.0.2</sparkle:version>
