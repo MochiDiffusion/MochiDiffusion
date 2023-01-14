@@ -10,9 +10,6 @@
 /* Help text for ML Compute Unit option under Settings */
 "Based on the option selected the correct model version will need to be used." = "不同的计算单元需要搭配使用正确的模型";
 
-/* Text displaying the current batch progress and count */
-"Batch %lld of %lld" = "样本 %lld / %lld";
-
 /* No comment provided by engineer. */
 "Check for Updates…" = "检查更新...";
 
@@ -70,14 +67,8 @@
 /* Label for image height picker */
 "Height:" = "高度:";
 
-/* No comment provided by engineer. */
-"Image Index" = "图像索引";
-
-/* No comment provided by engineer. */
-"Images in a batch are generated at the same time and require more memory.\n^[%lld images](inflect: true) will be generated in total." = "单个样本中的图像将会同时生成并占用更多内存。共计生成^[%lld 张图片](inflect: true)";
-
-/* No comment provided by engineer. */
-"Images per Batch: %lld" = "单个样本的图像数: %lld";
+/* Text displaying the image generation progress and count */
+"Image %lld of %lld" = "图像 %lld / %lld";
 
 /* No comment provided by engineer. */
 "Include in Image" = "关键词";
@@ -101,7 +92,7 @@
 "No Info" = "无";
 
 /* No comment provided by engineer. */
-"Number of Batches:" = "样本数量:";
+"Number of Images:" = "图像数量:";
 
 /* No comment provided by engineer. */
 "Open in Finder" = "在访达中打开";
@@ -141,7 +132,7 @@ Right click menu option to show the save image dialog */
 "Seed" = "随机种";
 
 /* Label for Seed text field */
-"Seed (0 for random):" = "随机种 (0代表随机)";
+"Seed:" = "随机种:";
 
 /* No comment provided by engineer. */
 "Share..." = "分享...";
@@ -157,6 +148,9 @@ Right click menu option to show the save image dialog */
 
 /* Label for Steps slider with value */
 "Steps: %lld" = "迭代步数: %lld";
+
+/* No comment provided by engineer. */
+"Stop Generation" = "终止生成";
 
 /* No comment provided by engineer. */
 "Support Me ♥" = "支持我 ♥";

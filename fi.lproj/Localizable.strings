@@ -10,9 +10,6 @@
 /* Help text for ML Compute Unit option under Settings */
 "Based on the option selected the correct model version will need to be used." = "Valitun vaihtoehdon perusteella on käytettävä oikeaa mallin versiota.";
 
-/* Text displaying the current batch progress and count */
-"Batch %lld of %lld" = "Erä %lld / %lld";
-
 /* No comment provided by engineer. */
 "Check for Updates…" = "Tarkista päivitykset…";
 
@@ -70,14 +67,8 @@
 /* Label for image height picker */
 "Height:" = "Korkeus:";
 
-/* No comment provided by engineer. */
-"Image Index" = "Kuvan indeksi";
-
-/* No comment provided by engineer. */
-"Images in a batch are generated at the same time and require more memory.\n^[%lld images](inflect: true) will be generated in total." = "Erän kuvat luodaan samaan aikaan ja se vaatii enemmän muistia.\n^[%lld kuvaa](inflect: true) luodaan yhteensä.";
-
-/* No comment provided by engineer. */
-"Images per Batch: %lld" = "Kuvia erässä: %lld";
+/* Text displaying the image generation progress and count */
+"Image %lld of %lld" = "Kuva %lld / %lld";
 
 /* No comment provided by engineer. */
 "Include in Image" = "Sisällytä kuvaan";
@@ -101,7 +92,7 @@
 "No Info" = "Ei tietoa";
 
 /* No comment provided by engineer. */
-"Number of Batches:" = "Erien lukumäärä:";
+"Number of Images:" = "Kuvien määrä:";
 
 /* No comment provided by engineer. */
 "Open in Finder" = "Avaa Finderissa";
@@ -141,7 +132,7 @@ Right click menu option to show the save image dialog */
 "Seed" = "Seed-luku";
 
 /* Label for Seed text field */
-"Seed (0 for random):" = "Seed (0 satunnaiselle):";
+"Seed:" = "Seed-luku:";
 
 /* No comment provided by engineer. */
 "Share..." = "Jaa...";
@@ -157,6 +148,9 @@ Right click menu option to show the save image dialog */
 
 /* Label for Steps slider with value */
 "Steps: %lld" = "Vaiheet: %lld";
+
+/* No comment provided by engineer. */
+"Stop Generation" = "Pysäytä generointi";
 
 /* No comment provided by engineer. */
 "Support Me ♥" = "Tue minua ♥";

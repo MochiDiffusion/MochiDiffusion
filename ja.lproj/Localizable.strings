@@ -10,9 +10,6 @@
 /* Help text for ML Compute Unit option under Settings */
 "Based on the option selected the correct model version will need to be used." = "選択したオプションに基づいて、正しいモデルのバージョンを使用する必要があります。";
 
-/* Text displaying the current batch progress and count */
-"Batch %lld of %lld" = "バッチ %lld / %lld";
-
 /* No comment provided by engineer. */
 "Check for Updates…" = "アップデートの確認...";
 
@@ -70,14 +67,8 @@
 /* Label for image height picker */
 "Height:" = "高さ:";
 
-/* No comment provided by engineer. */
-"Image Index" = "画像インデックス";
-
-/* No comment provided by engineer. */
-"Images in a batch are generated at the same time and require more memory.\n^[%lld images](inflect: true) will be generated in total." = "バッチ内の画像は同時に生成され、より多くのメモリが必要です。\n合計で^[%lld images](inflect: true) が生成されます。";
-
-/* No comment provided by engineer. */
-"Images per Batch: %lld" = "バッチごとの画像数: %lld";
+/* Text displaying the image generation progress and count */
+"Image %lld of %lld" = "画像 %lld / %lld";
 
 /* No comment provided by engineer. */
 "Include in Image" = "画像に含める";
@@ -101,7 +92,7 @@
 "No Info" = "情報はありません";
 
 /* No comment provided by engineer. */
-"Number of Batches:" = "バッチ数:";
+"Number of Images:" = "画像数:";
 
 /* No comment provided by engineer. */
 "Open in Finder" = "Finderに表示";
@@ -141,7 +132,7 @@ Right click menu option to show the save image dialog */
 "Seed" = "シード";
 
 /* Label for Seed text field */
-"Seed (0 for random):" = "シード（0の場合はランダム）";
+"Seed:" = "シード:";
 
 /* No comment provided by engineer. */
 "Share..." = "共有...";
@@ -157,6 +148,9 @@ Right click menu option to show the save image dialog */
 
 /* Label for Steps slider with value */
 "Steps: %lld" = "ステップ: %lld";
+
+/* No comment provided by engineer. */
+"Stop Generation" = "画像生成の中止";
 
 /* No comment provided by engineer. */
 "Support Me ♥" = "サポートお願いします♥";

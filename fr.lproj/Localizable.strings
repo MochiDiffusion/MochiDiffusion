@@ -10,9 +10,6 @@
 /* Help text for ML Compute Unit option under Settings */
 "Based on the option selected the correct model version will need to be used." = "Selon l'option sélectionnée, un modèle compatible devra être utilisé.";
 
-/* Text displaying the current batch progress and count */
-"Batch %lld of %lld" = "Lot %lld de %lld";
-
 /* No comment provided by engineer. */
 "Check for Updates…" = "Rechercher des mises à jour…";
 
@@ -70,14 +67,8 @@
 /* Label for image height picker */
 "Height:" = "Hauteur:";
 
-/* No comment provided by engineer. */
-"Image Index" = "Index de l'image";
-
-/* No comment provided by engineer. */
-"Images in a batch are generated at the same time and require more memory.\n^[%lld images](inflect: true) will be generated in total." = "Les images dans un lot sont générées en même temps et nécessitent plus de mémoire.\n^[%lld images](inflect: true) seront générées au total.";
-
-/* No comment provided by engineer. */
-"Images per Batch: %lld" = "Images par lot : %lld";
+/* Text displaying the image generation progress and count */
+"Image %lld of %lld" = "Image %lld sur %lld";
 
 /* No comment provided by engineer. */
 "Include in Image" = "Inclure dans l'image";
@@ -101,7 +92,7 @@
 "No Info" = "Aucune Information";
 
 /* No comment provided by engineer. */
-"Number of Batches:" = "Nombre de lots :";
+"Number of Images:" = "Nombre d'images:";
 
 /* No comment provided by engineer. */
 "Open in Finder" = "Afficher dans le Finder";
@@ -141,7 +132,7 @@ Right click menu option to show the save image dialog */
 "Seed" = "Graine";
 
 /* Label for Seed text field */
-"Seed (0 for random):" = "Graine (0 pour aléatoire) :";
+"Seed:" = "Graine:";
 
 /* No comment provided by engineer. */
 "Share..." = "Partager...";
@@ -157,6 +148,9 @@ Right click menu option to show the save image dialog */
 
 /* Label for Steps slider with value */
 "Steps: %lld" = "Étapes : %lld";
+
+/* No comment provided by engineer. */
+"Stop Generation" = "Arrêter la génération";
 
 /* No comment provided by engineer. */
 "Support Me ♥" = "Soutenez-moi ♥";

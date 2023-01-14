@@ -10,9 +10,6 @@
 /* Help text for ML Compute Unit option under Settings */
 "Based on the option selected the correct model version will need to be used." = "In base all'opzione selezionata dovrà essere utilizzata la versione del modello corrispondente.";
 
-/* Text displaying the current batch progress and count */
-"Batch %lld of %lld" = "Lotto %lld di %lld";
-
 /* No comment provided by engineer. */
 "Check for Updates…" = "Ricerca aggiornamenti…";
 
@@ -70,14 +67,8 @@
 /* Label for image height picker */
 "Height:" = "Altezza:";
 
-/* No comment provided by engineer. */
-"Image Index" = "Indice immagine";
-
-/* No comment provided by engineer. */
-"Images in a batch are generated at the same time and require more memory.\n^[%lld images](inflect: true) will be generated in total." = "Le immagini generate in lotto vengono create simultaneamente e richiedono maggiore utilizzo della memoria.\n^[%lld immagini](inflect: true) saranno generate in totale.";
-
-/* No comment provided by engineer. */
-"Images per Batch: %lld" = "Immagini per lotto: %lld";
+/* Text displaying the image generation progress and count */
+"Image %lld of %lld" = "Immagine %lld di %lld";
 
 /* No comment provided by engineer. */
 "Include in Image" = "Includi nell'immagine";
@@ -101,7 +92,7 @@
 "No Info" = "Nessun dato";
 
 /* No comment provided by engineer. */
-"Number of Batches:" = "Numero di lotti:";
+"Number of Images:" = "Numero di immagini:";
 
 /* No comment provided by engineer. */
 "Open in Finder" = "Apri nel Finder";
@@ -141,7 +132,7 @@ Right click menu option to show the save image dialog */
 "Seed" = "Seed";
 
 /* Label for Seed text field */
-"Seed (0 for random):" = "Seed (0 per causale):";
+"Seed:" = "Seed:";
 
 /* No comment provided by engineer. */
 "Share..." = "Condividi...";
@@ -157,6 +148,9 @@ Right click menu option to show the save image dialog */
 
 /* Label for Steps slider with value */
 "Steps: %lld" = "Numero di passi: %lld";
+
+/* No comment provided by engineer. */
+"Stop Generation" = "Ferma la generazione";
 
 /* No comment provided by engineer. */
 "Support Me ♥" = "Sostienimi ♥";

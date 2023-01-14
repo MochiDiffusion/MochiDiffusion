@@ -10,9 +10,6 @@
 /* Help text for ML Compute Unit option under Settings */
 "Based on the option selected the correct model version will need to be used." = "Com base na opção selecionada, a versão correta do modelo precisará ser usada.";
 
-/* Text displaying the current batch progress and count */
-"Batch %lld of %lld" = "Lote %lld de %lld";
-
 /* No comment provided by engineer. */
 "Check for Updates…" = "Buscar atualizações…";
 
@@ -70,14 +67,8 @@
 /* Label for image height picker */
 "Height:" = "Altura:";
 
-/* No comment provided by engineer. */
-"Image Index" = "Índice da imagem";
-
-/* No comment provided by engineer. */
-"Images in a batch are generated at the same time and require more memory.\n^[%lld images](inflect: true) will be generated in total." = "As imagens em um lote são geradas ao mesmo tempo e requerem mais memória.\n^[%lld imagens](inflect: true) serão geradas no total.";
-
-/* No comment provided by engineer. */
-"Images per Batch: %lld" = "Imagens por lote: %lld";
+/* Text displaying the image generation progress and count */
+"Image %lld of %lld" = "Imagem %lld de %lld";
 
 /* No comment provided by engineer. */
 "Include in Image" = "Incluir na imagem";
@@ -101,7 +92,7 @@
 "No Info" = "Sem informações";
 
 /* No comment provided by engineer. */
-"Number of Batches:" = "Número de lotes:";
+"Number of Images:" = "Número de imagens:";
 
 /* No comment provided by engineer. */
 "Open in Finder" = "Mostrar no Finder";
@@ -141,7 +132,7 @@ Right click menu option to show the save image dialog */
 "Seed" = "Semente";
 
 /* Label for Seed text field */
-"Seed (0 for random):" = "Semente (0 para aleatório):";
+"Seed:" = "Semente:";
 
 /* No comment provided by engineer. */
 "Share..." = "Compartilhar...";
@@ -157,6 +148,9 @@ Right click menu option to show the save image dialog */
 
 /* Label for Steps slider with value */
 "Steps: %lld" = "Passos: %lld";
+
+/* No comment provided by engineer. */
+"Stop Generation" = "Parar criação";
 
 /* No comment provided by engineer. */
 "Support Me ♥" = "Me apoie ♥";
