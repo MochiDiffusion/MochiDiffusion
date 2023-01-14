@@ -22,3 +22,8 @@ jobs:
           -project "Mochi Diffusion.xcodeproj"
           -scheme "Mochi Diffusion"
           CODE_SIGNING_ALLOWED=NO | xcpretty && exit ${PIPESTATUS[0]}
+
+      - name: Run SwiftLint
+        run: |
+          brew upgrade swiftlint
+          swiftlint lint
