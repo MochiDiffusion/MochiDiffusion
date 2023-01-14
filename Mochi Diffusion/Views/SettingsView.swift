@@ -121,6 +121,7 @@ struct SettingsView: View {
                     Text("Apply",
                          comment: "Button to apply the selected settings")
                 }
+                .buttonStyle(.borderedProminent)
             }
         }
         .padding()
