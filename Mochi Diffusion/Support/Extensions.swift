@@ -27,6 +27,10 @@ extension URL {
 }
 
 extension NSImage {
+    func getImageHash() -> Int {
+        return self.tiffRepresentation!.hashValue
+    }
+    
     func toPngData() -> Data {
         let imageRepresentation = NSBitmapImageRep(data: self.tiffRepresentation!)
         return (imageRepresentation?.representation(using: .png, properties: [:])!)!
@@ -37,14 +41,15 @@ extension NSImage: Transferable {
     private static var urlCache = [Int: URL]()
 
     func temporaryFileURL() throws -> URL {
-        if let cachedURL = NSImage.urlCache[self.hash] {
+        let imageHash = self.getImageHash()
+        if let cachedURL = NSImage.urlCache[imageHash] {
             return cachedURL
         }
-        let name = String(self.hash)
+        let name = String(imageHash)
         let url = FileManager.default.temporaryDirectory.appendingPathComponent(name, conformingTo: .png)
         let fileWrapper = FileWrapper(regularFileWithContents: self.toPngData())
         try fileWrapper.write(to: url, originalContentsURL: nil)
-        NSImage.urlCache[self.hash] = url
+        NSImage.urlCache[imageHash] = url
         return url
     }
 
