@@ -16,10 +16,6 @@ jobs:
         with:
           xcode-version: latest-stable
 
-      - name: Setup SwiftLint
-        run: |
-          brew install swiftlint
-
       - name: Build and Analyze
         run: >
           xcodebuild clean build analyze
@@ -29,4 +25,4 @@ jobs:
 
       - name: Run SwiftLint
         run: |
-          swiftlint lint
+          /usr/local/bin/swiftlint lint
