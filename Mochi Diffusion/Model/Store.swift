@@ -99,12 +99,18 @@ final class Store: ObservableObject {
             try? fm.createDirectory(at: dir, withIntermediateDirectories: true)
         }
         workingDir = dir.path(percentEncoded: false)
+        
         // Find models in model dir
         do {
-            let subs = try dir.subDirectories()
-            subs.forEach { sub in
-                models.append(sub.lastPathComponent)
+            let dirContent = try fm.contentsOfDirectory(at: dir, includingPropertiesForKeys: nil, options: .skipsHiddenFiles)
+            dirContent.forEach { item in
+                var isDir : ObjCBool = false
+                fm.fileExists(atPath: item.path, isDirectory: &isDir)
+                if (isDir.boolValue) {
+                    models.append(item.lastPathComponent)
+                }
             }
+            
         } catch {
             self.model = ""
             mainViewStatus = .error("Could not get sub-folders under model directory: \(dir.path)")
