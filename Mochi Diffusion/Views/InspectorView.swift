@@ -21,7 +21,7 @@ struct InspectorView: View {
                     .padding(4)
                     .overlay(
                         RoundedRectangle(cornerRadius: 2)
-                            .stroke(.secondary, lineWidth: 4)
+                            .stroke(sdi.image?.averageColor ?? .secondary, lineWidth: 4)
                     )
                     .padding()
 
