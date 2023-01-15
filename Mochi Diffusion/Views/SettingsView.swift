@@ -13,7 +13,7 @@ struct SettingsView: View {
     @EnvironmentObject var store: Store
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        VStack(alignment: .leading, spacing: 16) {
             GroupBox {
                 HStack {
                     Text("Scheduler")
@@ -83,8 +83,6 @@ struct SettingsView: View {
                 .padding(4)
             }
 
-            Spacer().frame(height: 12)
-
             GroupBox {
                 VStack(alignment: .leading) {
                     Text("Working Directory",
@@ -109,8 +107,6 @@ struct SettingsView: View {
                 .padding(4)
             }
 
-            Spacer()
-
             HStack {
                 Spacer()
 
@@ -126,6 +122,7 @@ struct SettingsView: View {
         }
         .padding()
         .frame(width: 500, alignment: .top)
+        .fixedSize()
     }
 }
 

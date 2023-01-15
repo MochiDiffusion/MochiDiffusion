@@ -30,7 +30,7 @@ extension NSImage {
     func getImageHash() -> Int {
         return self.tiffRepresentation!.hashValue
     }
-    
+
     func toPngData() -> Data {
         let imageRepresentation = NSBitmapImageRep(data: self.tiffRepresentation!)
         return (imageRepresentation?.representation(using: .png, properties: [:])!)!
