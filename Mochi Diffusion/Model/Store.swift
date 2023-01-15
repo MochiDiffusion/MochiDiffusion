@@ -18,6 +18,7 @@ final class Store: ObservableObject {
     @Published var images = [SDImage]()
     @Published var selectedImageIndex = -1 // TODO: replace with selectedItemIds
     @Published var selectedItemIds = Set<UUID>()
+    @Published var quicklookURL: URL?
     @Published var mainViewStatus: MainViewStatus = .idle
     @Published var numberOfImages = 1
     @Published var seed: UInt32 = 0
@@ -253,7 +254,7 @@ final class Store: ObservableObject {
         sdi.isUpscaled = true
         sdi.generatedDate = Date.now
         images.append(sdi)
-        selectedImageIndex = newImageIndex
+        selectImage(index: newImageIndex)
     }
 
     func upscaleCurrentImage() {
@@ -268,18 +269,37 @@ final class Store: ObservableObject {
         sdi.isUpscaled = true
         sdi.generatedDate = Date.now
         images.append(sdi)
-        selectedImageIndex = newImageIndex
+        selectImage(index: newImageIndex)
+    }
+
+    func quicklookCurrentImage() {
+        guard let sdi = getSelectedImage, let img = sdi.image else { return }
+        quicklookURL = try? img.asNSImage().temporaryFileURL()
     }
 
     func selectImage(index: Int) {
         selectedImageIndex = index
+        // If quicklook is already open show selected image
+        if quicklookURL != nil {
+            quicklookCurrentImage()
+        }
+    }
+
+    func selectPreviousImage() {
+        if selectedImageIndex == 0 { return }
+        selectImage(index: selectedImageIndex - 1)
+    }
+
+    func selectNextImage() {
+        if selectedImageIndex == images.count - 1 { return }
+        selectImage(index: selectedImageIndex + 1)
     }
 
     func removeImage(index: Int) {
         images.remove(at: index)
         if index <= selectedImageIndex {
             if selectedImageIndex != 0 || images.count == 0 {
-                selectedImageIndex -= 1
+                selectImage(index: selectedImageIndex - 1)
             }
         }
     }
@@ -336,7 +356,7 @@ final class Store: ObservableObject {
         withAnimation(.default.speed(1.5)) {
             self.images.append(contentsOf: simgs)
         }
-//        self.selectedImageIndex = newImageIndex
+//        self.selectImage(index: newImageIndex)
     }
 
     @MainActor

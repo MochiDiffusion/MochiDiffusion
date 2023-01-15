@@ -12,7 +12,6 @@ import QuickLook
 struct GalleryView: View {
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var store: Store
-    @State private var quicklookImage: URL?
     private var gridColumns = [GridItem(.adaptive(minimum: 200), spacing: 16)]
 
     var body: some View {
@@ -38,30 +37,26 @@ struct GalleryView: View {
                                         lineWidth: 4)
                             )
                             .gesture(TapGesture(count: 2).onEnded {
-                                quicklookImage = try? sdi.image?.asNSImage().temporaryFileURL()
+                                store.quicklookCurrentImage()
                             })
                             .simultaneousGesture(TapGesture().onEnded {
                                 store.selectImage(index: index)
-                                // If quicklook is open show selected image on single click
-                                if quicklookImage != nil {
-                                    quicklookImage = try? sdi.image?.asNSImage().temporaryFileURL()
-                                }
                             })
                             .contextMenu {
                                 Section {
                                     Button(action: store.copyToPrompt) {
                                         Text("Copy Options to Sidebar",
-                                             comment: "Button to copy the currently selected image's generation options to the prompt input sidebar")
+                                             comment: "Action to copy the currently selected image's generation options to the prompt input sidebar")
                                     }
                                     Button {
                                         store.upscaleImage(sdImage: sdi)
                                     } label: {
                                         Text("Convert to High Resolution",
-                                             comment: "Right click menu option to convert the image to high resolution")
+                                             comment: "Action to convert the image to high resolution")
                                     }
                                     Button(action: sdi.save) {
                                         Text("Save As...",
-                                             comment: "Right click menu option to show the save image dialog")
+                                             comment: "Action to show the save image dialog")
                                     }
                                 }
                                 Section {
@@ -69,13 +64,13 @@ struct GalleryView: View {
                                         store.removeImage(index: index)
                                     } label: {
                                         Text("Remove",
-                                             comment: "Right click menu option to remove image from the gallery")
+                                             comment: "Action to remove image from the gallery")
                                     }
                                 }
                             }
                         }
                     }
-                    .quickLookPreview($quicklookImage)
+                    .quickLookPreview($store.quicklookURL)
                     .padding()
                 }
             } else {

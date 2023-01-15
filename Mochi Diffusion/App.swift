@@ -62,9 +62,11 @@ struct MochiDiffusionApp: App {
             CommandGroup(replacing: CommandGroupPlacement.newItem) { /* hide new window */ }
             FileCommands(store: store)
             SidebarCommands()
+            ImageCommands(store: store)
             HelpCommands()
         }
         .defaultSize(width: 1120, height: 670)
+
         Settings {
             SettingsView()
                 .environmentObject(store)
