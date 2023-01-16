@@ -24,7 +24,7 @@
 - 在所有搭载 Apple 芯片的 Mac 上充分发挥神经网络引擎的优势
 - 生成图像时无需联网
 - 在图像的 EXIF 信息中存储所有的关键词
-- 生成图像超分辨率 (使用 RealESRGAN)
+- 将生成图像超分辨率 (使用 RealESRGAN)
 - 自定义 Stable Diffusion Core ML 模型
 - 无需担心损坏的模型
 - 使用 macOS 原生框架 SwiftUI 开发
@@ -86,11 +86,13 @@
 
 Mochi Diffusion 欢迎贡献者，不管是修复bug，新增代码，还是完善翻译。
 
-- 如果你找到一个bug，对现有功能有意见和想法，或者想要一个新功能，请先在这里 [搜索你的问题](https://github.com/godly-devotion/MochiDiffusion/discussions) 以避免重复。如果你没看到和你一样的问题，请 [发起一个新的讨论](https://github.com/godly-devotion/MochiDiffusion/discussions/new)。
+- 如果你有任何问题，请先在这里 [搜索你的问题](https://github.com/godly-devotion/MochiDiffusion/discussions) 以免重复。在确认没有人提出过相同的问题后，请 [发起一个新的讨论](https://github.com/godly-devotion/MochiDiffusion/discussions/new)。
+
+- 如果你找到一个bug，或想提出一个新的建议或想法，请先在这里 [搜索议题](https://github.com/godly-devotion/MochiDiffusion/issues) 以免重复。在确认没有重复后，你可以 [创建一个新议题](https://github.com/godly-devotion/MochiDiffusion/issues/new)。
 
 - 如果你想贡献代码，请 [创建拉取请求](https://github.com/godly-devotion/MochiDiffusion/pulls) 或 [发起一个新的讨论](https://github.com/godly-devotion/MochiDiffusion/discussions) 来探讨。
 
-- 如果你想对 Mochi Diffusion 贡献翻译，请到项目的 [Crowdin 页面](https://github.com/godly-devotion/MochiDiffusion/discussions)，你可以免费创建一个账户然后开始翻译。
+- 如果你想对 Mochi Diffusion 贡献翻译，请到项目的 [Crowdin 页面](https://crowdin.com/project/mochi-diffusion)，你可以免费创建一个账户然后开始翻译。
 
 ## 致谢
 
