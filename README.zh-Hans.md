@@ -86,9 +86,9 @@
 
 Mochi Diffusion 欢迎贡献者，不管是修复bug，新增代码，还是完善翻译。
 
-- 如果你有任何问题，请先在这里 [搜索你的问题](https://github.com/godly-devotion/MochiDiffusion/discussions) 以免重复。在确认没有人提出过相同的问题后，请 [发起一个新的讨论](https://github.com/godly-devotion/MochiDiffusion/discussions/new)。
+- 如果你有任何问题，请先在这里 [搜索你的问题](https://github.com/godly-devotion/MochiDiffusion/discussions) 以避免重复。在确认没有人提出过相同的问题后，请 [发起一个新的讨论](https://github.com/godly-devotion/MochiDiffusion/discussions/new)。
 
-- 如果你找到一个bug，或想提出一个新的建议或想法，请先在这里 [搜索议题](https://github.com/godly-devotion/MochiDiffusion/issues) 以免重复。在确认没有重复后，你可以 [创建一个新议题](https://github.com/godly-devotion/MochiDiffusion/issues/new)。
+- 如果你找到一个bug，或想提出一个新的建议或想法，请先在这里 [搜索议题](https://github.com/godly-devotion/MochiDiffusion/issues) 以避免重复。在确认没有重复后，你可以 [创建一个新议题](https://github.com/godly-devotion/MochiDiffusion/issues/new)。
 
 - 如果你想贡献代码，请 [创建拉取请求](https://github.com/godly-devotion/MochiDiffusion/pulls) 或 [发起一个新的讨论](https://github.com/godly-devotion/MochiDiffusion/discussions) 来探讨。
 
