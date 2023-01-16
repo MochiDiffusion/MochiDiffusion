@@ -18,6 +18,7 @@ struct SDImage: Identifiable {
     var negativePrompt = ""
     var width = 0
     var height = 0
+    var aspectRatio: CGFloat = 0.0
     var model = ""
     var scheduler: StableDiffusionScheduler = StableDiffusionScheduler.dpmSolverMultistepScheduler
     var seed: UInt32 = 0

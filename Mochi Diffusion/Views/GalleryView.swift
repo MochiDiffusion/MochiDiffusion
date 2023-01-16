@@ -21,57 +21,62 @@ struct GalleryView: View {
             }
 
             if store.images.count > 0 {
-                ScrollView {
-                    LazyVGrid(columns: gridColumns, spacing: 16) {
-                        ForEach(Array(searchResults.enumerated()), id: \.offset) { index, sdi in
-                            GeometryReader { geo in
-                                GalleryItemView(width: geo.size.width, height: geo.size.height, sdi: sdi, index: index)
-                            }
-                            .aspectRatio(1, contentMode: .fit)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 2)
-                                    .stroke(
-                                        index == store.selectedImageIndex ?
-                                            Color.accentColor :
-                                            Color(nsColor: .controlBackgroundColor),
-                                        lineWidth: 4)
-                            )
-                            .gesture(TapGesture(count: 2).onEnded {
-                                store.quicklookCurrentImage()
-                            })
-                            .simultaneousGesture(TapGesture().onEnded {
-                                store.selectImage(index: index)
-                            })
-                            .contextMenu {
-                                Section {
-                                    Button(action: store.copyToPrompt) {
-                                        Text("Copy Options to Sidebar",
-                                             comment: "Action to copy the currently selected image's generation options to the prompt input sidebar")
-                                    }
-                                    Button {
-                                        store.upscaleImage(sdImage: sdi)
-                                    } label: {
-                                        Text("Convert to High Resolution",
-                                             comment: "Action to convert the image to high resolution")
-                                    }
-                                    Button(action: sdi.save) {
-                                        Text("Save As...",
-                                             comment: "Action to show the save image dialog")
+                ScrollViewReader { proxy in
+                    ScrollView {
+                        LazyVGrid(columns: gridColumns, spacing: 16) {
+                            ForEach(Array(searchResults.enumerated()), id: \.offset) { index, sdi in
+                                GalleryItemView(sdi: sdi, index: index)
+                                .onChange(of: store.selectedImageIndex) { target in
+                                    withAnimation {
+                                        proxy.scrollTo(target)
                                     }
                                 }
-                                Section {
-                                    Button {
-                                        store.removeImage(index: index)
-                                    } label: {
-                                        Text("Remove",
-                                             comment: "Action to remove image from the gallery")
+                                .aspectRatio(sdi.aspectRatio, contentMode: .fit)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 2)
+                                        .stroke(
+                                            index == store.selectedImageIndex ?
+                                            Color.accentColor :
+                                                Color(nsColor: .controlBackgroundColor),
+                                            lineWidth: 4)
+                                )
+                                .gesture(TapGesture(count: 2).onEnded {
+                                    store.quicklookCurrentImage()
+                                })
+                                .simultaneousGesture(TapGesture().onEnded {
+                                    store.selectImage(index: index)
+                                })
+                                .contextMenu {
+                                    Section {
+                                        Button(action: store.copyToPrompt) {
+                                            Text("Copy Options to Sidebar",
+                                                 comment: "Action to copy the currently selected image's generation options to the prompt input sidebar")
+                                        }
+                                        Button {
+                                            store.upscaleImage(sdImage: sdi)
+                                        } label: {
+                                            Text("Convert to High Resolution",
+                                                 comment: "Action to convert the image to high resolution")
+                                        }
+                                        Button(action: sdi.save) {
+                                            Text("Save As...",
+                                                 comment: "Action to show the save image dialog")
+                                        }
+                                    }
+                                    Section {
+                                        Button {
+                                            store.removeImage(index: index)
+                                        } label: {
+                                            Text("Remove",
+                                                 comment: "Action to remove image from the gallery")
+                                        }
                                     }
                                 }
                             }
                         }
+                        .quickLookPreview($store.quicklookURL)
+                        .padding()
                     }
-                    .quickLookPreview($store.quicklookURL)
-                    .padding()
                 }
             } else {
                 Color.clear

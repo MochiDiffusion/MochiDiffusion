@@ -216,6 +216,7 @@ final class Store: ObservableObject {
                         sdi.image = img
                         sdi.width = img.width
                         sdi.height = img.height
+                        sdi.aspectRatio = CGFloat(Double(img.width) / Double(img.height))
                         sdi.seed = seed
                         sdi.generatedDate = Date.now
                         simgs.append(sdi)
@@ -257,6 +258,7 @@ final class Store: ObservableObject {
         sdi.image = upscaledImage
         sdi.width = upscaledImage.width
         sdi.height = upscaledImage.height
+        sdi.aspectRatio = CGFloat(Double(sdi.width) / Double(sdi.height))
         sdi.isUpscaled = true
         sdi.generatedDate = Date.now
         images.append(sdi)
@@ -272,6 +274,7 @@ final class Store: ObservableObject {
         sdi.image = upscaledImage
         sdi.width = upscaledImage.width
         sdi.height = upscaledImage.height
+        sdi.aspectRatio = CGFloat(Double(sdi.width) / Double(sdi.height))
         sdi.isUpscaled = true
         sdi.generatedDate = Date.now
         images.append(sdi)
@@ -375,6 +378,7 @@ final class Store: ObservableObject {
             sdi.image = upscaledImage
             sdi.width = upscaledImage.width
             sdi.height = upscaledImage.height
+            sdi.aspectRatio = CGFloat(Double(sdi.width) / Double(sdi.height))
             sdi.isUpscaled = true
             upscaledSDImgs.append(sdi)
         }

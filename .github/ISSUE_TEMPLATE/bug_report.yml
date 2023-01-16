@@ -1,0 +1,60 @@
+name: Bug Report
+description: File a bug report
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+  - type: checkboxes
+    id: latest-version
+    attributes:
+      label: Running Latest Version
+      description: I've checked that I am running the latest version by going to Mochi Diffusion > Check for Updates...
+      options:
+        - label: I am running the latest version
+          required: true
+  - type: dropdown
+    id: processor
+    attributes:
+      label: Processor
+      options:
+        - M1 (or later)
+        - M1 Pro (or later)
+        - M1 Max (or later)
+        - M1 Ultra (or later)
+        - Intel
+    validations:
+      required: true
+  - type: textarea
+    id: intel-processor
+    attributes:
+      label: Intel processor
+      description: If your processor type is Intel, specify the model and GPU.
+      placeholder: 2.2 GHz 6-core Intel Core i7 8750H with AMD Radeon Pro 555X (4GB GDDR5 memory)
+  - type: dropdown
+    id: memory
+    attributes:
+      label: Memory
+      options:
+        - 8GB
+        - 16GB
+        - 32GB
+        - 64GB (or higher)
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Also tell us, what did you expect to happen?
+      placeholder: Provide any steps necessary to reproduce the problem.
+    validations:
+      required: true
+  - type: textarea
+    id: crash-logs
+    attributes:
+      label: Crash Log
+      description: If Mochi Diffusion quit unexpectedly, copy the text under Problem Details and System Configuration. This will be automatically formatted, so no need for backticks. You may need to click on `Report...` to see this info.
+      render: shell

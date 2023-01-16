@@ -1,0 +1,25 @@
+name: Feature Request
+description: Suggest an idea
+title: "[Feat]: "
+labels: ["enhancement", "triage"]
+body:
+  - type: checkboxes
+    id: latest-version
+    attributes:
+      label: Running Latest Version
+      description: I've checked that I am running the latest version by going to Mochi Diffusion > Check for Updates...
+      options:
+        - label: I am running the latest version
+          required: true
+  - type: textarea
+    id: request
+    attributes:
+      label: What do you want Mochi Diffusion to do?
+    validations:
+      required: true
+  - type: textarea
+    id: explanation
+    attributes:
+      label: Why do you think this should be added?
+    validations:
+      required: true
