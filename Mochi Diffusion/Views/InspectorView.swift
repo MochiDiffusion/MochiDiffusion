@@ -19,10 +19,7 @@ struct InspectorView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .padding(4)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 2)
-                            .stroke(sdi.image?.averageColor ?? .secondary, lineWidth: 4)
-                    )
+                    .shadow(color: sdi.image?.averageColor ?? .black, radius: 16)
                     .padding()
 
                 ScrollView(.vertical) {
