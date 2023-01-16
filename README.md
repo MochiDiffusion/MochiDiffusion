@@ -88,7 +88,7 @@ Mochi Diffusion is always looking for contributions, whether it's through bug re
 
 - If you have a question, try [searching for your question first](https://github.com/godly-devotion/MochiDiffusion/discussions) as someone might have asked the same question already. If you do not find your question listed, feel free to [create a new question](https://github.com/godly-devotion/MochiDiffusion/discussions/new?category=q-a). Don't create a new issue for your question as those are for bugs and feature requests only.
 
-- If you find a bug, or would like to suggest a new feature or enhancement, try [searching for your problem first](https://github.com/godly-devotion/MochiDiffusion/issues) as it helps avoid duplicates. If you can't find your issue, feel free to [create a new issue](https://github.com/godly-devotion/MochiDiffusion/issues/new).
+- If you find a bug, or would like to suggest a new feature or enhancement, try [searching for your problem first](https://github.com/godly-devotion/MochiDiffusion/issues) as it helps avoid duplicates. If you can't find your issue, feel free to [create a new issue](https://github.com/godly-devotion/MochiDiffusion/issues/new/choose).
 
 - If you're looking to contribute code, feel free to [open a Pull Request](https://github.com/godly-devotion/MochiDiffusion/pulls) or [create a new discussion](https://github.com/godly-devotion/MochiDiffusion/discussions) to talk about it first.
 

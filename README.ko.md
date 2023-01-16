@@ -86,7 +86,7 @@ Mochi Diffusion을 사용하려면 모델 파일을 Core ML 포맷으로 변환�
 
 Mochi Diffusion은 버그 보고서, 코드 또는 새로운 번역을 통해서든 항상 기여를 찾고 있습니다.
 
-- 버그를 발견했거나 새로운 기능이나 개선 사항을 제안하고 싶다면 [문제를 먼저 검색](https://github.com/godly-devotion/MochiDiffusion/discussions)해 보세요. 중복을 방지하는 데 도움이 됩니다. 문제를 찾을 수 없으면 [새 토론을 생성](https://github.com/godly-devotion/MochiDiffusion/discussions/new)하세요.
+- 버그를 발견했거나 새로운 기능이나 개선 사항을 제안하고 싶다면 [문제를 먼저 검색](https://github.com/godly-devotion/MochiDiffusion/issues)해 보세요. 중복을 방지하는 데 도움이 됩니다. 문제를 찾을 수 없으면 [새 문제를 생성](https://github.com/godly-devotion/MochiDiffusion/issues/new/choose)하세요.
 
 - 코드를 제공하고 싶다면 언제든지 [Pull Request 열기](https://github.com/godly-devotion/MochiDiffusion/pulls) 또는 [새 토론](https://github.com/godly-devotion/MochiDiffusion/discussions)에서 먼저 문이 하실수 있습니다.
 
