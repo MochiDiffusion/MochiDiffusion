@@ -31,7 +31,7 @@ struct ImageCommands: Commands {
                     store.selectNextImage()
                 } label: {
                     Text("Select Next",
-                         comment: "Keyboard shortcut action to select next image in Gallery")
+                         comment: "Select next image in Gallery")
                 }
                 .keyboardShortcut(.rightArrow, modifiers: .command)
                 .disabled(store.images.count == 0)
@@ -40,7 +40,7 @@ struct ImageCommands: Commands {
                     store.selectPreviousImage()
                 } label: {
                     Text("Select Previous",
-                         comment: "Keyboard shortcut action to select previous image in Gallery")
+                         comment: "Select previous image in Gallery")
                 }
                 .keyboardShortcut(.leftArrow, modifiers: .command)
                 .disabled(store.images.count == 0)
@@ -50,7 +50,7 @@ struct ImageCommands: Commands {
                     store.upscaleCurrentImage()
                 } label: {
                     Text("Convert to High Resolution",
-                         comment: "Action to convert the image to high resolution")
+                         comment: "Convert the current image to high resolution")
                 }
                 .keyboardShortcut("R", modifiers: .command)
                 .disabled(store.getSelectedImage == nil)
@@ -59,7 +59,7 @@ struct ImageCommands: Commands {
                     store.quicklookCurrentImage()
                 } label: {
                     Text("Quick Look",
-                         comment: "Keyboard shortcut action to view selected image using Quick Look")
+                         comment: "View current image using Quick Look")
                 }
                 .keyboardShortcut("L", modifiers: .command)
                 .disabled(store.getSelectedImage == nil)
@@ -69,7 +69,7 @@ struct ImageCommands: Commands {
                     store.removeCurrentImage()
                 } label: {
                     Text("Remove",
-                         comment: "Action to remove image from the gallery")
+                         comment: "Remove image from the gallery")
                 }
                 .keyboardShortcut(.delete, modifiers: .command)
                 .disabled(store.getSelectedImage == nil)

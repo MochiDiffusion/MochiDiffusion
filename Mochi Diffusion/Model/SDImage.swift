@@ -38,7 +38,7 @@ struct SDImage: Identifiable {
         panel.canCreateDirectories = true
         panel.isExtensionHidden = false
         panel.title = "Save Image"
-        panel.message = "Choose a folder and a name to store the image."
+        panel.message = "Choose a folder and a name to store the image"
         panel.nameFieldLabel = "Image file name:"
         panel.nameFieldStringValue =
             "\(String(prompt.prefix(70)).trimmingCharacters(in: .whitespacesAndNewlines)).\(seed).png"
@@ -60,7 +60,7 @@ struct SDImage: Identifiable {
         let iptc = [
             kCGImagePropertyIPTCOriginatingProgram: "Mochi Diffusion",
             kCGImagePropertyIPTCCaptionAbstract: metadata(),
-            kCGImagePropertyIPTCProgramVersion: "\(seed)"]
+            kCGImagePropertyIPTCProgramVersion: "\(NSApplication.appVersion)"]
         let meta = [kCGImagePropertyIPTCDictionary: iptc]
         CGImageDestinationAddImage(destination, image, meta as CFDictionary)
         guard CGImageDestinationFinalize(destination) else { return }
@@ -71,21 +71,21 @@ struct SDImage: Identifiable {
         }
     }
 
-    private func metadata() -> String {
+    func metadata() -> String {
         return """
-        \(title()), \
-        Model: \(model), \
-        Scheduler: \(scheduler), \
-        Seed: \(seed), \
-        Steps: \(steps), \
-        Guidance: \(guidanceScale), \
+        \(title()); \
+        Model: \(model); \
+        Scheduler: \(scheduler); \
+        Seed: \(seed); \
+        Steps: \(steps); \
+        Guidance: \(guidanceScale); \
         Generator: Mochi Diffusion \(NSApplication.appVersion)
         """
     }
 
     private func title() -> String {
         return """
-        Prompt: \(prompt), \
+        Prompt: \(prompt); \
         Negative: \(negativePrompt)
         """
     }

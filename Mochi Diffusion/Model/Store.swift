@@ -4,12 +4,13 @@
 //
 //  Created by Joshua Park on 12/17/2022.
 //
-
+// swiftlint:disable type_body_length file_length
 import Foundation
 import SwiftUI
 import CoreML
 import Combine
 import StableDiffusion
+import UniformTypeIdentifiers
 
 final class Store: ObservableObject {
     @Published var pipeline: Pipeline?
@@ -309,6 +310,47 @@ final class Store: ObservableObject {
 
     func removeCurrentImage() {
         removeImage(index: selectedImageIndex)
+    }
+
+    func saveAllImages() {
+        if images.count == 0 { return }
+        let panel = NSOpenPanel()
+        panel.canCreateDirectories = true
+        panel.canChooseDirectories = true
+        panel.canChooseFiles = false
+        panel.message = "Choose a folder to save all images"
+        panel.prompt = "Save"
+        let resp = panel.runModal()
+        if resp != .OK {
+            return
+        }
+
+        guard let selectedURL = panel.url else { return }
+        var count = 1
+        for sdi in images {
+            // swiftlint:disable:next line_length
+            let url = selectedURL.appending(path: "\(String(prompt.prefix(70)).trimmingCharacters(in: .whitespacesAndNewlines)).\(count).\(sdi.seed).png")
+            guard let image = sdi.image else { return }
+            guard let data = CFDataCreateMutable(nil, 0) else { return }
+            guard let destination = CGImageDestinationCreateWithData(
+                data,
+                UTType.png.identifier as CFString,
+                1,
+                nil) else { return }
+            let iptc = [
+                kCGImagePropertyIPTCOriginatingProgram: "Mochi Diffusion",
+                kCGImagePropertyIPTCCaptionAbstract: sdi.metadata(),
+                kCGImagePropertyIPTCProgramVersion: "\(NSApplication.appVersion)"]
+            let meta = [kCGImagePropertyIPTCDictionary: iptc]
+            CGImageDestinationAddImage(destination, image, meta as CFDictionary)
+            guard CGImageDestinationFinalize(destination) else { return }
+            do {
+                try (data as Data).write(to: url)
+            } catch {
+                NSLog("*** Error saving images: \(error)")
+            }
+            count += 1
+        }
     }
 
     func copyToPrompt() {

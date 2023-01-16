@@ -50,17 +50,17 @@ struct GalleryView: View {
                                     Section {
                                         Button(action: store.copyToPrompt) {
                                             Text("Copy Options to Sidebar",
-                                                 comment: "Action to copy the currently selected image's generation options to the prompt input sidebar")
+                                                 comment: "Copy the currently selected image's generation options to the prompt input sidebar")
                                         }
                                         Button {
                                             store.upscaleImage(sdImage: sdi)
                                         } label: {
                                             Text("Convert to High Resolution",
-                                                 comment: "Action to convert the image to high resolution")
+                                                 comment: "Convert the current image to high resolution")
                                         }
                                         Button(action: sdi.save) {
                                             Text("Save As...",
-                                                 comment: "Action to show the save image dialog")
+                                                 comment: "Show the save image dialog")
                                         }
                                     }
                                     Section {
@@ -68,7 +68,7 @@ struct GalleryView: View {
                                             store.removeImage(index: index)
                                         } label: {
                                             Text("Remove",
-                                                 comment: "Action to remove image from the gallery")
+                                                 comment: "Remove image from the gallery")
                                         }
                                     }
                                 }
