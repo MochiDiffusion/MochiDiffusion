@@ -5,9 +5,9 @@
 //  Created by Joshua Park on 12/19/22.
 //
 
-import SwiftUI
 import CoreML
 import StableDiffusion
+import SwiftUI
 
 struct SettingsView: View {
     @EnvironmentObject var store: Store
@@ -30,7 +30,7 @@ struct SettingsView: View {
                 }
                 .padding(4)
 
-#if arch(arm64)
+                #if arch(arm64)
                 Divider()
 
                 VStack(alignment: .leading) {
@@ -44,8 +44,10 @@ struct SettingsView: View {
                                 .tag(MLComputeUnits.cpuAndNeuralEngine)
                             Text("CPU & GPU")
                                 .tag(MLComputeUnits.cpuAndGPU)
-                            Text("All",
-                                 comment: "Option to use all CPU, GPU, & Neural Engine for compute unit")
+                            Text(
+                                "All",
+                                comment: "Option to use all CPU, GPU, & Neural Engine for compute unit"
+                            )
                             .tag(MLComputeUnits.all)
                         }
                         .labelsHidden()
@@ -57,12 +59,14 @@ struct SettingsView: View {
                     Text("CPU & GPU may be faster on M1 Max, Ultra and later but will use more memory.")
                         .helpTextFormat()
 
-                    Text("Based on the option selected the correct model version will need to be used.",
-                         comment: "Help text for ML Compute Unit option under Settings")
+                    Text(
+                        "Based on the option selected the correct model version will need to be used.",
+                        comment: "Help text for ML Compute Unit option under Settings"
+                    )
                     .helpTextFormat()
                 }
                 .padding(4)
-#endif
+                #endif
 
                 Divider()
 
@@ -76,8 +80,10 @@ struct SettingsView: View {
                             .labelsHidden()
                             .toggleStyle(.switch)
                     }
-                    Text("Reduce memory usage further at the cost of speed.",
-                         comment: "Help text for Reduce Memory Usage option")
+                    Text(
+                        "Reduce memory usage further at the cost of speed.",
+                        comment: "Help text for Reduce Memory Usage option"
+                    )
                     .helpTextFormat()
                 }
                 .padding(4)
@@ -85,8 +91,10 @@ struct SettingsView: View {
 
             GroupBox {
                 VStack(alignment: .leading) {
-                    Text("Working Directory",
-                         comment: "Label for changing the working directory")
+                    Text(
+                        "Working Directory",
+                        comment: "Label for changing the working directory"
+                    )
 
                     HStack {
                         TextField("", text: $store.workingDir)
@@ -114,8 +122,10 @@ struct SettingsView: View {
                     store.loadModels()
                     NSApplication.shared.keyWindow?.close()
                 } label: {
-                    Text("Apply",
-                         comment: "Button to apply the selected settings")
+                    Text(
+                        "Apply",
+                        comment: "Button to apply the selected settings"
+                    )
                 }
                 .buttonStyle(.borderedProminent)
             }

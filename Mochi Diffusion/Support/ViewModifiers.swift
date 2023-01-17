@@ -7,17 +7,7 @@
 
 import SwiftUI
 
-extension Text {
-    func helpTextFormat() -> some View {
-        modifier(HelpTextFormat())
-    }
-
-    func selectableTextFormat() -> some View {
-        modifier(SelectableTextFormat())
-    }
-}
-
-private struct HelpTextFormat: ViewModifier {
+struct HelpTextFormat: ViewModifier {
     func body(content: Content) -> some View {
         content
             .font(.callout)
@@ -25,7 +15,7 @@ private struct HelpTextFormat: ViewModifier {
     }
 }
 
-private struct SelectableTextFormat: ViewModifier {
+struct SelectableTextFormat: ViewModifier {
     func body(content: Content) -> some View {
         content
             .textSelection(.enabled)

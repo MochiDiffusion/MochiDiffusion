@@ -8,7 +8,7 @@
 import Foundation
 
 func getHumanReadableInfo(sdi: SDImage) -> String {
-    return """
+    """
 Date:
 \(sdi.generatedDate.formatted(date: .long, time: .standard))
 

@@ -30,27 +30,33 @@ struct ImageCommands: Commands {
                 Button {
                     store.selectNextImage()
                 } label: {
-                    Text("Select Next",
-                         comment: "Select next image in Gallery")
+                    Text(
+                        "Select Next",
+                        comment: "Select next image in Gallery"
+                    )
                 }
                 .keyboardShortcut(.rightArrow, modifiers: .command)
-                .disabled(store.images.count == 0)
+                .disabled(store.images.isEmpty)
 
                 Button {
                     store.selectPreviousImage()
                 } label: {
-                    Text("Select Previous",
-                         comment: "Select previous image in Gallery")
+                    Text(
+                        "Select Previous",
+                        comment: "Select previous image in Gallery"
+                    )
                 }
                 .keyboardShortcut(.leftArrow, modifiers: .command)
-                .disabled(store.images.count == 0)
+                .disabled(store.images.isEmpty)
             }
             Section {
                 Button {
                     store.upscaleCurrentImage()
                 } label: {
-                    Text("Convert to High Resolution",
-                         comment: "Convert the current image to high resolution")
+                    Text(
+                        "Convert to High Resolution",
+                        comment: "Convert the current image to high resolution"
+                    )
                 }
                 .keyboardShortcut("R", modifiers: .command)
                 .disabled(store.getSelectedImage == nil)
@@ -58,8 +64,10 @@ struct ImageCommands: Commands {
                 Button {
                     store.quicklookCurrentImage()
                 } label: {
-                    Text("Quick Look",
-                         comment: "View current image using Quick Look")
+                    Text(
+                        "Quick Look",
+                        comment: "View current image using Quick Look"
+                    )
                 }
                 .keyboardShortcut("L", modifiers: .command)
                 .disabled(store.getSelectedImage == nil)
@@ -68,8 +76,10 @@ struct ImageCommands: Commands {
                 Button {
                     store.removeCurrentImage()
                 } label: {
-                    Text("Remove",
-                         comment: "Remove image from the gallery")
+                    Text(
+                        "Remove",
+                        comment: "Remove image from the gallery"
+                    )
                 }
                 .keyboardShortcut(.delete, modifiers: .command)
                 .disabled(store.getSelectedImage == nil)

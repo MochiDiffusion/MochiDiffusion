@@ -5,8 +5,8 @@
 //  Created by Joshua Park on 12/30/22.
 //
 
-import Vision
 import CoreImage
+import Vision
 
 class Upscaler {
     private var request: VNCoreMLRequest
@@ -39,9 +39,11 @@ class Upscaler {
         guard let observation = self.request.results?.first as? VNPixelBufferObservation else { return nil }
         let upscaledWidth = cgImage.width * 4
         let upscaledHeight = cgImage.height * 4
-        guard let pixelBuffer = resizePixelBuffer(observation.pixelBuffer,
-                                                  width: upscaledWidth,
-                                                  height: upscaledHeight) else { return nil }
+        guard let pixelBuffer = resizePixelBuffer(
+            observation.pixelBuffer,
+            width: upscaledWidth,
+            height: upscaledHeight
+        ) else { return nil }
         return self.convertPixelBufferToCGImage(pixelBuffer: pixelBuffer)
     }
 
