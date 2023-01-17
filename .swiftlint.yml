@@ -56,7 +56,8 @@ computed_accessors_order:
   severity: error
 control_statement: error
 discouraged_assert: error
-discouraged_direct_init: error
+discouraged_direct_init:
+  severity: error
 discouraged_object_literal:
   severity: error
 discouraged_optional_boolean: error
@@ -89,7 +90,6 @@ indentation_width:
   severity: error
   include_comments: false
 is_disjoint: error
-large_tuple: error
 leading_whitespace: error
 legacy_cggeometry_functions: error
 legacy_constant: error
@@ -167,7 +167,8 @@ unowned_variable_capture: error
 unused_closure_parameter: error
 unused_control_flow_label: error
 unused_enumerated: error
-unused_optional_binding: error
+unused_optional_binding:
+  severity: error
 unused_setter_value: error
 vertical_parameter_alignment: error
 vertical_whitespace:
