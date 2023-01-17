@@ -16,13 +16,13 @@ jobs:
         with:
           xcode-version: latest-stable
 
+      - name: Run SwiftLint
+        run: |
+          /usr/local/bin/swiftlint lint
+
       - name: Build and Analyze
         run: >
           xcodebuild clean build analyze
           -project "Mochi Diffusion.xcodeproj"
           -scheme "Mochi Diffusion"
           CODE_SIGNING_ALLOWED=NO | xcpretty && exit ${PIPESTATUS[0]}
-
-      - name: Run SwiftLint
-        run: |
-          /usr/local/bin/swiftlint lint
