@@ -6,13 +6,11 @@
 //  See LICENSE at https://github.com/huggingface/swift-coreml-diffusers/LICENSE
 //
 
-import Foundation
 import Combine
+import Foundation
 import Path
 
 class Downloader: NSObject, ObservableObject {
-    private(set) var destination: URL
-
     enum DownloadState {
         case notStarted
         case downloading(Double)
@@ -20,6 +18,7 @@ class Downloader: NSObject, ObservableObject {
         case failed(Error)
     }
 
+    private(set) var destination: URL
     private(set) lazy var downloadState: CurrentValueSubject<DownloadState, Never> = CurrentValueSubject(.notStarted)
     private var stateSubscriber: Cancellable?
 
@@ -46,17 +45,23 @@ class Downloader: NSObject, ObservableObject {
         let semaphore = DispatchSemaphore(value: 0)
         stateSubscriber = downloadState.sink { state in
             switch state {
-            case .completed: semaphore.signal()
-            case .failed:    semaphore.signal()
-            default:         break
+            case .completed:
+                semaphore.signal()
+            case .failed:
+                semaphore.signal()
+            default:
+                break
             }
         }
         semaphore.wait()
 
         switch downloadState.value {
-        case .completed(let url): return url
-        case .failed(let error):  throw error
-        default:                  throw("Should never happen, lol")
+        case .completed(let url):
+            return url
+        case .failed(let error):
+            throw error
+        default:
+            throw("Should never happen, lol")
         }
     }
 }

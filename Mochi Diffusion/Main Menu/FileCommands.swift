@@ -17,11 +17,24 @@ struct FileCommands: Commands {
                     guard let sdi = store.getSelectedImage else { return }
                     sdi.save()
                 } label: {
-                    Text("Save As...",
-                         comment: "File menu option to show the save image dialog")
+                    Text(
+                        "Save As...",
+                        comment: "Show the save image dialog"
+                    )
                 }
                 .keyboardShortcut("S", modifiers: .command)
                 .disabled(store.getSelectedImage == nil)
+
+                Button {
+                    store.saveAllImages()
+                } label: {
+                    Text(
+                        "Save All...",
+                        comment: "Show the save images dialog"
+                    )
+                }
+                .keyboardShortcut("S", modifiers: [.command, .option])
+                .disabled(store.images.isEmpty)
             }
         }
     }

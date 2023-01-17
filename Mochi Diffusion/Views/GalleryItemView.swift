@@ -12,9 +12,13 @@ struct GalleryItemView: View {
     let index: Int
 
     var body: some View {
-        Image(sdi.image!, scale: 1, label: Text(verbatim: String(sdi.seed)))
-            .resizable()
-            .aspectRatio(contentMode: .fit)
-            .padding(4)
+        if let image = sdi.image {
+            Image(image, scale: 1, label: Text(verbatim: String(sdi.seed)))
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .padding(4)
+        } else {
+            Color.clear
+        }
     }
 }

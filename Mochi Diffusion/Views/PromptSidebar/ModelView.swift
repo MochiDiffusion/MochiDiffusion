@@ -5,15 +5,17 @@
 //  Created by Joshua Park on 12/26/22.
 //
 
-import SwiftUI
 import CoreML
+import SwiftUI
 
 struct ModelView: View {
     @EnvironmentObject var store: Store
 
     var body: some View {
-        Text("Model:",
-             comment: "Label for Model picker")
+        Text(
+            "Model:",
+            comment: "Label for Model picker"
+        )
         HStack {
             Picker("", selection: $store.currentModel) {
                 ForEach(store.models, id: \.self) { model in

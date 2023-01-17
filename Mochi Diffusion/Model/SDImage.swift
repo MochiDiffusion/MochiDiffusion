@@ -6,10 +6,10 @@
 //
 
 import AppKit
-import Foundation
 import CoreGraphics
-import UniformTypeIdentifiers
+import Foundation
 import StableDiffusion
+import UniformTypeIdentifiers
 
 struct SDImage: Identifiable {
     var id = UUID()
@@ -20,7 +20,7 @@ struct SDImage: Identifiable {
     var height = 0
     var aspectRatio: CGFloat = 0.0
     var model = ""
-    var scheduler: StableDiffusionScheduler = StableDiffusionScheduler.dpmSolverMultistepScheduler
+    var scheduler = StableDiffusionScheduler.dpmSolverMultistepScheduler
     var seed: UInt32 = 0
     var steps = 28
     var guidanceScale = 11.0
@@ -38,7 +38,7 @@ struct SDImage: Identifiable {
         panel.canCreateDirectories = true
         panel.isExtensionHidden = false
         panel.title = "Save Image"
-        panel.message = "Choose a folder and a name to store the image."
+        panel.message = "Choose a folder and a name to store the image"
         panel.nameFieldLabel = "Image file name:"
         panel.nameFieldStringValue =
             "\(String(prompt.prefix(70)).trimmingCharacters(in: .whitespacesAndNewlines)).\(seed).png"
@@ -55,12 +55,14 @@ struct SDImage: Identifiable {
             (ext == "png" ?
                 UTType.png.identifier :
                 UTType.jpeg.identifier) as CFString,
-             1,
-             nil) else { return }
+            1,
+            nil
+        ) else { return }
         let iptc = [
             kCGImagePropertyIPTCOriginatingProgram: "Mochi Diffusion",
             kCGImagePropertyIPTCCaptionAbstract: metadata(),
-            kCGImagePropertyIPTCProgramVersion: "\(seed)"]
+            kCGImagePropertyIPTCProgramVersion: "\(NSApplication.appVersion)"
+        ]
         let meta = [kCGImagePropertyIPTCDictionary: iptc]
         CGImageDestinationAddImage(destination, image, meta as CFDictionary)
         guard CGImageDestinationFinalize(destination) else { return }
@@ -71,21 +73,21 @@ struct SDImage: Identifiable {
         }
     }
 
-    private func metadata() -> String {
-        return """
-        \(title()), \
-        Model: \(model), \
-        Scheduler: \(scheduler), \
-        Seed: \(seed), \
-        Steps: \(steps), \
-        Guidance: \(guidanceScale), \
+    func metadata() -> String {
+        """
+        \(title()); \
+        Model: \(model); \
+        Scheduler: \(scheduler); \
+        Seed: \(seed); \
+        Steps: \(steps); \
+        Guidance: \(guidanceScale); \
         Generator: Mochi Diffusion \(NSApplication.appVersion)
         """
     }
 
     private func title() -> String {
-        return """
-        Prompt: \(prompt), \
+        """
+        Prompt: \(prompt); \
         Negative: \(negativePrompt)
         """
     }

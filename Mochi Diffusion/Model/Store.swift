@@ -4,12 +4,13 @@
 //
 //  Created by Joshua Park on 12/17/2022.
 //
-
-import Foundation
-import SwiftUI
-import CoreML
+// swiftlint:disable type_body_length file_length
 import Combine
+import CoreML
+import Foundation
 import StableDiffusion
+import SwiftUI
+import UniformTypeIdentifiers
 
 final class Store: ObservableObject {
     @Published var pipeline: Pipeline?
@@ -44,7 +45,7 @@ final class Store: ObservableObject {
 
     var currentModel: String {
         get {
-            return model
+            model
         }
         set {
             NSLog("*** Model set")
@@ -56,8 +57,8 @@ final class Store: ObservableObject {
         }
     }
 
-    var getSelectedItems: [SDImage]? {
-        if selectedItemIds.count == 0 {
+    var getSelectedItems: [SDImage] {
+        if selectedItemIds.isEmpty {
             return []
         }
         return images.filter { selectedItemIds.contains($0.id) }
@@ -152,7 +153,8 @@ final class Store: ObservableObject {
                 resourcesAt: dir,
                 configuration: configuration,
                 disableSafety: true,
-                reduceMemory: reduceMemory)
+                reduceMemory: reduceMemory
+            )
             NSLog("Pipeline loaded in \(Date().timeIntervalSince(beginDate))")
             DispatchQueue.main.async {
                 self.pipeline = Pipeline(pipeline)
@@ -206,7 +208,8 @@ final class Store: ObservableObject {
                         numInferenceSteps: sdi.steps,
                         seed: seedUsed,
                         guidanceScale: Float(sdi.guidanceScale),
-                        scheduler: sdi.scheduler)
+                        scheduler: sdi.scheduler
+                    )
                     if pipeline.hasGenerationBeenStopped {
                         break
                     }
@@ -307,7 +310,7 @@ final class Store: ObservableObject {
     func removeImage(index: Int) {
         images.remove(at: index)
         if index <= selectedImageIndex {
-            if selectedImageIndex != 0 || images.count == 0 {
+            if selectedImageIndex != 0 || images.isEmpty {
                 selectImage(index: selectedImageIndex - 1)
             }
         }
@@ -315,6 +318,50 @@ final class Store: ObservableObject {
 
     func removeCurrentImage() {
         removeImage(index: selectedImageIndex)
+    }
+
+    func saveAllImages() {
+        if images.isEmpty { return }
+        let panel = NSOpenPanel()
+        panel.canCreateDirectories = true
+        panel.canChooseDirectories = true
+        panel.canChooseFiles = false
+        panel.message = "Choose a folder to save all images"
+        panel.prompt = "Save"
+        let resp = panel.runModal()
+        if resp != .OK {
+            return
+        }
+
+        guard let selectedURL = panel.url else { return }
+        var count = 1
+        for sdi in images {
+            let url = selectedURL.appending(path: "\(String(prompt.prefix(70)).trimmingCharacters(in: .whitespacesAndNewlines)).\(count).\(sdi.seed).png")
+            guard let image = sdi.image else { return }
+            guard let data = CFDataCreateMutable(nil, 0) else { return }
+            guard let destination = CGImageDestinationCreateWithData(
+                data,
+                UTType.png.identifier as CFString,
+                1,
+                nil
+            ) else {
+                return
+            }
+            let iptc = [
+                kCGImagePropertyIPTCOriginatingProgram: "Mochi Diffusion",
+                kCGImagePropertyIPTCCaptionAbstract: sdi.metadata(),
+                kCGImagePropertyIPTCProgramVersion: "\(NSApplication.appVersion)"
+            ]
+            let meta = [kCGImagePropertyIPTCDictionary: iptc]
+            CGImageDestinationAddImage(destination, image, meta as CFDictionary)
+            guard CGImageDestinationFinalize(destination) else { return }
+            do {
+                try (data as Data).write(to: url)
+            } catch {
+                NSLog("*** Error saving images: \(error)")
+            }
+            count += 1
+        }
     }
 
     func copyToPrompt() {

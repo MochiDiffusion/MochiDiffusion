@@ -6,10 +6,9 @@
 //  See LICENSE at https://github.com/huggingface/swift-coreml-diffusers/LICENSE
 //
 
-import Foundation
-import CoreML
 import Combine
-
+import CoreML
+import Foundation
 import StableDiffusion
 
 typealias StableDiffusionProgress = StableDiffusionPipeline.Progress
@@ -22,11 +21,11 @@ class Pipeline {
         }
     }
     var hasGenerationBeenStopped: Bool {
-        return generationStopped
+        generationStopped
     }
 
     // swiftlint:disable:next line_length
-    lazy private(set) var progressPublisher: CurrentValueSubject<StableDiffusionProgress?, Never> = CurrentValueSubject(progress)
+    private(set) lazy var progressPublisher: CurrentValueSubject<StableDiffusionProgress?, Never> = CurrentValueSubject(progress)
     private var generationStopped = false
 
     init(_ pipeline: StableDiffusionPipeline) {
@@ -54,16 +53,16 @@ class Pipeline {
             disableSafety: true,
             scheduler: scheduler
         ) { progress in
-            return handleProgress(progress)
+            handleProgress(progress)
         }
         print("Generation took \(Date().timeIntervalSince(beginDate))")
 
-        let imgs = images.compactMap({$0})
+        let imgs = images.compactMap { $0 }
         return (imgs, seed)
     }
 
     func stopGeneration() {
-         generationStopped = true
+        generationStopped = true
     }
 
     private func handleProgress(_ progress: StableDiffusionPipeline.Progress) -> Bool {

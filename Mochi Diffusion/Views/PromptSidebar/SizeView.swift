@@ -16,8 +16,10 @@ struct SizeView: View {
     var body: some View {
         HStack {
             VStack(alignment: .leading) {
-                Text("Width:",
-                     comment: "Label for image width picker")
+                Text(
+                    "Width:",
+                    comment: "Label for image width picker"
+                )
                 Picker("", selection: $store.width) {
                     ForEach(imageSizes, id: \.self) { size in
                         Text(String(size)).tag(size)
@@ -26,8 +28,10 @@ struct SizeView: View {
                 .labelsHidden()
             }
             VStack(alignment: .leading) {
-                Text("Height:",
-                     comment: "Label for image height picker")
+                Text(
+                    "Height:",
+                    comment: "Label for image height picker"
+                )
                 Picker("", selection: $store.height) {
                     ForEach(imageSizes, id: \.self) { size in
                         Text(String(size)).tag(size)
