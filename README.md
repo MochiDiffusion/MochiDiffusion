@@ -55,8 +55,8 @@ A few models have been converted and uploaded [here](https://huggingface.co/core
 1. [Convert](https://github.com/apple/ml-stable-diffusion#-converting-models-to-core-ml) or download Core ML models
     - `split_einsum` version is compatible with all compute unit options including Neural Engine
     - `original` version is only compatible with `CPU & GPU` option
-2. By default, the app's working directory will be created under the Documents folder. This location can be customized under Settings
-3. In the working folder, create a new folder with the name you'd like displayed in the app then move or extract the converted models here
+2. By default, the app's model folder will be created under the Documents folder. This location can be customized under Settings
+3. In the model folder, create a new folder with the name you'd like displayed in the app then move or extract the converted models here
 4. Your directory should look like this:
 ```
 Documents/
