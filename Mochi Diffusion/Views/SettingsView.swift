@@ -91,7 +91,7 @@ struct SettingsView: View {
 
             GroupBox {
                 VStack(alignment: .leading) {
-                    Text("Model Directory")
+                    Text("Model Folder")
 
                     HStack {
                         TextField("", text: $genStore.modelDir)
