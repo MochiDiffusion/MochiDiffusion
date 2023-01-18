@@ -16,7 +16,7 @@
 /* No comment provided by engineer. */
 "Convert all images to High Resolution (this will use more memory)" = "Muunna kaikki kuvat korkeaan resoluutioon (tämä käyttää enemmän muistia)";
 
-/* Right click menu option to convert the image to high resolution */
+/* Convert the current image to high resolution */
 "Convert to High Resolution" = "Muunna korkeaksi resoluutioksi";
 
 /* Button to copy the currently selected image's generation options to the clipboard */
@@ -25,7 +25,8 @@
 /* No comment provided by engineer. */
 "Copy Option to Sidebar" = "Kopioi asetus sivupalkkiin";
 
-/* Button to copy the currently selected image's generation options to the prompt input sidebar */
+/* Button to copy the currently selected image's generation options to the prompt input sidebar
+Copy the currently selected image's generation options to the prompt input sidebar */
 "Copy Options to Sidebar" = "Kopioi asetukset sivupalkkiin";
 
 /* No comment provided by engineer. */
@@ -67,6 +68,9 @@
 /* Label for image height picker */
 "Height:" = "Korkeus:";
 
+/* No comment provided by engineer. */
+"Image" = "Kuva";
+
 /* Text displaying the image generation progress and count */
 "Image %lld of %lld" = "Kuva %lld / %lld";
 
@@ -85,6 +89,9 @@
 /* No comment provided by engineer. */
 "Model" = "Malli";
 
+/* No comment provided by engineer. */
+"Model Folder" = "Malli Kansio";
+
 /* Label for Model picker */
 "Model:" = "Malli:";
 
@@ -96,6 +103,9 @@
 
 /* No comment provided by engineer. */
 "Open in Finder" = "Avaa Finderissa";
+
+/* View current image using Quick Look */
+"Quick Look" = "Pikainen Vilkaisu";
 
 /* No comment provided by engineer. */
 "random" = "satunnainen";
@@ -109,11 +119,13 @@
 /* No comment provided by engineer. */
 "Release Notes" = "Julkaisutiedot";
 
-/* Right click menu option to remove image from the gallery */
+/* Remove image from the gallery */
 "Remove" = "Poista";
 
-/* File menu option to show the save image dialog
-Right click menu option to show the save image dialog */
+/* Show the save images dialog */
+"Save All..." = "Tallenna Kaikki...";
+
+/* Show the save image dialog */
 "Save As..." = "Tallenna nimellä...";
 
 /* No comment provided by engineer. */
@@ -133,6 +145,12 @@ Right click menu option to show the save image dialog */
 
 /* Label for Seed text field */
 "Seed:" = "Seed-luku:";
+
+/* Select next image in Gallery */
+"Select Next" = "Valitse Seuraava";
+
+/* Select previous image in Gallery */
+"Select Previous" = "Valitse Edellinen";
 
 /* No comment provided by engineer. */
 "Share..." = "Jaa...";
@@ -163,7 +181,4 @@ Right click menu option to show the save image dialog */
 
 /* Label for image width picker */
 "Width:" = "Leveys:";
-
-/* Label for changing the working directory */
-"Working Directory" = "Työhakemisto";
 

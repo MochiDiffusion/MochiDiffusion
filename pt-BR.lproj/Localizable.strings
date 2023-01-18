@@ -16,7 +16,7 @@
 /* No comment provided by engineer. */
 "Convert all images to High Resolution (this will use more memory)" = "Converter todas as imagens em alta resolução (isso usará mais memória)";
 
-/* Right click menu option to convert the image to high resolution */
+/* Convert the current image to high resolution */
 "Convert to High Resolution" = "Converter em alta resolução";
 
 /* Button to copy the currently selected image's generation options to the clipboard */
@@ -25,7 +25,8 @@
 /* No comment provided by engineer. */
 "Copy Option to Sidebar" = "Copiar configuração para Barra Lateral";
 
-/* Button to copy the currently selected image's generation options to the prompt input sidebar */
+/* Button to copy the currently selected image's generation options to the prompt input sidebar
+Copy the currently selected image's generation options to the prompt input sidebar */
 "Copy Options to Sidebar" = "Copiar configurações para Barra Lateral";
 
 /* No comment provided by engineer. */
@@ -67,6 +68,9 @@
 /* Label for image height picker */
 "Height:" = "Altura:";
 
+/* No comment provided by engineer. */
+"Image" = "Imagem";
+
 /* Text displaying the image generation progress and count */
 "Image %lld of %lld" = "Imagem %lld de %lld";
 
@@ -85,6 +89,9 @@
 /* No comment provided by engineer. */
 "Model" = "Modelo";
 
+/* No comment provided by engineer. */
+"Model Folder" = "Pasta do Modelo";
+
 /* Label for Model picker */
 "Model:" = "Modelo:";
 
@@ -96,6 +103,9 @@
 
 /* No comment provided by engineer. */
 "Open in Finder" = "Mostrar no Finder";
+
+/* View current image using Quick Look */
+"Quick Look" = "Visualização Rápida";
 
 /* No comment provided by engineer. */
 "random" = "randômico";
@@ -109,11 +119,13 @@
 /* No comment provided by engineer. */
 "Release Notes" = "Notas de Lançamento";
 
-/* Right click menu option to remove image from the gallery */
+/* Remove image from the gallery */
 "Remove" = "Remover";
 
-/* File menu option to show the save image dialog
-Right click menu option to show the save image dialog */
+/* Show the save images dialog */
+"Save All..." = "Salvar Tudo...";
+
+/* Show the save image dialog */
 "Save As..." = "Salvar como...";
 
 /* No comment provided by engineer. */
@@ -133,6 +145,12 @@ Right click menu option to show the save image dialog */
 
 /* Label for Seed text field */
 "Seed:" = "Semente:";
+
+/* Select next image in Gallery */
+"Select Next" = "Selecionar Próximo";
+
+/* Select previous image in Gallery */
+"Select Previous" = "Selecione Anterior";
 
 /* No comment provided by engineer. */
 "Share..." = "Compartilhar...";
@@ -163,7 +181,4 @@ Right click menu option to show the save image dialog */
 
 /* Label for image width picker */
 "Width:" = "Largura:";
-
-/* Label for changing the working directory */
-"Working Directory" = "Pasta de trabalho";
 

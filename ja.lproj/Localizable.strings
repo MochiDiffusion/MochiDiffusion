@@ -16,7 +16,7 @@
 /* No comment provided by engineer. */
 "Convert all images to High Resolution (this will use more memory)" = "すべての画像を高解像度に変換します（これはより多くのメモリを使用します）";
 
-/* Right click menu option to convert the image to high resolution */
+/* Convert the current image to high resolution */
 "Convert to High Resolution" = "高解像度へ変換";
 
 /* Button to copy the currently selected image's generation options to the clipboard */
@@ -25,7 +25,8 @@
 /* No comment provided by engineer. */
 "Copy Option to Sidebar" = "オプションをサイドバーにコピー";
 
-/* Button to copy the currently selected image's generation options to the prompt input sidebar */
+/* Button to copy the currently selected image's generation options to the prompt input sidebar
+Copy the currently selected image's generation options to the prompt input sidebar */
 "Copy Options to Sidebar" = "オプションをサイドバーにコピー";
 
 /* No comment provided by engineer. */
@@ -67,6 +68,9 @@
 /* Label for image height picker */
 "Height:" = "高さ:";
 
+/* No comment provided by engineer. */
+"Image" = "画像";
+
 /* Text displaying the image generation progress and count */
 "Image %lld of %lld" = "画像 %lld / %lld";
 
@@ -85,6 +89,9 @@
 /* No comment provided by engineer. */
 "Model" = "モデル";
 
+/* No comment provided by engineer. */
+"Model Folder" = "モデル フォルダ";
+
 /* Label for Model picker */
 "Model:" = "モデル:";
 
@@ -96,6 +103,9 @@
 
 /* No comment provided by engineer. */
 "Open in Finder" = "Finderに表示";
+
+/* View current image using Quick Look */
+"Quick Look" = "クイックルック";
 
 /* No comment provided by engineer. */
 "random" = "ランダム";
@@ -109,11 +119,13 @@
 /* No comment provided by engineer. */
 "Release Notes" = "リリースノート";
 
-/* Right click menu option to remove image from the gallery */
+/* Remove image from the gallery */
 "Remove" = "消去";
 
-/* File menu option to show the save image dialog
-Right click menu option to show the save image dialog */
+/* Show the save images dialog */
+"Save All..." = "全て保存...";
+
+/* Show the save image dialog */
 "Save As..." = "別名で保存...";
 
 /* No comment provided by engineer. */
@@ -133,6 +145,12 @@ Right click menu option to show the save image dialog */
 
 /* Label for Seed text field */
 "Seed:" = "シード:";
+
+/* Select next image in Gallery */
+"Select Next" = "次を選択";
+
+/* Select previous image in Gallery */
+"Select Previous" = "前を選択";
 
 /* No comment provided by engineer. */
 "Share..." = "共有...";
@@ -156,14 +174,11 @@ Right click menu option to show the save image dialog */
 "Support Me ♥" = "サポートお願いします♥";
 
 /* Help text for the loading model message */
-"This may take up to 2 minutes if a model is used for the first time" = "モデルを初めて使用する場合、最大2分かかることがあります";
+"This may take up to 2 minutes if a model is used for the first time" = "モデルを初めて使用する場合、2分程度かかることがあります";
 
 /* No comment provided by engineer. */
 "Website" = "Web サイト";
 
 /* Label for image width picker */
 "Width:" = "幅:";
-
-/* Label for changing the working directory */
-"Working Directory" = "作業ディレクトリ";
 

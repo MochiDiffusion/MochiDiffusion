@@ -16,7 +16,7 @@
 /* No comment provided by engineer. */
 "Convert all images to High Resolution (this will use more memory)" = "모든 이미지를 자동으로 고화질로 변경 (더 많은 메모리를 사용)";
 
-/* Right click menu option to convert the image to high resolution */
+/* Convert the current image to high resolution */
 "Convert to High Resolution" = "고화질로 변경";
 
 /* Button to copy the currently selected image's generation options to the clipboard */
@@ -25,7 +25,8 @@
 /* No comment provided by engineer. */
 "Copy Option to Sidebar" = "사이드바로 옵션 보내기";
 
-/* Button to copy the currently selected image's generation options to the prompt input sidebar */
+/* Button to copy the currently selected image's generation options to the prompt input sidebar
+Copy the currently selected image's generation options to the prompt input sidebar */
 "Copy Options to Sidebar" = "사이드바로 모든 옵션들 보내기";
 
 /* No comment provided by engineer. */
@@ -67,6 +68,9 @@
 /* Label for image height picker */
 "Height:" = "가로길이:";
 
+/* No comment provided by engineer. */
+"Image" = "이미지";
+
 /* Text displaying the image generation progress and count */
 "Image %lld of %lld" = "이미지 %lld / %lld";
 
@@ -85,6 +89,9 @@
 /* No comment provided by engineer. */
 "Model" = "모델";
 
+/* No comment provided by engineer. */
+"Model Folder" = "모델 폴더";
+
 /* Label for Model picker */
 "Model:" = "모델:";
 
@@ -96,6 +103,9 @@
 
 /* No comment provided by engineer. */
 "Open in Finder" = "파인더에서 열기";
+
+/* View current image using Quick Look */
+"Quick Look" = "훑어보기";
 
 /* No comment provided by engineer. */
 "random" = "랜덤";
@@ -109,11 +119,13 @@
 /* No comment provided by engineer. */
 "Release Notes" = "릴리스 노트";
 
-/* Right click menu option to remove image from the gallery */
+/* Remove image from the gallery */
 "Remove" = "삭제";
 
-/* File menu option to show the save image dialog
-Right click menu option to show the save image dialog */
+/* Show the save images dialog */
+"Save All..." = "모두 저장...";
+
+/* Show the save image dialog */
 "Save As..." = "다른 이름으로 저장...";
 
 /* No comment provided by engineer. */
@@ -133,6 +145,12 @@ Right click menu option to show the save image dialog */
 
 /* Label for Seed text field */
 "Seed:" = "씨드:";
+
+/* Select next image in Gallery */
+"Select Next" = "다음 선택";
+
+/* Select previous image in Gallery */
+"Select Previous" = "이전 선택";
 
 /* No comment provided by engineer. */
 "Share..." = "공유...";
@@ -163,7 +181,4 @@ Right click menu option to show the save image dialog */
 
 /* Label for image width picker */
 "Width:" = "세로길이:";
-
-/* Label for changing the working directory */
-"Working Directory" = "작업 폴더";
 
