@@ -26,7 +26,9 @@ struct SDImage: Identifiable {
     var guidanceScale = 11.0
     var generatedDate = Date()
     var isUpscaled = false
+}
 
+extension SDImage {
     func save() {
         guard let image = image else {
             NSLog("*** Image was not valid!")

@@ -81,6 +81,9 @@ file_types_order:
 force_cast: warning
 force_try: error
 identical_operands: error
+identifier_name:
+  min_length:
+    warning: 1
 implicit_getter: error
 implicit_return:
   severity: error

@@ -9,14 +9,14 @@ import Sliders
 import SwiftUI
 
 struct StepsView: View {
-    @EnvironmentObject var store: Store
+    @EnvironmentObject var genStore: GeneratorStore
 
     var body: some View {
         Text(
-            "Steps: \(store.steps)",
+            "Steps: \(genStore.steps)",
             comment: "Label for Steps slider with value"
         )
-        ValueSlider(value: $store.steps, in: 2 ... 100, step: 1)
+        ValueSlider(value: $genStore.steps, in: 2 ... 100, step: 1)
             .valueSliderStyle(
                 HorizontalValueSliderStyle(
                     track:

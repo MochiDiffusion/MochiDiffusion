@@ -8,7 +8,8 @@
 import CoreImage
 import Vision
 
-class Upscaler {
+final class Upscaler {
+    static let shared = Upscaler()
     private var request: VNCoreMLRequest
 
     init() {
@@ -45,6 +46,21 @@ class Upscaler {
             height: upscaledHeight
         ) else { return nil }
         return self.convertPixelBufferToCGImage(pixelBuffer: pixelBuffer)
+    }
+
+    func upscale(sdi: SDImage) -> SDImage? {
+        if sdi.isUpscaled { return nil }
+        guard let cgImage = sdi.image else { return nil }
+        guard let upscaledImage = upscale(cgImage: cgImage) else { return nil }
+        var upscaledSDI = sdi
+        upscaledSDI.id = UUID()
+        upscaledSDI.image = upscaledImage
+        upscaledSDI.width = upscaledImage.width
+        upscaledSDI.height = upscaledImage.height
+        upscaledSDI.aspectRatio = CGFloat(Double(sdi.width) / Double(sdi.height))
+        upscaledSDI.isUpscaled = true
+        upscaledSDI.generatedDate = Date.now
+        return upscaledSDI
     }
 
     private func convertPixelBufferToCGImage(pixelBuffer: CVPixelBuffer) -> CGImage? {

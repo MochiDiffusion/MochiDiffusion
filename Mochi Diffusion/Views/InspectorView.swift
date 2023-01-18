@@ -44,7 +44,7 @@ struct InfoGridRow: View {
 }
 
 struct InspectorView: View {
-    @EnvironmentObject var store: Store
+    @EnvironmentObject var store: GeneratorStore
 
     var body: some View {
         VStack(alignment: .center, spacing: 0) {

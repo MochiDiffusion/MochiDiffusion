@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct AppView: View {
-    @EnvironmentObject var store: Store
+    @EnvironmentObject var genStore: GeneratorStore
 
     var body: some View {
         NavigationSplitView {
@@ -52,7 +52,7 @@ struct AppView: View {
                     .frame(maxWidth: 340)
             }
         }
-        .searchable(text: $store.searchText, prompt: "Search")
+        .searchable(text: $genStore.searchText, prompt: "Search")
     }
 }
 

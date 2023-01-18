@@ -10,7 +10,7 @@ import StableDiffusion
 import SwiftUI
 
 struct SettingsView: View {
-    @EnvironmentObject var store: Store
+    @EnvironmentObject var genStore: GeneratorStore
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -20,7 +20,7 @@ struct SettingsView: View {
 
                     Spacer()
 
-                    Picker("", selection: $store.scheduler) {
+                    Picker("", selection: $genStore.scheduler) {
                         ForEach(StableDiffusionScheduler.allCases, id: \.self) { scheduler in
                             Text(scheduler.rawValue).tag(scheduler)
                         }
@@ -39,7 +39,7 @@ struct SettingsView: View {
 
                         Spacer()
 
-                        Picker("", selection: $store.mlComputeUnit) {
+                        Picker("", selection: $genStore.mlComputeUnit) {
                             Text("CPU & Neural Engine")
                                 .tag(MLComputeUnits.cpuAndNeuralEngine)
                             Text("CPU & GPU")
@@ -76,7 +76,7 @@ struct SettingsView: View {
 
                         Spacer()
 
-                        Toggle("", isOn: $store.reduceMemory)
+                        Toggle("", isOn: $genStore.reduceMemory)
                             .labelsHidden()
                             .toggleStyle(.switch)
                     }
@@ -91,19 +91,16 @@ struct SettingsView: View {
 
             GroupBox {
                 VStack(alignment: .leading) {
-                    Text(
-                        "Working Directory",
-                        comment: "Label for changing the working directory"
-                    )
+                    Text("Model Directory")
 
                     HStack {
-                        TextField("", text: $store.workingDir)
+                        TextField("", text: $genStore.modelDir)
                             .disableAutocorrection(true)
                             .textFieldStyle(.roundedBorder)
 
                         Button {
                             // swiftlint:disable:next line_length
-                            NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: store.workingDir).absoluteURL])
+                            NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: genStore.modelDir).absoluteURL])
                         } label: {
                             Image(systemName: "magnifyingglass.circle.fill")
                                 .foregroundColor(Color.secondary)
@@ -119,7 +116,7 @@ struct SettingsView: View {
                 Spacer()
 
                 Button {
-                    store.loadModels()
+                    genStore.loadModels()
                     NSApplication.shared.keyWindow?.close()
                 } label: {
                     Text(

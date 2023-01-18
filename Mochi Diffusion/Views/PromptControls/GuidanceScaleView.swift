@@ -9,14 +9,14 @@ import Sliders
 import SwiftUI
 
 struct GuidanceScaleView: View {
-    @EnvironmentObject var store: Store
+    @EnvironmentObject var genStore: GeneratorStore
 
     var body: some View {
         Text(
-            "Guidance Scale: \(store.guidanceScale.formatted(.number.precision(.fractionLength(1))))",
+            "Guidance Scale: \(genStore.guidanceScale.formatted(.number.precision(.fractionLength(1))))",
             comment: "Label for Guidance Scale slider with value"
         )
-        ValueSlider(value: $store.guidanceScale, in: 1 ... 20, step: 0.5)
+        ValueSlider(value: $genStore.guidanceScale, in: 1 ... 20, step: 0.5)
             .valueSliderStyle(
                 HorizontalValueSliderStyle(
                     track:

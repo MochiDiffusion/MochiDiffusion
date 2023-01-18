@@ -8,11 +8,11 @@
 import SwiftUI
 
 struct GalleryToolbarView: View {
-    @EnvironmentObject var store: Store
+    @EnvironmentObject var genStore: GeneratorStore
     @State private var isStatusPopoverShown = false
 
     var body: some View {
-        if case .loading = store.mainViewStatus {
+        if case .loading = genStore.status {
             Button {
                 self.isStatusPopoverShown.toggle()
             } label: {
@@ -34,10 +34,10 @@ struct GalleryToolbarView: View {
             }
         }
 
-        if case let .running(progress) = store.mainViewStatus, let progress = progress, progress.stepCount > 0 {
+        if case let .running(progress) = genStore.status, let progress = progress, progress.stepCount > 0 {
             let step = Int(progress.step) + 1
             let stepValue = Double(step) / Double(progress.stepCount)
-            let progressValue = Double(store.generationProgress.index + 1) / Double(store.generationProgress.total)
+            let progressValue = Double(genStore.generationProgress.index + 1) / Double(genStore.generationProgress.total)
 
             Button {
                 self.isStatusPopoverShown.toggle()
@@ -51,7 +51,7 @@ struct GalleryToolbarView: View {
                     comment: "Text displaying the current step progress and count"
                 )
                 let imageCountLabel = String(
-                    localized: "Image \(store.generationProgress.index + 1) of \(store.generationProgress.total)",
+                    localized: "Image \(genStore.generationProgress.index + 1) of \(genStore.generationProgress.total)",
                     comment: "Text displaying the image generation progress and count"
                 )
                 VStack(alignment: .center, spacing: 12) {
@@ -63,10 +63,10 @@ struct GalleryToolbarView: View {
             }
         }
 
-        if let sdi = store.getSelectedImage, let img = sdi.image {
+        if let sdi = genStore.getSelectedImage, let img = sdi.image {
             let imageView = Image(img, scale: 1, label: Text(verbatim: sdi.prompt))
 
-            Button(action: store.removeCurrentImage) {
+            Button(action: genStore.removeCurrentImage) {
                 Label {
                     Text(
                         "Remove",
@@ -77,7 +77,9 @@ struct GalleryToolbarView: View {
                 }
                 .help("Remove")
             }
-            Button(action: store.upscaleCurrentImage) {
+            Button {
+                genStore.upscaleCurrentImage()
+            } label: {
                 Label {
                     Text("Convert to High Resolution")
                 } icon: {

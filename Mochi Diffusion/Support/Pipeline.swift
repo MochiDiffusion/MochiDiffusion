@@ -34,10 +34,10 @@ class Pipeline {
 
     func generate(
         prompt: String,
-        negativePrompt: String = "",
-        numInferenceSteps stepCount: Int = 50,
-        seed: UInt32 = 0,
-        guidanceScale: Float = 7.5,
+        negativePrompt: String,
+        numInferenceSteps stepCount: Int,
+        seed: UInt32,
+        guidanceScale: Float,
         scheduler: StableDiffusionScheduler
     ) throws -> ([CGImage], UInt32) {
         let beginDate = Date()

@@ -9,7 +9,7 @@ import CoreML
 import SwiftUI
 
 struct ModelView: View {
-    @EnvironmentObject var store: Store
+    @EnvironmentObject var genStore: GeneratorStore
 
     var body: some View {
         Text(
@@ -17,14 +17,14 @@ struct ModelView: View {
             comment: "Label for Model picker"
         )
         HStack {
-            Picker("", selection: $store.currentModel) {
-                ForEach(store.models, id: \.self) { model in
+            Picker("", selection: $genStore.currentModel) {
+                ForEach(genStore.models, id: \.self) { model in
                     Text(model).tag(model)
                 }
             }
             .labelsHidden()
 
-            Button(action: store.loadModels) {
+            Button(action: genStore.loadModels) {
                 Image(systemName: "arrow.clockwise")
                     .frame(minWidth: 18)
             }

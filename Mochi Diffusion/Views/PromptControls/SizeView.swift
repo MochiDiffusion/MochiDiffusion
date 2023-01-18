@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct SizeView: View {
-    @EnvironmentObject var store: Store
+    @EnvironmentObject var genStore: GeneratorStore
     private var imageSizes = [
         256, 320, 384, 448, 512, 576, 640, 704, 768
     ]
@@ -20,7 +20,7 @@ struct SizeView: View {
                     "Width:",
                     comment: "Label for image width picker"
                 )
-                Picker("", selection: $store.width) {
+                Picker("", selection: $genStore.width) {
                     ForEach(imageSizes, id: \.self) { size in
                         Text(String(size)).tag(size)
                     }
@@ -32,7 +32,7 @@ struct SizeView: View {
                     "Height:",
                     comment: "Label for image height picker"
                 )
-                Picker("", selection: $store.height) {
+                Picker("", selection: $genStore.height) {
                     ForEach(imageSizes, id: \.self) { size in
                         Text(String(size)).tag(size)
                     }

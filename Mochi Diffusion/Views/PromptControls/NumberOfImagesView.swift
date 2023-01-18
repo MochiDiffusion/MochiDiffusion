@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct NumberOfImagesView: View {
-    @EnvironmentObject var store: Store
+    @EnvironmentObject var genStore: GeneratorStore
     @State private var isImageCountPopoverShown = false
     private var imageCountValues = [
         1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20, 30, 50, 100
@@ -16,7 +16,7 @@ struct NumberOfImagesView: View {
 
     var body: some View {
         Text("Number of Images:")
-        Picker("", selection: $store.numberOfImages) {
+        Picker("", selection: $genStore.numberOfImages) {
             ForEach(imageCountValues, id: \.self) { number in
                 Text(String(number)).tag(number)
             }

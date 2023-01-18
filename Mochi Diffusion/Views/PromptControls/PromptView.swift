@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct PromptView: View {
-    @EnvironmentObject var store: Store
+    @EnvironmentObject var genStore: GeneratorStore
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -16,7 +16,7 @@ struct PromptView: View {
                 "Include in Image:",
                 comment: "Label for prompt text field"
             )
-            TextEditor(text: $store.prompt)
+            TextEditor(text: $genStore.prompt)
                 .font(.system(size: 14))
                 .frame(height: 85)
                 .border(Color(nsColor: .gridColor))
@@ -28,7 +28,7 @@ struct PromptView: View {
                 "Exclude from Image:",
                 comment: "Label for negative prompt text field"
             )
-            TextEditor(text: $store.negativePrompt)
+            TextEditor(text: $genStore.negativePrompt)
                 .font(.system(size: 14))
                 .frame(height: 52)
                 .border(Color(nsColor: .gridColor))
@@ -37,7 +37,7 @@ struct PromptView: View {
             Spacer().frame(height: 2)
 
             HStack(alignment: .center) {
-                Toggle(isOn: $store.upscaleGeneratedImages) {
+                Toggle(isOn: $genStore.upscaleGeneratedImages) {
                     Label {
                         Text(
                             "HD",
@@ -51,18 +51,18 @@ struct PromptView: View {
 
                 Spacer()
 
-                if case .running = store.mainViewStatus {
-                    Button(action: store.stopGeneration) {
+                if case .running = genStore.status {
+                    Button(action: genStore.stopGeneration) {
                         Text("Stop Generation")
                     }
                 } else {
-                    Button(action: store.generate) {
+                    Button(action: genStore.generate) {
                         Text(
                             "Generate",
                             comment: "Button to generate image"
                         )
                     }
-                    .disabled($store.currentModel.wrappedValue.isEmpty)
+                    .disabled($genStore.currentModel.wrappedValue.isEmpty)
                     .buttonStyle(.borderedProminent)
                 }
             }

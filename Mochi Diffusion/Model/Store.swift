@@ -1,34 +1,43 @@
 //
-//  Store.swift
+//  GeneratorStore.swift
 //  Mochi Diffusion
 //
 //  Created by Joshua Park on 12/17/2022.
 //
-// swiftlint:disable type_body_length file_length
+// swiftlint:disable type_body_length
 import Combine
 import CoreML
 import Foundation
+import os
 import StableDiffusion
 import SwiftUI
 import UniformTypeIdentifiers
 
-final class Store: ObservableObject {
+typealias Model = String
+
+enum GeneratorStatus {
+    case initialized
+    case ready
+    case loading
+    case running(StableDiffusionProgress?)
+    case error(String)
+}
+
+final class GeneratorStore: ObservableObject {
     @Published var pipeline: Pipeline?
-    @Published var upscaler = Upscaler()
     @Published var models = [String]()
     @Published var images = [SDImage]()
-    @Published var selectedImageIndex = -1 // TODO: replace with selectedItemIds
-    @Published var selectedItemIds = Set<UUID>()
+    @Published var selectedImageIndex = -1
     @Published var quicklookURL: URL?
-    @Published var mainViewStatus: MainViewStatus = .idle
+    @Published var status: GeneratorStatus = .initialized
     @Published var numberOfImages = 1
     @Published var seed: UInt32 = 0
     @Published var generationProgress = GenerationProgress()
     @Published var searchText = ""
-    @AppStorage("WorkingDir") var workingDir = ""
+    @AppStorage("ModelDir") var modelDir = ""
     @AppStorage("Prompt") var prompt = ""
     @AppStorage("NegativePrompt") var negativePrompt = ""
-    @AppStorage("Steps") var steps = 28
+    @AppStorage("Steps") var steps = 15
     @AppStorage("Scale") var guidanceScale = 11.0
     @AppStorage("ImageWidth") var width = 512
     @AppStorage("ImageHeight") var height = 512
@@ -42,26 +51,18 @@ final class Store: ObservableObject {
     @AppStorage("ReduceMemory") var reduceMemory = false
     @AppStorage("Model") private var model = ""
     private var progressSubscriber: Cancellable?
+    private let logger = Logger()
 
     var currentModel: String {
         get {
             model
         }
         set {
-            NSLog("*** Model set")
             model = newValue
             Task {
-                NSLog("*** Loading model")
-                await loadModel(model: newValue)
+                await loadModel(modelName: newValue)
             }
         }
-    }
-
-    var getSelectedItems: [SDImage] {
-        if selectedItemIds.isEmpty {
-            return []
-        }
-        return images.filter { selectedItemIds.contains($0.id) }
     }
 
     var getSelectedImage: SDImage? {
@@ -72,110 +73,104 @@ final class Store: ObservableObject {
     }
 
     init() {
-        NSLog("*** AppState initialized")
+        logger.info("Generator init")
         loadModels()
     }
 
     func loadModels() {
-        var dir: URL
-        let appDir = "MochiDiffusion/models/"
-        models = []
-        if workingDir.isEmpty {
-            guard let docDir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else {
-                self.model = ""
-                mainViewStatus = .error("Could not get working directory")
+        logger.info("Started loading model directory at: \"\(self.modelDir)\"")
+        let fm = FileManager.default
+        var finalModelDir: URL
+        // check if saved model directory exists
+        if modelDir.isEmpty {
+            // use default model directory
+            guard let documentsDir = fm.urls(for: .documentDirectory, in: .userDomainMask).first else {
+                model = ""
+                status = .error("Couldn't access model directory.")
                 return
             }
-            dir = docDir
-            dir.append(path: appDir, directoryHint: .isDirectory)
+            finalModelDir = documentsDir
+            finalModelDir.append(path: "MochiDiffusion/models/", directoryHint: .isDirectory)
         } else {
-            dir = URL(fileURLWithPath: workingDir, isDirectory: true)
-            if !dir.path(percentEncoded: false).hasSuffix(appDir) {
-                dir.append(path: appDir, directoryHint: .isDirectory)
-            }
+            // generate url from saved model directory
+            finalModelDir = URL(fileURLWithPath: modelDir, isDirectory: true)
         }
-        let fm = FileManager.default
-        if !fm.fileExists(atPath: dir.path) {
-            NSLog("Models directory does not exist at: \(dir.path). Creating ...")
-            try? fm.createDirectory(at: dir, withIntermediateDirectories: true)
+        if !fm.fileExists(atPath: finalModelDir.path(percentEncoded: false)) {
+            logger.notice("Creating models directory at: \"\(finalModelDir.path(percentEncoded: false))\"")
+            try? fm.createDirectory(at: finalModelDir, withIntermediateDirectories: true)
         }
-        workingDir = dir.path(percentEncoded: false)
-        // Find models in model dir
+        modelDir = finalModelDir.path(percentEncoded: false)
         do {
-            let subs = try dir.subDirectories()
-            subs.forEach { sub in
-                models.append(sub.lastPathComponent)
+            let subDirs = try finalModelDir.subDirectories()
+            subDirs.forEach { dir in
+                models.append(dir.lastPathComponent)
             }
         } catch {
-            self.model = ""
-            mainViewStatus = .error("Could not get sub-folders under model directory: \(dir.path)")
+            logger.notice("Could not get model subdirectories under: \"\(finalModelDir.path(percentEncoded: false))\"")
+            status = .error("Could not get model subdirectories.")
             return
         }
-        NSLog("*** Setting model")
         guard let firstModel = models.first else {
             self.model = ""
-            mainViewStatus = .error("No models found under model directory: \(dir.path)")
+            status = .error("No models found under: \(finalModelDir.path(percentEncoded: false))")
             return
         }
+        logger.info("Found \(self.models.count) model(s)")
         self.currentModel = model.isEmpty ? firstModel : model
     }
 
     @MainActor
-    func loadModel(model: String) async {
-        NSLog("*** Loading model: \(model)")
-        let dir = URL(
-            fileURLWithPath: workingDir,
-            isDirectory: true
-        ).appending(
-            component: model,
-            directoryHint: .isDirectory
-        )
+    func loadModel(modelName: String) async {
+        logger.info("Started loading model: \"\(modelName)\"")
+        let dir = URL(fileURLWithPath: modelDir, isDirectory: true)
+            .appending(component: modelName, directoryHint: .isDirectory)
         let fm = FileManager.default
         if !fm.fileExists(atPath: dir.path) {
-            let msg = "Model \(model) does not exist at: \(dir.path)"
-            NSLog(msg)
+            logger.info("Couldn't find model \"\(modelName)\" at: \"\(dir.path(percentEncoded: false))\"")
             self.model = ""
             models.removeAll { $0 == model }
-            mainViewStatus = .error(msg)
+            status = .error("Couldn't load \(modelName) because it doesn't exist.")
             return
         }
-        let beginDate = Date()
-        let configuration = MLModelConfiguration()
-        configuration.computeUnits = mlComputeUnit
+        logger.info("Found model: \"\(modelName)\"")
+        let config = MLModelConfiguration()
+        config.computeUnits = mlComputeUnit
         do {
             let pipeline = try StableDiffusionPipeline(
                 resourcesAt: dir,
-                configuration: configuration,
+                configuration: config,
                 disableSafety: true,
                 reduceMemory: reduceMemory
             )
-            NSLog("Pipeline loaded in \(Date().timeIntervalSince(beginDate))")
+            logger.info("Stable Diffusion pipeline successfully loaded")
             DispatchQueue.main.async {
+                self.model = modelName
                 self.pipeline = Pipeline(pipeline)
-                self.mainViewStatus = .ready("Ready")
+                self.status = .ready
             }
         } catch {
-            NSLog("Error loading model: \(error)")
-            self.model = ""
+            model = ""
             DispatchQueue.main.async {
-                self.mainViewStatus = .error(error.localizedDescription)
+                self.status = .error("There was a problem loading the model: \(modelName)")
             }
         }
     }
 
     func generate() {
-        if case .loading = mainViewStatus { return }
-        if case .running = mainViewStatus { return }
-        guard let pipeline = pipeline else {
-            mainViewStatus = .error("No pipeline available!")
+        if case GeneratorStatus.ready = status {
+            // continue
+        } else {
             return
         }
-        mainViewStatus = .loading
-        // Pipeline progress subscriber
+        guard let pipeline = pipeline else {
+            status = .error("Pipeline is not loaded.")
+            return
+        }
+        status = .loading
         progressSubscriber = pipeline.progressPublisher.sink { progress in
             guard let progress = progress else { return }
             DispatchQueue.main.async {
-                self.mainViewStatus = .running(progress)
+                self.status = .running(progress)
             }
         }
         DispatchQueue.global(qos: .default).async {
@@ -230,13 +225,12 @@ final class Store: ObservableObject {
                 self.progressSubscriber?.cancel()
 
                 DispatchQueue.main.async {
-                    self.mainViewStatus = .ready("Image generation complete")
+                    self.status = .ready
                 }
             } catch {
-                let msg = "Error generating images: \(error)"
-                NSLog(msg)
+                self.logger.error("There was a problem generating images: \(error)")
                 DispatchQueue.main.async {
-                    self.mainViewStatus = .error(msg)
+                    self.status = .error("There was a problem generating images: \(error)")
                 }
             }
         }
@@ -246,35 +240,21 @@ final class Store: ObservableObject {
         pipeline?.stopGeneration()
     }
 
-    func upscaleImage(sdImage: SDImage) {
-        if sdImage.isUpscaled { return }
-        guard let img = sdImage.image else { return }
-        guard let upscaledImage = upscaler.upscale(cgImage: img) else { return }
+    func upscaleImage(sdi: SDImage) {
+        if sdi.isUpscaled { return }
+        guard let upscaledImage = Upscaler.shared.upscale(sdi: sdi) else { return }
         let newImageIndex = images.count
-        var sdi = sdImage
-        sdi.image = upscaledImage
-        sdi.width = upscaledImage.width
-        sdi.height = upscaledImage.height
-        sdi.aspectRatio = CGFloat(Double(sdi.width) / Double(sdi.height))
-        sdi.isUpscaled = true
-        sdi.generatedDate = Date.now
-        images.append(sdi)
+        images.append(upscaledImage)
         selectImage(index: newImageIndex)
     }
 
     func upscaleCurrentImage() {
-        guard var sdi = getSelectedImage, let img = sdi.image else { return }
+        guard let sdi = getSelectedImage else { return }
         if sdi.isUpscaled { return }
 
-        guard let upscaledImage = upscaler.upscale(cgImage: img) else { return }
+        guard let upscaledImage = Upscaler.shared.upscale(sdi: sdi) else { return }
         let newImageIndex = images.count
-        sdi.image = upscaledImage
-        sdi.width = upscaledImage.width
-        sdi.height = upscaledImage.height
-        sdi.aspectRatio = CGFloat(Double(sdi.width) / Double(sdi.height))
-        sdi.isUpscaled = true
-        sdi.generatedDate = Date.now
-        images.append(sdi)
+        images.append(upscaledImage)
         selectImage(index: newImageIndex)
     }
 
@@ -402,26 +382,17 @@ final class Store: ObservableObject {
 
     @MainActor
     private func addImages(simgs: [SDImage]) {
-//        let newImageIndex = self.images.count
         withAnimation(.default.speed(1.5)) {
             self.images.append(contentsOf: simgs)
         }
-//        self.selectImage(index: newImageIndex)
     }
 
     @MainActor
     private func upscaleThenAddImages(simgs: [SDImage]) {
         var upscaledSDImgs = [SDImage]()
-        for simg in simgs {
-            guard let image = simg.image else { continue }
-            guard let upscaledImage = upscaler.upscale(cgImage: image) else { continue }
-            var sdi = simg
-            sdi.image = upscaledImage
-            sdi.width = upscaledImage.width
-            sdi.height = upscaledImage.height
-            sdi.aspectRatio = CGFloat(Double(sdi.width) / Double(sdi.height))
-            sdi.isUpscaled = true
-            upscaledSDImgs.append(sdi)
+        for sdi in simgs {
+            guard let upscaledImage = Upscaler.shared.upscale(sdi: sdi) else { continue }
+            upscaledSDImgs.append(upscaledImage)
         }
         self.addImages(simgs: upscaledSDImgs)
     }
