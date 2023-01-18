@@ -1,7 +1,7 @@
 name: Feature Request
 description: Suggest an idea
 title: "[Feat]: "
-labels: ["enhancement", "triage"]
+labels: ["enhancement"]
 body:
   - type: checkboxes
     id: latest-version
