@@ -1,0 +1,184 @@
+/* No comment provided by engineer. */
+"^[%lld images](inflect: true)" = "^[%lld bilder](inflect: true)";
+
+/* Option to use all CPU, GPU, & Neural Engine for compute unit */
+"All" = "Samtliga";
+
+/* Button to apply the selected settings */
+"Apply" = "Tillämpa";
+
+/* Help text for ML Compute Unit option under Settings */
+"Based on the option selected the correct model version will need to be used." = "Utifrån på det valda alternativet så måste rätt modellversion användas.";
+
+/* No comment provided by engineer. */
+"Check for Updates…" = "Sök efter uppdateringar…";
+
+/* No comment provided by engineer. */
+"Convert all images to High Resolution (this will use more memory)" = "Konvertera alla bilder till hög upplösning (detta kommer att använda mer minne)";
+
+/* Convert the current image to high resolution */
+"Convert to High Resolution" = "Konvertera till högupplöst";
+
+/* Button to copy the currently selected image's generation options to the clipboard */
+"Copy" = "Kopiera";
+
+/* No comment provided by engineer. */
+"Copy Option to Sidebar" = "Kopiera inställning till sidofält";
+
+/* Button to copy the currently selected image's generation options to the prompt input sidebar
+Copy the currently selected image's generation options to the prompt input sidebar */
+"Copy Options to Sidebar" = "Kopiera inställningar till sidofält";
+
+/* No comment provided by engineer. */
+"CPU & GPU" = "CPU & GPU";
+
+/* No comment provided by engineer. */
+"CPU & GPU may be faster on M1 Max, Ultra and later but will use more memory." = "CPU & GPU kan vara snabbare på M1 Max, Ultra och senare men kommer att använda mer minne.";
+
+/* No comment provided by engineer. */
+"CPU & Neural Engine" = "CPU & Neural Engine";
+
+/* No comment provided by engineer. */
+"CPU & Neural Engine provides a good balance between speed and low memory usage." = "CPU & Neural engine ger en bra balans mellan hastighet och låg minnesanvändning.";
+
+/* No comment provided by engineer. */
+"Date" = "Datum";
+
+/* No comment provided by engineer. */
+"Download Models" = "Ladda ned modeller";
+
+/* No comment provided by engineer. */
+"Exclude from Image" = "Uteslut från bilden";
+
+/* Label for negative prompt text field */
+"Exclude from Image:" = "Uteslut från bilden:";
+
+/* Button to generate image */
+"Generate" = "Generera";
+
+/* No comment provided by engineer. */
+"Guidance Scale" = "Guidningsskala";
+
+/* Label for Guidance Scale slider with value */
+"Guidance Scale: %@" = "Guidningsskala: %@";
+
+/* Label for toggle to auto convert generated images to high resolution */
+"HD" = "HD";
+
+/* Label for image height picker */
+"Height:" = "Höjd:";
+
+/* No comment provided by engineer. */
+"Image" = "Bild";
+
+/* Text displaying the image generation progress and count */
+"Image %lld of %lld" = "Bild %lld av %lld";
+
+/* No comment provided by engineer. */
+"Include in Image" = "Inkludera i bilden";
+
+/* Label for prompt text field */
+"Include in Image:" = "Inkludera i bilden:";
+
+/* No comment provided by engineer. */
+"Loading Model..." = "Läser in modell...";
+
+/* No comment provided by engineer. */
+"ML Compute Unit" = "ML-beräkningsenhet";
+
+/* No comment provided by engineer. */
+"Model" = "Modell";
+
+/* No comment provided by engineer. */
+"Model Folder" = "Modellmapp";
+
+/* Label for Model picker */
+"Model:" = "Modell:";
+
+/* Placeholder text for image inspector */
+"No Info" = "Ingen info";
+
+/* No comment provided by engineer. */
+"Number of Images:" = "Antal bilder:";
+
+/* No comment provided by engineer. */
+"Open in Finder" = "Visa i Finder";
+
+/* View current image using Quick Look */
+"Quick Look" = "Snabbtitt";
+
+/* No comment provided by engineer. */
+"random" = "slumpa";
+
+/* No comment provided by engineer. */
+"Reduce Memory Usage" = "Minska minnesanvändningen";
+
+/* Help text for Reduce Memory Usage option */
+"Reduce memory usage further at the cost of speed." = "Minska minnesanvändningen ytterligare på bekostnad av hastighet.";
+
+/* No comment provided by engineer. */
+"Release Notes" = "Ändringslogg";
+
+/* Remove image from the gallery */
+"Remove" = "Ta bort";
+
+/* Show the save images dialog */
+"Save All..." = "Spara alla...";
+
+/* Show the save image dialog */
+"Save As..." = "Spara som...";
+
+/* No comment provided by engineer. */
+"Scheduler" = "Schemaläggare";
+
+/* Label for Scheduler picker */
+"Scheduler:" = "Schemaläggare:";
+
+/* No comment provided by engineer. */
+"Search" = "Sök";
+
+/* Window title bar label displaying the searched text */
+"Searching: %@" = "Söker: %@";
+
+/* No comment provided by engineer. */
+"Seed" = "Seed";
+
+/* Label for Seed text field */
+"Seed:" = "Seed:";
+
+/* Select next image in Gallery */
+"Select Next" = "Välj Nästa";
+
+/* Select previous image in Gallery */
+"Select Previous" = "Välj föregående";
+
+/* No comment provided by engineer. */
+"Share..." = "Dela...";
+
+/* No comment provided by engineer. */
+"Size" = "Storlek";
+
+/* Text displaying the current step progress and count */
+"Step %lld of %lld" = "Steg %lld av %lld";
+
+/* No comment provided by engineer. */
+"Steps" = "Steg";
+
+/* Label for Steps slider with value */
+"Steps: %lld" = "Steg: %lld";
+
+/* No comment provided by engineer. */
+"Stop Generation" = "Stoppa generering";
+
+/* No comment provided by engineer. */
+"Support Me ♥" = "Stöd mig ♥";
+
+/* Help text for the loading model message */
+"This may take up to 2 minutes if a model is used for the first time" = "Detta kan ta upp till 2 minuter om en modell används för första gången";
+
+/* No comment provided by engineer. */
+"Website" = "Hemsida";
+
+/* Label for image width picker */
+"Width:" = "Bredd:";
+
