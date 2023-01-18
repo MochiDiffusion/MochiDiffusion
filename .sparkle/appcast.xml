@@ -13,8 +13,8 @@
       <pubDate>Wed, 18 Jan 2023 21:10:48 +0000</pubDate>
       <enclosure
         url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v2.0.3/MochiDiffusion_v2.0.3.dmg"
-        sparkle:edSignature="bvgomRAJHc9uDpRAgRcKv4bKHHASjGBHfg3Dn/Rxxgs2Cx09mi+2Lli2jrexTJdF3RwUySikHY5TwO2g9fPxCQ=="
-        length="66926486"
+        sparkle:edSignature="sGn61CTdf27YGkWGy/fAsePSmDg6Aj68tTBuAeACTQbHQH/mHTZ3/ALzzVKKW0JVuQC+cgoxDg88YE56j6o8CQ=="
+        length="66935617"
         type="application/octet-stream" />
       <description><![CDATA[
       <ul>
@@ -26,6 +26,7 @@
       <li>Improved auto sizing Settings window</li>
       <li>Improved Quick Look code (@azyu)</li>
       </ul>
+      <p>You will need to set the model folder again after updating.</p>
       <p>Do you have a model that was converted and wish to upload? Join our community on <a href="https://huggingface.co/coreml">Hugging Face</a> or create a Pull Request to get started!</p>
       <p>Special thanks to the following for supporting me and making this app possible 🎉
       <strong>serovar</strong>, <strong>orange-wedge</strong>, <strong>julien-c</strong>, <strong>Quick-Eyed-Sky</strong>, <strong>BirdSesame</strong>, <strong>Da-mi-en</strong>, <strong>eidermar</strong>, <strong>Draxredd</strong>, &amp; anonymous donors</p>
