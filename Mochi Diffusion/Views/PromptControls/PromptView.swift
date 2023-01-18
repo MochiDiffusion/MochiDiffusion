@@ -51,7 +51,7 @@ struct PromptView: View {
 
                 Spacer()
 
-                if case .running = genStore.status {
+                if case .running = $genStore.status.wrappedValue {
                     Button(action: genStore.stopGeneration) {
                         Text("Stop Generation")
                     }
