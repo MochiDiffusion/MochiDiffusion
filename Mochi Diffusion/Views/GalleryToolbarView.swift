@@ -18,7 +18,7 @@ struct GalleryToolbarView: View {
             } label: {
                 ProgressView()
                     .progressViewStyle(.circular)
-                    .scaleEffect(0.5)
+                    .controlSize(.small)
                     .frame(width: 16)
             }
             .popover(isPresented: self.$isStatusPopoverShown, arrowEdge: .bottom) {

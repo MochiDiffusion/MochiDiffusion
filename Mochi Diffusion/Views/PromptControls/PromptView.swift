@@ -55,6 +55,7 @@ struct PromptView: View {
                     Button(action: genStore.stopGeneration) {
                         Text("Stop Generation")
                     }
+                    .controlSize(.large)
                 } else {
                     Button(action: genStore.generate) {
                         Text(
@@ -64,6 +65,7 @@ struct PromptView: View {
                     }
                     .disabled($genStore.currentModel.wrappedValue.isEmpty)
                     .buttonStyle(.borderedProminent)
+                    .controlSize(.large)
                 }
             }
         }
