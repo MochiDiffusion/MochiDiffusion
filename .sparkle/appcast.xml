@@ -21,7 +21,7 @@
       <li>Changed model folder to be any path and to no longer enforce sub folder structure</li>
       <li>Added Swedish Translation (teodorzacke)</li>
       <li>Added keyboard shortcuts to the Gallery (see under Image menu)</li>
-      <li>Added option to save all images (File &gt; Save All...)</li>
+      <li>Added option to save all images (File → Save All...)</li>
       <li>Added color shadow to Inspector image</li>
       <li>Improved auto sizing Settings window</li>
       <li>Improved Quick Look code (@azyu)</li>
