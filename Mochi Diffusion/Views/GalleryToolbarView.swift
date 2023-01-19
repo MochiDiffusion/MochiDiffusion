@@ -37,7 +37,7 @@ struct GalleryToolbarView: View {
         if case let .running(progress) = genStore.status, let progress = progress, progress.stepCount > 0 {
             let step = Int(progress.step) + 1
             let stepValue = Double(step) / Double(progress.stepCount)
-            let progressValue = Double(genStore.generationProgress.index + 1) / Double(genStore.generationProgress.total)
+            let progressValue = Double(genStore.queueProgress.index + 1) / Double(genStore.queueProgress.total)
 
             Button {
                 self.isStatusPopoverShown.toggle()
@@ -51,7 +51,7 @@ struct GalleryToolbarView: View {
                     comment: "Text displaying the current step progress and count"
                 )
                 let imageCountLabel = String(
-                    localized: "Image \(genStore.generationProgress.index + 1) of \(genStore.generationProgress.total)",
+                    localized: "Image \(genStore.queueProgress.index + 1) of \(genStore.queueProgress.total)",
                     comment: "Text displaying the image generation progress and count"
                 )
                 VStack(alignment: .center, spacing: 12) {

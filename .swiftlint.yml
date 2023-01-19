@@ -137,7 +137,6 @@ private_over_fileprivate:
   severity: error
 protocol_property_accessors_order: error
 reduce_boolean: error
-redundant_discardable_let: error
 redundant_nil_coalescing: error
 redundant_optional_initialization: error
 redundant_set_access_control: error

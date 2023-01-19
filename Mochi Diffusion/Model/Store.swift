@@ -16,11 +16,11 @@ import UniformTypeIdentifiers
 typealias Model = String
 
 enum GeneratorStatus {
-    case initialized
+    case idle
     case ready
+    case error(String)
     case loading
     case running(StableDiffusionProgress?)
-    case error(String)
 }
 
 final class GeneratorStore: ObservableObject {
@@ -29,10 +29,10 @@ final class GeneratorStore: ObservableObject {
     @Published var images = [SDImage]()
     @Published var selectedImageIndex = -1
     @Published var quicklookURL: URL?
-    @Published var status: GeneratorStatus = .initialized
+    @Published var status: GeneratorStatus = .idle
     @Published var numberOfImages = 1
     @Published var seed: UInt32 = 0
-    @Published var generationProgress = GenerationProgress()
+    @Published var queueProgress = QueueProgress()
     @Published var searchText = ""
     @AppStorage("ModelDir") var modelDir = ""
     @AppStorage("Prompt") var prompt = ""
@@ -189,7 +189,7 @@ final class GeneratorStore: ObservableObject {
                 var seedUsed = self.seed == 0 ? UInt32.random(in: 0 ..< UInt32.max) : self.seed
                 for index in 0 ..< numberOfImages {
                     DispatchQueue.main.async {
-                        self.generationProgress = GenerationProgress(index: index, total: numberOfImages)
+                        self.queueProgress = QueueProgress(index: index, total: numberOfImages)
                     }
                     let (imgs, seed) = try pipeline.generate(
                         prompt: sdi.prompt,
