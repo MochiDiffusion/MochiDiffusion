@@ -42,11 +42,11 @@ final class GeneratorStore: ObservableObject {
     @AppStorage("ImageHeight") var height = 512
     @AppStorage("Scheduler") var scheduler = StableDiffusionScheduler.dpmSolverMultistepScheduler
     @AppStorage("UpscaleGeneratedImages") var upscaleGeneratedImages = false
-#if arch(arm64)
+    #if arch(arm64)
     @AppStorage("MLComputeUnit") var mlComputeUnit: MLComputeUnits = .cpuAndNeuralEngine
-#else
+    #else
     private var mlComputeUnit: MLComputeUnits = .cpuAndGPU
-#endif
+    #endif
     @AppStorage("ReduceMemory") var reduceMemory = false
     @AppStorage("SafetyChecker") var safetyChecker = false
     @AppStorage("Model") private var model = ""
