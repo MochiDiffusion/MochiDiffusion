@@ -5,6 +5,33 @@
     <language>en</language>
 
     <item>
+      <title>v2.1.1</title>
+      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <sparkle:version>2.1.1</sparkle:version>
+      <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
+      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <pubDate>Thu, 19 Jan 2023 18:10:02 +0000</pubDate>
+      <enclosure
+        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v2.1.1/MochiDiffusion_v2.1.1.dmg"
+        sparkle:edSignature="ObDsUCWJaNFMgpYIB1MBOLCso2u7fKAPNMbOo3ymnSN12y1Fwdi1JrumuPSqa1uKmAzZsaO2W1rBbTqHrW5lAw=="
+        length="66942540"
+        type="application/octet-stream" />
+      <description><![CDATA[
+      <p>We&#39;ve reached 10 languages!</p>
+      <ul>
+      <li>Added Traditional Chinese translation (JacobLinCool)</li>
+      <li>Added ability to select Compute Unit option when changing model</li>
+      <li>Added option to Filter Inappropriate Images under Settings (model must have safety checker module to work)</li>
+      <li>Fixed duplicated model options on refresh</li>
+      </ul>
+      <p>Do you have a model that was converted and wish to upload? Join our community on <a href="https://huggingface.co/coreml">Hugging Face</a> or create a Pull Request to get started!</p>
+      <p>Special thanks to the following for supporting me and making this app possible 🎉
+      <strong>raisingfightingspirit</strong>, <strong>serovar</strong>, <strong>orange-wedge</strong>, <strong>julien-c</strong>, <strong>Quick-Eyed-Sky</strong>, <strong>BirdSesame</strong>, <strong>Da-mi-en</strong>, <strong>eidermar</strong>, &amp; anonymous donors</p>
+      ]]>
+      </description>
+    </item>
+
+    <item>
       <title>v2.1</title>
       <link>https://github.com/godly-devotion/MochiDiffusion</link>
       <sparkle:version>2.1</sparkle:version>
