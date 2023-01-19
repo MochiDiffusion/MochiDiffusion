@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct AppView: View {
-    @EnvironmentObject var genStore: GeneratorStore
+    @EnvironmentObject private var genStore: GeneratorStore
 
     var body: some View {
         NavigationSplitView {

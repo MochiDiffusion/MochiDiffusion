@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct SizeView: View {
-    @EnvironmentObject var genStore: GeneratorStore
+    @EnvironmentObject private var genStore: GeneratorStore
     private var imageSizes = [
         256, 320, 384, 448, 512, 576, 640, 704, 768
     ]

@@ -9,7 +9,7 @@ import StableDiffusion
 import SwiftUI
 
 struct SchedulerView: View {
-    @EnvironmentObject var genStore: GeneratorStore
+    @EnvironmentObject private var genStore: GeneratorStore
 
     var body: some View {
         Text(

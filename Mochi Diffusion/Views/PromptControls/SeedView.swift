@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct SeedView: View {
-    @EnvironmentObject var genStore: GeneratorStore
+    @EnvironmentObject private var genStore: GeneratorStore
     @FocusState private var randomFieldIsFocused: Bool
 
     var body: some View {

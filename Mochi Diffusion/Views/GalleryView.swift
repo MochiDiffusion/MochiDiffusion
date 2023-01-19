@@ -11,7 +11,7 @@ import SwiftUI
 
 struct GalleryView: View {
     @Environment(\.colorScheme) var colorScheme
-    @EnvironmentObject var genStore: GeneratorStore
+    @EnvironmentObject private var genStore: GeneratorStore
     private var gridColumns = [GridItem(.adaptive(minimum: 200), spacing: 16)]
 
     var body: some View {

@@ -10,7 +10,7 @@ import StableDiffusion
 import SwiftUI
 
 struct SettingsView: View {
-    @EnvironmentObject var genStore: GeneratorStore
+    @EnvironmentObject private var genStore: GeneratorStore
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {

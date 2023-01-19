@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct GalleryToolbarView: View {
-    @EnvironmentObject var genStore: GeneratorStore
+    @EnvironmentObject private var genStore: GeneratorStore
     @State private var isStatusPopoverShown = false
 
     var body: some View {
