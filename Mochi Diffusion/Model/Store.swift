@@ -79,6 +79,7 @@ final class GeneratorStore: ObservableObject {
 
     func loadModels() {
         logger.info("Started loading model directory at: \"\(self.modelDir)\"")
+        models = []
         let fm = FileManager.default
         var finalModelDir: URL
         // check if saved model directory exists
