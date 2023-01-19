@@ -49,6 +49,7 @@ final class GeneratorStore: ObservableObject {
     private var mlComputeUnit: MLComputeUnits = .cpuAndGPU
 #endif
     @AppStorage("ReduceMemory") var reduceMemory = false
+    @AppStorage("SafetyChecker") var safetyChecker = false
     @AppStorage("Model") private var model = ""
     private var progressSubscriber: Cancellable?
     private let logger = Logger()
@@ -178,6 +179,7 @@ final class GeneratorStore: ObservableObject {
             do {
                 // Save settings used to generate
                 let numberOfImages = self.numberOfImages
+                let safetyChecker = self.safetyChecker
                 var sdi = SDImage()
                 sdi.prompt = self.prompt
                 sdi.negativePrompt = self.negativePrompt
@@ -198,6 +200,7 @@ final class GeneratorStore: ObservableObject {
                         numInferenceSteps: sdi.steps,
                         seed: seedUsed,
                         guidanceScale: Float(sdi.guidanceScale),
+                        disableSafety: !safetyChecker,
                         scheduler: sdi.scheduler
                     )
                     if pipeline.hasGenerationBeenStopped {

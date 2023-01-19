@@ -110,6 +110,26 @@ struct SettingsView: View {
                     }
                 }
                 .padding(4)
+
+                Divider()
+
+                VStack(alignment: .leading) {
+                    HStack {
+                        Text("Filter Inappropriate Images")
+
+                        Spacer()
+
+                        Toggle("", isOn: $genStore.safetyChecker)
+                            .labelsHidden()
+                            .toggleStyle(.switch)
+                    }
+                    Text(
+                        "Uses the model's safety checker module. This does not guarantee that all inappropriate will be filtered.",
+                        comment: "Help text for Filter Inappropriate Images option"
+                    )
+                    .helpTextFormat()
+                }
+                .padding(4)
             }
 
             HStack {
@@ -128,13 +148,16 @@ struct SettingsView: View {
             }
         }
         .padding()
-        .frame(width: 500, alignment: .top)
+        .frame(width: 450, alignment: .top)
         .fixedSize()
     }
 }
 
 struct SettingsView_Previews: PreviewProvider {
+    static let genStore = GeneratorStore()
+
     static var previews: some View {
         SettingsView()
+            .environmentObject(genStore)
     }
 }

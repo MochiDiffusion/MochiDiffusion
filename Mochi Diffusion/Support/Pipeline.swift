@@ -38,6 +38,7 @@ class Pipeline {
         numInferenceSteps stepCount: Int,
         seed: UInt32,
         guidanceScale: Float,
+        disableSafety: Bool,
         scheduler: StableDiffusionScheduler
     ) throws -> ([CGImage], UInt32) {
         let beginDate = Date()
@@ -50,7 +51,7 @@ class Pipeline {
             stepCount: stepCount,
             seed: seed,
             guidanceScale: guidanceScale,
-            disableSafety: true,
+            disableSafety: disableSafety,
             scheduler: scheduler
         ) { progress in
             handleProgress(progress)
