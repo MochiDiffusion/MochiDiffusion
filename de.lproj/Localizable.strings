@@ -1,3 +1,6 @@
+/* Label displaying the currently selected model name */
+"%@ model" = "%@ modell";
+
 /* No comment provided by engineer. */
 "^[%lld images](inflect: true)" = "^[%lld Bilder](inflect: true)";
 
@@ -52,6 +55,15 @@ Copy the currently selected image's generation options to the prompt input sideb
 
 /* Label for negative prompt text field */
 "Exclude from Image:" = "Was im Bild nicht enthalten sein soll:";
+
+/* No comment provided by engineer. */
+"Filter Inappropriate Images" = "Filtern Sie unangemessene Bilder";
+
+/* No comment provided by engineer. */
+"For `original` models, select Use GPU." = "Wählen Sie für \"Original\"-Modelle GPU verwenden.";
+
+/* No comment provided by engineer. */
+"For `split_einsum` models, select Use Neural Engine." = "Wählen Sie für `split_einsum`-Modelle Neural Engine verwenden aus.";
 
 /* Button to generate image */
 "Generate" = "Generieren";
@@ -146,6 +158,9 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* Label for Seed text field */
 "Seed:" = "Seed:";
 
+/* No comment provided by engineer. */
+"Select Compute Unit option" = "Wählen Sie die Option Recheneinheit";
+
 /* Select next image in Gallery */
 "Select Next" = "Nächste auswählen";
 
@@ -175,6 +190,15 @@ Copy the currently selected image's generation options to the prompt input sideb
 
 /* Help text for the loading model message */
 "This may take up to 2 minutes if a model is used for the first time" = "Dies kann bis zu 2 Minuten dauern, wenn ein Modell zum ersten Mal verwendet wird";
+
+/* No comment provided by engineer. */
+"Use GPU" = "GPU verwenden";
+
+/* No comment provided by engineer. */
+"Use Neural Engine" = "Neural Engine verwenden";
+
+/* Help text for Filter Inappropriate Images option */
+"Uses the model's safety checker module. This does not guarantee that all inappropriate will be filtered." = "Verwendet das Safety-Checker-Modul des Modells. Dies garantiert nicht, dass alle unangemessenen gefiltert werden.";
 
 /* No comment provided by engineer. */
 "Website" = "Webseite";

@@ -1,3 +1,6 @@
+/* Label displaying the currently selected model name */
+"%@ model" = "%@ モデル";
+
 /* No comment provided by engineer. */
 "^[%lld images](inflect: true)" = "^[%lld 画像](inflect: true)";
 
@@ -52,6 +55,15 @@ Copy the currently selected image's generation options to the prompt input sideb
 
 /* Label for negative prompt text field */
 "Exclude from Image:" = "画像から除外:";
+
+/* No comment provided by engineer. */
+"Filter Inappropriate Images" = "不適切な画像のフィルタリング";
+
+/* No comment provided by engineer. */
+"For `original` models, select Use GPU." = "「original」モデルの場合は、[GPU を使う] を選択します。";
+
+/* No comment provided by engineer. */
+"For `split_einsum` models, select Use Neural Engine." = "`split_einsum` モデルの場合は、[Neural Engine を使う] を選択します。";
 
 /* Button to generate image */
 "Generate" = "画像の生成";
@@ -146,6 +158,9 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* Label for Seed text field */
 "Seed:" = "シード:";
 
+/* No comment provided by engineer. */
+"Select Compute Unit option" = "コンピューティング ユニット オプションの選択";
+
 /* Select next image in Gallery */
 "Select Next" = "次を選択";
 
@@ -175,6 +190,15 @@ Copy the currently selected image's generation options to the prompt input sideb
 
 /* Help text for the loading model message */
 "This may take up to 2 minutes if a model is used for the first time" = "モデルを初めて使用する場合、2分程度かかることがあります";
+
+/* No comment provided by engineer. */
+"Use GPU" = "GPU を使う";
+
+/* No comment provided by engineer. */
+"Use Neural Engine" = "Neural Engine を使う";
+
+/* Help text for Filter Inappropriate Images option */
+"Uses the model's safety checker module. This does not guarantee that all inappropriate will be filtered." = "モデルのセーフティ チェッカー モジュールを使用します。 これは、不適切なものがすべて除外されることを保証するものではありません。";
 
 /* No comment provided by engineer. */
 "Website" = "Web サイト";

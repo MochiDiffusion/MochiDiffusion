@@ -1,3 +1,6 @@
+/* Label displaying the currently selected model name */
+"%@ model" = "%@ modèle";
+
 /* No comment provided by engineer. */
 "^[%lld images](inflect: true)" = "^[%lld images](inflect: true)";
 
@@ -52,6 +55,15 @@ Copy the currently selected image's generation options to the prompt input sideb
 
 /* Label for negative prompt text field */
 "Exclude from Image:" = "Exclure de l'image :";
+
+/* No comment provided by engineer. */
+"Filter Inappropriate Images" = "Filtrer les images inappropriées";
+
+/* No comment provided by engineer. */
+"For `original` models, select Use GPU." = "Pour les modèles `original`, sélectionnez Utiliser GPU.";
+
+/* No comment provided by engineer. */
+"For `split_einsum` models, select Use Neural Engine." = "Pour les modèles `split_einsum`, sélectionnez Utiliser le moteur neural.";
 
 /* Button to generate image */
 "Generate" = "Générer";
@@ -146,6 +158,9 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* Label for Seed text field */
 "Seed:" = "Graine:";
 
+/* No comment provided by engineer. */
+"Select Compute Unit option" = "Sélectionnez l’option unité de calcul";
+
 /* Select next image in Gallery */
 "Select Next" = "Sélectionnez Suivant";
 
@@ -175,6 +190,15 @@ Copy the currently selected image's generation options to the prompt input sideb
 
 /* Help text for the loading model message */
 "This may take up to 2 minutes if a model is used for the first time" = "Ceci peut prendre jusqu'à 2 minutes si un modèle est utilisé pour la première fois";
+
+/* No comment provided by engineer. */
+"Use GPU" = "Utilisation GPU";
+
+/* No comment provided by engineer. */
+"Use Neural Engine" = "Utilisation moteur neuronal";
+
+/* Help text for Filter Inappropriate Images option */
+"Uses the model's safety checker module. This does not guarantee that all inappropriate will be filtered." = "Utilise le module de vérification de la sécurité du modèle. Cela ne garantit pas que tous les contenus inappropriés seront filtrés.";
 
 /* No comment provided by engineer. */
 "Website" = "Site Web";

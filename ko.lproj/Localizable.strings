@@ -1,3 +1,6 @@
+/* Label displaying the currently selected model name */
+"%@ model" = "%@ 모델";
+
 /* No comment provided by engineer. */
 "^[%lld images](inflect: true)" = "^[%lld 이미지](inflect: true)";
 
@@ -52,6 +55,15 @@ Copy the currently selected image's generation options to the prompt input sideb
 
 /* Label for negative prompt text field */
 "Exclude from Image:" = "네거티브 프롬프트:";
+
+/* No comment provided by engineer. */
+"Filter Inappropriate Images" = "노골적인 이미지 필터링";
+
+/* No comment provided by engineer. */
+"For `original` models, select Use GPU." = "`original` 모델이면 GPU을 선택하세요.";
+
+/* No comment provided by engineer. */
+"For `split_einsum` models, select Use Neural Engine." = "`split_einsum` 모델이면 Neural Engine을 선택하세요.";
 
 /* Button to generate image */
 "Generate" = "생성";
@@ -146,6 +158,9 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* Label for Seed text field */
 "Seed:" = "씨드:";
 
+/* No comment provided by engineer. */
+"Select Compute Unit option" = "Compute Unit 선택";
+
 /* Select next image in Gallery */
 "Select Next" = "다음 선택";
 
@@ -175,6 +190,15 @@ Copy the currently selected image's generation options to the prompt input sideb
 
 /* Help text for the loading model message */
 "This may take up to 2 minutes if a model is used for the first time" = "모델을 처음 사용하는 경우 최대 2분 정도 걸릴 수 있습니다.";
+
+/* No comment provided by engineer. */
+"Use GPU" = "GPU 사용";
+
+/* No comment provided by engineer. */
+"Use Neural Engine" = "Neural Engine 사용";
+
+/* Help text for Filter Inappropriate Images option */
+"Uses the model's safety checker module. This does not guarantee that all inappropriate will be filtered." = "모델의 안전 검사기 모듈을 사용합니다. 모든 노골적인 이미지가 필터링되지 않을 수도 있습니다.";
 
 /* No comment provided by engineer. */
 "Website" = "웹사이트";

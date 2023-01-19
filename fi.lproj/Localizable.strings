@@ -1,3 +1,6 @@
+/* Label displaying the currently selected model name */
+"%@ model" = "%@ malli";
+
 /* No comment provided by engineer. */
 "^[%lld images](inflect: true)" = "^[%lld kuvaa](inflect: true)";
 
@@ -52,6 +55,15 @@ Copy the currently selected image's generation options to the prompt input sideb
 
 /* Label for negative prompt text field */
 "Exclude from Image:" = "Jätä pois kuvasta:";
+
+/* No comment provided by engineer. */
+"Filter Inappropriate Images" = "Suodata sopimattomat kuvat";
+
+/* No comment provided by engineer. */
+"For `original` models, select Use GPU." = "Valitse \"original\" malleissa Käytä GPU.";
+
+/* No comment provided by engineer. */
+"For `split_einsum` models, select Use Neural Engine." = "Valitse \"split_einsum\"-malleissa Käytä Neural Engine.";
 
 /* Button to generate image */
 "Generate" = "Generoi";
@@ -146,6 +158,9 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* Label for Seed text field */
 "Seed:" = "Seed-luku:";
 
+/* No comment provided by engineer. */
+"Select Compute Unit option" = "Valitse laskentayksikön valinta";
+
 /* Select next image in Gallery */
 "Select Next" = "Valitse Seuraava";
 
@@ -175,6 +190,15 @@ Copy the currently selected image's generation options to the prompt input sideb
 
 /* Help text for the loading model message */
 "This may take up to 2 minutes if a model is used for the first time" = "Tämä voi kestää enintään 2 minuuttia, jos mallia käytetään ensimmäisen kerran";
+
+/* No comment provided by engineer. */
+"Use GPU" = "Käytä GPU";
+
+/* No comment provided by engineer. */
+"Use Neural Engine" = "Käytä Neural Engine";
+
+/* Help text for Filter Inappropriate Images option */
+"Uses the model's safety checker module. This does not guarantee that all inappropriate will be filtered." = "Käyttää mallin turvatarkistusmoduulia. Tämä ei takaa, että kaikki sopimaton suodatetaan.";
 
 /* No comment provided by engineer. */
 "Website" = "Nettisivu";

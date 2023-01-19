@@ -1,3 +1,6 @@
+/* Label displaying the currently selected model name */
+"%@ model" = "%@ modello";
+
 /* No comment provided by engineer. */
 "^[%lld images](inflect: true)" = "^[%lld immagini](inflect: true)";
 
@@ -52,6 +55,15 @@ Copy the currently selected image's generation options to the prompt input sideb
 
 /* Label for negative prompt text field */
 "Exclude from Image:" = "Escludi dall'immagine:";
+
+/* No comment provided by engineer. */
+"Filter Inappropriate Images" = "Filtra immagini inappropriate";
+
+/* No comment provided by engineer. */
+"For `original` models, select Use GPU." = "Per i modelli \"original\", seleziona Usa GPU.";
+
+/* No comment provided by engineer. */
+"For `split_einsum` models, select Use Neural Engine." = "Per i modelli `split_einsum`, seleziona Usa Neural Engine.";
 
 /* Button to generate image */
 "Generate" = "Genera";
@@ -146,6 +158,9 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* Label for Seed text field */
 "Seed:" = "Seed:";
 
+/* No comment provided by engineer. */
+"Select Compute Unit option" = "Selezionare l'opzione Unità di calcolo";
+
 /* Select next image in Gallery */
 "Select Next" = "Seleziona successiva";
 
@@ -175,6 +190,15 @@ Copy the currently selected image's generation options to the prompt input sideb
 
 /* Help text for the loading model message */
 "This may take up to 2 minutes if a model is used for the first time" = "Questo può richiedere fino a 2 minuti se un modello viene utilizzato per la prima volta";
+
+/* No comment provided by engineer. */
+"Use GPU" = "Usa GPU";
+
+/* No comment provided by engineer. */
+"Use Neural Engine" = "Usa Neural Engine";
+
+/* Help text for Filter Inappropriate Images option */
+"Uses the model's safety checker module. This does not guarantee that all inappropriate will be filtered." = "Utilizza il modulo di verifica della sicurezza del modello. Questo non garantisce che tutto ciò che è inappropriato verrà filtrato.";
 
 /* No comment provided by engineer. */
 "Website" = "Sito Web";

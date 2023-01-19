@@ -1,3 +1,6 @@
+/* Label displaying the currently selected model name */
+"%@ model" = "%@ 模型";
+
 /* No comment provided by engineer. */
 "^[%lld images](inflect: true)" = "^[%lld 张图片](inflect: true)";
 
@@ -52,6 +55,15 @@ Copy the currently selected image's generation options to the prompt input sideb
 
 /* Label for negative prompt text field */
 "Exclude from Image:" = "反向关键词:";
+
+/* No comment provided by engineer. */
+"Filter Inappropriate Images" = "过滤不良图像";
+
+/* No comment provided by engineer. */
+"For `original` models, select Use GPU." = "对于`original`模型，选择使用 GPU。";
+
+/* No comment provided by engineer. */
+"For `split_einsum` models, select Use Neural Engine." = "对于“split_einsum”模型，选择使用 Neural Engine。";
 
 /* Button to generate image */
 "Generate" = "生成";
@@ -146,6 +158,9 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* Label for Seed text field */
 "Seed:" = "随机种:";
 
+/* No comment provided by engineer. */
+"Select Compute Unit option" = "选择计算单元选项";
+
 /* Select next image in Gallery */
 "Select Next" = "下一张";
 
@@ -175,6 +190,15 @@ Copy the currently selected image's generation options to the prompt input sideb
 
 /* Help text for the loading model message */
 "This may take up to 2 minutes if a model is used for the first time" = "如果这是首次载入模型，则需要约2分钟的时间";
+
+/* No comment provided by engineer. */
+"Use GPU" = "使用 GPU";
+
+/* No comment provided by engineer. */
+"Use Neural Engine" = "使用 Neural Engine";
+
+/* Help text for Filter Inappropriate Images option */
+"Uses the model's safety checker module. This does not guarantee that all inappropriate will be filtered." = "使用模型的安全检查模块，但它不能保证过滤所有的不良内容";
 
 /* No comment provided by engineer. */
 "Website" = "网站";

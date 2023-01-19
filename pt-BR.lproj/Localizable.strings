@@ -1,3 +1,6 @@
+/* Label displaying the currently selected model name */
+"%@ model" = "%@ modelo";
+
 /* No comment provided by engineer. */
 "^[%lld images](inflect: true)" = "^[%lld imagens](inflect: true)";
 
@@ -52,6 +55,15 @@ Copy the currently selected image's generation options to the prompt input sideb
 
 /* Label for negative prompt text field */
 "Exclude from Image:" = "Remover da imagem:";
+
+/* No comment provided by engineer. */
+"Filter Inappropriate Images" = "Filtrar imagens inapropriadas";
+
+/* No comment provided by engineer. */
+"For `original` models, select Use GPU." = "Para modelos `original`, selecione usar GPU.";
+
+/* No comment provided by engineer. */
+"For `split_einsum` models, select Use Neural Engine." = "Para modelos de `split_einsum`, selecione usar a Neural Engine.";
 
 /* Button to generate image */
 "Generate" = "Gerar";
@@ -146,6 +158,9 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* Label for Seed text field */
 "Seed:" = "Semente:";
 
+/* No comment provided by engineer. */
+"Select Compute Unit option" = "Selecione a opção de unidade de computação";
+
 /* Select next image in Gallery */
 "Select Next" = "Selecionar Próximo";
 
@@ -175,6 +190,15 @@ Copy the currently selected image's generation options to the prompt input sideb
 
 /* Help text for the loading model message */
 "This may take up to 2 minutes if a model is used for the first time" = "Isto pode levar até 2 minutos se um modelo é usado pela primeira vez";
+
+/* No comment provided by engineer. */
+"Use GPU" = "Usar GPU";
+
+/* No comment provided by engineer. */
+"Use Neural Engine" = "Usar Neural Engine";
+
+/* Help text for Filter Inappropriate Images option */
+"Uses the model's safety checker module. This does not guarantee that all inappropriate will be filtered." = "Utiliza o módulo verificador de segurança do modelo. Isso não garante que todos os impróprios serão filtrados.";
 
 /* No comment provided by engineer. */
 "Website" = "Site";
