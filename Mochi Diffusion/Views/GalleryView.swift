@@ -4,7 +4,6 @@
 //
 //  Created by Joshua Park on 1/4/23.
 //
-// swiftlint:disable line_length
 
 import QuickLook
 import SwiftUI

@@ -99,7 +99,6 @@ struct SettingsView: View {
                             .textFieldStyle(.roundedBorder)
 
                         Button {
-                            // swiftlint:disable:next line_length
                             NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: genStore.modelDir).absoluteURL])
                         } label: {
                             Image(systemName: "magnifyingglass.circle.fill")

@@ -1,3 +1,9 @@
+disabled_rules:
+  - file_length
+  - function_body_length
+  - function_parameter_count
+  - line_length
+  - type_body_length
 opt_in_rules:
   - accessibility_trait_for_button
   - closure_end_indentation
@@ -101,10 +107,6 @@ legacy_hashing: error
 legacy_nsgeometry_functions: error
 legacy_random: error
 let_var_whitespace: error
-line_length:
-  ignores_urls: true
-  ignores_function_declarations: true
-  ignores_interpolated_strings: true
 literal_expression_end_indentation: error
 lower_acl_than_parent: error
 mark: error

@@ -24,7 +24,6 @@ class Pipeline {
         generationStopped
     }
 
-    // swiftlint:disable:next line_length
     private(set) lazy var progressPublisher: CurrentValueSubject<StableDiffusionProgress?, Never> = CurrentValueSubject(progress)
     private var generationStopped = false
 

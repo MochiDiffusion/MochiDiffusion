@@ -4,7 +4,7 @@
 //
 //  Created by Joshua Park on 12/17/2022.
 //
-// swiftlint:disable type_body_length
+
 import Combine
 import CoreML
 import Foundation
