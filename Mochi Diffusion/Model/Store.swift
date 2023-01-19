@@ -24,7 +24,6 @@ enum GeneratorStatus {
 }
 
 final class GeneratorStore: ObservableObject {
-    @Published var pipeline: Pipeline?
     @Published var models = [String]()
     @Published var images = [SDImage]()
     @Published var selectedImageIndex = -1
@@ -51,6 +50,7 @@ final class GeneratorStore: ObservableObject {
     @AppStorage("ReduceMemory") var reduceMemory = false
     @AppStorage("SafetyChecker") var safetyChecker = false
     @AppStorage("Model") private var model = ""
+    private var pipeline: Pipeline?
     private var progressSubscriber: Cancellable?
     private let logger = Logger()
 
