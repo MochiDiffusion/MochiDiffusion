@@ -1,0 +1,208 @@
+/* Label displaying the currently selected model name */
+"%@ model" = "模型：%@";
+
+/* No comment provided by engineer. */
+"^[%lld images](inflect: true)" = "^[%lld 張圖片] (inflect: true)";
+
+/* Option to use all CPU, GPU, & Neural Engine for compute unit */
+"All" = "全部";
+
+/* Button to apply the selected settings */
+"Apply" = "套用";
+
+/* Help text for ML Compute Unit option under Settings */
+"Based on the option selected the correct model version will need to be used." = "根據所選的選項，需要使用正確的模型版本";
+
+/* No comment provided by engineer. */
+"Check for Updates…" = "檢查更新 …";
+
+/* No comment provided by engineer. */
+"Convert all images to High Resolution (this will use more memory)" = "將所有圖像轉換為高解析度（需使用更多記憶體）";
+
+/* Convert the current image to high resolution */
+"Convert to High Resolution" = "轉換為高解析度";
+
+/* Button to copy the currently selected image's generation options to the clipboard */
+"Copy" = "複製";
+
+/* No comment provided by engineer. */
+"Copy Option to Sidebar" = "將選項複製至側邊欄";
+
+/* Button to copy the currently selected image's generation options to the prompt input sidebar
+Copy the currently selected image's generation options to the prompt input sidebar */
+"Copy Options to Sidebar" = "將選項複製至側邊欄";
+
+/* No comment provided by engineer. */
+"CPU & GPU" = "CPU 和 GPU";
+
+/* No comment provided by engineer. */
+"CPU & GPU may be faster on M1 Max, Ultra and later but will use more memory." = "「CPU 和 GPU」在 M1 Max/Ultra 及後續機型可能更快，但需使用更多記憶體";
+
+/* No comment provided by engineer. */
+"CPU & Neural Engine" = "CPU 和神經網路引擎";
+
+/* No comment provided by engineer. */
+"CPU & Neural Engine provides a good balance between speed and low memory usage." = "「CPU 和神經網路引擎」在性能與記憶體使用量之間具有良好平衡";
+
+/* No comment provided by engineer. */
+"Date" = "日期";
+
+/* No comment provided by engineer. */
+"Download Models" = "下載模型";
+
+/* No comment provided by engineer. */
+"Exclude from Image" = "反向關鍵詞";
+
+/* Label for negative prompt text field */
+"Exclude from Image:" = "反向關鍵詞：";
+
+/* No comment provided by engineer. */
+"Filter Inappropriate Images" = "過濾不適當的圖片";
+
+/* No comment provided by engineer. */
+"For `original` models, select Use GPU." = "對於「`original`」模型，請使用 GPU 運算";
+
+/* No comment provided by engineer. */
+"For `split_einsum` models, select Use Neural Engine." = "對於「`split_einsum `」模型，請使用神經網路引擎運算";
+
+/* Button to generate image */
+"Generate" = "生成";
+
+/* No comment provided by engineer. */
+"Guidance Scale" = "關鍵詞引導權重";
+
+/* Label for Guidance Scale slider with value */
+"Guidance Scale: %@" = "關鍵詞引導權重：%@";
+
+/* Label for toggle to auto convert generated images to high resolution */
+"HD" = "HD";
+
+/* Label for image height picker */
+"Height:" = "高度：";
+
+/* No comment provided by engineer. */
+"Image" = "圖片";
+
+/* Text displaying the image generation progress and count */
+"Image %lld of %lld" = "圖片 %lld / %lld";
+
+/* No comment provided by engineer. */
+"Include in Image" = "關鍵詞";
+
+/* Label for prompt text field */
+"Include in Image:" = "關鍵詞：";
+
+/* No comment provided by engineer. */
+"Loading Model..." = "載入模型中 ...";
+
+/* No comment provided by engineer. */
+"ML Compute Unit" = "ML 計算單元";
+
+/* No comment provided by engineer. */
+"Model" = "模型";
+
+/* No comment provided by engineer. */
+"Model Folder" = "模型目錄";
+
+/* Label for Model picker */
+"Model:" = "模型：";
+
+/* Placeholder text for image inspector */
+"No Info" = "無資訊";
+
+/* No comment provided by engineer. */
+"Number of Images:" = "圖片數量：";
+
+/* No comment provided by engineer. */
+"Open in Finder" = "在 Finder 中開啟";
+
+/* View current image using Quick Look */
+"Quick Look" = "快速查看";
+
+/* No comment provided by engineer. */
+"random" = "隨機";
+
+/* No comment provided by engineer. */
+"Reduce Memory Usage" = "減少記憶體使用量";
+
+/* Help text for Reduce Memory Usage option */
+"Reduce memory usage further at the cost of speed." = "犧牲性能以換取較低的記憶體使用量";
+
+/* No comment provided by engineer. */
+"Release Notes" = "版本說明";
+
+/* Remove image from the gallery */
+"Remove" = "刪除";
+
+/* Show the save images dialog */
+"Save All..." = "全部儲存 ...";
+
+/* Show the save image dialog */
+"Save As..." = "另存為 …";
+
+/* No comment provided by engineer. */
+"Scheduler" = "採樣器";
+
+/* Label for Scheduler picker */
+"Scheduler:" = "採樣器：";
+
+/* No comment provided by engineer. */
+"Search" = "搜尋";
+
+/* Window title bar label displaying the searched text */
+"Searching: %@" = "正在搜尋「%@」";
+
+/* No comment provided by engineer. */
+"Seed" = "隨機種子";
+
+/* Label for Seed text field */
+"Seed:" = "隨機種子：";
+
+/* No comment provided by engineer. */
+"Select Compute Unit option" = "選擇運算單元";
+
+/* Select next image in Gallery */
+"Select Next" = "下一張";
+
+/* Select previous image in Gallery */
+"Select Previous" = "上一張";
+
+/* No comment provided by engineer. */
+"Share..." = "分享 ...";
+
+/* No comment provided by engineer. */
+"Size" = "尺寸";
+
+/* Text displaying the current step progress and count */
+"Step %lld of %lld" = "迭代次數 %lld / %lld";
+
+/* No comment provided by engineer. */
+"Steps" = "迭代次數";
+
+/* Label for Steps slider with value */
+"Steps: %lld" = "迭代次數：%lld";
+
+/* No comment provided by engineer. */
+"Stop Generation" = "停止生成？";
+
+/* No comment provided by engineer. */
+"Support Me ♥" = "贊助我 ♥";
+
+/* Help text for the loading model message */
+"This may take up to 2 minutes if a model is used for the first time" = "首次載入模型可能需要多達 2 分鐘";
+
+/* No comment provided by engineer. */
+"Use GPU" = "使用 GPU";
+
+/* No comment provided by engineer. */
+"Use Neural Engine" = "使用神經網路引擎";
+
+/* Help text for Filter Inappropriate Images option */
+"Uses the model's safety checker module. This does not guarantee that all inappropriate will be filtered." = "使用模型的安全檢查模組（無法保證所有不適當圖片都會被過濾）";
+
+/* No comment provided by engineer. */
+"Website" = "網站";
+
+/* Label for image width picker */
+"Width:" = "寬度：";
+
