@@ -77,20 +77,14 @@ extension SDImage {
 
     func metadata() -> String {
         """
-        \(title()); \
-        Model: \(model); \
-        Scheduler: \(scheduler); \
-        Seed: \(seed); \
-        Steps: \(steps); \
-        Guidance: \(guidanceScale); \
-        Generator: Mochi Diffusion \(NSApplication.appVersion)
-        """
-    }
-
-    private func title() -> String {
-        """
-        Prompt: \(prompt); \
-        Negative: \(negativePrompt)
+        \(prompt).\
+        Negative prompt: \(negativePrompt).\
+        Steps: \(steps), \
+        Sampler: \(scheduler.rawValue), \
+        CFG scale: \(guidanceScale), \
+        Seed: \(seed), \
+        Size: \(width)x\(height), \
+        Model hash: \(model) (Mochi Diffusion \(NSApplication.appVersion))
         """
     }
 }
