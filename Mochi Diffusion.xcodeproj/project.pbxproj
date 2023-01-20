@@ -24,20 +24,18 @@
 		035EDFFC295A21D600080D18 /* SizeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035EDFFB295A21D600080D18 /* SizeView.swift */; };
 		035EDFFE295A220F00080D18 /* SeedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035EDFFD295A220F00080D18 /* SeedView.swift */; };
 		035EE000295A224900080D18 /* ModelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035EDFFF295A224900080D18 /* ModelView.swift */; };
-		035EE003295A227100080D18 /* SchedulerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035EE002295A227100080D18 /* SchedulerView.swift */; };
 		036BFC22294B9F7500D8AD04 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 036BFC21294B9F7500D8AD04 /* App.swift */; };
 		036BFC26294B9F7600D8AD04 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 036BFC25294B9F7600D8AD04 /* Assets.xcassets */; };
 		036BFC29294B9F7600D8AD04 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 036BFC28294B9F7600D8AD04 /* Preview Assets.xcassets */; };
 		036BFC4E294B9FDB00D8AD04 /* Path in Frameworks */ = {isa = PBXBuildFile; productRef = 036BFC4D294B9FDB00D8AD04 /* Path */; };
 		036BFC51294B9FF500D8AD04 /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = 036BFC50294B9FF500D8AD04 /* ZIPFoundation */; };
 		036BFC57294BA13100D8AD04 /* Pipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 036BFC56294BA13100D8AD04 /* Pipeline.swift */; };
-		036BFC5B294BA19400D8AD04 /* Downloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 036BFC5A294BA19400D8AD04 /* Downloader.swift */; };
 		03778779297877D6002E3926 /* ImageStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03778778297877D6002E3926 /* ImageStore.swift */; };
 		0377877B29787826002E3926 /* GalleryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0377877A29787826002E3926 /* GalleryStore.swift */; };
 		0386DF8B2950D29400CA4CEB /* InspectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0386DF8A2950D29400CA4CEB /* InspectorView.swift */; };
 		0386DF8D2950F25500CA4CEB /* GalleryToolbarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0386DF8C2950F25500CA4CEB /* GalleryToolbarView.swift */; };
+		0388DEB0297B00FC008B1C1C /* CompactSlider in Frameworks */ = {isa = PBXBuildFile; productRef = 0388DEAF297B00FC008B1C1C /* CompactSlider */; };
 		0397C070294BDC8C003762E0 /* StableDiffusion in Frameworks */ = {isa = PBXBuildFile; productRef = 0397C06F294BDC8C003762E0 /* StableDiffusion */; };
-		03A935652952949600CABA71 /* Sliders in Frameworks */ = {isa = PBXBuildFile; productRef = 03A935642952949600CABA71 /* Sliders */; };
 		03B1ACA8295167B900302F54 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03B1ACA7295167B900302F54 /* SettingsView.swift */; };
 		03CB9D18297399AE0041A4FA /* ImageCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03CB9D17297399AE0041A4FA /* ImageCommands.swift */; };
 		03D280F2294FD60E00C7D184 /* PromptView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03D280F1294FD60E00C7D184 /* PromptView.swift */; };
@@ -92,7 +90,6 @@
 		035EDFFB295A21D600080D18 /* SizeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SizeView.swift; sourceTree = "<group>"; };
 		035EDFFD295A220F00080D18 /* SeedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeedView.swift; sourceTree = "<group>"; };
 		035EDFFF295A224900080D18 /* ModelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelView.swift; sourceTree = "<group>"; };
-		035EE002295A227100080D18 /* SchedulerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchedulerView.swift; sourceTree = "<group>"; };
 		036BFC1E294B9F7500D8AD04 /* Mochi Diffusion.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Mochi Diffusion.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		036BFC21294B9F7500D8AD04 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
 		036BFC25294B9F7600D8AD04 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -101,7 +98,6 @@
 		036BFC2F294B9F7600D8AD04 /* Mochi Diffusion Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Mochi Diffusion Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		036BFC39294B9F7600D8AD04 /* Mochi Diffusion UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Mochi Diffusion UITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		036BFC56294BA13100D8AD04 /* Pipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pipeline.swift; sourceTree = "<group>"; };
-		036BFC5A294BA19400D8AD04 /* Downloader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Downloader.swift; sourceTree = "<group>"; };
 		03732B71296948360042C8B1 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		03732B72296948360042C8B1 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
 		03778778297877D6002E3926 /* ImageStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageStore.swift; sourceTree = "<group>"; };
@@ -138,11 +134,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				03A935652952949600CABA71 /* Sliders in Frameworks */,
 				036BFC4E294B9FDB00D8AD04 /* Path in Frameworks */,
 				0352E2A5294E2591003FBF25 /* Sparkle in Frameworks */,
 				0397C070294BDC8C003762E0 /* StableDiffusion in Frameworks */,
 				036BFC51294B9FF500D8AD04 /* ZIPFoundation in Frameworks */,
+				0388DEB0297B00FC008B1C1C /* CompactSlider in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -194,7 +190,6 @@
 				035EDFFF295A224900080D18 /* ModelView.swift */,
 				035EDFF2295A1FBF00080D18 /* NumberOfImagesView.swift */,
 				03D280F1294FD60E00C7D184 /* PromptView.swift */,
-				035EE002295A227100080D18 /* SchedulerView.swift */,
 				035EDFFD295A220F00080D18 /* SeedView.swift */,
 				035EDFFB295A21D600080D18 /* SizeView.swift */,
 				035EDFF7295A216500080D18 /* StepsView.swift */,
@@ -225,7 +220,6 @@
 			children = (
 				036BFC2A294B9F7600D8AD04 /* App.entitlements */,
 				036BFC21294B9F7500D8AD04 /* App.swift */,
-				036BFC5A294BA19400D8AD04 /* Downloader.swift */,
 				0352E2A8294E414D003FBF25 /* Info.plist */,
 				03F578652967DAE6003A815F /* InfoPlist.strings */,
 				03F578622967CE9A003A815F /* Localizable.strings */,
@@ -306,7 +300,7 @@
 				036BFC50294B9FF500D8AD04 /* ZIPFoundation */,
 				0397C06F294BDC8C003762E0 /* StableDiffusion */,
 				0352E2A4294E2591003FBF25 /* Sparkle */,
-				03A935642952949600CABA71 /* Sliders */,
+				0388DEAF297B00FC008B1C1C /* CompactSlider */,
 			);
 			productName = "Mochi Diffusion";
 			productReference = 036BFC1E294B9F7500D8AD04 /* Mochi Diffusion.app */;
@@ -420,7 +414,7 @@
 				036BFC4F294B9FF500D8AD04 /* XCRemoteSwiftPackageReference "ZIPFoundation" */,
 				0397C06E294BDC8C003762E0 /* XCRemoteSwiftPackageReference "ml-stable-diffusion" */,
 				0352E2A3294E2591003FBF25 /* XCRemoteSwiftPackageReference "Sparkle" */,
-				03A935632952949600CABA71 /* XCRemoteSwiftPackageReference "swiftui-sliders" */,
+				0388DEAE297B00FC008B1C1C /* XCRemoteSwiftPackageReference "CompactSlider" */,
 			);
 			productRefGroup = 036BFC1F294B9F7500D8AD04 /* Products */;
 			projectDirPath = "";
@@ -489,7 +483,6 @@
 				03E89F3C294FE6ED0067457E /* SDImage.swift in Sources */,
 				035EDFF3295A1FBF00080D18 /* NumberOfImagesView.swift in Sources */,
 				03021B512960E513001E88C0 /* QueueProgress.swift in Sources */,
-				036BFC5B294BA19400D8AD04 /* Downloader.swift in Sources */,
 				0386DF8D2950F25500CA4CEB /* GalleryToolbarView.swift in Sources */,
 				0377877B29787826002E3926 /* GalleryStore.swift in Sources */,
 				035E76F42970E79A008DDFDE /* CVPixelBuffer+Resize.swift in Sources */,
@@ -503,7 +496,6 @@
 				035EE000295A224900080D18 /* ModelView.swift in Sources */,
 				03E075792968A153003488F9 /* CircularProgressView.swift in Sources */,
 				0352E2AA294EA0E1003FBF25 /* AppView.swift in Sources */,
-				035EE003295A227100080D18 /* SchedulerView.swift in Sources */,
 				0352E2B5294EA887003FBF25 /* Functions.swift in Sources */,
 				03778779297877D6002E3926 /* ImageStore.swift in Sources */,
 				0352E2B1294EA30D003FBF25 /* Extensions.swift in Sources */,
@@ -911,20 +903,20 @@
 				minimumVersion = 0.9.9;
 			};
 		};
+		0388DEAE297B00FC008B1C1C /* XCRemoteSwiftPackageReference "CompactSlider" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/buh/CompactSlider.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
 		0397C06E294BDC8C003762E0 /* XCRemoteSwiftPackageReference "ml-stable-diffusion" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/godly-devotion/ml-stable-diffusion";
 			requirement = {
 				branch = main;
 				kind = branch;
-			};
-		};
-		03A935632952949600CABA71 /* XCRemoteSwiftPackageReference "swiftui-sliders" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/spacenation/swiftui-sliders.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.0.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
@@ -945,15 +937,15 @@
 			package = 036BFC4F294B9FF500D8AD04 /* XCRemoteSwiftPackageReference "ZIPFoundation" */;
 			productName = ZIPFoundation;
 		};
+		0388DEAF297B00FC008B1C1C /* CompactSlider */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0388DEAE297B00FC008B1C1C /* XCRemoteSwiftPackageReference "CompactSlider" */;
+			productName = CompactSlider;
+		};
 		0397C06F294BDC8C003762E0 /* StableDiffusion */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 0397C06E294BDC8C003762E0 /* XCRemoteSwiftPackageReference "ml-stable-diffusion" */;
 			productName = StableDiffusion;
-		};
-		03A935642952949600CABA71 /* Sliders */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 03A935632952949600CABA71 /* XCRemoteSwiftPackageReference "swiftui-sliders" */;
-			productName = Sliders;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

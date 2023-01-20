@@ -5,9 +5,18 @@
 //  Created by Joshua Park on 12/17/2022.
 //
 
+import CompactSlider
 import SwiftUI
 
-extension String: Error {}
+struct MochiCompactSliderStyle: CompactSliderStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .foregroundColor(Color(nsColor: .textColor))
+            .background(Color(NSColor.labelColor).opacity(0.075))
+            .accentColor(.accentColor)
+            .clipShape(RoundedRectangle(cornerRadius: 4))
+    }
+}
 
 extension NSApplication {
     static var appVersion: String {
@@ -139,4 +148,8 @@ extension Binding {
             }
         )
     }
+}
+
+extension CompactSliderStyle where Self == MochiCompactSliderStyle {
+    static var `mochi`: MochiCompactSliderStyle { MochiCompactSliderStyle() }
 }

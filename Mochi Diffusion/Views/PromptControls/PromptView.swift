@@ -71,3 +71,12 @@ struct PromptView: View {
         }
     }
 }
+
+struct PromptView_Previews: PreviewProvider {
+    static let genStore = GeneratorStore()
+
+    static var previews: some View {
+        PromptView()
+            .environmentObject(genStore)
+    }
+}

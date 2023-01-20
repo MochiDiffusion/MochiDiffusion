@@ -29,14 +29,14 @@ final class GeneratorStore: ObservableObject {
     @Published var selectedImageIndex = -1
     @Published var quicklookURL: URL?
     @Published var status: GeneratorStatus = .idle
-    @Published var numberOfImages = 1
+    @Published var numberOfImages = 1.0
     @Published var seed: UInt32 = 0
     @Published var queueProgress = QueueProgress()
     @Published var searchText = ""
     @AppStorage("ModelDir") var modelDir = ""
     @AppStorage("Prompt") var prompt = ""
     @AppStorage("NegativePrompt") var negativePrompt = ""
-    @AppStorage("Steps") var steps = 15
+    @AppStorage("Steps") var steps = 15.0
     @AppStorage("Scale") var guidanceScale = 11.0
     @AppStorage("ImageWidth") var width = 512
     @AppStorage("ImageHeight") var height = 512
@@ -178,14 +178,14 @@ final class GeneratorStore: ObservableObject {
         DispatchQueue.global(qos: .default).async {
             do {
                 // Save settings used to generate
-                let numberOfImages = self.numberOfImages
+                let numberOfImages = Int(self.numberOfImages)
                 let safetyChecker = self.safetyChecker
                 var sdi = SDImage()
                 sdi.prompt = self.prompt
                 sdi.negativePrompt = self.negativePrompt
                 sdi.model = self.currentModel
                 sdi.scheduler = self.scheduler
-                sdi.steps = self.steps
+                sdi.steps = Int(self.steps)
                 sdi.guidanceScale = self.guidanceScale
 
                 // Generate
@@ -346,7 +346,7 @@ final class GeneratorStore: ObservableObject {
         guard let sdi = getSelectedImage else { return }
         prompt = sdi.prompt
         negativePrompt = sdi.negativePrompt
-        steps = sdi.steps
+        steps = Double(sdi.steps)
         guidanceScale = sdi.guidanceScale
         width = sdi.width
         height = sdi.height
@@ -376,7 +376,7 @@ final class GeneratorStore: ObservableObject {
 
     func copyStepsToPrompt() {
         guard let sdi = getSelectedImage else { return }
-        steps = sdi.steps
+        steps = Double(sdi.steps)
     }
 
     func copyGuidanceScaleToPrompt() {

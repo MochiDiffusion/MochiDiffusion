@@ -20,19 +20,19 @@ struct AppView: View {
                     }
                     Group {
                         NumberOfImagesView()
-                        Spacer()
+                        Spacer().frame(height: 6)
                     }
                     Group {
                         StepsView()
-                        Spacer()
+                        Spacer().frame(height: 6)
                     }
                     Group {
                         GuidanceScaleView()
-                        Spacer()
+                        Spacer().frame(height: 6)
                     }
                     Group {
                         SeedView()
-                        Spacer()
+                        Spacer().frame(height: 6)
                     }
                     Group {
                         ModelView()

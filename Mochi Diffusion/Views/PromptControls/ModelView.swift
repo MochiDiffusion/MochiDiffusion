@@ -15,64 +15,64 @@ struct ModelView: View {
     #endif
 
     var body: some View {
-        Text(
-            "Model:",
-            comment: "Label for Model picker"
-        )
-        HStack {
-            Picker("", selection: $genStore.currentModel.onChange(modelChanged)) {
-                ForEach(genStore.models, id: \.self) { model in
-                    Text(model).tag(model)
-                }
-            }
-            .labelsHidden()
-            #if arch(arm64)
-            .popover(isPresented: $isShowingComputeUnitPopover, arrowEdge: .top) {
-                VStack(alignment: .leading, spacing: 0) {
-                    Text("Select Compute Unit option")
-                        .fontWeight(.bold)
-
-                    Spacer()
-
-                    Text(
-                        "\(genStore.currentModel) model",
-                        comment: "Label displaying the currently selected model name"
-                    )
-
-                    Spacer()
-
-                    Text("For `split_einsum` models, select Use Neural Engine.")
-                        .helpTextFormat()
-                    Text("For `original` models, select Use GPU.")
-                        .helpTextFormat()
-
-                    Spacer()
-
-                    HStack {
-                        Button {
-                            genStore.mlComputeUnit = .cpuAndNeuralEngine
-                            genStore.loadModels()
-                            isShowingComputeUnitPopover = false
-                        } label: {
-                            Text("Use Neural Engine")
-                        }
-
-                        Button {
-                            genStore.mlComputeUnit = .cpuAndGPU
-                            genStore.loadModels()
-                            isShowingComputeUnitPopover = false
-                        } label: {
-                            Text("Use GPU")
-                        }
+        GroupBox {
+            HStack {
+                Image(systemName: "person.crop.square")
+                Picker("", selection: $genStore.currentModel.onChange(modelChanged)) {
+                    ForEach(genStore.models, id: \.self) { model in
+                        Text(model).tag(model)
                     }
                 }
-                .padding()
-            }
-            #endif
+                .labelsHidden()
+                #if arch(arm64)
+                .popover(isPresented: $isShowingComputeUnitPopover, arrowEdge: .top) {
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text("Select Compute Unit option")
+                            .fontWeight(.bold)
 
-            Button(action: genStore.loadModels) {
-                Image(systemName: "arrow.clockwise")
-                    .frame(minWidth: 18)
+                        Spacer()
+
+                        Text(
+                            "\(genStore.currentModel) model",
+                            comment: "Label displaying the currently selected model name"
+                        )
+
+                        Spacer()
+
+                        Text("For `split_einsum` models, select Use Neural Engine.")
+                            .helpTextFormat()
+                        Text("For `original` models, select Use GPU.")
+                            .helpTextFormat()
+
+                        Spacer()
+
+                        HStack {
+                            Button {
+                                genStore.mlComputeUnit = .cpuAndNeuralEngine
+                                genStore.loadModels()
+                                isShowingComputeUnitPopover = false
+                            } label: {
+                                Text("Use Neural Engine")
+                            }
+
+                            Button {
+                                genStore.mlComputeUnit = .cpuAndGPU
+                                genStore.loadModels()
+                                isShowingComputeUnitPopover = false
+                            } label: {
+                                Text("Use GPU")
+                            }
+                        }
+                    }
+                    .padding()
+                }
+                #endif
+
+                Button(action: genStore.loadModels) {
+                    Image(systemName: "arrow.clockwise")
+                        .frame(minWidth: 18)
+                }
+                .buttonStyle(.plain)
             }
         }
     }

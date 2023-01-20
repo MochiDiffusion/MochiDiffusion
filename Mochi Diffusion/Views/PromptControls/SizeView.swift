@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SizeView: View {
     @EnvironmentObject private var genStore: GeneratorStore
-    private var imageSizes = [
+    private let imageSizes = [
         256, 320, 384, 448, 512, 576, 640, 704, 768
     ]
 
@@ -44,7 +44,10 @@ struct SizeView: View {
 }
 
 struct SizeView_Previews: PreviewProvider {
+    static let genStore = GeneratorStore()
+
     static var previews: some View {
         SizeView()
+            .environmentObject(genStore)
     }
 }

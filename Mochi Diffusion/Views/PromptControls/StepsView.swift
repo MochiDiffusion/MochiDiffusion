@@ -5,35 +5,27 @@
 //  Created by Joshua Park on 12/26/22.
 //
 
-import Sliders
+import CompactSlider
 import SwiftUI
 
 struct StepsView: View {
     @EnvironmentObject private var genStore: GeneratorStore
 
     var body: some View {
-        Text(
-            "Steps: \(genStore.steps)",
-            comment: "Label for Steps slider with value"
-        )
-        ValueSlider(value: $genStore.steps, in: 2 ... 100, step: 1)
-            .valueSliderStyle(
-                HorizontalValueSliderStyle(
-                    track:
-                        HorizontalTrack(view: Color.accentColor)
-                        .frame(height: 12)
-                        .background(Color.black.opacity(0.2))
-                        .cornerRadius(6),
-                    thumbSize: CGSize(width: 12, height: 12),
-                    options: .interactiveTrack
-                )
-            )
-            .frame(height: 12)
+        CompactSlider(value: $genStore.steps, in: 2...100, step: 1) {
+            Label("Steps", systemImage: "square.3.layers.3d.down.backward")
+            Spacer()
+            Text("\(genStore.steps.formatted(.number.precision(.fractionLength(0))))")
+        }
+        .compactSliderStyle(.mochi)
     }
 }
 
 struct StepsView_Previews: PreviewProvider {
+    static let genStore = GeneratorStore()
+
     static var previews: some View {
         StepsView()
+            .environmentObject(genStore)
     }
 }

@@ -5,35 +5,27 @@
 //  Created by Joshua Park on 12/26/22.
 //
 
-import Sliders
+import CompactSlider
 import SwiftUI
 
 struct GuidanceScaleView: View {
     @EnvironmentObject private var genStore: GeneratorStore
 
     var body: some View {
-        Text(
-            "Guidance Scale: \(genStore.guidanceScale.formatted(.number.precision(.fractionLength(1))))",
-            comment: "Label for Guidance Scale slider with value"
-        )
-        ValueSlider(value: $genStore.guidanceScale, in: 1 ... 20, step: 0.5)
-            .valueSliderStyle(
-                HorizontalValueSliderStyle(
-                    track:
-                        HorizontalTrack(view: Color.accentColor)
-                            .frame(height: 12)
-                            .background(Color.black.opacity(0.2))
-                            .cornerRadius(6),
-                    thumbSize: CGSize(width: 12, height: 12),
-                    options: .interactiveTrack
-                )
-            )
-            .frame(height: 12)
+        CompactSlider(value: $genStore.guidanceScale, in: 1...20, step: 0.5) {
+            Label("Guidance Scale", systemImage: "scalemass")
+            Spacer()
+            Text("\(genStore.guidanceScale.formatted(.number.precision(.fractionLength(1))))")
+        }
+        .compactSliderStyle(.mochi)
     }
 }
 
 struct GuidanceScaleView_Previews: PreviewProvider {
+    static let genStore = GeneratorStore()
+
     static var previews: some View {
         GuidanceScaleView()
+            .environmentObject(genStore)
     }
 }
