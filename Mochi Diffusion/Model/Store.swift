@@ -29,7 +29,7 @@ final class GeneratorStore: ObservableObject {
     @Published var selectedImageIndex = -1
     @Published var quicklookURL: URL?
     @Published var status: GeneratorStatus = .idle
-    @Published var numberOfImages = 1.0
+    @Published var numberOfImages = 1
     @Published var seed: UInt32 = 0
     @Published var queueProgress = QueueProgress()
     @Published var searchText = ""
@@ -178,7 +178,7 @@ final class GeneratorStore: ObservableObject {
         DispatchQueue.global(qos: .default).async {
             do {
                 // Save settings used to generate
-                let numberOfImages = Int(self.numberOfImages)
+                let numberOfImages = self.numberOfImages
                 let safetyChecker = self.safetyChecker
                 var sdi = SDImage()
                 sdi.prompt = self.prompt
