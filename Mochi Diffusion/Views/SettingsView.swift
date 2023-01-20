@@ -123,7 +123,7 @@ struct SettingsView: View {
                             .toggleStyle(.switch)
                     }
                     Text(
-                        "Uses the model's safety checker module. This does not guarantee that all inappropriate will be filtered.",
+                        "Uses the model's safety checker module. This does not guarantee that all inappropriate images will be filtered.",
                         comment: "Help text for Filter Inappropriate Images option"
                     )
                     .helpTextFormat()
