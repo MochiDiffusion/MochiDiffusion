@@ -13,6 +13,7 @@ struct ErrorBanner: View {
     var body: some View {
         Text(errorMessage)
             .font(.headline)
+            .padding(4)
             .frame(maxWidth: .infinity)
             .background(Color.accentColor)
     }
