@@ -20,7 +20,7 @@ struct ModelView: View {
                 Image(systemName: "person.crop.square")
                 Picker("", selection: $genStore.currentModel.onChange(modelChanged)) {
                     ForEach(genStore.models, id: \.self) { model in
-                        Text(model).tag(model)
+                        Text(verbatim: model).tag(model)
                     }
                 }
                 .labelsHidden()

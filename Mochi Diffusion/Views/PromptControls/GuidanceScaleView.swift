@@ -15,7 +15,7 @@ struct GuidanceScaleView: View {
         CompactSlider(value: $genStore.guidanceScale, in: 1...20, step: 0.5) {
             Label("Guidance Scale", systemImage: "scalemass")
             Spacer()
-            Text("\(genStore.guidanceScale.formatted(.number.precision(.fractionLength(1))))")
+            Text(verbatim: "\(genStore.guidanceScale.formatted(.number.precision(.fractionLength(1))))")
         }
         .compactSliderStyle(.mochi)
     }

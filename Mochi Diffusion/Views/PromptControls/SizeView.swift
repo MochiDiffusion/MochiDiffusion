@@ -22,7 +22,7 @@ struct SizeView: View {
                 )
                 Picker("", selection: $genStore.width) {
                     ForEach(imageSizes, id: \.self) { size in
-                        Text(String(size)).tag(size)
+                        Text(verbatim: String(size)).tag(size)
                     }
                 }
                 .labelsHidden()
@@ -34,7 +34,7 @@ struct SizeView: View {
                 )
                 Picker("", selection: $genStore.height) {
                     ForEach(imageSizes, id: \.self) { size in
-                        Text(String(size)).tag(size)
+                        Text(verbatim: String(size)).tag(size)
                     }
                 }
                 .labelsHidden()

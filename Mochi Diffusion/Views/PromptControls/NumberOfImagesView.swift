@@ -15,7 +15,7 @@ struct NumberOfImagesView: View {
         CompactSlider(value: $genStore.numberOfImages, in: 1...100, step: 1) {
             Label("Images", systemImage: "photo.stack")
             Spacer()
-            Text("\(genStore.numberOfImages.formatted(.number.precision(.fractionLength(0))))")
+            Text(verbatim: "\(genStore.numberOfImages.formatted(.number.precision(.fractionLength(0))))")
         }
         .compactSliderStyle(.mochi)
     }
