@@ -53,7 +53,7 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Exclude from Image" = "네거티브 프롬프트";
 
-/* Label for negative prompt text field */
+/* No comment provided by engineer. */
 "Exclude from Image:" = "네거티브 프롬프트:";
 
 /* No comment provided by engineer. */
@@ -71,8 +71,8 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Guidance Scale" = "스케일";
 
-/* Label for Guidance Scale slider with value */
-"Guidance Scale: %@" = "스케일: %@";
+/* No comment provided by engineer. */
+"Guidance Scale:" = "스케일:";
 
 /* Label for toggle to auto convert generated images to high resolution */
 "HD" = "고화질";
@@ -89,7 +89,7 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Include in Image" = "프롬프트";
 
-/* Label for prompt text field */
+/* No comment provided by engineer. */
 "Include in Image:" = "프롬프트:";
 
 /* No comment provided by engineer. */
@@ -104,7 +104,7 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Model Folder" = "모델 폴더";
 
-/* Label for Model picker */
+/* No comment provided by engineer. */
 "Model:" = "모델:";
 
 /* Placeholder text for image inspector */
@@ -143,9 +143,6 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Scheduler" = "샘플러";
 
-/* Label for Scheduler picker */
-"Scheduler:" = "샘플러:";
-
 /* No comment provided by engineer. */
 "Search" = "검색";
 
@@ -155,7 +152,7 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Seed" = "씨드";
 
-/* Label for Seed text field */
+/* No comment provided by engineer. */
 "Seed:" = "씨드:";
 
 /* No comment provided by engineer. */
@@ -179,8 +176,8 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Steps" = "스텝 수";
 
-/* Label for Steps slider with value */
-"Steps: %lld" = "스텝 수: %lld";
+/* No comment provided by engineer. */
+"Steps:" = "스텝 수:";
 
 /* No comment provided by engineer. */
 "Stop Generation" = "생성 중단";
@@ -198,7 +195,7 @@ Copy the currently selected image's generation options to the prompt input sideb
 "Use Neural Engine" = "Neural Engine 사용";
 
 /* Help text for Filter Inappropriate Images option */
-"Uses the model's safety checker module. This does not guarantee that all inappropriate will be filtered." = "모델의 안전 검사기 모듈을 사용합니다. 모든 노골적인 이미지가 필터링되지 않을 수도 있습니다.";
+"Uses the model's safety checker module. This does not guarantee that all inappropriate images will be filtered." = "모델의 안전 검사기 모듈을 사용합니다. 모든 노골적인 이미지가 필터링되지 않을 수도 있습니다.";
 
 /* No comment provided by engineer. */
 "Website" = "웹사이트";

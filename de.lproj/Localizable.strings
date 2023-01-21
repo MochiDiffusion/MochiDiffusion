@@ -53,7 +53,7 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Exclude from Image" = "Was im Bild nicht enthalten sein soll";
 
-/* Label for negative prompt text field */
+/* No comment provided by engineer. */
 "Exclude from Image:" = "Was im Bild nicht enthalten sein soll:";
 
 /* No comment provided by engineer. */
@@ -71,8 +71,8 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Guidance Scale" = "KI Intensität";
 
-/* Label for Guidance Scale slider with value */
-"Guidance Scale: %@" = "KI Intensität: %@";
+/* No comment provided by engineer. */
+"Guidance Scale:" = "Ki Intensität:";
 
 /* Label for toggle to auto convert generated images to high resolution */
 "HD" = "HD";
@@ -89,7 +89,7 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Include in Image" = "Soll im Bild enthalten sein";
 
-/* Label for prompt text field */
+/* No comment provided by engineer. */
 "Include in Image:" = "Soll im Bild enthalten sein:";
 
 /* No comment provided by engineer. */
@@ -104,7 +104,7 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Model Folder" = "Modellordner";
 
-/* Label for Model picker */
+/* No comment provided by engineer. */
 "Model:" = "Modell:";
 
 /* Placeholder text for image inspector */
@@ -143,9 +143,6 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Scheduler" = "Sampler";
 
-/* Label for Scheduler picker */
-"Scheduler:" = "Sampler:";
-
 /* No comment provided by engineer. */
 "Search" = "Suchen";
 
@@ -155,7 +152,7 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Seed" = "Seed";
 
-/* Label for Seed text field */
+/* No comment provided by engineer. */
 "Seed:" = "Seed:";
 
 /* No comment provided by engineer. */
@@ -179,8 +176,8 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Steps" = "Arbeitsschritte";
 
-/* Label for Steps slider with value */
-"Steps: %lld" = "Arbeitsschritte: %lld";
+/* No comment provided by engineer. */
+"Steps:" = "Arbeitsschritte:";
 
 /* No comment provided by engineer. */
 "Stop Generation" = "Generierung stoppen";
@@ -198,7 +195,7 @@ Copy the currently selected image's generation options to the prompt input sideb
 "Use Neural Engine" = "Neural Engine verwenden";
 
 /* Help text for Filter Inappropriate Images option */
-"Uses the model's safety checker module. This does not guarantee that all inappropriate will be filtered." = "Verwendet das Safety-Checker-Modul des Modells. Dies garantiert nicht, dass alle unangemessenen gefiltert werden.";
+"Uses the model's safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Verwendet das Safety-Checker-Modul des Modells. Dies garantiert nicht, dass alle unangemessenen Bilder gefiltert werden.";
 
 /* No comment provided by engineer. */
 "Website" = "Webseite";

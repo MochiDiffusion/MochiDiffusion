@@ -53,17 +53,17 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Exclude from Image" = "反向关键词";
 
-/* Label for negative prompt text field */
+/* No comment provided by engineer. */
 "Exclude from Image:" = "反向关键词:";
 
 /* No comment provided by engineer. */
 "Filter Inappropriate Images" = "过滤不良图像";
 
 /* No comment provided by engineer. */
-"For `original` models, select Use GPU." = "对于`original`模型，选择使用 GPU。";
+"For `original` models, select Use GPU." = "对于 “original” 模型，选择使用 GPU。";
 
 /* No comment provided by engineer. */
-"For `split_einsum` models, select Use Neural Engine." = "对于“split_einsum”模型，选择使用 Neural Engine。";
+"For `split_einsum` models, select Use Neural Engine." = "对于 “split_einsum” 模型，选择使用神经网络引擎。";
 
 /* Button to generate image */
 "Generate" = "生成";
@@ -71,8 +71,8 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Guidance Scale" = "关键词权重";
 
-/* Label for Guidance Scale slider with value */
-"Guidance Scale: %@" = "关键词权重: %@";
+/* No comment provided by engineer. */
+"Guidance Scale:" = "关键词权重:";
 
 /* Label for toggle to auto convert generated images to high resolution */
 "HD" = "HD";
@@ -89,7 +89,7 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Include in Image" = "关键词";
 
-/* Label for prompt text field */
+/* No comment provided by engineer. */
 "Include in Image:" = "关键词:";
 
 /* No comment provided by engineer. */
@@ -104,7 +104,7 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Model Folder" = "模型文件夹";
 
-/* Label for Model picker */
+/* No comment provided by engineer. */
 "Model:" = "模型:";
 
 /* Placeholder text for image inspector */
@@ -143,9 +143,6 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Scheduler" = "优化器";
 
-/* Label for Scheduler picker */
-"Scheduler:" = "优化器:";
-
 /* No comment provided by engineer. */
 "Search" = "搜索";
 
@@ -155,7 +152,7 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Seed" = "随机种";
 
-/* Label for Seed text field */
+/* No comment provided by engineer. */
 "Seed:" = "随机种:";
 
 /* No comment provided by engineer. */
@@ -179,8 +176,8 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Steps" = "迭代步数";
 
-/* Label for Steps slider with value */
-"Steps: %lld" = "迭代步数: %lld";
+/* No comment provided by engineer. */
+"Steps:" = "迭代步数:";
 
 /* No comment provided by engineer. */
 "Stop Generation" = "终止生成";
@@ -198,7 +195,7 @@ Copy the currently selected image's generation options to the prompt input sideb
 "Use Neural Engine" = "使用 Neural Engine";
 
 /* Help text for Filter Inappropriate Images option */
-"Uses the model's safety checker module. This does not guarantee that all inappropriate will be filtered." = "使用模型的安全检查模块，但它不能保证过滤所有的不良内容";
+"Uses the model's safety checker module. This does not guarantee that all inappropriate images will be filtered." = "使用模型的安全检查模块，但它不能保证过滤所有的不良内容";
 
 /* No comment provided by engineer. */
 "Website" = "网站";

@@ -1,5 +1,5 @@
 /* Label displaying the currently selected model name */
-"%@ model" = "%@ modello";
+"%@ model" = "Modello %@";
 
 /* No comment provided by engineer. */
 "^[%lld images](inflect: true)" = "^[%lld immagini](inflect: true)";
@@ -53,11 +53,11 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Exclude from Image" = "Escludi dall'immagine";
 
-/* Label for negative prompt text field */
+/* No comment provided by engineer. */
 "Exclude from Image:" = "Escludi dall'immagine:";
 
 /* No comment provided by engineer. */
-"Filter Inappropriate Images" = "Filtra immagini inappropriate";
+"Filter Inappropriate Images" = "Filtra Immagini Inappropriate";
 
 /* No comment provided by engineer. */
 "For `original` models, select Use GPU." = "Per i modelli \"original\", seleziona Usa GPU.";
@@ -71,8 +71,8 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Guidance Scale" = "Scala guida";
 
-/* Label for Guidance Scale slider with value */
-"Guidance Scale: %@" = "Scala guida: %@";
+/* No comment provided by engineer. */
+"Guidance Scale:" = "Scala guida:";
 
 /* Label for toggle to auto convert generated images to high resolution */
 "HD" = "HD";
@@ -89,7 +89,7 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Include in Image" = "Includi nell'immagine";
 
-/* Label for prompt text field */
+/* No comment provided by engineer. */
 "Include in Image:" = "Includi nell'immagine:";
 
 /* No comment provided by engineer. */
@@ -104,7 +104,7 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Model Folder" = "Cartella Modello";
 
-/* Label for Model picker */
+/* No comment provided by engineer. */
 "Model:" = "Modello:";
 
 /* Placeholder text for image inspector */
@@ -143,9 +143,6 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Scheduler" = "Campionatore";
 
-/* Label for Scheduler picker */
-"Scheduler:" = "Campionatore:";
-
 /* No comment provided by engineer. */
 "Search" = "Cerca";
 
@@ -155,11 +152,11 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Seed" = "Seed";
 
-/* Label for Seed text field */
+/* No comment provided by engineer. */
 "Seed:" = "Seed:";
 
 /* No comment provided by engineer. */
-"Select Compute Unit option" = "Selezionare l'opzione Unità di calcolo";
+"Select Compute Unit option" = "Seleziona Unità ML";
 
 /* Select next image in Gallery */
 "Select Next" = "Seleziona successiva";
@@ -179,8 +176,8 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Steps" = "Numero di passi";
 
-/* Label for Steps slider with value */
-"Steps: %lld" = "Numero di passi: %lld";
+/* No comment provided by engineer. */
+"Steps:" = "Numero di passi:";
 
 /* No comment provided by engineer. */
 "Stop Generation" = "Ferma la generazione";
@@ -189,7 +186,7 @@ Copy the currently selected image's generation options to the prompt input sideb
 "Support Me ♥" = "Sostienimi ♥";
 
 /* Help text for the loading model message */
-"This may take up to 2 minutes if a model is used for the first time" = "Questo può richiedere fino a 2 minuti se un modello viene utilizzato per la prima volta";
+"This may take up to 2 minutes if a model is used for the first time" = "Possono volerci fino a 2 minuti se un modello viene utilizzato per la prima volta";
 
 /* No comment provided by engineer. */
 "Use GPU" = "Usa GPU";
@@ -198,7 +195,7 @@ Copy the currently selected image's generation options to the prompt input sideb
 "Use Neural Engine" = "Usa Neural Engine";
 
 /* Help text for Filter Inappropriate Images option */
-"Uses the model's safety checker module. This does not guarantee that all inappropriate will be filtered." = "Utilizza il modulo di verifica della sicurezza del modello. Questo non garantisce che tutto ciò che è inappropriato verrà filtrato.";
+"Uses the model's safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Utilizza il modulo di verifica della sicurezza del modello. Questo non garantisce che tutti i contenuti inappropriati vengano filtrati.";
 
 /* No comment provided by engineer. */
 "Website" = "Sito Web";

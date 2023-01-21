@@ -53,7 +53,7 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Exclude from Image" = "反向關鍵詞";
 
-/* Label for negative prompt text field */
+/* No comment provided by engineer. */
 "Exclude from Image:" = "反向關鍵詞：";
 
 /* No comment provided by engineer. */
@@ -71,8 +71,8 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Guidance Scale" = "關鍵詞引導權重";
 
-/* Label for Guidance Scale slider with value */
-"Guidance Scale: %@" = "關鍵詞引導權重：%@";
+/* No comment provided by engineer. */
+"Guidance Scale:" = "關鍵詞引導權重：";
 
 /* Label for toggle to auto convert generated images to high resolution */
 "HD" = "HD";
@@ -89,7 +89,7 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Include in Image" = "關鍵詞";
 
-/* Label for prompt text field */
+/* No comment provided by engineer. */
 "Include in Image:" = "關鍵詞：";
 
 /* No comment provided by engineer. */
@@ -104,7 +104,7 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Model Folder" = "模型目錄";
 
-/* Label for Model picker */
+/* No comment provided by engineer. */
 "Model:" = "模型：";
 
 /* Placeholder text for image inspector */
@@ -143,9 +143,6 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Scheduler" = "採樣器";
 
-/* Label for Scheduler picker */
-"Scheduler:" = "採樣器：";
-
 /* No comment provided by engineer. */
 "Search" = "搜尋";
 
@@ -155,7 +152,7 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Seed" = "隨機種子";
 
-/* Label for Seed text field */
+/* No comment provided by engineer. */
 "Seed:" = "隨機種子：";
 
 /* No comment provided by engineer. */
@@ -179,8 +176,8 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Steps" = "迭代次數";
 
-/* Label for Steps slider with value */
-"Steps: %lld" = "迭代次數：%lld";
+/* No comment provided by engineer. */
+"Steps:" = "迭代次數:";
 
 /* No comment provided by engineer. */
 "Stop Generation" = "停止生成？";
@@ -198,7 +195,7 @@ Copy the currently selected image's generation options to the prompt input sideb
 "Use Neural Engine" = "使用神經網路引擎";
 
 /* Help text for Filter Inappropriate Images option */
-"Uses the model's safety checker module. This does not guarantee that all inappropriate will be filtered." = "使用模型的安全檢查模組（無法保證所有不適當圖片都會被過濾）";
+"Uses the model's safety checker module. This does not guarantee that all inappropriate images will be filtered." = "使用模型的安全檢查模組（無法保證所有不適當圖片都會被過濾）";
 
 /* No comment provided by engineer. */
 "Website" = "網站";

@@ -53,7 +53,7 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Exclude from Image" = "Uteslut från bilden";
 
-/* Label for negative prompt text field */
+/* No comment provided by engineer. */
 "Exclude from Image:" = "Uteslut från bilden:";
 
 /* No comment provided by engineer. */
@@ -71,8 +71,8 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Guidance Scale" = "Guidningsskala";
 
-/* Label for Guidance Scale slider with value */
-"Guidance Scale: %@" = "Guidningsskala: %@";
+/* No comment provided by engineer. */
+"Guidance Scale:" = "Guidningsskala:";
 
 /* Label for toggle to auto convert generated images to high resolution */
 "HD" = "HD";
@@ -89,7 +89,7 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Include in Image" = "Inkludera i bilden";
 
-/* Label for prompt text field */
+/* No comment provided by engineer. */
 "Include in Image:" = "Inkludera i bilden:";
 
 /* No comment provided by engineer. */
@@ -104,7 +104,7 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Model Folder" = "Modellmapp";
 
-/* Label for Model picker */
+/* No comment provided by engineer. */
 "Model:" = "Modell:";
 
 /* Placeholder text for image inspector */
@@ -143,9 +143,6 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Scheduler" = "Schemaläggare";
 
-/* Label for Scheduler picker */
-"Scheduler:" = "Schemaläggare:";
-
 /* No comment provided by engineer. */
 "Search" = "Sök";
 
@@ -155,7 +152,7 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Seed" = "Seed";
 
-/* Label for Seed text field */
+/* No comment provided by engineer. */
 "Seed:" = "Seed:";
 
 /* No comment provided by engineer. */
@@ -179,8 +176,8 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Steps" = "Steg";
 
-/* Label for Steps slider with value */
-"Steps: %lld" = "Steg: %lld";
+/* No comment provided by engineer. */
+"Steps:" = "Steg:";
 
 /* No comment provided by engineer. */
 "Stop Generation" = "Stoppa generering";
@@ -198,7 +195,7 @@ Copy the currently selected image's generation options to the prompt input sideb
 "Use Neural Engine" = "Använd Neural Engine";
 
 /* Help text for Filter Inappropriate Images option */
-"Uses the model's safety checker module. This does not guarantee that all inappropriate will be filtered." = "Använder modellens säkerhetskontroll modul. Detta garanterar inte att alla olämpliga kommer att filtreras.";
+"Uses the model's safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Använder modellens säkerhetskontrollmodul. Detta garanterar inte att alla olämpliga bilder kommer att filtreras.";
 
 /* No comment provided by engineer. */
 "Website" = "Hemsida";

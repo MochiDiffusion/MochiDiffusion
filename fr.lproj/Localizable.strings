@@ -53,7 +53,7 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Exclude from Image" = "Exclure de l'image";
 
-/* Label for negative prompt text field */
+/* No comment provided by engineer. */
 "Exclude from Image:" = "Exclure de l'image :";
 
 /* No comment provided by engineer. */
@@ -71,8 +71,8 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Guidance Scale" = "Echelle de guidage";
 
-/* Label for Guidance Scale slider with value */
-"Guidance Scale: %@" = "Échelle de guidage : %@";
+/* No comment provided by engineer. */
+"Guidance Scale:" = "Échelle de guidage:";
 
 /* Label for toggle to auto convert generated images to high resolution */
 "HD" = "HD";
@@ -89,7 +89,7 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Include in Image" = "Inclure dans l'image";
 
-/* Label for prompt text field */
+/* No comment provided by engineer. */
 "Include in Image:" = "Inclure dans l'Image:";
 
 /* No comment provided by engineer. */
@@ -104,8 +104,8 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Model Folder" = "Dossier du Modèle";
 
-/* Label for Model picker */
-"Model:" = "Modèle :";
+/* No comment provided by engineer. */
+"Model:" = "Modèle:";
 
 /* Placeholder text for image inspector */
 "No Info" = "Aucune Information";
@@ -143,9 +143,6 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Scheduler" = "Planificateur";
 
-/* Label for Scheduler picker */
-"Scheduler:" = "Planificateur :";
-
 /* No comment provided by engineer. */
 "Search" = "Rechercher";
 
@@ -155,7 +152,7 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Seed" = "Graine";
 
-/* Label for Seed text field */
+/* No comment provided by engineer. */
 "Seed:" = "Graine:";
 
 /* No comment provided by engineer. */
@@ -179,8 +176,8 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Steps" = "Étapes";
 
-/* Label for Steps slider with value */
-"Steps: %lld" = "Étapes : %lld";
+/* No comment provided by engineer. */
+"Steps:" = "Étapes:";
 
 /* No comment provided by engineer. */
 "Stop Generation" = "Arrêter la génération";
@@ -198,7 +195,7 @@ Copy the currently selected image's generation options to the prompt input sideb
 "Use Neural Engine" = "Utilisation moteur neuronal";
 
 /* Help text for Filter Inappropriate Images option */
-"Uses the model's safety checker module. This does not guarantee that all inappropriate will be filtered." = "Utilise le module de vérification de la sécurité du modèle. Cela ne garantit pas que tous les contenus inappropriés seront filtrés.";
+"Uses the model's safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Utilise le module de vérification de la sécurité du modèle. Cela ne garantit pas que toutes les images inappropriées seront filtrées.";
 
 /* No comment provided by engineer. */
 "Website" = "Site Web";

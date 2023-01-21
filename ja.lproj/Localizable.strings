@@ -53,7 +53,7 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Exclude from Image" = "画像から除外";
 
-/* Label for negative prompt text field */
+/* No comment provided by engineer. */
 "Exclude from Image:" = "画像から除外:";
 
 /* No comment provided by engineer. */
@@ -71,8 +71,8 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Guidance Scale" = "ガイダンス スケール";
 
-/* Label for Guidance Scale slider with value */
-"Guidance Scale: %@" = "ガイダンス スケール: %@";
+/* No comment provided by engineer. */
+"Guidance Scale:" = "ガイダンス スケール:";
 
 /* Label for toggle to auto convert generated images to high resolution */
 "HD" = "HD";
@@ -89,7 +89,7 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Include in Image" = "画像に含める";
 
-/* Label for prompt text field */
+/* No comment provided by engineer. */
 "Include in Image:" = "画像に含める:";
 
 /* No comment provided by engineer. */
@@ -104,7 +104,7 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Model Folder" = "モデル フォルダ";
 
-/* Label for Model picker */
+/* No comment provided by engineer. */
 "Model:" = "モデル:";
 
 /* Placeholder text for image inspector */
@@ -143,9 +143,6 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Scheduler" = "スケジューラ";
 
-/* Label for Scheduler picker */
-"Scheduler:" = "スケジューラ:";
-
 /* No comment provided by engineer. */
 "Search" = "検索";
 
@@ -155,11 +152,11 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Seed" = "シード";
 
-/* Label for Seed text field */
+/* No comment provided by engineer. */
 "Seed:" = "シード:";
 
 /* No comment provided by engineer. */
-"Select Compute Unit option" = "コンピューティング ユニット オプションの選択";
+"Select Compute Unit option" = "Compute Unit オプションの選択";
 
 /* Select next image in Gallery */
 "Select Next" = "次を選択";
@@ -179,8 +176,8 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Steps" = "ステップ";
 
-/* Label for Steps slider with value */
-"Steps: %lld" = "ステップ: %lld";
+/* No comment provided by engineer. */
+"Steps:" = "ステップ:";
 
 /* No comment provided by engineer. */
 "Stop Generation" = "画像生成の中止";
@@ -192,13 +189,13 @@ Copy the currently selected image's generation options to the prompt input sideb
 "This may take up to 2 minutes if a model is used for the first time" = "モデルを初めて使用する場合、2分程度かかることがあります";
 
 /* No comment provided by engineer. */
-"Use GPU" = "GPU を使う";
+"Use GPU" = "GPUを使う";
 
 /* No comment provided by engineer. */
-"Use Neural Engine" = "Neural Engine を使う";
+"Use Neural Engine" = "Neural Engineを使う";
 
 /* Help text for Filter Inappropriate Images option */
-"Uses the model's safety checker module. This does not guarantee that all inappropriate will be filtered." = "モデルのセーフティ チェッカー モジュールを使用します。 これは、不適切なものがすべて除外されることを保証するものではありません。";
+"Uses the model's safety checker module. This does not guarantee that all inappropriate images will be filtered." = "モデルのセーフティ チェッカー モジュールを使用します。 これは、すべての不適切な画像が除外されることを保証するものではありません。";
 
 /* No comment provided by engineer. */
 "Website" = "Web サイト";

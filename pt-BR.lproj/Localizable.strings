@@ -53,7 +53,7 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Exclude from Image" = "Remover da imagem";
 
-/* Label for negative prompt text field */
+/* No comment provided by engineer. */
 "Exclude from Image:" = "Remover da imagem:";
 
 /* No comment provided by engineer. */
@@ -71,8 +71,8 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Guidance Scale" = "Escala de Orientação";
 
-/* Label for Guidance Scale slider with value */
-"Guidance Scale: %@" = "Escala de Orientação: %@";
+/* No comment provided by engineer. */
+"Guidance Scale:" = "Escala de Orientação:";
 
 /* Label for toggle to auto convert generated images to high resolution */
 "HD" = "HD";
@@ -89,7 +89,7 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Include in Image" = "Incluir na imagem";
 
-/* Label for prompt text field */
+/* No comment provided by engineer. */
 "Include in Image:" = "Incluir nas imagens:";
 
 /* No comment provided by engineer. */
@@ -104,7 +104,7 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Model Folder" = "Pasta do Modelo";
 
-/* Label for Model picker */
+/* No comment provided by engineer. */
 "Model:" = "Modelo:";
 
 /* Placeholder text for image inspector */
@@ -143,9 +143,6 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Scheduler" = "Programador";
 
-/* Label for Scheduler picker */
-"Scheduler:" = "Programador:";
-
 /* No comment provided by engineer. */
 "Search" = "Buscar";
 
@@ -155,7 +152,7 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Seed" = "Semente";
 
-/* Label for Seed text field */
+/* No comment provided by engineer. */
 "Seed:" = "Semente:";
 
 /* No comment provided by engineer. */
@@ -179,8 +176,8 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Steps" = "Passos";
 
-/* Label for Steps slider with value */
-"Steps: %lld" = "Passos: %lld";
+/* No comment provided by engineer. */
+"Steps:" = "Passos:";
 
 /* No comment provided by engineer. */
 "Stop Generation" = "Parar criação";
@@ -198,7 +195,7 @@ Copy the currently selected image's generation options to the prompt input sideb
 "Use Neural Engine" = "Usar Neural Engine";
 
 /* Help text for Filter Inappropriate Images option */
-"Uses the model's safety checker module. This does not guarantee that all inappropriate will be filtered." = "Utiliza o módulo verificador de segurança do modelo. Isso não garante que todos os impróprios serão filtrados.";
+"Uses the model's safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Utiliza o módulo verificador de segurança do modelo. Isso não garante que todas as imagens impróprias serão filtradas.";
 
 /* No comment provided by engineer. */
 "Website" = "Site";
