@@ -246,20 +246,26 @@ final class GeneratorStore: ObservableObject {
 
     func upscaleImage(sdi: SDImage) {
         if sdi.isUpscaled { return }
+        guard let index = images.firstIndex(where: { $0.id == sdi.id }) else { return }
         guard let upscaledImage = Upscaler.shared.upscale(sdi: sdi) else { return }
-        let newImageIndex = images.count
-        images.append(upscaledImage)
-        selectImage(index: newImageIndex)
+        images[index] = upscaledImage
+        // If quicklook is already open show selected image
+        if quicklookURL != nil {
+            quicklookCurrentImage()
+        }
     }
 
     func upscaleCurrentImage() {
         guard let sdi = getSelectedImage else { return }
         if sdi.isUpscaled { return }
 
+        guard let index = images.firstIndex(where: { $0.id == sdi.id }) else { return }
         guard let upscaledImage = Upscaler.shared.upscale(sdi: sdi) else { return }
-        let newImageIndex = images.count
-        images.append(upscaledImage)
-        selectImage(index: newImageIndex)
+        images[index] = upscaledImage
+        // If quicklook is already open show selected image
+        if quicklookURL != nil {
+            quicklookCurrentImage()
+        }
     }
 
     func quicklookCurrentImage() {
