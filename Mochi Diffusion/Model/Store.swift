@@ -36,7 +36,7 @@ final class GeneratorStore: ObservableObject {
     @AppStorage("ModelDir") var modelDir = ""
     @AppStorage("Prompt") var prompt = ""
     @AppStorage("NegativePrompt") var negativePrompt = ""
-    @AppStorage("Steps") var steps = 15.0
+    @AppStorage("Steps") var steps = 12.0
     @AppStorage("Scale") var guidanceScale = 11.0
     @AppStorage("ImageWidth") var width = 512
     @AppStorage("ImageHeight") var height = 512
