@@ -218,12 +218,10 @@ final class GeneratorStore: ObservableObject {
                         sdi.generatedDate = Date.now
                         simgs.append(sdi)
                     }
-                    DispatchQueue.main.async {
-                        if upscaleGeneratedImages {
-                            self.upscaleThenAddImages(simgs: simgs)
-                        } else {
-                            self.addImages(simgs: simgs)
-                        }
+                    if upscaleGeneratedImages {
+                        self.upscaleThenAddImages(simgs: simgs)
+                    } else {
+                        self.addImages(simgs: simgs)
                     }
                     seedUsed += 1
                 }
@@ -246,27 +244,23 @@ final class GeneratorStore: ObservableObject {
     }
 
     func upscaleImage(sdi: SDImage) {
-        if sdi.isUpscaled { return }
-        guard let index = images.firstIndex(where: { $0.id == sdi.id }) else { return }
-        guard let upscaledImage = Upscaler.shared.upscale(sdi: sdi) else { return }
-        images[index] = upscaledImage
-        // If quicklook is already open show selected image
-        if quicklookURL != nil {
-            quicklookCurrentImage()
+        DispatchQueue.global(qos: .default).async {
+            if sdi.isUpscaled { return }
+            guard let index = self.images.firstIndex(where: { $0.id == sdi.id }) else { return }
+            guard let upscaledImage = Upscaler.shared.upscale(sdi: sdi) else { return }
+            DispatchQueue.main.async {
+                self.images[index] = upscaledImage
+                // If quicklook is already open show selected image
+                if self.quicklookURL != nil {
+                    self.quicklookCurrentImage()
+                }
+            }
         }
     }
 
     func upscaleCurrentImage() {
         guard let sdi = getSelectedImage else { return }
-        if sdi.isUpscaled { return }
-
-        guard let index = images.firstIndex(where: { $0.id == sdi.id }) else { return }
-        guard let upscaledImage = Upscaler.shared.upscale(sdi: sdi) else { return }
-        images[index] = upscaledImage
-        // If quicklook is already open show selected image
-        if quicklookURL != nil {
-            quicklookCurrentImage()
-        }
+        upscaleImage(sdi: sdi)
     }
 
     func quicklookCurrentImage() {
@@ -391,20 +385,22 @@ final class GeneratorStore: ObservableObject {
         guidanceScale = sdi.guidanceScale
     }
 
-    @MainActor
     private func addImages(simgs: [SDImage]) {
-        withAnimation(.default.speed(1.5)) {
-            self.images.append(contentsOf: simgs)
+        DispatchQueue.main.async {
+            withAnimation(.default.speed(1.5)) {
+                self.images.append(contentsOf: simgs)
+            }
         }
     }
 
-    @MainActor
     private func upscaleThenAddImages(simgs: [SDImage]) {
         var upscaledSDImgs = [SDImage]()
         for sdi in simgs {
             guard let upscaledImage = Upscaler.shared.upscale(sdi: sdi) else { continue }
             upscaledSDImgs.append(upscaledImage)
         }
-        self.addImages(simgs: upscaledSDImgs)
+        DispatchQueue.main.async {
+            self.addImages(simgs: upscaledSDImgs)
+        }
     }
 }
