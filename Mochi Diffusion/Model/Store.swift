@@ -179,6 +179,7 @@ final class GeneratorStore: ObservableObject {
             do {
                 // Save settings used to generate
                 let numberOfImages = self.numberOfImages
+                let upscaleGeneratedImages = self.upscaleGeneratedImages
                 let safetyChecker = self.safetyChecker
                 var sdi = SDImage()
                 sdi.prompt = self.prompt
@@ -218,7 +219,7 @@ final class GeneratorStore: ObservableObject {
                         simgs.append(sdi)
                     }
                     DispatchQueue.main.async {
-                        if self.upscaleGeneratedImages {
+                        if upscaleGeneratedImages {
                             self.upscaleThenAddImages(simgs: simgs)
                         } else {
                             self.addImages(simgs: simgs)
