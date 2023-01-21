@@ -1,0 +1,6 @@
+targets:
+  - name: Localizations (strings file)
+    sources:
+      - en.xliff
+    file: '%osx_locale%.lproj/Localizable.strings'
+    format: macosx
