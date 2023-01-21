@@ -43,6 +43,7 @@
 		03D43B7A29660A2600604911 /* GalleryItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03D43B7929660A2600604911 /* GalleryItemView.swift */; };
 		03E075792968A153003488F9 /* CircularProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E075782968A153003488F9 /* CircularProgressView.swift */; };
 		03E89F3C294FE6ED0067457E /* SDImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E89F3B294FE6ED0067457E /* SDImage.swift */; };
+		03EA52CE297B66C800CDF661 /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03EA52CD297B66C800CDF661 /* SidebarView.swift */; };
 		03F578642967CE9A003A815F /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 03F578622967CE9A003A815F /* Localizable.strings */; };
 		03F578672967DAE6003A815F /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 03F578652967DAE6003A815F /* InfoPlist.strings */; };
 		03FD2317295F480F006EEEE2 /* ViewModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03FD2316295F480F006EEEE2 /* ViewModifiers.swift */; };
@@ -119,6 +120,7 @@
 		03D43B7929660A2600604911 /* GalleryItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryItemView.swift; sourceTree = "<group>"; };
 		03E075782968A153003488F9 /* CircularProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircularProgressView.swift; sourceTree = "<group>"; };
 		03E89F3B294FE6ED0067457E /* SDImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDImage.swift; sourceTree = "<group>"; };
+		03EA52CD297B66C800CDF661 /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
 		03F578632967CE9A003A815F /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/Localizable.strings; sourceTree = "<group>"; };
 		03F578662967DAE6003A815F /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		03F578682967DAE6003A815F /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
@@ -183,18 +185,18 @@
 			path = Support;
 			sourceTree = "<group>";
 		};
-		035EDFF1295A1F8F00080D18 /* PromptControls */ = {
+		035EDFF1295A1F8F00080D18 /* SidebarControls */ = {
 			isa = PBXGroup;
 			children = (
-				035EDFF9295A219200080D18 /* GuidanceScaleView.swift */,
-				035EDFFF295A224900080D18 /* ModelView.swift */,
-				035EDFF2295A1FBF00080D18 /* NumberOfImagesView.swift */,
 				03D280F1294FD60E00C7D184 /* PromptView.swift */,
-				035EDFFD295A220F00080D18 /* SeedView.swift */,
-				035EDFFB295A21D600080D18 /* SizeView.swift */,
+				035EDFF2295A1FBF00080D18 /* NumberOfImagesView.swift */,
 				035EDFF7295A216500080D18 /* StepsView.swift */,
+				035EDFF9295A219200080D18 /* GuidanceScaleView.swift */,
+				035EDFFD295A220F00080D18 /* SeedView.swift */,
+				035EDFFF295A224900080D18 /* ModelView.swift */,
+				035EDFFB295A21D600080D18 /* SizeView.swift */,
 			);
-			path = PromptControls;
+			path = SidebarControls;
 			sourceTree = "<group>";
 		};
 		036BFC15294B9F7500D8AD04 = {
@@ -244,15 +246,16 @@
 		036BFC5C294BA20A00D8AD04 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				035EDFF1295A1F8F00080D18 /* PromptControls */,
+				035EDFF1295A1F8F00080D18 /* SidebarControls */,
 				0352E2A9294EA0E1003FBF25 /* AppView.swift */,
 				03E075782968A153003488F9 /* CircularProgressView.swift */,
 				0352E2AD294EA2B4003FBF25 /* ErrorBanner.swift */,
-				03D43B7729660A1300604911 /* GalleryView.swift */,
 				03D43B7929660A2600604911 /* GalleryItemView.swift */,
 				0386DF8C2950F25500CA4CEB /* GalleryToolbarView.swift */,
+				03D43B7729660A1300604911 /* GalleryView.swift */,
 				0386DF8A2950D29400CA4CEB /* InspectorView.swift */,
 				03B1ACA7295167B900302F54 /* SettingsView.swift */,
+				03EA52CD297B66C800CDF661 /* SidebarView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -509,6 +512,7 @@
 				03FD231B295F7A81006EEEE2 /* Upscaler.swift in Sources */,
 				036BFC57294BA13100D8AD04 /* Pipeline.swift in Sources */,
 				036BFC22294B9F7500D8AD04 /* App.swift in Sources */,
+				03EA52CE297B66C800CDF661 /* SidebarView.swift in Sources */,
 				035EDFFE295A220F00080D18 /* SeedView.swift in Sources */,
 				0307B0DA294D4AE500A9BD55 /* FileCommands.swift in Sources */,
 				035EDFFA295A219200080D18 /* GuidanceScaleView.swift in Sources */,

@@ -14,19 +14,13 @@ struct NumberOfImagesView: View {
     ]
 
     var body: some View {
-        GroupBox {
-            HStack {
-                Picker(
-                    selection: $genStore.numberOfImages
-                ) {
-                    ForEach(imageCountValues, id: \.self) { number in
-                        Text(verbatim: String(number)).tag(number)
-                    }
-                } label: {
-                    Label("Number of Images", systemImage: "photo.stack")
-                }
+        Text("Number of Images:")
+        Picker("", selection: $genStore.numberOfImages) {
+            ForEach(imageCountValues, id: \.self) { number in
+                Text(verbatim: String(number)).tag(number)
             }
         }
+        .labelsHidden()
     }
 }
 

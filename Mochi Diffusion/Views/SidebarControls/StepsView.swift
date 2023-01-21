@@ -12,8 +12,9 @@ struct StepsView: View {
     @EnvironmentObject private var genStore: GeneratorStore
 
     var body: some View {
+        Text("Steps:")
         CompactSlider(value: $genStore.steps, in: 2...100, step: 1) {
-            Label("Steps", systemImage: "square.3.layers.3d.down.backward")
+            Image(systemName: "square.3.layers.3d.down.backward")
             Spacer()
             Text(verbatim: "\(genStore.steps.formatted(.number.precision(.fractionLength(0))))")
         }

@@ -12,35 +12,8 @@ struct AppView: View {
 
     var body: some View {
         NavigationSplitView {
-            ScrollView(.vertical) {
-                VStack(alignment: .leading, spacing: 6) {
-                    Group {
-                        PromptView()
-                        Divider().frame(height: 16)
-                    }
-                    Group {
-                        NumberOfImagesView()
-                        Spacer().frame(height: 6)
-                    }
-                    Group {
-                        StepsView()
-                        Spacer().frame(height: 6)
-                    }
-                    Group {
-                        GuidanceScaleView()
-                        Spacer().frame(height: 6)
-                    }
-                    Group {
-                        SeedView()
-                        Spacer().frame(height: 6)
-                    }
-                    Group {
-                        ModelView()
-                    }
-                }
-                .padding([.horizontal, .bottom])
-            }
-            .navigationSplitViewColumnWidth(min: 250, ideal: 300)
+            SidebarView()
+                .navigationSplitViewColumnWidth(min: 250, ideal: 300)
         } detail: {
             HStack(alignment: .center, spacing: 0) {
                 GalleryView()

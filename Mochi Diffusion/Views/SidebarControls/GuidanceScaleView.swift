@@ -12,8 +12,9 @@ struct GuidanceScaleView: View {
     @EnvironmentObject private var genStore: GeneratorStore
 
     var body: some View {
+        Text("Guidance Scale:")
         CompactSlider(value: $genStore.guidanceScale, in: 1...20, step: 0.5) {
-            Label("Guidance Scale", systemImage: "scalemass")
+            Image(systemName: "scalemass")
             Spacer()
             Text(verbatim: "\(genStore.guidanceScale.formatted(.number.precision(.fractionLength(1))))")
         }

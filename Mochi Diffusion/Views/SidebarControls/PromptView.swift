@@ -12,22 +12,16 @@ struct PromptView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text(
-                "Include in Image:",
-                comment: "Label for prompt text field"
-            )
+            Label("Include in Image:", systemImage: "text.bubble")
             TextEditor(text: $genStore.prompt)
                 .font(.system(size: 14))
-                .frame(height: 85)
+                .frame(height: 103)
                 .border(Color(nsColor: .gridColor))
                 .cornerRadius(4)
 
             Spacer().frame(height: 6)
 
-            Text(
-                "Exclude from Image:",
-                comment: "Label for negative prompt text field"
-            )
+            Label("Exclude from Image:", systemImage: "exclamationmark.bubble")
             TextEditor(text: $genStore.negativePrompt)
                 .font(.system(size: 14))
                 .frame(height: 52)
