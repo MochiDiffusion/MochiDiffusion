@@ -50,6 +50,10 @@ struct MochiDiffusionApp: App {
         WindowGroup {
             AppView()
                 .environmentObject(genStore)
+                .onReceive(NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification)) { _ in
+                    // cleanup quick look temp images
+                    NSImage.cleanupTempFiles()
+                }
         }
         .commands {
             CommandGroup(after: .appInfo) {

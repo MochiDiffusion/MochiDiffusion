@@ -252,8 +252,8 @@
 			isa = PBXGroup;
 			children = (
 				0377877A29787826002E3926 /* GalleryStore.swift */,
-				03021B502960E513001E88C0 /* QueueProgress.swift */,
 				03778778297877D6002E3926 /* ImageStore.swift */,
+				03021B502960E513001E88C0 /* QueueProgress.swift */,
 				03E89F3B294FE6ED0067457E /* SDImage.swift */,
 				0352E2B2294EA326003FBF25 /* Store.swift */,
 			);

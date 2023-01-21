@@ -58,6 +58,12 @@ extension NSImage: Transferable {
         })
     }
 
+    public static func cleanupTempFiles() {
+        for url in NSImage.urlCache {
+            try? FileManager.default.removeItem(at: url.value)
+        }
+    }
+
     func temporaryFileURL() throws -> URL {
         let imageHash = self.getImageHash()
         if let cachedURL = NSImage.urlCache[imageHash] {
