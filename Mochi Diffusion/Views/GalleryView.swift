@@ -114,7 +114,9 @@ struct GalleryView: View {
         if $genStore.searchText.wrappedValue.isEmpty {
             return genStore.images
         }
-        return genStore.images.filter { $0.prompt.lowercased().contains(genStore.searchText.lowercased())
+        return genStore.images.filter {
+            $0.prompt.range(of: genStore.searchText, options: .caseInsensitive) != nil ||
+            $0.seed == UInt32(genStore.searchText)
         }
     }
 }
