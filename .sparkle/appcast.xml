@@ -5,6 +5,40 @@
     <language>en</language>
 
     <item>
+      <title>v2.1.2</title>
+      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <sparkle:version>2.1.2</sparkle:version>
+      <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
+      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <pubDate>Sat, 21 Jan 2023 23:53:41 +0000</pubDate>
+      <enclosure
+        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v2.1.2/MochiDiffusion_v2.1.2.dmg"
+        sparkle:edSignature="tiRJ4Koz8gfVLZt7GlIXe8rAoj+OL5s8kmKg6x828FsInklI+YPc9rQRRkqcrLpdsSbSYEABUUuAveghTdYmCw=="
+        length="66809850"
+        type="application/octet-stream" />
+      <description><![CDATA[
+      <ul>
+      <li>Added ability to search image by seed</li>
+      <li>Changed step &amp; guidance scale control style</li>
+      <li>Changed saved image metadata to be similar to webui images</li>
+      <li>Changed default step setting to 12 (sweet spot)</li>
+      <li>Changed max step setting to 50</li>
+      <li>Converting image to high resolution replaces existing image</li>
+      <li>Cleanup temp images that were created by Quick Look on app close<ul>
+      <li>Previous temp images were already being deleted on reboot</li>
+      </ul>
+      </li>
+      <li>Fixed app briefly freezing when converting image to high resolution</li>
+      </ul>
+      <p>Do you have a model that was converted and wish to upload? Join our community on <a href="https://huggingface.co/coreml">Hugging Face</a> or create a Pull Request to get started!</p>
+      <p>Tip: File &gt; Save All to save all generated images.</p>
+      <p>Special thanks to the following for supporting me and making this app possible 🎉
+      <strong>raisingfightingspirit</strong>, <strong>serovar</strong>, <strong>orange-wedge</strong>, <strong>julien-c</strong>, <strong>Quick-Eyed-Sky</strong>, <strong>BirdSesame</strong>, <strong>Da-mi-en</strong>, <strong>eidermar</strong>, &amp; anonymous donors</p>
+      ]]>
+      </description>
+    </item>
+
+    <item>
       <title>v2.1.1</title>
       <link>https://github.com/godly-devotion/MochiDiffusion</link>
       <sparkle:version>2.1.1</sparkle:version>
