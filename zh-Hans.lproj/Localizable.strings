@@ -192,7 +192,7 @@ Copy the currently selected image's generation options to the prompt input sideb
 "Use GPU" = "使用 GPU";
 
 /* No comment provided by engineer. */
-"Use Neural Engine" = "使用 Neural Engine";
+"Use Neural Engine" = "使用神经网络引擎";
 
 /* Help text for Filter Inappropriate Images option */
 "Uses the model's safety checker module. This does not guarantee that all inappropriate images will be filtered." = "使用模型的安全检查模块，但它不能保证过滤所有的不良内容";
