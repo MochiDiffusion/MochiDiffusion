@@ -315,7 +315,7 @@ final class GeneratorStore: ObservableObject {
         guard let selectedURL = panel.url else { return }
         var count = 1
         for sdi in images {
-            let url = selectedURL.appending(path: "\(String(prompt.prefix(70)).trimmingCharacters(in: .whitespacesAndNewlines)).\(count).\(sdi.seed).png")
+            let url = selectedURL.appending(path: "\(String(sdi.prompt.prefix(70)).trimmingCharacters(in: .whitespacesAndNewlines)).\(count).\(sdi.seed).png")
             guard let image = sdi.image else { return }
             guard let data = CFDataCreateMutable(nil, 0) else { return }
             guard let destination = CGImageDestinationCreateWithData(
