@@ -1,6 +1,5 @@
 name: Feature Request
 description: Suggest an idea
-title: "[Feat]: "
 labels: ["enhancement"]
 body:
   - type: checkboxes
@@ -21,5 +20,6 @@ body:
     id: explanation
     attributes:
       label: Why do you think this should be added?
+      description: Describe a use case. Be specific.
     validations:
       required: true
