@@ -171,7 +171,7 @@ Copy the currently selected image's generation options to the prompt input sideb
 "Size" = "크기";
 
 /* Text displaying the current step progress and count */
-"Step %lld of %lld" = "스텝 %lld/%lld";
+"Step %lld of %lld" = "스텝 %lld / %lld";
 
 /* No comment provided by engineer. */
 "Steps" = "스텝 수";
