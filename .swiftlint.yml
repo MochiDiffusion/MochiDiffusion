@@ -180,3 +180,13 @@ vertical_whitespace:
 void_function_in_ternary: error
 void_return: error
 yoda_condition: error
+custom_rules:
+  swiftui_state_private:
+    regex: '@(State|StateObject|EnvironmentObject)\s+var'
+    message: 'SwiftUI @State/@StateObject/@EnvironmentObject properties should be private'
+  swiftui_environment_private:
+    regex: '@Environment\(\\\.\w+\)\s+var'
+    message: 'SwiftUI @Environment properties should be private'
+  no_alignment_center:
+    regex: '\b\(alignment: .center\b'
+    message: 'This alignment is the default.'
