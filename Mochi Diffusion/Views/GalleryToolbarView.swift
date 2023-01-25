@@ -54,7 +54,7 @@ struct GalleryToolbarView: View {
                     localized: "Image \(genStore.queueProgress.index + 1) of \(genStore.queueProgress.total)",
                     comment: "Text displaying the image generation progress and count"
                 )
-                VStack(alignment: .center, spacing: 12) {
+                VStack(spacing: 12) {
                     ProgressView(stepLabel, value: stepValue, total: 1)
                     ProgressView(imageCountLabel, value: progressValue, total: 1)
                 }

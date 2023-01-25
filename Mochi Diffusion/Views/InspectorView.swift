@@ -43,10 +43,10 @@ struct InfoGridRow: View {
 }
 
 struct InspectorView: View {
-    @EnvironmentObject var store: GeneratorStore
+    @EnvironmentObject private var store: GeneratorStore
 
     var body: some View {
-        VStack(alignment: .center, spacing: 0) {
+        VStack(spacing: 0) {
             if let sdi = store.getSelectedImage, let img = sdi.image {
                 Image(img, scale: 1, label: Text(verbatim: String(sdi.prompt)))
                     .resizable()
@@ -112,7 +112,7 @@ struct InspectorView: View {
                 }
                 .padding([.horizontal])
 
-                HStack(alignment: .center) {
+                HStack {
                     Button(action: store.copyToPrompt) {
                         Text(
                             "Copy Options to Sidebar",

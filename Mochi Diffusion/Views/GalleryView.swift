@@ -9,7 +9,7 @@ import QuickLook
 import SwiftUI
 
 struct GalleryView: View {
-    @Environment(\.colorScheme) var colorScheme
+    @Environment(\.colorScheme) private var colorScheme
     @EnvironmentObject private var genStore: GeneratorStore
     private let gridColumns = [GridItem(.adaptive(minimum: 200), spacing: 16)]
 

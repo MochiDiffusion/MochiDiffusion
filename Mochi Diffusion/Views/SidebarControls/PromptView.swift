@@ -30,7 +30,7 @@ struct PromptView: View {
 
             Spacer().frame(height: 2)
 
-            HStack(alignment: .center) {
+            HStack {
                 Toggle(isOn: $genStore.upscaleGeneratedImages) {
                     Label {
                         Text(

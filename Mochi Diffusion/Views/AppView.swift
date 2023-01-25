@@ -15,7 +15,7 @@ struct AppView: View {
             SidebarView()
                 .navigationSplitViewColumnWidth(min: 250, ideal: 300)
         } detail: {
-            HStack(alignment: .center, spacing: 0) {
+            HStack(spacing: 0) {
                 GalleryView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
 
