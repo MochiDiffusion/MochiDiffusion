@@ -12,6 +12,12 @@
 <a href="https://github.com/godly-devotion/MochiDiffusion/blob/main/README.zh-Hans.md">中文</a>
 </p>
 
+<p align="center">
+<a title="Discord" target="_blank" href="https://discord.gg/x2kartzxGv"><img src="https://img.shields.io/discord/1068185566782423092?color=blueviolet&label=discord"></a>
+<a title="Crowdin" target="_blank" href="https://crowdin.com/project/mochi-diffusion"><img src="https://badges.crowdin.net/mochi-diffusion/localized.svg"></a>
+<a title="License" target="_blank" href="https://github.com/godly-devotion/MochiDiffusion/blob/main/LICENSE"><img src="https://img.shields.io/github/license/godly-devotion/MochiDiffusion?color=blue"></a>
+</p>
+
 ![Screenshot](.github/images/screenshot.png)
 
 ## 설명
@@ -88,7 +94,7 @@ Mochi Diffusion은 버그 보고서, 코드 또는 새로운 번역을 통해서
 
 - 버그를 발견했거나 새로운 기능이나 개선 사항을 제안하고 싶다면 [문제를 먼저 검색](https://github.com/godly-devotion/MochiDiffusion/issues)해 보세요. 중복을 방지하는 데 도움이 됩니다. 문제를 찾을 수 없으면 [새 문제를 생성](https://github.com/godly-devotion/MochiDiffusion/issues/new/choose)하세요.
 
-- 코드를 제공하고 싶다면 언제든지 [Pull Request 열기](https://github.com/godly-devotion/MochiDiffusion/pulls) 또는 [새 토론](https://github.com/godly-devotion/MochiDiffusion/discussions)에서 먼저 문이 하실수 있습니다.
+- 코드를 제공하고 싶다면 언제든지 새 [Pull Request를](https://github.com/godly-devotion/MochiDiffusion/pulls) 열 수 있습니다.
 
 ## 크레딧
 

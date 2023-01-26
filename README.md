@@ -12,6 +12,12 @@
 <a href="https://github.com/godly-devotion/MochiDiffusion/blob/main/README.zh-Hans.md">中文</a>
 </p>
 
+<p align="center">
+<a title="Discord" target="_blank" href="https://discord.gg/x2kartzxGv"><img src="https://img.shields.io/discord/1068185566782423092?color=blueviolet&label=discord"></a>
+<a title="Crowdin" target="_blank" href="https://crowdin.com/project/mochi-diffusion"><img src="https://badges.crowdin.net/mochi-diffusion/localized.svg"></a>
+<a title="License" target="_blank" href="https://github.com/godly-devotion/MochiDiffusion/blob/main/LICENSE"><img src="https://img.shields.io/github/license/godly-devotion/MochiDiffusion?color=blue"></a>
+</p>
+
 ![Screenshot](.github/images/screenshot.png)
 
 ## Description
@@ -86,9 +92,7 @@ All generation happens locally and absolutely nothing is sent to the cloud.
 
 Mochi Diffusion is always looking for contributions, whether it's through bug reports, code, or new translations.
 
-- If you have a question, try [searching for your question first](https://github.com/godly-devotion/MochiDiffusion/discussions) as someone might have asked the same question already. If you do not find your question listed, feel free to [create a new question](https://github.com/godly-devotion/MochiDiffusion/discussions/new?category=q-a). Don't create a new issue for your question as those are for bugs and feature requests only.
-
-- If you find a bug, or would like to suggest a new feature or enhancement, try [searching for your problem first](https://github.com/godly-devotion/MochiDiffusion/issues) as it helps avoid duplicates. If you can't find your issue, feel free to [create a new issue](https://github.com/godly-devotion/MochiDiffusion/issues/new/choose).
+- If you find a bug, or would like to suggest a new feature or enhancement, try [searching for your problem first](https://github.com/godly-devotion/MochiDiffusion/issues) as it helps avoid duplicates. If you can't find your issue, feel free to [create a new issue](https://github.com/godly-devotion/MochiDiffusion/issues/new/choose). Don't create an issue for your question as those are for bugs and feature requests only.
 
 - If you're looking to contribute code, feel free to [open a Pull Request](https://github.com/godly-devotion/MochiDiffusion/pulls) or [create a new discussion](https://github.com/godly-devotion/MochiDiffusion/discussions) to talk about it first.
 

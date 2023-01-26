@@ -12,6 +12,12 @@
 <a href="https://github.com/godly-devotion/MochiDiffusion/blob/main/README.zh-Hans.md">中文</a>
 </p>
 
+<p align="center">
+<a title="Discord" target="_blank" href="https://discord.gg/x2kartzxGv"><img src="https://img.shields.io/discord/1068185566782423092?color=blueviolet&label=discord"></a>
+<a title="Crowdin" target="_blank" href="https://crowdin.com/project/mochi-diffusion"><img src="https://badges.crowdin.net/mochi-diffusion/localized.svg"></a>
+<a title="License" target="_blank" href="https://github.com/godly-devotion/MochiDiffusion/blob/main/LICENSE"><img src="https://img.shields.io/github/license/godly-devotion/MochiDiffusion?color=blue"></a>
+</p>
+
 ![Screenshot](.github/images/screenshot.png)
 
 ## 简介
@@ -85,8 +91,6 @@
 ## 贡献
 
 无论是修复bug，新增代码，还是完善翻译，Mochi Diffusion 欢迎你的贡献。
-
-- 如果你有任何问题，请先在这里 [搜索你的问题](https://github.com/godly-devotion/MochiDiffusion/discussions) 以避免重复。在确认没有人提出过相同的问题后，请 [发起一个新的讨论](https://github.com/godly-devotion/MochiDiffusion/discussions/new)。
 
 - 如果你发现了一个bug，或者有新的建议和想法，请先在这里 [搜索议题](https://github.com/godly-devotion/MochiDiffusion/issues) 以避免重复。在确认没有重复后，你可以 [创建一个新议题](https://github.com/godly-devotion/MochiDiffusion/issues/new/choose)。
 
