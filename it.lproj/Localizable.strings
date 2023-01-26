@@ -186,7 +186,7 @@ Copy the currently selected image's generation options to the prompt input sideb
 "Support Me ♥" = "Sostienimi ♥";
 
 /* Help text for the loading model message */
-"This may take up to 2 minutes if a model is used for the first time" = "Possono volerci fino a 2 minuti se un modello viene utilizzato per la prima volta";
+"This may take up to 2 minutes if a model is used for the first time" = "Potrebbero volerci fino a 2 minuti se un modello viene utilizzato per la prima volta";
 
 /* No comment provided by engineer. */
 "Use GPU" = "Usa GPU";
