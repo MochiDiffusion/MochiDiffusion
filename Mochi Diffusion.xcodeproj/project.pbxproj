@@ -71,6 +71,8 @@
 /* Begin PBXFileReference section */
 		03021B502960E513001E88C0 /* QueueProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueueProgress.swift; sourceTree = "<group>"; };
 		0307B0D9294D4AE500A9BD55 /* FileCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileCommands.swift; sourceTree = "<group>"; };
+		0316D7D42983468600340F0C /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		0316D7D52983468600340F0C /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
 		031AC9D3296881F500F95E4B /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
 		03408EBD296B5A25001CBCC4 /* fi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fi; path = fi.lproj/Localizable.strings; sourceTree = "<group>"; };
 		0352E2A6294E3148003FBF25 /* HelpCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpCommands.swift; sourceTree = "<group>"; };
@@ -562,6 +564,7 @@
 				03A90175297CAF02002120F7 /* sv */,
 				03A90176297CAF07002120F7 /* zh-Hans */,
 				03A90177297CAF0C002120F7 /* zh-Hant */,
+				0316D7D42983468600340F0C /* es */,
 			);
 			name = InfoPlist.strings;
 			path = ..;
@@ -580,6 +583,7 @@
 				039F4DBD296FB8450044F81A /* pt-BR */,
 				0377877D297892B6002E3926 /* sv */,
 				03F75CEC2979B3910071CD1C /* zh-Hant */,
+				0316D7D52983468600340F0C /* es */,
 			);
 			name = Localizable.strings;
 			path = ..;
