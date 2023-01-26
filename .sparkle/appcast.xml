@@ -5,6 +5,29 @@
     <language>en</language>
 
     <item>
+      <title>v2.1.4</title>
+      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <sparkle:version>2.1.4</sparkle:version>
+      <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
+      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <pubDate>Thu, 26 Jan 2023 23:53:36 +0000</pubDate>
+      <enclosure
+        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v2.1.4/MochiDiffusion_v2.1.4.dmg"
+        sparkle:edSignature="p6Q8gvQ99BmDNu1LflkZPMd+u3vFN2IsiPmAWeDTUZPGxa9tOzwNRpdHr/UPnJvqe9VUhNUD7Cav0oatoBKrAA=="
+        length="66808448"
+        type="application/octet-stream" />
+      <description><![CDATA[
+      <ul>
+      <li>Added Spanish translation (k-latte)</li>
+      </ul>
+      <p><a href="https://discord.gg/x2kartzxGv">There&#39;s a Discord server?</a></p>
+      <p>Special thanks to the following for supporting me and making this app possible 🎉
+      <strong>raisingfightingspirit</strong>, <strong>serovar</strong>, <strong>orange-wedge</strong>, <strong>RuralRob</strong>, <strong>julien-c</strong>, <strong>Quick-Eyed-Sky</strong>, <strong>BirdSesame</strong>, <strong>Da-mi-en</strong>, <strong>angeenes</strong>, &amp; anonymous donors</p>
+      ]]>
+      </description>
+    </item>
+
+    <item>
       <title>v2.1.3</title>
       <link>https://github.com/godly-devotion/MochiDiffusion</link>
       <sparkle:version>2.1.3</sparkle:version>
