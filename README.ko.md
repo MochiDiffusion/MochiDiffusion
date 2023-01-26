@@ -21,7 +21,7 @@
 ## 기능
 
 - 매우 빠르고 메모리 효율적 (Neural Engine을 사용해서 ~150MB)
-- 모든 Apple Silicon칩 탑재 Mac 잘 실행됨
+- 모든 Apple Silicon Mac에 잘 실행됨
 - 본인의 Mac에서 완전히 오프라인으로 이미지 생성
 - 생성된 이미지는 메타데이터 내에 프롬프트 정보가 함께 저장됩
 - 생성된 이미지를 고화질로 변환할수 있는 기능 (RealESRGAN 사용)
@@ -50,7 +50,7 @@ Intel Mac은 Neural Engine이 없기 때문에 `CPU & GPU`를 사용합니다.
 
 Mochi Diffusion을 사용하려면 모델 파일을 Core ML 포맷으로 변환하거나 다운로드해야 합니다.
 
-몇 가지 모델을 변환하여 [여기](https://huggingface.co/godly-devotion)에 업로드 해놨습니다.
+몇 가지 모델을 변환하여 [여기](https://huggingface.co/coreml)에 업로드 해놨습니다.
 
 1. Core ML 모델로 [변환 하거나](https://github.com/apple/ml-stable-diffusion#-converting-models-to-core-ml) 다운
     - `split_einsum` 버전은 Neural Engine을 포함한 모든 Compute Unit 옵션과 사용 가능
@@ -90,8 +90,8 @@ Mochi Diffusion은 버그 보고서, 코드 또는 새로운 번역을 통해서
 
 - 코드를 제공하고 싶다면 언제든지 [Pull Request 열기](https://github.com/godly-devotion/MochiDiffusion/pulls) 또는 [새 토론](https://github.com/godly-devotion/MochiDiffusion/discussions)에서 먼저 문이 하실수 있습니다.
 
-## Credits
+## 크레딧
 
 - [Apple's Core ML Stable Diffusion implementation](https://github.com/apple/ml-stable-diffusion)
 - [HuggingFace's Swift UI sample implementation](https://github.com/huggingface/swift-coreml-diffusers)
-- App Icon by [Zabriskije](https://github.com/Zabriskije)
+- [Zabriskije](https://github.com/Zabriskije)가 만든 앱 아이콘
