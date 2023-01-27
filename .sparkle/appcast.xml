@@ -19,6 +19,8 @@
       <description><![CDATA[
       <ul>
       <li>Added Spanish translation (k-latte)</li>
+      <li>Changed max step setting to 40</li>
+      <li>Next release will change minimum macOS version to Ventura 13.2</li>
       </ul>
       <p><a href="https://discord.gg/x2kartzxGv">There&#39;s a Discord server?</a></p>
       <p>Special thanks to the following for supporting me and making this app possible 🎉
