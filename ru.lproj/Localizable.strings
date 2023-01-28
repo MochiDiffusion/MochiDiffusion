@@ -1,0 +1,205 @@
+/* Label displaying the currently selected model name */
+"%@ model" = "Модель %@";
+
+/* No comment provided by engineer. */
+"^[%lld images](inflect: true)" = "^[%lld изображений](inflect: true)";
+
+/* Option to use all CPU, GPU, & Neural Engine for compute unit */
+"All" = "Все";
+
+/* Button to apply the selected settings */
+"Apply" = "Применить";
+
+/* Help text for ML Compute Unit option under Settings */
+"Based on the option selected the correct model version will need to be used." = "Необходимо использовать правильную версию модели в зависимости от выбранной опции.";
+
+/* No comment provided by engineer. */
+"Check for Updates…" = "Проверка наличия обновлений…";
+
+/* No comment provided by engineer. */
+"Convert all images to High Resolution (this will use more memory)" = "Преобразовать все изображения в высокое разрешение (будет использовано больше памяти)";
+
+/* Convert the current image to high resolution */
+"Convert to High Resolution" = "Преобразовать в высокое разрешение";
+
+/* Button to copy the currently selected image's generation options to the clipboard */
+"Copy" = "Копировать";
+
+/* No comment provided by engineer. */
+"Copy Option to Sidebar" = "Копировать опцию в боковую панель";
+
+/* Button to copy the currently selected image's generation options to the prompt input sidebar
+Copy the currently selected image's generation options to the prompt input sidebar */
+"Copy Options to Sidebar" = "Копировать опции в боковую панель";
+
+/* No comment provided by engineer. */
+"CPU & GPU" = "CPU & GPU";
+
+/* No comment provided by engineer. */
+"CPU & GPU may be faster on M1 Max, Ultra and later but will use more memory." = "CPU & GPU может быть быстрее на M1 Max, Ultra и более новых моделях, но использует больше памяти.";
+
+/* No comment provided by engineer. */
+"CPU & Neural Engine" = "CPU & Neural Engine";
+
+/* No comment provided by engineer. */
+"CPU & Neural Engine provides a good balance between speed and low memory usage." = "CPU & Neural Engine обеспечивает хороший баланс между скоростью и низким потреблением памяти.";
+
+/* No comment provided by engineer. */
+"Date" = "Дата";
+
+/* No comment provided by engineer. */
+"Download Models" = "Скачать модели";
+
+/* No comment provided by engineer. */
+"Exclude from Image" = "Исключить из изображения";
+
+/* No comment provided by engineer. */
+"Exclude from Image:" = "Исключить из изображения:";
+
+/* No comment provided by engineer. */
+"Filter Inappropriate Images" = "Фильтровать нежелательные изображения";
+
+/* No comment provided by engineer. */
+"For `original` models, select Use GPU." = "Для моделей \"original\" выберите Использовать GPU.";
+
+/* No comment provided by engineer. */
+"For `split_einsum` models, select Use Neural Engine." = "Для моделей \"split_einsum\" выберите Использовать Neural Engine.";
+
+/* Button to generate image */
+"Generate" = "Сгенерировать";
+
+/* No comment provided by engineer. */
+"Guidance Scale" = "Уровень соответствия запросу";
+
+/* No comment provided by engineer. */
+"Guidance Scale:" = "Уровень соответствия запросу:";
+
+/* Label for toggle to auto convert generated images to high resolution */
+"HD" = "HD";
+
+/* Label for image height picker */
+"Height:" = "Высота:";
+
+/* No comment provided by engineer. */
+"Image" = "Изображение";
+
+/* Text displaying the image generation progress and count */
+"Image %lld of %lld" = "Изображение %lld из %lld";
+
+/* No comment provided by engineer. */
+"Include in Image" = "Включить в изображение";
+
+/* No comment provided by engineer. */
+"Include in Image:" = "Включить в изображение:";
+
+/* No comment provided by engineer. */
+"Loading Model..." = "Загрузка модели...";
+
+/* No comment provided by engineer. */
+"ML Compute Unit" = "Вычислительный блок ML";
+
+/* No comment provided by engineer. */
+"Model" = "Модель";
+
+/* No comment provided by engineer. */
+"Model Folder" = "Папка для моделей";
+
+/* No comment provided by engineer. */
+"Model:" = "Модель:";
+
+/* Placeholder text for image inspector */
+"No Info" = "Нет информации";
+
+/* No comment provided by engineer. */
+"Number of Images:" = "Количество изображений:";
+
+/* No comment provided by engineer. */
+"Open in Finder" = "Открыть в Finder";
+
+/* View current image using Quick Look */
+"Quick Look" = "Быстрый просмотр";
+
+/* No comment provided by engineer. */
+"random" = "случайное";
+
+/* No comment provided by engineer. */
+"Reduce Memory Usage" = "Использовать меньше памяти";
+
+/* Help text for Reduce Memory Usage option */
+"Reduce memory usage further at the cost of speed." = "Использовать еще меньше памяти за счет скорости.";
+
+/* No comment provided by engineer. */
+"Release Notes" = "Заметки о выпуске";
+
+/* Remove image from the gallery */
+"Remove" = "Удалить";
+
+/* Show the save images dialog */
+"Save All..." = "Сохранить все...";
+
+/* Show the save image dialog */
+"Save As..." = "Сохранить как...";
+
+/* No comment provided by engineer. */
+"Scheduler" = "Планировщик";
+
+/* No comment provided by engineer. */
+"Search" = "Поиск";
+
+/* Window title bar label displaying the searched text */
+"Searching: %@" = "Поиск: %@";
+
+/* No comment provided by engineer. */
+"Seed" = "Seed";
+
+/* No comment provided by engineer. */
+"Seed:" = "Seed:";
+
+/* No comment provided by engineer. */
+"Select Compute Unit option" = "Выберите вычислительный блок";
+
+/* Select next image in Gallery */
+"Select Next" = "Выбрать следующее";
+
+/* Select previous image in Gallery */
+"Select Previous" = "Выбрать предыдущее";
+
+/* No comment provided by engineer. */
+"Share..." = "Поделиться...";
+
+/* No comment provided by engineer. */
+"Size" = "Размер";
+
+/* Text displaying the current step progress and count */
+"Step %lld of %lld" = "Шаг %lld из %lld";
+
+/* No comment provided by engineer. */
+"Steps" = "Шаги";
+
+/* No comment provided by engineer. */
+"Steps:" = "Шаги:";
+
+/* No comment provided by engineer. */
+"Stop Generation" = "Остановить генерацию";
+
+/* No comment provided by engineer. */
+"Support Me ♥" = "Поддержать меня ♥";
+
+/* Help text for the loading model message */
+"This may take up to 2 minutes if a model is used for the first time" = "Это может занять до двух минут, если модель используется впервые";
+
+/* No comment provided by engineer. */
+"Use GPU" = "Использовать GPU";
+
+/* No comment provided by engineer. */
+"Use Neural Engine" = "Использовать Neural Engine";
+
+/* Help text for Filter Inappropriate Images option */
+"Uses the model's safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Использует модуль модели для проверки на безопасность изображений. Не гарантирует, что все неприемлемые изображения будут отфильтрованы.";
+
+/* No comment provided by engineer. */
+"Website" = "Сайт";
+
+/* Label for image width picker */
+"Width:" = "Ширина:";
+
