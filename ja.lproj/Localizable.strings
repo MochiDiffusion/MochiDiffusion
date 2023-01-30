@@ -47,6 +47,9 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Date" = "日付";
 
+/* Message warning the user that the prompt (or negative prompt) is too long and part of it may get cut off */
+"Description is too long" = "記述が長すぎます";
+
 /* No comment provided by engineer. */
 "Download Models" = "モデルをダウンロード";
 

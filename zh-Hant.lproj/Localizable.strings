@@ -47,6 +47,9 @@ Copy the currently selected image's generation options to the prompt input sideb
 /* No comment provided by engineer. */
 "Date" = "日期";
 
+/* Message warning the user that the prompt (or negative prompt) is too long and part of it may get cut off */
+"Description is too long" = "關鍵詞過長";
+
 /* No comment provided by engineer. */
 "Download Models" = "下載模型";
 
@@ -177,7 +180,7 @@ Copy the currently selected image's generation options to the prompt input sideb
 "Steps" = "迭代次數";
 
 /* No comment provided by engineer. */
-"Steps:" = "迭代次數:";
+"Steps:" = "迭代次數：";
 
 /* No comment provided by engineer. */
 "Stop Generation" = "停止生成？";
