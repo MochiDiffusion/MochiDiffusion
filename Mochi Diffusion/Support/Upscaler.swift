@@ -59,7 +59,6 @@ final class Upscaler {
         upscaledSDI.height = upscaledImage.height
         upscaledSDI.aspectRatio = CGFloat(Double(sdi.width) / Double(sdi.height))
         upscaledSDI.upscaler = "RealESRGAN"
-        upscaledSDI.generatedDate = Date.now
         return upscaledSDI
     }
 
