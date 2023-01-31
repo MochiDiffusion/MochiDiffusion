@@ -37,5 +37,18 @@ struct FileCommands: Commands {
                 .disabled(genStore.images.isEmpty)
             }
         }
+        CommandGroup(replacing: .importExport) {
+            Section {
+                Button {
+                    genStore.importImages()
+                } label: {
+                    Text(
+                        "Import Image...",
+                        comment: "Show the import image dialog"
+                    )
+                }
+                .keyboardShortcut("I", modifiers: .command)
+            }
+        }
     }
 }

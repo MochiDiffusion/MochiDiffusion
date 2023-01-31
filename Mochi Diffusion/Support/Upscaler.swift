@@ -49,7 +49,7 @@ final class Upscaler {
     }
 
     func upscale(sdi: SDImage) -> SDImage? {
-        if sdi.isUpscaled { return nil }
+        if !sdi.upscaler.isEmpty { return nil }
         guard let cgImage = sdi.image else { return nil }
         guard let upscaledImage = upscale(cgImage: cgImage) else { return nil }
         var upscaledSDI = sdi
@@ -58,7 +58,7 @@ final class Upscaler {
         upscaledSDI.width = upscaledImage.width
         upscaledSDI.height = upscaledImage.height
         upscaledSDI.aspectRatio = CGFloat(Double(sdi.width) / Double(sdi.height))
-        upscaledSDI.isUpscaled = true
+        upscaledSDI.upscaler = "RealESRGAN"
         upscaledSDI.generatedDate = Date.now
         return upscaledSDI
     }

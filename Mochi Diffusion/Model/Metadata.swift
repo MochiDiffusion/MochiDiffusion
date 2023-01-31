@@ -16,4 +16,5 @@ enum Metadata: String, CaseIterable {
     case steps = "Steps"
     case guidanceScale = "Guidance Scale"
     case generator = "Generator"
+    case upscaler = "Upscaler"
 }

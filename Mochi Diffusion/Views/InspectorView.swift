@@ -69,7 +69,7 @@ struct InspectorView: View {
                         )
                         InfoGridRow(
                             type: LocalizedStringKey(Metadata.size.rawValue),
-                            text: "\(sdi.width) x \(sdi.height)\(sdi.isUpscaled ? " (Converted to High Resolution)" : "")",
+                            text: "\(sdi.width) x \(sdi.height)\(!sdi.upscaler.isEmpty ? " (Upscaled using \(sdi.upscaler))" : "")",
                             showCopyToPromptOption: false
                         )
                         InfoGridRow(

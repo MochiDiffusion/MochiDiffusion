@@ -25,7 +25,7 @@ struct SDImage: Identifiable {
     var steps = 28
     var guidanceScale = 11.0
     var generatedDate = Date()
-    var isUpscaled = false
+    var upscaler = ""
 }
 
 extension SDImage {
@@ -61,8 +61,8 @@ extension SDImage {
             nil
         ) else { return }
         let iptc = [
-            kCGImagePropertyIPTCOriginatingProgram: "Mochi Diffusion",
             kCGImagePropertyIPTCCaptionAbstract: metadata(),
+            kCGImagePropertyIPTCOriginatingProgram: "Mochi Diffusion",
             kCGImagePropertyIPTCProgramVersion: "\(NSApplication.appVersion)"
         ]
         let meta = [kCGImagePropertyIPTCDictionary: iptc]
@@ -77,13 +77,18 @@ extension SDImage {
 
     func metadata() -> String {
         """
-        \(prompt); \
+        \(Metadata.includeInImage.rawValue): \(prompt); \
         \(Metadata.excludeFromImage.rawValue): \(negativePrompt); \
         \(Metadata.model.rawValue): \(model); \
         \(Metadata.steps.rawValue): \(steps); \
         \(Metadata.guidanceScale.rawValue): \(guidanceScale); \
         \(Metadata.seed.rawValue): \(seed); \
-        \(Metadata.size.rawValue): \(width)x\(height); \
+        \(Metadata.size.rawValue): \(width)x\(height);
+        """
+        +
+        (!upscaler.isEmpty ? " \(Metadata.upscaler.rawValue): \(upscaler); " : " ")
+        +
+        """
         \(Metadata.scheduler.rawValue): \(scheduler.rawValue); \
         \(Metadata.generator.rawValue): Mochi Diffusion \(NSApplication.appVersion)
         """
