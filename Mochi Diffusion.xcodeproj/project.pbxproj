@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		03021B512960E513001E88C0 /* QueueProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03021B502960E513001E88C0 /* QueueProgress.swift */; };
 		0307B0DA294D4AE500A9BD55 /* FileCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0307B0D9294D4AE500A9BD55 /* FileCommands.swift */; };
+		0311C69929899A660074BCAE /* Metadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0311C69829899A660074BCAE /* Metadata.swift */; };
 		0352E2A5294E2591003FBF25 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 0352E2A4294E2591003FBF25 /* Sparkle */; };
 		0352E2A7294E3148003FBF25 /* HelpCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0352E2A6294E3148003FBF25 /* HelpCommands.swift */; };
 		0352E2AA294EA0E1003FBF25 /* AppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0352E2A9294EA0E1003FBF25 /* AppView.swift */; };
@@ -71,6 +72,7 @@
 /* Begin PBXFileReference section */
 		03021B502960E513001E88C0 /* QueueProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueueProgress.swift; sourceTree = "<group>"; };
 		0307B0D9294D4AE500A9BD55 /* FileCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileCommands.swift; sourceTree = "<group>"; };
+		0311C69829899A660074BCAE /* Metadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Metadata.swift; sourceTree = "<group>"; };
 		0316D7D42983468600340F0C /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		0316D7D52983468600340F0C /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
 		031AC9D3296881F500F95E4B /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -269,6 +271,7 @@
 			children = (
 				0377877A29787826002E3926 /* GalleryStore.swift */,
 				03778778297877D6002E3926 /* ImageStore.swift */,
+				0311C69829899A660074BCAE /* Metadata.swift */,
 				03021B502960E513001E88C0 /* QueueProgress.swift */,
 				03E89F3B294FE6ED0067457E /* SDImage.swift */,
 				0352E2B2294EA326003FBF25 /* Store.swift */,
@@ -509,6 +512,7 @@
 				03CB9D18297399AE0041A4FA /* ImageCommands.swift in Sources */,
 				035E76F62970E809008DDFDE /* CVPixelBuffer+Create.swift in Sources */,
 				0352E2B3294EA326003FBF25 /* Store.swift in Sources */,
+				0311C69929899A660074BCAE /* Metadata.swift in Sources */,
 				03D43B7829660A1300604911 /* GalleryView.swift in Sources */,
 				03D43B7A29660A2600604911 /* GalleryItemView.swift in Sources */,
 				035EDFF8295A216500080D18 /* StepsView.swift in Sources */,

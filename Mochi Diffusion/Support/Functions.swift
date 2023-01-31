@@ -9,31 +9,31 @@ import Foundation
 
 func getHumanReadableInfo(sdi: SDImage) -> String {
     """
-Date:
+\(Metadata.date.rawValue):
 \(sdi.generatedDate.formatted(date: .long, time: .standard))
 
-Model:
+\(Metadata.model.rawValue):
 \(sdi.model)
 
-Size:
+\(Metadata.size.rawValue):
 \(sdi.width) x \(sdi.height)\(sdi.isUpscaled ? " (Converted to High Resolution)" : "")
 
-Prompt:
+\(Metadata.includeInImage.rawValue):
 \(sdi.prompt)
 
-Negative Prompt:
+\(Metadata.excludeFromImage.rawValue):
 \(sdi.negativePrompt)
 
-Scheduler:
+\(Metadata.scheduler.rawValue):
 \(sdi.scheduler.rawValue)
 
-Seed:
+\(Metadata.seed.rawValue):
 \(sdi.seed)
 
-Steps:
+\(Metadata.steps.rawValue):
 \(sdi.steps)
 
-Guidance Scale:
+\(Metadata.guidanceScale.rawValue):
 \(sdi.guidanceScale)
 """
 }
