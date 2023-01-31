@@ -5,6 +5,32 @@
     <language>en</language>
 
     <item>
+      <title>v2.1.5</title>
+      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <sparkle:version>2.1.5</sparkle:version>
+      <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
+      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <pubDate>Tue, 31 Jan 2023 00:06:42 +0000</pubDate>
+      <enclosure
+        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v2.1.5/MochiDiffusion_v2.1.5.dmg"
+        sparkle:edSignature="wm8Wa9BDBCv4KLVXVjBV0P2lRhS+DiWZI+nUtc5ckDXdaj8IZGjcvIk+lPAIyQpSiT7GSmvBlqgVsIPL+sOpDg=="
+        length="66814458"
+        type="application/octet-stream" />
+      <description><![CDATA[
+      <ul>
+      <li>Added Russian translation (Regulus)</li>
+      <li>Added message if prompt description is too long</li>
+      <li>Changed max step setting back to 50</li>
+      <li>Postponed changing minimum macOS version to Ventura 13.2</li>
+      </ul>
+      <p><a href="https://discord.gg/x2kartzxGv">Link to Discord, this is - Yoda</a></p>
+      <p>Special thanks to the following for supporting me and making this app possible 🎉
+      <strong>raisingfightingspirit</strong>, <strong>serovar</strong>, <strong>orange-wedge</strong>, <strong>RuralRob</strong>, <strong>julien-c</strong>, <strong>Quick-Eyed-Sky</strong>, <strong>BirdSesame</strong>, <strong>Da-mi-en</strong>, <strong>monks1975</strong>, <strong>angeenes</strong>, &amp; anonymous donors</p>
+      ]]>
+      </description>
+    </item>
+
+    <item>
       <title>v2.1.4</title>
       <link>https://github.com/godly-devotion/MochiDiffusion</link>
       <sparkle:version>2.1.4</sparkle:version>
