@@ -246,9 +246,9 @@ final class GeneratorStore: ObservableObject {
     func upscaleImage(sdi: SDImage) {
         DispatchQueue.global(qos: .default).async {
             if !sdi.upscaler.isEmpty { return }
-            guard let index = self.images.firstIndex(where: { $0.id == sdi.id }) else { return }
             guard let upscaledImage = Upscaler.shared.upscale(sdi: sdi) else { return }
             DispatchQueue.main.async {
+                guard let index = self.images.firstIndex(where: { $0.id == sdi.id }) else { return }
                 self.images[index] = upscaledImage
                 // If quicklook is already open show selected image
                 if self.quicklookURL != nil {
