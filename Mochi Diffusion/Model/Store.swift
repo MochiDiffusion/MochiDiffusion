@@ -105,7 +105,7 @@ final class GeneratorStore: ObservableObject {
         do {
             let subDirs = try finalModelDir.subDirectories()
             subDirs.map { $0.lastPathComponent }
-                .sorted(by: { $0.compare($1, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedAscending })
+                .sorted { $0.compare($1, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedAscending }
                 .forEach { self.models.append($0) }
 
         } catch {
