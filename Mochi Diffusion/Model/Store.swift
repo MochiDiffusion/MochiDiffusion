@@ -104,9 +104,10 @@ final class GeneratorStore: ObservableObject {
         modelDir = finalModelDir.path(percentEncoded: false)
         do {
             let subDirs = try finalModelDir.subDirectories()
-            subDirs.forEach { dir in
-                models.append(dir.lastPathComponent)
-            }
+            subDirs.map { $0.lastPathComponent }
+                .sorted(by: { $0.compare($1, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedAscending })
+                .forEach { self.models.append($0) }
+
         } catch {
             logger.notice("Could not get model subdirectories under: \"\(finalModelDir.path(percentEncoded: false))\"")
             status = .error("Could not get model subdirectories.")
