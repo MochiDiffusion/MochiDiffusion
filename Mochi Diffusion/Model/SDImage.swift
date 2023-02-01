@@ -39,9 +39,9 @@ extension SDImage {
         panel.allowedContentTypes = [.png, .jpeg]
         panel.canCreateDirectories = true
         panel.isExtensionHidden = false
-        panel.title = "Save Image"
-        panel.message = "Choose a folder and a name to store the image"
-        panel.nameFieldLabel = "Image file name:"
+        panel.title = String(localized: "Save Image", comment: "Header text for save image panel")
+        panel.message = String(localized: "Choose a folder and a name to store the image")
+        panel.nameFieldLabel = String(localized: "Image file name:", comment: "File name field label for save image panel")
         panel.nameFieldStringValue =
             "\(String(prompt.prefix(70)).trimmingCharacters(in: .whitespacesAndNewlines)).\(seed).png"
         let resp = panel.runModal()

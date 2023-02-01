@@ -104,7 +104,7 @@ struct GalleryView: View {
                     comment: "Window title bar label displaying the searched text"
                 )
         )
-        .navigationSubtitle(genStore.searchText.isEmpty ? "^[\(genStore.images.count) images](inflect: true)" : "")
+        .navigationSubtitle(genStore.searchText.isEmpty ? "\(genStore.images.count) image(s)" : "")
         .toolbar {
             GalleryToolbarView()
         }

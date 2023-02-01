@@ -57,8 +57,8 @@ final class ImageStore: ObservableObject {
         panel.canCreateDirectories = true
         panel.canChooseDirectories = true
         panel.canChooseFiles = false
-        panel.message = "Choose a folder to save all images"
-        panel.prompt = "Save"
+        panel.message = String(localized: "Choose a folder to save all images")
+        panel.prompt = String(localized: "Save")
         let resp = panel.runModal()
         if resp != .OK {
             return
