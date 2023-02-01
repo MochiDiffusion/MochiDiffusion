@@ -41,6 +41,11 @@ func getHumanReadableInfo(sdi: SDImage) -> String {
 """
 }
 
+func compareVersion(_ thisVersion: String, _ compareTo: String) -> ComparisonResult {
+    thisVersion.compare(compareTo, options: .numeric)
+}
+
+// swiftlint:disable:next cyclomatic_complexity
 func createSDImageFromURL(url: URL) -> SDImage? {
     guard let cgImageSource = CGImageSourceCreateWithURL(url as CFURL, nil) else { return nil }
     let imageIndex = CGImageSourceGetPrimaryImageIndex(cgImageSource)
@@ -56,6 +61,7 @@ func createSDImageFromURL(url: URL) -> SDImage? {
         height: cgImage.height,
         aspectRatio: CGFloat(Double(cgImage.width) / Double(cgImage.height))
     )
+    var generatedVersion = ""
     _ = infoString.split(separator: "; ").reduce(into: [String: String]()) {
         let item = $1.split(separator: ": ")
 
@@ -78,10 +84,17 @@ func createSDImageFromURL(url: URL) -> SDImage? {
                 sdi.guidanceScale = Double(value)!
             case Metadata.upscaler:
                 sdi.upscaler = String(value)
+            case Metadata.generator:
+                guard let index = value.lastIndex(of: " ") else { return }
+                let start = value.index(after: index)
+                let end = value.endIndex
+                generatedVersion = String(value[start..<end])
             default:
                 break
             }
         }
     }
+    if generatedVersion.isEmpty { return nil }
+    if compareVersion("2.2", generatedVersion) == .orderedDescending { return nil }
     return sdi
 }
