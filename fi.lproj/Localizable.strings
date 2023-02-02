@@ -1,208 +1,63 @@
-/* Label displaying the currently selected model name */
+"CFBundleDisplayName" = "Mochi Diffusion";
+"CFBundleName" = "Mochi Diffusion";
+"NSHumanReadableCopyright" = "Tekijä: Joshua Park";
 "%@ model" = "%@ malli";
-
-/* No comment provided by engineer. */
-"^[%lld images](inflect: true)" = "^[%lld kuvaa](inflect: true)";
-
-/* Option to use all CPU, GPU, & Neural Engine for compute unit */
 "All" = "Kaikki";
-
-/* Button to apply the selected settings */
 "Apply" = "Käytä";
-
-/* Help text for ML Compute Unit option under Settings */
 "Based on the option selected the correct model version will need to be used." = "Valitun vaihtoehdon perusteella on käytettävä oikeaa mallin versiota.";
-
-/* No comment provided by engineer. */
-"Check for Updates…" = "Tarkista päivitykset…";
-
-/* No comment provided by engineer. */
-"Convert all images to High Resolution (this will use more memory)" = "Muunna kaikki kuvat korkeaan resoluutioon (tämä käyttää enemmän muistia)";
-
-/* Convert the current image to high resolution */
-"Convert to High Resolution" = "Muunna korkeaksi resoluutioksi";
-
-/* Button to copy the currently selected image's generation options to the clipboard */
-"Copy" = "Kopioi";
-
-/* No comment provided by engineer. */
-"Copy Option to Sidebar" = "Kopioi asetus sivupalkkiin";
-
-/* Button to copy the currently selected image's generation options to the prompt input sidebar
-Copy the currently selected image's generation options to the prompt input sidebar */
-"Copy Options to Sidebar" = "Kopioi asetukset sivupalkkiin";
-
-/* No comment provided by engineer. */
 "CPU & GPU" = "CPU & GPU";
-
-/* No comment provided by engineer. */
 "CPU & GPU may be faster on M1 Max, Ultra and later but will use more memory." = "CPU & GPU voi olla nopeampi M1 Max, Ultra ja uudemmilla, mutta käyttää enemmän muistia.";
-
-/* No comment provided by engineer. */
 "CPU & Neural Engine" = "CPU & Neural Engine";
-
-/* No comment provided by engineer. */
 "CPU & Neural Engine provides a good balance between speed and low memory usage." = "CPU & Neural Engine tarjoaa hyvän tasapainon nopeuden ja muistinkäytön välillä.";
-
-/* No comment provided by engineer. */
-"Date" = "Pvm";
-
-/* Message warning the user that the prompt (or negative prompt) is too long and part of it may get cut off */
+"Check for Updates…" = "Tarkista päivitykset…";
+"Convert all images to High Resolution (this will use more memory)" = "Muunna kaikki kuvat korkeaan resoluutioon (tämä käyttää enemmän muistia)";
+"Convert to High Resolution" = "Muunna korkeaksi resoluutioksi";
+"Copy" = "Kopioi";
+"Copy Option to Sidebar" = "Kopioi asetus sivupalkkiin";
+"Copy Options to Sidebar" = "Kopioi asetukset sivupalkkiin";
 "Description is too long" = "Kuvaus on liian pitkä";
-
-/* No comment provided by engineer. */
 "Download Models" = "Lataa Mallit";
-
-/* No comment provided by engineer. */
-"Exclude from Image" = "Jätä pois kuvasta";
-
-/* No comment provided by engineer. */
 "Exclude from Image:" = "Jätä pois kuvasta:";
-
-/* No comment provided by engineer. */
 "Filter Inappropriate Images" = "Suodata sopimattomat kuvat";
-
-/* No comment provided by engineer. */
 "For `original` models, select Use GPU." = "Valitse \"original\" malleissa Käytä GPU.";
-
-/* No comment provided by engineer. */
 "For `split_einsum` models, select Use Neural Engine." = "Valitse \"split_einsum\"-malleissa Käytä Neural Engine.";
-
-/* Button to generate image */
 "Generate" = "Generoi";
-
-/* No comment provided by engineer. */
-"Guidance Scale" = "Ohjeiden Skaalaus";
-
-/* No comment provided by engineer. */
 "Guidance Scale:" = "Ohjeiden Skaalaus:";
-
-/* Label for toggle to auto convert generated images to high resolution */
 "HD" = "HD";
-
-/* Label for image height picker */
 "Height:" = "Korkeus:";
-
-/* No comment provided by engineer. */
 "Image" = "Kuva";
-
-/* Text displaying the image generation progress and count */
 "Image %lld of %lld" = "Kuva %lld / %lld";
-
-/* No comment provided by engineer. */
-"Include in Image" = "Sisällytä kuvaan";
-
-/* No comment provided by engineer. */
 "Include in Image:" = "Sisällytä kuvaan:";
-
-/* No comment provided by engineer. */
 "Loading Model..." = "Ladataan Mallia...";
-
-/* No comment provided by engineer. */
 "ML Compute Unit" = "ML-laskentayksikkö";
-
-/* No comment provided by engineer. */
-"Model" = "Malli";
-
-/* No comment provided by engineer. */
 "Model Folder" = "Malli Kansio";
-
-/* No comment provided by engineer. */
 "Model:" = "Malli:";
-
-/* Placeholder text for image inspector */
 "No Info" = "Ei tietoa";
-
-/* No comment provided by engineer. */
 "Number of Images:" = "Kuvien määrä:";
-
-/* No comment provided by engineer. */
 "Open in Finder" = "Avaa Finderissa";
-
-/* View current image using Quick Look */
 "Quick Look" = "Pikainen Vilkaisu";
-
-/* No comment provided by engineer. */
-"random" = "satunnainen";
-
-/* No comment provided by engineer. */
 "Reduce Memory Usage" = "Vähennä muistin Käyttöä";
-
-/* Help text for Reduce Memory Usage option */
 "Reduce memory usage further at the cost of speed." = "Vähennä muistin käyttöä entisestään nopeuden kustannuksella.";
-
-/* No comment provided by engineer. */
 "Release Notes" = "Julkaisutiedot";
-
-/* Remove image from the gallery */
 "Remove" = "Poista";
-
-/* Show the save images dialog */
 "Save All..." = "Tallenna Kaikki...";
-
-/* Show the save image dialog */
 "Save As..." = "Tallenna nimellä...";
-
-/* No comment provided by engineer. */
 "Scheduler" = "Ajastus";
-
-/* No comment provided by engineer. */
 "Search" = "Etsi";
-
-/* Window title bar label displaying the searched text */
 "Searching: %@" = "Etsitään: %@";
-
-/* No comment provided by engineer. */
-"Seed" = "Seed-luku";
-
-/* No comment provided by engineer. */
 "Seed:" = "Seed-luku:";
-
-/* No comment provided by engineer. */
 "Select Compute Unit option" = "Valitse laskentayksikön valinta";
-
-/* Select next image in Gallery */
 "Select Next" = "Valitse Seuraava";
-
-/* Select previous image in Gallery */
 "Select Previous" = "Valitse Edellinen";
-
-/* No comment provided by engineer. */
 "Share..." = "Jaa...";
-
-/* No comment provided by engineer. */
-"Size" = "Koko";
-
-/* Text displaying the current step progress and count */
 "Step %lld of %lld" = "Vaihe %lld / %lld";
-
-/* No comment provided by engineer. */
-"Steps" = "Vaiheet";
-
-/* No comment provided by engineer. */
 "Steps:" = "Vaiheet:";
-
-/* No comment provided by engineer. */
 "Stop Generation" = "Pysäytä generointi";
-
-/* No comment provided by engineer. */
 "Support Me ♥" = "Tue minua ♥";
-
-/* Help text for the loading model message */
 "This may take up to 2 minutes if a model is used for the first time" = "Tämä voi kestää enintään 2 minuuttia, jos mallia käytetään ensimmäisen kerran";
-
-/* No comment provided by engineer. */
 "Use GPU" = "Käytä GPU";
-
-/* No comment provided by engineer. */
 "Use Neural Engine" = "Käytä Neural Engine";
-
-/* Help text for Filter Inappropriate Images option */
-"Uses the model's safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Käyttää mallin turvatarkistusmoduulia. Tämä ei takaa, että kaikki sopimattomat kuvat suodatetaan.";
-
-/* No comment provided by engineer. */
+"Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Käyttää mallin turvatarkistusmoduulia. Tämä ei takaa, että kaikki sopimattomat kuvat suodatetaan.";
 "Website" = "Nettisivu";
-
-/* Label for image width picker */
 "Width:" = "Leveys:";
-
+"random" = "satunnainen";
