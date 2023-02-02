@@ -1,208 +1,63 @@
-/* Label displaying the currently selected model name */
+"CFBundleDisplayName" = "Mochi Diffusion";
+"CFBundleName" = "Mochi Diffusion";
+"NSHumanReadableCopyright" = "Von Joshua Park";
 "%@ model" = "%@ modell";
-
-/* No comment provided by engineer. */
-"^[%lld images](inflect: true)" = "^[%lld Bilder](inflect: true)";
-
-/* Option to use all CPU, GPU, & Neural Engine for compute unit */
 "All" = "Alle";
-
-/* Button to apply the selected settings */
 "Apply" = "Bestätigen";
-
-/* Help text for ML Compute Unit option under Settings */
 "Based on the option selected the correct model version will need to be used." = "Basierend auf der gewählten Option muss die richtige Modellversion verwendet werden.";
-
-/* No comment provided by engineer. */
-"Check for Updates…" = "Nach Aktualisierungen suchen…";
-
-/* No comment provided by engineer. */
-"Convert all images to High Resolution (this will use more memory)" = "Alle Bilder in hohe Auflösung konvertieren (dies wird mehr Speicher verbrauchen)";
-
-/* Convert the current image to high resolution */
-"Convert to High Resolution" = "In hohe Auflösung konvertieren";
-
-/* Button to copy the currently selected image's generation options to the clipboard */
-"Copy" = "Kopieren";
-
-/* No comment provided by engineer. */
-"Copy Option to Sidebar" = "Option in Sidebar kopieren";
-
-/* Button to copy the currently selected image's generation options to the prompt input sidebar
-Copy the currently selected image's generation options to the prompt input sidebar */
-"Copy Options to Sidebar" = "Optionen in Sidebar kopieren";
-
-/* No comment provided by engineer. */
 "CPU & GPU" = "CPU & GPU";
-
-/* No comment provided by engineer. */
 "CPU & GPU may be faster on M1 Max, Ultra and later but will use more memory." = "CPU & GPU kann bei M1 Max, Ultra und später schneller sein, wird aber mehr Speicher benötigen.";
-
-/* No comment provided by engineer. */
 "CPU & Neural Engine" = "CPU & Neural Engine";
-
-/* No comment provided by engineer. */
 "CPU & Neural Engine provides a good balance between speed and low memory usage." = "CPU & Neural Engine bietet eine gute Balance zwischen Geschwindigkeit und niedriger Speicherauslastung.";
-
-/* No comment provided by engineer. */
-"Date" = "Datum";
-
-/* Message warning the user that the prompt (or negative prompt) is too long and part of it may get cut off */
+"Check for Updates…" = "Nach Aktualisierungen suchen…";
+"Convert all images to High Resolution (this will use more memory)" = "Alle Bilder in hohe Auflösung konvertieren (dies wird mehr Speicher verbrauchen)";
+"Convert to High Resolution" = "In hohe Auflösung konvertieren";
+"Copy" = "Kopieren";
+"Copy Option to Sidebar" = "Option in Sidebar kopieren";
+"Copy Options to Sidebar" = "Optionen in Sidebar kopieren";
 "Description is too long" = "Beschreibung ist zu lang";
-
-/* No comment provided by engineer. */
 "Download Models" = "Modelle herunterladen";
-
-/* No comment provided by engineer. */
-"Exclude from Image" = "Was im Bild nicht enthalten sein soll";
-
-/* No comment provided by engineer. */
 "Exclude from Image:" = "Was im Bild nicht enthalten sein soll:";
-
-/* No comment provided by engineer. */
 "Filter Inappropriate Images" = "Filtern Sie unangemessene Bilder";
-
-/* No comment provided by engineer. */
 "For `original` models, select Use GPU." = "Wählen Sie für \"Original\"-Modelle GPU verwenden.";
-
-/* No comment provided by engineer. */
 "For `split_einsum` models, select Use Neural Engine." = "Wählen Sie für `split_einsum`-Modelle Neural Engine verwenden aus.";
-
-/* Button to generate image */
 "Generate" = "Generieren";
-
-/* No comment provided by engineer. */
-"Guidance Scale" = "KI Intensität";
-
-/* No comment provided by engineer. */
 "Guidance Scale:" = "Ki Intensität:";
-
-/* Label for toggle to auto convert generated images to high resolution */
 "HD" = "HD";
-
-/* Label for image height picker */
 "Height:" = "Höhe:";
-
-/* No comment provided by engineer. */
 "Image" = "Bild";
-
-/* Text displaying the image generation progress and count */
 "Image %lld of %lld" = "Bild %lld von %lld";
-
-/* No comment provided by engineer. */
-"Include in Image" = "Soll im Bild enthalten sein";
-
-/* No comment provided by engineer. */
 "Include in Image:" = "Soll im Bild enthalten sein:";
-
-/* No comment provided by engineer. */
 "Loading Model..." = "Modell wird geladen...";
-
-/* No comment provided by engineer. */
 "ML Compute Unit" = "ML Recheneinheit";
-
-/* No comment provided by engineer. */
-"Model" = "Modell";
-
-/* No comment provided by engineer. */
 "Model Folder" = "Modellordner";
-
-/* No comment provided by engineer. */
 "Model:" = "Modell:";
-
-/* Placeholder text for image inspector */
 "No Info" = "Keine Info";
-
-/* No comment provided by engineer. */
 "Number of Images:" = "Anzahl der Bilder:";
-
-/* No comment provided by engineer. */
 "Open in Finder" = "Im Finder anzeigen";
-
-/* View current image using Quick Look */
 "Quick Look" = "Schneller Blick";
-
-/* No comment provided by engineer. */
-"random" = "zufällig";
-
-/* No comment provided by engineer. */
 "Reduce Memory Usage" = "Speicherauslastung reduzieren";
-
-/* Help text for Reduce Memory Usage option */
 "Reduce memory usage further at the cost of speed." = "Reduziert die Speicherauslastung auf Kosten der Geschwindigkeit.";
-
-/* No comment provided by engineer. */
 "Release Notes" = "Versionshinweise";
-
-/* Remove image from the gallery */
 "Remove" = "Entfernen";
-
-/* Show the save images dialog */
 "Save All..." = "Rette alle...";
-
-/* Show the save image dialog */
 "Save As..." = "Speichern unter...";
-
-/* No comment provided by engineer. */
 "Scheduler" = "Sampler";
-
-/* No comment provided by engineer. */
 "Search" = "Suchen";
-
-/* Window title bar label displaying the searched text */
 "Searching: %@" = "Suche: %@";
-
-/* No comment provided by engineer. */
-"Seed" = "Seed";
-
-/* No comment provided by engineer. */
 "Seed:" = "Seed:";
-
-/* No comment provided by engineer. */
 "Select Compute Unit option" = "Wählen Sie die Option Recheneinheit";
-
-/* Select next image in Gallery */
 "Select Next" = "Nächste auswählen";
-
-/* Select previous image in Gallery */
 "Select Previous" = "Vorherige auswählen";
-
-/* No comment provided by engineer. */
 "Share..." = "Teilen...";
-
-/* No comment provided by engineer. */
-"Size" = "Größe";
-
-/* Text displaying the current step progress and count */
 "Step %lld of %lld" = "Arbeitsschritt %lld von %lld";
-
-/* No comment provided by engineer. */
-"Steps" = "Arbeitsschritte";
-
-/* No comment provided by engineer. */
 "Steps:" = "Arbeitsschritte:";
-
-/* No comment provided by engineer. */
 "Stop Generation" = "Generierung stoppen";
-
-/* No comment provided by engineer. */
 "Support Me ♥" = "Unterstütze mich ♥";
-
-/* Help text for the loading model message */
 "This may take up to 2 minutes if a model is used for the first time" = "Dies kann bis zu 2 Minuten dauern, wenn ein Modell zum ersten Mal verwendet wird";
-
-/* No comment provided by engineer. */
 "Use GPU" = "GPU verwenden";
-
-/* No comment provided by engineer. */
 "Use Neural Engine" = "Neural Engine verwenden";
-
-/* Help text for Filter Inappropriate Images option */
-"Uses the model's safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Verwendet das Safety-Checker-Modul des Modells. Dies garantiert nicht, dass alle unangemessenen Bilder gefiltert werden.";
-
-/* No comment provided by engineer. */
+"Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Verwendet das Safety-Checker-Modul des Modells. Dies garantiert nicht, dass alle unangemessenen Bilder gefiltert werden.";
 "Website" = "Webseite";
-
-/* Label for image width picker */
 "Width:" = "Breite:";
-
+"random" = "zufällig";
