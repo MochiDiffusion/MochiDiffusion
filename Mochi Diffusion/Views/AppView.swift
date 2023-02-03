@@ -30,7 +30,10 @@ struct AppView: View {
 }
 
 struct AppView_Previews: PreviewProvider {
+    static let genStore = GeneratorStore()
+
     static var previews: some View {
         AppView().previewLayout(.sizeThatFits)
+            .environmentObject(genStore)
     }
 }
