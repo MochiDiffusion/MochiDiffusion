@@ -82,7 +82,10 @@ struct ModelView: View {
 }
 
 struct ModelView_Previews: PreviewProvider {
+    static let genStore = GeneratorStore()
+    
     static var previews: some View {
         ModelView()
+            .environmentObject(genStore)
     }
 }
