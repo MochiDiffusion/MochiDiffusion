@@ -146,7 +146,7 @@ struct InspectorView: View {
 
 struct InspectorView_Previews: PreviewProvider {
     static let genStore = GeneratorStore()
-    
+
     static var previews: some View {
         InspectorView()
             .environmentObject(genStore)

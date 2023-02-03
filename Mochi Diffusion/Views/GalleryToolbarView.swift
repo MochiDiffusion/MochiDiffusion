@@ -164,7 +164,7 @@ struct GalleryToolbarView: View {
 
 struct GalleryToolbarView_Previews: PreviewProvider {
     static let genStore = GeneratorStore()
-    
+
     static var previews: some View {
         GalleryToolbarView()
             .environmentObject(genStore)
