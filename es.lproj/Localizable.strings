@@ -24,7 +24,7 @@
 "Copy" = "Copiar";
 "Copy Option to Sidebar" = "Copiar Opción a la Barra Lateral";
 "Copy Options to Sidebar" = "Copiar Opciones a la Barra Lateral";
-"Description is too long" = "La descripción es demasiado larga";
+"Description is too long (by %lld tokens)" = "La descripción es demasiado larga (por %lld tokens)";
 "Download Models" = "Descargar Modelos";
 "Exclude from Image:" = "Excluir de la Imagen:";
 "Filter Inappropriate Images" = "Filtrar Imágenes Inapropiadas";
@@ -46,6 +46,7 @@
 "Model:" = "Modelo:";
 "No Info" = "No hay información";
 "Number of Images:" = "Número de Imágenes:";
+"One token is roughly 4 characters, or 1 punctuation mark. Shorten your prompt for best results." = "Un token equivale aproximadamente a 4 caracteres o 1 signo de puntuación. Debería acortar su indicación para obtener mejores resultados";
 "Open in Finder" = "Ver en el Finder";
 "Quick Look" = "Vista Rápida";
 "Reduce Memory Usage" = "Reducir el Uso de Memoria";
