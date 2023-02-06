@@ -174,8 +174,8 @@
 				0352E2B0294EA30D003FBF25 /* Extensions.swift */,
 				0352E2B4294EA887003FBF25 /* Functions.swift */,
 				036BFC56294BA13100D8AD04 /* Pipeline.swift */,
-				03FD231A295F7A81006EEEE2 /* Upscaler.swift */,
 				9B7392C2298DEAC2006F03D5 /* Tokenizer.swift */,
+				03FD231A295F7A81006EEEE2 /* Upscaler.swift */,
 				03FD2316295F480F006EEEE2 /* ViewModifiers.swift */,
 			);
 			path = Support;

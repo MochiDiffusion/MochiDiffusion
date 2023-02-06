@@ -12,11 +12,9 @@ final class Tokenizer {
     private let bpeTokenizer: BPETokenizer
 
     init?(modelDir: URL) {
-        // Get file URLs for Merges and Vocab
         let mergesURL = modelDir.appendingPathComponent("merges.txt", conformingTo: .url)
         let vocabURL = modelDir.appendingPathComponent("vocab.json", conformingTo: .url)
 
-        // BPETokenizer
         do {
             try self.bpeTokenizer = BPETokenizer(mergesAt: mergesURL, vocabularyAt: vocabURL)
         } catch {
