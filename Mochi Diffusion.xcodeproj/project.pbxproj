@@ -49,6 +49,7 @@
 		03FD2317295F480F006EEEE2 /* ViewModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03FD2316295F480F006EEEE2 /* ViewModifiers.swift */; };
 		03FD2319295F74B6006EEEE2 /* RealESRGAN.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 03FD2318295F74B6006EEEE2 /* RealESRGAN.mlmodel */; };
 		03FD231B295F7A81006EEEE2 /* Upscaler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03FD231A295F7A81006EEEE2 /* Upscaler.swift */; };
+		9B7392C3298DEAC2006F03D5 /* Tokenizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B7392C2298DEAC2006F03D5 /* Tokenizer.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -123,6 +124,7 @@
 		03FD2316295F480F006EEEE2 /* ViewModifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModifiers.swift; sourceTree = "<group>"; };
 		03FD2318295F74B6006EEEE2 /* RealESRGAN.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = RealESRGAN.mlmodel; sourceTree = "<group>"; };
 		03FD231A295F7A81006EEEE2 /* Upscaler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Upscaler.swift; sourceTree = "<group>"; };
+		9B7392C2298DEAC2006F03D5 /* Tokenizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tokenizer.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -172,6 +174,7 @@
 				0352E2B0294EA30D003FBF25 /* Extensions.swift */,
 				0352E2B4294EA887003FBF25 /* Functions.swift */,
 				036BFC56294BA13100D8AD04 /* Pipeline.swift */,
+				9B7392C2298DEAC2006F03D5 /* Tokenizer.swift */,
 				03FD231A295F7A81006EEEE2 /* Upscaler.swift */,
 				03FD2316295F480F006EEEE2 /* ViewModifiers.swift */,
 			);
@@ -506,6 +509,7 @@
 				036BFC57294BA13100D8AD04 /* Pipeline.swift in Sources */,
 				036BFC22294B9F7500D8AD04 /* App.swift in Sources */,
 				03EA52CE297B66C800CDF661 /* SidebarView.swift in Sources */,
+				9B7392C3298DEAC2006F03D5 /* Tokenizer.swift in Sources */,
 				035EDFFE295A220F00080D18 /* SeedView.swift in Sources */,
 				0307B0DA294D4AE500A9BD55 /* FileCommands.swift in Sources */,
 				035EDFFA295A219200080D18 /* GuidanceScaleView.swift in Sources */,
