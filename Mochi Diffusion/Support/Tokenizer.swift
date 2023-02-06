@@ -9,7 +9,6 @@ import Foundation
 import StableDiffusion
 
 final class Tokenizer {
-
     private let bpeTokenizer: BPETokenizer
 
     init?(modelDir: URL) {
