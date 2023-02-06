@@ -30,6 +30,7 @@
 "Filter Inappropriate Images" = "Filtra Immagini Inappropriate";
 "For `original` models, select Use GPU." = "Per i modelli \"original\", seleziona Usa GPU.";
 "For `split_einsum` models, select Use Neural Engine." = "Per i modelli `split_einsum`, seleziona Usa Neural Engine.";
+"General" = "Generali";
 "Generate" = "Genera";
 "Guidance Scale:" = "Scala guida:";
 "HD" = "HD";
