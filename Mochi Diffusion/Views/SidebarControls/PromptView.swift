@@ -68,10 +68,10 @@ struct PromptView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             Label("Include in Image:", systemImage: "text.bubble")
-            PromptTextEditor(text: $genStore.prompt, height: 103)
+            PromptTextEditor(text: $genStore.prompt, height: 120)
 
             Label("Exclude from Image:", systemImage: "exclamationmark.bubble")
-            PromptTextEditor(text: $genStore.negativePrompt, height: 52)
+            PromptTextEditor(text: $genStore.negativePrompt, height: 70)
 
             Spacer().frame(height: 2)
 
