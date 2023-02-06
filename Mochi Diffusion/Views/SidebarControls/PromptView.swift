@@ -44,7 +44,7 @@ struct PromptTextEditor: View {
                     .cornerRadius(4)
 
                 if !text.isEmpty {
-                    Text("\(tokens) / 75")
+                    Text(verbatim: "\(tokens) / 75")
                         .foregroundColor(tooManyTokens ? Color(nsColor: .systemYellow) : .gray)
                         .padding([.trailing, .bottom], 2)
                         .font(.caption)
@@ -54,7 +54,7 @@ struct PromptTextEditor: View {
             if tooManyTokens {
                 Text(
                     "Description is too long",
-                    comment: "Message warning the user that the prompt (or negative prompt) is too long and part of it may get cut off."
+                    comment: "Message warning the user that the prompt (or negative prompt) is too long and part of it may get cut off"
                 )
                 .font(.caption)
                 .foregroundColor(Color(nsColor: .systemYellow))
