@@ -9,8 +9,78 @@ import CoreML
 import StableDiffusion
 import SwiftUI
 
-struct SettingsView: View {
-    @EnvironmentObject private var genStore: GeneratorStore
+private struct GeneralSettings: View {
+    @ObservedObject var genStore: GeneratorStore
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            GroupBox {
+                VStack(alignment: .leading) {
+                    HStack {
+                        Text("Reduce Memory Usage")
+
+                        Spacer()
+
+                        Toggle("", isOn: $genStore.reduceMemory)
+                            .labelsHidden()
+                            .toggleStyle(.switch)
+                    }
+                    Text(
+                        "Reduce memory usage further at the cost of speed.",
+                        comment: "Help text for Reduce Memory Usage option"
+                    )
+                    .helpTextFormat()
+                }
+                .padding(4)
+            }
+
+            GroupBox {
+                VStack(alignment: .leading) {
+                    HStack {
+                        Text("Filter Inappropriate Images")
+
+                        Spacer()
+
+                        Toggle("", isOn: $genStore.safetyChecker)
+                            .labelsHidden()
+                            .toggleStyle(.switch)
+                    }
+                    Text(
+                        "Uses the model's safety checker module. This does not guarantee that all inappropriate images will be filtered.",
+                        comment: "Help text for Filter Inappropriate Images option"
+                    )
+                    .helpTextFormat()
+                }
+                .padding(4)
+            }
+
+            GroupBox {
+                VStack(alignment: .leading) {
+                    Text("Model Folder")
+
+                    HStack {
+                        TextField("", text: $genStore.modelDir)
+                            .disableAutocorrection(true)
+                            .textFieldStyle(.roundedBorder)
+
+                        Button {
+                            NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: genStore.modelDir).absoluteURL])
+                        } label: {
+                            Image(systemName: "magnifyingglass.circle.fill")
+                                .foregroundColor(Color.secondary)
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        .help("Open in Finder")
+                    }
+                }
+                .padding(4)
+            }
+        }
+    }
+}
+
+private struct ImageSettings: View {
+    @ObservedObject var genStore: GeneratorStore
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -67,68 +137,39 @@ struct SettingsView: View {
                 }
                 .padding(4)
                 #endif
-
-                Divider()
-
-                VStack(alignment: .leading) {
-                    HStack {
-                        Text("Reduce Memory Usage")
-
-                        Spacer()
-
-                        Toggle("", isOn: $genStore.reduceMemory)
-                            .labelsHidden()
-                            .toggleStyle(.switch)
-                    }
-                    Text(
-                        "Reduce memory usage further at the cost of speed.",
-                        comment: "Help text for Reduce Memory Usage option"
-                    )
-                    .helpTextFormat()
-                }
-                .padding(4)
             }
+        }
+    }
+}
 
-            GroupBox {
-                VStack(alignment: .leading) {
-                    Text("Model Folder")
+struct SettingsView: View {
+    @EnvironmentObject private var genStore: GeneratorStore
 
-                    HStack {
-                        TextField("", text: $genStore.modelDir)
-                            .disableAutocorrection(true)
-                            .textFieldStyle(.roundedBorder)
-
-                        Button {
-                            NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: genStore.modelDir).absoluteURL])
-                        } label: {
-                            Image(systemName: "magnifyingglass.circle.fill")
-                                .foregroundColor(Color.secondary)
+    var body: some View {
+        VStack(spacing: 16) {
+            TabView {
+                GeneralSettings(genStore: genStore)
+                    .tabItem {
+                        Label {
+                            Text(
+                                "General",
+                                comment: "Settings tab header label"
+                            )
+                        } icon: {
+                            Image(systemName: "gear")
                         }
-                        .buttonStyle(PlainButtonStyle())
-                        .help("Open in Finder")
                     }
-                }
-                .padding(4)
-
-                Divider()
-
-                VStack(alignment: .leading) {
-                    HStack {
-                        Text("Filter Inappropriate Images")
-
-                        Spacer()
-
-                        Toggle("", isOn: $genStore.safetyChecker)
-                            .labelsHidden()
-                            .toggleStyle(.switch)
+                ImageSettings(genStore: genStore)
+                    .tabItem {
+                        Label {
+                            Text(
+                                "Image",
+                                comment: "Settings tab header label"
+                            )
+                        } icon: {
+                            Image(systemName: "photo")
+                        }
                     }
-                    Text(
-                        "Uses the model's safety checker module. This does not guarantee that all inappropriate images will be filtered.",
-                        comment: "Help text for Filter Inappropriate Images option"
-                    )
-                    .helpTextFormat()
-                }
-                .padding(4)
             }
 
             HStack {
