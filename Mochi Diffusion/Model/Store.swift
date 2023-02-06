@@ -50,6 +50,8 @@ final class GeneratorStore: ObservableObject {
     @AppStorage("ReduceMemory") var reduceMemory = false
     @AppStorage("SafetyChecker") var safetyChecker = false
     @AppStorage("Model") private var model = ""
+    @AppStorage("ShowTokenCount") var showTokenCount = false
+    var tokenizer: Tokenizer?
     private var pipeline: Pipeline?
     private var progressSubscriber: Cancellable?
     private let logger = Logger()
@@ -149,6 +151,7 @@ final class GeneratorStore: ObservableObject {
                 self.model = modelName
                 self.pipeline = Pipeline(pipeline)
                 self.status = .ready
+                self.tokenizer = Tokenizer(modelDir: dir)
             }
         } catch {
             model = ""

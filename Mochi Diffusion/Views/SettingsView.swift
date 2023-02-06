@@ -87,6 +87,27 @@ struct SettingsView: View {
                     .helpTextFormat()
                 }
                 .padding(4)
+
+                Divider()
+
+                VStack(alignment: .leading) {
+                    HStack {
+                        Text("Show Token Usage")
+
+                        Spacer()
+
+                        Toggle("", isOn: $genStore.showTokenCount)
+                            .labelsHidden()
+                            .toggleStyle(.switch)
+                    }
+                    Text(
+                        "Shows how many tokens your prompt is using. When off, only shows token usage when exceeding the limit.",
+                        comment: "Help text for Show Token Usage option"
+                    )
+                    .helpTextFormat()
+                }
+                .padding(4)
+
             }
 
             GroupBox {

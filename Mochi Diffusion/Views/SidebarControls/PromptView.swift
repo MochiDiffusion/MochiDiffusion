@@ -9,13 +9,15 @@ import SwiftUI
 
 struct PromptTextEditor: View {
     @Binding var text: String
+    @EnvironmentObject private var genStore: GeneratorStore
     var height: CGFloat
     var tooManyTokens: Bool {
         tokensOverLimit > 0
     }
 
-    var tokensOverLimit: Int {
-        let tokenLimit = 75
+    let tokenLimit = 75
+
+    var estimatedTokensOverLimit: Int {
         let whitespaceCount = text.components(separatedBy: .whitespacesAndNewlines).count - 1
         let charactersOnly = text.count - whitespaceCount
         let punctuationCount = text.components(separatedBy: .punctuationCharacters).count - 1
@@ -25,13 +27,31 @@ struct PromptTextEditor: View {
         return averageTokenCount - tokenLimit
     }
 
+    var tokensOverLimit: Int {
+        if genStore.tokenizer != nil {
+            return ((genStore.tokenizer?.countTokens(text))!) - tokenLimit
+        } else {
+            return estimatedTokensOverLimit
+        }
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 3) {
-            TextEditor(text: $text)
-                .font(.system(size: 14))
-                .frame(height: height)
-                .border(Color(nsColor: .gridColor))
-                .cornerRadius(4)
+            ZStack(alignment: .bottomTrailing) {
+                TextEditor(text: $text)
+                    .font(.system(size: 14))
+                    .frame(height: height)
+                    .border(Color(nsColor: .gridColor))
+                    .cornerRadius(4)
+
+                if genStore.showTokenCount && !text.isEmpty {
+                    Text("\(tokensOverLimit + tokenLimit) / 75")
+                        .foregroundColor(.gray)
+                        .padding([.trailing, .bottom], 2)
+                        .font(.caption)
+                }
+
+            }
 
             if tooManyTokens {
                 Text(
