@@ -37,6 +37,7 @@ struct InfoGridRow: View {
 
             Text(text)
                 .selectableTextFormat()
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
         Spacer().frame(height: 12)
     }
