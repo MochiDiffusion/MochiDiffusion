@@ -30,7 +30,6 @@
 		036BFC26294B9F7600D8AD04 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 036BFC25294B9F7600D8AD04 /* Assets.xcassets */; };
 		036BFC29294B9F7600D8AD04 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 036BFC28294B9F7600D8AD04 /* Preview Assets.xcassets */; };
 		036BFC4E294B9FDB00D8AD04 /* Path in Frameworks */ = {isa = PBXBuildFile; productRef = 036BFC4D294B9FDB00D8AD04 /* Path */; };
-		036BFC51294B9FF500D8AD04 /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = 036BFC50294B9FF500D8AD04 /* ZIPFoundation */; };
 		036BFC57294BA13100D8AD04 /* Pipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 036BFC56294BA13100D8AD04 /* Pipeline.swift */; };
 		03778779297877D6002E3926 /* ImageStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03778778297877D6002E3926 /* ImageStore.swift */; };
 		0377877B29787826002E3926 /* GalleryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0377877A29787826002E3926 /* GalleryStore.swift */; };
@@ -134,7 +133,6 @@
 				036BFC4E294B9FDB00D8AD04 /* Path in Frameworks */,
 				0352E2A5294E2591003FBF25 /* Sparkle in Frameworks */,
 				0397C070294BDC8C003762E0 /* StableDiffusion in Frameworks */,
-				036BFC51294B9FF500D8AD04 /* ZIPFoundation in Frameworks */,
 				0388DEB0297B00FC008B1C1C /* CompactSlider in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -296,7 +294,6 @@
 			name = "Mochi Diffusion";
 			packageProductDependencies = (
 				036BFC4D294B9FDB00D8AD04 /* Path */,
-				036BFC50294B9FF500D8AD04 /* ZIPFoundation */,
 				0397C06F294BDC8C003762E0 /* StableDiffusion */,
 				0352E2A4294E2591003FBF25 /* Sparkle */,
 				0388DEAF297B00FC008B1C1C /* CompactSlider */,
@@ -410,7 +407,6 @@
 			mainGroup = 036BFC15294B9F7500D8AD04;
 			packageReferences = (
 				036BFC4C294B9FDB00D8AD04 /* XCRemoteSwiftPackageReference "Path.swift" */,
-				036BFC4F294B9FF500D8AD04 /* XCRemoteSwiftPackageReference "ZIPFoundation" */,
 				0397C06E294BDC8C003762E0 /* XCRemoteSwiftPackageReference "ml-stable-diffusion" */,
 				0352E2A3294E2591003FBF25 /* XCRemoteSwiftPackageReference "Sparkle" */,
 				0388DEAE297B00FC008B1C1C /* XCRemoteSwiftPackageReference "CompactSlider" */,
@@ -888,14 +884,6 @@
 				minimumVersion = 1.0.0;
 			};
 		};
-		036BFC4F294B9FF500D8AD04 /* XCRemoteSwiftPackageReference "ZIPFoundation" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/weichsel/ZIPFoundation.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.9.9;
-			};
-		};
 		0388DEAE297B00FC008B1C1C /* XCRemoteSwiftPackageReference "CompactSlider" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/buh/CompactSlider.git";
@@ -924,11 +912,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 036BFC4C294B9FDB00D8AD04 /* XCRemoteSwiftPackageReference "Path.swift" */;
 			productName = Path;
-		};
-		036BFC50294B9FF500D8AD04 /* ZIPFoundation */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 036BFC4F294B9FF500D8AD04 /* XCRemoteSwiftPackageReference "ZIPFoundation" */;
-			productName = ZIPFoundation;
 		};
 		0388DEAF297B00FC008B1C1C /* CompactSlider */ = {
 			isa = XCSwiftPackageProductDependency;

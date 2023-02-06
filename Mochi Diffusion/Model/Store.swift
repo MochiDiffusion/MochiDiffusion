@@ -267,7 +267,7 @@ final class GeneratorStore: ObservableObject {
     }
 
     func quicklookCurrentImage() {
-        guard let sdi = getSelectedImage, let img = sdi.image else { return }
+        guard let sdi = getSelectedImage, let img = sdi.image else { quicklookURL = nil; return }
         quicklookURL = try? img.asNSImage().temporaryFileURL()
     }
 
@@ -294,6 +294,11 @@ final class GeneratorStore: ObservableObject {
         if index <= selectedImageIndex {
             if selectedImageIndex != 0 || images.isEmpty {
                 selectImage(index: selectedImageIndex - 1)
+            }
+            // Actively selects image instead of passively
+            // This calls any associated functionality in selectImage
+            else if selectedImageIndex == 0 && !images.isEmpty {
+                selectImage(index: 0)
             }
         }
     }

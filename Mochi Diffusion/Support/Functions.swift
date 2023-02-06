@@ -62,36 +62,36 @@ func createSDImageFromURL(url: URL) -> SDImage? {
         aspectRatio: CGFloat(Double(cgImage.width) / Double(cgImage.height))
     )
     var generatedVersion = ""
-    _ = infoString.split(separator: "; ").reduce(into: [String: String]()) {
-        let item = $1.split(separator: ": ")
+    for field in infoString.split(separator: "; ") {
+        guard let separatorIndex = field.firstIndex(of: ":") else { continue }
+        guard let key = Metadata(rawValue: String(field[field.startIndex..<separatorIndex])) else { continue }
+        let valueIndex = field.index(separatorIndex, offsetBy: 2)
+        let value = String(field[valueIndex...])
 
-        if let first = item.first, let value = item.last {
-            guard let key = Metadata(rawValue: String(first)) else { return }
-            switch key {
-            case Metadata.model:
-                sdi.model = String(value)
-            case Metadata.includeInImage:
-                sdi.prompt = String(value)
-            case Metadata.excludeFromImage:
-                sdi.negativePrompt = String(value)
-            case Metadata.scheduler:
-                sdi.scheduler = StableDiffusionScheduler(rawValue: String(value))!
-            case Metadata.seed:
-                sdi.seed = UInt32(value)!
-            case Metadata.steps:
-                sdi.steps = Int(value)!
-            case Metadata.guidanceScale:
-                sdi.guidanceScale = Double(value)!
-            case Metadata.upscaler:
-                sdi.upscaler = String(value)
-            case Metadata.generator:
-                guard let index = value.lastIndex(of: " ") else { return }
-                let start = value.index(after: index)
-                let end = value.endIndex
-                generatedVersion = String(value[start..<end])
-            default:
-                break
-            }
+        switch key {
+        case Metadata.model:
+            sdi.model = String(value)
+        case Metadata.includeInImage:
+            sdi.prompt = String(value)
+        case Metadata.excludeFromImage:
+            sdi.negativePrompt = String(value)
+        case Metadata.scheduler:
+            sdi.scheduler = StableDiffusionScheduler(rawValue: String(value))!
+        case Metadata.seed:
+            sdi.seed = UInt32(value)!
+        case Metadata.steps:
+            sdi.steps = Int(value)!
+        case Metadata.guidanceScale:
+            sdi.guidanceScale = Double(value)!
+        case Metadata.upscaler:
+            sdi.upscaler = String(value)
+        case Metadata.generator:
+            guard let index = value.lastIndex(of: " ") else { break }
+            let start = value.index(after: index)
+            let end = value.endIndex
+            generatedVersion = String(value[start..<end])
+        default:
+            break
         }
     }
     if generatedVersion.isEmpty { return nil }
