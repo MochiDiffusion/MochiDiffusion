@@ -50,7 +50,6 @@ final class GeneratorStore: ObservableObject {
     @AppStorage("ReduceMemory") var reduceMemory = false
     @AppStorage("SafetyChecker") var safetyChecker = false
     @AppStorage("Model") private var model = ""
-    @AppStorage("ShowTokenCount") var showTokenCount = false
     var tokenizer: Tokenizer?
     private var pipeline: Pipeline?
     private var progressSubscriber: Cancellable?
