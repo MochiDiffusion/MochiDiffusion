@@ -5,6 +5,34 @@
     <language>en</language>
 
     <item>
+      <title>v2.3</title>
+      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <sparkle:version>2.3</sparkle:version>
+      <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
+      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <pubDate>Tue, 07 Feb 2023 22:42:10 +0000</pubDate>
+      <enclosure
+        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v2.3/MochiDiffusion_v2.3.dmg"
+        sparkle:edSignature="4dIBNtE/quFOBZobWJRuaQqaeYObxUgwXhdtduIrj5to3NIEq9wH1iBwbFp1KCl2WKVmbz/8sG9vkakjfp5cAA=="
+        length="66657129"
+        type="application/octet-stream" />
+      <description><![CDATA[
+      <ul>
+      <li>Fixed Quick Look not displaying the correct image if the first image was selected and removed (@CarterLombardi)</li>
+      <li>Fixed Quick Look displaying the last removed image when all images were removed from the Gallery (@CarterLombardi)</li>
+      <li>Fixed import process for images with empty Exclude from Image description (@vzsg)</li>
+      <li>Fixed short descriptions in Info panel causing text to be centered rather than left aligned (@vzsg)</li>
+      <li>Added token counter to Include in Image &amp; Exclude from Image text inputs (@CarterLombardi)</li>
+      <li>Increased text input size of Include in Image &amp; Exclude from Image to show more lines of text</li>
+      <li>Organized Settings window using tabs</li>
+      </ul>
+      <p>Special thanks to the following for supporting me and making this app possible 🎉
+      <strong>raisingfightingspirit</strong>, <strong>serovar</strong>, <strong>orange-wedge</strong>, <strong>RuralRob</strong>, <strong>vacekj</strong>, <strong>julien-c</strong>, <strong>Quick-Eyed-Sky</strong>, <strong>BirdSesame</strong>, <strong>Da-mi-en</strong>, <strong>monks1975</strong>, <strong>angeenes</strong>, &amp; anonymous donors</p>
+      ]]>
+      </description>
+    </item>
+
+    <item>
       <title>v2.2</title>
       <link>https://github.com/godly-devotion/MochiDiffusion</link>
       <sparkle:version>2.2</sparkle:version>
