@@ -27,6 +27,7 @@
 "Filter Inappropriate Images" = "不適切な画像のフィルタリング";
 "For `original` models, select Use GPU." = "「original」モデルの場合は、[GPU を使う] を選択します。";
 "For `split_einsum` models, select Use Neural Engine." = "`split_einsum` モデルの場合は、[Neural Engine を使う] を選択します。";
+"General" = "一般";
 "Generate" = "画像の生成";
 "Guidance Scale:" = "ガイダンス スケール:";
 "HD" = "HD";

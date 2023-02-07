@@ -28,6 +28,7 @@
 "Filter Inappropriate Images" = "노골적인 이미지 필터링";
 "For `original` models, select Use GPU." = "`original` 모델이면 GPU을 선택하세요.";
 "For `split_einsum` models, select Use Neural Engine." = "`split_einsum` 모델이면 Neural Engine을 선택하세요.";
+"General" = "일반";
 "Generate" = "생성";
 "Guidance Scale:" = "스케일:";
 "HD" = "고화질";

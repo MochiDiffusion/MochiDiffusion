@@ -27,6 +27,7 @@
 "Filter Inappropriate Images" = "过滤不良图像";
 "For `original` models, select Use GPU." = "对于 “original” 模型，选择使用 GPU。";
 "For `split_einsum` models, select Use Neural Engine." = "对于 “split_einsum” 模型，选择使用神经网络引擎。";
+"General" = "通用";
 "Generate" = "生成";
 "Guidance Scale:" = "关键词权重:";
 "HD" = "HD";
