@@ -27,6 +27,7 @@
 "Filter Inappropriate Images" = "過濾不適當的圖片";
 "For `original` models, select Use GPU." = "對於「`original`」模型，請使用 GPU 運算";
 "For `split_einsum` models, select Use Neural Engine." = "對於「`split_einsum `」模型，請使用神經網路引擎運算";
+"General" = "一般設定";
 "Generate" = "生成";
 "Guidance Scale:" = "關鍵詞引導權重：";
 "HD" = "HD";
