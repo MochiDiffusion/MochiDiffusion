@@ -192,22 +192,21 @@ final class GeneratorStore: ObservableObject {
                 sdi.guidanceScale = self.guidanceScale
 
                 // Generate
-                var seedUsed = self.seed == 0 ? UInt32.random(in: 0 ..< UInt32.max) : self.seed
-                var generationConfig = StableDiffusionPipeline.Configuration(
+                var generateConfig = StableDiffusionPipeline.Configuration(
                     prompt: self.prompt
                 )
-                generationConfig.negativePrompt = self.negativePrompt
-                generationConfig.stepCount = Int(self.steps)
-                generationConfig.seed = seedUsed
-                generationConfig.guidanceScale = Float(self.guidanceScale)
-                generationConfig.disableSafety = self.safetyChecker
-                generationConfig.schedulerType = convertScheduler(self.scheduler)
+                generateConfig.negativePrompt = self.negativePrompt
+                generateConfig.stepCount = Int(self.steps)
+                generateConfig.seed = self.seed == 0 ? UInt32.random(in: 0 ..< UInt32.max) : self.seed
+                generateConfig.guidanceScale = Float(self.guidanceScale)
+                generateConfig.disableSafety = self.safetyChecker
+                generateConfig.schedulerType = convertScheduler(self.scheduler)
 
                 for index in 0 ..< numberOfImages {
                     DispatchQueue.main.async {
                         self.queueProgress = QueueProgress(index: index, total: numberOfImages)
                     }
-                    let imgs = try pipeline.generate(generationConfig)
+                    let imgs = try pipeline.generate(generateConfig)
                     if pipeline.hasGenerationBeenStopped {
                         break
                     }
@@ -218,7 +217,7 @@ final class GeneratorStore: ObservableObject {
                         sdi.width = img.width
                         sdi.height = img.height
                         sdi.aspectRatio = CGFloat(Double(img.width) / Double(img.height))
-                        sdi.seed = seedUsed
+                        sdi.seed = generateConfig.seed
                         sdi.generatedDate = Date.now
                         simgs.append(sdi)
                     }
@@ -227,7 +226,7 @@ final class GeneratorStore: ObservableObject {
                     } else {
                         self.addImages(simgs: simgs)
                     }
-                    seedUsed += 1
+                    generateConfig.seed += 1
                 }
                 self.progressSubscriber?.cancel()
 
