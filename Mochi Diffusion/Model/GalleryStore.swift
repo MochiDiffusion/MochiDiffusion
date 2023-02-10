@@ -7,6 +7,7 @@
 
 import Foundation
 
+@MainActor
 final class GalleryStore: ObservableObject {
     @Published var searchText = ""
     @Published var quicklookURL: URL?

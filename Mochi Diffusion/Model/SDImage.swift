@@ -20,7 +20,7 @@ struct SDImage: Identifiable {
     var height = 0
     var aspectRatio: CGFloat = 0.0
     var model = ""
-    var scheduler = StableDiffusionScheduler.dpmSolverMultistepScheduler
+    var scheduler = Scheduler.dpmSolverMultistepScheduler
     var seed: UInt32 = 0
     var steps = 28
     var guidanceScale = 11.0

@@ -10,7 +10,7 @@ import CoreGraphics
 import Foundation
 import StableDiffusion
 
-func getHumanReadableInfo(sdi: SDImage) -> String {
+func getHumanReadableInfo(_ sdi: SDImage) -> String {
     """
 \(Metadata.date.rawValue):
 \(sdi.generatedDate.formatted(date: .long, time: .standard))
@@ -46,7 +46,7 @@ func compareVersion(_ thisVersion: String, _ compareTo: String) -> ComparisonRes
 }
 
 // swiftlint:disable:next cyclomatic_complexity
-func createSDImageFromURL(url: URL) -> SDImage? {
+func createSDImageFromURL(_ url: URL) -> SDImage? {
     guard let cgImageSource = CGImageSourceCreateWithURL(url as CFURL, nil) else { return nil }
     let imageIndex = CGImageSourceGetPrimaryImageIndex(cgImageSource)
     guard let cgImage = CGImageSourceCreateImageAtIndex(cgImageSource, imageIndex, nil) else { return nil }
@@ -76,7 +76,7 @@ func createSDImageFromURL(url: URL) -> SDImage? {
         case Metadata.excludeFromImage:
             sdi.negativePrompt = String(value)
         case Metadata.scheduler:
-            sdi.scheduler = StableDiffusionScheduler(rawValue: String(value))!
+            sdi.scheduler = Scheduler(rawValue: String(value))!
         case Metadata.seed:
             sdi.seed = UInt32(value)!
         case Metadata.steps:

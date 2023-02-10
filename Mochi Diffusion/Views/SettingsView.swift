@@ -9,10 +9,58 @@ import CoreML
 import StableDiffusion
 import SwiftUI
 
-private struct GeneralSettings: View {
-    @ObservedObject var genStore: GeneratorStore
+struct SettingsView: View {
+    @EnvironmentObject private var genStore: GeneratorStore
 
     var body: some View {
+        VStack(spacing: 16) {
+            TabView {
+                generalView
+                    .tabItem {
+                        Label {
+                            Text(
+                                "General",
+                                comment: "Settings tab header label"
+                            )
+                        } icon: {
+                            Image(systemName: "gearshape")
+                        }
+                    }
+                imageView
+                    .tabItem {
+                        Label {
+                            Text(
+                                "Image",
+                                comment: "Settings tab header label"
+                            )
+                        } icon: {
+                            Image(systemName: "photo")
+                        }
+                    }
+            }
+
+            HStack {
+                Spacer()
+
+                Button {
+                    genStore.loadModels()
+                    NSApplication.shared.keyWindow?.close()
+                } label: {
+                    Text(
+                        "Apply",
+                        comment: "Button to apply the selected settings"
+                    )
+                }
+                .buttonStyle(.borderedProminent)
+            }
+        }
+        .padding()
+        .frame(width: 450, alignment: .top)
+        .fixedSize()
+    }
+
+    @ViewBuilder
+    private var generalView: some View {
         VStack(alignment: .leading, spacing: 16) {
             GroupBox {
                 VStack(alignment: .leading) {
@@ -77,12 +125,9 @@ private struct GeneralSettings: View {
             }
         }
     }
-}
 
-private struct ImageSettings: View {
-    @ObservedObject var genStore: GeneratorStore
-
-    var body: some View {
+    @ViewBuilder
+    private var imageView: some View {
         VStack(alignment: .leading, spacing: 16) {
             GroupBox {
                 HStack {
@@ -91,7 +136,7 @@ private struct ImageSettings: View {
                     Spacer()
 
                     Picker("", selection: $genStore.scheduler) {
-                        ForEach(StableDiffusionScheduler.allCases, id: \.self) { scheduler in
+                        ForEach(Scheduler.allCases, id: \.self) { scheduler in
                             Text(scheduler.rawValue).tag(scheduler)
                         }
                     }
@@ -139,57 +184,6 @@ private struct ImageSettings: View {
                 #endif
             }
         }
-    }
-}
-
-struct SettingsView: View {
-    @EnvironmentObject private var genStore: GeneratorStore
-
-    var body: some View {
-        VStack(spacing: 16) {
-            TabView {
-                GeneralSettings(genStore: genStore)
-                    .tabItem {
-                        Label {
-                            Text(
-                                "General",
-                                comment: "Settings tab header label"
-                            )
-                        } icon: {
-                            Image(systemName: "gear")
-                        }
-                    }
-                ImageSettings(genStore: genStore)
-                    .tabItem {
-                        Label {
-                            Text(
-                                "Image",
-                                comment: "Settings tab header label"
-                            )
-                        } icon: {
-                            Image(systemName: "photo")
-                        }
-                    }
-            }
-
-            HStack {
-                Spacer()
-
-                Button {
-                    genStore.loadModels()
-                    NSApplication.shared.keyWindow?.close()
-                } label: {
-                    Text(
-                        "Apply",
-                        comment: "Button to apply the selected settings"
-                    )
-                }
-                .buttonStyle(.borderedProminent)
-            }
-        }
-        .padding()
-        .frame(width: 450, alignment: .top)
-        .fixedSize()
     }
 }
 

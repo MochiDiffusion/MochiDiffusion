@@ -40,7 +40,7 @@ final class GeneratorStore: ObservableObject {
     @AppStorage("Scale") var guidanceScale = 11.0
     @AppStorage("ImageWidth") var width = 512
     @AppStorage("ImageHeight") var height = 512
-    @AppStorage("Scheduler") var scheduler = StableDiffusionScheduler.dpmSolverMultistepScheduler
+    @AppStorage("Scheduler") var scheduler: Scheduler = .dpmSolverMultistepScheduler
     @AppStorage("UpscaleGeneratedImages") var upscaleGeneratedImages = false
     #if arch(arm64)
     @AppStorage("MLComputeUnit") var mlComputeUnit: MLComputeUnits = .cpuAndNeuralEngine
@@ -193,19 +193,21 @@ final class GeneratorStore: ObservableObject {
 
                 // Generate
                 var seedUsed = self.seed == 0 ? UInt32.random(in: 0 ..< UInt32.max) : self.seed
+                var generationConfig = StableDiffusionPipeline.Configuration(
+                    prompt: self.prompt
+                )
+                generationConfig.negativePrompt = self.negativePrompt
+                generationConfig.stepCount = Int(self.steps)
+                generationConfig.seed = seedUsed
+                generationConfig.guidanceScale = Float(self.guidanceScale)
+                generationConfig.disableSafety = self.safetyChecker
+                generationConfig.schedulerType = convertScheduler(self.scheduler)
+
                 for index in 0 ..< numberOfImages {
                     DispatchQueue.main.async {
                         self.queueProgress = QueueProgress(index: index, total: numberOfImages)
                     }
-                    let (imgs, seed) = try pipeline.generate(
-                        prompt: sdi.prompt,
-                        negativePrompt: sdi.negativePrompt,
-                        numInferenceSteps: sdi.steps,
-                        seed: seedUsed,
-                        guidanceScale: Float(sdi.guidanceScale),
-                        disableSafety: !safetyChecker,
-                        scheduler: sdi.scheduler
-                    )
+                    let imgs = try pipeline.generate(generationConfig)
                     if pipeline.hasGenerationBeenStopped {
                         break
                     }
@@ -216,7 +218,7 @@ final class GeneratorStore: ObservableObject {
                         sdi.width = img.width
                         sdi.height = img.height
                         sdi.aspectRatio = CGFloat(Double(img.width) / Double(img.height))
-                        sdi.seed = seed
+                        sdi.seed = seedUsed
                         sdi.generatedDate = Date.now
                         simgs.append(sdi)
                     }
@@ -324,7 +326,7 @@ final class GeneratorStore: ObservableObject {
         var succeeded = 0, failed = 0
 
         for url in selectedURLs {
-            guard let sdi = createSDImageFromURL(url: url) else {
+            guard let sdi = createSDImageFromURL(url) else {
                 failed += 1
                 continue
             }

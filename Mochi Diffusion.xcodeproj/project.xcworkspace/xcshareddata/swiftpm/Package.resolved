@@ -12,10 +12,10 @@
     {
       "identity" : "ml-stable-diffusion",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/godly-devotion/ml-stable-diffusion",
+      "location" : "https://github.com/apple/ml-stable-diffusion",
       "state" : {
         "branch" : "main",
-        "revision" : "6be1fcb32ecb847eef4ef445a507b7f330281be2"
+        "revision" : "fa7bbdc255131b4106c098a75971c4dddc2c2529"
       }
     },
     {

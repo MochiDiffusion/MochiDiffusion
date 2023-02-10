@@ -31,34 +31,17 @@ class Pipeline {
         self.pipeline = pipeline
     }
 
-    func generate(
-        prompt: String,
-        negativePrompt: String,
-        numInferenceSteps stepCount: Int,
-        seed: UInt32,
-        guidanceScale: Float,
-        disableSafety: Bool,
-        scheduler: StableDiffusionScheduler
-    ) throws -> ([CGImage], UInt32) {
+    func generate(_ configuration: StableDiffusionPipeline.Configuration) throws -> [CGImage] {
         let beginDate = Date()
         print("Generating...")
         generationStopped = false
-        let images = try pipeline.generateImages(
-            prompt: prompt,
-            negativePrompt: negativePrompt,
-            imageCount: 1,
-            stepCount: stepCount,
-            seed: seed,
-            guidanceScale: guidanceScale,
-            disableSafety: disableSafety,
-            scheduler: scheduler
-        ) { progress in
+        let images = try pipeline.generateImages(configuration: configuration) { progress in
             handleProgress(progress)
         }
         print("Generation took \(Date().timeIntervalSince(beginDate))")
 
         let imgs = images.compactMap { $0 }
-        return (imgs, seed)
+        return imgs
     }
 
     func stopGeneration() {

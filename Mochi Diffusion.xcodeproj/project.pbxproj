@@ -36,7 +36,8 @@
 		0386DF8B2950D29400CA4CEB /* InspectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0386DF8A2950D29400CA4CEB /* InspectorView.swift */; };
 		0386DF8D2950F25500CA4CEB /* GalleryToolbarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0386DF8C2950F25500CA4CEB /* GalleryToolbarView.swift */; };
 		0388DEB0297B00FC008B1C1C /* CompactSlider in Frameworks */ = {isa = PBXBuildFile; productRef = 0388DEAF297B00FC008B1C1C /* CompactSlider */; };
-		0397C070294BDC8C003762E0 /* StableDiffusion in Frameworks */ = {isa = PBXBuildFile; productRef = 0397C06F294BDC8C003762E0 /* StableDiffusion */; };
+		0395B3112995C70400465B73 /* Scheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0395B3102995C70400465B73 /* Scheduler.swift */; };
+		03ADC8B9299581AF00B2843F /* StableDiffusion in Frameworks */ = {isa = PBXBuildFile; productRef = 03ADC8B8299581AF00B2843F /* StableDiffusion */; };
 		03B1ACA8295167B900302F54 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03B1ACA7295167B900302F54 /* SettingsView.swift */; };
 		03CB9D18297399AE0041A4FA /* ImageCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03CB9D17297399AE0041A4FA /* ImageCommands.swift */; };
 		03D280F2294FD60E00C7D184 /* PromptView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03D280F1294FD60E00C7D184 /* PromptView.swift */; };
@@ -107,6 +108,7 @@
 		0386DF8A2950D29400CA4CEB /* InspectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InspectorView.swift; sourceTree = "<group>"; };
 		0386DF8C2950F25500CA4CEB /* GalleryToolbarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryToolbarView.swift; sourceTree = "<group>"; };
 		038994DB2985D111007F5A61 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
+		0395B3102995C70400465B73 /* Scheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scheduler.swift; sourceTree = "<group>"; };
 		039F4DBD296FB8450044F81A /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-BR"; path = "pt-BR.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		03B1ACA7295167B900302F54 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		03BFB2FF296C684C005E849D /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -133,8 +135,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				036BFC4E294B9FDB00D8AD04 /* Path in Frameworks */,
+				03ADC8B9299581AF00B2843F /* StableDiffusion in Frameworks */,
 				0352E2A5294E2591003FBF25 /* Sparkle in Frameworks */,
-				0397C070294BDC8C003762E0 /* StableDiffusion in Frameworks */,
 				0388DEB0297B00FC008B1C1C /* CompactSlider in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -263,6 +265,7 @@
 				03778778297877D6002E3926 /* ImageStore.swift */,
 				0311C69829899A660074BCAE /* Metadata.swift */,
 				03021B502960E513001E88C0 /* QueueProgress.swift */,
+				0395B3102995C70400465B73 /* Scheduler.swift */,
 				03E89F3B294FE6ED0067457E /* SDImage.swift */,
 				0352E2B2294EA326003FBF25 /* Store.swift */,
 			);
@@ -297,9 +300,9 @@
 			name = "Mochi Diffusion";
 			packageProductDependencies = (
 				036BFC4D294B9FDB00D8AD04 /* Path */,
-				0397C06F294BDC8C003762E0 /* StableDiffusion */,
 				0352E2A4294E2591003FBF25 /* Sparkle */,
 				0388DEAF297B00FC008B1C1C /* CompactSlider */,
+				03ADC8B8299581AF00B2843F /* StableDiffusion */,
 			);
 			productName = "Mochi Diffusion";
 			productReference = 036BFC1E294B9F7500D8AD04 /* Mochi Diffusion.app */;
@@ -410,9 +413,9 @@
 			mainGroup = 036BFC15294B9F7500D8AD04;
 			packageReferences = (
 				036BFC4C294B9FDB00D8AD04 /* XCRemoteSwiftPackageReference "Path.swift" */,
-				0397C06E294BDC8C003762E0 /* XCRemoteSwiftPackageReference "ml-stable-diffusion" */,
 				0352E2A3294E2591003FBF25 /* XCRemoteSwiftPackageReference "Sparkle" */,
 				0388DEAE297B00FC008B1C1C /* XCRemoteSwiftPackageReference "CompactSlider" */,
+				03ADC8B7299581AF00B2843F /* XCRemoteSwiftPackageReference "ml-stable-diffusion" */,
 			);
 			productRefGroup = 036BFC1F294B9F7500D8AD04 /* Products */;
 			projectDirPath = "";
@@ -487,6 +490,7 @@
 				0352E2A7294E3148003FBF25 /* HelpCommands.swift in Sources */,
 				03B1ACA8295167B900302F54 /* SettingsView.swift in Sources */,
 				035EDFFC295A21D600080D18 /* SizeView.swift in Sources */,
+				0395B3112995C70400465B73 /* Scheduler.swift in Sources */,
 				0352E2AE294EA2B4003FBF25 /* ErrorBanner.swift in Sources */,
 				0386DF8B2950D29400CA4CEB /* InspectorView.swift in Sources */,
 				03D280F2294FD60E00C7D184 /* PromptView.swift in Sources */,
@@ -896,9 +900,9 @@
 				minimumVersion = 1.0.0;
 			};
 		};
-		0397C06E294BDC8C003762E0 /* XCRemoteSwiftPackageReference "ml-stable-diffusion" */ = {
+		03ADC8B7299581AF00B2843F /* XCRemoteSwiftPackageReference "ml-stable-diffusion" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/godly-devotion/ml-stable-diffusion";
+			repositoryURL = "https://github.com/apple/ml-stable-diffusion";
 			requirement = {
 				branch = main;
 				kind = branch;
@@ -922,9 +926,9 @@
 			package = 0388DEAE297B00FC008B1C1C /* XCRemoteSwiftPackageReference "CompactSlider" */;
 			productName = CompactSlider;
 		};
-		0397C06F294BDC8C003762E0 /* StableDiffusion */ = {
+		03ADC8B8299581AF00B2843F /* StableDiffusion */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 0397C06E294BDC8C003762E0 /* XCRemoteSwiftPackageReference "ml-stable-diffusion" */;
+			package = 03ADC8B7299581AF00B2843F /* XCRemoteSwiftPackageReference "ml-stable-diffusion" */;
 			productName = StableDiffusion;
 		};
 /* End XCSwiftPackageProductDependency section */
