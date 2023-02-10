@@ -7,6 +7,7 @@
 
 import AppKit
 import CoreGraphics
+import CoreML
 import Foundation
 import StableDiffusion
 import UniformTypeIdentifiers
@@ -21,6 +22,7 @@ struct SDImage: Identifiable {
     var aspectRatio: CGFloat = 0.0
     var model = ""
     var scheduler = Scheduler.dpmSolverMultistepScheduler
+    var mlComputeUnit: MLComputeUnits?
     var seed: UInt32 = 0
     var steps = 28
     var guidanceScale = 11.0
@@ -90,6 +92,7 @@ extension SDImage {
         +
         """
         \(Metadata.scheduler.rawValue): \(scheduler.rawValue); \
+        \(Metadata.mlComputeUnit.rawValue): \(MLComputeUnits.toString(mlComputeUnit)); \
         \(Metadata.generator.rawValue): Mochi Diffusion \(NSApplication.appVersion)
         """
     }

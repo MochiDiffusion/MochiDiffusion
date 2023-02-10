@@ -6,6 +6,7 @@
 //
 
 import CompactSlider
+import CoreML
 import SwiftUI
 
 struct MochiCompactSliderStyle: CompactSliderStyle {
@@ -20,6 +21,7 @@ struct MochiCompactSliderStyle: CompactSliderStyle {
 
 extension NSApplication {
     static var appVersion: String {
+        // swiftlint:disable:next force_cast
         Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as! String
     }
 }
@@ -158,4 +160,39 @@ extension Binding {
 
 extension CompactSliderStyle where Self == MochiCompactSliderStyle {
     static var `mochi`: MochiCompactSliderStyle { MochiCompactSliderStyle() }
+}
+
+extension MLComputeUnits {
+    static func toString(_ computeUnit: MLComputeUnits?) -> String {
+        guard let computeUnit = computeUnit else {
+            return ""
+        }
+        switch computeUnit {
+        case .cpuOnly:
+            return "CPU Only"
+        case .cpuAndGPU:
+            return "CPU & GPU"
+        case .all:
+            return "All"
+        case .cpuAndNeuralEngine:
+            return "CPU & Neural Engine"
+        default:
+            return ""
+        }
+    }
+
+    static func fromString(_ value: String) -> MLComputeUnits {
+        switch value {
+        case "CPU Only":
+            return .cpuOnly
+        case "CPU & GPU":
+            return .cpuAndGPU
+        case "All":
+            return .all
+        case "CPU & Neural Engine":
+            return .cpuAndNeuralEngine
+        default:
+            return .all
+        }
+    }
 }

@@ -7,6 +7,7 @@
 
 import AppKit
 import CoreGraphics
+import CoreML
 import Foundation
 import StableDiffusion
 
@@ -27,9 +28,6 @@ func getHumanReadableInfo(_ sdi: SDImage) -> String {
 \(Metadata.excludeFromImage.rawValue):
 \(sdi.negativePrompt)
 
-\(Metadata.scheduler.rawValue):
-\(sdi.scheduler.rawValue)
-
 \(Metadata.seed.rawValue):
 \(sdi.seed)
 
@@ -38,6 +36,12 @@ func getHumanReadableInfo(_ sdi: SDImage) -> String {
 
 \(Metadata.guidanceScale.rawValue):
 \(sdi.guidanceScale)
+
+\(Metadata.scheduler.rawValue):
+\(sdi.scheduler.rawValue)
+
+\(Metadata.mlComputeUnit.rawValue):
+\(MLComputeUnits.toString(sdi.mlComputeUnit))
 """
 }
 
@@ -75,8 +79,6 @@ func createSDImageFromURL(_ url: URL) -> SDImage? {
             sdi.prompt = String(value)
         case Metadata.excludeFromImage:
             sdi.negativePrompt = String(value)
-        case Metadata.scheduler:
-            sdi.scheduler = Scheduler(rawValue: String(value))!
         case Metadata.seed:
             sdi.seed = UInt32(value)!
         case Metadata.steps:
@@ -85,6 +87,10 @@ func createSDImageFromURL(_ url: URL) -> SDImage? {
             sdi.guidanceScale = Double(value)!
         case Metadata.upscaler:
             sdi.upscaler = String(value)
+        case Metadata.scheduler:
+            sdi.scheduler = Scheduler(rawValue: String(value))!
+        case Metadata.mlComputeUnit:
+            sdi.mlComputeUnit = MLComputeUnits.fromString(value)
         case Metadata.generator:
             guard let index = value.lastIndex(of: " ") else { break }
             let start = value.index(after: index)

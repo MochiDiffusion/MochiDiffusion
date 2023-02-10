@@ -182,12 +182,12 @@ final class GeneratorStore: ObservableObject {
                 // Save settings used to generate
                 let numberOfImages = self.numberOfImages
                 let upscaleGeneratedImages = self.upscaleGeneratedImages
-                let safetyChecker = self.safetyChecker
                 var sdi = SDImage()
                 sdi.prompt = self.prompt
                 sdi.negativePrompt = self.negativePrompt
                 sdi.model = self.currentModel
                 sdi.scheduler = self.scheduler
+                sdi.mlComputeUnit = self.mlComputeUnit
                 sdi.steps = Int(self.steps)
                 sdi.guidanceScale = self.guidanceScale
 

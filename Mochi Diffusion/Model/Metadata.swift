@@ -12,6 +12,7 @@ enum Metadata: String, CaseIterable {
     case includeInImage = "Include in Image"
     case excludeFromImage = "Exclude from Image"
     case scheduler = "Scheduler"
+    case mlComputeUnit = "ML Compute Unit"
     case seed = "Seed"
     case steps = "Steps"
     case guidanceScale = "Guidance Scale"
