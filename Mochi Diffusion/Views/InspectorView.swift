@@ -52,12 +52,13 @@ struct InspectorView: View {
                 Image(img, scale: 1, label: Text(verbatim: String(sdi.prompt)))
                     .resizable()
                     .aspectRatio(contentMode: .fit)
-                    .padding(4)
                     .shadow(color: sdi.image?.averageColor ?? .black, radius: 16)
-                    .padding()
+                    .padding(.top)
+                    .padding(.top, 4) // Extra padding to match the border size of Gallery items
 
                 ScrollView(.vertical) {
                     Grid(alignment: .leading, horizontalSpacing: 4) {
+                        Spacer().frame(height: 16)
                         InfoGridRow(
                             type: LocalizedStringKey(Metadata.date.rawValue),
                             text: sdi.generatedDate.formatted(date: .long, time: .standard),
@@ -111,7 +112,9 @@ struct InspectorView: View {
                         )
                     }
                 }
-                .padding([.horizontal])
+                .padding(.horizontal)
+
+                Divider()
 
                 HStack {
                     Button(action: store.copyToPrompt) {
