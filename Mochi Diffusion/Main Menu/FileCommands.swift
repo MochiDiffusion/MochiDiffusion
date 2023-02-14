@@ -8,13 +8,13 @@
 import SwiftUI
 
 struct FileCommands: Commands {
-    @ObservedObject var genStore: GeneratorStore
+    @ObservedObject var controller: ImageController
 
     var body: some Commands {
         CommandGroup(replacing: .saveItem) {
             Section {
                 Button {
-                    guard let sdi = genStore.getSelectedImage else { return }
+                    guard let sdi = controller.selectedImage else { return }
                     sdi.save()
                 } label: {
                     Text(
@@ -23,10 +23,10 @@ struct FileCommands: Commands {
                     )
                 }
                 .keyboardShortcut("S", modifiers: .command)
-                .disabled(genStore.getSelectedImage == nil)
+                .disabled(controller.selectedImage == nil)
 
                 Button {
-                    genStore.saveAllImages()
+                    controller.saveAll()
                 } label: {
                     Text(
                         "Save All...",
@@ -34,13 +34,13 @@ struct FileCommands: Commands {
                     )
                 }
                 .keyboardShortcut("S", modifiers: [.command, .option])
-                .disabled(genStore.images.isEmpty)
+                .disabled(controller.images.isEmpty)
             }
         }
         CommandGroup(replacing: .importExport) {
             Section {
                 Button {
-                    genStore.importImages()
+                    controller.importImages()
                 } label: {
                     Text(
                         "Import Image...",

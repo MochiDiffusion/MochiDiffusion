@@ -9,24 +9,27 @@ import QuickLook
 import SwiftUI
 
 struct GalleryView: View {
+
     @Environment(\.colorScheme) private var colorScheme
-    @EnvironmentObject private var genStore: GeneratorStore
+
+    @Binding var config: GalleryConfig
+
     private let gridColumns = [GridItem(.adaptive(minimum: 200), spacing: 16)]
 
     var body: some View {
         VStack(spacing: 0) {
-            if case let .error(msg) = genStore.status {
+            if case let .error(msg) = ImageController.shared.state {
                 ErrorBanner(errorMessage: msg)
             }
 
-            if !genStore.images.isEmpty {
+            if !ImageController.shared.images.isEmpty {
                 ScrollViewReader { proxy in
                     ScrollView {
                         LazyVGrid(columns: gridColumns, spacing: 16) {
-                            ForEach(Array(searchResults.enumerated()), id: \.offset) { index, sdi in
+                            ForEach(Array(ImageController.shared.images.enumerated()), id: \.offset) { index, sdi in
                                 GalleryItemView(sdi: sdi, index: index)
                                     .accessibilityAddTraits(.isButton)
-                                    .onChange(of: genStore.selectedImageIndex) { target in
+                                    .onChange(of: ImageController.shared.selectedImageIndex) { target in
                                         withAnimation {
                                             proxy.scrollTo(target)
                                         }
@@ -35,28 +38,30 @@ struct GalleryView: View {
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 2)
                                             .stroke(
-                                                index == genStore.selectedImageIndex ?
+                                                index == ImageController.shared.selectedImageIndex ?
                                                 Color.accentColor :
                                                     Color(nsColor: .controlBackgroundColor),
                                                 lineWidth: 4
                                             )
                                     )
                                     .gesture(TapGesture(count: 2).onEnded {
-                                        genStore.quicklookCurrentImage()
+                                        config.quicklookCurrentImage()
                                     })
                                     .simultaneousGesture(TapGesture().onEnded {
-                                        genStore.selectImage(index: index)
+                                        ImageController.shared.selectedImageIndex = index
                                     })
                                     .contextMenu {
                                         Section {
-                                            Button(action: genStore.copyToPrompt) {
+                                            Button {
+
+                                            } label: {
                                                 Text(
                                                     "Copy Options to Sidebar",
                                                     comment: "Copy the currently selected image's generation options to the prompt input sidebar"
                                                 )
                                             }
                                             Button {
-                                                genStore.upscaleImage(sdi: sdi)
+                                                Task { await ImageController.shared.upscale(sdi: sdi) }
                                             } label: {
                                                 Text(
                                                     "Convert to High Resolution",
@@ -72,7 +77,7 @@ struct GalleryView: View {
                                         }
                                         Section {
                                             Button {
-                                                genStore.removeImage(index: index)
+                                                Task { await ImageController.shared.removeImage(index) }
                                             } label: {
                                                 Text(
                                                     "Remove",
@@ -83,7 +88,7 @@ struct GalleryView: View {
                                     }
                             }
                         }
-                        .quickLookPreview($genStore.quicklookURL)
+                        .quickLookPreview($config.quicklookURL)
                         .padding()
                     }
                 }
@@ -97,26 +102,16 @@ struct GalleryView: View {
                 .foregroundColor(Color.black.opacity(colorScheme == .dark ? 0.05 : 0.02))
         )
         .navigationTitle(
-            genStore.searchText.isEmpty ?
+            config.searchText.isEmpty ?
                 "Mochi Diffusion" :
                 String(
-                    localized: "Searching: \(genStore.searchText)",
+                    localized: "Searching: \(config.searchText)",
                     comment: "Window title bar label displaying the searched text"
                 )
         )
-        .navigationSubtitle(genStore.searchText.isEmpty ? "\(genStore.images.count) image(s)" : "")
+        .navigationSubtitle(config.searchText.isEmpty ? "\(ImageController.shared.images.count) image(s)" : "")
         .toolbar {
             GalleryToolbarView()
-        }
-    }
-
-    var searchResults: [SDImage] {
-        if $genStore.searchText.wrappedValue.isEmpty {
-            return genStore.images
-        }
-        return genStore.images.filter {
-            $0.prompt.range(of: genStore.searchText, options: .caseInsensitive) != nil ||
-            $0.seed == UInt32(genStore.searchText)
         }
     }
 }

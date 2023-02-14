@@ -7,6 +7,7 @@
 
 import CompactSlider
 import CoreML
+import StableDiffusion
 import SwiftUI
 
 struct MochiCompactSliderStyle: CompactSliderStyle {

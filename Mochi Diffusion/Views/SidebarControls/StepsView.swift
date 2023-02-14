@@ -9,12 +9,12 @@ import CompactSlider
 import SwiftUI
 
 struct StepsView: View {
-    @EnvironmentObject private var genStore: GeneratorStore
+    @EnvironmentObject private var controller: ImageController
 
     var body: some View {
         Text("Steps:")
-        CompactSlider(value: $genStore.steps, in: 2...50, step: 1) {
-            Text(verbatim: "\(genStore.steps.formatted(.number.precision(.fractionLength(0))))")
+        CompactSlider(value: $controller.steps, in: 2...50, step: 1) {
+            Text(verbatim: "\(ImageController.shared.steps.formatted(.number.precision(.fractionLength(0))))")
             Spacer()
         }
         .compactSliderStyle(.mochi)
@@ -22,10 +22,8 @@ struct StepsView: View {
 }
 
 struct StepsView_Previews: PreviewProvider {
-    static let genStore = GeneratorStore()
-
     static var previews: some View {
         StepsView()
-            .environmentObject(genStore)
+            .environmentObject(ImageController.shared)
     }
 }

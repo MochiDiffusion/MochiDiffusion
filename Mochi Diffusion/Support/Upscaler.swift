@@ -55,8 +55,6 @@ final class Upscaler {
         var upscaledSDI = sdi
         upscaledSDI.id = UUID()
         upscaledSDI.image = upscaledImage
-        upscaledSDI.width = upscaledImage.width
-        upscaledSDI.height = upscaledImage.height
         upscaledSDI.aspectRatio = CGFloat(Double(sdi.width) / Double(sdi.height))
         upscaledSDI.upscaler = "RealESRGAN"
         return upscaledSDI

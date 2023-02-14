@@ -9,12 +9,12 @@ import CompactSlider
 import SwiftUI
 
 struct GuidanceScaleView: View {
-    @EnvironmentObject private var genStore: GeneratorStore
+    @EnvironmentObject private var controller: ImageController
 
     var body: some View {
         Text("Guidance Scale:")
-        CompactSlider(value: $genStore.guidanceScale, in: 1...20, step: 0.5) {
-            Text(verbatim: "\(genStore.guidanceScale.formatted(.number.precision(.fractionLength(1))))")
+        CompactSlider(value: $controller.guidanceScale, in: 1...20, step: 0.5) {
+            Text(verbatim: "\(ImageController.shared.guidanceScale.formatted(.number.precision(.fractionLength(1))))")
             Spacer()
         }
         .compactSliderStyle(.mochi)
@@ -22,10 +22,8 @@ struct GuidanceScaleView: View {
 }
 
 struct GuidanceScaleView_Previews: PreviewProvider {
-    static let genStore = GeneratorStore()
-
     static var previews: some View {
         GuidanceScaleView()
-            .environmentObject(genStore)
+            .environmentObject(ImageController.shared)
     }
 }

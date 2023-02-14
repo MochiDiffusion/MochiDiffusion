@@ -40,16 +40,26 @@ struct CheckForUpdatesView: View {
 
 @main
 struct MochiDiffusionApp: App {
-    @StateObject private var genStore = GeneratorStore()
-//    @StateObject private var imageStore = ImageStore([])
-//    @StateObject private var galleryStore = GalleryStore()
-//    @State private var selectedId: SDImage.ID?
+    @StateObject private var controller: ImageController
+    @StateObject private var generator: ImageGenerator
     private let updaterController: SPUStandardUpdaterController
+
+    init() {
+        self._controller = .init(wrappedValue: .shared)
+        self._generator = .init(wrappedValue: .shared)
+
+        updaterController = SPUStandardUpdaterController(
+            startingUpdater: true,
+            updaterDelegate: nil,
+            userDriverDelegate: nil
+        )
+    }
 
     var body: some Scene {
         WindowGroup {
             AppView()
-                .environmentObject(genStore)
+                .environmentObject(controller)
+                .environmentObject(generator)
                 .onReceive(NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification)) { _ in
                     // cleanup quick look temp images
                     NSImage.cleanupTempFiles()
@@ -63,24 +73,16 @@ struct MochiDiffusionApp: App {
                 CheckForUpdatesView(updater: updaterController.updater)
             }
             CommandGroup(replacing: CommandGroupPlacement.newItem) { /* hide new window */ }
-            FileCommands(genStore: genStore)
+            FileCommands(controller: controller)
             SidebarCommands()
-            ImageCommands(genStore: genStore)
+            ImageCommands(controller: controller)
             HelpCommands()
         }
         .defaultSize(width: 1_120, height: 670)
 
         Settings {
             SettingsView()
-                .environmentObject(genStore)
+                .environmentObject(controller)
         }
-    }
-
-    init() {
-        updaterController = SPUStandardUpdaterController(
-            startingUpdater: true,
-            updaterDelegate: nil,
-            userDriverDelegate: nil
-        )
     }
 }

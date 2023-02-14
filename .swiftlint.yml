@@ -40,10 +40,8 @@ opt_in_rules:
   - redundant_nil_coalescing
   - redundant_type_annotation
   - sorted_imports
-  - strict_fileprivate
   - switch_case_on_newline
   - trailing_closure
-  - type_contents_order
   - unowned_variable_capture
   - yoda_condition
 class_delegate_protocol: error
@@ -151,7 +149,6 @@ shorthand_operator: error
 sorted_imports: error
 statement_position:
   severity: error
-strict_fileprivate: error
 switch_case_alignment:
   severity: error
 switch_case_on_newline: error
@@ -163,8 +160,6 @@ trailing_semicolon: error
 trailing_whitespace:
   severity: error
   ignores_comments: false
-type_contents_order:
-  severity: error
 unavailable_condition: error
 unneeded_break_in_switch: error
 unowned_variable_capture: error

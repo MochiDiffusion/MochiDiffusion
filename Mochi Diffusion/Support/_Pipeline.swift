@@ -11,7 +11,7 @@ import CoreML
 import Foundation
 import StableDiffusion
 
-typealias StableDiffusionProgress = StableDiffusionPipeline.Progress
+// typealias StableDiffusionProgress = StableDiffusionPipeline.Progress
 
 class Pipeline {
     let pipeline: StableDiffusionPipeline

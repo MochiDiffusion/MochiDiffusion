@@ -61,8 +61,6 @@ func createSDImageFromURL(_ url: URL) -> SDImage? {
     var sdi = SDImage(
         id: UUID(),
         image: cgImage,
-        width: cgImage.width,
-        height: cgImage.height,
         aspectRatio: CGFloat(Double(cgImage.width) / Double(cgImage.height))
     )
     var generatedVersion = ""

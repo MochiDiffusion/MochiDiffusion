@@ -8,11 +8,11 @@
 import SwiftUI
 
 struct GalleryToolbarView: View {
-    @EnvironmentObject private var genStore: GeneratorStore
+    @EnvironmentObject private var controller: ImageController
     @State private var isStatusPopoverShown = false
 
     var body: some View {
-        if case .loading = genStore.status {
+        if case .loading = controller.state {
             Button {
                 self.isStatusPopoverShown.toggle()
             } label: {
@@ -34,10 +34,10 @@ struct GalleryToolbarView: View {
             }
         }
 
-        if case let .running(progress) = genStore.status, let progress = progress, progress.stepCount > 0 {
+        if case let .running(progress) = ImageGenerator.shared.state, let progress = progress, progress.stepCount > 0 {
             let step = Int(progress.step) + 1
             let stepValue = Double(step) / Double(progress.stepCount)
-            let progressValue = Double(genStore.queueProgress.index + 1) / Double(genStore.queueProgress.total)
+            let progressValue = Double(ImageGenerator.shared.queueProgress.index + 1) / Double(ImageGenerator.shared.queueProgress.total)
 
             Button {
                 self.isStatusPopoverShown.toggle()
@@ -51,7 +51,7 @@ struct GalleryToolbarView: View {
                     comment: "Text displaying the current step progress and count"
                 )
                 let imageCountLabel = String(
-                    localized: "Image \(genStore.queueProgress.index + 1) of \(genStore.queueProgress.total)",
+                    localized: "Image \(ImageGenerator.shared.queueProgress.index + 1) of \(ImageGenerator.shared.queueProgress.total)",
                     comment: "Text displaying the image generation progress and count"
                 )
                 VStack(spacing: 12) {
@@ -63,10 +63,12 @@ struct GalleryToolbarView: View {
             }
         }
 
-        if let sdi = genStore.getSelectedImage, let img = sdi.image {
+        if let sdi = ImageController.shared.selectedImage, let img = sdi.image {
             let imageView = Image(img, scale: 1, label: Text(verbatim: sdi.prompt))
 
-            Button(action: genStore.removeCurrentImage) {
+            Button {
+                Task { await ImageController.shared.removeCurrentImage() }
+            } label: {
                 Label {
                     Text(
                         "Remove",
@@ -78,7 +80,7 @@ struct GalleryToolbarView: View {
                 .help("Remove")
             }
             Button {
-                genStore.upscaleCurrentImage()
+                Task { await ImageController.shared.upscaleCurrentImage() }
             } label: {
                 Label {
                     Text("Convert to High Resolution")
@@ -163,10 +165,8 @@ struct GalleryToolbarView: View {
 }
 
 struct GalleryToolbarView_Previews: PreviewProvider {
-    static let genStore = GeneratorStore()
-
     static var previews: some View {
         GalleryToolbarView()
-            .environmentObject(genStore)
+            .environmentObject(ImageController.shared)
     }
 }

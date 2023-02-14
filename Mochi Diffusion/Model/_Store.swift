@@ -214,8 +214,6 @@ final class GeneratorStore: ObservableObject {
                     for img in imgs {
                         sdi.id = UUID()
                         sdi.image = img
-                        sdi.width = img.width
-                        sdi.height = img.height
                         sdi.aspectRatio = CGFloat(Double(img.width) / Double(img.height))
                         sdi.seed = generateConfig.seed
                         sdi.generatedDate = Date.now

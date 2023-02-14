@@ -17,8 +17,8 @@ struct SDImage: Identifiable {
     var image: CGImage?
     var prompt = ""
     var negativePrompt = ""
-    var width = 0
-    var height = 0
+    var width: Int { self.image?.width ?? 0 }
+    var height: Int { self.image?.height ?? 0 }
     var aspectRatio: CGFloat = 0.0
     var model = ""
     var scheduler = Scheduler.dpmSolverMultistepScheduler

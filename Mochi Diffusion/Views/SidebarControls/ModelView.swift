@@ -9,7 +9,7 @@ import CoreML
 import SwiftUI
 
 struct ModelView: View {
-    @EnvironmentObject private var genStore: GeneratorStore
+    @EnvironmentObject private var controller: ImageController
     #if arch(arm64)
     @State private var isShowingComputeUnitPopover = false
     #endif
@@ -17,9 +17,9 @@ struct ModelView: View {
     var body: some View {
         Text("Model:")
         HStack {
-            Picker("", selection: $genStore.currentModel.onChange(modelChanged)) {
-                ForEach(genStore.models, id: \.self) { model in
-                    Text(verbatim: model).tag(model)
+            Picker("", selection: $controller.currentModel.onChange(modelChanged)) {
+                ForEach(controller.models) { model in
+                    Text(verbatim: model.name).tag(Optional(model))
                 }
             }
             .labelsHidden()
@@ -32,7 +32,7 @@ struct ModelView: View {
                     Spacer()
 
                     Text(
-                        "\(genStore.currentModel) model",
+                        "\(ImageController.shared.currentModel!.name) model",
                         comment: "Label displaying the currently selected model name"
                     )
 
@@ -47,17 +47,21 @@ struct ModelView: View {
 
                     HStack {
                         Button {
-                            genStore.mlComputeUnit = .cpuAndNeuralEngine
-                            genStore.loadModels()
-                            isShowingComputeUnitPopover = false
+                            Task {
+                                ImageController.shared.mlComputeUnit = .cpuAndNeuralEngine
+                                await ImageController.shared.loadModels()
+                                isShowingComputeUnitPopover = false
+                            }
                         } label: {
                             Text("Use Neural Engine")
                         }
 
                         Button {
-                            genStore.mlComputeUnit = .cpuAndGPU
-                            genStore.loadModels()
-                            isShowingComputeUnitPopover = false
+                            Task {
+                                ImageController.shared.mlComputeUnit = .cpuAndGPU
+                                await ImageController.shared.loadModels()
+                                isShowingComputeUnitPopover = false
+                            }
                         } label: {
                             Text("Use GPU")
                         }
@@ -67,14 +71,16 @@ struct ModelView: View {
             }
             #endif
 
-            Button(action: genStore.loadModels) {
+            Button {
+                Task { await ImageController.shared.loadModels() }
+            } label: {
                 Image(systemName: "arrow.clockwise")
                     .frame(minWidth: 18)
             }
         }
     }
 
-    func modelChanged(to value: Model) {
+    func modelChanged(to value: SDModel?) {
         #if arch(arm64)
         isShowingComputeUnitPopover.toggle()
         #endif
@@ -82,10 +88,8 @@ struct ModelView: View {
 }
 
 struct ModelView_Previews: PreviewProvider {
-    static let genStore = GeneratorStore()
-
     static var previews: some View {
         ModelView()
-            .environmentObject(genStore)
+            .environmentObject(ImageController.shared)
     }
 }

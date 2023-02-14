@@ -8,10 +8,15 @@
 import SwiftUI
 
 struct PromptTextEditor: View {
+
     @Binding var text: String
-    @EnvironmentObject private var genStore: GeneratorStore
+
     var height: CGFloat
+
+    @EnvironmentObject private var generator: ImageGenerator
+
     private let tokenLimit = 75
+
     private var estimatedTokens: Int {
         let whitespaceCount = text.components(separatedBy: .whitespacesAndNewlines).count - 1
         let charactersOnly = text.count - whitespaceCount
@@ -21,12 +26,14 @@ struct PromptTextEditor: View {
         let averageTokenCount = (charactersOnly / 4) + punctuationCount
         return averageTokenCount
     }
+
     private var tokens: Int {
-        if genStore.tokenizer == nil {
+        guard let tokenizer = generator.tokenizer else {
             return estimatedTokens
         }
-        return (genStore.tokenizer?.countTokens(text))!
+        return tokenizer.countTokens(text)
     }
+
     private var tooManyTokens: Bool {
         tokens > tokenLimit
     }
@@ -63,20 +70,21 @@ struct PromptTextEditor: View {
 }
 
 struct PromptView: View {
-    @EnvironmentObject private var genStore: GeneratorStore
+    @EnvironmentObject private var controller: ImageController
+    @EnvironmentObject private var generator: ImageGenerator
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             Label("Include in Image:", systemImage: "text.bubble")
-            PromptTextEditor(text: $genStore.prompt, height: 120)
+            PromptTextEditor(text: $controller.prompt, height: 120)
 
             Label("Exclude from Image:", systemImage: "exclamationmark.bubble")
-            PromptTextEditor(text: $genStore.negativePrompt, height: 70)
+            PromptTextEditor(text: $controller.negativePrompt, height: 70)
 
             Spacer().frame(height: 2)
 
             HStack {
-                Toggle(isOn: $genStore.upscaleGeneratedImages) {
+                Toggle(isOn: $controller.upscaleGeneratedImages) {
                     Label {
                         Text(
                             "HD",
@@ -90,19 +98,23 @@ struct PromptView: View {
 
                 Spacer()
 
-                if case .running = $genStore.status.wrappedValue {
-                    Button(action: genStore.stopGeneration) {
+                if case .running = generator.state {
+                    Button {
+                        Task { await ImageGenerator.shared.stopGenerate() }
+                    } label: {
                         Text("Stop Generation")
                     }
                     .controlSize(.large)
                 } else {
-                    Button(action: genStore.generate) {
+                    Button {
+                        Task { await controller.generate() }
+                    } label: {
                         Text(
                             "Generate",
                             comment: "Button to generate image"
                         )
                     }
-                    .disabled($genStore.currentModel.wrappedValue.isEmpty)
+                    .disabled(ImageController.shared.modelName.isEmpty)
                     .buttonStyle(.borderedProminent)
                     .controlSize(.large)
                 }
@@ -112,10 +124,9 @@ struct PromptView: View {
 }
 
 struct PromptView_Previews: PreviewProvider {
-    static let genStore = GeneratorStore()
-
     static var previews: some View {
         PromptView()
-            .environmentObject(genStore)
+            .environmentObject(ImageController.shared)
+            .environmentObject(ImageGenerator.shared)
     }
 }

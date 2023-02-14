@@ -41,10 +41,7 @@ struct SidebarView: View {
 }
 
 struct SidebarView_Previews: PreviewProvider {
-    static let genStore = GeneratorStore()
-
     static var previews: some View {
         SidebarView()
-            .environmentObject(genStore)
     }
 }
