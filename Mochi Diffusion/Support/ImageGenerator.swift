@@ -19,7 +19,6 @@ struct GenerationConfig {
     var upscaleGeneratedImages: Bool
 }
 
-@MainActor
 final class ImageGenerator: ObservableObject {
 
     static let shared = ImageGenerator()
@@ -109,6 +108,7 @@ final class ImageGenerator: ObservableObject {
                     guard let upscaledImg = Upscaler.shared.upscale(cgImage: image) else { continue }
                     sdi.image = upscaledImg
                     sdi.aspectRatio = CGFloat(Double(upscaledImg.width) / Double(upscaledImg.height))
+                    sdi.upscaler = "RealESRGAN"
                 } else {
                     sdi.image = image
                     sdi.aspectRatio = CGFloat(Double(image.width) / Double(image.height))

@@ -98,7 +98,7 @@ struct PromptView: View {
 
                 Spacer()
 
-                if case .running = generator.state {
+                if case .running = controller.state {
                     Button {
                         Task { await ImageGenerator.shared.stopGenerate() }
                     } label: {
@@ -107,7 +107,7 @@ struct PromptView: View {
                     .controlSize(.large)
                 } else {
                     Button {
-                        Task { await controller.generate() }
+                        Task { await ImageController.shared.generate() }
                     } label: {
                         Text(
                             "Generate",

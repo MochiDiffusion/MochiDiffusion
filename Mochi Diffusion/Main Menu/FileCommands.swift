@@ -26,7 +26,7 @@ struct FileCommands: Commands {
                 .disabled(controller.selectedImage == nil)
 
                 Button {
-                    controller.saveAll()
+                    Task { await controller.saveAll() }
                 } label: {
                     Text(
                         "Save All...",
@@ -34,7 +34,7 @@ struct FileCommands: Commands {
                     )
                 }
                 .keyboardShortcut("S", modifiers: [.command, .option])
-                .disabled(controller.images.isEmpty)
+                .disabled(controller.store.images.isEmpty)
             }
         }
         CommandGroup(replacing: .importExport) {

@@ -22,11 +22,11 @@ struct GalleryView: View {
                 ErrorBanner(errorMessage: msg)
             }
 
-            if !ImageController.shared.images.isEmpty {
+            if !ImageController.shared.store.images.isEmpty {
                 ScrollViewReader { proxy in
                     ScrollView {
                         LazyVGrid(columns: gridColumns, spacing: 16) {
-                            ForEach(Array(ImageController.shared.images.enumerated()), id: \.offset) { index, sdi in
+                            ForEach(Array(ImageController.shared.store.images.enumerated()), id: \.offset) { index, sdi in
                                 GalleryItemView(sdi: sdi, index: index)
                                     .accessibilityAddTraits(.isButton)
                                     .onChange(of: ImageController.shared.selectedImageIndex) { target in
@@ -109,7 +109,7 @@ struct GalleryView: View {
                     comment: "Window title bar label displaying the searched text"
                 )
         )
-        .navigationSubtitle(config.searchText.isEmpty ? "\(ImageController.shared.images.count) image(s)" : "")
+        .navigationSubtitle(config.searchText.isEmpty ? "\(ImageController.shared.store.images.count) image(s)" : "")
         .toolbar {
             GalleryToolbarView()
         }

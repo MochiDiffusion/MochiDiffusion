@@ -1,5 +1,5 @@
 //
-//  ImageController+ImageStore.swift
+//  ImageController.swift
 //  Mochi Diffusion
 //
 //  Created by Joshua Park on 2/12/23.
@@ -12,110 +12,16 @@ import StableDiffusion
 import SwiftUI
 import UniformTypeIdentifiers
 
-class ImageStore {
-
-    @Published
-    private(set) var images: [SDImage] = []
-
-    func saveAll() {
-        if images.isEmpty { return }
-        let panel = NSOpenPanel()
-        panel.canCreateDirectories = true
-        panel.canChooseDirectories = true
-        panel.canChooseFiles = false
-        panel.message = String(localized: "Choose a folder to save all images")
-        panel.prompt = String(localized: "Save")
-        let resp = panel.runModal()
-        if resp != .OK {
-            return
-        }
-
-        guard let selectedURL = panel.url else { return }
-        var count = 1
-        for sdi in images {
-            let url = selectedURL.appending(path: "\(String(sdi.prompt.prefix(70)).trimmingCharacters(in: .whitespacesAndNewlines)).\(count).\(sdi.seed).png")
-            guard let image = sdi.image else { return }
-            guard let data = CFDataCreateMutable(nil, 0) else { return }
-            guard let destination = CGImageDestinationCreateWithData(
-                data,
-                UTType.png.identifier as CFString,
-                1,
-                nil
-            ) else {
-                return
-            }
-            let iptc = [
-                kCGImagePropertyIPTCOriginatingProgram: "Mochi Diffusion",
-                kCGImagePropertyIPTCCaptionAbstract: sdi.metadata(),
-                kCGImagePropertyIPTCProgramVersion: "\(NSApplication.appVersion)"
-            ]
-            let meta = [kCGImagePropertyIPTCDictionary: iptc]
-            CGImageDestinationAddImage(destination, image, meta as CFDictionary)
-            guard CGImageDestinationFinalize(destination) else { return }
-            do {
-                try (data as Data).write(to: url)
-            } catch {
-                NSLog("*** Error saving images: \(error)")
-            }
-            count += 1
-        }
-    }
-
-    func importImages() {
-        fatalError()
-    }
-
-    func filter(_ text: String) -> [SDImage] {
-        images.filter {
-            $0.prompt.range(of: text, options: .caseInsensitive) != nil ||
-            $0.seed == UInt32(text)
-        }
-    }
-
-    fileprivate func add(_ sdi: SDImage) -> SDImage.ID {
-        var sdiToAdd = sdi
-        sdiToAdd.id = UUID()
-        images.append(sdiToAdd)
-        return sdiToAdd.id
-    }
-
-    fileprivate func add(_ sdis: [SDImage]) {
-        images.append(contentsOf: sdis)
-    }
-
-    fileprivate func remove(_ sdi: SDImage) {
-        remove(sdi.id)
-    }
-
-    fileprivate func remove(_ id: SDImage.ID) {
-        if let index = index(for: id) {
-            images.remove(at: index)
-        }
-    }
-
-    fileprivate func update(_ sdi: SDImage) {
-        if let index = index(for: sdi.id) {
-            images[index] = sdi
-        }
-    }
-
-    fileprivate func index(for id: SDImage.ID) -> Int? {
-        images.firstIndex { $0.id == id }
-    }
-
-    fileprivate func image(with id: UUID) -> SDImage? {
-        images.first { $0.id == id }
-    }
-}
-
 typealias StableDiffusionProgress = StableDiffusionPipeline.Progress
 
 @MainActor
-final class ImageController: ImageStore, ObservableObject {
+final class ImageController: ObservableObject {
 
     static let shared = ImageController()
 
     private lazy var logger = Logger()
+
+    let store = ImageStore()
 
     enum State {
         case idle
@@ -190,13 +96,12 @@ final class ImageController: ImageStore, ObservableObject {
         if selectedImageIndex == -1 {
             return nil
         }
-        return images[selectedImageIndex]
+        return store.images[selectedImageIndex]
     }
 
-    override init() {
-        super.init()
+    init() {
         Task {
-            await logger.info("Generator init")
+            logger.info("Generator init")
             await loadModels()
         }
     }
@@ -276,17 +181,26 @@ final class ImageController: ImageStore, ObservableObject {
             upscaleGeneratedImages: upscaleGeneratedImages
         )
 
-        do {
-            state = .loading
-            let sdImages = try await ImageGenerator.shared.generate(genConfig)
-            add(sdImages)
-            state = .ready
-        } catch ImageGenerator.GeneratorError.pipelineNotAvailable {
-            logger.error("Pipeline is not loaded.")
-            state = .error("Pipeline is not loaded.")
-        } catch {
-            logger.error("There was a problem generating images: \(error)")
-            state = .error("There was a problem generating images: \(error)")
+        state = .loading
+
+        Task.detached(priority: .medium) {
+            do {
+                let sdImages = try await ImageGenerator.shared.generate(genConfig)
+                self.store.add(sdImages)
+                await MainActor.run {
+                    self.state = .ready
+                }
+            } catch ImageGenerator.GeneratorError.pipelineNotAvailable {
+                await MainActor.run {
+                    self.logger.error("Pipeline is not loaded.")
+                    self.state = .error("Pipeline is not loaded.")
+                }
+            } catch {
+                await MainActor.run {
+                    self.logger.error("There was a problem generating images: \(error)")
+                    self.state = .error("There was a problem generating images: \(error)")
+                }
+            }
         }
     }
 
@@ -312,6 +226,54 @@ final class ImageController: ImageStore, ObservableObject {
 
     func selectNext() async {
         fatalError()
+    }
+
+    func importImages() {
+        fatalError()
+    }
+
+    func saveAll() async {
+        if store.images.isEmpty { return }
+        let panel = NSOpenPanel()
+        panel.canCreateDirectories = true
+        panel.canChooseDirectories = true
+        panel.canChooseFiles = false
+        panel.message = String(localized: "Choose a folder to save all images")
+        panel.prompt = String(localized: "Save")
+        let resp = panel.runModal()
+        if resp != .OK {
+            return
+        }
+
+        guard let selectedURL = panel.url else { return }
+        var count = 1
+        for sdi in store.images {
+            let url = selectedURL.appending(path: "\(String(sdi.prompt.prefix(70)).trimmingCharacters(in: .whitespacesAndNewlines)).\(count).\(sdi.seed).png")
+            guard let image = sdi.image else { return }
+            guard let data = CFDataCreateMutable(nil, 0) else { return }
+            guard let destination = CGImageDestinationCreateWithData(
+                data,
+                UTType.png.identifier as CFString,
+                1,
+                nil
+            ) else {
+                return
+            }
+            let iptc = [
+                kCGImagePropertyIPTCOriginatingProgram: "Mochi Diffusion",
+                kCGImagePropertyIPTCCaptionAbstract: sdi.metadata(),
+                kCGImagePropertyIPTCProgramVersion: "\(NSApplication.appVersion)"
+            ]
+            let meta = [kCGImagePropertyIPTCDictionary: iptc]
+            CGImageDestinationAddImage(destination, image, meta as CFDictionary)
+            guard CGImageDestinationFinalize(destination) else { return }
+            do {
+                try (data as Data).write(to: url)
+            } catch {
+                NSLog("*** Error saving images: \(error)")
+            }
+            count += 1
+        }
     }
 
     func copyToPrompt() {

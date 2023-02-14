@@ -40,7 +40,7 @@ struct ImageCommands: Commands {
                     )
                 }
                 .keyboardShortcut(.rightArrow, modifiers: .command)
-                .disabled(controller.images.isEmpty)
+                .disabled(controller.store.images.isEmpty)
 
                 Button {
                     Task { await controller.selectPrevious() }
@@ -51,7 +51,7 @@ struct ImageCommands: Commands {
                     )
                 }
                 .keyboardShortcut(.leftArrow, modifiers: .command)
-                .disabled(controller.images.isEmpty)
+                .disabled(controller.store.images.isEmpty)
             }
             Section {
                 Button {
