@@ -9,10 +9,11 @@ import SwiftUI
 
 struct GalleryToolbarView: View {
     @EnvironmentObject private var controller: ImageController
+    @EnvironmentObject private var generator: ImageGenerator
     @State private var isStatusPopoverShown = false
 
     var body: some View {
-        if case .loading = controller.state {
+        if case .loading = generator.state {
             Button {
                 self.isStatusPopoverShown.toggle()
             } label: {

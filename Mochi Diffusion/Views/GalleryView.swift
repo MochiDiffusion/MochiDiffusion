@@ -12,24 +12,27 @@ struct GalleryView: View {
 
     @Environment(\.colorScheme) private var colorScheme
 
+    @EnvironmentObject private var controller: ImageController
+    @EnvironmentObject private var generator: ImageGenerator
+
     @Binding var config: GalleryConfig
 
     private let gridColumns = [GridItem(.adaptive(minimum: 200), spacing: 16)]
 
     var body: some View {
         VStack(spacing: 0) {
-            if case let .error(msg) = ImageController.shared.state {
+            if case let .error(msg) = generator.state {
                 ErrorBanner(errorMessage: msg)
             }
 
-            if !ImageController.shared.store.images.isEmpty {
+            if !controller.store.images.isEmpty {
                 ScrollViewReader { proxy in
                     ScrollView {
                         LazyVGrid(columns: gridColumns, spacing: 16) {
-                            ForEach(Array(ImageController.shared.store.images.enumerated()), id: \.offset) { index, sdi in
+                            ForEach(Array(controller.store.images.enumerated()), id: \.offset) { index, sdi in
                                 GalleryItemView(sdi: sdi, index: index)
                                     .accessibilityAddTraits(.isButton)
-                                    .onChange(of: ImageController.shared.selectedImageIndex) { target in
+                                    .onChange(of: controller.selectedImageIndex) { target in
                                         withAnimation {
                                             proxy.scrollTo(target)
                                         }
@@ -38,7 +41,7 @@ struct GalleryView: View {
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 2)
                                             .stroke(
-                                                index == ImageController.shared.selectedImageIndex ?
+                                                index == controller.selectedImageIndex ?
                                                 Color.accentColor :
                                                     Color(nsColor: .controlBackgroundColor),
                                                 lineWidth: 4
@@ -48,7 +51,7 @@ struct GalleryView: View {
                                         config.quicklookCurrentImage()
                                     })
                                     .simultaneousGesture(TapGesture().onEnded {
-                                        ImageController.shared.selectedImageIndex = index
+                                        controller.selectedImageIndex = index
                                     })
                                     .contextMenu {
                                         Section {
@@ -109,7 +112,7 @@ struct GalleryView: View {
                     comment: "Window title bar label displaying the searched text"
                 )
         )
-        .navigationSubtitle(config.searchText.isEmpty ? "\(ImageController.shared.store.images.count) image(s)" : "")
+        .navigationSubtitle(config.searchText.isEmpty ? "\(controller.store.images.count) image(s)" : "")
         .toolbar {
             GalleryToolbarView()
         }

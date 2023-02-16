@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+@MainActor
 class ImageStore {
 
     @Published

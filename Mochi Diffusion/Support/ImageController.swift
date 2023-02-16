@@ -23,17 +23,6 @@ final class ImageController: ObservableObject {
 
     let store = ImageStore()
 
-    enum State {
-        case idle
-        case ready
-        case error(String)
-        case loading
-        case running(StableDiffusionProgress?)
-    }
-
-    @Published
-    private(set) var state = State.idle
-
     @Published
     var models = [SDModel]()
 
@@ -78,15 +67,9 @@ final class ImageController: ObservableObject {
                         computeUnit: mlComputeUnit,
                         reduceMemory: reduceMemory
                     )
-                    state = .ready
-                } catch ImageGenerator.GeneratorError.modelNotFound {
-                    modelName = ""
-                    currentModel = nil
-                    state = .error("Couldn't load \(model.name) because it doesn't exist.")
                 } catch {
                     modelName = ""
                     currentModel = nil
-                    state = .error("There was a problem loading the model: \(model.name)")
                 }
             }
         }
@@ -107,63 +90,27 @@ final class ImageController: ObservableObject {
     }
 
     func loadModels() async {
-        logger.info("Started loading model directory at: \"\(self.modelDir)\"")
         models = []
-        let fm = FileManager.default
-        var finalModelDir: URL
-        // check if saved model directory exists
-        if modelDir.isEmpty {
-            // use default model directory
-            guard let documentsDir = fm.urls(for: .documentDirectory, in: .userDomainMask).first else {
-                modelName = ""
-                state = .error("Couldn't access model directory.")
+        do {
+            async let (foundModels, modelDirURL) = try ImageGenerator.shared.getModels(modelDir: modelDir)
+            try await self.models = foundModels
+            try await self.modelDir = modelDirURL.path(percentEncoded: false)
+
+            logger.info("Found \(self.models.count) model(s)")
+
+            // Try restoring last user selected model
+            // If not found, use first model from list
+            guard let model = self.models.first(where: { $0.name == modelName }) else {
+                self.currentModel = self.models.first
                 return
             }
-            finalModelDir = documentsDir
-            finalModelDir.append(path: "MochiDiffusion/models/", directoryHint: .isDirectory)
-        } else {
-            // generate url from saved model directory
-            finalModelDir = URL(fileURLWithPath: modelDir, isDirectory: true)
-        }
-        if !fm.fileExists(atPath: finalModelDir.path(percentEncoded: false)) {
-            logger.notice("Creating models directory at: \"\(finalModelDir.path(percentEncoded: false))\"")
-            try? fm.createDirectory(at: finalModelDir, withIntermediateDirectories: true)
-        }
-        modelDir = finalModelDir.path(percentEncoded: false)
-        do {
-            let subDirs = try finalModelDir.subDirectories()
-            subDirs
-                .sorted { $0.lastPathComponent.compare($1.lastPathComponent, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedAscending }
-                .forEach {
-                    let model = SDModel(url: $0, name: $0.lastPathComponent)
-                    self.models.append(model)
-                }
+            self.currentModel = model
         } catch {
-            logger.notice("Could not get model subdirectories under: \"\(finalModelDir.path(percentEncoded: false))\"")
-            state = .error("Could not get model subdirectories.")
-            return
+            modelName = ""
         }
-        guard let firstModel = models.first else {
-            self.modelName = ""
-            state = .error("No models found under: \(finalModelDir.path(percentEncoded: false))")
-            return
-        }
-        logger.info("Found \(self.models.count) model(s)")
-        let model = models.first { $0.name == modelName }
-        guard let model = model else {
-            self.currentModel = firstModel
-            return
-        }
-        self.currentModel = modelName.isEmpty ? firstModel : model
     }
 
     func generate() async {
-        if case .ready = state {
-            // continue
-        } else {
-            return
-        }
-
         var pipelineConfig = StableDiffusionPipeline.Configuration(prompt: prompt)
         pipelineConfig.negativePrompt = negativePrompt
         pipelineConfig.stepCount = Int(steps)
@@ -181,30 +128,18 @@ final class ImageController: ObservableObject {
             upscaleGeneratedImages: upscaleGeneratedImages
         )
 
-        state = .loading
-
-        Task.detached(priority: .medium) {
-            do {
-                let sdImages = try await ImageGenerator.shared.generate(genConfig)
-                self.store.add(sdImages)
-                await MainActor.run {
-                    self.state = .ready
-                }
-            } catch ImageGenerator.GeneratorError.pipelineNotAvailable {
-                await MainActor.run {
-                    self.logger.error("Pipeline is not loaded.")
-                    self.state = .error("Pipeline is not loaded.")
-                }
-            } catch {
-                await MainActor.run {
-                    self.logger.error("There was a problem generating images: \(error)")
-                    self.state = .error("There was a problem generating images: \(error)")
-                }
-            }
+        do {
+            async let sdImages = try ImageGenerator.shared.generate(genConfig)
+            try await self.store.add(sdImages)
+        } catch ImageGenerator.GeneratorError.pipelineNotAvailable {
+            logger.error("Pipeline is not loaded.")
+        } catch {
+            logger.error("There was a problem generating images: \(error)")
         }
     }
 
     func upscale(sdi: SDImage) async {
+        // async let
         fatalError()
     }
 
