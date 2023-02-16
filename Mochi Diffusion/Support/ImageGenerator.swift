@@ -124,7 +124,7 @@ class ImageGenerator: ObservableObject {
         await updateState(.ready)
     }
 
-    func generate(_ inputConfig: GenerationConfig) async throws -> [SDImage] {
+    func generate(_ inputConfig: GenerationConfig) async throws {
         guard let pipeline = pipeline else {
             await updateState(.error("Pipeline is not loaded."))
             throw GeneratorError.pipelineNotAvailable
@@ -133,7 +133,6 @@ class ImageGenerator: ObservableObject {
         var config = inputConfig
         config.pipelineConfig.seed = config.pipelineConfig.seed == 0 ? UInt32.random(in: 0 ..< UInt32.max) : config.pipelineConfig.seed
 
-        var sdImages = [SDImage]()
         var sdi = SDImage()
         sdi.prompt = config.pipelineConfig.prompt
         sdi.negativePrompt = config.pipelineConfig.negativePrompt
@@ -169,12 +168,11 @@ class ImageGenerator: ObservableObject {
                 sdi.id = UUID()
                 sdi.seed = config.pipelineConfig.seed
                 sdi.generatedDate = Date.now
-                sdImages.append(sdi)
+                await ImageStore.shared.add(sdi)
             }
             config.pipelineConfig.seed += 1
         }
         await updateState(.ready)
-        return sdImages
     }
 
     func stopGenerate() async {

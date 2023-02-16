@@ -14,6 +14,7 @@ struct GalleryView: View {
 
     @EnvironmentObject private var controller: ImageController
     @EnvironmentObject private var generator: ImageGenerator
+    @EnvironmentObject private var store: ImageStore
 
     @Binding var config: GalleryConfig
 
@@ -25,11 +26,11 @@ struct GalleryView: View {
                 ErrorBanner(errorMessage: msg)
             }
 
-            if !controller.store.images.isEmpty {
+            if !store.images.isEmpty {
                 ScrollViewReader { proxy in
                     ScrollView {
                         LazyVGrid(columns: gridColumns, spacing: 16) {
-                            ForEach(Array(controller.store.images.enumerated()), id: \.offset) { index, sdi in
+                            ForEach(Array(store.images.enumerated()), id: \.offset) { index, sdi in
                                 GalleryItemView(sdi: sdi, index: index)
                                     .accessibilityAddTraits(.isButton)
                                     .onChange(of: controller.selectedImageIndex) { target in
@@ -112,7 +113,7 @@ struct GalleryView: View {
                     comment: "Window title bar label displaying the searched text"
                 )
         )
-        .navigationSubtitle(config.searchText.isEmpty ? "\(controller.store.images.count) image(s)" : "")
+        .navigationSubtitle(config.searchText.isEmpty ? "\(store.images.count) image(s)" : "")
         .toolbar {
             GalleryToolbarView()
         }

@@ -21,8 +21,6 @@ final class ImageController: ObservableObject {
 
     private lazy var logger = Logger()
 
-    let store = ImageStore()
-
     @Published
     var models = [SDModel]()
 
@@ -79,7 +77,7 @@ final class ImageController: ObservableObject {
         if selectedImageIndex == -1 {
             return nil
         }
-        return store.images[selectedImageIndex]
+        return ImageStore.shared.images[selectedImageIndex]
     }
 
     init() {
@@ -128,13 +126,14 @@ final class ImageController: ObservableObject {
             upscaleGeneratedImages: upscaleGeneratedImages
         )
 
-        do {
-            async let sdImages = try ImageGenerator.shared.generate(genConfig)
-            try await self.store.add(sdImages)
-        } catch ImageGenerator.GeneratorError.pipelineNotAvailable {
-            logger.error("Pipeline is not loaded.")
-        } catch {
-            logger.error("There was a problem generating images: \(error)")
+        Task.detached(priority: .high) {
+            do {
+                try await ImageGenerator.shared.generate(genConfig)
+            } catch ImageGenerator.GeneratorError.pipelineNotAvailable {
+                await self.logger.error("Pipeline is not loaded.")
+            } catch {
+                await self.logger.error("There was a problem generating images: \(error)")
+            }
         }
     }
 
@@ -168,7 +167,7 @@ final class ImageController: ObservableObject {
     }
 
     func saveAll() async {
-        if store.images.isEmpty { return }
+        if ImageStore.shared.images.isEmpty { return }
         let panel = NSOpenPanel()
         panel.canCreateDirectories = true
         panel.canChooseDirectories = true
@@ -182,7 +181,7 @@ final class ImageController: ObservableObject {
 
         guard let selectedURL = panel.url else { return }
         var count = 1
-        for sdi in store.images {
+        for sdi in ImageStore.shared.images {
             let url = selectedURL.appending(path: "\(String(sdi.prompt.prefix(70)).trimmingCharacters(in: .whitespacesAndNewlines)).\(count).\(sdi.seed).png")
             guard let image = sdi.image else { return }
             guard let data = CFDataCreateMutable(nil, 0) else { return }

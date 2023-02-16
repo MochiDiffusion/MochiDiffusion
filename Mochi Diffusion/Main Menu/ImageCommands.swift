@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ImageCommands: Commands {
     @ObservedObject var controller: ImageController
+    @ObservedObject var store: ImageStore
 
     var body: some Commands {
         CommandMenu("Image") {
@@ -40,7 +41,7 @@ struct ImageCommands: Commands {
                     )
                 }
                 .keyboardShortcut(.rightArrow, modifiers: .command)
-                .disabled(controller.store.images.isEmpty)
+                .disabled(store.images.isEmpty)
 
                 Button {
                     Task { await controller.selectPrevious() }
@@ -51,7 +52,7 @@ struct ImageCommands: Commands {
                     )
                 }
                 .keyboardShortcut(.leftArrow, modifiers: .command)
-                .disabled(controller.store.images.isEmpty)
+                .disabled(store.images.isEmpty)
             }
             Section {
                 Button {

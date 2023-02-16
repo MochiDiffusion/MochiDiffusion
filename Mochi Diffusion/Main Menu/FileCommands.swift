@@ -9,6 +9,7 @@ import SwiftUI
 
 struct FileCommands: Commands {
     @ObservedObject var controller: ImageController
+    @ObservedObject var store: ImageStore
 
     var body: some Commands {
         CommandGroup(replacing: .saveItem) {
@@ -34,7 +35,7 @@ struct FileCommands: Commands {
                     )
                 }
                 .keyboardShortcut("S", modifiers: [.command, .option])
-                .disabled(controller.store.images.isEmpty)
+                .disabled(store.images.isEmpty)
             }
         }
         CommandGroup(replacing: .importExport) {

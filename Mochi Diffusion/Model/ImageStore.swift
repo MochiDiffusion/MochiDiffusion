@@ -8,7 +8,9 @@
 import SwiftUI
 
 @MainActor
-class ImageStore {
+class ImageStore: ObservableObject {
+
+    static let shared = ImageStore()
 
     @Published
     private(set) var images: [SDImage] = []
@@ -20,6 +22,7 @@ class ImageStore {
         }
     }
 
+    @discardableResult
     func add(_ sdi: SDImage) -> SDImage.ID {
         var sdiToAdd = sdi
         sdiToAdd.id = UUID()

@@ -42,11 +42,13 @@ struct CheckForUpdatesView: View {
 struct MochiDiffusionApp: App {
     @StateObject private var controller: ImageController
     @StateObject private var generator: ImageGenerator
+    @StateObject private var store: ImageStore
     private let updaterController: SPUStandardUpdaterController
 
     init() {
         self._controller = .init(wrappedValue: .shared)
         self._generator = .init(wrappedValue: .shared)
+        self._store = .init(wrappedValue: .shared)
 
         updaterController = SPUStandardUpdaterController(
             startingUpdater: true,
@@ -60,6 +62,7 @@ struct MochiDiffusionApp: App {
             AppView()
                 .environmentObject(controller)
                 .environmentObject(generator)
+                .environmentObject(store)
                 .onReceive(NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification)) { _ in
                     // cleanup quick look temp images
                     NSImage.cleanupTempFiles()
@@ -73,9 +76,9 @@ struct MochiDiffusionApp: App {
                 CheckForUpdatesView(updater: updaterController.updater)
             }
             CommandGroup(replacing: CommandGroupPlacement.newItem) { /* hide new window */ }
-            FileCommands(controller: controller)
+            FileCommands(controller: controller, store: store)
             SidebarCommands()
-            ImageCommands(controller: controller)
+            ImageCommands(controller: controller, store: store)
             HelpCommands()
         }
         .defaultSize(width: 1_120, height: 670)
