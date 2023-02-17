@@ -37,7 +37,7 @@ struct SDImage: Identifiable, Hashable {
 
 extension SDImage {
     @MainActor
-    func save() {
+    func save() async {
         guard let image = image else { return }
 
         let panel = NSSavePanel()
@@ -49,7 +49,7 @@ extension SDImage {
         panel.nameFieldLabel = String(localized: "Image file name:", comment: "File name field label for save image panel")
         panel.nameFieldStringValue =
             "\(String(prompt.prefix(70)).trimmingCharacters(in: .whitespacesAndNewlines)).\(seed).png"
-        let resp = panel.runModal()
+        let resp = await panel.beginSheetModal(for: NSApplication.shared.mainWindow!)
         if resp != .OK {
             return
         }

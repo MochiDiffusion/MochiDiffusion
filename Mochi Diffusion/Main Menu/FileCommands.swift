@@ -14,8 +14,10 @@ struct FileCommands: Commands {
         CommandGroup(replacing: .saveItem) {
             Section {
                 Button {
-                    guard let sdi = store.selected() else { return }
-                    sdi.save()
+                    Task {
+                        guard let sdi = store.selected() else { return }
+                        await sdi.save()
+                    }
                 } label: {
                     Text(
                         "Save As...",

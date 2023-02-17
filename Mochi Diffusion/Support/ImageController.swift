@@ -212,10 +212,11 @@ final class ImageController: ObservableObject {
         panel.canChooseFiles = true
         panel.message = String(localized: "Choose generated images to import")
         panel.prompt = String(localized: "Import", comment: "Header text for import image open panel")
-        let resp = panel.runModal()
+        let resp = await panel.beginSheetModal(for: NSApplication.shared.mainWindow!)
         if resp != .OK {
             return
         }
+
         let selectedURLs = panel.urls
         if selectedURLs.isEmpty { return }
 
@@ -239,7 +240,7 @@ final class ImageController: ObservableObject {
         }
         alert.alertStyle = .informational
         alert.addButton(withTitle: "OK")
-        alert.runModal()
+        await alert.beginSheetModal(for: NSApplication.shared.mainWindow!)
     }
 
     func saveAll() async {
@@ -250,7 +251,7 @@ final class ImageController: ObservableObject {
         panel.canChooseFiles = false
         panel.message = String(localized: "Choose a folder to save all images")
         panel.prompt = String(localized: "Save")
-        let resp = panel.runModal()
+        let resp = await panel.beginSheetModal(for: NSApplication.shared.mainWindow!)
         if resp != .OK {
             return
         }

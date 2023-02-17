@@ -94,7 +94,7 @@ struct GalleryToolbarView: View {
             Spacer()
 
             Button {
-                sdi.save()
+                Task { await sdi.save() }
             } label: {
                 Label {
                     Text(

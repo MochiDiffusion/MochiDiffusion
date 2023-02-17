@@ -76,7 +76,7 @@ struct GalleryView: View {
                                                 )
                                             }
                                             Button {
-                                                sdi.save()
+                                                Task { await sdi.save() }
                                             } label: {
                                                 Text(
                                                     "Save As...",
