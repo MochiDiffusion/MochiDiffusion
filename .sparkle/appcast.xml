@@ -5,6 +5,39 @@
     <language>en</language>
 
     <item>
+      <title>Mochi Ice Cream</title>
+      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <sparkle:version>2.4</sparkle:version>
+      <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
+      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <pubDate>Fri, 17 Feb 2023 20:54:31 +0000</pubDate>
+      <enclosure
+        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v2.4/MochiDiffusion_v2.4.dmg"
+        sparkle:edSignature="ZiqsJwr9eSOqtEaWiMYLPpld9RnTYI550Gu8XD+xFFxw+d1vJfelgLjyvPrvIGb8IquUzCztLxvuHxSJrX8aAw=="
+        length="66748430"
+        type="application/octet-stream" />
+      <description><![CDATA[
+      <p>Who remembers the release of Mac OS X <strong>Snow</strong> Leopard? 🙋</p>
+      <p>At WWDC 2009, <strong>Snow</strong> Leopard was advertised with having under the hood improvements rather than adding more features. It was famously marketed as having &quot;zero new features&quot;</p>
+      <p><img src="https://user-images.githubusercontent.com/1341760/219689922-736dfd18-0e74-4e91-b7da-f6ccd2676641.jpg" alt="snow-leopard-0-new-features"></p>
+      <p>Just like <strong>Snow</strong> Leopard, this new release of Mochi Diffusion includes many under the hood improvements that improves performance and stability. It should also help simplify adding new features down the line</p>
+      <p>The successor of Leopard was called <strong>Snow</strong> Leopard to denote it as a refinement. Therefore I found it appropriate to call this release...</p>
+      <p>🥁🥁🥁</p>
+      <p><strong>Mochi Ice Cream</strong></p>
+      <p>Also both snow and ice cream are somewhat similar, who knew? ❄️🍦</p>
+      <p>It also proudly has &quot;zero new features.&quot; Well, there is <em>one</em> new feature...</p>
+      <p><img src="https://user-images.githubusercontent.com/1341760/219784941-9a4188fa-530a-42bc-99fc-13d152125cc2.gif" alt="Screen Recording"></p>
+      <p>A nice animation has been added when removing images from the Gallery 😎</p>
+      <p>Also &quot;zero new features&quot; doesn&#39;t mean much didn&#39;t change. Actually there were a lot of changes...</p>
+      <p><img src="https://user-images.githubusercontent.com/1341760/219790132-0e620023-4b30-431b-81d0-8d6823a212d4.png" alt="image"></p>
+      <p>Those numbers represent the lines of code changed...whew</p>
+      <p>As usual, special thanks to the following for supporting me and making this app possible 🎉
+      <strong>raisingfightingspirit</strong>, <strong>serovar</strong>, <strong>orange-wedge</strong>, <strong>RuralRob</strong>, <strong>vacekj</strong>, <strong>julien-c</strong>, <strong>Quick-Eyed-Sky</strong>, <strong>BirdSesame</strong>, <strong>Da-mi-en</strong>, <strong>monks1975</strong>, <strong>angeenes</strong>, &amp; anonymous donors</p>
+      ]]>
+      </description>
+    </item>
+
+    <item>
       <title>v2.3</title>
       <link>https://github.com/godly-devotion/MochiDiffusion</link>
       <sparkle:version>2.3</sparkle:version>
