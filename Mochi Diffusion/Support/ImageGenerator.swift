@@ -130,6 +130,7 @@ class ImageGenerator: ObservableObject {
             throw GeneratorError.pipelineNotAvailable
         }
         await updateState(.loading)
+        generationStopped = false
         var config = inputConfig
         config.pipelineConfig.seed = config.pipelineConfig.seed == 0 ? UInt32.random(in: 0 ..< UInt32.max) : config.pipelineConfig.seed
 
@@ -157,7 +158,7 @@ class ImageGenerator: ObservableObject {
             for image in images {
                 guard let image = image else { continue }
                 if config.upscaleGeneratedImages {
-                    guard let upscaledImg = Upscaler.shared.upscale(cgImage: image) else { continue }
+                    guard let upscaledImg = await Upscaler.shared.upscale(cgImage: image) else { continue }
                     sdi.image = upscaledImg
                     sdi.aspectRatio = CGFloat(Double(upscaledImg.width) / Double(upscaledImg.height))
                     sdi.upscaler = "RealESRGAN"
@@ -189,9 +190,5 @@ class ImageGenerator: ObservableObject {
         Task { @MainActor in
             self.queueProgress = queueProgress
         }
-    }
-
-    private func upscale(_ image: CGImage) async -> CGImage? {
-        fatalError()
     }
 }

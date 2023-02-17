@@ -68,7 +68,7 @@ struct ImageCommands: Commands {
                 .disabled(controller.selectedImage == nil)
 
                 Button {
-                    fatalError()
+                    Task { await ImageController.shared.quicklookCurrentImage() }
                 } label: {
                     Text(
                         "Quick Look",

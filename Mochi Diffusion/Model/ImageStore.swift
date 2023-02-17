@@ -58,7 +58,7 @@ class ImageStore: ObservableObject {
         images.firstIndex { $0.id == id }
     }
 
-    func image(with id: UUID) -> SDImage? {
+    func image(with id: SDImage.ID) -> SDImage? {
         images.first { $0.id == id }
     }
 }

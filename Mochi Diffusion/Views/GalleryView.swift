@@ -49,15 +49,15 @@ struct GalleryView: View {
                                             )
                                     )
                                     .gesture(TapGesture(count: 2).onEnded {
-                                        config.quicklookCurrentImage()
+                                        Task { await ImageController.shared.quicklookCurrentImage() }
                                     })
                                     .simultaneousGesture(TapGesture().onEnded {
-                                        controller.selectedImageIndex = index
+                                        Task { await ImageController.shared.select(index) }
                                     })
                                     .contextMenu {
                                         Section {
                                             Button {
-
+                                                ImageController.shared.copyToPrompt()
                                             } label: {
                                                 Text(
                                                     "Copy Options to Sidebar",
@@ -65,7 +65,7 @@ struct GalleryView: View {
                                                 )
                                             }
                                             Button {
-                                                Task { await ImageController.shared.upscale(sdi: sdi) }
+                                                Task { await ImageController.shared.upscale(sdi) }
                                             } label: {
                                                 Text(
                                                     "Convert to High Resolution",
@@ -83,7 +83,7 @@ struct GalleryView: View {
                                         }
                                         Section {
                                             Button {
-                                                Task { await ImageController.shared.removeImage(index) }
+                                                Task { await ImageController.shared.removeImage(sdi) }
                                             } label: {
                                                 Text(
                                                     "Remove",
@@ -94,7 +94,7 @@ struct GalleryView: View {
                                     }
                             }
                         }
-                        .quickLookPreview($config.quicklookURL)
+                        .quickLookPreview($controller.quicklookURL)
                         .padding()
                     }
                 }

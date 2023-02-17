@@ -9,9 +9,5 @@ import Foundation
 
 struct GalleryConfig {
     var searchText = ""
-    var quicklookURL: URL?
-
-    func quicklookCurrentImage() {
-        fatalError()
-    }
+//    var quicklookURL: URL?
 }
