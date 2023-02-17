@@ -30,13 +30,15 @@ struct GalleryView: View {
                 ScrollViewReader { proxy in
                     ScrollView {
                         LazyVGrid(columns: gridColumns, spacing: 16) {
-                            ForEach(Array(store.images.enumerated()), id: \.element) { index, sdi in
+                            ForEach(store.images) { sdi in
                                 GalleryItemView(sdi: sdi)
                                     .accessibilityAddTraits(.isButton)
                                     .transition(.niceFade)
-                                    .onChange(of: ImageStore.shared.selectedIndex()) { target in
-                                        withAnimation {
-                                            proxy.scrollTo(target)
+                                    .onChange(of: store.selected()) { target in
+                                        if let sdi = target {
+                                            withAnimation {
+                                                proxy.scrollTo(sdi.id)
+                                            }
                                         }
                                     }
                                     .aspectRatio(sdi.aspectRatio, contentMode: .fit)
@@ -53,7 +55,7 @@ struct GalleryView: View {
                                         Task { await ImageController.shared.quicklookCurrentImage() }
                                     })
                                     .simultaneousGesture(TapGesture().onEnded {
-                                        Task { await ImageController.shared.select(index) }
+                                        Task { await ImageController.shared.select(sdi.id) }
                                     })
                                     .contextMenu {
                                         Section {

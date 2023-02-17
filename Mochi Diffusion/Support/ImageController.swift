@@ -169,21 +169,26 @@ final class ImageController: ObservableObject {
         }
     }
 
+    func select(_ id: SDImage.ID) async {
+        guard let index = ImageStore.shared.images.firstIndex(where: { $0.id == id }) else { return }
+        await select(index)
+    }
+
     func selectPrevious() async {
-        guard let curIndex = ImageStore.shared.selectedIndex() else { return }
+        let curIndex = ImageStore.shared.selectedIndex()
         if curIndex == 0 { return }
         await select(curIndex - 1)
     }
 
     func selectNext() async {
-        guard let curIndex = ImageStore.shared.selectedIndex() else { return }
+        let curIndex = ImageStore.shared.selectedIndex()
         if curIndex == ImageStore.shared.images.count - 1 { return }
         await select(curIndex + 1)
     }
 
     func removeImage(_ sdi: SDImage) async {
         guard let index = ImageStore.shared.index(for: sdi.id) else { return }
-        guard let curIndex = ImageStore.shared.selectedIndex() else { return }
+        let curIndex = ImageStore.shared.selectedIndex()
         ImageStore.shared.remove(sdi)
         if index <= curIndex {
             if curIndex != 0 || ImageStore.shared.images.isEmpty {

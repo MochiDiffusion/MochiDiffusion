@@ -31,13 +31,6 @@ struct SeedView: View {
     }
 }
 
-struct SeedView_Previews: PreviewProvider {
-    static var previews: some View {
-        SeedView()
-            .environmentObject(ImageController.shared)
-    }
-}
-
 extension Formatter {
     static let seedFormatter: NumberFormatter = {
         let formatter = NumberFormatter()
@@ -52,4 +45,11 @@ extension Formatter {
         formatter.zeroSymbol = ""
         return formatter
     }()
+}
+
+struct SeedView_Previews: PreviewProvider {
+    static var previews: some View {
+        SeedView()
+            .environmentObject(ImageController.shared)
+    }
 }

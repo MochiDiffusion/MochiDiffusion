@@ -155,13 +155,6 @@ struct InspectorView: View {
     }
 }
 
-struct InspectorView_Previews: PreviewProvider {
-    static var previews: some View {
-        InspectorView()
-            .environmentObject(ImageStore.shared)
-    }
-}
-
 extension CGImage {
     var averageColor: Color? {
         let inputImage = CIImage(cgImage: self)
@@ -196,5 +189,12 @@ extension CGImage {
             blue: CGFloat(bitmap[2]) / 255,
             opacity: CGFloat(bitmap[3]) / 255
         )
+    }
+}
+
+struct InspectorView_Previews: PreviewProvider {
+    static var previews: some View {
+        InspectorView()
+            .environmentObject(ImageStore.shared)
     }
 }

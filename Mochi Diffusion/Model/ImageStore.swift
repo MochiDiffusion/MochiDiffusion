@@ -99,7 +99,8 @@ class ImageStore: ObservableObject {
         images.first { $0.isSelected }
     }
 
-    func selectedIndex() -> Int? {
-        images.firstIndex { $0.isSelected }
+    func selectedIndex() -> Int {
+        guard let index = images.firstIndex(where: { $0.isSelected }) else { return -1 }
+        return index
     }
 }
