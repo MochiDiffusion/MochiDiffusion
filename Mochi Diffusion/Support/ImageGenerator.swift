@@ -8,7 +8,7 @@
 import Combine
 import CoreML
 import OSLog
-import StableDiffusion
+@preconcurrency import StableDiffusion
 
 struct GenerationConfig: Sendable {
     var pipelineConfig: StableDiffusionPipeline.Configuration

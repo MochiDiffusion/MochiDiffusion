@@ -370,7 +370,7 @@ final class GeneratorStore: ObservableObject {
             }
             let iptc = [
                 kCGImagePropertyIPTCOriginatingProgram: "Mochi Diffusion",
-                kCGImagePropertyIPTCCaptionAbstract: sdi.metadata(),
+//                kCGImagePropertyIPTCCaptionAbstract: sdi.metadata(),
                 kCGImagePropertyIPTCProgramVersion: "\(NSApplication.appVersion)"
             ]
             let meta = [kCGImagePropertyIPTCDictionary: iptc]

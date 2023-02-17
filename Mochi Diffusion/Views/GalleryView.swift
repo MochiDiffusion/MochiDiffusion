@@ -72,7 +72,9 @@ struct GalleryView: View {
                                                     comment: "Convert the current image to high resolution"
                                                 )
                                             }
-                                            Button(action: sdi.save) {
+                                            Button {
+                                                sdi.save()
+                                            } label: {
                                                 Text(
                                                     "Save As...",
                                                     comment: "Show the save image dialog"
