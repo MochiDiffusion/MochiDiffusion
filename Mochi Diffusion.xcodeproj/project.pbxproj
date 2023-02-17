@@ -275,8 +275,8 @@
 		03F578492967B85D003A815F /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				03FD2318295F74B6006EEEE2 /* RealESRGAN.mlmodel */,
 				036BFC25294B9F7600D8AD04 /* Assets.xcassets */,
+				03FD2318295F74B6006EEEE2 /* RealESRGAN.mlmodel */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
