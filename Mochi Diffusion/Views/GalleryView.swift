@@ -12,7 +12,6 @@ struct GalleryView: View {
 
     @Environment(\.colorScheme) private var colorScheme
 
-    @EnvironmentObject private var controller: ImageController
     @EnvironmentObject private var generator: ImageGenerator
     @EnvironmentObject private var store: ImageStore
 
@@ -27,82 +26,9 @@ struct GalleryView: View {
             }
 
             if !store.images.isEmpty {
-                ScrollViewReader { proxy in
-                    ScrollView {
-                        LazyVGrid(columns: gridColumns, spacing: 16) {
-                            ForEach(store.images) { sdi in
-                                GalleryItemView(sdi: sdi)
-                                    .accessibilityAddTraits(.isButton)
-                                    .transition(.niceFade)
-                                    .onChange(of: store.selected()) { target in
-                                        if let sdi = target {
-                                            withAnimation {
-                                                proxy.scrollTo(sdi.id)
-                                            }
-                                        }
-                                    }
-                                    .aspectRatio(sdi.aspectRatio, contentMode: .fit)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 2)
-                                            .stroke(
-                                                sdi.isSelected ?
-                                                Color.accentColor :
-                                                    Color(nsColor: .controlBackgroundColor),
-                                                lineWidth: 4
-                                            )
-                                    )
-                                    .gesture(TapGesture(count: 2).onEnded {
-                                        Task { await ImageController.shared.quicklookCurrentImage() }
-                                    })
-                                    .simultaneousGesture(TapGesture().onEnded {
-                                        Task { await ImageController.shared.select(sdi.id) }
-                                    })
-                                    .contextMenu {
-                                        Section {
-                                            Button {
-                                                ImageController.shared.copyToPrompt()
-                                            } label: {
-                                                Text(
-                                                    "Copy Options to Sidebar",
-                                                    comment: "Copy the currently selected image's generation options to the prompt input sidebar"
-                                                )
-                                            }
-                                            Button {
-                                                Task { await ImageController.shared.upscale(sdi) }
-                                            } label: {
-                                                Text(
-                                                    "Convert to High Resolution",
-                                                    comment: "Convert the current image to high resolution"
-                                                )
-                                            }
-                                            Button {
-                                                Task { await sdi.save() }
-                                            } label: {
-                                                Text(
-                                                    "Save As...",
-                                                    comment: "Show the save image dialog"
-                                                )
-                                            }
-                                        }
-                                        Section {
-                                            Button {
-                                                Task { await ImageController.shared.removeImage(sdi) }
-                                            } label: {
-                                                Text(
-                                                    "Remove",
-                                                    comment: "Remove image from the gallery"
-                                                )
-                                            }
-                                        }
-                                    }
-                            }
-                        }
-                        .quickLookPreview($controller.quicklookURL)
-                        .padding()
-                    }
-                }
+                galleryView
             } else {
-                Color.clear
+                emptyGalleryView
             }
         }
         .background(
@@ -122,6 +48,88 @@ struct GalleryView: View {
         .toolbar {
             GalleryToolbarView()
         }
+    }
+
+    @ViewBuilder
+    private var galleryView: some View {
+        ScrollViewReader { proxy in
+            ScrollView {
+                LazyVGrid(columns: gridColumns, spacing: 16) {
+                    ForEach(store.images) { sdi in
+                        GalleryItemView(sdi: sdi)
+                            .accessibilityAddTraits(.isButton)
+                            .transition(.niceFade)
+                            .onChange(of: store.selected()) { target in
+                                if let sdi = target {
+                                    withAnimation {
+                                        proxy.scrollTo(sdi.id)
+                                    }
+                                }
+                            }
+                            .aspectRatio(sdi.aspectRatio, contentMode: .fit)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 2)
+                                    .stroke(
+                                        sdi.isSelected ?
+                                        Color.accentColor :
+                                            Color(nsColor: .controlBackgroundColor),
+                                        lineWidth: 4
+                                    )
+                            )
+                            .gesture(TapGesture(count: 2).onEnded {
+                                Task { await ImageController.shared.quicklookCurrentImage() }
+                            })
+                            .simultaneousGesture(TapGesture().onEnded {
+                                Task { await ImageController.shared.select(sdi.id) }
+                            })
+                            .contextMenu {
+                                Section {
+                                    Button {
+                                        ImageController.shared.copyToPrompt()
+                                    } label: {
+                                        Text(
+                                            "Copy Options to Sidebar",
+                                            comment: "Copy the currently selected image's generation options to the prompt input sidebar"
+                                        )
+                                    }
+                                    Button {
+                                        Task { await ImageController.shared.upscale(sdi) }
+                                    } label: {
+                                        Text(
+                                            "Convert to High Resolution",
+                                            comment: "Convert the current image to high resolution"
+                                        )
+                                    }
+                                    Button {
+                                        Task { await sdi.save() }
+                                    } label: {
+                                        Text(
+                                            "Save As...",
+                                            comment: "Show the save image dialog"
+                                        )
+                                    }
+                                }
+                                Section {
+                                    Button {
+                                        Task { await ImageController.shared.removeImage(sdi) }
+                                    } label: {
+                                        Text(
+                                            "Remove",
+                                            comment: "Remove image from the gallery"
+                                        )
+                                    }
+                                }
+                            }
+                    }
+                }
+                .padding()
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var emptyGalleryView: some View {
+        Color.clear
     }
 }
 

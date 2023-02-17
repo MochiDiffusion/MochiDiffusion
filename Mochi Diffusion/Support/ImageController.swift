@@ -176,13 +176,13 @@ final class ImageController: ObservableObject {
 
     func selectPrevious() async {
         let curIndex = ImageStore.shared.selectedIndex()
-        if curIndex == 0 { return }
+        if curIndex == ImageStore.shared.images.startIndex { return }
         await select(curIndex - 1)
     }
 
     func selectNext() async {
         let curIndex = ImageStore.shared.selectedIndex()
-        if curIndex == ImageStore.shared.images.count - 1 { return }
+        if curIndex == ImageStore.shared.images.endIndex - 1 { return }
         await select(curIndex + 1)
     }
 
@@ -190,11 +190,17 @@ final class ImageController: ObservableObject {
         guard let index = ImageStore.shared.index(for: sdi.id) else { return }
         let curIndex = ImageStore.shared.selectedIndex()
         ImageStore.shared.remove(sdi)
+        if ImageStore.shared.images.isEmpty {
+            quicklookURL = nil
+            return
+        }
         if index <= curIndex {
-            if curIndex != 0 || ImageStore.shared.images.isEmpty {
+            if curIndex == ImageStore.shared.images.endIndex {
                 await select(curIndex - 1)
-            } else if curIndex == 0 && !ImageStore.shared.images.isEmpty {
+            } else if curIndex == 0 {
                 await select(0)
+            } else if index == curIndex {
+                await select(curIndex)
             }
         }
     }

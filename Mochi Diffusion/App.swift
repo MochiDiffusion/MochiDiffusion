@@ -63,6 +63,7 @@ struct MochiDiffusionApp: App {
                 .environmentObject(controller)
                 .environmentObject(generator)
                 .environmentObject(store)
+                .quickLookPreview($controller.quicklookURL)
                 .onReceive(NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification)) { _ in
                     // cleanup quick look temp images
                     NSImage.cleanupTempFiles()
