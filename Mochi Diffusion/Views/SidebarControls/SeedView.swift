@@ -19,7 +19,8 @@ struct SeedView: View {
                 .textFieldStyle(.roundedBorder)
             Button {
                 randomFieldIsFocused = false
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { // FIXME: Find reliable way to clear textfield
+                /// ugly hack
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                     ImageController.shared.seed = 0
                 }
             } label: {

@@ -31,6 +31,7 @@ struct SDImage: Identifiable {
 }
 
 extension SDImage {
+    @MainActor
     func save() {
         guard let image = image else {
             NSLog("*** Image was not valid!")
@@ -77,6 +78,7 @@ extension SDImage {
         }
     }
 
+    @MainActor
     func metadata() -> String {
         """
         \(Metadata.includeInImage.rawValue): \(prompt); \

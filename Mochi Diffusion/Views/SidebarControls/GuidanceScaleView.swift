@@ -14,7 +14,7 @@ struct GuidanceScaleView: View {
     var body: some View {
         Text("Guidance Scale:")
         CompactSlider(value: $controller.guidanceScale, in: 1...20, step: 0.5) {
-            Text(verbatim: "\(ImageController.shared.guidanceScale.formatted(.number.precision(.fractionLength(1))))")
+            Text(verbatim: "\(controller.guidanceScale.formatted(.number.precision(.fractionLength(1))))")
             Spacer()
         }
         .compactSliderStyle(.mochi)

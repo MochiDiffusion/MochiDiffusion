@@ -9,12 +9,13 @@ import SwiftUI
 
 struct ImageCommands: Commands {
     @ObservedObject var controller: ImageController
+    @ObservedObject var generator: ImageGenerator
     @ObservedObject var store: ImageStore
 
     var body: some Commands {
         CommandMenu("Image") {
             Section {
-                if case .running = ImageGenerator.shared.state {
+                if case .running = generator.state {
                     Button {
                         Task { await ImageGenerator.shared.stopGenerate() }
                     } label: {
@@ -23,7 +24,7 @@ struct ImageCommands: Commands {
                     .keyboardShortcut("G", modifiers: .command)
                 } else {
                     Button {
-                        Task { await controller.generate() }
+                        Task { await ImageController.shared.generate() }
                     } label: {
                         Text("Generate")
                     }
@@ -33,7 +34,7 @@ struct ImageCommands: Commands {
             }
             Section {
                 Button {
-                    Task { await controller.selectNext() }
+                    Task { await ImageController.shared.selectNext() }
                 } label: {
                     Text(
                         "Select Next",
@@ -44,7 +45,7 @@ struct ImageCommands: Commands {
                 .disabled(store.images.isEmpty)
 
                 Button {
-                    Task { await controller.selectPrevious() }
+                    Task { await ImageController.shared.selectPrevious() }
                 } label: {
                     Text(
                         "Select Previous",
@@ -56,7 +57,7 @@ struct ImageCommands: Commands {
             }
             Section {
                 Button {
-                    Task { await controller.upscaleCurrentImage() }
+                    Task { await ImageController.shared.upscaleCurrentImage() }
                 } label: {
                     Text(
                         "Convert to High Resolution",
@@ -79,7 +80,7 @@ struct ImageCommands: Commands {
             }
             Section {
                 Button {
-                    Task { await controller.removeCurrentImage() }
+                    Task { await ImageController.shared.removeCurrentImage() }
                 } label: {
                     Text(
                         "Remove",

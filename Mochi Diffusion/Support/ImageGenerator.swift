@@ -10,7 +10,7 @@ import CoreML
 import OSLog
 import StableDiffusion
 
-struct GenerationConfig {
+struct GenerationConfig: Sendable {
     var pipelineConfig: StableDiffusionPipeline.Configuration
     var numberOfImages: Int
     var model: String
@@ -33,7 +33,7 @@ class ImageGenerator: ObservableObject {
         case requestedModelNotFound
     }
 
-    enum State {
+    enum State: Sendable {
         case idle
         case ready
         case error(String)
@@ -45,7 +45,7 @@ class ImageGenerator: ObservableObject {
     @Published
     private(set) var state = State.idle
 
-    struct QueueProgress {
+    struct QueueProgress: Sendable {
         var index = 0
         var total = 0
     }
@@ -65,9 +65,9 @@ class ImageGenerator: ObservableObject {
         var models: [SDModel] = []
         var finalModelDirURL: URL
         let fm = FileManager.default
-        // check if saved model directory exists
+        /// check if saved model directory exists
         if modelDir.isEmpty {
-            // use default model directory
+            /// use default model directory
             guard let documentsDir = fm.urls(for: .documentDirectory, in: .userDomainMask).first else {
                 await updateState(.error("Couldn't access model directory."))
                 throw GeneratorError.modelDirectoryNoAccess
@@ -75,7 +75,7 @@ class ImageGenerator: ObservableObject {
             finalModelDirURL = documentsDir
             finalModelDirURL.append(path: "MochiDiffusion/models/", directoryHint: .isDirectory)
         } else {
-            // generate url from saved model directory
+            /// generate url from saved model directory
             finalModelDirURL = URL(fileURLWithPath: modelDir, isDirectory: true)
         }
         if !fm.fileExists(atPath: finalModelDirURL.path(percentEncoded: false)) {

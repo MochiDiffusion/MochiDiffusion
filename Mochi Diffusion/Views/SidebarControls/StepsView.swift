@@ -14,7 +14,7 @@ struct StepsView: View {
     var body: some View {
         Text("Steps:")
         CompactSlider(value: $controller.steps, in: 2...50, step: 1) {
-            Text(verbatim: "\(ImageController.shared.steps.formatted(.number.precision(.fractionLength(0))))")
+            Text(verbatim: "\(controller.steps.formatted(.number.precision(.fractionLength(0))))")
             Spacer()
         }
         .compactSliderStyle(.mochi)

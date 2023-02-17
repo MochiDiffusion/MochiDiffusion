@@ -78,7 +78,7 @@ struct MochiDiffusionApp: App {
             CommandGroup(replacing: CommandGroupPlacement.newItem) { /* hide new window */ }
             FileCommands(controller: controller, store: store)
             SidebarCommands()
-            ImageCommands(controller: controller, store: store)
+            ImageCommands(controller: controller, generator: generator, store: store)
             HelpCommands()
         }
         .defaultSize(width: 1_120, height: 670)

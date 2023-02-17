@@ -96,8 +96,8 @@ final class ImageController: ObservableObject {
 
             logger.info("Found \(self.models.count) model(s)")
 
-            // Try restoring last user selected model
-            // If not found, use first model from list
+            /// Try restoring last user selected model
+            /// If not found, use first model from list
             guard let model = self.models.first(where: { $0.name == modelName }) else {
                 self.currentModel = self.models.first
                 return
@@ -109,6 +109,12 @@ final class ImageController: ObservableObject {
     }
 
     func generate() async {
+        if case .ready = ImageGenerator.shared.state {
+            /// continue
+        } else {
+            return
+        }
+
         var pipelineConfig = StableDiffusionPipeline.Configuration(prompt: prompt)
         pipelineConfig.negativePrompt = negativePrompt
         pipelineConfig.stepCount = Int(steps)

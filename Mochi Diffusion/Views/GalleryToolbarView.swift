@@ -35,10 +35,10 @@ struct GalleryToolbarView: View {
             }
         }
 
-        if case let .running(progress) = ImageGenerator.shared.state, let progress = progress, progress.stepCount > 0 {
+        if case let .running(progress) = generator.state, let progress = progress, progress.stepCount > 0 {
             let step = Int(progress.step) + 1
             let stepValue = Double(step) / Double(progress.stepCount)
-            let progressValue = Double(ImageGenerator.shared.queueProgress.index + 1) / Double(ImageGenerator.shared.queueProgress.total)
+            let progressValue = Double(generator.queueProgress.index + 1) / Double(generator.queueProgress.total)
 
             Button {
                 self.isStatusPopoverShown.toggle()
@@ -52,7 +52,7 @@ struct GalleryToolbarView: View {
                     comment: "Text displaying the current step progress and count"
                 )
                 let imageCountLabel = String(
-                    localized: "Image \(ImageGenerator.shared.queueProgress.index + 1) of \(ImageGenerator.shared.queueProgress.total)",
+                    localized: "Image \(generator.queueProgress.index + 1) of \(generator.queueProgress.total)",
                     comment: "Text displaying the image generation progress and count"
                 )
                 VStack(spacing: 12) {
@@ -64,7 +64,7 @@ struct GalleryToolbarView: View {
             }
         }
 
-        if let sdi = ImageController.shared.selectedImage, let img = sdi.image {
+        if let sdi = controller.selectedImage, let img = sdi.image {
             let imageView = Image(img, scale: 1, label: Text(verbatim: sdi.prompt))
 
             Button {
@@ -93,7 +93,9 @@ struct GalleryToolbarView: View {
 
             Spacer()
 
-            Button(action: sdi.save) {
+            Button {
+                sdi.save()
+            } label: {
                 Label {
                     Text(
                         "Save As...",
@@ -169,5 +171,6 @@ struct GalleryToolbarView_Previews: PreviewProvider {
     static var previews: some View {
         GalleryToolbarView()
             .environmentObject(ImageController.shared)
+            .environmentObject(ImageGenerator.shared)
     }
 }

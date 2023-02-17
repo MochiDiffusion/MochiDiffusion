@@ -24,14 +24,18 @@ class ImageStore: ObservableObject {
 
     @discardableResult
     func add(_ sdi: SDImage) -> SDImage.ID {
-        var sdiToAdd = sdi
-        sdiToAdd.id = UUID()
-        images.append(sdiToAdd)
-        return sdiToAdd.id
+        withAnimation {
+            images.append(sdi)
+            return sdi.id
+        }
     }
 
-    func add(_ sdis: [SDImage]) {
-        images.append(contentsOf: sdis)
+    @discardableResult
+    func add(_ sdis: [SDImage]) -> [SDImage.ID] {
+        withAnimation {
+            images.append(contentsOf: sdis)
+            return sdis.map { $0.id }
+        }
     }
 
     func remove(_ sdi: SDImage) {
@@ -39,15 +43,15 @@ class ImageStore: ObservableObject {
     }
 
     func remove(_ id: SDImage.ID) {
-        if let index = index(for: id) {
+        withAnimation {
+            guard let index = index(for: id) else { return }
             images.remove(at: index)
         }
     }
 
     func update(_ sdi: SDImage) {
-        if let index = index(for: sdi.id) {
-            images[index] = sdi
-        }
+        guard let index = index(for: sdi.id) else { return }
+        images[index] = sdi
     }
 
     func index(for id: SDImage.ID) -> Int? {

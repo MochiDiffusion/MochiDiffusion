@@ -114,7 +114,7 @@ struct PromptView: View {
                             comment: "Button to generate image"
                         )
                     }
-                    .disabled(ImageController.shared.modelName.isEmpty)
+                    .disabled(controller.modelName.isEmpty)
                     .buttonStyle(.borderedProminent)
                     .controlSize(.large)
                 }
