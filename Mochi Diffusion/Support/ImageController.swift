@@ -204,7 +204,7 @@ final class ImageController: ObservableObject {
         await removeImage(sdi)
     }
 
-    func importImages() {
+    func importImages() async {
         let panel = NSOpenPanel()
         panel.allowsMultipleSelection = true
         panel.canCreateDirectories = false

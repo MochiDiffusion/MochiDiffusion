@@ -40,7 +40,7 @@ struct FileCommands: Commands {
         CommandGroup(replacing: .importExport) {
             Section {
                 Button {
-                    ImageController.shared.importImages()
+                    Task { await ImageController.shared.importImages() }
                 } label: {
                     Text(
                         "Import Image...",
