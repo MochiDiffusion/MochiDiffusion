@@ -30,10 +30,11 @@ struct GalleryView: View {
                 ScrollViewReader { proxy in
                     ScrollView {
                         LazyVGrid(columns: gridColumns, spacing: 16) {
-                            ForEach(Array(store.images.enumerated()), id: \.offset) { index, sdi in
-                                GalleryItemView(sdi: sdi, index: index)
+                            ForEach(Array(store.images.enumerated()), id: \.element) { index, sdi in
+                                GalleryItemView(sdi: sdi)
                                     .accessibilityAddTraits(.isButton)
-                                    .onChange(of: controller.selectedImageIndex) { target in
+                                    .transition(.niceFade)
+                                    .onChange(of: ImageStore.shared.selectedIndex()) { target in
                                         withAnimation {
                                             proxy.scrollTo(target)
                                         }
@@ -42,7 +43,7 @@ struct GalleryView: View {
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 2)
                                             .stroke(
-                                                index == controller.selectedImageIndex ?
+                                                sdi.isSelected ?
                                                 Color.accentColor :
                                                     Color(nsColor: .controlBackgroundColor),
                                                 lineWidth: 4
@@ -119,5 +120,14 @@ struct GalleryView: View {
         .toolbar {
             GalleryToolbarView()
         }
+    }
+}
+
+extension AnyTransition {
+    static var niceFade: AnyTransition {
+        .asymmetric(
+            insertion: .opacity,
+            removal: .scale.combined(with: .opacity)
+        )
     }
 }

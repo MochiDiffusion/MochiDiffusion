@@ -76,7 +76,7 @@ struct MochiDiffusionApp: App {
                 CheckForUpdatesView(updater: updaterController.updater)
             }
             CommandGroup(replacing: CommandGroupPlacement.newItem) { /* hide new window */ }
-            FileCommands(controller: controller, store: store)
+            FileCommands(store: store)
             SidebarCommands()
             ImageCommands(controller: controller, generator: generator, store: store)
             HelpCommands()

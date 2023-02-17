@@ -12,7 +12,7 @@ import Foundation
 import StableDiffusion
 import UniformTypeIdentifiers
 
-struct SDImage: Identifiable {
+struct SDImage: Identifiable, Hashable {
     var id = UUID()
     var image: CGImage?
     var prompt = ""
@@ -28,15 +28,17 @@ struct SDImage: Identifiable {
     var guidanceScale = 11.0
     var generatedDate = Date()
     var upscaler = ""
+    var isSelected = false
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
 }
 
 extension SDImage {
     @MainActor
     func save() {
-        guard let image = image else {
-            NSLog("*** Image was not valid!")
-            return
-        }
+        guard let image = image else { return }
 
         let panel = NSSavePanel()
         panel.allowedContentTypes = [.png, .jpeg]

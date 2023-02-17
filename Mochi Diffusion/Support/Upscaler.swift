@@ -9,7 +9,9 @@ import CoreImage
 import Vision
 
 final class Upscaler {
+
     static let shared = Upscaler()
+
     private var request: VNCoreMLRequest
 
     init() {
@@ -19,7 +21,7 @@ final class Upscaler {
 
         /// Create a Vision instance using the image classifier's model instance
         guard let model = try? VNCoreMLModel(for: RealESRGAN(configuration: config).model) else {
-            fatalError("App failed to create a `VNCoreMLModel` instance.")
+            fatalError("Failed to create a `VNCoreMLModel` instance.")
         }
 
         /// Create an image classification request with an image classifier model

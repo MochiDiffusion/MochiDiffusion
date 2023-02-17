@@ -65,7 +65,7 @@ struct ImageCommands: Commands {
                     )
                 }
                 .keyboardShortcut("R", modifiers: .command)
-                .disabled(controller.selectedImage == nil)
+                .disabled(store.selected() == nil)
 
                 Button {
                     Task { await ImageController.shared.quicklookCurrentImage() }
@@ -76,7 +76,7 @@ struct ImageCommands: Commands {
                     )
                 }
                 .keyboardShortcut("L", modifiers: .command)
-                .disabled(controller.selectedImage == nil)
+                .disabled(store.selected() == nil)
             }
             Section {
                 Button {
@@ -88,7 +88,7 @@ struct ImageCommands: Commands {
                     )
                 }
                 .keyboardShortcut(.delete, modifiers: .command)
-                .disabled(controller.selectedImage == nil)
+                .disabled(store.selected() == nil)
             }
         }
     }

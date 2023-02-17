@@ -37,3 +37,19 @@ struct SeedView_Previews: PreviewProvider {
             .environmentObject(ImageController.shared)
     }
 }
+
+extension Formatter {
+    static let seedFormatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.minimum = 0
+        // swiftlint:disable:next legacy_objc_type
+        formatter.maximum = NSNumber(value: UInt32.max)
+        formatter.maximumFractionDigits = 0
+        formatter.usesGroupingSeparator = false
+        formatter.hasThousandSeparators = false
+        formatter.alwaysShowsDecimalSeparator = false
+        formatter.zeroSymbol = ""
+        return formatter
+    }()
+}

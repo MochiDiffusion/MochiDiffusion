@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct GalleryToolbarView: View {
-    @EnvironmentObject private var controller: ImageController
     @EnvironmentObject private var generator: ImageGenerator
+    @EnvironmentObject private var store: ImageStore
     @State private var isStatusPopoverShown = false
 
     var body: some View {
@@ -64,7 +64,7 @@ struct GalleryToolbarView: View {
             }
         }
 
-        if let sdi = controller.selectedImage, let img = sdi.image {
+        if let sdi = store.selected(), let img = sdi.image {
             let imageView = Image(img, scale: 1, label: Text(verbatim: sdi.prompt))
 
             Button {
@@ -109,68 +109,73 @@ struct GalleryToolbarView: View {
             ShareLink(item: imageView, preview: SharePreview(sdi.prompt, image: imageView))
                 .help("Share...")
         } else {
-            Button {
-                // noop
-            } label: {
-                Label {
-                    Text(
-                        "Remove",
-                        comment: "Toolbar button to remove the selected image"
-                    )
-                } icon: {
-                    Image(systemName: "trash")
-                }
-            }
-            .disabled(true)
-
-            Button {
-                // noop
-            } label: {
-                Label {
-                    Text("Convert to High Resolution")
-                } icon: {
-                    Image(systemName: "wand.and.stars")
-                }
-            }
-            .disabled(true)
-
-            Spacer()
-
-            Button {
-                // noop
-            } label: {
-                Label {
-                    Text(
-                        "Save As...",
-                        comment: "Toolbar button to show the save image dialog"
-                    )
-                } icon: {
-                    Image(systemName: "square.and.arrow.down")
-                }
-            }
-            .disabled(true)
-
-            Button {
-                // noop
-            } label: {
-                Label {
-                    Text(
-                        "Share...",
-                        comment: "Toolbar button to show the system share sheet"
-                    )
-                } icon: {
-                    Image(systemName: "square.and.arrow.up")
-                }
-            }
-            .disabled(true)
+            disabledToolbarActionView
         }
+    }
+
+    @ViewBuilder
+    private var disabledToolbarActionView: some View {
+        Button {
+            // noop
+        } label: {
+            Label {
+                Text(
+                    "Remove",
+                    comment: "Toolbar button to remove the selected image"
+                )
+            } icon: {
+                Image(systemName: "trash")
+            }
+        }
+        .disabled(true)
+
+        Button {
+            // noop
+        } label: {
+            Label {
+                Text("Convert to High Resolution")
+            } icon: {
+                Image(systemName: "wand.and.stars")
+            }
+        }
+        .disabled(true)
+
+        Spacer()
+
+        Button {
+            // noop
+        } label: {
+            Label {
+                Text(
+                    "Save As...",
+                    comment: "Toolbar button to show the save image dialog"
+                )
+            } icon: {
+                Image(systemName: "square.and.arrow.down")
+            }
+        }
+        .disabled(true)
+
+        Button {
+            // noop
+        } label: {
+            Label {
+                Text(
+                    "Share...",
+                    comment: "Toolbar button to show the system share sheet"
+                )
+            } icon: {
+                Image(systemName: "square.and.arrow.up")
+            }
+        }
+        .disabled(true)
     }
 }
 
 struct GalleryToolbarView_Previews: PreviewProvider {
     static var previews: some View {
         GalleryToolbarView()
-            .environmentObject(ImageController.shared)
             .environmentObject(ImageGenerator.shared)
+            .environmentObject(ImageStore.shared)
     }
 }

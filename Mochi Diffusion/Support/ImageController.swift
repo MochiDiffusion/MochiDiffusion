@@ -25,9 +25,6 @@ final class ImageController: ObservableObject {
     private(set) var models = [SDModel]()
 
     @Published
-    private(set) var selectedImageIndex = -1
-
-    @Published
     var numberOfImages = 1
 
     @Published
@@ -74,13 +71,6 @@ final class ImageController: ObservableObject {
                 }
             }
         }
-    }
-
-    var selectedImage: SDImage? {
-        if selectedImageIndex == -1 {
-            return nil
-        }
-        return ImageStore.shared.images[selectedImageIndex]
     }
 
     init() {
@@ -159,12 +149,12 @@ final class ImageController: ObservableObject {
     }
 
     func upscaleCurrentImage() async {
-        guard let sdi = selectedImage else { return }
+        guard let sdi = ImageStore.shared.selected() else { return }
         await upscale(sdi)
     }
 
     func quicklookCurrentImage() async {
-        guard let sdi = selectedImage, let image = sdi.image else {
+        guard let sdi = ImageStore.shared.selected(), let image = sdi.image else {
             quicklookURL = nil
             return
         }
@@ -172,7 +162,7 @@ final class ImageController: ObservableObject {
     }
 
     func select(_ index: Int) async {
-        selectedImageIndex = index
+        ImageStore.shared.select(index)
         /// if quick look is already open show selected image
         if quicklookURL != nil {
             await quicklookCurrentImage()
@@ -180,29 +170,32 @@ final class ImageController: ObservableObject {
     }
 
     func selectPrevious() async {
-        if selectedImageIndex == 0 { return }
-        await select(selectedImageIndex - 1)
+        guard let curIndex = ImageStore.shared.selectedIndex() else { return }
+        if curIndex == 0 { return }
+        await select(curIndex - 1)
     }
 
     func selectNext() async {
-        if selectedImageIndex == ImageStore.shared.images.count - 1 { return }
-        await select(selectedImageIndex + 1)
+        guard let curIndex = ImageStore.shared.selectedIndex() else { return }
+        if curIndex == ImageStore.shared.images.count - 1 { return }
+        await select(curIndex + 1)
     }
 
     func removeImage(_ sdi: SDImage) async {
         guard let index = ImageStore.shared.index(for: sdi.id) else { return }
+        guard let curIndex = ImageStore.shared.selectedIndex() else { return }
         ImageStore.shared.remove(sdi)
-        if index <= selectedImageIndex {
-            if selectedImageIndex != 0 || ImageStore.shared.images.isEmpty {
-                await select(selectedImageIndex - 1)
-            } else if selectedImageIndex == 0 && !ImageStore.shared.images.isEmpty {
+        if index <= curIndex {
+            if curIndex != 0 || ImageStore.shared.images.isEmpty {
+                await select(curIndex - 1)
+            } else if curIndex == 0 && !ImageStore.shared.images.isEmpty {
                 await select(0)
             }
         }
     }
 
     func removeCurrentImage() async {
-        let sdi = ImageStore.shared.images[selectedImageIndex]
+        guard let sdi = ImageStore.shared.selected() else { return }
         await removeImage(sdi)
     }
 
@@ -221,6 +214,7 @@ final class ImageController: ObservableObject {
         let selectedURLs = panel.urls
         if selectedURLs.isEmpty { return }
 
+        var sdis: [SDImage] = []
         var succeeded = 0, failed = 0
 
         for url in selectedURLs {
@@ -229,8 +223,9 @@ final class ImageController: ObservableObject {
                 continue
             }
             succeeded += 1
-            ImageStore.shared.add(sdi)
+            sdis.append(sdi)
         }
+        ImageStore.shared.add(sdis)
 
         let alert = NSAlert()
         alert.messageText = String(localized: "Imported \(succeeded) image(s)")
@@ -287,7 +282,7 @@ final class ImageController: ObservableObject {
     }
 
     func copyToPrompt() {
-        guard let sdi = selectedImage else { return }
+        guard let sdi = ImageStore.shared.selected() else { return }
         prompt = sdi.prompt
         negativePrompt = sdi.negativePrompt
         steps = Double(sdi.steps)
@@ -299,32 +294,38 @@ final class ImageController: ObservableObject {
     }
 
     func copyPromptToPrompt() {
-        guard let sdi = selectedImage else { return }
+        guard let sdi = ImageStore.shared.selected() else { return }
         prompt = sdi.prompt
     }
 
     func copyNegativePromptToPrompt() {
-        guard let sdi = selectedImage else { return }
+        guard let sdi = ImageStore.shared.selected() else { return }
         negativePrompt = sdi.negativePrompt
     }
 
     func copySchedulerToPrompt() {
-        guard let sdi = selectedImage else { return }
+        guard let sdi = ImageStore.shared.selected() else { return }
         scheduler = sdi.scheduler
     }
 
     func copySeedToPrompt() {
-        guard let sdi = selectedImage else { return }
+        guard let sdi = ImageStore.shared.selected() else { return }
         seed = sdi.seed
     }
 
     func copyStepsToPrompt() {
-        guard let sdi = selectedImage else { return }
+        guard let sdi = ImageStore.shared.selected() else { return }
         steps = Double(sdi.steps)
     }
 
     func copyGuidanceScaleToPrompt() {
-        guard let sdi = selectedImage else { return }
+        guard let sdi = ImageStore.shared.selected() else { return }
         guidanceScale = sdi.guidanceScale
+    }
+}
+
+extension CGImage {
+    func asNSImage() -> NSImage {
+        NSImage(cgImage: self, size: NSSize(width: width, height: height))
     }
 }

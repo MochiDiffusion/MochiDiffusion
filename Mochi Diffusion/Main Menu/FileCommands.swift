@@ -8,14 +8,13 @@
 import SwiftUI
 
 struct FileCommands: Commands {
-    @ObservedObject var controller: ImageController
     @ObservedObject var store: ImageStore
 
     var body: some Commands {
         CommandGroup(replacing: .saveItem) {
             Section {
                 Button {
-                    guard let sdi = controller.selectedImage else { return }
+                    guard let sdi = store.selected() else { return }
                     sdi.save()
                 } label: {
                     Text(
@@ -24,10 +23,10 @@ struct FileCommands: Commands {
                     )
                 }
                 .keyboardShortcut("S", modifiers: .command)
-                .disabled(controller.selectedImage == nil)
+                .disabled(store.selected() == nil)
 
                 Button {
-                    Task { await controller.saveAll() }
+                    Task { await ImageController.shared.saveAll() }
                 } label: {
                     Text(
                         "Save All...",
@@ -41,7 +40,7 @@ struct FileCommands: Commands {
         CommandGroup(replacing: .importExport) {
             Section {
                 Button {
-                    controller.importImages()
+                    ImageController.shared.importImages()
                 } label: {
                     Text(
                         "Import Image...",

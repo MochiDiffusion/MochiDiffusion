@@ -61,4 +61,45 @@ class ImageStore: ObservableObject {
     func image(with id: SDImage.ID) -> SDImage? {
         images.first { $0.id == id }
     }
+
+    func image(with index: Int) -> SDImage? {
+        if images.isEmpty { return nil }
+        if index < images.startIndex { return nil }
+        if index > images.endIndex { return nil }
+        return images[index]
+    }
+
+    func select(_ id: SDImage.ID) {
+        for sdi in images {
+            var updatedSDI = sdi
+            if sdi.id == id {
+                updatedSDI.isSelected = true
+            } else {
+                updatedSDI.isSelected = false
+            }
+            update(updatedSDI)
+        }
+    }
+
+    func select(_ index: Int) {
+        if index < images.startIndex { return }
+        if index > images.endIndex { return }
+        images.indices.forEach { curIndex in
+            var updatedSDI = images[curIndex]
+            if curIndex == index {
+                updatedSDI.isSelected = true
+            } else {
+                updatedSDI.isSelected = false
+            }
+            update(updatedSDI)
+        }
+    }
+
+    func selected() -> SDImage? {
+        images.first { $0.isSelected }
+    }
+
+    func selectedIndex() -> Int? {
+        images.firstIndex { $0.isSelected }
+    }
 }
