@@ -45,9 +45,9 @@
 "ML Compute Unit" = "Unidad de Computación ML";
 "Model Folder" = "Directorio de Modelos";
 "Model:" = "Modelo:";
-"No Info" = "No hay información";
+"No Info" = "Sin información";
 "Number of Images:" = "Número de Imágenes:";
-"Open in Finder" = "Ver en el Finder";
+"Open in Finder" = "Mostrar en Finder";
 "Quick Look" = "Vista Rápida";
 "Reduce Memory Usage" = "Reducir el Uso de Memoria";
 "Reduce memory usage further at the cost of speed." = "Reducir aún más el uso de memoria a costa de la velocidad.";
