@@ -7,6 +7,7 @@
 
 import CompactSlider
 import CoreML
+import StableDiffusion
 import SwiftUI
 
 struct MochiCompactSliderStyle: CompactSliderStyle {
@@ -23,18 +24,6 @@ extension NSApplication {
     static var appVersion: String {
         // swiftlint:disable:next force_cast
         Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as! String
-    }
-}
-
-extension URL {
-    func subDirectories() throws -> [URL] {
-        guard hasDirectoryPath else { return [] }
-        return try FileManager.default.contentsOfDirectory(
-            at: self,
-            includingPropertiesForKeys: nil,
-            options: [.skipsHiddenFiles]
-        )
-        .filter(\.hasDirectoryPath)
     }
 }
 
@@ -80,47 +69,6 @@ extension NSImage: Transferable {
     }
 }
 
-extension CGImage {
-    var averageColor: Color? {
-        let inputImage = CIImage(cgImage: self)
-        let extentVector = CIVector(
-            x: inputImage.extent.origin.x,
-            y: inputImage.extent.origin.y,
-            z: inputImage.extent.size.width,
-            w: inputImage.extent.size.height
-        )
-
-        guard let filter = CIFilter(
-            name: "CIAreaAverage",
-            parameters: [kCIInputImageKey: inputImage, kCIInputExtentKey: extentVector]
-        ) else { return nil }
-        guard let outputImage = filter.outputImage else { return nil }
-
-        // Bitmap consisting of (r, g, b, a) value
-        var bitmap = [UInt8](repeating: 0, count: 4)
-        let context = CIContext(options: [.workingColorSpace: kCFNull!])
-        context.render(
-            outputImage,
-            toBitmap: &bitmap,
-            rowBytes: 4,
-            bounds: CGRect(x: 0, y: 0, width: 1, height: 1),
-            format: .RGBA8,
-            colorSpace: nil
-        )
-
-        return Color(
-            red: CGFloat(bitmap[0]) / 255,
-            green: CGFloat(bitmap[1]) / 255,
-            blue: CGFloat(bitmap[2]) / 255,
-            opacity: CGFloat(bitmap[3]) / 255
-        )
-    }
-
-    func asNSImage() -> NSImage {
-        NSImage(cgImage: self, size: NSSize(width: width, height: height))
-    }
-}
-
 extension Text {
     func helpTextFormat() -> some View {
         modifier(HelpTextFormat())
@@ -129,21 +77,6 @@ extension Text {
     func selectableTextFormat() -> some View {
         modifier(SelectableTextFormat())
     }
-}
-
-extension Formatter {
-    static let seedFormatter: NumberFormatter = {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        formatter.minimum = 0
-        formatter.maximum = NSNumber(value: UInt32.max) // 4_294_967_295
-        formatter.maximumFractionDigits = 0
-        formatter.usesGroupingSeparator = false
-        formatter.hasThousandSeparators = false
-        formatter.alwaysShowsDecimalSeparator = false
-        formatter.zeroSymbol = ""
-        return formatter
-    }()
 }
 
 extension Binding {

@@ -8,31 +8,33 @@
 import SwiftUI
 
 struct ImageCommands: Commands {
-    @ObservedObject var genStore: GeneratorStore
+    @ObservedObject var controller: ImageController
+    @ObservedObject var generator: ImageGenerator
+    @ObservedObject var store: ImageStore
 
     var body: some Commands {
         CommandMenu("Image") {
             Section {
-                if case .running = genStore.status {
+                if case .running = generator.state {
                     Button {
-                        genStore.stopGeneration()
+                        Task { await ImageGenerator.shared.stopGenerate() }
                     } label: {
                         Text("Stop Generation")
                     }
                     .keyboardShortcut("G", modifiers: .command)
                 } else {
                     Button {
-                        genStore.generate()
+                        Task { await ImageController.shared.generate() }
                     } label: {
                         Text("Generate")
                     }
                     .keyboardShortcut("G", modifiers: .command)
-                    .disabled(genStore.currentModel.isEmpty)
+                    .disabled(controller.modelName.isEmpty)
                 }
             }
             Section {
                 Button {
-                    genStore.selectNextImage()
+                    Task { await ImageController.shared.selectNext() }
                 } label: {
                     Text(
                         "Select Next",
@@ -40,10 +42,10 @@ struct ImageCommands: Commands {
                     )
                 }
                 .keyboardShortcut(.rightArrow, modifiers: .command)
-                .disabled(genStore.images.isEmpty)
+                .disabled(store.images.isEmpty)
 
                 Button {
-                    genStore.selectPreviousImage()
+                    Task { await ImageController.shared.selectPrevious() }
                 } label: {
                     Text(
                         "Select Previous",
@@ -51,11 +53,11 @@ struct ImageCommands: Commands {
                     )
                 }
                 .keyboardShortcut(.leftArrow, modifiers: .command)
-                .disabled(genStore.images.isEmpty)
+                .disabled(store.images.isEmpty)
             }
             Section {
                 Button {
-                    genStore.upscaleCurrentImage()
+                    Task { await ImageController.shared.upscaleCurrentImage() }
                 } label: {
                     Text(
                         "Convert to High Resolution",
@@ -63,10 +65,10 @@ struct ImageCommands: Commands {
                     )
                 }
                 .keyboardShortcut("R", modifiers: .command)
-                .disabled(genStore.getSelectedImage == nil)
+                .disabled(store.selected() == nil)
 
                 Button {
-                    genStore.quicklookCurrentImage()
+                    Task { await ImageController.shared.quicklookCurrentImage() }
                 } label: {
                     Text(
                         "Quick Look",
@@ -74,11 +76,11 @@ struct ImageCommands: Commands {
                     )
                 }
                 .keyboardShortcut("L", modifiers: .command)
-                .disabled(genStore.getSelectedImage == nil)
+                .disabled(store.selected() == nil)
             }
             Section {
                 Button {
-                    genStore.removeCurrentImage()
+                    Task { await ImageController.shared.removeCurrentImage() }
                 } label: {
                     Text(
                         "Remove",
@@ -86,7 +88,7 @@ struct ImageCommands: Commands {
                     )
                 }
                 .keyboardShortcut(.delete, modifiers: .command)
-                .disabled(genStore.getSelectedImage == nil)
+                .disabled(store.selected() == nil)
             }
         }
     }

@@ -21,6 +21,6 @@ struct ErrorBanner: View {
 
 struct ErrorBanner_Previews: PreviewProvider {
     static var previews: some View {
-        ErrorBanner(errorMessage: "This is an error!")
+        ErrorBanner(errorMessage: "Hello error!")
     }
 }

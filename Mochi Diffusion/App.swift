@@ -40,16 +40,30 @@ struct CheckForUpdatesView: View {
 
 @main
 struct MochiDiffusionApp: App {
-    @StateObject private var genStore = GeneratorStore()
-//    @StateObject private var imageStore = ImageStore([])
-//    @StateObject private var galleryStore = GalleryStore()
-//    @State private var selectedId: SDImage.ID?
+    @StateObject private var controller: ImageController
+    @StateObject private var generator: ImageGenerator
+    @StateObject private var store: ImageStore
     private let updaterController: SPUStandardUpdaterController
+
+    init() {
+        self._controller = .init(wrappedValue: .shared)
+        self._generator = .init(wrappedValue: .shared)
+        self._store = .init(wrappedValue: .shared)
+
+        updaterController = SPUStandardUpdaterController(
+            startingUpdater: true,
+            updaterDelegate: nil,
+            userDriverDelegate: nil
+        )
+    }
 
     var body: some Scene {
         WindowGroup {
             AppView()
-                .environmentObject(genStore)
+                .environmentObject(controller)
+                .environmentObject(generator)
+                .environmentObject(store)
+                .quickLookPreview($controller.quicklookURL)
                 .onReceive(NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification)) { _ in
                     // cleanup quick look temp images
                     NSImage.cleanupTempFiles()
@@ -63,24 +77,16 @@ struct MochiDiffusionApp: App {
                 CheckForUpdatesView(updater: updaterController.updater)
             }
             CommandGroup(replacing: CommandGroupPlacement.newItem) { /* hide new window */ }
-            FileCommands(genStore: genStore)
+            FileCommands(store: store)
             SidebarCommands()
-            ImageCommands(genStore: genStore)
+            ImageCommands(controller: controller, generator: generator, store: store)
             HelpCommands()
         }
         .defaultSize(width: 1_120, height: 670)
 
         Settings {
             SettingsView()
-                .environmentObject(genStore)
+                .environmentObject(controller)
         }
-    }
-
-    init() {
-        updaterController = SPUStandardUpdaterController(
-            startingUpdater: true,
-            updaterDelegate: nil,
-            userDriverDelegate: nil
-        )
     }
 }

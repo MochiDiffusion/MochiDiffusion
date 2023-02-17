@@ -2,29 +2,40 @@
 //  ImageStore.swift
 //  Mochi Diffusion
 //
-//  Created by Joshua Park on 1/18/23.
+//  Created by Joshua Park on 2/13/23.
 //
 
-import Foundation
 import SwiftUI
-import UniformTypeIdentifiers
 
-final class ImageStore: ObservableObject {
-    @Published var images: [SDImage]
+@MainActor
+class ImageStore: ObservableObject {
 
-    init(_ images: [SDImage]) {
-        self.images = images
+    static let shared = ImageStore()
+
+    @Published
+    private(set) var images: [SDImage] = []
+
+    func filter(_ text: String) -> [SDImage] {
+        images.filter {
+            $0.prompt.range(of: text, options: .caseInsensitive) != nil ||
+            $0.seed == UInt32(text)
+        }
     }
 
+    @discardableResult
     func add(_ sdi: SDImage) -> SDImage.ID {
-        var sdiToAdd = sdi
-        sdiToAdd.id = UUID()
-        images.append(sdiToAdd)
-        return sdiToAdd.id
+        withAnimation {
+            images.append(sdi)
+            return sdi.id
+        }
     }
 
-    func add(_ sdis: [SDImage]) {
-        images.append(contentsOf: sdis)
+    @discardableResult
+    func add(_ sdis: [SDImage]) -> [SDImage.ID] {
+        withAnimation {
+            images.append(contentsOf: sdis)
+            return sdis.map { $0.id }
+        }
     }
 
     func remove(_ sdi: SDImage) {
@@ -32,66 +43,64 @@ final class ImageStore: ObservableObject {
     }
 
     func remove(_ id: SDImage.ID) {
-        if let index = index(for: id) {
+        withAnimation {
+            guard let index = index(for: id) else { return }
             images.remove(at: index)
         }
     }
 
     func update(_ sdi: SDImage) {
-        if let index = index(for: sdi.id) {
-            images[index] = sdi
-        }
+        guard let index = index(for: sdi.id) else { return }
+        images[index] = sdi
     }
 
     func index(for id: SDImage.ID) -> Int? {
         images.firstIndex { $0.id == id }
     }
 
-    func image(with id: UUID) -> SDImage? {
+    func image(with id: SDImage.ID) -> SDImage? {
         images.first { $0.id == id }
     }
 
-    func saveAllImages() {
-        if images.isEmpty { return }
-        let panel = NSOpenPanel()
-        panel.canCreateDirectories = true
-        panel.canChooseDirectories = true
-        panel.canChooseFiles = false
-        panel.message = String(localized: "Choose a folder to save all images")
-        panel.prompt = String(localized: "Save")
-        let resp = panel.runModal()
-        if resp != .OK {
-            return
-        }
+    func image(with index: Int) -> SDImage? {
+        if images.isEmpty { return nil }
+        if index < images.startIndex { return nil }
+        if index > images.endIndex { return nil }
+        return images[index]
+    }
 
-        guard let selectedURL = panel.url else { return }
-        var count = 1
+    func select(_ id: SDImage.ID) {
         for sdi in images {
-            let url = selectedURL.appending(path: "\(String(sdi.prompt.prefix(70)).trimmingCharacters(in: .whitespacesAndNewlines)).\(count).\(sdi.seed).png")
-            guard let image = sdi.image else { return }
-            guard let data = CFDataCreateMutable(nil, 0) else { return }
-            guard let destination = CGImageDestinationCreateWithData(
-                data,
-                UTType.png.identifier as CFString,
-                1,
-                nil
-            ) else {
-                return
+            var updatedSDI = sdi
+            if sdi.id == id {
+                updatedSDI.isSelected = true
+            } else {
+                updatedSDI.isSelected = false
             }
-            let iptc = [
-                kCGImagePropertyIPTCOriginatingProgram: "Mochi Diffusion",
-                kCGImagePropertyIPTCCaptionAbstract: sdi.metadata(),
-                kCGImagePropertyIPTCProgramVersion: "\(NSApplication.appVersion)"
-            ]
-            let meta = [kCGImagePropertyIPTCDictionary: iptc]
-            CGImageDestinationAddImage(destination, image, meta as CFDictionary)
-            guard CGImageDestinationFinalize(destination) else { return }
-            do {
-                try (data as Data).write(to: url)
-            } catch {
-                NSLog("*** Error saving images: \(error)")
-            }
-            count += 1
+            update(updatedSDI)
         }
+    }
+
+    func select(_ index: Int) {
+        if index < images.startIndex { return }
+        if index > images.endIndex { return }
+        images.indices.forEach { curIndex in
+            var updatedSDI = images[curIndex]
+            if curIndex == index {
+                updatedSDI.isSelected = true
+            } else {
+                updatedSDI.isSelected = false
+            }
+            update(updatedSDI)
+        }
+    }
+
+    func selected() -> SDImage? {
+        images.first { $0.isSelected }
+    }
+
+    func selectedIndex() -> Int {
+        guard let index = images.firstIndex(where: { $0.isSelected }) else { return -1 }
+        return index
     }
 }

@@ -19,6 +19,6 @@ struct SelectableTextFormat: ViewModifier {
     func body(content: Content) -> some View {
         content
             .textSelection(.enabled)
-            .foregroundColor(Color(nsColor: .textColor)) // Fixes dark text in dark mode SwiftUI bug
+            .foregroundColor(Color(nsColor: .textColor)) /// Fixes dark text in dark mode SwiftUI bug
     }
 }

@@ -12,13 +12,13 @@ import Foundation
 import StableDiffusion
 import UniformTypeIdentifiers
 
-struct SDImage: Identifiable {
+struct SDImage: Identifiable, Hashable {
     var id = UUID()
     var image: CGImage?
     var prompt = ""
     var negativePrompt = ""
-    var width = 0
-    var height = 0
+    var width: Int { self.image?.width ?? 0 }
+    var height: Int { self.image?.height ?? 0 }
     var aspectRatio: CGFloat = 0.0
     var model = ""
     var scheduler = Scheduler.dpmSolverMultistepScheduler
@@ -28,14 +28,17 @@ struct SDImage: Identifiable {
     var guidanceScale = 11.0
     var generatedDate = Date()
     var upscaler = ""
+    var isSelected = false
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
 }
 
 extension SDImage {
-    func save() {
-        guard let image = image else {
-            NSLog("*** Image was not valid!")
-            return
-        }
+    @MainActor
+    func save() async {
+        guard let image = image else { return }
 
         let panel = NSSavePanel()
         panel.allowedContentTypes = [.png, .jpeg]
@@ -46,7 +49,7 @@ extension SDImage {
         panel.nameFieldLabel = String(localized: "Image file name:", comment: "File name field label for save image panel")
         panel.nameFieldStringValue =
             "\(String(prompt.prefix(70)).trimmingCharacters(in: .whitespacesAndNewlines)).\(seed).png"
-        let resp = panel.runModal()
+        let resp = await panel.beginSheetModal(for: NSApplication.shared.mainWindow!)
         if resp != .OK {
             return
         }
@@ -77,6 +80,7 @@ extension SDImage {
         }
     }
 
+    @MainActor
     func metadata() -> String {
         """
         \(Metadata.includeInImage.rawValue): \(prompt); \

@@ -13,7 +13,7 @@ struct InfoGridRow: View {
     var type: LocalizedStringKey
     var text: String
     var showCopyToPromptOption: Bool
-    var callback: (() -> Void)?
+    var callback: (@MainActor () -> Void)?
 
     var body: some View {
         GridRow {
@@ -45,11 +45,11 @@ struct InfoGridRow: View {
 }
 
 struct InspectorView: View {
-    @EnvironmentObject private var store: GeneratorStore
+    @EnvironmentObject private var store: ImageStore
 
     var body: some View {
         VStack(spacing: 0) {
-            if let sdi = store.getSelectedImage, let img = sdi.image {
+            if let sdi = store.selected(), let img = sdi.image {
                 Image(img, scale: 1, label: Text(verbatim: String(sdi.prompt)))
                     .resizable()
                     .aspectRatio(contentMode: .fit)
@@ -78,37 +78,37 @@ struct InspectorView: View {
                             type: LocalizedStringKey(Metadata.includeInImage.rawValue),
                             text: sdi.prompt,
                             showCopyToPromptOption: true,
-                            callback: store.copyPromptToPrompt
+                            callback: ImageController.shared.copyToPrompt
                         )
                         InfoGridRow(
                             type: LocalizedStringKey(Metadata.excludeFromImage.rawValue),
                             text: sdi.negativePrompt,
                             showCopyToPromptOption: true,
-                            callback: store.copyNegativePromptToPrompt
+                            callback: ImageController.shared.copyNegativePromptToPrompt
                         )
                         InfoGridRow(
                             type: LocalizedStringKey(Metadata.seed.rawValue),
                             text: String(sdi.seed),
                             showCopyToPromptOption: true,
-                            callback: store.copySeedToPrompt
+                            callback: ImageController.shared.copySeedToPrompt
                         )
                         InfoGridRow(
                             type: LocalizedStringKey(Metadata.steps.rawValue),
                             text: String(sdi.steps),
                             showCopyToPromptOption: true,
-                            callback: store.copyStepsToPrompt
+                            callback: ImageController.shared.copyStepsToPrompt
                         )
                         InfoGridRow(
                             type: LocalizedStringKey(Metadata.guidanceScale.rawValue),
                             text: String(sdi.guidanceScale),
                             showCopyToPromptOption: true,
-                            callback: store.copyGuidanceScaleToPrompt
+                            callback: ImageController.shared.copyGuidanceScaleToPrompt
                         )
                         InfoGridRow(
                             type: LocalizedStringKey(Metadata.scheduler.rawValue),
                             text: sdi.scheduler.rawValue,
                             showCopyToPromptOption: true,
-                            callback: store.copySchedulerToPrompt
+                            callback: ImageController.shared.copySchedulerToPrompt
                         )
                         InfoGridRow(
                             type: LocalizedStringKey(Metadata.mlComputeUnit.rawValue),
@@ -122,7 +122,9 @@ struct InspectorView: View {
                 Divider()
 
                 HStack {
-                    Button(action: store.copyToPrompt) {
+                    Button {
+                        ImageController.shared.copyToPrompt()
+                    } label: {
                         Text(
                             "Copy Options to Sidebar",
                             comment: "Button to copy the currently selected image's generation options to the prompt input sidebar"
@@ -153,11 +155,46 @@ struct InspectorView: View {
     }
 }
 
-struct InspectorView_Previews: PreviewProvider {
-    static let genStore = GeneratorStore()
+extension CGImage {
+    var averageColor: Color? {
+        let inputImage = CIImage(cgImage: self)
+        let extentVector = CIVector(
+            x: inputImage.extent.origin.x,
+            y: inputImage.extent.origin.y,
+            z: inputImage.extent.size.width,
+            w: inputImage.extent.size.height
+        )
 
+        guard let filter = CIFilter(
+            name: "CIAreaAverage",
+            parameters: [kCIInputImageKey: inputImage, kCIInputExtentKey: extentVector]
+        ) else { return nil }
+        guard let outputImage = filter.outputImage else { return nil }
+
+        // Bitmap consisting of (r, g, b, a) value
+        var bitmap = [UInt8](repeating: 0, count: 4)
+        let context = CIContext(options: [.workingColorSpace: kCFNull!])
+        context.render(
+            outputImage,
+            toBitmap: &bitmap,
+            rowBytes: 4,
+            bounds: CGRect(x: 0, y: 0, width: 1, height: 1),
+            format: .RGBA8,
+            colorSpace: nil
+        )
+
+        return Color(
+            red: CGFloat(bitmap[0]) / 255,
+            green: CGFloat(bitmap[1]) / 255,
+            blue: CGFloat(bitmap[2]) / 255,
+            opacity: CGFloat(bitmap[3]) / 255
+        )
+    }
+}
+
+struct InspectorView_Previews: PreviewProvider {
     static var previews: some View {
         InspectorView()
-            .environmentObject(genStore)
+            .environmentObject(ImageStore.shared)
     }
 }

@@ -10,7 +10,7 @@ import StableDiffusion
 import SwiftUI
 
 struct SettingsView: View {
-    @EnvironmentObject private var genStore: GeneratorStore
+    @EnvironmentObject private var controller: ImageController
 
     var body: some View {
         VStack(spacing: 16) {
@@ -43,8 +43,10 @@ struct SettingsView: View {
                 Spacer()
 
                 Button {
-                    genStore.loadModels()
-                    NSApplication.shared.keyWindow?.close()
+                    Task {
+                        await ImageController.shared.loadModels()
+                        NSApplication.shared.keyWindow?.close()
+                    }
                 } label: {
                     Text(
                         "Apply",
@@ -69,7 +71,7 @@ struct SettingsView: View {
 
                         Spacer()
 
-                        Toggle("", isOn: $genStore.reduceMemory)
+                        Toggle("", isOn: $controller.reduceMemory)
                             .labelsHidden()
                             .toggleStyle(.switch)
                     }
@@ -89,7 +91,7 @@ struct SettingsView: View {
 
                         Spacer()
 
-                        Toggle("", isOn: $genStore.safetyChecker)
+                        Toggle("", isOn: $controller.safetyChecker)
                             .labelsHidden()
                             .toggleStyle(.switch)
                     }
@@ -107,12 +109,12 @@ struct SettingsView: View {
                     Text("Model Folder")
 
                     HStack {
-                        TextField("", text: $genStore.modelDir)
+                        TextField("", text: $controller.modelDir)
                             .disableAutocorrection(true)
                             .textFieldStyle(.roundedBorder)
 
                         Button {
-                            NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: genStore.modelDir).absoluteURL])
+                            NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: controller.modelDir).absoluteURL])
                         } label: {
                             Image(systemName: "magnifyingglass.circle.fill")
                                 .foregroundColor(Color.secondary)
@@ -135,7 +137,7 @@ struct SettingsView: View {
 
                     Spacer()
 
-                    Picker("", selection: $genStore.scheduler) {
+                    Picker("", selection: $controller.scheduler) {
                         ForEach(Scheduler.allCases, id: \.self) { scheduler in
                             Text(scheduler.rawValue).tag(scheduler)
                         }
@@ -154,7 +156,7 @@ struct SettingsView: View {
 
                         Spacer()
 
-                        Picker("", selection: $genStore.mlComputeUnit) {
+                        Picker("", selection: $controller.mlComputeUnit) {
                             Text("CPU & Neural Engine")
                                 .tag(MLComputeUnits.cpuAndNeuralEngine)
                             Text("CPU & GPU")
@@ -188,10 +190,8 @@ struct SettingsView: View {
 }
 
 struct SettingsView_Previews: PreviewProvider {
-    static let genStore = GeneratorStore()
-
     static var previews: some View {
         SettingsView()
-            .environmentObject(genStore)
+            .environmentObject(ImageController.shared)
     }
 }

@@ -8,14 +8,16 @@
 import SwiftUI
 
 struct FileCommands: Commands {
-    @ObservedObject var genStore: GeneratorStore
+    @ObservedObject var store: ImageStore
 
     var body: some Commands {
         CommandGroup(replacing: .saveItem) {
             Section {
                 Button {
-                    guard let sdi = genStore.getSelectedImage else { return }
-                    sdi.save()
+                    Task {
+                        guard let sdi = store.selected() else { return }
+                        await sdi.save()
+                    }
                 } label: {
                     Text(
                         "Save As...",
@@ -23,10 +25,10 @@ struct FileCommands: Commands {
                     )
                 }
                 .keyboardShortcut("S", modifiers: .command)
-                .disabled(genStore.getSelectedImage == nil)
+                .disabled(store.selected() == nil)
 
                 Button {
-                    genStore.saveAllImages()
+                    Task { await ImageController.shared.saveAll() }
                 } label: {
                     Text(
                         "Save All...",
@@ -34,13 +36,13 @@ struct FileCommands: Commands {
                     )
                 }
                 .keyboardShortcut("S", modifiers: [.command, .option])
-                .disabled(genStore.images.isEmpty)
+                .disabled(store.images.isEmpty)
             }
         }
         CommandGroup(replacing: .importExport) {
             Section {
                 Button {
-                    genStore.importImages()
+                    Task { await ImageController.shared.importImages() }
                 } label: {
                     Text(
                         "Import Image...",

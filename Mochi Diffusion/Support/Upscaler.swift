@@ -9,30 +9,33 @@ import CoreImage
 import Vision
 
 final class Upscaler {
+
     static let shared = Upscaler()
+
     private var request: VNCoreMLRequest
 
     init() {
         let config = MLModelConfiguration()
-        config.computeUnits = .cpuAndGPU // Note: CPU & NE conflicts with Image Generation
+        /// Note: CPU & NE conflicts with Image Generation
+        config.computeUnits = .cpuAndGPU
 
-        // Create a Vision instance using the image classifier's model instance
+        /// Create a Vision instance using the image classifier's model instance
         guard let model = try? VNCoreMLModel(for: RealESRGAN(configuration: config).model) else {
-            fatalError("App failed to create a `VNCoreMLModel` instance.")
+            fatalError("Failed to create a `VNCoreMLModel` instance.")
         }
 
-        // Create an image classification request with an image classifier model
+        /// Create an image classification request with an image classifier model
         request = VNCoreMLRequest(model: model) { request, _ in
             if let observations = request.results as? [VNClassificationObservation] {
                 print(observations)
             }
         }
 
-        self.request.imageCropAndScaleOption = .scaleFill // output image's ratio will be fixed later
+        self.request.imageCropAndScaleOption = .scaleFill /// output image's ratio will be fixed later
         self.request.usesCPUOnly = false
     }
 
-    func upscale(cgImage: CGImage) -> CGImage? {
+    func upscale(cgImage: CGImage) async -> CGImage? {
         let handler = VNImageRequestHandler(cgImage: cgImage)
         let requests: [VNRequest] = [request]
 
@@ -48,15 +51,12 @@ final class Upscaler {
         return self.convertPixelBufferToCGImage(pixelBuffer: pixelBuffer)
     }
 
-    func upscale(sdi: SDImage) -> SDImage? {
+    func upscale(sdi: SDImage) async -> SDImage? {
         if !sdi.upscaler.isEmpty { return nil }
         guard let cgImage = sdi.image else { return nil }
-        guard let upscaledImage = upscale(cgImage: cgImage) else { return nil }
+        guard let upscaledImage = await upscale(cgImage: cgImage) else { return nil }
         var upscaledSDI = sdi
-        upscaledSDI.id = UUID()
         upscaledSDI.image = upscaledImage
-        upscaledSDI.width = upscaledImage.width
-        upscaledSDI.height = upscaledImage.height
         upscaledSDI.aspectRatio = CGFloat(Double(sdi.width) / Double(sdi.height))
         upscaledSDI.upscaler = "RealESRGAN"
         return upscaledSDI

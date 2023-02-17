@@ -9,7 +9,6 @@ import SwiftUI
 
 struct GalleryItemView: View {
     let sdi: SDImage
-    let index: Int
 
     var body: some View {
         if let image = sdi.image {
