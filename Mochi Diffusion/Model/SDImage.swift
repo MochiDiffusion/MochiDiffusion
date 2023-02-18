@@ -38,8 +38,6 @@ struct SDImage: Identifiable, Hashable {
 extension SDImage {
     @MainActor
     func save() async {
-        guard let image = image else { return }
-
         let panel = NSSavePanel()
         panel.allowedContentTypes = [.png, .jpeg]
         panel.canCreateDirectories = true
@@ -56,25 +54,15 @@ extension SDImage {
 
         guard let url = panel.url else { return }
         let ext = url.pathExtension.lowercased()
-        guard let data = CFDataCreateMutable(nil, 0) else { return }
-        guard let destination = CGImageDestinationCreateWithData(
-            data,
-            (ext == "png" ?
-                UTType.png.identifier :
-                UTType.jpeg.identifier) as CFString,
-            1,
-            nil
-        ) else { return }
-        let iptc = [
-            kCGImagePropertyIPTCCaptionAbstract: metadata(),
-            kCGImagePropertyIPTCOriginatingProgram: "Mochi Diffusion",
-            kCGImagePropertyIPTCProgramVersion: "\(NSApplication.appVersion)"
-        ]
-        let meta = [kCGImagePropertyIPTCDictionary: iptc]
-        CGImageDestinationAddImage(destination, image, meta as CFDictionary)
-        guard CGImageDestinationFinalize(destination) else { return }
+        let type = ext == "png" ? UTType.png : UTType.jpeg
+
+        guard let data = await imageData(type) else {
+            NSLog("*** Failed to convert image")
+            return
+        }
+
         do {
-            try (data as Data).write(to: url)
+            try data.write(to: url)
         } catch {
             NSLog("*** Error saving image file: \(error)")
         }
@@ -99,5 +87,26 @@ extension SDImage {
         \(Metadata.mlComputeUnit.rawValue): \(MLComputeUnits.toString(mlComputeUnit)); \
         \(Metadata.generator.rawValue): Mochi Diffusion \(NSApplication.appVersion)
         """
+    }
+
+    @MainActor
+    func imageData(_ type: UTType) async -> Data? {
+        guard let image else { return nil }
+        guard let data = CFDataCreateMutable(nil, 0) else { return nil }
+        guard let destination = CGImageDestinationCreateWithData(
+            data,
+            type.identifier as CFString,
+            1,
+            nil
+        ) else { return nil }
+        let iptc = [
+            kCGImagePropertyIPTCCaptionAbstract: metadata(),
+            kCGImagePropertyIPTCOriginatingProgram: "Mochi Diffusion",
+            kCGImagePropertyIPTCProgramVersion: "\(NSApplication.appVersion)"
+        ]
+        let meta = [kCGImagePropertyIPTCDictionary: iptc]
+        CGImageDestinationAddImage(destination, image, meta as CFDictionary)
+        guard CGImageDestinationFinalize(destination) else { return nil }
+        return data as Data
     }
 }
