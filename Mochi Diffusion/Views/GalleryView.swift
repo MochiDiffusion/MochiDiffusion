@@ -5,7 +5,6 @@
 //  Created by Joshua Park on 1/4/23.
 //
 
-import QuickLook
 import SwiftUI
 
 struct GalleryView: View {

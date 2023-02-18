@@ -5,6 +5,7 @@
 //  Created by Joshua Park on 12/16/22.
 //
 
+import QuickLook
 import Sparkle
 import SwiftUI
 
