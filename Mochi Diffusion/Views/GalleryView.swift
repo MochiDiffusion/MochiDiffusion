@@ -84,19 +84,19 @@ struct GalleryView: View {
                             .contextMenu {
                                 Section {
                                     Button {
+                                        Task { await ImageController.shared.copyImage() }
+                                    } label: {
+                                        Text(
+                                            "Copy",
+                                            comment: "Copy the currently selected image to the clipboard"
+                                        )
+                                    }
+                                    Button {
                                         ImageController.shared.copyToPrompt()
                                     } label: {
                                         Text(
                                             "Copy Options to Sidebar",
                                             comment: "Copy the currently selected image's generation options to the prompt input sidebar"
-                                        )
-                                    }
-                                    Button {
-                                        Task { await ImageController.shared.upscale(sdi) }
-                                    } label: {
-                                        Text(
-                                            "Convert to High Resolution",
-                                            comment: "Convert the current image to high resolution"
                                         )
                                     }
                                     Button {
@@ -106,6 +106,18 @@ struct GalleryView: View {
                                             "Save As...",
                                             comment: "Show the save image dialog"
                                         )
+                                    }
+                                }
+                                if sdi.upscaler.isEmpty {
+                                    Section {
+                                        Button {
+                                            Task { await ImageController.shared.upscale(sdi) }
+                                        } label: {
+                                            Text(
+                                                "Convert to High Resolution",
+                                                comment: "Convert the current image to high resolution"
+                                            )
+                                        }
                                     }
                                 }
                                 Section {

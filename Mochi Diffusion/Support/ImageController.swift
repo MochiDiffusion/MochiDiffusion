@@ -322,6 +322,16 @@ final class ImageController: ObservableObject {
         guard let sdi = ImageStore.shared.selected() else { return }
         guidanceScale = sdi.guidanceScale
     }
+
+    func copyImage() async {
+        guard let sdi = ImageStore.shared.selected(),
+              let imageData = await sdi.imageData(.png),
+            let image = NSImage(data: imageData) else { return }
+
+        let pasteboard = NSPasteboard.general
+        pasteboard.clearContents()
+        pasteboard.writeObjects([image])
+    }
 }
 
 extension CGImage {
