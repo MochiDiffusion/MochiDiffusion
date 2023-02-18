@@ -325,7 +325,7 @@ final class ImageController: ObservableObject {
 
     func copyImage() async {
         guard let sdi = ImageStore.shared.selected(),
-              let imageData = await sdi.imageData(.png),
+            let imageData = await sdi.imageData(.png),
             let image = NSImage(data: imageData) else { return }
 
         let pasteboard = NSPasteboard.general
