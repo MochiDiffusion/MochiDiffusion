@@ -32,6 +32,7 @@ final class ImageController: ObservableObject {
 
     @Published
     var quicklookURL: URL?
+    private var quicklookId: UUID?
 
     @AppStorage("ModelDir") var modelDir = ""
     @AppStorage("Model") private(set) var modelName = ""
@@ -155,10 +156,25 @@ final class ImageController: ObservableObject {
 
     func quicklookCurrentImage() async {
         guard let sdi = ImageStore.shared.selected(), let image = sdi.image else {
+            quicklookId = nil
             quicklookURL = nil
             return
         }
-        quicklookURL = try? image.asNSImage().temporaryFileURL()
+
+        if let quicklookId, quicklookId == sdi.id {
+            self.quicklookId = nil
+            quicklookURL = nil
+            return
+        }
+
+        guard let url = try? image.asNSImage().temporaryFileURL() else {
+            quicklookId = nil
+            quicklookURL = nil
+            return
+        }
+
+        quicklookId = sdi.id
+        quicklookURL = url
     }
 
     func select(_ index: Int) async {
@@ -191,6 +207,7 @@ final class ImageController: ObservableObject {
         let curIndex = ImageStore.shared.selectedIndex()
         ImageStore.shared.remove(sdi)
         if ImageStore.shared.images.isEmpty {
+            quicklookId = nil
             quicklookURL = nil
             return
         }
