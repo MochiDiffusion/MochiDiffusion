@@ -263,33 +263,21 @@ final class ImageController: ObservableObject {
         }
 
         guard let selectedURL = panel.url else { return }
-        var count = 1
-        for sdi in ImageStore.shared.images {
+
+        for (index, sdi) in ImageStore.shared.images.enumerated() {
+            let count = index + 1
             let url = selectedURL.appending(path: "\(String(sdi.prompt.prefix(70)).trimmingCharacters(in: .whitespacesAndNewlines)).\(count).\(sdi.seed).png")
-            guard let image = sdi.image else { return }
-            guard let data = CFDataCreateMutable(nil, 0) else { return }
-            guard let destination = CGImageDestinationCreateWithData(
-                data,
-                UTType.png.identifier as CFString,
-                1,
-                nil
-            ) else {
-                return
+
+            guard let data = await sdi.imageData(.png) else {
+                NSLog("*** Failed to convert image")
+                continue
             }
-            let iptc = [
-                kCGImagePropertyIPTCOriginatingProgram: "Mochi Diffusion",
-                kCGImagePropertyIPTCCaptionAbstract: sdi.metadata(),
-                kCGImagePropertyIPTCProgramVersion: "\(NSApplication.appVersion)"
-            ]
-            let meta = [kCGImagePropertyIPTCDictionary: iptc]
-            CGImageDestinationAddImage(destination, image, meta as CFDictionary)
-            guard CGImageDestinationFinalize(destination) else { return }
+
             do {
                 try (data as Data).write(to: url)
             } catch {
                 NSLog("*** Error saving images: \(error)")
             }
-            count += 1
         }
     }
 
