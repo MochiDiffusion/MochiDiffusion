@@ -72,9 +72,7 @@ struct GalleryView: View {
                             .overlay(
                                 RoundedRectangle(cornerRadius: 2)
                                     .stroke(
-                                        sdi.isSelected ?
-                                        Color.accentColor :
-                                            Color(nsColor: .controlBackgroundColor),
+                                        store.selectedId == sdi.id ? Color.accentColor : Color(nsColor: .controlBackgroundColor),
                                         lineWidth: 4
                                     )
                             )

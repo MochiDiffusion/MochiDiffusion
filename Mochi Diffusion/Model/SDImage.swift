@@ -28,7 +28,6 @@ struct SDImage: Identifiable, Hashable {
     var guidanceScale = 11.0
     var generatedDate = Date()
     var upscaler = ""
-    var isSelected = false
 
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)

@@ -15,6 +15,9 @@ class ImageStore: ObservableObject {
     @Published
     private(set) var images: [SDImage] = []
 
+    @Published
+    private(set) var selectedId: SDImage.ID?
+
     @discardableResult
     func add(_ sdi: SDImage) -> SDImage.ID {
         withAnimation {
@@ -63,37 +66,20 @@ class ImageStore: ObservableObject {
     }
 
     func select(_ id: SDImage.ID) {
-        for sdi in images {
-            var updatedSDI = sdi
-            if sdi.id == id {
-                updatedSDI.isSelected = true
-            } else {
-                updatedSDI.isSelected = false
-            }
-            update(updatedSDI)
-        }
+        selectedId = id
     }
 
     func select(_ index: Int) {
         if index < images.startIndex { return }
         if index > images.endIndex { return }
-        images.indices.forEach { curIndex in
-            var updatedSDI = images[curIndex]
-            if curIndex == index {
-                updatedSDI.isSelected = true
-            } else {
-                updatedSDI.isSelected = false
-            }
-            update(updatedSDI)
-        }
+        selectedId = images[index].id
     }
 
     func selected() -> SDImage? {
-        images.first { $0.isSelected }
+        images.first { $0.id == selectedId }
     }
 
     func selectedIndex() -> Int {
-        guard let index = images.firstIndex(where: { $0.isSelected }) else { return -1 }
-        return index
+        images.firstIndex { $0.id == selectedId } ?? -1
     }
 }
