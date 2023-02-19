@@ -25,7 +25,7 @@ struct AppView: View {
                     .frame(maxWidth: 340)
             }
         }
-        .searchable(text: Binding(get: { store.searchText }, set: { store.searchText = $0 }), prompt: "Search")
+        .searchable(text: $store.searchText, prompt: "Search")
     }
 }
 
