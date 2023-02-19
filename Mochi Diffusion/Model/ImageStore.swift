@@ -15,13 +15,6 @@ class ImageStore: ObservableObject {
     @Published
     private(set) var images: [SDImage] = []
 
-    func filter(_ text: String) -> [SDImage] {
-        images.filter {
-            $0.prompt.range(of: text, options: .caseInsensitive) != nil ||
-            $0.seed == UInt32(text)
-        }
-    }
-
     @discardableResult
     func add(_ sdi: SDImage) -> SDImage.ID {
         withAnimation {

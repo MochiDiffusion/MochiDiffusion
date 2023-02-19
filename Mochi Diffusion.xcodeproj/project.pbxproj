@@ -32,7 +32,6 @@
 		036BFC26294B9F7600D8AD04 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 036BFC25294B9F7600D8AD04 /* Assets.xcassets */; };
 		036BFC29294B9F7600D8AD04 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 036BFC28294B9F7600D8AD04 /* Preview Assets.xcassets */; };
 		036BFC4E294B9FDB00D8AD04 /* Path in Frameworks */ = {isa = PBXBuildFile; productRef = 036BFC4D294B9FDB00D8AD04 /* Path */; };
-		0377877B29787826002E3926 /* GalleryConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0377877A29787826002E3926 /* GalleryConfig.swift */; };
 		0386DF8B2950D29400CA4CEB /* InspectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0386DF8A2950D29400CA4CEB /* InspectorView.swift */; };
 		0386DF8D2950F25500CA4CEB /* GalleryToolbarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0386DF8C2950F25500CA4CEB /* GalleryToolbarView.swift */; };
 		0388DEB0297B00FC008B1C1C /* CompactSlider in Frameworks */ = {isa = PBXBuildFile; productRef = 0388DEAF297B00FC008B1C1C /* CompactSlider */; };
@@ -103,7 +102,6 @@
 		036BFC2F294B9F7600D8AD04 /* Mochi Diffusion Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Mochi Diffusion Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		036BFC39294B9F7600D8AD04 /* Mochi Diffusion UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Mochi Diffusion UITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		03732B72296948360042C8B1 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
-		0377877A29787826002E3926 /* GalleryConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryConfig.swift; sourceTree = "<group>"; };
 		0377877D297892B6002E3926 /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/Localizable.strings; sourceTree = "<group>"; };
 		0386DF8A2950D29400CA4CEB /* InspectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InspectorView.swift; sourceTree = "<group>"; };
 		0386DF8C2950F25500CA4CEB /* GalleryToolbarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryToolbarView.swift; sourceTree = "<group>"; };
@@ -262,7 +260,6 @@
 		0386DF8E29510D8700CA4CEB /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				0377877A29787826002E3926 /* GalleryConfig.swift */,
 				03173C17299B3C1300B03456 /* ImageStore.swift */,
 				0311C69829899A660074BCAE /* Metadata.swift */,
 				0395B3102995C70400465B73 /* Scheduler.swift */,
@@ -485,7 +482,6 @@
 				03E89F3C294FE6ED0067457E /* SDImage.swift in Sources */,
 				035EDFF3295A1FBF00080D18 /* NumberOfImagesView.swift in Sources */,
 				0386DF8D2950F25500CA4CEB /* GalleryToolbarView.swift in Sources */,
-				0377877B29787826002E3926 /* GalleryConfig.swift in Sources */,
 				035E76F42970E79A008DDFDE /* CVPixelBuffer+Resize.swift in Sources */,
 				0352E2A7294E3148003FBF25 /* HelpCommands.swift in Sources */,
 				03B1ACA8295167B900302F54 /* SettingsView.swift in Sources */,

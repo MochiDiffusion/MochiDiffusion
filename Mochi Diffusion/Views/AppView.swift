@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct AppView: View {
-    @State private var galleryConfig = GalleryConfig()
+    @State private var searchText: String = ""
 
     var body: some View {
         NavigationSplitView {
@@ -16,7 +16,7 @@ struct AppView: View {
                 .navigationSplitViewColumnWidth(min: 250, ideal: 300)
         } detail: {
             HStack(spacing: 0) {
-                GalleryView(config: $galleryConfig)
+                GalleryView(searchText: $searchText)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
 
                 Divider()
@@ -25,7 +25,7 @@ struct AppView: View {
                     .frame(maxWidth: 340)
             }
         }
-        .searchable(text: $galleryConfig.searchText, prompt: "Search")
+        .searchable(text: $searchText, prompt: "Search")
     }
 }
 
