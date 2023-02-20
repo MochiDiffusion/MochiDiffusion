@@ -25,7 +25,7 @@ final class ImageController: ObservableObject {
     private(set) var models = [SDModel]()
 
     @Published
-    var numberOfImages = 1
+    var numberOfImages = 1.0
 
     @Published
     var seed: UInt32 = 0
@@ -119,7 +119,7 @@ final class ImageController: ObservableObject {
 
         let genConfig = GenerationConfig(
             pipelineConfig: pipelineConfig,
-            numberOfImages: numberOfImages,
+            numberOfImages: Int(numberOfImages),
             model: modelName,
             mlComputeUnit: mlComputeUnit,
             scheduler: scheduler,
@@ -291,7 +291,7 @@ final class ImageController: ObservableObject {
             }
 
             do {
-                try (data as Data).write(to: url)
+                try data.write(to: url)
             } catch {
                 NSLog("*** Error saving images: \(error)")
             }
