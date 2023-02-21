@@ -81,18 +81,25 @@ class ImageStore: ObservableObject {
         }
     }
 
-    func select(_ index: Int) {
-        if index < images.startIndex { return }
-        if index > images.endIndex { return }
+    @discardableResult
+    func select(_ index: Int) -> SDImage.ID? {
+        if index < images.startIndex { return nil }
+        if index > images.endIndex { return nil }
+
+        var id: SDImage.ID?
+
         images.indices.forEach { curIndex in
             var updatedSDI = images[curIndex]
             if curIndex == index {
                 updatedSDI.isSelected = true
+                id = updatedSDI.id
             } else {
                 updatedSDI.isSelected = false
             }
             update(updatedSDI)
         }
+
+        return id
     }
 
     func selected() -> SDImage? {
