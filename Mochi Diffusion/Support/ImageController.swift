@@ -111,7 +111,7 @@ final class ImageController: ObservableObject {
 
     func generate() async {
         if case .ready = ImageGenerator.shared.state {
-            /// continue
+            // continue
         } else {
             return
         }
@@ -150,7 +150,7 @@ final class ImageController: ObservableObject {
         async let maybeSDI = Upscaler.shared.upscale(sdi: sdi)
         guard let upscaledSDI = await maybeSDI else { return }
         ImageStore.shared.update(upscaledSDI)
-        /// if quick look is already open show selected image
+        // If Quick Look is already open show selected image
         if quicklookId != nil {
             quicklookId = upscaledSDI.id
         }
@@ -168,7 +168,7 @@ final class ImageController: ObservableObject {
         }
 
         guard sdi.id != quicklookId else {
-            // Close QuickLook if triggered for the same image
+            // Close Quick Look if triggered for the same image
             quicklookId = nil
             return
         }
@@ -178,7 +178,7 @@ final class ImageController: ObservableObject {
 
     func select(_ index: Int) async {
         let id = ImageStore.shared.select(index)
-        /// if quick look is already open show selected image
+        // If Quick Look is already open show selected image
         if quicklookId != nil {
             quicklookId = id
         }
