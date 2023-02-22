@@ -184,50 +184,44 @@ final class ImageController: ObservableObject {
         quicklookId = sdi.id
     }
 
-    func select(_ index: Int) async {
-        let id = ImageStore.shared.select(index)
-        // If Quick Look is already open show selected image
+    func select(_ id: SDImage.ID) async {
+        ImageStore.shared.select(id)
+
+        // If Quick Look is already open, show selected image
         if quicklookId != nil {
             quicklookId = id
         }
     }
 
-    func select(_ id: SDImage.ID) async {
-        guard let index = ImageStore.shared.images.firstIndex(where: { $0.id == id }) else { return }
-        await select(index)
-    }
-
     func selectPrevious() async {
-        let curIndex = ImageStore.shared.selectedIndex()
-        if curIndex == ImageStore.shared.images.startIndex { return }
-        await select(curIndex - 1)
-    }
-
-    func selectNext() async {
-        let curIndex = ImageStore.shared.selectedIndex()
-        if curIndex == ImageStore.shared.images.endIndex - 1 { return }
-        await select(curIndex + 1)
-    }
-
-    func removeImage(_ sdi: SDImage) async {
-        guard let index = ImageStore.shared.index(for: sdi.id) else { return }
-        let curIndex = ImageStore.shared.selectedIndex()
-        ImageStore.shared.remove(sdi)
-
-        if ImageStore.shared.images.isEmpty {
-            quicklookId = nil
+        guard let previous = ImageStore.shared.imageBefore(ImageStore.shared.selectedId) else {
             return
         }
 
-        if index <= curIndex {
-            if curIndex == ImageStore.shared.images.endIndex {
-                await select(curIndex - 1)
-            } else if curIndex == 0 {
-                await select(0)
-            } else if index == curIndex {
-                await select(curIndex)
-            }
+        await select(previous)
+    }
+
+    func selectNext() async {
+        guard let next = ImageStore.shared.imageAfter(ImageStore.shared.selectedId) else {
+            return
         }
+
+        await select(next)
+    }
+
+    func removeImage(_ sdi: SDImage) async {
+        if let previous = ImageStore.shared.imageBefore(sdi.id, wrap: false) {
+            // Move selection to the left, if possible.
+            await select(previous)
+        } else if let next = ImageStore.shared.imageAfter(sdi.id, wrap: false) {
+            // When deleting the first image, move selection to the right.
+            await select(next)
+        } else {
+            // No next or previous image found: deleting the last image.
+            quicklookId = nil
+        }
+
+        ImageStore.shared.remove(sdi)
     }
 
     func removeCurrentImage() async {

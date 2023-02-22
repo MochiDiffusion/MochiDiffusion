@@ -82,20 +82,24 @@ class ImageStore: ObservableObject {
         selectedId = id
     }
 
-    @discardableResult
-    func select(_ index: Int) -> SDImage.ID? {
-        if index < images.startIndex { return nil }
-        if index > images.endIndex { return nil }
-        selectedId = allImages[index].id
-        return selectedId
-    }
-
     func selected() -> SDImage? {
         allImages.first { $0.id == selectedId }
     }
 
-    func selectedIndex() -> Int {
-        allImages.firstIndex { $0.id == selectedId } ?? -1
+    func imageBefore(_ id: SDImage.ID?, wrap: Bool = true) -> SDImage.ID? {
+        guard let id, let index = images.firstIndex(where: { $0.id == id }), index > 0 else {
+            return wrap ? images.last?.id : nil
+        }
+
+        return images[index - 1].id
+    }
+
+    func imageAfter(_ id: SDImage.ID?, wrap: Bool = true) -> SDImage.ID? {
+        guard let id, let index = images.firstIndex(where: { $0.id == id }), index < images.count - 1 else {
+            return wrap ? images.first?.id : nil
+        }
+
+        return images[index + 1].id
     }
 
     private func updateFilteredImages() {
