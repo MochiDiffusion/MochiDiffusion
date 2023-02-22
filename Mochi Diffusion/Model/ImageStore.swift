@@ -103,10 +103,12 @@ class ImageStore: ObservableObject {
     }
 
     private func updateFilteredImages() {
-        if searchText.isEmpty {
-            images = allImages
-        } else {
-            images = allImages.filter(searchText)
+        withAnimation {
+            if searchText.isEmpty {
+                images = allImages
+            } else {
+                images = allImages.filter(searchText)
+            }
         }
     }
 }
