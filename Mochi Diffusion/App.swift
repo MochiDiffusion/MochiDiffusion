@@ -9,7 +9,7 @@ import QuickLook
 import Sparkle
 import SwiftUI
 
-// This view model class publishes when new updates can be checked by the user
+/// This view model class publishes when new updates can be checked by the user
 final class CheckForUpdatesViewModel: ObservableObject {
     @Published var canCheckForUpdates = false
 
@@ -19,9 +19,9 @@ final class CheckForUpdatesViewModel: ObservableObject {
     }
 }
 
-// This is the view for the Check for Updates menu item
-// Note this intermediate view is necessary for the disabled state on the menu item to work properly before Monterey.
-// See https://stackoverflow.com/questions/68553092/menu-not-updating-swiftui-bug for more info
+/// This is the view for the Check for Updates menu item
+/// Note this intermediate view is necessary for the disabled state on the menu item to work properly before Monterey.
+/// See https://stackoverflow.com/questions/68553092/menu-not-updating-swiftui-bug for more info
 struct CheckForUpdatesView: View {
     @ObservedObject private var checkForUpdatesViewModel: CheckForUpdatesViewModel
     private let updater: SPUUpdater
@@ -66,9 +66,9 @@ struct MochiDiffusionApp: App {
                 .environmentObject(store)
                 .quickLookPreview($controller.quicklookURL)
                 .onReceive(NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification)) { _ in
-                    // cleanup quick look temp images
+                    /// cleanup quick look temp images
                     NSImage.cleanupTempFiles()
-                    // cleanup MPS temp folder
+                    /// cleanup MPS temp folder
                     let mpsURL = FileManager.default.temporaryDirectory.appendingPathComponent("com.apple.MetalPerformanceShadersGraph", isDirectory: true)
                     try? FileManager.default.removeItem(at: mpsURL)
                 }

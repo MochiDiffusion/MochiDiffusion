@@ -78,7 +78,7 @@ struct InspectorView: View {
                             type: LocalizedStringKey(Metadata.includeInImage.rawValue),
                             text: sdi.prompt,
                             showCopyToPromptOption: true,
-                            callback: ImageController.shared.copyToPrompt
+                            callback: ImageController.shared.copyPromptToPrompt
                         )
                         InfoGridRow(
                             type: LocalizedStringKey(Metadata.excludeFromImage.rawValue),

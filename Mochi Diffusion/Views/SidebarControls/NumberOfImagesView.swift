@@ -5,22 +5,19 @@
 //  Created by Joshua Park on 12/26/22.
 //
 
+import CompactSlider
 import SwiftUI
 
 struct NumberOfImagesView: View {
     @EnvironmentObject private var controller: ImageController
-    private let imageCountValues = [
-        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20, 30, 50, 100
-    ]
 
     var body: some View {
         Text("Number of Images:")
-        Picker("", selection: $controller.numberOfImages) {
-            ForEach(imageCountValues, id: \.self) { number in
-                Text(verbatim: String(number)).tag(number)
-            }
+        CompactSlider(value: $controller.numberOfImages, in: 1...100, step: 1) {
+            Text(verbatim: "\(controller.numberOfImages.formatted(.number.precision(.fractionLength(0))))")
+            Spacer()
         }
-        .labelsHidden()
+        .compactSliderStyle(.mochi)
     }
 }
 

@@ -25,14 +25,29 @@ final class ImageController: ObservableObject {
     private(set) var models = [SDModel]()
 
     @Published
-    var numberOfImages = 1
+    var numberOfImages = 1.0
 
     @Published
     var seed: UInt32 = 0
 
     @Published
-    var quicklookURL: URL?
-    private var quicklookId: UUID?
+    var quicklookURL: URL? {
+        didSet {
+            // When QuickLook is manually dismissed with its close button, the system will set this to nil.
+            // Propagate the change to quicklookId, but prevent infinite didSet loops.
+            if quicklookURL == nil, oldValue != nil {
+                quicklookId = nil
+            }
+        }
+    }
+
+    private var quicklookId: UUID? {
+        didSet {
+            quicklookURL = quicklookId.flatMap { id in
+                try? ImageStore.shared.image(with: id)?.image?.asNSImage().temporaryFileURL()
+            }
+        }
+    }
 
     @AppStorage("ModelDir") var modelDir = ""
     @AppStorage("Model") private(set) var modelName = ""
@@ -104,7 +119,7 @@ final class ImageController: ObservableObject {
 
     func generate() async {
         if case .ready = ImageGenerator.shared.state {
-            /// continue
+            // continue
         } else {
             return
         }
@@ -119,7 +134,7 @@ final class ImageController: ObservableObject {
 
         let genConfig = GenerationConfig(
             pipelineConfig: pipelineConfig,
-            numberOfImages: numberOfImages,
+            numberOfImages: Int(numberOfImages),
             model: modelName,
             mlComputeUnit: mlComputeUnit,
             scheduler: scheduler,
@@ -143,9 +158,9 @@ final class ImageController: ObservableObject {
         async let maybeSDI = Upscaler.shared.upscale(sdi: sdi)
         guard let upscaledSDI = await maybeSDI else { return }
         ImageStore.shared.update(upscaledSDI)
-        /// if quick look is already open show selected image
-        if quicklookURL != nil {
-            await quicklookCurrentImage()
+        // If Quick Look is already open show selected image
+        if quicklookId != nil {
+            quicklookId = upscaledSDI.id
         }
     }
 
@@ -155,33 +170,25 @@ final class ImageController: ObservableObject {
     }
 
     func quicklookCurrentImage() async {
-        guard let sdi = ImageStore.shared.selected(), let image = sdi.image else {
+        guard let sdi = ImageStore.shared.selected() else {
             quicklookId = nil
-            quicklookURL = nil
             return
         }
 
-        if let quicklookId, quicklookId == sdi.id {
-            self.quicklookId = nil
-            quicklookURL = nil
-            return
-        }
-
-        guard let url = try? image.asNSImage().temporaryFileURL() else {
+        guard sdi.id != quicklookId else {
+            // Close Quick Look if triggered for the same image
             quicklookId = nil
-            quicklookURL = nil
             return
         }
 
         quicklookId = sdi.id
-        quicklookURL = url
     }
 
     func select(_ index: Int) async {
-        ImageStore.shared.select(index)
-        /// if quick look is already open show selected image
-        if quicklookURL != nil {
-            await quicklookCurrentImage()
+        let id = ImageStore.shared.select(index)
+        // If Quick Look is already open show selected image
+        if quicklookId != nil {
+            quicklookId = id
         }
     }
 
@@ -206,11 +213,12 @@ final class ImageController: ObservableObject {
         guard let index = ImageStore.shared.index(for: sdi.id) else { return }
         let curIndex = ImageStore.shared.selectedIndex()
         ImageStore.shared.remove(sdi)
+
         if ImageStore.shared.images.isEmpty {
             quicklookId = nil
-            quicklookURL = nil
             return
         }
+
         if index <= curIndex {
             if curIndex == ImageStore.shared.images.endIndex {
                 await select(curIndex - 1)
@@ -291,7 +299,7 @@ final class ImageController: ObservableObject {
             }
 
             do {
-                try (data as Data).write(to: url)
+                try data.write(to: url)
             } catch {
                 NSLog("*** Error saving images: \(error)")
             }

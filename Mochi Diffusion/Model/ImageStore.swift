@@ -82,10 +82,12 @@ class ImageStore: ObservableObject {
         selectedId = id
     }
 
-    func select(_ index: Int) {
-        if index < allImages.startIndex { return }
-        if index > allImages.endIndex { return }
+    @discardableResult
+    func select(_ index: Int) -> SDImage.ID? {
+        if index < images.startIndex { return nil }
+        if index > images.endIndex { return nil }
         selectedId = allImages[index].id
+        return selectedId
     }
 
     func selected() -> SDImage? {
