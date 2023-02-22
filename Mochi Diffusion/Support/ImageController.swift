@@ -33,7 +33,7 @@ final class ImageController: ObservableObject {
     @Published
     var quicklookURL: URL? {
         didSet {
-            // When QuickLook is manually dismissed with its close button, the system will set this to nil.
+            // When Quick Look is manually dismissed with its close button, the system will set this to nil.
             // Propagate the change to quicklookId, but prevent infinite didSet loops.
             if quicklookURL == nil, oldValue != nil {
                 quicklookId = nil
