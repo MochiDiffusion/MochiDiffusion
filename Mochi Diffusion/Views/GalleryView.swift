@@ -14,8 +14,6 @@ struct GalleryView: View {
     @EnvironmentObject private var generator: ImageGenerator
     @EnvironmentObject private var store: ImageStore
 
-    @Binding var config: GalleryConfig
-
     private let gridColumns = [GridItem(.adaptive(minimum: 200), spacing: 16)]
 
     var body: some View {
@@ -36,14 +34,14 @@ struct GalleryView: View {
                 .foregroundColor(Color.black.opacity(colorScheme == .dark ? 0.05 : 0.02))
         )
         .navigationTitle(
-            config.searchText.isEmpty ?
+            store.searchText.isEmpty ?
                 "Mochi Diffusion" :
                 String(
-                    localized: "Searching: \(config.searchText)",
+                    localized: "Searching: \(store.searchText)",
                     comment: "Window title bar label displaying the searched text"
                 )
         )
-        .navigationSubtitle(config.searchText.isEmpty ? "\(store.images.count) image(s)" : "")
+        .navigationSubtitle("\(store.images.count) image(s)")
         .toolbar {
             GalleryToolbarView()
         }
@@ -69,9 +67,7 @@ struct GalleryView: View {
                             .overlay(
                                 RoundedRectangle(cornerRadius: 2)
                                     .stroke(
-                                        sdi.isSelected ?
-                                        Color.accentColor :
-                                            Color(nsColor: .controlBackgroundColor),
+                                        store.selectedId == sdi.id ? Color.accentColor : Color(nsColor: .controlBackgroundColor),
                                         lineWidth: 4
                                     )
                             )

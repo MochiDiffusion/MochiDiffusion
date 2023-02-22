@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct AppView: View {
-    @State private var galleryConfig = GalleryConfig()
+    @EnvironmentObject private var store: ImageStore
 
     var body: some View {
         NavigationSplitView {
@@ -16,7 +16,7 @@ struct AppView: View {
                 .navigationSplitViewColumnWidth(min: 250, ideal: 300)
         } detail: {
             HStack(spacing: 0) {
-                GalleryView(config: $galleryConfig)
+                GalleryView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
 
                 Divider()
@@ -25,12 +25,15 @@ struct AppView: View {
                     .frame(maxWidth: 340)
             }
         }
-        .searchable(text: $galleryConfig.searchText, prompt: "Search")
+        .searchable(text: $store.searchText, prompt: "Search")
     }
 }
 
 struct AppView_Previews: PreviewProvider {
     static var previews: some View {
         AppView().previewLayout(.sizeThatFits)
+            .environmentObject(ImageGenerator.shared)
+            .environmentObject(ImageController.shared)
+            .environmentObject(ImageStore.shared)
     }
 }
