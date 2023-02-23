@@ -10,21 +10,18 @@ import SwiftUI
 
 struct ModelView: View {
     @EnvironmentObject private var controller: ImageController
-    #if arch(arm64)
-    @State private var isShowingComputeUnitPopover = false
-    #endif
 
     var body: some View {
         Text("Model:")
         HStack {
-            Picker("", selection: $controller.currentModel.onChange(modelChanged)) {
+            Picker("", selection: $controller.currentModel) {
                 ForEach(controller.models) { model in
                     Text(verbatim: model.name).tag(Optional(model))
                 }
             }
             .labelsHidden()
             #if arch(arm64)
-            .popover(isPresented: $isShowingComputeUnitPopover, arrowEdge: .top) {
+            .popover(isPresented: $controller.presentingComputeUnitSelection, arrowEdge: .top) {
                 VStack(alignment: .leading, spacing: 0) {
                     Text("Select Compute Unit option")
                         .fontWeight(.bold)
@@ -47,21 +44,13 @@ struct ModelView: View {
 
                     HStack {
                         Button {
-                            Task {
-                                ImageController.shared.mlComputeUnit = .cpuAndNeuralEngine
-                                await ImageController.shared.loadModels()
-                                isShowingComputeUnitPopover = false
-                            }
+                            controller.computeUnitSelected(.cpuAndNeuralEngine)
                         } label: {
                             Text("Use Neural Engine")
                         }
 
                         Button {
-                            Task {
-                                ImageController.shared.mlComputeUnit = .cpuAndGPU
-                                await ImageController.shared.loadModels()
-                                isShowingComputeUnitPopover = false
-                            }
+                            controller.computeUnitSelected(.cpuAndGPU)
                         } label: {
                             Text("Use GPU")
                         }
@@ -72,18 +61,12 @@ struct ModelView: View {
             #endif
 
             Button {
-                Task { await ImageController.shared.loadModels() }
+                Task { await controller.loadModels() }
             } label: {
                 Image(systemName: "arrow.clockwise")
                     .frame(minWidth: 18)
             }
         }
-    }
-
-    func modelChanged(to value: SDModel?) {
-        #if arch(arm64)
-        isShowingComputeUnitPopover.toggle()
-        #endif
     }
 }
 

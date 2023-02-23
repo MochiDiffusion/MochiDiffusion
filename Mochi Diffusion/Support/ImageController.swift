@@ -75,6 +75,8 @@ final class ImageController: ObservableObject {
             }
             modelName = model.name
             Task {
+                await selectComputeUnit()
+
                 do {
                     try await ImageGenerator.shared.load(
                         model: model,
@@ -88,6 +90,27 @@ final class ImageController: ObservableObject {
             }
         }
     }
+
+    #if arch(arm64)
+    @Published
+    var presentingComputeUnitSelection = false {
+        didSet {
+            if !presentingComputeUnitSelection, let pendingComputeUnitSelection {
+                pendingComputeUnitSelection.resume(returning: MLComputeUnits.default)
+                self.pendingComputeUnitSelection = nil
+            }
+        }
+    }
+
+    private var pendingComputeUnitSelection: CheckedContinuation<MLComputeUnits, Never>? {
+        didSet {
+            if pendingComputeUnitSelection != nil {
+                oldValue?.resume(returning: MLComputeUnits.default)
+                presentingComputeUnitSelection = true
+            }
+        }
+    }
+    #endif
 
     init() {
         Task {
@@ -351,10 +374,41 @@ final class ImageController: ObservableObject {
         pasteboard.clearContents()
         pasteboard.writeObjects([image])
     }
+
+    #if arch(arm64)
+    private func selectComputeUnit() async {
+        let unit = await withCheckedContinuation { continuation in
+            self.pendingComputeUnitSelection = continuation
+        }
+
+        mlComputeUnit = unit
+        presentingComputeUnitSelection = false
+    }
+
+    func computeUnitSelected(_ unit: MLComputeUnits) {
+        if let pendingComputeUnitSelection {
+            pendingComputeUnitSelection.resume(returning: unit)
+            self.pendingComputeUnitSelection = nil
+        }
+    }
+    #else
+    private func selectComputeUnit() async {
+    }
+    #endif
 }
 
 extension CGImage {
     func asNSImage() -> NSImage {
         NSImage(cgImage: self, size: NSSize(width: width, height: height))
+    }
+}
+
+private extension MLComputeUnits {
+    static var `default`: MLComputeUnits {
+        #if arch(arm64)
+        MLComputeUnits.cpuAndNeuralEngine
+        #else
+        MLComputeUnits.cpuAndGPU
+        #endif
     }
 }
