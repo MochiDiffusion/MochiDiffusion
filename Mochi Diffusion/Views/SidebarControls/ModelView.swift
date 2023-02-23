@@ -32,7 +32,7 @@ struct ModelView: View {
                     Spacer()
 
                     Text(
-                        "\(controller.currentModel!.name) model",
+                        "\(controller.modelName) model",
                         comment: "Label displaying the currently selected model name"
                     )
 
