@@ -210,15 +210,17 @@ final class ImageController: ObservableObject {
     }
 
     func removeImage(_ sdi: SDImage) async {
-        if let previous = ImageStore.shared.imageBefore(sdi.id, wrap: false) {
-            // Move selection to the left, if possible.
-            await select(previous)
-        } else if let next = ImageStore.shared.imageAfter(sdi.id, wrap: false) {
-            // When deleting the first image, move selection to the right.
-            await select(next)
-        } else {
-            // No next or previous image found: deleting the last image.
-            quicklookId = nil
+        if sdi.id == ImageStore.shared.selectedId {
+            if let previous = ImageStore.shared.imageBefore(sdi.id, wrap: false) {
+                // Move selection to the left, if possible.
+                await select(previous)
+            } else if let next = ImageStore.shared.imageAfter(sdi.id, wrap: false) {
+                // When deleting the first image, move selection to the right.
+                await select(next)
+            } else {
+                // No next or previous image found: deleting the last image.
+                quicklookId = nil
+            }
         }
 
         ImageStore.shared.remove(sdi)
