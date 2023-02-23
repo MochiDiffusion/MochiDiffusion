@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct GalleryToolbarView: View {
+    @Binding var isShowingInspector: Bool
     @EnvironmentObject private var generator: ImageGenerator
     @EnvironmentObject private var store: ImageStore
     @State private var isStatusPopoverShown = false
@@ -111,6 +112,23 @@ struct GalleryToolbarView: View {
         } else {
             disabledToolbarActionView
         }
+
+        Spacer()
+
+        Button {
+            withAnimation(.spring()) {
+                isShowingInspector.toggle()
+            }
+        } label: {
+            Label {
+                Text(
+                    "Toggle Info Panel",
+                    comment: "Toolbar button to hide or show the info panel"
+                )
+            } icon: {
+                Image(systemName: "sidebar.right")
+            }
+        }
     }
 
     @ViewBuilder
@@ -174,7 +192,7 @@ struct GalleryToolbarView: View {
 
 struct GalleryToolbarView_Previews: PreviewProvider {
     static var previews: some View {
-        GalleryToolbarView()
+        GalleryToolbarView(isShowingInspector: .constant(true))
             .environmentObject(ImageGenerator.shared)
             .environmentObject(ImageStore.shared)
     }

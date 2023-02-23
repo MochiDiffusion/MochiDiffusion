@@ -42,9 +42,6 @@ struct GalleryView: View {
                 )
         )
         .navigationSubtitle("\(store.images.count) image(s)")
-        .toolbar {
-            GalleryToolbarView()
-        }
     }
 
     @ViewBuilder

@@ -9,6 +9,7 @@ import SwiftUI
 
 struct AppView: View {
     @EnvironmentObject private var store: ImageStore
+    @State private var isShowingInspector = true
 
     var body: some View {
         NavigationSplitView {
@@ -21,9 +22,14 @@ struct AppView: View {
 
                 Divider()
 
-                InspectorView()
-                    .frame(maxWidth: 340)
+                if isShowingInspector {
+                    InspectorView()
+                        .frame(maxWidth: 340)
+                }
             }
+        }
+        .toolbar {
+            GalleryToolbarView(isShowingInspector: $isShowingInspector)
         }
         .searchable(text: $store.searchText, prompt: "Search")
     }
@@ -32,8 +38,6 @@ struct AppView: View {
 struct AppView_Previews: PreviewProvider {
     static var previews: some View {
         AppView().previewLayout(.sizeThatFits)
-            .environmentObject(ImageGenerator.shared)
-            .environmentObject(ImageController.shared)
             .environmentObject(ImageStore.shared)
     }
 }
