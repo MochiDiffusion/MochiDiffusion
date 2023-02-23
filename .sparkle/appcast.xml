@@ -5,6 +5,34 @@
     <language>en</language>
 
     <item>
+      <title>v2.4.1</title>
+      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <sparkle:version>2.4.1</sparkle:version>
+      <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
+      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <pubDate>Thu, 23 Feb 2023 15:21:05 +0000</pubDate>
+      <enclosure
+        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v2.4.1/MochiDiffusion_v2.4.1.dmg"
+        sparkle:edSignature="QQAV2+pcEUeFgXvIN22c6q80wrNLAkFtbHdwKr1KRtBwD/pWsRFRu0OiuK4UVUC8CjNs5dOWVS1TGGhX5LXaCg=="
+        length="67151914"
+        type="application/octet-stream" />
+      <description><![CDATA[
+      <ul>
+      <li>Added Ukrainian translation (Pavlo Pavlov)</li>
+      <li>Added Copy to clipboard option to image context menu (@vzsg)</li>
+      <li>Changed Number of Images option to slider</li>
+      <li>Changed image selection to move to beginning if end is reached and vice versa (@vzsg)</li>
+      <li>Fixed &amp; improved search (@vzsg)</li>
+      <li>Fixed copying Include in Image option to sidebar in Info panel</li>
+      </ul>
+      <p>Can you speak another language? Visit the <a href="https://crowdin.com/project/mochi-diffusion">project page on Crowdin</a>!</p>
+      <p>Special thanks to the following for supporting me and making this app possible 🎉
+      <strong>raisingfightingspirit</strong>, <strong>serovar</strong>, <strong>orange-wedge</strong>, <strong>RuralRob</strong>, <strong>vacekj</strong>, <strong>julien-c</strong>, <strong>Quick-Eyed-Sky</strong>, <strong>BirdSesame</strong>, <strong>Da-mi-en</strong>, <strong>monks1975</strong>, <strong>angeenes</strong>, &amp; anonymous donors</p>
+      ]]>
+      </description>
+    </item>
+
+    <item>
       <title>Mochi Ice Cream</title>
       <link>https://github.com/godly-devotion/MochiDiffusion</link>
       <sparkle:version>2.4</sparkle:version>
