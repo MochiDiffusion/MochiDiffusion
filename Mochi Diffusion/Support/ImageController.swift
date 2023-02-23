@@ -60,22 +60,32 @@ final class ImageController: ObservableObject {
     @AppStorage("Scheduler") var scheduler: Scheduler = .dpmSolverMultistepScheduler
     @AppStorage("UpscaleGeneratedImages") var upscaleGeneratedImages = false
     #if arch(arm64)
-    @AppStorage("MLComputeUnit") var mlComputeUnit: MLComputeUnits = .cpuAndNeuralEngine
+    @AppStorage("MLComputeUnit") var mlComputeUnit: MLComputeUnits = .default
     #else
-    private let mlComputeUnit: MLComputeUnits = .cpuAndGPU
+    private let mlComputeUnit: MLComputeUnits = .default
     #endif
     @AppStorage("ReduceMemory") var reduceMemory = false
     @AppStorage("SafetyChecker") var safetyChecker = false
+    private var modelInitialized = false
 
     @Published
     var currentModel: SDModel? {
         didSet {
             guard let model = currentModel else {
+                modelInitialized = true
                 return
             }
+
             modelName = model.name
+
             Task {
-                await selectComputeUnit()
+                #if arch(arm64)
+                if modelInitialized {
+                    await selectComputeUnit()
+                } else {
+                    modelInitialized = true
+                }
+                #endif
 
                 do {
                     try await ImageGenerator.shared.load(
@@ -390,9 +400,6 @@ final class ImageController: ObservableObject {
             pendingComputeUnitSelection.resume(returning: unit)
             self.pendingComputeUnitSelection = nil
         }
-    }
-    #else
-    private func selectComputeUnit() async {
     }
     #endif
 }
