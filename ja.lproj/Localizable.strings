@@ -67,6 +67,7 @@
 "Stop Generation" = "画像生成の中止";
 "Support Me ♥" = "サポートお願いします♥";
 "This may take up to 2 minutes if a model is used for the first time" = "モデルを初めて使用する場合、2分程度かかることがあります";
+"Toggle Info Panel" = "情報パネルの切り替え";
 "Use GPU" = "GPUを使う";
 "Use Neural Engine" = "Neural Engineを使う";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "モデルのセーフティ チェッカー モジュールを使用します。 これは、すべての不適切な画像が除外されることを保証するものではありません。";
