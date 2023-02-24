@@ -171,7 +171,7 @@ extension CGImage {
         ) else { return nil }
         guard let outputImage = filter.outputImage else { return nil }
 
-        // Bitmap consisting of (r, g, b, a) value
+        /// Bitmap consisting of (r, g, b, a) value
         var bitmap = [UInt8](repeating: 0, count: 4)
         let context = CIContext(options: [.workingColorSpace: kCFNull!])
         context.render(

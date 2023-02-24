@@ -36,8 +36,8 @@ final class ImageController: ObservableObject {
     @Published
     var quicklookURL: URL? {
         didSet {
-            // When Quick Look is manually dismissed with its close button, the system will set this to nil.
-            // Propagate the change to quicklookId, but prevent infinite didSet loops.
+            /// When Quick Look is manually dismissed with its close button, the system will set this to nil.
+            /// Propagate the change to quicklookId, but prevent infinite didSet loops.
             if quicklookURL == nil, oldValue != nil {
                 quicklookId = nil
             }
@@ -191,7 +191,7 @@ final class ImageController: ObservableObject {
         async let maybeSDI = Upscaler.shared.upscale(sdi: sdi)
         guard let upscaledSDI = await maybeSDI else { return }
         ImageStore.shared.update(upscaledSDI)
-        // If Quick Look is already open show selected image
+        /// If Quick Look is already open show selected image
         if quicklookId != nil {
             quicklookId = upscaledSDI.id
         }
@@ -209,7 +209,7 @@ final class ImageController: ObservableObject {
         }
 
         guard sdi.id != quicklookId else {
-            // Close Quick Look if triggered for the same image
+            /// Close Quick Look if triggered for the same image
             quicklookId = nil
             return
         }
@@ -220,7 +220,7 @@ final class ImageController: ObservableObject {
     func select(_ id: SDImage.ID) async {
         ImageStore.shared.select(id)
 
-        // If Quick Look is already open, show selected image
+        /// If Quick Look is already open, show selected image
         if quicklookId != nil {
             quicklookId = id
         }
@@ -243,13 +243,13 @@ final class ImageController: ObservableObject {
     func removeImage(_ sdi: SDImage) async {
         if sdi.id == ImageStore.shared.selectedId {
             if let previous = ImageStore.shared.imageBefore(sdi.id, wrap: false) {
-                // Move selection to the left, if possible.
+                /// Move selection to the left, if possible.
                 await select(previous)
             } else if let next = ImageStore.shared.imageAfter(sdi.id, wrap: false) {
-                // When deleting the first image, move selection to the right.
+                /// When deleting the first image, move selection to the right.
                 await select(next)
             } else {
-                // No next or previous image found: deleting the last image.
+                /// No next or previous image found: deleting the last image.
                 quicklookId = nil
             }
         }

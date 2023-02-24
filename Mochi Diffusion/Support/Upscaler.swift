@@ -12,7 +12,7 @@ final class Upscaler {
 
     static let shared = Upscaler()
 
-    private var request: VNCoreMLRequest
+    private let request: VNCoreMLRequest
 
     init() {
         let config = MLModelConfiguration()
