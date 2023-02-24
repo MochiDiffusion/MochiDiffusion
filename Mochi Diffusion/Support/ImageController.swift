@@ -22,6 +22,9 @@ final class ImageController: ObservableObject {
     private lazy var logger = Logger()
 
     @Published
+    var isInit = true
+
+    @Published
     private(set) var models = [SDModel]()
 
     @Published
@@ -97,6 +100,7 @@ final class ImageController: ObservableObject {
                 await loadImages()
             }
             await loadModels()
+            isInit = false
         }
     }
 

@@ -64,6 +64,15 @@ struct MochiDiffusionApp: App {
                 .environmentObject(controller)
                 .environmentObject(generator)
                 .environmentObject(store)
+                .sheet(isPresented: $controller.isInit) {
+                    VStack {
+                        ProgressView()
+                        Spacer().frame(height: 16)
+                        Text("Loading...")
+                    }
+                    .padding([.top, .bottom], 40)
+                    .padding([.leading, .trailing], 50)
+                }
                 .quickLookPreview($controller.quicklookURL)
                 .onReceive(NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification)) { _ in
                     /// cleanup quick look temp images
