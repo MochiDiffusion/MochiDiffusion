@@ -10,6 +10,7 @@
 "%@ model" = "Modello %@";
 "All" = "Tutti";
 "Apply" = "Applica";
+"Autosave & Restore Images" = "Salvataggio automatico e ripristino immagini";
 "Based on the option selected the correct model version will need to be used." = "In base all\'opzione selezionata dovrà essere utilizzata la versione del modello corrispondente.";
 "CPU & GPU" = "CPU & GPU";
 "CPU & GPU may be faster on M1 Max, Ultra and later but will use more memory." = "CPU & GPU potrebbe risultare più veloce su M1 Max, Ultra e successivi, ma utilizzerà più memoria.";
@@ -42,6 +43,7 @@
 "Import Image..." = "Importa immagine...";
 "Include in Image:" = "Includi nell\'immagine:";
 "Loading Model..." = "Caricamento modello...";
+"Loading..." = "Caricamento...";
 "ML Compute Unit" = "Unità ML";
 "Model Folder" = "Cartella Modello";
 "Model:" = "Modello:";
@@ -65,11 +67,13 @@
 "Select Next" = "Seleziona successiva";
 "Select Previous" = "Seleziona precedente";
 "Share..." = "Condividi...";
+"Show in Finder" = "Mostra nel Finder";
 "Step %lld of %lld" = "Passo %lld di %lld";
 "Steps:" = "Numero di passi:";
 "Stop Generation" = "Ferma la generazione";
 "Support Me ♥" = "Sostienimi ♥";
 "This may take up to 2 minutes if a model is used for the first time" = "Potrebbero volerci fino a 2 minuti se un modello viene utilizzato per la prima volta";
+"Toggle Info Panel" = "Mostra/nascondi il pannello informazioni";
 "Use GPU" = "Usa GPU";
 "Use Neural Engine" = "Usa Neural Engine";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Utilizza il modulo di verifica della sicurezza del modello. Questo non garantisce che tutti i contenuti inappropriati vengano filtrati.";

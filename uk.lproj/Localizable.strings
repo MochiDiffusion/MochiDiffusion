@@ -10,6 +10,7 @@
 "%@ model" = "Модель %@";
 "All" = "Усі";
 "Apply" = "Застосувати";
+"Autosave & Restore Images" = "Автоматично зберігати та відновлювати зображення";
 "Based on the option selected the correct model version will need to be used." = "Виходячи з опції, потрібно буде використовувати правильну версію моделі.";
 "CPU & GPU" = "CPU та GPU";
 "CPU & GPU may be faster on M1 Max, Ultra and later but will use more memory." = "CPU та GPU можуть бути швидшими на M1 Max, Ultra і пізніших моделях, але буде використовуватись більше пам\'яті.";
@@ -42,6 +43,7 @@
 "Import Image..." = "Імпортувати зображення...";
 "Include in Image:" = "Включити до зображення:";
 "Loading Model..." = "Завантаження моделі...";
+"Loading..." = "Завантаження…";
 "ML Compute Unit" = "Обчислювальний блок ML";
 "Model Folder" = "Тека для моделей";
 "Model:" = "Модель:";
@@ -65,11 +67,13 @@
 "Select Next" = "Обрати наступне";
 "Select Previous" = "Обрати попереднє";
 "Share..." = "Поширити...";
+"Show in Finder" = "Показати у Finder";
 "Step %lld of %lld" = "Крок %lld із %lld";
 "Steps:" = "Кроки:";
 "Stop Generation" = "Зупинити генерацію";
 "Support Me ♥" = "Підтримайте мене ♥";
 "This may take up to 2 minutes if a model is used for the first time" = "Це може зайняти до 2 хвилин, якщо модель використовується вперше";
+"Toggle Info Panel" = "Сховати/показати інформаційну панель";
 "Use GPU" = "Використовувати GPU";
 "Use Neural Engine" = "Використовувати Neural Engine";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Використовує модуль моделі для перевірки зображень на безпечність. Це не гарантує, що всі неприйнятні зображення будуть відфільтровані.";
