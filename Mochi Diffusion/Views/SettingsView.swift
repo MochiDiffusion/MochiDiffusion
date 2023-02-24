@@ -44,13 +44,15 @@ struct SettingsView: View {
 
                 Button {
                     Task {
+                        NSApplication.shared.keyWindow?.close()
+                        ImageController.shared.isInit = true
                         if controller.autosaveImages {
                             /// If user generated images that were unautosaved,
                             /// keep those images in gallery while loading from autosave directory so we don't lose their work
                             await ImageController.shared.reloadImagesKeepUnsaved()
                         }
                         await ImageController.shared.loadModels()
-                        NSApplication.shared.keyWindow?.close()
+                        ImageController.shared.isInit = false
                     }
                 } label: {
                     Text(
