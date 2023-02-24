@@ -29,7 +29,7 @@ struct MochiDiffusionApp: App {
     }
 
     var body: some Scene {
-        WindowGroup {
+        Window("Mochi Diffusion", id: "main") {
             AppView()
                 .environmentObject(controller)
                 .environmentObject(generator)
@@ -54,7 +54,6 @@ struct MochiDiffusionApp: App {
         }
         .commands {
             AppCommands(updater: updaterController.updater)
-            CommandGroup(replacing: CommandGroupPlacement.newItem) { /* hide new window */ }
             FileCommands(store: store)
             SidebarCommands()
             ImageCommands(controller: controller, generator: generator, store: store)
