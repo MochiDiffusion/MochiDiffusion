@@ -96,15 +96,24 @@ final class ImageController: ObservableObject {
 
     init() {
         Task {
-            if autosaveImages {
-                await loadImages()
-            }
-            await loadModels()
-            isInit = false
+            await load()
         }
     }
 
+    /// Run init sequence for ImageController
+    func load() async {
+        isInit = true
+        if autosaveImages {
+            await loadImages()
+        }
+        await loadModels()
+        isInit = false
+    }
+
     func loadImages() async {
+        /// If there are unautosaved images,
+        /// keep those images in gallery while loading from autosave directory so we don't lose their work
+        ImageStore.shared.removeAllExceptUnsaved()
         do {
             async let (images, imageDirURL) = try ImageGenerator.shared.loadImages(imageDir: imageDir)
             let count = try await images.count
@@ -116,11 +125,6 @@ final class ImageController: ObservableObject {
         } catch {
             logger.error("There was a problem loading the images: \(error.localizedDescription)")
         }
-    }
-
-    func reloadImagesKeepUnsaved() async {
-        ImageStore.shared.removeAllExceptUnsaved()
-        await loadImages()
     }
 
     func loadModels() async {
