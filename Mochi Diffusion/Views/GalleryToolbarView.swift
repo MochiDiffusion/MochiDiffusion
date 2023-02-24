@@ -95,7 +95,7 @@ struct GalleryToolbarView: View {
             Spacer()
 
             Button {
-                Task { await sdi.save() }
+                Task { await sdi.saveAs() }
             } label: {
                 Label {
                     Text(
@@ -112,8 +112,6 @@ struct GalleryToolbarView: View {
         } else {
             disabledToolbarActionView
         }
-
-        Spacer()
 
         Button {
             withAnimation(.spring()) {

@@ -51,6 +51,9 @@ func compareVersion(_ thisVersion: String, _ compareTo: String) -> ComparisonRes
 
 // swiftlint:disable:next cyclomatic_complexity
 func createSDImageFromURL(_ url: URL) -> SDImage? {
+    guard let attr = try? FileManager.default.attributesOfItem(atPath: url.path(percentEncoded: false)) else { return nil }
+    let maybeDateModified = attr[FileAttributeKey.modificationDate] as? Date
+    guard let dateModified = maybeDateModified else { return nil }
     guard let cgImageSource = CGImageSourceCreateWithURL(url as CFURL, nil) else { return nil }
     let imageIndex = CGImageSourceGetPrimaryImageIndex(cgImageSource)
     guard let cgImage = CGImageSourceCreateImageAtIndex(cgImageSource, imageIndex, nil) else { return nil }
@@ -61,7 +64,9 @@ func createSDImageFromURL(_ url: URL) -> SDImage? {
     var sdi = SDImage(
         id: UUID(),
         image: cgImage,
-        aspectRatio: CGFloat(Double(cgImage.width) / Double(cgImage.height))
+        aspectRatio: CGFloat(Double(cgImage.width) / Double(cgImage.height)),
+        generatedDate: dateModified,
+        path: url.path(percentEncoded: false)
     )
     var generatedVersion = ""
     for field in infoString.split(separator: "; ") {

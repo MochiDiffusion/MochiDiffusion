@@ -47,13 +47,24 @@ class ImageStore: ObservableObject {
         }
     }
 
-    func remove(_ sdi: SDImage) {
-        remove(sdi.id)
+    func remove(_ sdi: SDImage, trashFile: Bool = false) {
+        remove(sdi.id, trashFile: trashFile)
     }
 
-    func remove(_ id: SDImage.ID) {
+    func remove(_ id: SDImage.ID, trashFile: Bool = false) {
         withAnimation {
             guard let index = index(for: id) else { return }
+            let sdi = allImages[index]
+            allImages.remove(at: index)
+            if trashFile && !sdi.path.isEmpty {
+                try? FileManager.default.trashItem(at: URL(fileURLWithPath: sdi.path, isDirectory: false), resultingItemURL: nil)
+            }
+        }
+    }
+
+    func removeAllExceptUnsaved() {
+        for sdi in images where !sdi.path.isEmpty {
+            guard let index = index(for: sdi.id) else { return }
             allImages.remove(at: index)
         }
     }
@@ -61,6 +72,11 @@ class ImageStore: ObservableObject {
     func update(_ sdi: SDImage) {
         guard let index = index(for: sdi.id) else { return }
         allImages[index] = sdi
+        if !sdi.path.isEmpty {
+            Task {
+                await sdi.save(URL(fileURLWithPath: sdi.path, isDirectory: false))
+            }
+        }
     }
 
     func index(for id: SDImage.ID) -> Int? {

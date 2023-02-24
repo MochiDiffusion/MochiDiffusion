@@ -84,6 +84,7 @@ struct GalleryView: View {
                                             comment: "Copy the currently selected image to the clipboard"
                                         )
                                     }
+
                                     Button {
                                         ImageController.shared.copyToPrompt()
                                     } label: {
@@ -92,8 +93,9 @@ struct GalleryView: View {
                                             comment: "Copy the currently selected image's generation options to the prompt input sidebar"
                                         )
                                     }
+
                                     Button {
-                                        Task { await sdi.save() }
+                                        Task { await sdi.saveAs() }
                                     } label: {
                                         Text(
                                             "Save As...",
@@ -101,15 +103,28 @@ struct GalleryView: View {
                                         )
                                     }
                                 }
-                                if sdi.upscaler.isEmpty {
+                                if sdi.upscaler.isEmpty || !sdi.path.isEmpty {
                                     Section {
-                                        Button {
-                                            Task { await ImageController.shared.upscale(sdi) }
-                                        } label: {
-                                            Text(
-                                                "Convert to High Resolution",
-                                                comment: "Convert the current image to high resolution"
-                                            )
+                                        if sdi.upscaler.isEmpty {
+                                            Button {
+                                                Task { await ImageController.shared.upscale(sdi) }
+                                            } label: {
+                                                Text(
+                                                    "Convert to High Resolution",
+                                                    comment: "Convert the current image to high resolution"
+                                                )
+                                            }
+                                        }
+
+                                        if !sdi.path.isEmpty {
+                                            Button {
+                                                NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: sdi.path).absoluteURL])
+                                            } label: {
+                                                Text(
+                                                    "Show in Finder",
+                                                    comment: "Show image with Finder"
+                                                )
+                                            }
                                         }
                                     }
                                 }

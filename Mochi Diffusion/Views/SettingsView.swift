@@ -44,6 +44,11 @@ struct SettingsView: View {
 
                 Button {
                     Task {
+                        if controller.autosaveImages {
+                            /// If user generated images that were unautosaved,
+                            /// keep those images in gallery while loading from autosave directory so we don't lose their work
+                            await ImageController.shared.reloadImagesKeepUnsaved()
+                        }
                         await ImageController.shared.loadModels()
                         NSApplication.shared.keyWindow?.close()
                     }
@@ -67,39 +72,31 @@ struct SettingsView: View {
             GroupBox {
                 VStack(alignment: .leading) {
                     HStack {
-                        Text("Reduce Memory Usage")
+                        Text("Autosave & Restore Images")
 
                         Spacer()
 
-                        Toggle("", isOn: $controller.reduceMemory)
+                        Toggle("", isOn: $controller.autosaveImages)
                             .labelsHidden()
                             .toggleStyle(.switch)
+                            .controlSize(.small)
                     }
-                    Text(
-                        "Reduce memory usage further at the cost of speed.",
-                        comment: "Help text for Reduce Memory Usage option"
-                    )
-                    .helpTextFormat()
-                }
-                .padding(4)
-            }
 
-            GroupBox {
-                VStack(alignment: .leading) {
                     HStack {
-                        Text("Filter Inappropriate Images")
+                        TextField("", text: $controller.imageDir)
+                            .disableAutocorrection(true)
+                            .textFieldStyle(.roundedBorder)
+                            .disabled(!$controller.autosaveImages.wrappedValue)
 
-                        Spacer()
-
-                        Toggle("", isOn: $controller.safetyChecker)
-                            .labelsHidden()
-                            .toggleStyle(.switch)
+                        Button {
+                            NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: controller.imageDir).absoluteURL])
+                        } label: {
+                            Image(systemName: "magnifyingglass.circle.fill")
+                                .foregroundColor(Color.secondary)
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        .help("Open in Finder")
                     }
-                    Text(
-                        "Uses the model's safety checker module. This does not guarantee that all inappropriate images will be filtered.",
-                        comment: "Help text for Filter Inappropriate Images option"
-                    )
-                    .helpTextFormat()
                 }
                 .padding(4)
             }
@@ -122,6 +119,48 @@ struct SettingsView: View {
                         .buttonStyle(PlainButtonStyle())
                         .help("Open in Finder")
                     }
+                }
+                .padding(4)
+            }
+
+            GroupBox {
+                VStack(alignment: .leading) {
+                    HStack {
+                        Text("Reduce Memory Usage")
+
+                        Spacer()
+
+                        Toggle("", isOn: $controller.reduceMemory)
+                            .labelsHidden()
+                            .toggleStyle(.switch)
+                            .controlSize(.small)
+                    }
+                    Text(
+                        "Reduce memory usage further at the cost of speed.",
+                        comment: "Help text for Reduce Memory Usage option"
+                    )
+                    .helpTextFormat()
+                }
+                .padding(4)
+            }
+
+            GroupBox {
+                VStack(alignment: .leading) {
+                    HStack {
+                        Text("Filter Inappropriate Images")
+
+                        Spacer()
+
+                        Toggle("", isOn: $controller.safetyChecker)
+                            .labelsHidden()
+                            .toggleStyle(.switch)
+                            .controlSize(.small)
+                    }
+                    Text(
+                        "Uses the model's safety checker module. This does not guarantee that all inappropriate images will be filtered.",
+                        comment: "Help text for Filter Inappropriate Images option"
+                    )
+                    .helpTextFormat()
                 }
                 .padding(4)
             }

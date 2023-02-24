@@ -16,7 +16,7 @@ struct FileCommands: Commands {
                 Button {
                     Task {
                         guard let sdi = store.selected() else { return }
-                        await sdi.save()
+                        await sdi.saveAs()
                     }
                 } label: {
                     Text(
@@ -37,6 +37,20 @@ struct FileCommands: Commands {
                 }
                 .keyboardShortcut("S", modifiers: [.command, .option])
                 .disabled(store.images.isEmpty)
+            }
+
+            if let sdi = store.selected() {
+                Section {
+                    Button {
+                        NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: sdi.path).absoluteURL])
+                    } label: {
+                        Text(
+                            "Show in Finder",
+                            comment: "Show image with Finder"
+                        )
+                    }
+                    .disabled(sdi.path.isEmpty)
+                }
             }
         }
         CommandGroup(replacing: .importExport) {

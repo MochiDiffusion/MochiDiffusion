@@ -51,6 +51,8 @@ final class ImageController: ObservableObject {
 
     @AppStorage("ModelDir") var modelDir = ""
     @AppStorage("Model") private(set) var modelName = ""
+    @AppStorage("AutosaveImages") var autosaveImages = true
+    @AppStorage("ImageDir") var imageDir = ""
     @AppStorage("Prompt") var prompt = ""
     @AppStorage("NegativePrompt") var negativePrompt = ""
     @AppStorage("Steps") var steps = 12.0
@@ -91,9 +93,30 @@ final class ImageController: ObservableObject {
 
     init() {
         Task {
-            logger.info("Generator init")
+            if autosaveImages {
+                await loadImages()
+            }
             await loadModels()
         }
+    }
+
+    func loadImages() async {
+        do {
+            async let (images, imageDirURL) = try ImageGenerator.shared.loadImages(imageDir: imageDir)
+            let count = try await images.count
+            try await self.imageDir = imageDirURL.path(percentEncoded: false)
+
+            logger.info("Found \(count) image(s)")
+
+            try await ImageStore.shared.add(images)
+        } catch {
+            logger.error("There was a problem loading the images: \(error.localizedDescription)")
+        }
+    }
+
+    func reloadImagesKeepUnsaved() async {
+        ImageStore.shared.removeAllExceptUnsaved()
+        await loadImages()
     }
 
     func loadModels() async {
@@ -134,6 +157,8 @@ final class ImageController: ObservableObject {
 
         let genConfig = GenerationConfig(
             pipelineConfig: pipelineConfig,
+            autosaveImages: autosaveImages,
+            imageDir: imageDir,
             numberOfImages: Int(numberOfImages),
             model: modelName,
             mlComputeUnit: mlComputeUnit,
@@ -197,7 +222,6 @@ final class ImageController: ObservableObject {
         guard let previous = ImageStore.shared.imageBefore(ImageStore.shared.selectedId) else {
             return
         }
-
         await select(previous)
     }
 
@@ -205,7 +229,6 @@ final class ImageController: ObservableObject {
         guard let next = ImageStore.shared.imageAfter(ImageStore.shared.selectedId) else {
             return
         }
-
         await select(next)
     }
 
@@ -223,7 +246,7 @@ final class ImageController: ObservableObject {
             }
         }
 
-        ImageStore.shared.remove(sdi)
+        ImageStore.shared.remove(sdi, trashFile: true)
     }
 
     func removeCurrentImage() async {

@@ -28,6 +28,7 @@ struct SDImage: Identifiable, Hashable {
     var guidanceScale = 11.0
     var generatedDate = Date()
     var upscaler = ""
+    var path = ""
 
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
@@ -35,8 +36,26 @@ struct SDImage: Identifiable, Hashable {
 }
 
 extension SDImage {
+    var filename: String {
+        "\(String(prompt.prefix(70)).trimmingCharacters(in: .whitespacesAndNewlines)).\(seed).png"
+    }
+
     @MainActor
-    func save() async {
+    func save(_ pathURL: URL) async {
+        guard let data = await imageData(UTType.png) else {
+            NSLog("*** Failed to create image data")
+            return
+        }
+
+        do {
+            try data.write(to: pathURL, options: .atomic)
+        } catch {
+            NSLog("*** Error saving image file: \(error.localizedDescription)")
+        }
+    }
+
+    @MainActor
+    func saveAs() async {
         let panel = NSSavePanel()
         panel.allowedContentTypes = [.png, .jpeg]
         panel.canCreateDirectories = true
@@ -44,8 +63,7 @@ extension SDImage {
         panel.title = String(localized: "Save Image", comment: "Header text for save image panel")
         panel.message = String(localized: "Choose a folder and a name to store the image")
         panel.nameFieldLabel = String(localized: "Image file name:", comment: "File name field label for save image panel")
-        panel.nameFieldStringValue =
-            "\(String(prompt.prefix(70)).trimmingCharacters(in: .whitespacesAndNewlines)).\(seed).png"
+        panel.nameFieldStringValue = filename
         let resp = await panel.beginSheetModal(for: NSApplication.shared.mainWindow!)
         if resp != .OK {
             return
@@ -56,14 +74,14 @@ extension SDImage {
         let type = ext == "png" ? UTType.png : UTType.jpeg
 
         guard let data = await imageData(type) else {
-            NSLog("*** Failed to convert image")
+            NSLog("*** Failed to create image data")
             return
         }
 
         do {
             try data.write(to: url)
         } catch {
-            NSLog("*** Error saving image file: \(error)")
+            NSLog("*** Error saving image file: \(error.localizedDescription)")
         }
     }
 
