@@ -216,7 +216,7 @@ class ImageGenerator: ObservableObject {
                     let filename = "\(String(config.pipelineConfig.prompt.prefix(70)).trimmingCharacters(in: .whitespacesAndNewlines)).\(count).\(config.pipelineConfig.seed).png"
                     pathURL.append(path: filename)
                     await sdi.save(pathURL)
-                    sdi.path = pathURL.appending(path: sdi.filename).path(percentEncoded: false)
+                    sdi.path = pathURL.path(percentEncoded: false)
                 }
                 await ImageStore.shared.add(sdi)
             }

@@ -40,6 +40,10 @@ extension SDImage {
         "\(String(prompt.prefix(70)).trimmingCharacters(in: .whitespacesAndNewlines)).\(seed).png"
     }
 
+    /// Save image file to `pathURL`.
+    ///
+    /// - Parameters:
+    ///     - pathURL: Full destination path, including filename and extension.
     @MainActor
     func save(_ pathURL: URL) async {
         guard let data = await imageData(UTType.png) else {
@@ -54,6 +58,7 @@ extension SDImage {
         }
     }
 
+    /// Display save image dialog.
     @MainActor
     func saveAs() async {
         let panel = NSSavePanel()
