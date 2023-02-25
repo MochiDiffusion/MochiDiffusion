@@ -5,6 +5,40 @@
     <language>en</language>
 
     <item>
+      <title>Never Gonna Let You Down</title>
+      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <sparkle:version>2.5</sparkle:version>
+      <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
+      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <pubDate>Sat, 25 Feb 2023 20:00:14 +0000</pubDate>
+      <enclosure
+        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v2.5/MochiDiffusion_v2.5.dmg"
+        sparkle:edSignature="4PEwNf+dKCAWKtNrw3Myy+PFYzKNciGHdjmL6tqVfZYtaK2Ud25M3EU/DHzj+bpZsm3PWhMZVhqN8BNx8qShCQ=="
+        length="67193632"
+        type="application/octet-stream" />
+      <description><![CDATA[
+      <p>Don&#39;t you just hate it when you close the app and realize you forgot to save your images?</p>
+      <p>Soon this will only be something pepperidge farm remembers.</p>
+      <p>This release is entitled <strong>Never Gonna Let You Down</strong>, as you&#39;re never gonna lose your images again 😎</p>
+      <p><img src="https://user-images.githubusercontent.com/1341760/221377812-b7cee01d-057a-4ba0-8d31-c72dfbf131e9.gif" alt="rick-roll-rick-rolled"></p>
+      <ul>
+      <li>Added option to autosave &amp; restore images</li>
+      <li>Added option to hide or show the Info panel</li>
+      <li>Changed app behavior to quit when window is closed</li>
+      <li>Images that are removed are now moved to Trash</li>
+      <li>Fixed Copy image menu option</li>
+      <li>Fixed Copy Options to Sidebar menu option</li>
+      <li>Fixed incorrect image date on import</li>
+      <li>Fixed removing an unselected image causing the selection to unexpectedly change (@vzsg)</li>
+      </ul>
+      <p>Has Mochi Diffusion been useful? Support this project on <a href="https://github.com/sponsors/godly-devotion">GitHub</a> or <a href="https://liberapay.com/joshuapark/">Liberapay</a>.</p>
+      <p>Special thanks to the following for supporting me and making this app possible 🎉
+      <strong>raisingfightingspirit</strong>, <strong>serovar</strong>, <strong>orange-wedge</strong>, <strong>RuralRob</strong>, <strong>vacekj</strong>, <strong>julien-c</strong>, <strong>Quick-Eyed-Sky</strong>, <strong>BirdSesame</strong>, <strong>Da-mi-en</strong>, <strong>monks1975</strong>, &amp; anonymous donors</p>
+      ]]>
+      </description>
+    </item>
+
+    <item>
       <title>v2.4.1</title>
       <link>https://github.com/godly-devotion/MochiDiffusion</link>
       <sparkle:version>2.4.1</sparkle:version>
