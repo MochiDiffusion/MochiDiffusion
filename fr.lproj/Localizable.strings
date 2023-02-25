@@ -39,7 +39,6 @@
 "Image %lld of %lld" = "Image %lld sur %lld";
 "Image file name:" = "Nom du fichier image :";
 "Import" = "Importer";
-"Import Image..." = "Importer une image...";
 "Include in Image:" = "Inclure dans l\'Image:";
 "Loading Model..." = "Chargement du modèle...";
 "ML Compute Unit" = "Mode de calcul";

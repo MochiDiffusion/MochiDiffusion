@@ -7,6 +7,7 @@
 "%@ model" = "%@ モデル";
 "All" = "全て";
 "Apply" = "適用";
+"Autosave & Restore Images" = "画像の自動保存と復元";
 "Based on the option selected the correct model version will need to be used." = "選択したオプションに基づいて、正しいモデルのバージョンを使用する必要があります。";
 "CPU & GPU" = "CPU & GPU";
 "CPU & GPU may be faster on M1 Max, Ultra and later but will use more memory." = "CPU & GPU は M1 Max, Ultra およびそれ以降で速くなる可能性がありますが、より多くのメモリを使用します。";
@@ -32,16 +33,20 @@
 "Guidance Scale:" = "ガイダンス スケール:";
 "HD" = "HD";
 "Height:" = "高さ:";
+"If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images." = "オプションがオフの場合、削除された画像は永久になくなります。インポートした画像と自動的に保存された画像に適用されます。";
 "Image" = "画像";
 "Image %lld of %lld" = "画像 %lld / %lld";
 "Image file name:" = "画像ファイル名:";
 "Import" = "インポート";
-"Import Image..." = "画像のインポート...";
+"Import Images..." = "画像のインポート...";
 "Include in Image:" = "画像に含める:";
 "Loading Model..." = "モデルを読み込み中...";
+"Loading..." = "ロード中...";
 "ML Compute Unit" = "ML Compute Unit";
+"Mochi Diffusion" = "Mochi Diffusion";
 "Model Folder" = "モデル フォルダ";
 "Model:" = "モデル:";
+"Move Images to Trash" = "画像をゴミ箱に移動";
 "No Info" = "情報はありません";
 "Number of Images:" = "画像数:";
 "Open in Finder" = "Finderに表示";
@@ -62,6 +67,7 @@
 "Select Next" = "次を選択";
 "Select Previous" = "前を選択";
 "Share..." = "共有...";
+"Show in Finder" = "Finderで表示";
 "Step %lld of %lld" = "ステップ %lld / %lld";
 "Steps:" = "ステップ:";
 "Stop Generation" = "画像生成の中止";

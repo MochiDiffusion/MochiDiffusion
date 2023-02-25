@@ -37,7 +37,6 @@
 "Image %lld of %lld" = "图片 %lld / %lld";
 "Image file name:" = "图片文件名：";
 "Import" = "导入";
-"Import Image..." = "导入图片...";
 "Include in Image:" = "关键词:";
 "Loading Model..." = "加载模型中...";
 "Loading..." = "加载中...";
