@@ -31,6 +31,7 @@ This app uses [Apple's Core ML Stable Diffusion implementation](https://github.c
 - Generate images locally and completely offline
 - Generated images are saved with prompt info inside EXIF metadata (view in Finder's Get Info window)
 - Convert generated images to high resolution (using RealESRGAN)
+- Autosave & restore images
 - Use custom Stable Diffusion Core ML models
 - No worries about pickled models
 - macOS native app using SwiftUI
