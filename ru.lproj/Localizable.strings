@@ -39,7 +39,6 @@
 "Image %lld of %lld" = "Изображение %lld из %lld";
 "Image file name:" = "Имя файла изображения:";
 "Import" = "Импортировать";
-"Import Image..." = "Импортировать изображение...";
 "Include in Image:" = "Включить в изображение:";
 "Loading Model..." = "Загрузка модели...";
 "ML Compute Unit" = "Вычислительный блок ML";
