@@ -37,7 +37,7 @@
 "Image %lld of %lld" = "画像 %lld / %lld";
 "Image file name:" = "画像ファイル名:";
 "Import" = "インポート";
-"Import Image..." = "画像のインポート...";
+"Import Images..." = "画像のインポート...";
 "Include in Image:" = "画像に含める:";
 "Loading Model..." = "モデルを読み込み中...";
 "Loading..." = "ロード中...";
