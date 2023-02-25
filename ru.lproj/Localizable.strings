@@ -10,6 +10,7 @@
 "%@ model" = "Модель %@";
 "All" = "Все";
 "Apply" = "Применить";
+"Autosave & Restore Images" = "Автоматически сохранять и восстанавливать изображения";
 "Based on the option selected the correct model version will need to be used." = "Необходимо использовать правильную версию модели в зависимости от выбранной опции.";
 "CPU & GPU" = "CPU & GPU";
 "CPU & GPU may be faster on M1 Max, Ultra and later but will use more memory." = "CPU & GPU может быть быстрее на M1 Max, Ultra и более новых моделях, но использует больше памяти.";
@@ -35,10 +36,12 @@
 "Guidance Scale:" = "Уровень соответствия запросу:";
 "HD" = "HD";
 "Height:" = "Высота:";
+"If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images." = "Если опция выключена, изображения будут удаляться навсегда. Применяется к импортируемым и автоматически сохраняемым изображениям.";
 "Image" = "Изображение";
 "Image %lld of %lld" = "Изображение %lld из %lld";
 "Image file name:" = "Имя файла изображения:";
 "Import" = "Импортировать";
+"Import Images..." = "Импортировать изображения...";
 "Include in Image:" = "Включить в изображение:";
 "Loading Model..." = "Загрузка модели...";
 "ML Compute Unit" = "Вычислительный блок ML";
