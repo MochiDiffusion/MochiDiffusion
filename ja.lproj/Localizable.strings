@@ -33,6 +33,7 @@
 "Guidance Scale:" = "ガイダンス スケール:";
 "HD" = "HD";
 "Height:" = "高さ:";
+"If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images." = "オプションがオフの場合、削除された画像は永久になくなります。インポートした画像と自動的に保存された画像に適用されます。";
 "Image" = "画像";
 "Image %lld of %lld" = "画像 %lld / %lld";
 "Image file name:" = "画像ファイル名:";
@@ -45,6 +46,7 @@
 "Mochi Diffusion" = "Mochi Diffusion";
 "Model Folder" = "モデル フォルダ";
 "Model:" = "モデル:";
+"Move Images to Trash" = "画像をゴミ箱に移動";
 "No Info" = "情報はありません";
 "Number of Images:" = "画像数:";
 "Open in Finder" = "Finderに表示";
