@@ -44,9 +44,12 @@
 "Import Images..." = "Импортировать изображения...";
 "Include in Image:" = "Включить в изображение:";
 "Loading Model..." = "Загрузка модели...";
+"Loading..." = "Загрузка...";
 "ML Compute Unit" = "Вычислительный блок ML";
+"Mochi Diffusion" = "Mochi Diffusion";
 "Model Folder" = "Папка для моделей";
 "Model:" = "Модель:";
+"Move Images to Trash" = "Отправить изображения в корзину";
 "No Info" = "Нет информации";
 "Number of Images:" = "Количество изображений:";
 "Open in Finder" = "Открыть в Finder";
@@ -67,11 +70,13 @@
 "Select Next" = "Выбрать следующее";
 "Select Previous" = "Выбрать предыдущее";
 "Share..." = "Поделиться...";
+"Show in Finder" = "Показать в Finder";
 "Step %lld of %lld" = "Шаг %lld из %lld";
 "Steps:" = "Шаги:";
 "Stop Generation" = "Остановить генерацию";
 "Support Me ♥" = "Поддержать меня ♥";
 "This may take up to 2 minutes if a model is used for the first time" = "Это может занять до двух минут, если модель используется впервые";
+"Toggle Info Panel" = "Переключить отображение панели информации";
 "Use GPU" = "Использовать GPU";
 "Use Neural Engine" = "Использовать Neural Engine";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Использует модуль модели для проверки на безопасность изображений. Не гарантирует, что все неприемлемые изображения будут отфильтрованы.";
