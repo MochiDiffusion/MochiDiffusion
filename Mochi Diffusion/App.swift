@@ -41,7 +41,7 @@ struct MochiDiffusionApp: App {
                         Text("Loading...")
                     }
                     .padding([.top, .bottom], 40)
-                    .padding([.leading, .trailing], 50)
+                    .padding([.leading, .trailing], 60)
                 }
                 .quickLookPreview($controller.quicklookURL)
                 .onReceive(NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification)) { _ in

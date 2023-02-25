@@ -121,6 +121,27 @@ struct SettingsView: View {
             GroupBox {
                 VStack(alignment: .leading) {
                     HStack {
+                        Text("Move Images to Trash")
+
+                        Spacer()
+
+                        Toggle("", isOn: $controller.useTrash)
+                            .labelsHidden()
+                            .toggleStyle(.switch)
+                            .controlSize(.small)
+                    }
+                    Text(
+                        "If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images.",
+                        comment: "Help text for Move Images to Trash setting"
+                    )
+                    .helpTextFormat()
+                }
+                .padding(4)
+            }
+
+            GroupBox {
+                VStack(alignment: .leading) {
+                    HStack {
                         Text("Reduce Memory Usage")
 
                         Spacer()
@@ -132,7 +153,7 @@ struct SettingsView: View {
                     }
                     Text(
                         "Reduce memory usage further at the cost of speed.",
-                        comment: "Help text for Reduce Memory Usage option"
+                        comment: "Help text for Reduce Memory Usage setting"
                     )
                     .helpTextFormat()
                 }
@@ -153,7 +174,7 @@ struct SettingsView: View {
                     }
                     Text(
                         "Uses the model's safety checker module. This does not guarantee that all inappropriate images will be filtered.",
-                        comment: "Help text for Filter Inappropriate Images option"
+                        comment: "Help text for Filter Inappropriate Images setting"
                     )
                     .helpTextFormat()
                 }
@@ -212,7 +233,7 @@ struct SettingsView: View {
 
                     Text(
                         "Based on the option selected the correct model version will need to be used.",
-                        comment: "Help text for ML Compute Unit option under Settings"
+                        comment: "Help text for ML Compute Unit setting"
                     )
                     .helpTextFormat()
                 }

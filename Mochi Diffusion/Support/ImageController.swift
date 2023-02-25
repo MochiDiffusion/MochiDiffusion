@@ -71,6 +71,7 @@ final class ImageController: ObservableObject {
     #endif
     @AppStorage("ReduceMemory") var reduceMemory = false
     @AppStorage("SafetyChecker") var safetyChecker = false
+    @AppStorage("UseTrash") var useTrash = true
 
     @Published
     var currentModel: SDModel? {
@@ -254,7 +255,7 @@ final class ImageController: ObservableObject {
             }
         }
 
-        ImageStore.shared.remove(sdi, trashFile: true)
+        ImageStore.shared.removeAndDelete(sdi, moveToTrash: useTrash)
     }
 
     func removeCurrentImage() async {

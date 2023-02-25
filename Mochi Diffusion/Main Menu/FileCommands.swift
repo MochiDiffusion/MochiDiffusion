@@ -59,7 +59,7 @@ struct FileCommands: Commands {
                     Task { await ImageController.shared.importImages() }
                 } label: {
                     Text(
-                        "Import Image...",
+                        "Import Images...",
                         comment: "Show the import image dialog"
                     )
                 }
