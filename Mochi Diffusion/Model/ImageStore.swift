@@ -63,15 +63,12 @@ class ImageStore: ObservableObject {
     ///   - sdi: SDImage object to remove.
     ///   - moveToTrash: Whether image file should be moved to Trash or permanently deleted.
     func removeAndDelete(_ sdi: SDImage, moveToTrash: Bool) {
-        withAnimation {
-            guard let index = index(for: sdi.id) else { return }
-            allImages.remove(at: index)
-            if sdi.path.isEmpty { return }
-            if moveToTrash {
-                try? FileManager.default.trashItem(at: URL(fileURLWithPath: sdi.path, isDirectory: false), resultingItemURL: nil)
-            } else {
-                try? FileManager.default.removeItem(atPath: sdi.path)
-            }
+        remove(sdi.id)
+        if sdi.path.isEmpty { return }
+        if moveToTrash {
+            try? FileManager.default.trashItem(at: URL(fileURLWithPath: sdi.path, isDirectory: false), resultingItemURL: nil)
+        } else {
+            try? FileManager.default.removeItem(atPath: sdi.path)
         }
     }
 
