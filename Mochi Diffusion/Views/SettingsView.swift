@@ -159,27 +159,6 @@ struct SettingsView: View {
                 }
                 .padding(4)
             }
-
-            GroupBox {
-                VStack(alignment: .leading) {
-                    HStack {
-                        Text("Filter Inappropriate Images")
-
-                        Spacer()
-
-                        Toggle("", isOn: $controller.safetyChecker)
-                            .labelsHidden()
-                            .toggleStyle(.switch)
-                            .controlSize(.small)
-                    }
-                    Text(
-                        "Uses the model's safety checker module. This does not guarantee that all inappropriate images will be filtered.",
-                        comment: "Help text for Filter Inappropriate Images setting"
-                    )
-                    .helpTextFormat()
-                }
-                .padding(4)
-            }
         }
     }
 
@@ -239,6 +218,27 @@ struct SettingsView: View {
                 }
                 .padding(4)
                 #endif
+            }
+
+            GroupBox {
+                VStack(alignment: .leading) {
+                    HStack {
+                        Text("Filter Inappropriate Images")
+
+                        Spacer()
+
+                        Toggle("", isOn: $controller.safetyChecker)
+                            .labelsHidden()
+                            .toggleStyle(.switch)
+                            .controlSize(.small)
+                    }
+                    Text(
+                        "Uses the model's safety checker module. This does not guarantee that all inappropriate images will be filtered.",
+                        comment: "Help text for Filter Inappropriate Images setting"
+                    )
+                    .helpTextFormat()
+                }
+                .padding(4)
             }
         }
     }
