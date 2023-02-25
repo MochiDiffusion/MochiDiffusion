@@ -28,7 +28,7 @@ struct HelpCommands: Commands {
             Section {
                 Link(
                     "Support Me ♥",
-                    destination: URL(string: "https://liberapay.com/joshuapark/")!
+                    destination: URL(string: "https://github.com/sponsors/godly-devotion")!
                 )
             }
         }
