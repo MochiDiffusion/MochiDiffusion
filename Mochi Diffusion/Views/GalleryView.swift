@@ -77,7 +77,7 @@ struct GalleryView: View {
                             .contextMenu {
                                 Section {
                                     Button {
-                                        Task { await ImageController.shared.copyImage() }
+                                        Task { await ImageController.shared.copyImage(sdi) }
                                     } label: {
                                         Text(
                                             "Copy",

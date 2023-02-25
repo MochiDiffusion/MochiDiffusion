@@ -376,13 +376,11 @@ final class ImageController: ObservableObject {
         guidanceScale = sdi.guidanceScale
     }
 
-    func copyImage() async {
-        guard let sdi = ImageStore.shared.selected(),
-            let imageData = await sdi.imageData(.png),
-            let image = NSImage(data: imageData) else { return }
-
+    func copyImage(_ sdi: SDImage) async {
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
+        guard let imageData = await sdi.imageData(.png) else { return }
+        guard let image = NSImage(data: imageData) else { return }
         pasteboard.writeObjects([image])
     }
 }
