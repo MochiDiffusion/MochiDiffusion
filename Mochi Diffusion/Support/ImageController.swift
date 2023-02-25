@@ -336,6 +336,10 @@ final class ImageController: ObservableObject {
 
     func copyToPrompt() {
         guard let sdi = ImageStore.shared.selected() else { return }
+        copyToPrompt(sdi)
+    }
+
+    func copyToPrompt(_ sdi: SDImage) {
         prompt = sdi.prompt
         negativePrompt = sdi.negativePrompt
         steps = Double(sdi.steps)

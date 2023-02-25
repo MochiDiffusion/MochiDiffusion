@@ -81,16 +81,16 @@ struct GalleryView: View {
                                     } label: {
                                         Text(
                                             "Copy",
-                                            comment: "Copy the currently selected image to the clipboard"
+                                            comment: "Copy image to the clipboard"
                                         )
                                     }
 
                                     Button {
-                                        ImageController.shared.copyToPrompt()
+                                        ImageController.shared.copyToPrompt(sdi)
                                     } label: {
                                         Text(
                                             "Copy Options to Sidebar",
-                                            comment: "Copy the currently selected image's generation options to the prompt input sidebar"
+                                            comment: "Copy image's generation options to the prompt input sidebar"
                                         )
                                     }
 
@@ -111,7 +111,7 @@ struct GalleryView: View {
                                             } label: {
                                                 Text(
                                                     "Convert to High Resolution",
-                                                    comment: "Convert the current image to high resolution"
+                                                    comment: "Convert image to high resolution"
                                                 )
                                             }
                                         }
