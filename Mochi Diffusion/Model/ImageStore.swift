@@ -106,6 +106,7 @@ class ImageStore: ObservableObject {
 
     func select(_ id: SDImage.ID) {
         selectedId = id
+        FocusController.shared.removeAllFocus()
     }
 
     func selected() -> SDImage? {

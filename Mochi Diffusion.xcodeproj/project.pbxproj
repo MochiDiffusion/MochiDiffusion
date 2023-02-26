@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		03061E6229AB9C06009AA2A2 /* FocusController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03061E6129AB9C06009AA2A2 /* FocusController.swift */; };
 		0307B0DA294D4AE500A9BD55 /* FileCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0307B0D9294D4AE500A9BD55 /* FileCommands.swift */; };
 		0311C69929899A660074BCAE /* Metadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0311C69829899A660074BCAE /* Metadata.swift */; };
 		0311C6BD2989E3EF0074BCAE /* Localizable.stringsdict in Resources */ = {isa = PBXBuildFile; fileRef = 0311C6BF2989E3EF0074BCAE /* Localizable.stringsdict */; };
@@ -71,6 +72,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		03061E6129AB9C06009AA2A2 /* FocusController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusController.swift; sourceTree = "<group>"; };
 		0307B0D9294D4AE500A9BD55 /* FileCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileCommands.swift; sourceTree = "<group>"; };
 		0311C69829899A660074BCAE /* Metadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Metadata.swift; sourceTree = "<group>"; };
 		0311C6BE2989E3EF0074BCAE /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = en; path = en.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
@@ -175,6 +177,7 @@
 				035E76F52970E809008DDFDE /* CVPixelBuffer+Create.swift */,
 				035E76F32970E79A008DDFDE /* CVPixelBuffer+Resize.swift */,
 				0352E2B0294EA30D003FBF25 /* Extensions.swift */,
+				03061E6129AB9C06009AA2A2 /* FocusController.swift */,
 				0352E2B4294EA887003FBF25 /* Functions.swift */,
 				03173C142999F5C700B03456 /* ImageController.swift */,
 				03173C102999D83600B03456 /* ImageGenerator.swift */,
@@ -510,6 +513,7 @@
 				03D43B7A29660A2600604911 /* GalleryItemView.swift in Sources */,
 				035EDFF8295A216500080D18 /* StepsView.swift in Sources */,
 				03FD2317295F480F006EEEE2 /* ViewModifiers.swift in Sources */,
+				03061E6229AB9C06009AA2A2 /* FocusController.swift in Sources */,
 				03FD231B295F7A81006EEEE2 /* Upscaler.swift in Sources */,
 				03173C152999F5C700B03456 /* ImageController.swift in Sources */,
 				036BFC22294B9F7500D8AD04 /* App.swift in Sources */,

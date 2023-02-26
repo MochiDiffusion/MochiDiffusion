@@ -13,6 +13,10 @@ struct PromptTextEditor: View {
 
     var height: CGFloat
 
+    @Binding var focusBinding: Bool
+
+    @FocusState private var focused: Bool
+
     @EnvironmentObject private var generator: ImageGenerator
 
     private let tokenLimit = 75
@@ -42,6 +46,8 @@ struct PromptTextEditor: View {
         VStack(alignment: .leading, spacing: 3) {
             TextEditor(text: $text)
                 .font(.system(size: 14))
+                .focused($focused)
+                .syncFocus($focusBinding, with: _focused)
                 .frame(height: height)
                 .border(Color(nsColor: .gridColor))
                 .cornerRadius(4)
@@ -72,14 +78,23 @@ struct PromptTextEditor: View {
 struct PromptView: View {
     @EnvironmentObject private var controller: ImageController
     @EnvironmentObject private var generator: ImageGenerator
+    @EnvironmentObject private var focusCon: FocusController
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             Label("Include in Image:", systemImage: "text.bubble")
-            PromptTextEditor(text: $controller.prompt, height: 120)
+            PromptTextEditor(
+                text: $controller.prompt,
+                height: 120,
+                focusBinding: $focusCon.promptFieldIsFocused
+            )
 
             Label("Exclude from Image:", systemImage: "exclamationmark.bubble")
-            PromptTextEditor(text: $controller.negativePrompt, height: 70)
+            PromptTextEditor(
+                text: $controller.negativePrompt,
+                height: 70,
+                focusBinding: $focusCon.negativePromptFieldIsFocused
+            )
 
             Spacer().frame(height: 2)
 
