@@ -48,3 +48,10 @@ extension Formatter {
         return formatter
     }()
 }
+
+struct SeedView_Previews: PreviewProvider {
+    static var previews: some View {
+        SeedView()
+            .environmentObject(ImageController.shared)
+    }
+}
