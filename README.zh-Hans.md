@@ -30,7 +30,8 @@
 - 在所有搭载 Apple 芯片的 Mac 上充分发挥神经网络引擎的优势
 - 生成图像时无需联网
 - 在图像的 EXIF 信息中存储所有的关键词（在访达的“显示简介”窗口中查看）
-- 将生成图像超分辨率 (使用 RealESRGAN)
+- 使用 RealESRGAN 放大生成的图像
+- 自动保存 & 恢复图像
 - 自定义 Stable Diffusion Core ML 模型
 - 无需担心损坏的模型
 - 使用 macOS 原生框架 SwiftUI 开发
@@ -90,11 +91,11 @@
 
 ## 贡献
 
-无论是修复bug，新增代码，还是完善翻译，Mochi Diffusion 欢迎你的贡献。
+无论是修复 bug，新增代码，还是完善翻译，Mochi Diffusion 欢迎你的贡献。
 
-- 如果你发现了一个bug，或者有新的建议和想法，请先在这里 [搜索议题](https://github.com/godly-devotion/MochiDiffusion/issues) 以避免重复。在确认没有重复后，你可以 [创建一个新议题](https://github.com/godly-devotion/MochiDiffusion/issues/new/choose)。
+- 如果你发现了一个bug，或者有新的建议和想法，请先在这里[搜索议题](https://github.com/godly-devotion/MochiDiffusion/issues)以避免重复。在确认没有重复后，你可以[创建一个新议题](https://github.com/godly-devotion/MochiDiffusion/issues/new/choose)。
 
-- 如果你想贡献代码，请 [创建拉取请求](https://github.com/godly-devotion/MochiDiffusion/pulls) 或 [发起一个新的讨论](https://github.com/godly-devotion/MochiDiffusion/discussions) 来探讨。我个人推荐安装 [SwiftLint](https://github.com/realm/SwiftLint#installation) 以规范代码格式。
+- 如果你想贡献代码，请[创建拉取请求](https://github.com/godly-devotion/MochiDiffusion/pulls)或[发起一个新的讨论](https://github.com/godly-devotion/MochiDiffusion/discussions)来探讨。我个人推荐安装 [SwiftLint](https://github.com/realm/SwiftLint#installation) 以规范代码格式。
 
 - 如果你想对 Mochi Diffusion 贡献翻译，请到项目的 [Crowdin 页面](https://crowdin.com/project/mochi-diffusion)，你可以免费创建一个账户然后开始翻译。
 
