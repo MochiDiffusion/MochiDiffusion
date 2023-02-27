@@ -33,10 +33,12 @@
 "Guidance Scale" = "關鍵詞引導權重";
 "HD" = "HD";
 "Height:" = "高度：";
+"If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images." = "如果關閉此選項，移除的圖片將被永久刪除。此選項適用於匯入的圖片與自動儲存的圖片。";
 "Image" = "圖片";
 "Image %lld of %lld" = "圖片 %lld / %lld";
 "Image file name:" = "圖片檔案名稱：";
 "Import" = "匯入";
+"Import Images..." = "匯入圖片 ...";
 "Include in Image" = "關鍵詞";
 "Loading Model..." = "載入模型中 ...";
 "Loading..." = "載入中 ...";
@@ -44,6 +46,7 @@
 "Mochi Diffusion" = "Mochi Diffusion";
 "Model" = "模型";
 "Model Folder" = "模型目錄";
+"Move Images to Trash" = "把圖片移至垃圾桶";
 "No Info" = "無資訊";
 "Number of Images" = "圖片數量";
 "Open in Finder" = "在 Finder 中開啟";
