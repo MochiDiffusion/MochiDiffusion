@@ -28,6 +28,9 @@ final class ImageController: ObservableObject {
     private(set) var models = [SDModel]()
 
     @Published
+    var startingImage: CGImage?
+
+    @Published
     var numberOfImages = 1.0
 
     @Published
@@ -58,6 +61,7 @@ final class ImageController: ObservableObject {
     @AppStorage("ImageDir") var imageDir = ""
     @AppStorage("Prompt") var prompt = ""
     @AppStorage("NegativePrompt") var negativePrompt = ""
+    @AppStorage("ImageStrength") var strength = 0.5
     @AppStorage("Steps") var steps = 12.0
     @AppStorage("Scale") var guidanceScale = 11.0
     @AppStorage("ImageWidth") var width = 512
@@ -158,6 +162,8 @@ final class ImageController: ObservableObject {
 
         var pipelineConfig = StableDiffusionPipeline.Configuration(prompt: prompt)
         pipelineConfig.negativePrompt = negativePrompt
+        pipelineConfig.startingImage = startingImage
+        pipelineConfig.strength = Float(strength)
         pipelineConfig.stepCount = Int(steps)
         pipelineConfig.seed = seed
         pipelineConfig.guidanceScale = Float(guidanceScale)
@@ -262,6 +268,36 @@ final class ImageController: ObservableObject {
     func removeCurrentImage() async {
         guard let sdi = ImageStore.shared.selected() else { return }
         await removeImage(sdi)
+    }
+
+    func selectStartingImage() async {
+        let panel = NSOpenPanel()
+        panel.allowedContentTypes = [.image]
+        panel.allowsMultipleSelection = false
+        panel.canCreateDirectories = false
+        panel.canChooseDirectories = false
+        panel.canChooseFiles = true
+        panel.message = String(localized: "Choose starting image")
+        panel.prompt = String(localized: "Starting Image", comment: "Header text for starting image open panel")
+        let resp = await panel.beginSheetModal(for: NSApplication.shared.mainWindow!)
+        if resp != .OK {
+            return
+        }
+
+        guard let url = panel.url else { return }
+        guard let cgImageSource = CGImageSourceCreateWithURL(url as CFURL, nil) else { return }
+        let imageIndex = CGImageSourceGetPrimaryImageIndex(cgImageSource)
+        guard let cgImage = CGImageSourceCreateImageAtIndex(cgImageSource, imageIndex, nil) else { return }
+        startingImage = cgImage
+    }
+
+    func selectStartingImage(sdi: SDImage) async {
+        guard let image = sdi.image else { return }
+        startingImage = image
+    }
+
+    func unsetStartingImage() async {
+        startingImage = nil
     }
 
     func importImages() async {

@@ -182,47 +182,51 @@ class ImageGenerator: ObservableObject {
         sdi.steps = config.pipelineConfig.stepCount
         sdi.guidanceScale = Double(config.pipelineConfig.guidanceScale)
 
-        for index in 0 ..< config.numberOfImages {
-            await updateQueueProgress(QueueProgress(index: index, total: inputConfig.numberOfImages))
+        do {
+            for index in 0 ..< config.numberOfImages {
+                await updateQueueProgress(QueueProgress(index: index, total: inputConfig.numberOfImages))
 
-            let images = try pipeline.generateImages(configuration: config.pipelineConfig) { progress in
-                Task { @MainActor in
-                    state = .running(progress)
+                let images = try pipeline.generateImages(configuration: config.pipelineConfig) { progress in
+                    Task { @MainActor in
+                        state = .running(progress)
+                    }
+                    return !generationStopped
                 }
-                return !generationStopped
-            }
-            if generationStopped {
-                break
-            }
-            for image in images {
-                guard let image = image else { continue }
-                if config.upscaleGeneratedImages {
-                    guard let upscaledImg = await Upscaler.shared.upscale(cgImage: image) else { continue }
-                    sdi.image = upscaledImg
-                    sdi.aspectRatio = CGFloat(Double(upscaledImg.width) / Double(upscaledImg.height))
-                    sdi.upscaler = "RealESRGAN"
-                } else {
-                    sdi.image = image
-                    sdi.aspectRatio = CGFloat(Double(image.width) / Double(image.height))
+                if generationStopped {
+                    break
                 }
-                sdi.id = UUID()
-                sdi.seed = config.pipelineConfig.seed
-                sdi.generatedDate = Date.now
-                sdi.path = ""
+                for image in images {
+                    guard let image = image else { continue }
+                    if config.upscaleGeneratedImages {
+                        guard let upscaledImg = await Upscaler.shared.upscale(cgImage: image) else { continue }
+                        sdi.image = upscaledImg
+                        sdi.aspectRatio = CGFloat(Double(upscaledImg.width) / Double(upscaledImg.height))
+                        sdi.upscaler = "RealESRGAN"
+                    } else {
+                        sdi.image = image
+                        sdi.aspectRatio = CGFloat(Double(image.width) / Double(image.height))
+                    }
+                    sdi.id = UUID()
+                    sdi.seed = config.pipelineConfig.seed
+                    sdi.generatedDate = Date.now
+                    sdi.path = ""
 
-                if config.autosaveImages && !config.imageDir.isEmpty {
-                    var pathURL = URL(fileURLWithPath: config.imageDir, isDirectory: true)
-                    let count = await ImageStore.shared.images.endIndex + 1
-                    let filename = "\(String(config.pipelineConfig.prompt.prefix(70)).trimmingCharacters(in: .whitespacesAndNewlines)).\(count).\(config.pipelineConfig.seed).png"
-                    pathURL.append(path: filename)
-                    await sdi.save(pathURL)
-                    sdi.path = pathURL.path(percentEncoded: false)
+                    if config.autosaveImages && !config.imageDir.isEmpty {
+                        var pathURL = URL(fileURLWithPath: config.imageDir, isDirectory: true)
+                        let count = await ImageStore.shared.images.endIndex + 1
+                        let filename = "\(String(config.pipelineConfig.prompt.prefix(70)).trimmingCharacters(in: .whitespacesAndNewlines)).\(count).\(config.pipelineConfig.seed).png"
+                        pathURL.append(path: filename)
+                        await sdi.save(pathURL)
+                        sdi.path = pathURL.path(percentEncoded: false)
+                    }
+                    await ImageStore.shared.add(sdi)
                 }
-                await ImageStore.shared.add(sdi)
+                config.pipelineConfig.seed += 1
             }
-            config.pipelineConfig.seed += 1
+            await updateState(.ready)
+        } catch Encoder.Error.sampleInputShapeNotCorrect {
+            await updateState(.error("The starting image size doesn't match the size of the image that will be generated."))
         }
-        await updateState(.ready)
     }
 
     func stopGenerate() async {
