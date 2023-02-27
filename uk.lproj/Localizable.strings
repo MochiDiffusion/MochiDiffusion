@@ -36,10 +36,12 @@
 "Guidance Scale" = "Рівень відповідності запиту";
 "HD" = "HD";
 "Height:" = "Висота:";
+"If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images." = "Якщо параметр вимкнуто, вилучені зображення будуть видалені назавжди. Застосовується лише для імпортованих та автоматично збережених зображень.";
 "Image" = "Зображення";
 "Image %lld of %lld" = "Зображення %lld із %lld";
 "Image file name:" = "Назва файлу зображення:";
 "Import" = "Імпортувати";
+"Import Images..." = "Імпорт зображень...";
 "Include in Image" = "Включити до зображення";
 "Loading Model..." = "Завантаження моделі...";
 "Loading..." = "Завантаження…";
@@ -47,6 +49,7 @@
 "Mochi Diffusion" = "Mochi Diffusion";
 "Model" = "Модель";
 "Model Folder" = "Тека для моделей";
+"Move Images to Trash" = "Перемістити зображення до смітника";
 "No Info" = "Немає інформації";
 "Number of Images" = "Кількість зображень";
 "Open in Finder" = "Відкрити у Finder";
