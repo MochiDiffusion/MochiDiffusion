@@ -82,8 +82,38 @@ extension NSImage: Transferable {
 }
 
 extension Text {
+    struct SidebarLabelFormat: ViewModifier {
+        func body(content: Content) -> some View {
+            content
+                .textCase(.uppercase)
+                .font(.caption)
+                .fontWeight(.semibold)
+                .foregroundColor(.secondary)
+        }
+    }
+
+    func sidebarLabelFormat() -> some View {
+        modifier(SidebarLabelFormat())
+    }
+
+    struct HelpTextFormat: ViewModifier {
+        func body(content: Content) -> some View {
+            content
+                .font(.callout)
+                .foregroundColor(.secondary)
+        }
+    }
+
     func helpTextFormat() -> some View {
         modifier(HelpTextFormat())
+    }
+
+    struct SelectableTextFormat: ViewModifier {
+        func body(content: Content) -> some View {
+            content
+                .textSelection(.enabled)
+                .foregroundColor(Color(nsColor: .textColor)) /// Fixes dark text in dark mode SwiftUI bug
+        }
     }
 
     func selectableTextFormat() -> some View {

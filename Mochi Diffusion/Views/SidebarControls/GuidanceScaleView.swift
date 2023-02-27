@@ -12,7 +12,8 @@ struct GuidanceScaleView: View {
     @EnvironmentObject private var controller: ImageController
 
     var body: some View {
-        Text("Guidance Scale:")
+        Text("Guidance Scale")
+            .sidebarLabelFormat()
         CompactSlider(value: $controller.guidanceScale, in: 1...20, step: 0.5) {
             Text(verbatim: "\(controller.guidanceScale.formatted(.number.precision(.fractionLength(1))))")
             Spacer()

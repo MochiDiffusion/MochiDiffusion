@@ -15,7 +15,8 @@ struct ModelView: View {
     #endif
 
     var body: some View {
-        Text("Model:")
+        Text("Model")
+            .sidebarLabelFormat()
         HStack {
             Picker("", selection: $controller.currentModel.onChange(modelChanged)) {
                 ForEach(controller.models) { model in

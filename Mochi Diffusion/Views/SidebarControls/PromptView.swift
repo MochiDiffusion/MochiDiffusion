@@ -82,14 +82,16 @@ struct PromptView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Label("Include in Image:", systemImage: "text.bubble")
+            Text("Include in Image")
+                .sidebarLabelFormat()
             PromptTextEditor(
                 text: $controller.prompt,
                 height: 120,
                 focusBinding: $focusCon.promptFieldIsFocused
             )
 
-            Label("Exclude from Image:", systemImage: "exclamationmark.bubble")
+            Text("Exclude from Image")
+                .sidebarLabelFormat()
             PromptTextEditor(
                 text: $controller.negativePrompt,
                 height: 70,
