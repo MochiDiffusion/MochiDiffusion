@@ -220,6 +220,7 @@ final class ImageController: ObservableObject {
 
     func select(_ id: SDImage.ID) async {
         ImageStore.shared.select(id)
+        FocusController.shared.removeAllFocus()
 
         /// If Quick Look is already open, show selected image
         if quicklookId != nil {

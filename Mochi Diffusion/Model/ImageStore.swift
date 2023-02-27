@@ -116,7 +116,6 @@ class ImageStore: ObservableObject {
         guard let id, let index = images.firstIndex(where: { $0.id == id }), index > 0 else {
             return wrap ? images.last?.id : nil
         }
-
         return images[index - 1].id
     }
 
@@ -124,7 +123,6 @@ class ImageStore: ObservableObject {
         guard let id, let index = images.firstIndex(where: { $0.id == id }), index < images.count - 1 else {
             return wrap ? images.first?.id : nil
         }
-
         return images[index + 1].id
     }
 

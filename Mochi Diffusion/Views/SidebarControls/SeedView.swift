@@ -9,17 +9,19 @@ import SwiftUI
 
 struct SeedView: View {
     @EnvironmentObject private var controller: ImageController
-    @FocusState private var seedFieldIsFocused: Bool
+    @EnvironmentObject private var focusCon: FocusController
+    @FocusState private var focused: Bool
 
     var body: some View {
         Text("Seed")
             .sidebarLabelFormat()
         HStack {
             TextField("random", value: $controller.seed, formatter: Formatter.seedFormatter)
-                .focused($seedFieldIsFocused)
+                .focused($focused)
+                .syncFocus($focusCon.seedFieldIsFocused, with: _focused)
                 .textFieldStyle(.roundedBorder)
             Button {
-                seedFieldIsFocused = false
+                FocusController.shared.removeAllFocus()
                 /// ugly hack
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                     ImageController.shared.seed = 0
