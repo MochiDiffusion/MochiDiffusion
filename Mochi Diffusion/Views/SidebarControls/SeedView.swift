@@ -12,7 +12,8 @@ struct SeedView: View {
     @FocusState private var seedFieldIsFocused: Bool
 
     var body: some View {
-        Text("Seed:")
+        Text("Seed")
+            .sidebarLabelFormat()
         HStack {
             TextField("random", value: $controller.seed, formatter: Formatter.seedFormatter)
                 .focused($seedFieldIsFocused)
