@@ -23,7 +23,6 @@ opt_in_rules:
   - implicit_return
   - implicitly_unwrapped_optional
   - indentation_width
-  - legacy_objc_type
   - let_var_whitespace
   - literal_expression_end_indentation
   - lower_acl_than_parent
