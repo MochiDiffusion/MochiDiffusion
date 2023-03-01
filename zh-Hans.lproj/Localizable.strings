@@ -17,6 +17,8 @@
 "Choose a folder and a name to store the image" = "选择存储图片的文件夹并命名";
 "Choose a folder to save all images" = "选择保存所有图片的文件夹";
 "Choose generated images to import" = "选择已生成的图片导入";
+"Choose starting image" = "选择原始图像";
+"Contribute Translation" = "参与翻译";
 "Convert all images to High Resolution (this will use more memory)" = "全部转换为高分辨率图片(将占用更多内存)";
 "Convert to High Resolution" = "全部转换为高分辨率图片";
 "Copy" = "拷贝";
@@ -40,6 +42,7 @@
 "Import" = "导入";
 "Import Images..." = "导入图片...";
 "Include in Image" = "关键词";
+"Incorrect image size" = "无法使用该图片分辨率";
 "Loading Model..." = "加载模型中...";
 "Loading..." = "加载中...";
 "ML Compute Unit" = "ML 计算单元";
@@ -63,19 +66,27 @@
 "Search" = "搜索";
 "Searching: %@" = "搜索中: %@";
 "Seed" = "随机种";
+"Select" = "确认";
 "Select Compute Unit option" = "选择计算单元选项";
 "Select Next" = "下一张";
 "Select Previous" = "上一张";
+"Set as Starting Image" = "设为原始图像";
 "Share..." = "分享...";
 "Show in Finder" = "在访达中显示";
+"Starting Image" = "原始图像";
+"Starting image must be 512x512." = "原始图像必须为 512x512。";
 "Step %lld of %lld" = "迭代步数 %lld / %lld";
 "Steps" = "迭代步数";
 "Stop Generation" = "终止生成";
+"Strength" = "强度";
 "Support Me ♥" = "支持我 ♥";
 "This may take up to 2 minutes if a model is used for the first time" = "如果这是首次载入模型，则需要约2分钟的时间";
 "Toggle Info Panel" = "显示/隐藏信息面板";
 "Use GPU" = "使用 GPU";
 "Use Neural Engine" = "使用神经网络引擎";
+"Use the same model and seed to get similar images.
+Note that the starting image must be 512x512." = "使用相同的模型和随机种获取相似的图像。
+请注意，原始图像必须为 512x512。";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "使用模型的安全检查模块，但它不能保证过滤所有的不良内容";
 "Website" = "网站";
 "Width:" = "宽度：";
