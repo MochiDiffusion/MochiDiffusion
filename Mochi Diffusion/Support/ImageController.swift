@@ -230,6 +230,9 @@ final class ImageController: ObservableObject {
             } catch ImageGenerator.GeneratorError.pipelineNotAvailable {
                 await self.logger.error("Pipeline is not loaded.")
                 await self.updateState(.error("Pipeline is not loaded."))
+            } catch StableDiffusionPipeline.Error.startingImageProvidedWithoutEncoder {
+                await self.logger.error("The selected model does not support setting a starting image.")
+                await self.updateState(.ready("The selected model does not support setting a starting image."))
             } catch Encoder.Error.sampleInputShapeNotCorrect {
                 await self.logger.error("The starting image size doesn't match the size of the image that will be generated.")
                 await self.updateState(.ready("The starting image size doesn't match the size of the image that will be generated."))
@@ -336,11 +339,29 @@ final class ImageController: ObservableObject {
         guard let cgImageSource = CGImageSourceCreateWithURL(url as CFURL, nil) else { return }
         let imageIndex = CGImageSourceGetPrimaryImageIndex(cgImageSource)
         guard let cgImage = CGImageSourceCreateImageAtIndex(cgImageSource, imageIndex, nil) else { return }
+        if cgImage.width != 512 || cgImage.height != 512 {
+            let alert = NSAlert()
+            alert.messageText = String(localized: "Incorrect image size")
+            alert.informativeText = String(localized: "Starting image must be 512x512.")
+            alert.alertStyle = .informational
+            alert.addButton(withTitle: "OK")
+            await alert.beginSheetModal(for: NSApplication.shared.mainWindow!)
+            return
+        }
         startingImage = cgImage
     }
 
     func selectStartingImage(sdi: SDImage) async {
         guard let image = sdi.image else { return }
+        if image.width != 512 || image.height != 512 {
+            let alert = NSAlert()
+            alert.messageText = String(localized: "Incorrect image size")
+            alert.informativeText = String(localized: "Starting image must be 512x512.")
+            alert.alertStyle = .informational
+            alert.addButton(withTitle: "OK")
+            await alert.beginSheetModal(for: NSApplication.shared.mainWindow!)
+            return
+        }
         startingImage = image
     }
 

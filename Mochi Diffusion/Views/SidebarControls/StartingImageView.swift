@@ -49,7 +49,7 @@ struct StartingImageView: View {
                 .sidebarLabelFormat()
 
                 ImageView(image: $controller.startingImage)
-                    .frame(height: 80)
+                    .frame(height: 90)
             }
 
             Spacer()
@@ -57,7 +57,7 @@ struct StartingImageView: View {
             VStack(alignment: .trailing) {
                 Text(
                     "Strength",
-                    comment: "Label for image2image strength slider control"
+                    comment: "Label for starting image strength slider control"
                 )
                 .sidebarLabelFormat()
 
@@ -91,8 +91,8 @@ struct StartingImageView: View {
                 .popover(isPresented: self.$isInfoPopoverShown, arrowEdge: .top) {
                     Text(
                     """
-                    Use the same model along with **Copy Options to Sidebar** to get similar images.
-                    Note that the starting image size must match the size of the image that will be generated.
+                    Use the same model and seed to get similar images.
+                    Note that the starting image must be 512x512.
                     """
                     )
                     .padding()

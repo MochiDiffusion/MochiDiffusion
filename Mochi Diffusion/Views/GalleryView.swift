@@ -114,10 +114,12 @@ struct GalleryView: View {
                     )
                 }
 
-                Button {
-                    Task { await ImageController.shared.selectStartingImage(sdi: sdi) }
-                } label: {
-                    Text("Set as Starting Image")
+                if let image = sdi.image, image.width == 512 && image.height == 512 {
+                    Button {
+                        Task { await ImageController.shared.selectStartingImage(sdi: sdi) }
+                    } label: {
+                        Text("Set as Starting Image")
+                    }
                 }
             }
             if sdi.upscaler.isEmpty {
