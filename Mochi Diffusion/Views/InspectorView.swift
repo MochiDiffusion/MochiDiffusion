@@ -131,7 +131,7 @@ struct InspectorView: View {
                         )
                     }
                     Button {
-                        let info = getHumanReadableInfo(sdi)
+                        let info = sdi.getHumanReadableInfo()
                         let pasteboard = NSPasteboard.general
                         pasteboard.declareTypes([.string], owner: nil)
                         pasteboard.setString(info, forType: .string)

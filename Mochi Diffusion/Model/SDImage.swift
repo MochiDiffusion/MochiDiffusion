@@ -102,6 +102,27 @@ extension SDImage {
     }
 
     @MainActor
+    func imageData(_ type: UTType) async -> Data? {
+        guard let image else { return nil }
+        guard let data = CFDataCreateMutable(nil, 0) else { return nil }
+        guard let destination = CGImageDestinationCreateWithData(
+            data,
+            type.identifier as CFString,
+            1,
+            nil
+        ) else { return nil }
+        let iptc = [
+            kCGImagePropertyIPTCCaptionAbstract: metadata(),
+            kCGImagePropertyIPTCOriginatingProgram: "Mochi Diffusion",
+            kCGImagePropertyIPTCProgramVersion: "\(NSApplication.appVersion)"
+        ]
+        let meta = [kCGImagePropertyIPTCDictionary: iptc]
+        CGImageDestinationAddImage(destination, image, meta as CFDictionary)
+        guard CGImageDestinationFinalize(destination) else { return nil }
+        return data as Data
+    }
+
+    @MainActor
     func metadata() -> String {
         """
         \(Metadata.includeInImage.rawValue): \(prompt); \
@@ -122,24 +143,37 @@ extension SDImage {
         """
     }
 
-    @MainActor
-    func imageData(_ type: UTType) async -> Data? {
-        guard let image else { return nil }
-        guard let data = CFDataCreateMutable(nil, 0) else { return nil }
-        guard let destination = CGImageDestinationCreateWithData(
-            data,
-            type.identifier as CFString,
-            1,
-            nil
-        ) else { return nil }
-        let iptc = [
-            kCGImagePropertyIPTCCaptionAbstract: metadata(),
-            kCGImagePropertyIPTCOriginatingProgram: "Mochi Diffusion",
-            kCGImagePropertyIPTCProgramVersion: "\(NSApplication.appVersion)"
-        ]
-        let meta = [kCGImagePropertyIPTCDictionary: iptc]
-        CGImageDestinationAddImage(destination, image, meta as CFDictionary)
-        guard CGImageDestinationFinalize(destination) else { return nil }
-        return data as Data
+    func getHumanReadableInfo() -> String {
+    """
+\(Metadata.date.rawValue):
+\(generatedDate.formatted(date: .long, time: .standard))
+
+\(Metadata.model.rawValue):
+\(model)
+
+\(Metadata.size.rawValue):
+\(width) x \(height)\(!upscaler.isEmpty ? " (Upscaled using \(upscaler))" : "")
+
+\(Metadata.includeInImage.rawValue):
+\(prompt)
+
+\(Metadata.excludeFromImage.rawValue):
+\(negativePrompt)
+
+\(Metadata.seed.rawValue):
+\(seed)
+
+\(Metadata.steps.rawValue):
+\(steps)
+
+\(Metadata.guidanceScale.rawValue):
+\(guidanceScale)
+
+\(Metadata.scheduler.rawValue):
+\(scheduler.rawValue)
+
+\(Metadata.mlComputeUnit.rawValue):
+\(MLComputeUnits.toString(mlComputeUnit))
+"""
     }
 }
