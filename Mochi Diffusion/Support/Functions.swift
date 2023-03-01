@@ -10,6 +10,7 @@ import CoreGraphics
 import CoreML
 import Foundation
 import StableDiffusion
+import UniformTypeIdentifiers
 
 func getHumanReadableInfo(_ sdi: SDImage) -> String {
     """
@@ -43,6 +44,18 @@ func getHumanReadableInfo(_ sdi: SDImage) -> String {
 \(Metadata.mlComputeUnit.rawValue):
 \(MLComputeUnits.toString(sdi.mlComputeUnit))
 """
+}
+
+/// Converts file extension to UTType.
+func getUTType(_ fileExtension: String) -> UTType {
+    switch fileExtension {
+    case "jpg", "jpeg":
+        return UTType.jpeg
+    case "heic":
+        return UTType.heic
+    default:
+        return UTType.png
+    }
 }
 
 func compareVersion(_ thisVersion: String, _ compareTo: String) -> ComparisonResult {

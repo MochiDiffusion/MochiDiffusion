@@ -86,7 +86,13 @@ class ImageGenerator: ObservableObject {
             includingPropertiesForKeys: nil,
             options: .skipsHiddenFiles
         )
-        let imageURLs = items.filter { $0.isFileURL && ($0.pathExtension == "png" || $0.pathExtension == "jpg") }
+        let imageURLs = items
+            .filter { $0.isFileURL }
+            .filter {
+                $0.pathExtension == "png" ||
+                $0.pathExtension == "jpg" ||
+                $0.pathExtension == "heic"
+            }
         var sdis: [SDImage] = []
         for url in imageURLs {
             guard let sdi = createSDImageFromURL(url) else { continue }
@@ -204,10 +210,9 @@ class ImageGenerator: ObservableObject {
                 if config.autosaveImages && !config.imageDir.isEmpty {
                     var pathURL = URL(fileURLWithPath: config.imageDir, isDirectory: true)
                     let count = await ImageStore.shared.images.endIndex + 1
-                    let filename = "\(String(config.pipelineConfig.prompt.prefix(70)).trimmingCharacters(in: .whitespacesAndNewlines)).\(count).\(config.pipelineConfig.seed).png"
-                    pathURL.append(path: filename)
-                    await sdi.save(pathURL)
-                    sdi.path = pathURL.path(percentEncoded: false)
+                    pathURL.append(path: sdi.filenameWithoutExtension(count: count))
+                    guard let path = await sdi.save(pathURL, type: .png) else { continue }
+                    sdi.path = path.path(percentEncoded: false)
                 }
                 await ImageStore.shared.add(sdi)
             }

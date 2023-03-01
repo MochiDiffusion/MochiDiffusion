@@ -346,6 +346,7 @@ final class ImageController: ObservableObject {
 
     func importImages() async {
         let panel = NSOpenPanel()
+        panel.allowedContentTypes = [.image]
         panel.allowsMultipleSelection = true
         panel.canCreateDirectories = false
         panel.canChooseDirectories = false
@@ -386,6 +387,7 @@ final class ImageController: ObservableObject {
     func saveAll() async {
         if ImageStore.shared.images.isEmpty { return }
         let panel = NSOpenPanel()
+        panel.allowedContentTypes = [.image]
         panel.canCreateDirectories = true
         panel.canChooseDirectories = true
         panel.canChooseFiles = false
@@ -400,18 +402,8 @@ final class ImageController: ObservableObject {
 
         for (index, sdi) in ImageStore.shared.images.enumerated() {
             let count = index + 1
-            let url = selectedURL.appending(path: "\(String(sdi.prompt.prefix(70)).trimmingCharacters(in: .whitespacesAndNewlines)).\(count).\(sdi.seed).png")
-
-            guard let data = await sdi.imageData(.png) else {
-                NSLog("*** Failed to convert image")
-                continue
-            }
-
-            do {
-                try data.write(to: url)
-            } catch {
-                NSLog("*** Error saving images: \(error)")
-            }
+            let url = selectedURL.appending(path: sdi.filenameWithoutExtension(count: count))
+            await sdi.save(url, type: .png)
         }
     }
 
