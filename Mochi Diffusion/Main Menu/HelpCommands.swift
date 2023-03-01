@@ -18,6 +18,10 @@ struct HelpCommands: Commands {
                     "Website",
                     destination: URL(string: "https://github.com/godly-devotion/MochiDiffusion")!
                 )
+                Link(
+                    "Contribute Translation",
+                    destination: URL(string: "https://crowdin.com/project/mochi-diffusion")!
+                )
             }
             Section {
                 Link(

@@ -16,7 +16,7 @@ struct ImageView: View {
             Image(image, scale: 1, label: Text(verbatim: ""))
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .padding(4)
+                .padding(3)
                 .overlay(
                     RoundedRectangle(cornerRadius: 2)
                         .stroke(Color(nsColor: .separatorColor), lineWidth: 1)
