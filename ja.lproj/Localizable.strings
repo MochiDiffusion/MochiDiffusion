@@ -17,6 +17,8 @@
 "Choose a folder and a name to store the image" = "画像を保存するフォルダと名前を選択";
 "Choose a folder to save all images" = "すべての画像を保存するフォルダを選択";
 "Choose generated images to import" = "インポートする生成した画像を選択";
+"Choose starting image" = "開始画像の選択";
+"Contribute Translation" = "翻訳に貢献";
 "Convert all images to High Resolution (this will use more memory)" = "すべての画像を高解像度に変換します（これはより多くのメモリを使用します）";
 "Convert to High Resolution" = "高解像度へ変換";
 "Copy" = "コピー";
@@ -40,6 +42,7 @@
 "Import" = "インポート";
 "Import Images..." = "画像のインポート...";
 "Include in Image" = "画像に含める";
+"Incorrect image size" = "間違った画像サイズ";
 "Loading Model..." = "モデルを読み込み中...";
 "Loading..." = "ロード中...";
 "ML Compute Unit" = "ML Compute Unit";
@@ -63,14 +66,19 @@
 "Search" = "検索";
 "Searching: %@" = "検索中: %@";
 "Seed" = "シード";
+"Select" = "選択";
 "Select Compute Unit option" = "Compute Unit オプションの選択";
 "Select Next" = "次を選択";
 "Select Previous" = "前を選択";
+"Set as Starting Image" = "開始画像に設定";
 "Share..." = "共有...";
 "Show in Finder" = "Finderで表示";
+"Starting Image" = "開始画像";
+"Starting image must be 512x512." = "開始画像は512x512でなければなりません。";
 "Step %lld of %lld" = "ステップ %lld / %lld";
 "Steps" = "ステップ";
 "Stop Generation" = "画像生成の中止";
+"Strength" = "強さ";
 "Support Me ♥" = "サポートお願いします♥";
 "This may take up to 2 minutes if a model is used for the first time" = "モデルを初めて使用する場合、2分程度かかることがあります";
 "Toggle Info Panel" = "情報パネルの切り替え";
