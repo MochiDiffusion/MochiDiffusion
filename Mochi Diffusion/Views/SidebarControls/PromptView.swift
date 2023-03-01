@@ -77,7 +77,6 @@ struct PromptTextEditor: View {
 
 struct PromptView: View {
     @EnvironmentObject private var controller: ImageController
-    @EnvironmentObject private var generator: ImageGenerator
     @EnvironmentObject private var focusCon: FocusController
 
     var body: some View {
@@ -115,7 +114,7 @@ struct PromptView: View {
 
                 Spacer()
 
-                if case .running = generator.state {
+                if case .running = controller.state {
                     Button {
                         Task { await ImageGenerator.shared.stopGenerate() }
                     } label: {
@@ -144,6 +143,6 @@ struct PromptView_Previews: PreviewProvider {
     static var previews: some View {
         PromptView()
             .environmentObject(ImageController.shared)
-            .environmentObject(ImageGenerator.shared)
+            .environmentObject(FocusController.shared)
     }
 }
