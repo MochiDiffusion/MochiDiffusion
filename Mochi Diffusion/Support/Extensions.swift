@@ -141,9 +141,9 @@ extension CompactSliderStyle where Self == MochiCompactSliderStyle {
 extension UTType {
     static func fromString(_ fileExtension: String) -> UTType {
         switch fileExtension {
-        case "jpg", "jpeg":
+        case UTType.jpeg.preferredFilenameExtension!:
             return UTType.jpeg
-        case "heic":
+        case UTType.heic.preferredFilenameExtension!:
             return UTType.heic
         default:
             return UTType.png
