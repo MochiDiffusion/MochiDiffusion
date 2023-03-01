@@ -39,6 +39,7 @@
 "If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images." = "옵션을 끄면 삭제된 이미지는 영구적으로 없어집니다. 가져온 이미지와 자동으로 저장된 이미지에 적용됩니다.";
 "Image" = "이미지";
 "Image %lld of %lld" = "이미지 %lld / %lld";
+"Image Type" = "이미지 유형";
 "Image file name:" = "이미지 파일 이름";
 "Import" = "가져오기";
 "Import Images..." = "이미지 가져오기...";
