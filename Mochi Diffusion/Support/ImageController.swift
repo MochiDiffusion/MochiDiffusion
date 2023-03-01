@@ -63,12 +63,14 @@ final class ImageController: ObservableObject {
             }
             modelName = model.name
             Task {
+                logger.info("Started loading model: \"\(self.modelName)\"")
                 do {
                     try await ImageGenerator.shared.load(
                         model: model,
                         computeUnit: mlComputeUnit,
                         reduceMemory: reduceMemory
                     )
+                    logger.info("Stable Diffusion pipeline successfully loaded")
                 } catch ImageGenerator.GeneratorError.requestedModelNotFound {
                     logger.error("Couldn't load \(self.modelName) because it doesn't exist.")
                     modelName = ""
@@ -120,6 +122,7 @@ final class ImageController: ObservableObject {
     }
 
     func loadImages() async {
+        logger.info("Started loading image autosave directory at: \"\(self.imageDir)\"")
         /// If there are unautosaved images,
         /// keep those images in gallery while loading from autosave directory so we don't lose their work
         ImageStore.shared.removeAllExceptUnsaved()
@@ -140,6 +143,7 @@ final class ImageController: ObservableObject {
 
     func loadModels() async {
         models = []
+        logger.info("Started loading model directory at: \"\(self.modelDir)\"")
         do {
             async let (foundModels, modelDirURL) = try ImageGenerator.shared.getModels(modelDir: modelDir)
             try await self.models = foundModels

@@ -25,8 +25,6 @@ class ImageGenerator: ObservableObject {
 
     static let shared = ImageGenerator()
 
-    private lazy var logger = Logger()
-
     enum GeneratorError: Error {
         case imageDirectoryNoAccess
         case modelDirectoryNoAccess
@@ -64,7 +62,6 @@ class ImageGenerator: ObservableObject {
     private var generationStopped = false
 
     func loadImages(imageDir: String) async throws -> ([SDImage], URL) {
-        logger.info("Started loading image autosave directory at: \"\(imageDir)\"")
         var finalImageDirURL: URL
         let fm = FileManager.default
         /// check if image autosave directory exists
@@ -81,7 +78,7 @@ class ImageGenerator: ObservableObject {
             finalImageDirURL = URL(fileURLWithPath: imageDir, isDirectory: true)
         }
         if !fm.fileExists(atPath: finalImageDirURL.path(percentEncoded: false)) {
-            logger.notice("Creating image autosave directory at: \"\(finalImageDirURL.path(percentEncoded: false))\"")
+            print("Creating image autosave directory at: \"\(finalImageDirURL.path(percentEncoded: false))\"")
             try? fm.createDirectory(at: finalImageDirURL, withIntermediateDirectories: true)
         }
         let items = try fm.contentsOfDirectory(
@@ -100,7 +97,6 @@ class ImageGenerator: ObservableObject {
     }
 
     func getModels(modelDir: String) async throws -> ([SDModel], URL) {
-        logger.info("Started loading model directory at: \"\(modelDir)\"")
         var models: [SDModel] = []
         var finalModelDirURL: URL
         let fm = FileManager.default
@@ -118,7 +114,7 @@ class ImageGenerator: ObservableObject {
             finalModelDirURL = URL(fileURLWithPath: modelDir, isDirectory: true)
         }
         if !fm.fileExists(atPath: finalModelDirURL.path(percentEncoded: false)) {
-            logger.notice("Creating models directory at: \"\(finalModelDirURL.path(percentEncoded: false))\"")
+            print("Creating models directory at: \"\(finalModelDirURL.path(percentEncoded: false))\"")
             try? fm.createDirectory(at: finalModelDirURL, withIntermediateDirectories: true)
         }
         do {
@@ -130,12 +126,10 @@ class ImageGenerator: ObservableObject {
                     models.append(model)
                 }
         } catch {
-            logger.notice("Could not get model subdirectories under: \"\(finalModelDirURL.path(percentEncoded: false))\"")
             await updateState(.error("Could not get model subdirectories."))
             throw GeneratorError.modelSubDirectoriesNoAccess
         }
         if models.isEmpty {
-            logger.notice("No models found under: \(finalModelDirURL.path(percentEncoded: false))")
             await updateState(.error("No models found under: \(finalModelDirURL.path(percentEncoded: false))"))
             throw GeneratorError.noModelsFound
         }
@@ -143,13 +137,11 @@ class ImageGenerator: ObservableObject {
     }
 
     func load(model: SDModel, computeUnit: MLComputeUnits, reduceMemory: Bool) async throws {
-        logger.info("Started loading model: \"\(model.name)\"")
         let fm = FileManager.default
         if !fm.fileExists(atPath: model.url.path) {
             await updateState(.error("Couldn't load \(model.name) because it doesn't exist."))
             throw GeneratorError.requestedModelNotFound
         }
-        logger.info("Found model: \"\(model.name)\"")
         let config = MLModelConfiguration()
         config.computeUnits = computeUnit
         self.pipeline = try StableDiffusionPipeline(
@@ -159,7 +151,6 @@ class ImageGenerator: ObservableObject {
             reduceMemory: reduceMemory
         )
         self.tokenizer = Tokenizer(modelDir: model.url)
-        logger.info("Stable Diffusion pipeline successfully loaded")
         await updateState(.ready(nil))
     }
 
@@ -235,7 +226,7 @@ class ImageGenerator: ObservableObject {
         }
     }
 
-    func updateQueueProgress(_ queueProgress: QueueProgress) async {
+    private func updateQueueProgress(_ queueProgress: QueueProgress) async {
         Task { @MainActor in
             self.queueProgress = queueProgress
         }
