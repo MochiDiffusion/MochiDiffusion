@@ -20,6 +20,7 @@
 "Choose a folder and a name to store the image" = "Scegli una cartella e relativo nome per salvare l\'immagine";
 "Choose a folder to save all images" = "Scegli una cartella dove salvare le immagini";
 "Choose generated images to import" = "Seleziona immagini generate da importare";
+"Choose starting image" = "Scegli immagine iniziale";
 "Convert all images to High Resolution (this will use more memory)" = "Converti tutte le immagini in alta risoluzione (maggior utilizzo della memoria)";
 "Convert to High Resolution" = "Converti in alta risoluzione";
 "Copy" = "Copia";
@@ -43,6 +44,7 @@
 "Import" = "Importa";
 "Import Images..." = "Importa immagini...";
 "Include in Image" = "Includi nell\'immagine";
+"Incorrect image size" = "Dimensione immagine errata";
 "Loading Model..." = "Caricamento modello...";
 "Loading..." = "Caricamento...";
 "ML Compute Unit" = "Unità ML";
@@ -66,19 +68,27 @@
 "Search" = "Cerca";
 "Searching: %@" = "Cerca: %@";
 "Seed" = "Seed";
+"Select" = "Seleziona";
 "Select Compute Unit option" = "Seleziona Unità ML";
 "Select Next" = "Seleziona successiva";
 "Select Previous" = "Seleziona precedente";
+"Set as Starting Image" = "Imposta come immagine iniziale";
 "Share..." = "Condividi...";
 "Show in Finder" = "Mostra nel Finder";
+"Starting Image" = "Immagine iniziale";
+"Starting image must be 512x512." = "L\'immagine iniziale deve essere 512x512.";
 "Step %lld of %lld" = "Passo %lld di %lld";
 "Steps" = "Numero di passi";
 "Stop Generation" = "Ferma la generazione";
+"Strength" = "Intensità";
 "Support Me ♥" = "Sostienimi ♥";
 "This may take up to 2 minutes if a model is used for the first time" = "Potrebbero volerci fino a 2 minuti se un modello viene utilizzato per la prima volta";
 "Toggle Info Panel" = "Mostra/nascondi il pannello informazioni";
 "Use GPU" = "Usa GPU";
 "Use Neural Engine" = "Usa Neural Engine";
+"Use the same model and seed to get similar images.
+Note that the starting image must be 512x512." = "Usa lo stesso modello e lo stesso seed per ottenere immagini simili.
+Tieni a mente che l\'immagine iniziale deve essere 512x512.";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Utilizza il modulo di verifica della sicurezza del modello. Questo non garantisce che tutti i contenuti inappropriati vengano filtrati.";
 "Website" = "Sito Web";
 "Width:" = "Larghezza:";
