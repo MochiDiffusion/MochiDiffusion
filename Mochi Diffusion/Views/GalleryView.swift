@@ -11,16 +11,16 @@ struct GalleryView: View {
 
     @Environment(\.colorScheme) private var colorScheme
 
-    @EnvironmentObject private var controller: ImageController
+    @EnvironmentObject private var generator: ImageGenerator
     @EnvironmentObject private var store: ImageStore
 
     private let gridColumns = [GridItem(.adaptive(minimum: 200), spacing: 16)]
 
     var body: some View {
         VStack(spacing: 0) {
-            if case let .error(msg) = controller.state {
+            if case let .error(msg) = generator.state {
                 MessageBanner(message: msg)
-            } else if case let .ready(msg) = controller.state, let msg = msg {
+            } else if case let .ready(msg) = generator.state, let msg = msg {
                 MessageBanner(message: msg)
             }
 

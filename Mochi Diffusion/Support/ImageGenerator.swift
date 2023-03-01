@@ -36,6 +36,27 @@ class ImageGenerator: ObservableObject {
         case requestedModelNotFound
     }
 
+    enum State: Sendable {
+        case idle
+        case ready(String?)
+        case error(String)
+        case loading
+        case running(StableDiffusionProgress?)
+    }
+
+    @MainActor
+    @Published
+    private(set) var state = State.idle
+
+    struct QueueProgress: Sendable {
+        var index = 0
+        var total = 0
+    }
+
+    @MainActor
+    @Published
+    private(set) var queueProgress = QueueProgress(index: 0, total: 0)
+
     private var pipeline: StableDiffusionPipeline?
 
     private(set) var tokenizer: Tokenizer?
@@ -50,6 +71,7 @@ class ImageGenerator: ObservableObject {
         if imageDir.isEmpty {
             /// use default autosave directory
             guard let documentsDir = fm.urls(for: .documentDirectory, in: .userDomainMask).first else {
+                await updateState(.error("Couldn't access autosave directory."))
                 throw GeneratorError.imageDirectoryNoAccess
             }
             finalImageDirURL = documentsDir
@@ -86,6 +108,7 @@ class ImageGenerator: ObservableObject {
         if modelDir.isEmpty {
             /// use default model directory
             guard let documentsDir = fm.urls(for: .documentDirectory, in: .userDomainMask).first else {
+                await updateState(.error("Couldn't access model directory."))
                 throw GeneratorError.modelDirectoryNoAccess
             }
             finalModelDirURL = documentsDir
@@ -108,10 +131,12 @@ class ImageGenerator: ObservableObject {
                 }
         } catch {
             logger.notice("Could not get model subdirectories under: \"\(finalModelDirURL.path(percentEncoded: false))\"")
+            await updateState(.error("Could not get model subdirectories."))
             throw GeneratorError.modelSubDirectoriesNoAccess
         }
         if models.isEmpty {
             logger.notice("No models found under: \(finalModelDirURL.path(percentEncoded: false))")
+            await updateState(.error("No models found under: \(finalModelDirURL.path(percentEncoded: false))"))
             throw GeneratorError.noModelsFound
         }
         return (models, finalModelDirURL)
@@ -121,7 +146,7 @@ class ImageGenerator: ObservableObject {
         logger.info("Started loading model: \"\(model.name)\"")
         let fm = FileManager.default
         if !fm.fileExists(atPath: model.url.path) {
-            logger.info("Couldn't find model \"\(model.name)\" at: \"\(model.url.path(percentEncoded: false))\"")
+            await updateState(.error("Couldn't load \(model.name) because it doesn't exist."))
             throw GeneratorError.requestedModelNotFound
         }
         logger.info("Found model: \"\(model.name)\"")
@@ -135,12 +160,15 @@ class ImageGenerator: ObservableObject {
         )
         self.tokenizer = Tokenizer(modelDir: model.url)
         logger.info("Stable Diffusion pipeline successfully loaded")
+        await updateState(.ready(nil))
     }
 
     func generate(_ inputConfig: GenerationConfig) async throws {
         guard let pipeline = pipeline else {
+            await updateState(.error("Pipeline is not loaded."))
             throw GeneratorError.pipelineNotAvailable
         }
+        await updateState(.loading)
         generationStopped = false
         var config = inputConfig
         config.pipelineConfig.seed = config.pipelineConfig.seed == 0 ? UInt32.random(in: 0 ..< UInt32.max) : config.pipelineConfig.seed
@@ -155,11 +183,11 @@ class ImageGenerator: ObservableObject {
         sdi.guidanceScale = Double(config.pipelineConfig.guidanceScale)
 
         for index in 0 ..< config.numberOfImages {
-            await ImageController.shared.updateQueueProgress(ImageController.QueueProgress(index: index, total: inputConfig.numberOfImages))
+            await updateQueueProgress(QueueProgress(index: index, total: inputConfig.numberOfImages))
 
             let images = try pipeline.generateImages(configuration: config.pipelineConfig) { progress in
                 Task { @MainActor in
-                    await ImageController.shared.updateState(.running(progress))
+                    state = .running(progress)
                 }
                 return !generationStopped
             }
@@ -194,11 +222,23 @@ class ImageGenerator: ObservableObject {
             }
             config.pipelineConfig.seed += 1
         }
-        await ImageController.shared.updateState(.ready(nil))
+        await updateState(.ready(nil))
     }
 
     func stopGenerate() async {
         generationStopped = true
+    }
+
+    func updateState(_ state: State) async {
+        Task { @MainActor in
+            self.state = state
+        }
+    }
+
+    func updateQueueProgress(_ queueProgress: QueueProgress) async {
+        Task { @MainActor in
+            self.queueProgress = queueProgress
+        }
     }
 }
 

@@ -9,12 +9,12 @@ import SwiftUI
 
 struct GalleryToolbarView: View {
     @Binding var isShowingInspector: Bool
-    @EnvironmentObject private var controller: ImageController
+    @EnvironmentObject private var generator: ImageGenerator
     @EnvironmentObject private var store: ImageStore
     @State private var isStatusPopoverShown = false
 
     var body: some View {
-        if case .loading = controller.state {
+        if case .loading = generator.state {
             Button {
                 self.isStatusPopoverShown.toggle()
             } label: {
@@ -36,10 +36,10 @@ struct GalleryToolbarView: View {
             }
         }
 
-        if case let .running(progress) = controller.state, let progress = progress, progress.stepCount > 0 {
+        if case let .running(progress) = generator.state, let progress = progress, progress.stepCount > 0 {
             let step = Int(progress.step) + 1
             let stepValue = Double(step) / Double(progress.stepCount)
-            let progressValue = Double(controller.queueProgress.index + 1) / Double(controller.queueProgress.total)
+            let progressValue = Double(generator.queueProgress.index + 1) / Double(generator.queueProgress.total)
 
             Button {
                 self.isStatusPopoverShown.toggle()
@@ -53,7 +53,7 @@ struct GalleryToolbarView: View {
                     comment: "Text displaying the current step progress and count"
                 )
                 let imageCountLabel = String(
-                    localized: "Image \(controller.queueProgress.index + 1) of \(controller.queueProgress.total)",
+                    localized: "Image \(generator.queueProgress.index + 1) of \(generator.queueProgress.total)",
                     comment: "Text displaying the image generation progress and count"
                 )
                 VStack(spacing: 12) {
@@ -191,7 +191,7 @@ struct GalleryToolbarView: View {
 struct GalleryToolbarView_Previews: PreviewProvider {
     static var previews: some View {
         GalleryToolbarView(isShowingInspector: .constant(true))
-            .environmentObject(ImageController.shared)
+            .environmentObject(ImageGenerator.shared)
             .environmentObject(ImageStore.shared)
     }
 }

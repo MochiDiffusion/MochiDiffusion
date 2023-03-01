@@ -59,7 +59,7 @@ struct MochiDiffusionApp: App {
             AppCommands(updater: updaterController.updater)
             FileCommands(store: store)
             SidebarCommands()
-            ImageCommands(controller: controller, store: store)
+            ImageCommands(controller: controller, generator: generator, store: store)
             HelpCommands()
         }
         .defaultSize(width: 1_120, height: 670)

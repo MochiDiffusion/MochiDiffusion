@@ -9,12 +9,13 @@ import SwiftUI
 
 struct ImageCommands: Commands {
     @ObservedObject var controller: ImageController
+    @ObservedObject var generator: ImageGenerator
     @ObservedObject var store: ImageStore
 
     var body: some Commands {
         CommandMenu("Image") {
             Section {
-                if case .running = controller.state {
+                if case .running = generator.state {
                     Button {
                         Task { await ImageGenerator.shared.stopGenerate() }
                     } label: {
