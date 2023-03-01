@@ -41,6 +41,7 @@
 "If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images." = "Se l\'opzione è disattivata, le immagini rimosse vengono eliminate definitivamente. Questo si applica alle immagini importate e a quelle salvate automaticamente.";
 "Image" = "Immagine";
 "Image %lld of %lld" = "Immagine %lld di %lld";
+"Image Type" = "Tipo immagine";
 "Image file name:" = "Nome file immagine:";
 "Import" = "Importa";
 "Import Images..." = "Importa immagini...";
