@@ -1,5 +1,5 @@
 //
-//  ErrorBanner.swift
+//  MessageBanner.swift
 //  Mochi Diffusion
 //
 //  Created by Joshua Park on 12/17/2022.
@@ -7,11 +7,11 @@
 
 import SwiftUI
 
-struct ErrorBanner: View {
-    var errorMessage: String
+struct MessageBanner: View {
+    var message: String
 
     var body: some View {
-        Text(errorMessage)
+        Text(message)
             .font(.headline)
             .padding(4)
             .frame(maxWidth: .infinity)
@@ -19,8 +19,8 @@ struct ErrorBanner: View {
     }
 }
 
-struct ErrorBanner_Previews: PreviewProvider {
+struct MessageBanner_Previews: PreviewProvider {
     static var previews: some View {
-        ErrorBanner(errorMessage: "Hello error!")
+        MessageBanner(message: "Hello world!")
     }
 }
