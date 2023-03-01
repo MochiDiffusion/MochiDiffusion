@@ -9,11 +9,13 @@ import Combine
 import CoreML
 import OSLog
 @preconcurrency import StableDiffusion
+import UniformTypeIdentifiers
 
 struct GenerationConfig: Sendable {
     var pipelineConfig: StableDiffusionPipeline.Configuration
     var autosaveImages: Bool
     var imageDir: String
+    var imageType: String
     var numberOfImages: Int
     var model: String
     var mlComputeUnit: MLComputeUnits
@@ -211,7 +213,9 @@ class ImageGenerator: ObservableObject {
                     var pathURL = URL(fileURLWithPath: config.imageDir, isDirectory: true)
                     let count = await ImageStore.shared.images.endIndex + 1
                     pathURL.append(path: sdi.filenameWithoutExtension(count: count))
-                    guard let path = await sdi.save(pathURL, type: .png) else { continue }
+
+                    let type = UTType.fromString(config.imageType)
+                    guard let path = await sdi.save(pathURL, type: type) else { continue }
                     sdi.path = path.path(percentEncoded: false)
                 }
                 await ImageStore.shared.add(sdi)

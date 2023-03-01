@@ -9,6 +9,7 @@ import CompactSlider
 import CoreML
 import StableDiffusion
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct MochiCompactSliderStyle: CompactSliderStyle {
     func makeBody(configuration: Configuration) -> some View {
@@ -135,6 +136,19 @@ extension Binding {
 
 extension CompactSliderStyle where Self == MochiCompactSliderStyle {
     static var `mochi`: MochiCompactSliderStyle { MochiCompactSliderStyle() }
+}
+
+extension UTType {
+    static func fromString(_ fileExtension: String) -> UTType {
+        switch fileExtension {
+        case "jpg", "jpeg":
+            return UTType.jpeg
+        case "heic":
+            return UTType.heic
+        default:
+            return UTType.png
+        }
+    }
 }
 
 extension MLComputeUnits {

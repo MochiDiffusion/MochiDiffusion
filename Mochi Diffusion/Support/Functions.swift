@@ -12,18 +12,6 @@ import Foundation
 import StableDiffusion
 import UniformTypeIdentifiers
 
-/// Converts file extension to UTType.
-func getUTType(_ fileExtension: String) -> UTType {
-    switch fileExtension {
-    case "jpg", "jpeg":
-        return UTType.jpeg
-    case "heic":
-        return UTType.heic
-    default:
-        return UTType.png
-    }
-}
-
 func compareVersion(_ thisVersion: String, _ compareTo: String) -> ComparisonResult {
     thisVersion.compare(compareTo, options: .numeric)
 }

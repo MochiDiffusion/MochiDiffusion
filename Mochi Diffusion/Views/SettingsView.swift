@@ -8,6 +8,7 @@
 import CoreML
 import StableDiffusion
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct SettingsView: View {
     @EnvironmentObject private var controller: ImageController
@@ -92,6 +93,26 @@ struct SettingsView: View {
                         .buttonStyle(PlainButtonStyle())
                         .help("Open in Finder")
                     }
+                }
+                .padding(4)
+
+                Divider()
+
+                HStack {
+                    Text("Image Type")
+
+                    Spacer()
+
+                    Picker("", selection: $controller.imageType) {
+                        Text(verbatim: "PNG")
+                            .tag(UTType.png.preferredFilenameExtension!)
+                        Text(verbatim: "JPEG")
+                            .tag(UTType.jpeg.preferredFilenameExtension!)
+                        Text(verbatim: "HEIC")
+                            .tag(UTType.heic.preferredFilenameExtension!)
+                    }
+                    .labelsHidden()
+                    .fixedSize()
                 }
                 .padding(4)
             }

@@ -87,7 +87,7 @@ extension SDImage {
 
         guard let url = panel.url else { return }
         let ext = url.pathExtension.lowercased()
-        let type = getUTType(ext)
+        let type = UTType.fromString(ext)
 
         guard let data = await imageData(type) else {
             NSLog("*** Failed to create image data")

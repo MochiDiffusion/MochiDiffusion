@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UniformTypeIdentifiers
 
 @MainActor
 class ImageStore: ObservableObject {
@@ -86,7 +87,7 @@ class ImageStore: ObservableObject {
             Task {
                 let url = URL(fileURLWithPath: sdi.path, isDirectory: false)
                 let pathWithoutExtension = url.deletingPathExtension()
-                let type = getUTType(url.pathExtension.lowercased())
+                let type = UTType.fromString(url.pathExtension.lowercased())
 
                 guard let url = await sdi.save(pathWithoutExtension, type: type) else { return }
                 allImages[index].path = url.path(percentEncoded: false)

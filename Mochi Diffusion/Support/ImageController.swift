@@ -87,6 +87,7 @@ final class ImageController: ObservableObject {
     @AppStorage("Model") private(set) var modelName = ""
     @AppStorage("AutosaveImages") var autosaveImages = true
     @AppStorage("ImageDir") var imageDir = ""
+    @AppStorage("ImageType") var imageType = UTType.png.preferredFilenameExtension!
     @AppStorage("Prompt") var prompt = ""
     @AppStorage("NegativePrompt") var negativePrompt = ""
     @AppStorage("ImageStrength") var strength = 0.7
@@ -193,6 +194,7 @@ final class ImageController: ObservableObject {
             pipelineConfig: pipelineConfig,
             autosaveImages: autosaveImages,
             imageDir: imageDir,
+            imageType: imageType,
             numberOfImages: Int(numberOfImages),
             model: modelName,
             mlComputeUnit: mlComputeUnit,
@@ -399,11 +401,12 @@ final class ImageController: ObservableObject {
         }
 
         guard let selectedURL = panel.url else { return }
+        let type = UTType.fromString(ImageController.shared.imageType)
 
         for (index, sdi) in ImageStore.shared.images.enumerated() {
             let count = index + 1
             let url = selectedURL.appending(path: sdi.filenameWithoutExtension(count: count))
-            await sdi.save(url, type: .png)
+            await sdi.save(url, type: type)
         }
     }
 
