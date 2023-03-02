@@ -87,9 +87,6 @@
 "Toggle Info Panel" = "Info paneel in-/uitschakelen";
 "Use GPU" = "Gebruik GPU";
 "Use Neural Engine" = "Gebruik Neural Engine";
-"Use the same model and seed to get similar images.
-Note that the starting image must be 512x512." = "Gebruik hetzelfde model en seed om vergelijkbare afbeeldingen te krijgen.
-Let op dat de startafbeelding 512x512 moet zijn.";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Gebruikt de safety checker module van het model. Dit garandeert niet dat alle ongepaste afbeeldingen gefilterd zullen worden.";
 "Website" = "Website";
 "Width:" = "Breedte:";
