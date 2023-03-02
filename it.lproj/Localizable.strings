@@ -83,14 +83,20 @@
 "Steps" = "Numero di passi";
 "Stop Generation" = "Ferma la generazione";
 "Strength" = "Intensità";
+"Strength controls how closely the generated image resembles the starting image.
+Use lower values to generate images that look similar to the starting image.
+Use higher values to allow more creative freedom.
+
+The size of the starting image should be 512 x 512." = "Intensità controlla quanto l\'immagine generata assomigli a quella iniziale.
+Usa valori bassi per generare immagini simili a quella di partenza.
+Usa valori alti per consentire maggiore libertà creativa.
+
+La dimensione dell\'immagine iniziale deve essere 512 x 512.";
 "Support Me ♥" = "Sostienimi ♥";
 "This may take up to 2 minutes if a model is used for the first time" = "Potrebbero volerci fino a 2 minuti se un modello viene utilizzato per la prima volta";
 "Toggle Info Panel" = "Mostra/nascondi il pannello informazioni";
 "Use GPU" = "Usa GPU";
 "Use Neural Engine" = "Usa Neural Engine";
-"Use the same model and seed to get similar images.
-Note that the starting image must be 512x512." = "Usa lo stesso modello e lo stesso seed per ottenere immagini simili.
-Tieni a mente che l\'immagine iniziale deve essere 512x512.";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Utilizza il modulo di verifica della sicurezza del modello. Questo non garantisce che tutti i contenuti inappropriati vengano filtrati.";
 "Website" = "Sito Web";
 "Width:" = "Larghezza:";
