@@ -85,9 +85,6 @@
 "Toggle Info Panel" = "显示/隐藏信息面板";
 "Use GPU" = "使用 GPU";
 "Use Neural Engine" = "使用神经网络引擎";
-"Use the same model and seed to get similar images.
-Note that the starting image must be 512x512." = "使用相同的模型和随机种获取相似的图像。
-请注意，原始图像必须为 512x512。";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "使用模型的安全检查模块，但它不能保证过滤所有的不良内容";
 "Website" = "网站";
 "Width:" = "宽度：";
