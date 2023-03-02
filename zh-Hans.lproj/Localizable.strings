@@ -38,6 +38,7 @@
 "If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images." = "如关闭选项，移除的图片将被永久删除。该选项适用于导入的图片和自动保存的图片。";
 "Image" = "图片";
 "Image %lld of %lld" = "图片 %lld / %lld";
+"Image Type" = "图片格式";
 "Image file name:" = "图片文件名：";
 "Import" = "导入";
 "Import Images..." = "导入图片...";
