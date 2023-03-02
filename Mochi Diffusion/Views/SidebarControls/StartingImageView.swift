@@ -91,8 +91,11 @@ struct StartingImageView: View {
                 .popover(isPresented: self.$isInfoPopoverShown, arrowEdge: .top) {
                     Text(
                     """
-                    Use the same model and seed to get similar images.
-                    Note that the starting image must be 512x512.
+                    Strength controls how closely the generated image resembles the starting image.
+                    Use lower values to generate images that look similar to the starting image.
+                    Use higher values to allow more creative freedom.
+
+                    The size of the starting image should be 512 x 512.
                     """
                     )
                     .padding()
