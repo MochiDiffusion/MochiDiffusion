@@ -21,6 +21,7 @@
 "Choose a folder to save all images" = "Выберите папку для сохранения всех изображений";
 "Choose generated images to import" = "Выберите сгенерированные изображения для импорта";
 "Choose starting image" = "Выберите начальное изображение";
+"Contribute Translation" = "Помочь с переводом";
 "Convert all images to High Resolution (this will use more memory)" = "Преобразовать все изображения в высокое разрешение (будет использовано больше памяти)";
 "Convert to High Resolution" = "Преобразовать в высокое разрешение";
 "Copy" = "Копировать";
@@ -40,10 +41,12 @@
 "If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images." = "Если опция выключена, изображения будут удаляться навсегда. Применяется к импортируемым и автоматически сохраняемым изображениям.";
 "Image" = "Изображение";
 "Image %lld of %lld" = "Изображение %lld из %lld";
+"Image Type" = "Тип изображения";
 "Image file name:" = "Имя файла изображения:";
 "Import" = "Импортировать";
 "Import Images..." = "Импортировать изображения...";
 "Include in Image" = "Включить в изображение";
+"Incorrect image size" = "Неверный размер изображения";
 "Loading Model..." = "Загрузка модели...";
 "Loading..." = "Загрузка...";
 "ML Compute Unit" = "Вычислительный блок ML";
@@ -67,6 +70,7 @@
 "Search" = "Поиск";
 "Searching: %@" = "Поиск: %@";
 "Seed" = "Seed";
+"Select" = "Выбрать";
 "Select Compute Unit option" = "Выберите вычислительный блок";
 "Select Next" = "Выбрать следующее";
 "Select Previous" = "Выбрать предыдущее";
