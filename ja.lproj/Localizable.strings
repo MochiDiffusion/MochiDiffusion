@@ -85,9 +85,6 @@
 "Toggle Info Panel" = "情報パネルの切り替え";
 "Use GPU" = "GPUを使う";
 "Use Neural Engine" = "Neural Engineを使う";
-"Use the same model and seed to get similar images.
-Note that the starting image must be 512x512." = "類似の画像を生成するには、同じモデルとシードを使用してください。
-開始画像は512x512でなければならないことに注意してください。";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "モデルのセーフティ チェッカー モジュールを使用します。 これは、すべての不適切な画像が除外されることを保証するものではありません。";
 "Website" = "Web サイト";
 "Width:" = "幅:";
