@@ -83,14 +83,20 @@
 "Steps" = "Arbeitsschritte";
 "Stop Generation" = "Generierung stoppen";
 "Strength" = "Stärke";
+"Strength controls how closely the generated image resembles the starting image.
+Use lower values to generate images that look similar to the starting image.
+Use higher values to allow more creative freedom.
+
+The size of the starting image should be 512 x 512." = "Stärke bestimmt, wie stark das generierte Bild dem Ausgangsbild ähnelt.
+Verwenden Sie niedrigere Werte, um Bilder zu erzeugen, die dem Ausgangsbild ähnlich sind.
+Verwenden Sie höhere Werte, um mehr kreative Freiheit zu ermöglichen.
+
+Die Größe des Startbildes sollte 512 x 512 sein.";
 "Support Me ♥" = "Unterstütze mich ♥";
 "This may take up to 2 minutes if a model is used for the first time" = "Dies kann bis zu 2 Minuten dauern, wenn ein Modell zum ersten Mal verwendet wird";
 "Toggle Info Panel" = "Infoleiste ein-/ausschalten";
 "Use GPU" = "GPU verwenden";
 "Use Neural Engine" = "Neural Engine verwenden";
-"Use the same model and seed to get similar images.
-Note that the starting image must be 512x512." = "Verwende dasselbe Modell und denselben Seed, um ähnliche Bilder zu erhalten.
-Beachte, dass das Ausgangsbild 512x512 sein muss.";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Verwendet das Safety-Checker-Modul des Modells. Dies garantiert nicht, dass alle unangemessenen Bilder gefiltert werden.";
 "Website" = "Webseite";
 "Width:" = "Breite:";
