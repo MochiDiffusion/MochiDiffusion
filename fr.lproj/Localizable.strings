@@ -41,6 +41,7 @@
 "If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images." = "Si l\'option est désactivée, les images sont définitivement supprimées. S\'applique aux images importées et enregistrées automatiquement.";
 "Image" = "Image";
 "Image %lld of %lld" = "Image %lld sur %lld";
+"Image Type" = "Type d\'image";
 "Image file name:" = "Nom du fichier image :";
 "Import" = "Importer";
 "Import Images..." = "Importer des images ...";
@@ -82,14 +83,20 @@
 "Steps" = "Étapes";
 "Stop Generation" = "Arrêter la génération";
 "Strength" = "Intensité";
+"Strength controls how closely the generated image resembles the starting image.
+Use lower values to generate images that look similar to the starting image.
+Use higher values to allow more creative freedom.
+
+The size of the starting image should be 512 x 512." = "L\'intensité contrôle à quel point l\'image générée ressemble à l\'image de départ.
+Utilisez des valeurs inférieures pour générer des images qui ressemblent à l\'image de départ.
+Utilisez des valeurs plus élevées pour permettre plus de créativité.
+
+La taille de l\'image de départ doit être de 512 x 512 pixels.";
 "Support Me ♥" = "Soutenez-moi ♥";
 "This may take up to 2 minutes if a model is used for the first time" = "Ceci peut prendre jusqu\'à 2 minutes si un modèle est utilisé pour la première fois";
 "Toggle Info Panel" = "Afficher / Masquer le panneau d\'informations";
 "Use GPU" = "Utilisation GPU";
 "Use Neural Engine" = "Utilisation moteur neuronal";
-"Use the same model and seed to get similar images.
-Note that the starting image must be 512x512." = "Utilisez le même modèle et la même souche pour obtenir des images similaires.
-Notez que la taille de l\'image de départ doit être 512x512 pixels.";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Utilise le module de vérification de la sécurité du modèle. Cela ne garantit pas que toutes les images inappropriées seront filtrées.";
 "Website" = "Site Web";
 "Width:" = "Largeur :";
