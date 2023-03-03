@@ -7,7 +7,7 @@
 "%@ model" = "%@ 模型";
 "All" = "全部";
 "Apply" = "应用";
-"Autosave & Restore Images" = "自动保存 & 恢复图片";
+"Autosave & Restore Images" = "自动保存 & 恢复图像";
 "Based on the option selected the correct model version will need to be used." = "不同的计算单元需要搭配使用正确的模型";
 "CPU & GPU" = "CPU 和 GPU";
 "CPU & GPU may be faster on M1 Max, Ultra and later but will use more memory." = "CPU 和 GPU 在 M1 Max/Ultra及后续型号上可能更快但会占用更多内存";
@@ -15,19 +15,19 @@
 "CPU & Neural Engine provides a good balance between speed and low memory usage." = "CPU 和神经网络引擎可以很好地平衡性能和内存占用";
 "Check for Updates…" = "检查更新...";
 "Choose a folder and a name to store the image" = "选择存储图片的文件夹并命名";
-"Choose a folder to save all images" = "选择保存所有图片的文件夹";
-"Choose generated images to import" = "选择已生成的图片导入";
+"Choose a folder to save all images" = "选择保存所有图像的文件夹";
+"Choose generated images to import" = "选择已生成的图像导入";
 "Choose starting image" = "选择原始图像";
 "Contribute Translation" = "参与翻译";
-"Convert all images to High Resolution (this will use more memory)" = "全部转换为高分辨率图片(将占用更多内存)";
-"Convert to High Resolution" = "全部转换为高分辨率图片";
+"Convert all images to High Resolution (this will use more memory)" = "全部转换为高分辨率图像(将占用更多内存)";
+"Convert to High Resolution" = "全部转换为高分辨率图像";
 "Copy" = "拷贝";
 "Copy Option to Sidebar" = "将设置拷贝到侧边栏";
 "Copy Options to Sidebar" = "将设置拷贝到侧边栏";
 "Description is too long" = "关键词过长";
 "Download Models" = "下载模型";
 "Exclude from Image" = "反向关键词";
-"Filter Inappropriate Images" = "过滤不良图片";
+"Filter Inappropriate Images" = "过滤不良图像";
 "For `original` models, select Use GPU." = "对于 “original” 模型，选择使用 GPU。";
 "For `split_einsum` models, select Use Neural Engine." = "对于 “split_einsum” 模型，选择使用神经网络引擎。";
 "General" = "通用";
@@ -35,22 +35,22 @@
 "Guidance Scale" = "关键词权重";
 "HD" = "HD";
 "Height:" = "高度:";
-"If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images." = "如关闭选项，移除的图片将被永久删除。该选项适用于导入的图片和自动保存的图片。";
-"Image" = "图片";
-"Image %lld of %lld" = "图片 %lld / %lld";
-"Image Type" = "图片格式";
-"Image file name:" = "图片文件名：";
+"If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images." = "如关闭选项，移除的图像将被永久删除。该选项适用于导入的图像和自动保存的图像。";
+"Image" = "图像";
+"Image %lld of %lld" = "图像 %lld / %lld";
+"Image Type" = "图像格式";
+"Image file name:" = "图像文件名：";
 "Import" = "导入";
-"Import Images..." = "导入图片...";
+"Import Images..." = "导入图像...";
 "Include in Image" = "关键词";
-"Incorrect image size" = "无法使用该图片分辨率";
+"Incorrect image size" = "无法使用该图像分辨率";
 "Loading Model..." = "加载模型中...";
 "Loading..." = "加载中...";
 "ML Compute Unit" = "ML 计算单元";
 "Mochi Diffusion" = "Mochi Diffusion";
 "Model" = "模型";
 "Model Folder" = "模型文件夹";
-"Move Images to Trash" = "将图片移到废纸篓";
+"Move Images to Trash" = "将图像移到废纸篓";
 "No Info" = "无";
 "Number of Images" = "图像数量";
 "Open in Finder" = "在访达中打开";
@@ -80,6 +80,15 @@
 "Steps" = "迭代步数";
 "Stop Generation" = "终止生成";
 "Strength" = "强度";
+"Strength controls how closely the generated image resembles the starting image.
+Use lower values to generate images that look similar to the starting image.
+Use higher values to allow more creative freedom.
+
+The size of the starting image should be 512 x 512." = "强度控制生成的图片与起始图像的相似程度。
+使用较低的值来生成与起始图像相似的图像。
+使用较高的值可以更自由地创造。
+
+起始图像的大小应该是512 x 512。";
 "Support Me ♥" = "支持我 ♥";
 "This may take up to 2 minutes if a model is used for the first time" = "如果这是首次载入模型，则需要约2分钟的时间";
 "Toggle Info Panel" = "显示/隐藏信息面板";
