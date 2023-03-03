@@ -20,7 +20,7 @@
       <ul>
       <li>Added option to select a starting image (commonly known as Image2Image)<ul>
       <li>Model must have <code>VAEEncoder.mlmodelc</code> file</li>
-      <li>Starting image and model must support 512x512 size</li>
+      <li>Starting image and model must be 512x512 in size</li>
       </ul>
       </li>
       <li>Added Dutch translation (Richard Venneman)</li>
