@@ -18,6 +18,8 @@
 "Choose a folder and a name to store the image" = "이미지를 저장할 폴더와 이름을 선택하세요";
 "Choose a folder to save all images" = "모든 이미지를 저장할 폴더를 선택하세요";
 "Choose generated images to import" = "가져올 생성된 이미지들 선택";
+"Choose starting image" = "시작 이미지 선택";
+"Contribute Translation" = "번역 기여";
 "Convert all images to High Resolution (this will use more memory)" = "모든 이미지를 자동으로 고화질로 변경 (더 많은 메모리를 사용)";
 "Convert to High Resolution" = "고화질로 변경";
 "Copy" = "복사";
@@ -37,10 +39,12 @@
 "If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images." = "옵션을 끄면 삭제된 이미지는 영구적으로 없어집니다. 가져온 이미지와 자동으로 저장된 이미지에 적용됩니다.";
 "Image" = "이미지";
 "Image %lld of %lld" = "이미지 %lld / %lld";
+"Image Type" = "이미지 유형";
 "Image file name:" = "이미지 파일 이름";
 "Import" = "가져오기";
 "Import Images..." = "이미지 가져오기...";
 "Include in Image" = "프롬프트";
+"Incorrect image size" = "이미지 크기가 잘못되었습니다";
 "Loading Model..." = "모델 로딩 중...";
 "Loading..." = "로딩중...";
 "ML Compute Unit" = "ML Compute Unit";
@@ -64,14 +68,28 @@
 "Search" = "검색";
 "Searching: %@" = "검색: %@";
 "Seed" = "씨드";
+"Select" = "선택";
 "Select Compute Unit option" = "Compute Unit 선택";
 "Select Next" = "다음 선택";
 "Select Previous" = "이전 선택";
+"Set as Starting Image" = "시작 이미지로 선택";
 "Share..." = "공유...";
 "Show in Finder" = "Finder에서 보기";
+"Starting Image" = "시작 이미지";
+"Starting image must be 512x512." = "이미지 너비와 높이가 512픽셀 이여야 합니다.";
 "Step %lld of %lld" = "스텝 %lld / %lld";
 "Steps" = "스텝 수";
 "Stop Generation" = "생성 중단";
+"Strength" = "강도";
+"Strength controls how closely the generated image resembles the starting image.
+Use lower values to generate images that look similar to the starting image.
+Use higher values to allow more creative freedom.
+
+The size of the starting image should be 512 x 512." = "강도는 생성된 이미지가 시작 이미지와 얼마나 유사한지를 제어합니다.
+시작 이미지와 비슷하게 보이는 이미지를 생성하려면 더 낮은 값을 사용하십시오.
+보다 창의적인 자유를 허용하려면 더 높은 값을 사용하십시오.
+
+시작 이미지의 너비와 높이가 512픽셀 이여야 합니다.";
 "Support Me ♥" = "기부 ♥";
 "This may take up to 2 minutes if a model is used for the first time" = "모델을 처음 사용하는 경우 최대 2분 정도 걸릴 수 있습니다.";
 "Toggle Info Panel" = "정보 패널 전환";
