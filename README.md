@@ -83,7 +83,7 @@ Documents/
 ## Compatibility
 
 - Apple Silicon (M1 and later) or Intel Mac (high performance CPU & GPU required)
-- macOS Ventura 13.1 and later
+- macOS Ventura 13.2 and later
 - Xcode 14.2 (to build)
 
 ## Privacy
