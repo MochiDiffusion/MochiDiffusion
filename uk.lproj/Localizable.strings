@@ -20,6 +20,8 @@
 "Choose a folder and a name to store the image" = "Оберіть теку і назву для зберігання зображення";
 "Choose a folder to save all images" = "Оберіть теку для збереження усіх зображень";
 "Choose generated images to import" = "Оберіть згенеровані зображення для імпорту";
+"Choose starting image" = "Оберіть стартове зображення";
+"Contribute Translation" = "Допомогти з перекладом";
 "Convert all images to High Resolution (this will use more memory)" = "Перетворити всі зображення у високу роздільну здатність (буде використано більше пам\'яті)";
 "Convert to High Resolution" = "Перетворити у високу роздільну здатність";
 "Copy" = "Копіювати";
@@ -39,10 +41,12 @@
 "If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images." = "Якщо параметр вимкнуто, вилучені зображення будуть видалені назавжди. Застосовується лише для імпортованих та автоматично збережених зображень.";
 "Image" = "Зображення";
 "Image %lld of %lld" = "Зображення %lld із %lld";
+"Image Type" = "Тип зображення";
 "Image file name:" = "Назва файлу зображення:";
 "Import" = "Імпортувати";
 "Import Images..." = "Імпорт зображень...";
 "Include in Image" = "Включити до зображення";
+"Incorrect image size" = "Невірний розмір зображення";
 "Loading Model..." = "Завантаження моделі...";
 "Loading..." = "Завантаження…";
 "ML Compute Unit" = "Обчислювальний блок ML";
@@ -66,14 +70,28 @@
 "Search" = "Пошук";
 "Searching: %@" = "Пошук: %@";
 "Seed" = "Seed";
+"Select" = "Обрати";
 "Select Compute Unit option" = "Виберіть обчислювальний блок";
 "Select Next" = "Обрати наступне";
 "Select Previous" = "Обрати попереднє";
+"Set as Starting Image" = "Встановити як початкове зображення";
 "Share..." = "Поширити...";
 "Show in Finder" = "Показати у Finder";
+"Starting Image" = "Початкове зображення";
+"Starting image must be 512x512." = "Початкове зображення має бути 512х512.";
 "Step %lld of %lld" = "Крок %lld із %lld";
 "Steps" = "Кроки";
 "Stop Generation" = "Зупинити генерацію";
+"Strength" = "Інтенсивність";
+"Strength controls how closely the generated image resembles the starting image.
+Use lower values to generate images that look similar to the starting image.
+Use higher values to allow more creative freedom.
+
+The size of the starting image should be 512 x 512." = "Інтенсивність впливає на те, наскільки згенероване зображення відповідатиме початковому.
+Використовуйте нижчі значення для створення зображення, яке буде більш схожим на початкове.
+Використовуйте вищі значення для більшої свободи творчості.
+
+Розмір початкового зображення має бути 512 на 512.";
 "Support Me ♥" = "Підтримайте мене ♥";
 "This may take up to 2 minutes if a model is used for the first time" = "Це може зайняти до 2 хвилин, якщо модель використовується вперше";
 "Toggle Info Panel" = "Сховати/показати інформаційну панель";
