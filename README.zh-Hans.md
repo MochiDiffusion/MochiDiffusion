@@ -83,7 +83,7 @@
 ## 兼容性
 
 - Apple 芯片的 Mac (M1 及后续) 或 Intel 芯片的 Mac (需要高性能 CPU 和 GPU)
-- macOS Ventura 13.2 以上
+- macOS Ventura 13.1 以上
 - Xcode 14.2 (自行构建)
 
 ## 隐私
