@@ -73,6 +73,7 @@ Mochi Diffusion을 사용하려면 모델 파일을 Core ML 포맷으로 변환�
         │   ├── TextEncoder.mlmodelc
         │   ├── Unet.mlmodelc
         │   ├── VAEDecoder.mlmodelc
+        │   ├── VAEEncoder.mlmodelc
         │   └── vocab.json
         ├── ...
         └── ...

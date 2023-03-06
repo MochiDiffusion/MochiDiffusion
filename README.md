@@ -75,6 +75,7 @@ Documents/
         │   ├── TextEncoder.mlmodelc
         │   ├── Unet.mlmodelc
         │   ├── VAEDecoder.mlmodelc
+        │   ├── VAEEncoder.mlmodelc
         │   └── vocab.json
         ├── ...
         └── ...
