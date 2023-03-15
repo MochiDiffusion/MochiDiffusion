@@ -90,11 +90,7 @@ class ImageGenerator: ObservableObject {
         )
         let imageURLs = items
             .filter { $0.isFileURL }
-            .filter {
-                $0.pathExtension == "png" ||
-                $0.pathExtension == "jpg" ||
-                $0.pathExtension == "heic"
-            }
+            .filter { ["png", "jpg", "jpeg", "heic"].contains($0.pathExtension) }
         var sdis: [SDImage] = []
         for url in imageURLs {
             guard let sdi = createSDImageFromURL(url) else { continue }
