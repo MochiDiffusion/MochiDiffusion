@@ -83,6 +83,15 @@
 "Steps" = "Pasos";
 "Stop Generation" = "Detener Generación";
 "Strength" = "Intensidad";
+"Strength controls how closely the generated image resembles the starting image.
+Use lower values to generate images that look similar to the starting image.
+Use higher values to allow more creative freedom.
+
+The size of the starting image should be 512 x 512." = "La intensidad controla cuán cerca la imagen generada se asemeja a la imagen inicial.
+Utiliza valores inferiores para generar imágenes que se parecen a la imagen inicial.
+Usa valores más altos para permitir más libertad creativa.
+
+El tamaño de la imagen inicial debe ser 512 x 512.";
 "Support Me ♥" = "Apoyame ♥";
 "This may take up to 2 minutes if a model is used for the first time" = "Esto puede tardar hasta 2 minutos si un modelo es usado por primera vez";
 "Toggle Info Panel" = "Activar/Desactivar Panel de Información";
