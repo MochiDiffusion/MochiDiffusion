@@ -123,12 +123,9 @@ class ImageGenerator: ObservableObject {
         }
         do {
             let subDirs = try finalModelDirURL.subDirectories()
-            subDirs
+            models = subDirs
                 .sorted { $0.lastPathComponent.compare($1.lastPathComponent, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedAscending }
-                .forEach {
-                    let model = SDModel(url: $0, name: $0.lastPathComponent)
-                    models.append(model)
-                }
+                .compactMap { SDModel(url: $0, name: $0.lastPathComponent) }
         } catch {
             await updateState(.error("Could not get model subdirectories."))
             throw GeneratorError.modelSubDirectoriesNoAccess
