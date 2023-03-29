@@ -143,6 +143,7 @@ class ImageGenerator: ObservableObject {
             await updateState(.error("Couldn't load \(model.name) because it doesn't exist."))
             throw GeneratorError.requestedModelNotFound
         }
+        await updateState(.loading)
         let config = MLModelConfiguration()
         config.computeUnits = computeUnit
         self.pipeline = try StableDiffusionPipeline(
