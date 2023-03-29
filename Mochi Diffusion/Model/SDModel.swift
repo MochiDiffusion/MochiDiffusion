@@ -7,6 +7,9 @@
 
 import CoreML
 import Foundation
+import os.log
+
+private let logger = Logger()
 
 struct SDModel: Identifiable, Hashable {
     let url: URL
@@ -43,6 +46,7 @@ private func identifyAttentionType(_ url: URL) -> SDModelAttentionType? {
 
         return metadatas[0].mlProgramOperationTypeHistogram["Ios16.einsum"] != nil ? .splitEinsum : .original
     } catch {
+        logger.warning("Failed to parse model metadata at '\(unetMetadataURL)': \(error)")
         return nil
     }
 }
