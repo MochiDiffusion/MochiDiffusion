@@ -14,6 +14,26 @@ import UniformTypeIdentifiers
 
 typealias StableDiffusionProgress = StableDiffusionPipeline.Progress
 
+enum ComputeUnitPreference: String {
+    case auto
+    case cpuAndGPU
+    case cpuAndNeuralEngine
+    case all
+
+    func computeUnits(forModel model: SDModel) -> MLComputeUnits {
+        switch self {
+        case .auto:
+            return model.attention.preferredComputeUnits
+        case .cpuAndGPU:
+            return .cpuAndGPU
+        case .cpuAndNeuralEngine:
+            return .cpuAndNeuralEngine
+        case .all:
+            return .all
+        }
+    }
+}
+
 @MainActor
 final class ImageController: ObservableObject {
 
@@ -67,7 +87,7 @@ final class ImageController: ObservableObject {
                 do {
                     try await ImageGenerator.shared.load(
                         model: model,
-                        computeUnit: mlComputeUnit,
+                        computeUnit: mlComputeUnitPreference.computeUnits(forModel: model),
                         reduceMemory: reduceMemory
                     )
                     logger.info("Stable Diffusion pipeline successfully loaded")
@@ -97,11 +117,7 @@ final class ImageController: ObservableObject {
     @AppStorage("ImageHeight") var height = 512
     @AppStorage("Scheduler") var scheduler: Scheduler = .dpmSolverMultistepScheduler
     @AppStorage("UpscaleGeneratedImages") var upscaleGeneratedImages = false
-    #if arch(arm64)
-    @AppStorage("MLComputeUnit") var mlComputeUnit: MLComputeUnits = .cpuAndNeuralEngine
-    #else
-    private let mlComputeUnit: MLComputeUnits = .cpuAndGPU
-    #endif
+    @AppStorage("MLComputeUnitPreference") var mlComputeUnitPreference: ComputeUnitPreference = .auto
     @AppStorage("ReduceMemory") var reduceMemory = false
     @AppStorage("SafetyChecker") var safetyChecker = false
     @AppStorage("UseTrash") var useTrash = true
@@ -174,9 +190,8 @@ final class ImageController: ObservableObject {
     }
 
     func generate() async {
-        if case .ready = ImageGenerator.shared.state {
-            // continue
-        } else {
+        guard case .ready = ImageGenerator.shared.state,
+            let model = currentModel else {
             return
         }
 
@@ -197,7 +212,7 @@ final class ImageController: ObservableObject {
             imageType: imageType,
             numberOfImages: Int(numberOfImages),
             model: modelName,
-            mlComputeUnit: mlComputeUnit,
+            mlComputeUnit: mlComputeUnitPreference.computeUnits(forModel: model),
             scheduler: scheduler,
             upscaleGeneratedImages: upscaleGeneratedImages
         )
