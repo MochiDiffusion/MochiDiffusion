@@ -205,37 +205,39 @@ struct SettingsView: View {
                 #if arch(arm64)
                 Divider()
 
-                VStack(alignment: .leading) {
+                VStack(alignment: .leading, spacing: 8) {
                     HStack {
                         Text("ML Compute Unit")
 
                         Spacer()
 
-                        Picker("", selection: $controller.mlComputeUnit) {
+                        Picker("", selection: $controller.mlComputeUnitPreference) {
+                            Text("Auto", comment: "Option to use the CPU + Neural Engine for split_einsum models, and CPU + GPU for original models")
+                                .tag(ComputeUnitPreference.auto)
                             Text("CPU & Neural Engine")
-                                .tag(MLComputeUnits.cpuAndNeuralEngine)
+                                .tag(ComputeUnitPreference.cpuAndNeuralEngine)
                             Text("CPU & GPU")
-                                .tag(MLComputeUnits.cpuAndGPU)
-                            Text(
-                                "All",
-                                comment: "Option to use all CPU, GPU, & Neural Engine for compute unit"
-                            )
-                            .tag(MLComputeUnits.all)
+                                .tag(ComputeUnitPreference.cpuAndGPU)
+                            Text("All", comment: "Option to use all CPU, GPU, & Neural Engine for compute unit")
+                                .tag(ComputeUnitPreference.all)
                         }
                         .labelsHidden()
                         .fixedSize()
                     }
-                    Text("CPU & Neural Engine provides a good balance between speed and low memory usage.")
+
+                    Text("**CPU & Neural Engine** provides a good balance between speed and low memory usage, but the Neural Engine is only compatible with split-einsum models.", comment: "Explanation for the 'CPU & NE' ML Compute Unit option")
                         .helpTextFormat()
 
-                    Text("CPU & GPU may be faster on M1 Max, Ultra and later but will use more memory.")
+                    Text("**CPU & GPU** is compatible with all models and may be faster on M1 Max, Ultra and later, but will use more memory.", comment: "Explanation for the 'CPU & GPU' ML Compute Unit option")
                         .helpTextFormat()
 
-                    Text(
-                        "Based on the option selected the correct model version will need to be used.",
-                        comment: "Help text for ML Compute Unit setting"
-                    )
-                    .helpTextFormat()
+                    Text("**Auto** selects the most appropriate configuration for the selected model.", comment: "Explanation for the 'Auto' ML Compute Unit option")
+                        .helpTextFormat()
+
+                    Divider()
+
+                    Text("Manually selecting an incompatible ML Compute Unit may lead to low performance and potentially crashes.")
+                        .helpTextFormat()
                 }
                 .padding(4)
                 #endif

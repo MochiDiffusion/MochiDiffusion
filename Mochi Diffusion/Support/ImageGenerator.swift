@@ -123,12 +123,9 @@ class ImageGenerator: ObservableObject {
         }
         do {
             let subDirs = try finalModelDirURL.subDirectories()
-            subDirs
+            models = subDirs
                 .sorted { $0.lastPathComponent.compare($1.lastPathComponent, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedAscending }
-                .forEach {
-                    let model = SDModel(url: $0, name: $0.lastPathComponent)
-                    models.append(model)
-                }
+                .compactMap { SDModel(url: $0, name: $0.lastPathComponent) }
         } catch {
             await updateState(.error("Could not get model subdirectories."))
             throw GeneratorError.modelSubDirectoriesNoAccess
@@ -146,6 +143,7 @@ class ImageGenerator: ObservableObject {
             await updateState(.error("Couldn't load \(model.name) because it doesn't exist."))
             throw GeneratorError.requestedModelNotFound
         }
+        await updateState(.loading)
         let config = MLModelConfiguration()
         config.computeUnits = computeUnit
         self.pipeline = try StableDiffusionPipeline(
