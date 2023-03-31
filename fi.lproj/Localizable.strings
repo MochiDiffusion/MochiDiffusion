@@ -1,14 +1,10 @@
 "CFBundleDisplayName" = "Mochi Diffusion";
 "CFBundleName" = "Mochi Diffusion";
 "NSHumanReadableCopyright" = "Tekijä: Joshua Park";
-"%@ model" = "%@ malli";
 "All" = "Kaikki";
 "Apply" = "Käytä";
-"Based on the option selected the correct model version will need to be used." = "Valitun vaihtoehdon perusteella on käytettävä oikeaa mallin versiota.";
 "CPU & GPU" = "CPU & GPU";
-"CPU & GPU may be faster on M1 Max, Ultra and later but will use more memory." = "CPU & GPU voi olla nopeampi M1 Max, Ultra ja uudemmilla, mutta käyttää enemmän muistia.";
 "CPU & Neural Engine" = "CPU & Neural Engine";
-"CPU & Neural Engine provides a good balance between speed and low memory usage." = "CPU & Neural Engine tarjoaa hyvän tasapainon nopeuden ja muistinkäytön välillä.";
 "Check for Updates…" = "Tarkista päivitykset…";
 "Convert all images to High Resolution (this will use more memory)" = "Muunna kaikki kuvat korkeaan resoluutioon (tämä käyttää enemmän muistia)";
 "Convert to High Resolution" = "Muunna korkeaksi resoluutioksi";
@@ -19,8 +15,6 @@
 "Download Models" = "Lataa Mallit";
 "Exclude from Image" = "Jätä pois kuvasta";
 "Filter Inappropriate Images" = "Suodata sopimattomat kuvat";
-"For `original` models, select Use GPU." = "Valitse \"original\" malleissa Käytä GPU.";
-"For `split_einsum` models, select Use Neural Engine." = "Valitse \"split_einsum\"-malleissa Käytä Neural Engine.";
 "Generate" = "Generoi";
 "Guidance Scale" = "Ohjeiden Skaalaus";
 "HD" = "HD";
@@ -49,7 +43,6 @@
 "Search" = "Etsi";
 "Searching: %@" = "Etsitään: %@";
 "Seed" = "Seed-luku";
-"Select Compute Unit option" = "Valitse laskentayksikön valinta";
 "Select Next" = "Valitse Seuraava";
 "Select Previous" = "Valitse Edellinen";
 "Share..." = "Jaa...";
@@ -58,8 +51,6 @@
 "Stop Generation" = "Pysäytä generointi";
 "Support Me ♥" = "Tue minua ♥";
 "This may take up to 2 minutes if a model is used for the first time" = "Tämä voi kestää enintään 2 minuuttia, jos mallia käytetään ensimmäisen kerran";
-"Use GPU" = "Käytä GPU";
-"Use Neural Engine" = "Käytä Neural Engine";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Käyttää mallin turvatarkistusmoduulia. Tämä ei takaa, että kaikki sopimattomat kuvat suodatetaan.";
 "Website" = "Nettisivu";
 "Width:" = "Leveys:";
