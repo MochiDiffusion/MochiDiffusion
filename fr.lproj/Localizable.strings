@@ -7,8 +7,12 @@
 "CFBundleDisplayName" = "Mochi Diffusion";
 "CFBundleName" = "Mochi Diffusion";
 "NSHumanReadableCopyright" = "Par Joshua Park";
+"**Auto** selects the most appropriate configuration for the selected model." = "**Auto** sélectionne la configuration la plus appropriée pour le modèle sélectionné.";
+"**CPU & GPU** is compatible with all models and may be faster on M1 Max, Ultra and later, but will use more memory." = "**Processeur & Carte graphique** est compatible avec tous les modèles et peut être plus rapide sur M1 Max, Ultra et plus tard, mais utilisera plus de mémoire.";
+"**CPU & Neural Engine** provides a good balance between speed and low memory usage, but only works with split-einsum models." = "**Processeur & Moteur neuronal** fournit un bon équilibre entre vitesse et faible utilisation de la mémoire, mais ne fonctionne qu\'avec les modèles split-einsum.";
 "All" = "Tout";
 "Apply" = "Appliquer";
+"Auto (Recommended)" = "Auto (recommandé)";
 "Autosave & Restore Images" = "Enregistrement automatique & récupération d\'images";
 "CPU & GPU" = "Processeur & carte graphique";
 "CPU & Neural Engine" = "Processeur & moteur neuronal";
@@ -44,6 +48,7 @@
 "Loading Model..." = "Chargement du modèle...";
 "Loading..." = "Chargement ...";
 "ML Compute Unit" = "Mode de calcul";
+"Manually selecting an incompatible ML Compute Unit may cause poor performance or crash." = "La sélection d\'une unité de calcul ML incompatible peut causer de mauvaises performances ou un plantage.";
 "Mochi Diffusion" = "Mochi Diffusion";
 "Model" = "Modèle";
 "Model Folder" = "Dossier du Modèle";
