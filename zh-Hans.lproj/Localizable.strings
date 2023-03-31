@@ -4,8 +4,12 @@
 "CFBundleDisplayName" = "Mochi Diffusion";
 "CFBundleName" = "Mochi Diffusion";
 "NSHumanReadableCopyright" = "作者 Joshua Park";
+"**Auto** selects the most appropriate configuration for the selected model." = "**自动**能为所选模型选择最合适的配置。";
+"**CPU & GPU** is compatible with all models and may be faster on M1 Max, Ultra and later, but will use more memory." = "**CPU & GPU** 与所有模型兼容，而且可能在 M1 Max、M1 Ultra 及更高版本上速度更快，但会占用更多内存。";
+"**CPU & Neural Engine** provides a good balance between speed and low memory usage, but only works with split-einsum models." = "**CPU & 神经网络引擎**在性能和内存占用之间提供了良好的平衡，但仅适用于 split-einsum 模型。";
 "All" = "全部";
 "Apply" = "应用";
+"Auto (Recommended)" = "自动 (推荐)";
 "Autosave & Restore Images" = "自动保存 & 恢复图像";
 "CPU & GPU" = "CPU 和 GPU";
 "CPU & Neural Engine" = "CPU 和神经网络引擎";
@@ -41,6 +45,7 @@
 "Loading Model..." = "加载模型中...";
 "Loading..." = "加载中...";
 "ML Compute Unit" = "ML 计算单元";
+"Manually selecting an incompatible ML Compute Unit may cause poor performance or crash." = "选择不兼容的 ML 计算单元可能会导致性能不佳或崩溃。";
 "Mochi Diffusion" = "Mochi Diffusion";
 "Model" = "模型";
 "Model Folder" = "模型文件夹";
