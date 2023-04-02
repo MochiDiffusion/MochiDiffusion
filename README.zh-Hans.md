@@ -41,6 +41,13 @@
 
 在 [发行](https://github.com/godly-devotion/MochiDiffusion/releases) 页面下载最新版本。
 
+## 通过Homebrew安装
+
+```bash
+brew tap godly-devotion/MochiDiffusion https://github.com/godly-devotion/MochiDiffusion.git
+brew install --cask mochi-diffusion
+```
+
 ## 运行
 
 在初次运行模型时, 神经网络引擎可能需要约2分钟编译缓存，后续运行速度会显著提高。

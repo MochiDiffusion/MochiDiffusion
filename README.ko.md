@@ -39,6 +39,14 @@
 
 [Releases](https://github.com/godly-devotion/MochiDiffusion/releases) 페이지에서 최신 버전을 다운로드 하실수 있습니다.
 
+
+## Homebrew를 통해 설치하세요
+
+```bash
+brew tap godly-devotion/MochiDiffusion https://github.com/godly-devotion/MochiDiffusion.git
+brew install --cask mochi-diffusion
+```
+
 ## 실행
 
 모델을 처음 사용하는 경우 Neural Engine이 캐시된 버전을 만드는데 최대한 2분 정도 걸릴 수 있습니다. 이후에는 이미지 생산이 훨씬 빨라질 것입니다.

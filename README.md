@@ -41,6 +41,13 @@ This app uses [Apple's Core ML Stable Diffusion implementation](https://github.c
 
 Download the latest version from the [releases](https://github.com/godly-devotion/MochiDiffusion/releases) page.
 
+## Install via homebrew
+
+```bash
+brew tap godly-devotion/MochiDiffusion https://github.com/godly-devotion/MochiDiffusion.git
+brew install --cask mochi-diffusion
+```
+
 ## Running
 
 When using a model for the very first time, it may take up to 2 minutes for the Neural Engine to compile a cached version. Afterwards, subsequent generations will be much faster.
