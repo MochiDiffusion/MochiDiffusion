@@ -58,7 +58,7 @@
 
 [这里](https://huggingface.co/coreml) 上传了几个已经转换好的模型
 
-1. [转换](https://github.com/godly-devotion/MochiDiffusion/wiki/How-to-convert-ckpt-or-safetensors-files-to-Core-ML) 或下载 Core ML 模型
+1. [转换](https://github.com/godly-devotion/MochiDiffusion/wiki/How-to-convert-Stable-Diffusion-models-to-Core-ML) 或下载 Core ML 模型
     - `split_einsum` 版本适用于包括神经网络引擎在内的所有计算单元
     - `original` 版本仅适用于 `CPU 和 GPU`
 2. 默认情况下，应用程序的模型文件夹将创建在您的主目录下。 可以在“设置”下自定义此位置
