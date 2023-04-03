@@ -42,7 +42,7 @@ final class ImageController: ObservableObject {
     private lazy var logger = Logger()
 
     @Published
-    var isInit = true
+    var isLoading = true
 
     @Published
     private(set) var models = [SDModel]()
@@ -130,12 +130,12 @@ final class ImageController: ObservableObject {
 
     /// Run init sequence for ImageController
     func load() async {
-        isInit = true
+        isLoading = true
         if autosaveImages {
             await loadImages()
         }
         await loadModels()
-        isInit = false
+        isLoading = false
     }
 
     func loadImages() async {
@@ -378,11 +378,21 @@ final class ImageController: ObservableObject {
         let selectedURLs = panel.urls
         if selectedURLs.isEmpty { return }
 
+        isLoading = true
         var sdis: [SDImage] = []
         var succeeded = 0, failed = 0
 
         for url in selectedURLs {
-            guard let sdi = createSDImageFromURL(url) else {
+            var importedURL: URL
+            do {
+                importedURL = URL(fileURLWithPath: imageDir, isDirectory: true)
+                importedURL.append(path: url.lastPathComponent)
+                try FileManager.default.copyItem(at: url, to: importedURL)
+            } catch {
+                failed += 1
+                continue
+            }
+            guard let sdi = createSDImageFromURL(importedURL) else {
                 failed += 1
                 continue
             }
@@ -390,6 +400,7 @@ final class ImageController: ObservableObject {
             sdis.append(sdi)
         }
         ImageStore.shared.add(sdis)
+        isLoading = false
 
         let alert = NSAlert()
         alert.messageText = String(localized: "Imported \(succeeded) image(s)")

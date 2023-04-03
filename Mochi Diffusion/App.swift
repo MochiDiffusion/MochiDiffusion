@@ -37,7 +37,7 @@ struct MochiDiffusionApp: App {
                 .environmentObject(generator)
                 .environmentObject(store)
                 .environmentObject(focusCon)
-                .sheet(isPresented: $controller.isInit) {
+                .sheet(isPresented: $controller.isLoading) {
                     VStack {
                         ProgressView()
                         Spacer().frame(height: 16)
