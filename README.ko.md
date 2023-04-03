@@ -59,11 +59,11 @@ Mochi Diffusion을 사용하려면 모델 파일을 Core ML 포맷으로 변환�
 1. Core ML 모델로 [변환 하거나](https://github.com/godly-devotion/MochiDiffusion/wiki/How-to-convert-ckpt-or-safetensors-files-to-Core-ML) 다운
     - `split_einsum` 버전은 Neural Engine을 포함한 모든 Compute Unit 옵션과 사용 가능
     - `original` 버전은 `CPU & GPU` 옵션과만 사용 가능
-2. 기본 앱 모델 폴더는 문서 아래에 생성됩니다. 이 위치는 설정에서 변경 할 수 있습니다
+2. 기본 앱 모델 폴더는 홈 디렉토리 아래에 생성됩니다. 이 위치는 설정에서 변경 할 수 있습니다
 3. 모델 폴더에서 앱에 표시할 이름으로 새 폴더를 만든 다음 변환된 모델을 여기로 이동하거나 추출함
 4. 폴더 디렉토리는 다음과 같아야 합니다:
 ```
-문서/
+<사용자 홈 폴더>/
 └── MochiDiffusion/
     └── models/
         ├── stable-diffusion-2-1_split-einsum_compiled/

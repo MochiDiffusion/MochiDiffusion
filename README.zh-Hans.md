@@ -61,11 +61,11 @@
 1. [转换](https://github.com/godly-devotion/MochiDiffusion/wiki/How-to-convert-ckpt-or-safetensors-files-to-Core-ML) 或下载 Core ML 模型
     - `split_einsum` 版本适用于包括神经网络引擎在内的所有计算单元
     - `original` 版本仅适用于 `CPU 和 GPU`
-2. 本应用默认在 文稿 中创建一个模型文件夹，但你可以在应用设置中自定义其路径。
+2. 默认情况下，应用程序的模型文件夹将创建在您的主目录下。 可以在“设置”下自定义此位置
 3. 在模型文件夹中，你可以新建一个文件夹，用自己想在应用内显示的名字为其重命名，再将转换好的模型放到文件夹中
 4. 你的文件夹路径应该像这样:
 ```
-文稿/
+<主目录>/
 └── MochiDiffusion/
     └── models/
         ├── stable-diffusion-2-1_split-einsum_compiled/
