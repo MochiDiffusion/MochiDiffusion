@@ -22,7 +22,7 @@
 
 ## 설명
 
-이 앱은 [Apple Core ML Stable Diffusion](https://github.com/apple/ml-stable-diffusion)을 사용하여 메모리 요구 사항을 줄이면서 Apple Silicon Mac에서 최대 성능과 속도를 달성합니다. Intel Mac에서도 사용가능합니다.
+이 앱은 [Apple Core ML Stable Diffusion](https://github.com/apple/ml-stable-diffusion)을 사용하여 메모리 요구 사항을 줄이면서 Apple Silicon Mac에서 최대 성능과 속도를 달성합니다.
 
 ## 기능
 
@@ -49,8 +49,6 @@
 - `CPU & GPU`는 M1 Max, Ultra에서 더 빠를 수 있지만 더 많은 메모리를 사용
 
 선택한 옵션에 따라 적절한 모델 버전을 사용해야 합니다 (자세한 내용은 모델 섹션 참조).
-
-Intel Mac은 Neural Engine이 없기 때문에 `CPU & GPU`를 사용합니다.
 
 ## 모델
 
@@ -81,7 +79,7 @@ Mochi Diffusion을 사용하려면 모델 파일을 Core ML 포맷으로 변환�
 
 ## 시스템 요구 사항
 
-- Apple Silicon칩 (M1와 이후 모델) 또는 Intel Mac
+- Apple Silicon칩 (M1와 이후 모델)
 - macOS Ventura 13.1 와 이후 버전
 - Xcode 14.2 (to build)
 

@@ -22,7 +22,7 @@
 
 ## 简介
 
-本应用内置 [Apple 的 Core ML Stable Diffusion 框架](https://github.com/apple/ml-stable-diffusion) 以实现在搭载 Apple 芯片的 Mac 上用极低的内存占用发挥出最优性能，并同时兼容搭载 Intel 芯片的 Mac。
+本应用内置 [Apple 的 Core ML Stable Diffusion 框架](https://github.com/apple/ml-stable-diffusion) 以实现在搭载 Apple 芯片的 Mac 上用极低的内存占用发挥出最优性能。
 
 ## 功能
 
@@ -51,8 +51,6 @@
 - `CPU 和 GPU` 在 M1 Max/Ultra 及后续型号上可能更快，但会占用更多内存
 
 你需要根据不同的计算单元选择对应的模型 (详情见模型部分)。
-
-搭载 Intel 芯片的 Mac 只能使用 `CPU 和 GPU`，因其没有配备神经网络引擎。
 
 ## 模型
 
@@ -83,7 +81,7 @@
 
 ## 兼容性
 
-- Apple 芯片的 Mac (M1 及后续) 或 Intel 芯片的 Mac (需要高性能 CPU 和 GPU)
+- Apple 芯片的 Mac (M1 及后续)
 - macOS Ventura 13.1 以上
 - Xcode 14.2 (自行构建)
 

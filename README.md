@@ -22,7 +22,7 @@
 
 ## Description
 
-This app uses [Apple's Core ML Stable Diffusion implementation](https://github.com/apple/ml-stable-diffusion) to achieve maximum performance and speed on Apple Silicon based Macs while reducing memory requirements. It also runs on Intel based Macs too.
+This app uses [Apple's Core ML Stable Diffusion implementation](https://github.com/apple/ml-stable-diffusion) to achieve maximum performance and speed on Apple Silicon based Macs while reducing memory requirements.
 
 ## Features
 
@@ -51,8 +51,6 @@ When using a model for the very first time, it may take up to 2 minutes for the 
 - `CPU & GPU` may be faster on M1 Max, Ultra and later but will use more memory
 
 Depending on the option chosen, you will need to use the correct model version (see Models section for details).
-
-Intel Macs uses `CPU & GPU` as it doesn't have Neural Engine.
 
 ## Models
 
@@ -83,7 +81,7 @@ Documents/
 
 ## Compatibility
 
-- Apple Silicon (M1 and later) or Intel Mac (high performance CPU & GPU required)
+- Apple Silicon (M1 and later)
 - macOS Ventura 13.1 and later
 - Xcode 14.2 (to build)
 
