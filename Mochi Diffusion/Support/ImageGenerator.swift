@@ -69,11 +69,7 @@ class ImageGenerator: ObservableObject {
         /// check if image autosave directory exists
         if imageDir.isEmpty {
             /// use default autosave directory
-            guard let documentsDir = fm.urls(for: .documentDirectory, in: .userDomainMask).first else {
-                await updateState(.error("Couldn't access autosave directory."))
-                throw GeneratorError.imageDirectoryNoAccess
-            }
-            finalImageDirURL = documentsDir
+            finalImageDirURL = fm.homeDirectoryForCurrentUser
             finalImageDirURL.append(path: "MochiDiffusion/images", directoryHint: .isDirectory)
         } else {
             /// generate url from autosave directory
@@ -107,11 +103,7 @@ class ImageGenerator: ObservableObject {
         /// check if saved model directory exists
         if modelDir.isEmpty {
             /// use default model directory
-            guard let documentsDir = fm.urls(for: .documentDirectory, in: .userDomainMask).first else {
-                await updateState(.error("Couldn't access model directory."))
-                throw GeneratorError.modelDirectoryNoAccess
-            }
-            finalModelDirURL = documentsDir
+            finalModelDirURL = fm.homeDirectoryForCurrentUser
             finalModelDirURL.append(path: "MochiDiffusion/models/", directoryHint: .isDirectory)
         } else {
             /// generate url from saved model directory
