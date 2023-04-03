@@ -5,6 +5,32 @@
     <language>en</language>
 
     <item>
+      <title>v3.1</title>
+      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <sparkle:version>3.1</sparkle:version>
+      <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
+      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <pubDate>Mon, 03 Apr 2023 19:10:03 +0000</pubDate>
+      <enclosure
+        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v3.1/MochiDiffusion_v3.1.dmg"
+        sparkle:edSignature="l1nrMlN42RW3WfhMdXL36gjzGMShR9acB3tmbVyXlIRbX4clvSSA3elmgP09rt92foGcIvFRaL3G1SvdQJC2AA=="
+        length="66961118"
+        type="application/octet-stream" />
+      <description><![CDATA[
+      <ul>
+      <li>Added option to auto select ML Compute Unit (@vzsg)</li>
+      <li>Added support for restoring <code>jpeg</code> files (@vzsg)</li>
+      <li>Changed default model &amp; image folder directory to user&#39;s home directory</li>
+      <li>Changed import behavior to copy images</li>
+      <li>Updated Translations</li>
+      </ul>
+      <p>Special thanks to the following for supporting me and making this app possible❣️
+      <strong>orange-wedge</strong>, <strong>RuralRob</strong>, <strong>vacekj</strong>, <strong>julien-c</strong>, <strong>BirdSesame</strong>, <strong>Da-mi-en</strong>, <strong>monks1975</strong>, &amp; anonymous donors</p>
+      ]]>
+      </description>
+    </item>
+
+    <item>
       <title>Bubble Tea Mochi</title>
       <link>https://github.com/godly-devotion/MochiDiffusion</link>
       <sparkle:version>3.0</sparkle:version>
