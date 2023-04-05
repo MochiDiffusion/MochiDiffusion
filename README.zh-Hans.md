@@ -102,5 +102,5 @@
 ## 致谢
 
 - [Apple's Core ML Stable Diffusion implementation](https://github.com/apple/ml-stable-diffusion)
-- [HuggingFace's Swift UI sample implementation](https://github.com/huggingface/swift-coreml-diffusers)
+- [Hugging Face's Swift UI sample implementation](https://github.com/huggingface/swift-coreml-diffusers)
 - 应用图标作者 [Zabriskije](https://github.com/Zabriskije)

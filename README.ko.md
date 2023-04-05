@@ -98,5 +98,5 @@ Mochi Diffusion은 버그 보고서, 코드 또는 새로운 번역을 통해서
 ## 크레딧
 
 - [Apple's Core ML Stable Diffusion implementation](https://github.com/apple/ml-stable-diffusion)
-- [HuggingFace's Swift UI sample implementation](https://github.com/huggingface/swift-coreml-diffusers)
+- [Hugging Face's Swift UI sample implementation](https://github.com/huggingface/swift-coreml-diffusers)
 - [Zabriskije](https://github.com/Zabriskije)가 만든 앱 아이콘
