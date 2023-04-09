@@ -18,7 +18,6 @@
 "Choose a folder to save all images" = "选择保存所有图像的文件夹";
 "Choose generated images to import" = "选择已生成的图像导入";
 "Choose starting image" = "选择原始图像";
-"Contribute Translation" = "参与翻译";
 "Convert all images to High Resolution (this will use more memory)" = "全部转换为高分辨率图像(将占用更多内存)";
 "Convert to High Resolution" = "全部转换为高分辨率图像";
 "Copy" = "拷贝";
@@ -87,7 +86,6 @@ The size of the starting image should be 512 x 512." = "强度控制生成的图
 使用较高的值可以更自由地创造。
 
 起始图像的大小应该是512 x 512。";
-"Support Me ♥" = "支持我 ♥";
 "This may take up to 2 minutes if a model is used for the first time" = "如果这是首次载入模型，则需要约2分钟的时间";
 "Toggle Info Panel" = "显示/隐藏信息面板";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "使用模型的安全检查模块，但它不能保证过滤所有的不良内容";
