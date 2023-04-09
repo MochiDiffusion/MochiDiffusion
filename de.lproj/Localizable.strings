@@ -17,7 +17,6 @@
 "Choose a folder to save all images" = "Ordner zum Speichern aller Bilder auswählen";
 "Choose generated images to import" = "Wähle generierte Bilder zum Importieren";
 "Choose starting image" = "Ausgangsbild wählen";
-"Contribute Translation" = "Zur Übersetzung beitragen";
 "Convert all images to High Resolution (this will use more memory)" = "Alle Bilder in hohe Auflösung konvertieren (dies wird mehr Speicher verbrauchen)";
 "Convert to High Resolution" = "In hohe Auflösung konvertieren";
 "Copy" = "Kopieren";
@@ -85,7 +84,6 @@ Verwenden Sie niedrigere Werte, um Bilder zu erzeugen, die dem Ausgangsbild ähn
 Verwenden Sie höhere Werte, um mehr kreative Freiheit zu ermöglichen.
 
 Die Größe des Startbildes sollte 512 x 512 sein.";
-"Support Me ♥" = "Unterstütze mich ♥";
 "This may take up to 2 minutes if a model is used for the first time" = "Dies kann bis zu 2 Minuten dauern, wenn ein Modell zum ersten Mal verwendet wird";
 "Toggle Info Panel" = "Infoleiste ein-/ausschalten";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Verwendet das Safety-Checker-Modul des Modells. Dies garantiert nicht, dass alle unangemessenen Bilder gefiltert werden.";
