@@ -14,7 +14,6 @@
 "Choose a folder to save all images" = "모든 이미지를 저장할 폴더를 선택하세요";
 "Choose generated images to import" = "가져올 생성된 이미지들 선택";
 "Choose starting image" = "시작 이미지 선택";
-"Contribute Translation" = "번역 기여";
 "Convert all images to High Resolution (this will use more memory)" = "모든 이미지를 자동으로 고화질로 변경 (더 많은 메모리를 사용)";
 "Convert to High Resolution" = "고화질로 변경";
 "Copy" = "복사";
@@ -82,7 +81,6 @@ The size of the starting image should be 512 x 512." = "강도는 생성된 이�
 보다 창의적인 자유를 허용하려면 더 높은 값을 사용하십시오.
 
 시작 이미지의 너비와 높이가 512픽셀 이여야 합니다.";
-"Support Me ♥" = "기부 ♥";
 "This may take up to 2 minutes if a model is used for the first time" = "모델을 처음 사용하는 경우 최대 2분 정도 걸릴 수 있습니다.";
 "Toggle Info Panel" = "정보 패널 전환";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "모델의 안전 검사기 모듈을 사용합니다. 모든 노골적인 이미지가 필터링되지 않을 수도 있습니다.";
