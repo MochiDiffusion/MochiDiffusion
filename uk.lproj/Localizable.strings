@@ -7,8 +7,12 @@
 "CFBundleDisplayName" = "Mochi Diffusion";
 "CFBundleName" = "Mochi Diffusion";
 "NSHumanReadableCopyright" = "Автор: Джошуа Парк";
+"**Auto** selects the most appropriate configuration for the selected model." = "**Авто** вибирає найбільш відповідну конфігурацію для вибраної моделі.";
+"**CPU & GPU** is compatible with all models and may be faster on M1 Max, Ultra and later, but will use more memory." = "**CPU & GPU** сумісний з усіма моделями і може бути швидшим на M1 Max, Ultra і пізніших версіях, але використовуватиме більше пам\'яті.";
+"**CPU & Neural Engine** provides a good balance between speed and low memory usage, but only works with split-einsum models." = "**CPU & Neural Engine** має хороше співвідношення між швидкістю та низьким використанням пам\'яті, але працює тільки з моделями split-einsum.";
 "All" = "Усі";
 "Apply" = "Застосувати";
+"Auto (Recommended)" = "Авто (рекомендується)";
 "Autosave & Restore Images" = "Автоматично зберігати та відновлювати зображення";
 "CPU & GPU" = "CPU та GPU";
 "CPU & Neural Engine" = "CPU та Neural Engine";
@@ -17,7 +21,6 @@
 "Choose a folder to save all images" = "Оберіть теку для збереження усіх зображень";
 "Choose generated images to import" = "Оберіть згенеровані зображення для імпорту";
 "Choose starting image" = "Оберіть стартове зображення";
-"Contribute Translation" = "Допомогти з перекладом";
 "Convert all images to High Resolution (this will use more memory)" = "Перетворити всі зображення у високу роздільну здатність (буде використано більше пам\'яті)";
 "Convert to High Resolution" = "Перетворити у високу роздільну здатність";
 "Copy" = "Копіювати";
@@ -39,11 +42,13 @@
 "Image file name:" = "Назва файлу зображення:";
 "Import" = "Імпортувати";
 "Import Images..." = "Імпорт зображень...";
+"Improve Translation" = "Вдосконалити переклад";
 "Include in Image" = "Включити до зображення";
 "Incorrect image size" = "Невірний розмір зображення";
 "Loading Model..." = "Завантаження моделі...";
 "Loading..." = "Завантаження…";
 "ML Compute Unit" = "Обчислювальний блок ML";
+"Manually selecting an incompatible ML Compute Unit may cause poor performance or crash." = "Вибір несумісного обчислювального модуля ML може призвести до зниження продуктивності або аварійного збою.";
 "Mochi Diffusion" = "Mochi Diffusion";
 "Model" = "Модель";
 "Model Folder" = "Тека для моделей";
@@ -85,7 +90,7 @@ The size of the starting image should be 512 x 512." = "Інтенсивніст
 Використовуйте вищі значення для більшої свободи творчості.
 
 Розмір початкового зображення має бути 512 на 512.";
-"Support Me ♥" = "Підтримайте мене ♥";
+"Support Project" = "Підтримати проєкт";
 "This may take up to 2 minutes if a model is used for the first time" = "Це може зайняти до 2 хвилин, якщо модель використовується вперше";
 "Toggle Info Panel" = "Сховати/показати інформаційну панель";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Використовує модуль моделі для перевірки зображень на безпечність. Це не гарантує, що всі неприйнятні зображення будуть відфільтровані.";

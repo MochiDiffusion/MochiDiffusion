@@ -18,7 +18,6 @@
 "Choose a folder to save all images" = "すべての画像を保存するフォルダを選択";
 "Choose generated images to import" = "インポートする生成した画像を選択";
 "Choose starting image" = "開始画像の選択";
-"Contribute Translation" = "翻訳に貢献";
 "Convert all images to High Resolution (this will use more memory)" = "すべての画像を高解像度に変換します（これはより多くのメモリを使用します）";
 "Convert to High Resolution" = "高解像度へ変換";
 "Copy" = "コピー";
@@ -40,6 +39,7 @@
 "Image file name:" = "画像ファイル名:";
 "Import" = "インポート";
 "Import Images..." = "画像のインポート...";
+"Improve Translation" = "翻訳の改善に協力";
 "Include in Image" = "画像に含める";
 "Incorrect image size" = "間違った画像サイズ";
 "Loading Model..." = "モデルを読み込み中...";
@@ -87,7 +87,7 @@ The size of the starting image should be 512 x 512." = "強さは生成される
 より創造的な自由を許容するには、高い値を使用してください。
 
 開始画像のサイズは512x512にする必要があります。";
-"Support Me ♥" = "サポートお願いします♥";
+"Support Project" = "プロジェクトをサポート";
 "This may take up to 2 minutes if a model is used for the first time" = "モデルを初めて使用する場合、2分程度かかることがあります";
 "Toggle Info Panel" = "情報パネルの切り替え";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "モデルのセーフティ チェッカー モジュールを使用します。 これは、すべての不適切な画像が除外されることを保証するものではありません。";

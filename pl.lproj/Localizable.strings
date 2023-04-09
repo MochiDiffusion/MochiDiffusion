@@ -15,7 +15,6 @@
 "Choose a folder to save all images" = "Wybierz folder do zapisania wszystkich obrazów";
 "Choose generated images to import" = "Wybierz wygenerowane obrazy do zaimportowania";
 "Choose starting image" = "Wybierz obraz początkowy";
-"Contribute Translation" = "Pomóż w tłumaczeniu";
 "Convert all images to High Resolution (this will use more memory)" = "Konwertuj wszystkie obrazy do wysokiej rozdzielczości (zwiększa użycie pamięci)";
 "Convert to High Resolution" = "Konwertuj do wysokiej rozdzielczości";
 "Copy" = "Kopiuj";
@@ -83,7 +82,6 @@ Użyj mniejszych wartości, aby generować obrazy, które wyglądają podobnie d
 Użyj większych wartości, aby pozwolić na większą swobodę twórczą.
 
 Rozmiar początkowego obrazu powinien wynosić 512 x 512.";
-"Support Me ♥" = "Wspomóż mnie ♥";
 "This may take up to 2 minutes if a model is used for the first time" = "Może to zająć do 2 minut, jeżeli model jest używany po raz pierwszy";
 "Toggle Info Panel" = "Przełącz panel informacji";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Używa modułu sprawdzania bezpieczeństwa modelu. To nie gwarantuje, że wszystkie nieodpowiednie obrazy zostaną przefiltrowane.";

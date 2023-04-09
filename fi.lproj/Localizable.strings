@@ -49,7 +49,6 @@
 "Step %lld of %lld" = "Vaihe %lld / %lld";
 "Steps" = "Vaiheet";
 "Stop Generation" = "Pysäytä generointi";
-"Support Me ♥" = "Tue minua ♥";
 "This may take up to 2 minutes if a model is used for the first time" = "Tämä voi kestää enintään 2 minuuttia, jos mallia käytetään ensimmäisen kerran";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Käyttää mallin turvatarkistusmoduulia. Tämä ei takaa, että kaikki sopimattomat kuvat suodatetaan.";
 "Website" = "Nettisivu";

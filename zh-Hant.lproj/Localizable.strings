@@ -4,8 +4,12 @@
 "CFBundleDisplayName" = "Mochi Diffusion";
 "CFBundleName" = "Mochi Diffusion";
 "NSHumanReadableCopyright" = "作者：Joshua Park";
+"**Auto** selects the most appropriate configuration for the selected model." = "**Auto** 會為所選模型選擇最適合的配置。";
+"**CPU & GPU** is compatible with all models and may be faster on M1 Max, Ultra and later, but will use more memory." = "「CPU 和 GPU」相容於所有模型，並且在 M1 Max、M1 Ultra 和之後的晶片上可能更快，但會使用更多的記憶體。";
+"**CPU & Neural Engine** provides a good balance between speed and low memory usage, but only works with split-einsum models." = "「CPU 和 神經網路引擎」提供了速度和低記憶體使用之間的良好平衡，但只適用於 split-einsum 模型。";
 "All" = "全部";
 "Apply" = "套用";
+"Auto (Recommended)" = "自動（建議）";
 "Autosave & Restore Images" = "自動儲存 & 復原圖片";
 "CPU & GPU" = "CPU 和 GPU";
 "CPU & Neural Engine" = "CPU 和神經網路引擎";
@@ -14,7 +18,6 @@
 "Choose a folder to save all images" = "選擇一個資料夾儲存所有圖片";
 "Choose generated images to import" = "選擇已生成的圖片匯入";
 "Choose starting image" = "選擇起始圖片";
-"Contribute Translation" = "參與翻譯";
 "Convert all images to High Resolution (this will use more memory)" = "將所有圖像轉換為高解析度（需使用更多記憶體）";
 "Convert to High Resolution" = "轉換為高解析度";
 "Copy" = "複製";
@@ -36,11 +39,13 @@
 "Image file name:" = "圖片檔案名稱：";
 "Import" = "匯入";
 "Import Images..." = "匯入圖片 ...";
+"Improve Translation" = "改進翻譯";
 "Include in Image" = "關鍵詞";
 "Incorrect image size" = "不支援此圖片解析度";
 "Loading Model..." = "載入模型中 ...";
 "Loading..." = "載入中 ...";
 "ML Compute Unit" = "ML 計算單元";
+"Manually selecting an incompatible ML Compute Unit may cause poor performance or crash." = "手動選擇不相容的 ML 計算單元可能會導致性能不佳或程式崩潰。";
 "Mochi Diffusion" = "Mochi Diffusion";
 "Model" = "模型";
 "Model Folder" = "模型目錄";
@@ -82,7 +87,7 @@ The size of the starting image should be 512 x 512." = "「強度」控制生成
 反之，使用較高的值生成圖片則會更具創意。
 
 起始圖片的大小應為 512 x 512。";
-"Support Me ♥" = "贊助我 ♥";
+"Support Project" = "協助此專案";
 "This may take up to 2 minutes if a model is used for the first time" = "首次載入模型可能需要多達 2 分鐘";
 "Toggle Info Panel" = "切換資訊面板";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "使用模型的安全檢查模組（無法保證所有不適當圖片都會被過濾）";

@@ -48,7 +48,6 @@
 "Step %lld of %lld" = "Passo %lld de %lld";
 "Steps" = "Passos";
 "Stop Generation" = "Parar criação";
-"Support Me ♥" = "Me apoie ♥";
 "This may take up to 2 minutes if a model is used for the first time" = "Isto pode levar até 2 minutos se um modelo é usado pela primeira vez";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Utiliza o módulo verificador de segurança do modelo. Isso não garante que todas as imagens impróprias serão filtradas.";
 "Website" = "Site";

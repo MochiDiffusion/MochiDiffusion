@@ -21,7 +21,6 @@
 "Choose a folder to save all images" = "Scegli una cartella dove salvare le immagini";
 "Choose generated images to import" = "Seleziona immagini generate da importare";
 "Choose starting image" = "Scegli immagine iniziale";
-"Contribute Translation" = "Contribuisci alla traduzione";
 "Convert all images to High Resolution (this will use more memory)" = "Converti tutte le immagini in alta risoluzione (maggior utilizzo della memoria)";
 "Convert to High Resolution" = "Converti in alta risoluzione";
 "Copy" = "Copia";
@@ -43,6 +42,7 @@
 "Image file name:" = "Nome file immagine:";
 "Import" = "Importa";
 "Import Images..." = "Importa immagini...";
+"Improve Translation" = "Migliora la traduzione";
 "Include in Image" = "Includi nell\'immagine";
 "Incorrect image size" = "Dimensione immagine errata";
 "Loading Model..." = "Caricamento modello...";
@@ -90,7 +90,7 @@ Usa valori bassi per generare immagini simili a quella di partenza.
 Usa valori alti per consentire maggiore libertà creativa.
 
 La dimensione dell\'immagine iniziale deve essere 512 x 512.";
-"Support Me ♥" = "Sostienimi ♥";
+"Support Project" = "Supporta il progetto";
 "This may take up to 2 minutes if a model is used for the first time" = "Potrebbero volerci fino a 2 minuti se un modello viene utilizzato per la prima volta";
 "Toggle Info Panel" = "Mostra/nascondi il pannello informazioni";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Utilizza il modulo di verifica della sicurezza del modello. Questo non garantisce che tutti i contenuti inappropriati vengano filtrati.";

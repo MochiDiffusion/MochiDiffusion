@@ -21,7 +21,6 @@
 "Choose a folder to save all images" = "Выберите папку для сохранения всех изображений";
 "Choose generated images to import" = "Выберите сгенерированные изображения для импорта";
 "Choose starting image" = "Выберите начальное изображение";
-"Contribute Translation" = "Помочь с переводом";
 "Convert all images to High Resolution (this will use more memory)" = "Преобразовать все изображения в высокое разрешение (будет использовано больше памяти)";
 "Convert to High Resolution" = "Преобразовать в высокое разрешение";
 "Copy" = "Копировать";
@@ -90,7 +89,6 @@ The size of the starting image should be 512 x 512." = "Интенсивност
 Используйте более высокие значения для большей творческой свободы.
 
 Размер начального изображения должен быть 512 х 512.";
-"Support Me ♥" = "Поддержать меня ♥";
 "This may take up to 2 minutes if a model is used for the first time" = "Это может занять до двух минут, если модель используется впервые";
 "Toggle Info Panel" = "Переключить отображение панели информации";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Использует модуль модели для проверки на безопасность изображений. Не гарантирует, что все неприемлемые изображения будут отфильтрованы.";
