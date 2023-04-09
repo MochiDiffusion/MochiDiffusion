@@ -17,7 +17,6 @@
 "Choose a folder to save all images" = "Kies een map om alle afbeeldingen in op te slaan";
 "Choose generated images to import" = "Kies gegenereerde afbeeldingen om te importeren";
 "Choose starting image" = "Kies een startafbeelding";
-"Contribute Translation" = "Bijdragen aan vertalingen";
 "Convert all images to High Resolution (this will use more memory)" = "Converteer alle afbeeldingen naar High Resolution (dit zal meer geheugen gebruiken)";
 "Convert to High Resolution" = "Converteren naar High Resolution";
 "Copy" = "Kopiëer";
@@ -75,7 +74,6 @@
 "Steps" = "Stappen";
 "Stop Generation" = "Stop Genereren";
 "Strength" = "Intensiteit";
-"Support Me ♥" = "Support Mij ♥";
 "This may take up to 2 minutes if a model is used for the first time" = "Dit kan tot 2 minuten duren als een model voor het eerst wordt gebruikt";
 "Toggle Info Panel" = "Info paneel in-/uitschakelen";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Gebruikt de safety checker module van het model. Dit garandeert niet dat alle ongepaste afbeeldingen gefilterd zullen worden.";
