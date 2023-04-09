@@ -42,6 +42,7 @@
 "Image file name:" = "Nom du fichier image :";
 "Import" = "Importer";
 "Import Images..." = "Importer des images ...";
+"Improve Translation" = "Participer à la traduction";
 "Include in Image" = "Inclure dans l\'image";
 "Incorrect image size" = "Taille de l\'image incorrecte";
 "Loading Model..." = "Chargement du modèle...";
@@ -89,6 +90,7 @@ Utilisez des valeurs inférieures pour générer des images qui ressemblent à l
 Utilisez des valeurs plus élevées pour permettre plus de créativité.
 
 La taille de l\'image de départ doit être de 512 x 512 pixels.";
+"Support Project" = "Soutenir le projet";
 "This may take up to 2 minutes if a model is used for the first time" = "Ceci peut prendre jusqu\'à 2 minutes si un modèle est utilisé pour la première fois";
 "Toggle Info Panel" = "Afficher / Masquer le panneau d\'informations";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Utilise le module de vérification de la sécurité du modèle. Cela ne garantit pas que toutes les images inappropriées seront filtrées.";
