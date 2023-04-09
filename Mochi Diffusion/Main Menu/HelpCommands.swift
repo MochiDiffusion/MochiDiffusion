@@ -19,7 +19,7 @@ struct HelpCommands: Commands {
                     destination: URL(string: "https://github.com/godly-devotion/MochiDiffusion")!
                 )
                 Link(
-                    "Contribute Translation",
+                    "Improve Translation",
                     destination: URL(string: "https://crowdin.com/project/mochi-diffusion")!
                 )
             }
@@ -31,7 +31,7 @@ struct HelpCommands: Commands {
             }
             Section {
                 Link(
-                    "Support Me ♥",
+                    "Support Project",
                     destination: URL(string: "https://github.com/sponsors/godly-devotion")!
                 )
             }
