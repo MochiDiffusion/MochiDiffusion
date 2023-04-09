@@ -47,7 +47,6 @@
 "Step %lld of %lld" = "Steg %lld av %lld";
 "Steps" = "Steg";
 "Stop Generation" = "Stoppa generering";
-"Support Me ♥" = "Stöd mig ♥";
 "This may take up to 2 minutes if a model is used for the first time" = "Detta kan ta upp till 2 minuter om en modell används för första gången";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Använder modellens säkerhetskontrollmodul. Detta garanterar inte att alla olämpliga bilder kommer att filtreras.";
 "Website" = "Hemsida";
