@@ -42,6 +42,7 @@
 "Image file name:" = "Имя файла изображения:";
 "Import" = "Импортировать";
 "Import Images..." = "Импортировать изображения...";
+"Improve Translation" = "Улучшить перевод";
 "Include in Image" = "Включить в изображение";
 "Incorrect image size" = "Неверный размер изображения";
 "Loading Model..." = "Загрузка модели...";
@@ -89,6 +90,7 @@ The size of the starting image should be 512 x 512." = "Интенсивност
 Используйте более высокие значения для большей творческой свободы.
 
 Размер начального изображения должен быть 512 х 512.";
+"Support Project" = "Поддержать проект";
 "This may take up to 2 minutes if a model is used for the first time" = "Это может занять до двух минут, если модель используется впервые";
 "Toggle Info Panel" = "Переключить отображение панели информации";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Использует модуль модели для проверки на безопасность изображений. Не гарантирует, что все неприемлемые изображения будут отфильтрованы.";
