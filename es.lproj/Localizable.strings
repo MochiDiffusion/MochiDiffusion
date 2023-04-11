@@ -38,6 +38,7 @@
 "Image file name:" = "Nombre de archivo de imagen:";
 "Import" = "Importar";
 "Import Images..." = "Importar Imágenes...";
+"Improve Translation" = "Mejorar traducción";
 "Include in Image" = "Incluir en Imagen";
 "Incorrect image size" = "Tamaño de imagen incorrecto";
 "Loading Model..." = "Cargando Modelo...";
@@ -84,6 +85,7 @@ Utiliza valores inferiores para generar imágenes que se parecen a la imagen ini
 Usa valores más altos para permitir más libertad creativa.
 
 El tamaño de la imagen inicial debe ser 512 x 512.";
+"Support Project" = "Apoya el proyecto";
 "This may take up to 2 minutes if a model is used for the first time" = "Esto puede tardar hasta 2 minutos si un modelo es usado por primera vez";
 "Toggle Info Panel" = "Activar/Desactivar Panel de Información";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Usa el módulo de comprobación de seguridad del modelo. Esto no garantiza que todas las imágenes inapropiadas sean filtradas.";
