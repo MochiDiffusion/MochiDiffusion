@@ -59,14 +59,14 @@ struct PromptTextEditor: View {
                         comment: "Message warning the user that the prompt (or negative prompt) is too long and part of it may get cut off"
                     )
                     .font(.caption)
-                    .foregroundColor(Color(nsColor: .systemOrange))
+                    .foregroundColor(Color(nsColor: .systemYellow))
                 }
 
                 Spacer()
 
                 if !text.isEmpty {
                     Text(verbatim: "\(tokens) / \(tokenLimit)")
-                        .foregroundColor(tooManyTokens ? Color(nsColor: .systemOrange) : .secondary)
+                        .foregroundColor(tooManyTokens ? Color(nsColor: .systemYellow) : .secondary)
                         .padding([.trailing, .bottom], 2)
                         .font(.caption)
                 }
