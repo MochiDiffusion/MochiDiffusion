@@ -34,6 +34,7 @@ private struct UpscalingAnimationView: View {
                     .foregroundColor(.black)
                     .blur(radius: 50)
                     .opacity(0.3)
+
                 /// Left Top WandStars
                 ForEach(0..<2) { _ in
                     let x = CGFloat.random(in: 0...(geometry.size.width / 2))
@@ -43,11 +44,13 @@ private struct UpscalingAnimationView: View {
                         .opacity(isAnimated ? highOpacity : 0.0)
                         .position(x: x, y: y)
                         .animation(
-                            Animation.easeInOut(duration: Double(Float.random(in: durationRange)))
-                            .delay(Double(Float.random(in: delayRange)))
-                            .repeatForever(autoreverses: true), value: isAnimated
+                            Animation
+                                .easeInOut(duration: Double(Float.random(in: durationRange)))
+                                .delay(Double(Float.random(in: delayRange)))
+                                .repeatForever(autoreverses: true), value: isAnimated
                         )
                 }
+
                 /// Right Top WandStars
                 ForEach(0..<2) { _ in
                     let x = CGFloat.random(in: (geometry.size.width / 2)...geometry.size.width)
@@ -57,11 +60,13 @@ private struct UpscalingAnimationView: View {
                         .opacity(isAnimated ? highOpacity : 0.0)
                         .position(x: x, y: y)
                         .animation(
-                            Animation.easeInOut(duration: Double(Float.random(in: durationRange)))
+                            Animation
+                                .easeInOut(duration: Double(Float.random(in: durationRange)))
                                 .delay(Double(Float.random(in: delayRange)))
                                 .repeatForever(autoreverses: true), value: isAnimated
                         )
                 }
+
                 /// Left Bottom WandStars
                 ForEach(0..<2) { _ in
                     let x = CGFloat.random(in: 0...(geometry.size.width / 2))
@@ -71,11 +76,13 @@ private struct UpscalingAnimationView: View {
                         .opacity(isAnimated ? highOpacity : 0.0)
                         .position(x: x, y: y)
                         .animation(
-                            Animation.easeInOut(duration: Double(Float.random(in: durationRange)))
+                            Animation
+                                .easeInOut(duration: Double(Float.random(in: durationRange)))
                                 .delay(Double(Float.random(in: delayRange)))
                                 .repeatForever(autoreverses: true), value: isAnimated
                         )
                 }
+
                 /// Right Bottom WandStars
                 ForEach(0..<2) { _ in
                     let x = CGFloat.random(in: (geometry.size.width / 2)...geometry.size.width)
@@ -85,7 +92,8 @@ private struct UpscalingAnimationView: View {
                         .opacity(isAnimated ? highOpacity : 0.0)
                         .position(x: x, y: y)
                         .animation(
-                            Animation.easeInOut(duration: Double(Float.random(in: durationRange)))
+                            Animation
+                                .easeInOut(duration: Double(Float.random(in: durationRange)))
                                 .delay(Double(Float.random(in: delayRange)))
                                 .repeatForever(autoreverses: true), value: isAnimated
                         )
@@ -120,12 +128,13 @@ struct GalleryItemView: View {
     }
 }
 
-struct UpscaleringAnimation_Previews: PreviewProvider {
+struct UpscalingAnimation_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
             UpscalingAnimationView()
                 .frame(width: 300, height: 300)
                 .border(.selection, width: 5)
-        }.frame(width: 350, height: 350)
+        }
+        .frame(width: 350, height: 350)
     }
 }
