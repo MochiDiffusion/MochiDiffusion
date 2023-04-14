@@ -237,10 +237,12 @@ final class ImageController: ObservableObject {
 
     func upscale(_ sdi: SDImage) async {
         if !sdi.upscaler.isEmpty { return }
-        /// Set upscalering animation
-        var upscaleringSDI = sdi
-        upscaleringSDI.isUpscaling = true
-        ImageStore.shared.update(upscaleringSDI)
+        
+        /// Set upscaling animation
+        var upscalingSDI = sdi
+        upscalingSDI.isUpscaling = true
+        ImageStore.shared.update(upscalingSDI)
+        
         async let maybeSDI = Upscaler.shared.upscale(sdi: sdi)
         guard let upscaledSDI = await maybeSDI else { return }
         ImageStore.shared.update(upscaledSDI)
