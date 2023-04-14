@@ -47,7 +47,8 @@ private struct UpscalingAnimationView: View {
                             Animation
                                 .easeInOut(duration: Double(Float.random(in: durationRange)))
                                 .delay(Double(Float.random(in: delayRange)))
-                                .repeatForever(autoreverses: true), value: isAnimated
+                                .repeatForever(autoreverses: true),
+                            value: isAnimated
                         )
                 }
 
@@ -63,7 +64,8 @@ private struct UpscalingAnimationView: View {
                             Animation
                                 .easeInOut(duration: Double(Float.random(in: durationRange)))
                                 .delay(Double(Float.random(in: delayRange)))
-                                .repeatForever(autoreverses: true), value: isAnimated
+                                .repeatForever(autoreverses: true),
+                            value: isAnimated
                         )
                 }
 
@@ -79,7 +81,8 @@ private struct UpscalingAnimationView: View {
                             Animation
                                 .easeInOut(duration: Double(Float.random(in: durationRange)))
                                 .delay(Double(Float.random(in: delayRange)))
-                                .repeatForever(autoreverses: true), value: isAnimated
+                                .repeatForever(autoreverses: true),
+                            value: isAnimated
                         )
                 }
 
@@ -95,7 +98,8 @@ private struct UpscalingAnimationView: View {
                             Animation
                                 .easeInOut(duration: Double(Float.random(in: durationRange)))
                                 .delay(Double(Float.random(in: delayRange)))
-                                .repeatForever(autoreverses: true), value: isAnimated
+                                .repeatForever(autoreverses: true),
+                            value: isAnimated
                         )
                 }
             }
