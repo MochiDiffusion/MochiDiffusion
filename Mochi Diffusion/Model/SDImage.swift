@@ -28,6 +28,7 @@ struct SDImage: Identifiable, Hashable {
     var guidanceScale = 11.0
     var generatedDate = Date()
     var upscaler = ""
+    var isUpscaling = false
     var path = ""
 
     func hash(into hasher: inout Hasher) {
