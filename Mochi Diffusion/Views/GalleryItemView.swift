@@ -19,9 +19,9 @@ private struct WandStar: View {
 
 private struct UpscalingAnimationView: View {
     @State private var isAnimated = false
-    private let lowBlur: CGFloat = 1
+    private let lowBlur: CGFloat = 1.5
     private let highBlur: CGFloat = 5
-    private let highOpacity: CGFloat = 0.6
+    private let highOpacity: CGFloat = 0.5
     private let sizeRange: ClosedRange<Int> = 12...88
     private let durationRange: ClosedRange<Float> = 0.5...1
     private let delayRange: ClosedRange<Float> = 0.1...0.3
@@ -29,67 +29,19 @@ private struct UpscalingAnimationView: View {
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                /// Background
+                /// Blur Background
                 Rectangle()
                     .foregroundColor(.black)
                     .blur(radius: 50)
                     .opacity(0.3)
-
-                /// Left Top WandStars
-                ForEach(0..<2) { _ in
-                    let x = CGFloat.random(in: 0...(geometry.size.width / 2))
-                    let y = CGFloat.random(in: 0...(geometry.size.height / 2))
-                    WandStar(size: CGFloat(Int.random(in: sizeRange)))
-                        .blur(radius: isAnimated ? lowBlur : highBlur)
-                        .opacity(isAnimated ? highOpacity : 0.0)
-                        .position(x: x, y: y)
-                        .animation(
-                            Animation
-                                .easeInOut(duration: Double(Float.random(in: durationRange)))
-                                .delay(Double(Float.random(in: delayRange)))
-                                .repeatForever(autoreverses: true),
-                            value: isAnimated
-                        )
-                }
-
-                /// Right Top WandStars
-                ForEach(0..<2) { _ in
-                    let x = CGFloat.random(in: (geometry.size.width / 2)...geometry.size.width)
-                    let y = CGFloat.random(in: 0...(geometry.size.height / 2))
-                    WandStar(size: CGFloat(Int.random(in: sizeRange)))
-                        .blur(radius: isAnimated ? lowBlur : highBlur)
-                        .opacity(isAnimated ? highOpacity : 0.0)
-                        .position(x: x, y: y)
-                        .animation(
-                            Animation
-                                .easeInOut(duration: Double(Float.random(in: durationRange)))
-                                .delay(Double(Float.random(in: delayRange)))
-                                .repeatForever(autoreverses: true),
-                            value: isAnimated
-                        )
-                }
-
-                /// Left Bottom WandStars
-                ForEach(0..<2) { _ in
-                    let x = CGFloat.random(in: 0...(geometry.size.width / 2))
-                    let y = CGFloat.random(in: (geometry.size.height / 2)...geometry.size.height)
-                    WandStar(size: CGFloat(Int.random(in: sizeRange)))
-                        .blur(radius: isAnimated ? lowBlur : highBlur)
-                        .opacity(isAnimated ? highOpacity : 0.0)
-                        .position(x: x, y: y)
-                        .animation(
-                            Animation
-                                .easeInOut(duration: Double(Float.random(in: durationRange)))
-                                .delay(Double(Float.random(in: delayRange)))
-                                .repeatForever(autoreverses: true),
-                            value: isAnimated
-                        )
-                }
-
-                /// Right Bottom WandStars
-                ForEach(0..<2) { _ in
-                    let x = CGFloat.random(in: (geometry.size.width / 2)...geometry.size.width)
-                    let y = CGFloat.random(in: (geometry.size.height / 2)...geometry.size.height)
+                /// Random WandStars
+                ForEach(0..<8) { index in
+                    let x = CGFloat.random(
+                        in: (index < 2 || (index >= 4 && index < 6)) ? 0...(geometry.size.width / 2) : (geometry.size.width / 2)...geometry.size.width
+                    )
+                    let y = CGFloat.random(
+                        in: (index < 4) ? 0...(geometry.size.height / 2) : (geometry.size.height / 2)...geometry.size.height
+                    )
                     WandStar(size: CGFloat(Int.random(in: sizeRange)))
                         .blur(radius: isAnimated ? lowBlur : highBlur)
                         .opacity(isAnimated ? highOpacity : 0.0)
