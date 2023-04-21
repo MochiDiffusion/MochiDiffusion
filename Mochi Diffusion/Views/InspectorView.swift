@@ -137,7 +137,7 @@ struct InspectorView: View {
                         pasteboard.setString(info, forType: .string)
                     } label: {
                         Text(
-                            "Copy",
+                            "Copy Info",
                             comment: "Button to copy the currently selected image's generation options to the clipboard"
                         )
                     }
