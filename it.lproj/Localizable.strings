@@ -7,19 +7,20 @@
 "CFBundleDisplayName" = "Mochi Diffusion";
 "CFBundleName" = "Mochi Diffusion";
 "NSHumanReadableCopyright" = "Di Joshua Park";
-"%@ model" = "Modello %@";
+"**Auto** selects the most appropriate configuration for the selected model." = "**Auto** sceglie la configurazione migliore in base al modello selezionato.";
+"**CPU & GPU** is compatible with all models and may be faster on M1 Max, Ultra and later, but will use more memory." = "**CPU & GPU** è compatibile con tutti i modelli e potrebbe risultare più veloce su M1 Max, Ultra e successivi, ma utilizzerà più memoria.";
+"**CPU & Neural Engine** provides a good balance between speed and low memory usage, but only works with split-einsum models." = "**CPU & Neural Engine** offre un buon bilanciamento tra velocità e utilizzo della memoria, ma funziona solo con modelli split-einsum.";
 "All" = "Tutti";
 "Apply" = "Applica";
+"Auto (Recommended)" = "Automatica (Consigliato)";
 "Autosave & Restore Images" = "Salvataggio automatico e ripristino immagini";
-"Based on the option selected the correct model version will need to be used." = "In base all\'opzione selezionata dovrà essere utilizzata la versione del modello corrispondente.";
 "CPU & GPU" = "CPU & GPU";
-"CPU & GPU may be faster on M1 Max, Ultra and later but will use more memory." = "CPU & GPU potrebbe risultare più veloce su M1 Max, Ultra e successivi, ma utilizzerà più memoria.";
 "CPU & Neural Engine" = "CPU & Neural Engine";
-"CPU & Neural Engine provides a good balance between speed and low memory usage." = "CPU & Neural Engine offre un buon bilanciamento tra velocità e utilizzo della memoria.";
 "Check for Updates…" = "Ricerca aggiornamenti…";
 "Choose a folder and a name to store the image" = "Scegli una cartella e relativo nome per salvare l\'immagine";
 "Choose a folder to save all images" = "Scegli una cartella dove salvare le immagini";
 "Choose generated images to import" = "Seleziona immagini generate da importare";
+"Choose starting image" = "Scegli immagine iniziale";
 "Convert all images to High Resolution (this will use more memory)" = "Converti tutte le immagini in alta risoluzione (maggior utilizzo della memoria)";
 "Convert to High Resolution" = "Converti in alta risoluzione";
 "Copy" = "Copia";
@@ -27,31 +28,33 @@
 "Copy Options to Sidebar" = "Copia nella barra laterale";
 "Description is too long" = "La descrizione è troppo lunga";
 "Download Models" = "Scarica modelli";
-"Exclude from Image:" = "Escludi dall\'immagine:";
+"Exclude from Image" = "Escludi dall\'immagine";
 "Filter Inappropriate Images" = "Filtra Immagini Inappropriate";
-"For `original` models, select Use GPU." = "Per i modelli \"original\", seleziona Usa GPU.";
-"For `split_einsum` models, select Use Neural Engine." = "Per i modelli `split_einsum`, seleziona Usa Neural Engine.";
 "General" = "Generali";
 "Generate" = "Genera";
-"Guidance Scale:" = "Scala guida:";
+"Guidance Scale" = "Scala guida";
 "HD" = "HD";
 "Height:" = "Altezza:";
 "If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images." = "Se l\'opzione è disattivata, le immagini rimosse vengono eliminate definitivamente. Questo si applica alle immagini importate e a quelle salvate automaticamente.";
 "Image" = "Immagine";
 "Image %lld of %lld" = "Immagine %lld di %lld";
+"Image Type" = "Tipo immagine";
 "Image file name:" = "Nome file immagine:";
 "Import" = "Importa";
 "Import Images..." = "Importa immagini...";
-"Include in Image:" = "Includi nell\'immagine:";
+"Improve Translation" = "Migliora la traduzione";
+"Include in Image" = "Includi nell\'immagine";
+"Incorrect image size" = "Dimensione immagine errata";
 "Loading Model..." = "Caricamento modello...";
 "Loading..." = "Caricamento...";
 "ML Compute Unit" = "Unità ML";
+"Manually selecting an incompatible ML Compute Unit may cause poor performance or crash." = "Selezionare un\'Unità ML incompatibile potrebbe causare cattive prestazioni o addirittura crash.";
 "Mochi Diffusion" = "Mochi Diffusion";
+"Model" = "Modello";
 "Model Folder" = "Cartella Modello";
-"Model:" = "Modello:";
 "Move Images to Trash" = "Sposta immagini nel Cestino";
 "No Info" = "Nessun dato";
-"Number of Images:" = "Numero di immagini:";
+"Number of Images" = "Numero di Immagini";
 "Open in Finder" = "Apri nel Finder";
 "Quick Look" = "Visualizzazione rapida";
 "Reduce Memory Usage" = "Riduci l\'utilizzo della memoria";
@@ -65,20 +68,31 @@
 "Scheduler" = "Campionatore";
 "Search" = "Cerca";
 "Searching: %@" = "Cerca: %@";
-"Seed:" = "Seed:";
-"Select Compute Unit option" = "Seleziona Unità ML";
+"Seed" = "Seed";
+"Select" = "Seleziona";
 "Select Next" = "Seleziona successiva";
 "Select Previous" = "Seleziona precedente";
+"Set as Starting Image" = "Imposta come immagine iniziale";
 "Share..." = "Condividi...";
 "Show in Finder" = "Mostra nel Finder";
+"Starting Image" = "Immagine iniziale";
+"Starting image must be 512x512." = "L\'immagine iniziale deve essere 512x512.";
 "Step %lld of %lld" = "Passo %lld di %lld";
-"Steps:" = "Numero di passi:";
+"Steps" = "Numero di passi";
 "Stop Generation" = "Ferma la generazione";
-"Support Me ♥" = "Sostienimi ♥";
+"Strength" = "Intensità";
+"Strength controls how closely the generated image resembles the starting image.
+Use lower values to generate images that look similar to the starting image.
+Use higher values to allow more creative freedom.
+
+The size of the starting image should be 512 x 512." = "Intensità controlla quanto l\'immagine generata assomigli a quella iniziale.
+Usa valori bassi per generare immagini simili a quella di partenza.
+Usa valori alti per consentire maggiore libertà creativa.
+
+La dimensione dell\'immagine iniziale deve essere 512 x 512.";
+"Support Project" = "Supporta il progetto";
 "This may take up to 2 minutes if a model is used for the first time" = "Potrebbero volerci fino a 2 minuti se un modello viene utilizzato per la prima volta";
 "Toggle Info Panel" = "Mostra/nascondi il pannello informazioni";
-"Use GPU" = "Usa GPU";
-"Use Neural Engine" = "Usa Neural Engine";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Utilizza il modulo di verifica della sicurezza del modello. Questo non garantisce che tutti i contenuti inappropriati vengano filtrati.";
 "Website" = "Sito Web";
 "Width:" = "Larghezza:";

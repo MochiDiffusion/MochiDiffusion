@@ -114,7 +114,7 @@ struct GalleryToolbarView: View {
         }
 
         Button {
-            withAnimation(.spring()) {
+            withAnimation {
                 isShowingInspector.toggle()
             }
         } label: {

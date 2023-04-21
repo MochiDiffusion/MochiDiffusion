@@ -8,6 +8,7 @@
 import CoreML
 import StableDiffusion
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct SettingsView: View {
     @EnvironmentObject private var controller: ImageController
@@ -92,6 +93,26 @@ struct SettingsView: View {
                         .buttonStyle(PlainButtonStyle())
                         .help("Open in Finder")
                     }
+                }
+                .padding(4)
+
+                Divider()
+
+                HStack {
+                    Text("Image Type")
+
+                    Spacer()
+
+                    Picker("", selection: $controller.imageType) {
+                        Text(verbatim: "PNG")
+                            .tag(UTType.png.preferredFilenameExtension!)
+                        Text(verbatim: "JPEG")
+                            .tag(UTType.jpeg.preferredFilenameExtension!)
+                        Text(verbatim: "HEIC")
+                            .tag(UTType.heic.preferredFilenameExtension!)
+                    }
+                    .labelsHidden()
+                    .fixedSize()
                 }
                 .padding(4)
             }
@@ -184,37 +205,48 @@ struct SettingsView: View {
                 #if arch(arm64)
                 Divider()
 
-                VStack(alignment: .leading) {
+                VStack(alignment: .leading, spacing: 8) {
                     HStack {
                         Text("ML Compute Unit")
 
                         Spacer()
 
-                        Picker("", selection: $controller.mlComputeUnit) {
+                        Picker("", selection: $controller.mlComputeUnitPreference) {
+                            Text("Auto (Recommended)", comment: "Option to use the CPU + Neural Engine for split-einsum models, and CPU + GPU for original models")
+                                .tag(ComputeUnitPreference.auto)
                             Text("CPU & Neural Engine")
-                                .tag(MLComputeUnits.cpuAndNeuralEngine)
+                                .tag(ComputeUnitPreference.cpuAndNeuralEngine)
                             Text("CPU & GPU")
-                                .tag(MLComputeUnits.cpuAndGPU)
-                            Text(
-                                "All",
-                                comment: "Option to use all CPU, GPU, & Neural Engine for compute unit"
-                            )
-                            .tag(MLComputeUnits.all)
+                                .tag(ComputeUnitPreference.cpuAndGPU)
+                            Text("All", comment: "Option to use all CPU, GPU, & Neural Engine for compute unit")
+                                .tag(ComputeUnitPreference.all)
                         }
                         .labelsHidden()
                         .fixedSize()
                     }
-                    Text("CPU & Neural Engine provides a good balance between speed and low memory usage.")
-                        .helpTextFormat()
-
-                    Text("CPU & GPU may be faster on M1 Max, Ultra and later but will use more memory.")
-                        .helpTextFormat()
 
                     Text(
-                        "Based on the option selected the correct model version will need to be used.",
-                        comment: "Help text for ML Compute Unit setting"
+                        "**Auto** selects the most appropriate configuration for the selected model.",
+                        comment: "Explanation for the 'Auto' ML Compute Unit option"
                     )
                     .helpTextFormat()
+
+                    Text(
+                        "**CPU & Neural Engine** provides a good balance between speed and low memory usage, but only works with split-einsum models.",
+                        comment: "Explanation for the 'CPU & NE' ML Compute Unit option"
+                    )
+                    .helpTextFormat()
+
+                    Text(
+                        "**CPU & GPU** is compatible with all models and may be faster on M1 Max, Ultra and later, but will use more memory.",
+                        comment: "Explanation for the 'CPU & GPU' ML Compute Unit option"
+                    )
+                    .helpTextFormat()
+
+                    Divider()
+
+                    Text("Manually selecting an incompatible ML Compute Unit may cause poor performance or crash.")
+                        .helpTextFormat()
                 }
                 .padding(4)
                 #endif

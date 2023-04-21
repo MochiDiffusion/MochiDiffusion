@@ -5,6 +5,70 @@
     <language>en</language>
 
     <item>
+      <title>v3.1</title>
+      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <sparkle:version>3.1</sparkle:version>
+      <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
+      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <pubDate>Mon, 03 Apr 2023 19:10:03 +0000</pubDate>
+      <enclosure
+        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v3.1/MochiDiffusion_v3.1.dmg"
+        sparkle:edSignature="l1nrMlN42RW3WfhMdXL36gjzGMShR9acB3tmbVyXlIRbX4clvSSA3elmgP09rt92foGcIvFRaL3G1SvdQJC2AA=="
+        length="66961118"
+        type="application/octet-stream" />
+      <description><![CDATA[
+      <ul>
+      <li>Added option to auto select ML Compute Unit (@vzsg)</li>
+      <li>Added support for restoring <code>jpeg</code> files (@vzsg)</li>
+      <li>Changed default model &amp; image folder directory to user&#39;s home directory</li>
+      <li>Changed import behavior to copy images</li>
+      <li>Updated translations</li>
+      </ul>
+      <p>Special thanks to the following for supporting me and making this app possible❣️
+      <strong>orange-wedge</strong>, <strong>RuralRob</strong>, <strong>vacekj</strong>, <strong>julien-c</strong>, <strong>BirdSesame</strong>, <strong>Da-mi-en</strong>, <strong>monks1975</strong>, &amp; anonymous donors</p>
+      ]]>
+      </description>
+    </item>
+
+    <item>
+      <title>Bubble Tea Mochi</title>
+      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <sparkle:version>3.0</sparkle:version>
+      <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
+      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <pubDate>Fri, 03 Mar 2023 02:00:13 +0000</pubDate>
+      <enclosure
+        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v3.0/MochiDiffusion_v3.0.dmg"
+        sparkle:edSignature="3aBiHzOA7YWH0gTWbN0oZKtVLuRvTtVfs96/akcFNple1srq9ufKhZr1Nb6NLT8iDR7xviuLqKsIBBnHei1FDg=="
+        length="67243511"
+        type="application/octet-stream" />
+      <description><![CDATA[
+      <ul>
+      <li>Added option to select a starting image (commonly known as Image2Image)<ul>
+      <li>Model must have <code>VAEEncoder.mlmodelc</code> file</li>
+      <li>Starting image and model must be 512x512 in size</li>
+      </ul>
+      </li>
+      <li>Added Dutch translation (Richard Venneman)</li>
+      <li>Added setting to change default save image type</li>
+      <li>Added support for importing and saving HEIC images<ul>
+      <li>HEIC images are so small and efficient that it only uses about 5% of the file size of upscaled PNG images 🤯</li>
+      </ul>
+      </li>
+      <li>Added link to project translation website (Help &gt; Contribute Translation)</li>
+      <li>Updated sidebar UI</li>
+      <li>Removed focus from text fields if image is clicked to avoid accidentally changing text</li>
+      <li>General Performance Improvements</li>
+      </ul>
+      <p>Has Mochi Diffusion been useful? Support this project on <a href="https://github.com/sponsors/godly-devotion">GitHub</a> or <a href="https://liberapay.com/joshuapark/">Liberapay</a>❣️</p>
+      <p>Special thanks to the following for supporting me and making this app possible 🎉
+      <strong>raisingfightingspirit</strong>, <strong>serovar</strong>, <strong>orange-wedge</strong>, <strong>RuralRob</strong>, <strong>vacekj</strong>, <strong>julien-c</strong>, <strong>BirdSesame</strong>, <strong>Da-mi-en</strong>, <strong>monks1975</strong>, &amp; anonymous donors</p>
+      <h1>🧋</h1>
+      ]]>
+      </description>
+    </item>
+
+    <item>
       <title>Never Gonna Let You Down</title>
       <link>https://github.com/godly-devotion/MochiDiffusion</link>
       <sparkle:version>2.5</sparkle:version>

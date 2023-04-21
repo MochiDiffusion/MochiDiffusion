@@ -7,18 +7,16 @@
 "CFBundleDisplayName" = "Mochi Diffusion";
 "CFBundleName" = "Mochi Diffusion";
 "NSHumanReadableCopyright" = "Por Joshua Park";
-"%@ model" = "%@ modelo";
 "All" = "Todos";
 "Apply" = "Aplicar";
-"Based on the option selected the correct model version will need to be used." = "Basado en la opción seleccionada, la versión correcta del modelo tendrá que ser utilizada.";
+"Autosave & Restore Images" = "Autoguardar y Recuperar Imágenes";
 "CPU & GPU" = "CPU & GPU";
-"CPU & GPU may be faster on M1 Max, Ultra and later but will use more memory." = "CPU & GPU puede ser más rápido en M1 Max, Ultra y posterior, pero usará más memoria.";
 "CPU & Neural Engine" = "CPU & Neural Engine";
-"CPU & Neural Engine provides a good balance between speed and low memory usage." = "CPU & Neural Engine proporciona un buen equilibrio entre velocidad y bajo consumo de memoria.";
 "Check for Updates…" = "Buscar actualizaciones…";
 "Choose a folder and a name to store the image" = "Elige una carpeta y un nombre para guardar la imagen";
 "Choose a folder to save all images" = "Elige una carpeta para guardar todas las imágenes";
 "Choose generated images to import" = "Elige imágenes generadas para importar";
+"Choose starting image" = "Elegir imagen inicial";
 "Convert all images to High Resolution (this will use more memory)" = "Convertir todas las imágenes a Alta Resolución (esto usará más memoria)";
 "Convert to High Resolution" = "Convertir a Alta Resolución";
 "Copy" = "Copiar";
@@ -26,26 +24,32 @@
 "Copy Options to Sidebar" = "Copiar Opciones a la Barra Lateral";
 "Description is too long" = "La descripción es demasiado larga";
 "Download Models" = "Descargar Modelos";
-"Exclude from Image:" = "Excluir de la Imagen:";
+"Exclude from Image" = "Excluir de la Imagen";
 "Filter Inappropriate Images" = "Filtrar Imágenes Inapropiadas";
-"For `original` models, select Use GPU." = "Para modelos \"originales\", selecciona Usar GPU.";
-"For `split_einsum` models, select Use Neural Engine." = "Para los modelos \"split_einsum\", selecciona Usar Neural Engine.";
 "General" = "General";
 "Generate" = "Generar";
-"Guidance Scale:" = "Escala de Guía:";
+"Guidance Scale" = "Escala de Guía";
 "HD" = "HD";
 "Height:" = "Altura:";
+"If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images." = "Si la opción está desactivada, las imágenes eliminadas se eliminan permanentemente. Se aplica a las imágenes importadas y autoguardadas.";
 "Image" = "Imagen";
 "Image %lld of %lld" = "Imagen %lld de %lld";
+"Image Type" = "Tipo de Imagen";
 "Image file name:" = "Nombre de archivo de imagen:";
 "Import" = "Importar";
-"Include in Image:" = "Incluir en Imagen:";
+"Import Images..." = "Importar Imágenes...";
+"Improve Translation" = "Mejorar traducción";
+"Include in Image" = "Incluir en Imagen";
+"Incorrect image size" = "Tamaño de imagen incorrecto";
 "Loading Model..." = "Cargando Modelo...";
+"Loading..." = "Cargando...";
 "ML Compute Unit" = "Unidad de Computación ML";
+"Mochi Diffusion" = "Mochi Diffusion";
+"Model" = "Modelo";
 "Model Folder" = "Directorio de Modelos";
-"Model:" = "Modelo:";
+"Move Images to Trash" = "Mover Imágenes a la Papelera";
 "No Info" = "Sin información";
-"Number of Images:" = "Número de Imágenes:";
+"Number of Images" = "Número de Imágenes";
 "Open in Finder" = "Mostrar en Finder";
 "Quick Look" = "Vista Rápida";
 "Reduce Memory Usage" = "Reducir el Uso de Memoria";
@@ -59,18 +63,31 @@
 "Scheduler" = "Planificador";
 "Search" = "Buscar";
 "Searching: %@" = "Buscando: %@";
-"Seed:" = "Semilla:";
-"Select Compute Unit option" = "Seleccionar opción de Unidad de Cálculo";
+"Seed" = "Semilla";
+"Select" = "Seleccionar";
 "Select Next" = "Seleccionar Siguiente";
 "Select Previous" = "Seleccionar Anterior";
+"Set as Starting Image" = "Establecer como Imagen Inicial";
 "Share..." = "Compartir...";
+"Show in Finder" = "Mostrar en el Finder";
+"Starting Image" = "Imagen Inicial";
+"Starting image must be 512x512." = "La imagen inicial debe ser de 512x512.";
 "Step %lld of %lld" = "Paso %lld de %lld";
-"Steps:" = "Pasos:";
+"Steps" = "Pasos";
 "Stop Generation" = "Detener Generación";
-"Support Me ♥" = "Apoyame ♥";
+"Strength" = "Intensidad";
+"Strength controls how closely the generated image resembles the starting image.
+Use lower values to generate images that look similar to the starting image.
+Use higher values to allow more creative freedom.
+
+The size of the starting image should be 512 x 512." = "La intensidad controla cuán cerca la imagen generada se asemeja a la imagen inicial.
+Utiliza valores inferiores para generar imágenes que se parecen a la imagen inicial.
+Usa valores más altos para permitir más libertad creativa.
+
+El tamaño de la imagen inicial debe ser 512 x 512.";
+"Support Project" = "Apoya el proyecto";
 "This may take up to 2 minutes if a model is used for the first time" = "Esto puede tardar hasta 2 minutos si un modelo es usado por primera vez";
-"Use GPU" = "Usar GPU";
-"Use Neural Engine" = "Usar Neural Engine";
+"Toggle Info Panel" = "Activar/Desactivar Panel de Información";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Usa el módulo de comprobación de seguridad del modelo. Esto no garantiza que todas las imágenes inapropiadas sean filtradas.";
 "Website" = "Sitio Web";
 "Width:" = "Ancho:";

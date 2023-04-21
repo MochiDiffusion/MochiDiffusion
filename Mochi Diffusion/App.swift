@@ -14,12 +14,14 @@ struct MochiDiffusionApp: App {
     @StateObject private var controller: ImageController
     @StateObject private var generator: ImageGenerator
     @StateObject private var store: ImageStore
+    @StateObject private var focusCon: FocusController
     private let updaterController: SPUStandardUpdaterController
 
     init() {
         self._controller = .init(wrappedValue: .shared)
         self._generator = .init(wrappedValue: .shared)
         self._store = .init(wrappedValue: .shared)
+        self._focusCon = .init(wrappedValue: .shared)
 
         updaterController = SPUStandardUpdaterController(
             startingUpdater: true,
@@ -34,7 +36,8 @@ struct MochiDiffusionApp: App {
                 .environmentObject(controller)
                 .environmentObject(generator)
                 .environmentObject(store)
-                .sheet(isPresented: $controller.isInit) {
+                .environmentObject(focusCon)
+                .sheet(isPresented: $controller.isLoading) {
                     VStack {
                         ProgressView()
                         Spacer().frame(height: 16)

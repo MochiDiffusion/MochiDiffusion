@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UniformTypeIdentifiers
 
 @MainActor
 class ImageStore: ObservableObject {
@@ -84,7 +85,12 @@ class ImageStore: ObservableObject {
         allImages[index] = sdi
         if !sdi.path.isEmpty {
             Task {
-                await sdi.save(URL(fileURLWithPath: sdi.path, isDirectory: false))
+                let url = URL(fileURLWithPath: sdi.path, isDirectory: false)
+                let pathWithoutExtension = url.deletingPathExtension()
+                let type = UTType.fromString(url.pathExtension.lowercased())
+
+                guard let url = await sdi.save(pathWithoutExtension, type: type) else { return }
+                allImages[index].path = url.path(percentEncoded: false)
             }
         }
     }
@@ -116,7 +122,6 @@ class ImageStore: ObservableObject {
         guard let id, let index = images.firstIndex(where: { $0.id == id }), index > 0 else {
             return wrap ? images.last?.id : nil
         }
-
         return images[index - 1].id
     }
 
@@ -124,7 +129,6 @@ class ImageStore: ObservableObject {
         guard let id, let index = images.firstIndex(where: { $0.id == id }), index < images.count - 1 else {
             return wrap ? images.first?.id : nil
         }
-
         return images[index + 1].id
     }
 

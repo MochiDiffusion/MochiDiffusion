@@ -9,11 +9,13 @@ import Combine
 import CoreML
 import OSLog
 @preconcurrency import StableDiffusion
+import UniformTypeIdentifiers
 
 struct GenerationConfig: Sendable {
     var pipelineConfig: StableDiffusionPipeline.Configuration
     var autosaveImages: Bool
     var imageDir: String
+    var imageType: String
     var numberOfImages: Int
     var model: String
     var mlComputeUnit: MLComputeUnits
@@ -24,8 +26,6 @@ struct GenerationConfig: Sendable {
 class ImageGenerator: ObservableObject {
 
     static let shared = ImageGenerator()
-
-    private lazy var logger = Logger()
 
     enum GeneratorError: Error {
         case imageDirectoryNoAccess
@@ -38,7 +38,7 @@ class ImageGenerator: ObservableObject {
 
     enum State: Sendable {
         case idle
-        case ready
+        case ready(String?)
         case error(String)
         case loading
         case running(StableDiffusionProgress?)
@@ -64,24 +64,19 @@ class ImageGenerator: ObservableObject {
     private var generationStopped = false
 
     func loadImages(imageDir: String) async throws -> ([SDImage], URL) {
-        logger.info("Started loading image autosave directory at: \"\(imageDir)\"")
         var finalImageDirURL: URL
         let fm = FileManager.default
         /// check if image autosave directory exists
         if imageDir.isEmpty {
             /// use default autosave directory
-            guard let documentsDir = fm.urls(for: .documentDirectory, in: .userDomainMask).first else {
-                await updateState(.error("Couldn't access autosave directory."))
-                throw GeneratorError.imageDirectoryNoAccess
-            }
-            finalImageDirURL = documentsDir
+            finalImageDirURL = fm.homeDirectoryForCurrentUser
             finalImageDirURL.append(path: "MochiDiffusion/images", directoryHint: .isDirectory)
         } else {
             /// generate url from autosave directory
             finalImageDirURL = URL(fileURLWithPath: imageDir, isDirectory: true)
         }
         if !fm.fileExists(atPath: finalImageDirURL.path(percentEncoded: false)) {
-            logger.notice("Creating image autosave directory at: \"\(finalImageDirURL.path(percentEncoded: false))\"")
+            print("Creating image autosave directory at: \"\(finalImageDirURL.path(percentEncoded: false))\"")
             try? fm.createDirectory(at: finalImageDirURL, withIntermediateDirectories: true)
         }
         let items = try fm.contentsOfDirectory(
@@ -89,7 +84,9 @@ class ImageGenerator: ObservableObject {
             includingPropertiesForKeys: nil,
             options: .skipsHiddenFiles
         )
-        let imageURLs = items.filter { $0.isFileURL && ($0.pathExtension == "png" || $0.pathExtension == "jpg") }
+        let imageURLs = items
+            .filter { $0.isFileURL }
+            .filter { ["png", "jpg", "jpeg", "heic"].contains($0.pathExtension) }
         var sdis: [SDImage] = []
         for url in imageURLs {
             guard let sdi = createSDImageFromURL(url) else { continue }
@@ -100,37 +97,28 @@ class ImageGenerator: ObservableObject {
     }
 
     func getModels(modelDir: String) async throws -> ([SDModel], URL) {
-        logger.info("Started loading model directory at: \"\(modelDir)\"")
         var models: [SDModel] = []
         var finalModelDirURL: URL
         let fm = FileManager.default
         /// check if saved model directory exists
         if modelDir.isEmpty {
             /// use default model directory
-            guard let documentsDir = fm.urls(for: .documentDirectory, in: .userDomainMask).first else {
-                await updateState(.error("Couldn't access model directory."))
-                throw GeneratorError.modelDirectoryNoAccess
-            }
-            finalModelDirURL = documentsDir
+            finalModelDirURL = fm.homeDirectoryForCurrentUser
             finalModelDirURL.append(path: "MochiDiffusion/models/", directoryHint: .isDirectory)
         } else {
             /// generate url from saved model directory
             finalModelDirURL = URL(fileURLWithPath: modelDir, isDirectory: true)
         }
         if !fm.fileExists(atPath: finalModelDirURL.path(percentEncoded: false)) {
-            logger.notice("Creating models directory at: \"\(finalModelDirURL.path(percentEncoded: false))\"")
+            print("Creating models directory at: \"\(finalModelDirURL.path(percentEncoded: false))\"")
             try? fm.createDirectory(at: finalModelDirURL, withIntermediateDirectories: true)
         }
         do {
             let subDirs = try finalModelDirURL.subDirectories()
-            subDirs
+            models = subDirs
                 .sorted { $0.lastPathComponent.compare($1.lastPathComponent, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedAscending }
-                .forEach {
-                    let model = SDModel(url: $0, name: $0.lastPathComponent)
-                    models.append(model)
-                }
+                .compactMap { SDModel(url: $0, name: $0.lastPathComponent) }
         } catch {
-            logger.notice("Could not get model subdirectories under: \"\(finalModelDirURL.path(percentEncoded: false))\"")
             await updateState(.error("Could not get model subdirectories."))
             throw GeneratorError.modelSubDirectoriesNoAccess
         }
@@ -142,14 +130,12 @@ class ImageGenerator: ObservableObject {
     }
 
     func load(model: SDModel, computeUnit: MLComputeUnits, reduceMemory: Bool) async throws {
-        logger.info("Started loading model: \"\(model.name)\"")
         let fm = FileManager.default
         if !fm.fileExists(atPath: model.url.path) {
-            logger.info("Couldn't find model \"\(model.name)\" at: \"\(model.url.path(percentEncoded: false))\"")
             await updateState(.error("Couldn't load \(model.name) because it doesn't exist."))
             throw GeneratorError.requestedModelNotFound
         }
-        logger.info("Found model: \"\(model.name)\"")
+        await updateState(.loading)
         let config = MLModelConfiguration()
         config.computeUnits = computeUnit
         self.pipeline = try StableDiffusionPipeline(
@@ -159,8 +145,7 @@ class ImageGenerator: ObservableObject {
             reduceMemory: reduceMemory
         )
         self.tokenizer = Tokenizer(modelDir: model.url)
-        logger.info("Stable Diffusion pipeline successfully loaded")
-        await updateState(.ready)
+        await updateState(.ready(nil))
     }
 
     func generate(_ inputConfig: GenerationConfig) async throws {
@@ -213,23 +198,24 @@ class ImageGenerator: ObservableObject {
                 if config.autosaveImages && !config.imageDir.isEmpty {
                     var pathURL = URL(fileURLWithPath: config.imageDir, isDirectory: true)
                     let count = await ImageStore.shared.images.endIndex + 1
-                    let filename = "\(String(config.pipelineConfig.prompt.prefix(70)).trimmingCharacters(in: .whitespacesAndNewlines)).\(count).\(config.pipelineConfig.seed).png"
-                    pathURL.append(path: filename)
-                    await sdi.save(pathURL)
-                    sdi.path = pathURL.path(percentEncoded: false)
+                    pathURL.append(path: sdi.filenameWithoutExtension(count: count))
+
+                    let type = UTType.fromString(config.imageType)
+                    guard let path = await sdi.save(pathURL, type: type) else { continue }
+                    sdi.path = path.path(percentEncoded: false)
                 }
                 await ImageStore.shared.add(sdi)
             }
             config.pipelineConfig.seed += 1
         }
-        await updateState(.ready)
+        await updateState(.ready(nil))
     }
 
     func stopGenerate() async {
         generationStopped = true
     }
 
-    private func updateState(_ state: State) async {
+    func updateState(_ state: State) async {
         Task { @MainActor in
             self.state = state
         }

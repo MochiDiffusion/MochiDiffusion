@@ -10,40 +10,7 @@ import CoreGraphics
 import CoreML
 import Foundation
 import StableDiffusion
-
-func getHumanReadableInfo(_ sdi: SDImage) -> String {
-    """
-\(Metadata.date.rawValue):
-\(sdi.generatedDate.formatted(date: .long, time: .standard))
-
-\(Metadata.model.rawValue):
-\(sdi.model)
-
-\(Metadata.size.rawValue):
-\(sdi.width) x \(sdi.height)\(!sdi.upscaler.isEmpty ? " (Upscaled using \(sdi.upscaler))" : "")
-
-\(Metadata.includeInImage.rawValue):
-\(sdi.prompt)
-
-\(Metadata.excludeFromImage.rawValue):
-\(sdi.negativePrompt)
-
-\(Metadata.seed.rawValue):
-\(sdi.seed)
-
-\(Metadata.steps.rawValue):
-\(sdi.steps)
-
-\(Metadata.guidanceScale.rawValue):
-\(sdi.guidanceScale)
-
-\(Metadata.scheduler.rawValue):
-\(sdi.scheduler.rawValue)
-
-\(Metadata.mlComputeUnit.rawValue):
-\(MLComputeUnits.toString(sdi.mlComputeUnit))
-"""
-}
+import UniformTypeIdentifiers
 
 func compareVersion(_ thisVersion: String, _ compareTo: String) -> ComparisonResult {
     thisVersion.compare(compareTo, options: .numeric)

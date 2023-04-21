@@ -19,7 +19,9 @@ struct GalleryView: View {
     var body: some View {
         VStack(spacing: 0) {
             if case let .error(msg) = generator.state {
-                ErrorBanner(errorMessage: msg)
+                MessageBanner(message: msg)
+            } else if case let .ready(msg) = generator.state, let msg = msg {
+                MessageBanner(message: msg)
             }
 
             if !store.images.isEmpty {
@@ -75,69 +77,7 @@ struct GalleryView: View {
                                 Task { await ImageController.shared.select(sdi.id) }
                             })
                             .contextMenu {
-                                Section {
-                                    Button {
-                                        Task { await ImageController.shared.copyImage(sdi) }
-                                    } label: {
-                                        Text(
-                                            "Copy",
-                                            comment: "Copy image to the clipboard"
-                                        )
-                                    }
-
-                                    Button {
-                                        ImageController.shared.copyToPrompt(sdi)
-                                    } label: {
-                                        Text(
-                                            "Copy Options to Sidebar",
-                                            comment: "Copy image's generation options to the prompt input sidebar"
-                                        )
-                                    }
-
-                                    Button {
-                                        Task { await sdi.saveAs() }
-                                    } label: {
-                                        Text(
-                                            "Save As...",
-                                            comment: "Show the save image dialog"
-                                        )
-                                    }
-                                }
-                                if sdi.upscaler.isEmpty || !sdi.path.isEmpty {
-                                    Section {
-                                        if sdi.upscaler.isEmpty {
-                                            Button {
-                                                Task { await ImageController.shared.upscale(sdi) }
-                                            } label: {
-                                                Text(
-                                                    "Convert to High Resolution",
-                                                    comment: "Convert image to high resolution"
-                                                )
-                                            }
-                                        }
-
-                                        if !sdi.path.isEmpty {
-                                            Button {
-                                                NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: sdi.path).absoluteURL])
-                                            } label: {
-                                                Text(
-                                                    "Show in Finder",
-                                                    comment: "Show image with Finder"
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
-                                Section {
-                                    Button {
-                                        Task { await ImageController.shared.removeImage(sdi) }
-                                    } label: {
-                                        Text(
-                                            "Remove",
-                                            comment: "Remove image from the gallery"
-                                        )
-                                    }
-                                }
+                                GalleryItemContextMenuView(sdi: sdi)
                             }
                     }
                 }
@@ -149,6 +89,83 @@ struct GalleryView: View {
     @ViewBuilder
     private var emptyGalleryView: some View {
         Color.clear
+    }
+
+    struct GalleryItemContextMenuView: View {
+        let sdi: SDImage
+
+        var body: some View {
+            Section {
+                Button {
+                    Task { await ImageController.shared.copyImage(sdi) }
+                } label: {
+                    Text(
+                        "Copy",
+                        comment: "Copy image to the clipboard"
+                    )
+                }
+
+                Button {
+                    ImageController.shared.copyToPrompt(sdi)
+                } label: {
+                    Text(
+                        "Copy Options to Sidebar",
+                        comment: "Copy image's generation options to the prompt input sidebar"
+                    )
+                }
+
+                if let image = sdi.image, image.width == 512 && image.height == 512 {
+                    Button {
+                        Task { await ImageController.shared.selectStartingImage(sdi: sdi) }
+                    } label: {
+                        Text("Set as Starting Image")
+                    }
+                }
+            }
+            if sdi.upscaler.isEmpty {
+                Section {
+                    Button {
+                        Task { await ImageController.shared.upscale(sdi) }
+                    } label: {
+                        Text(
+                            "Convert to High Resolution",
+                            comment: "Convert image to high resolution"
+                        )
+                    }
+                }
+            }
+            Section {
+                Button {
+                    Task { await sdi.saveAs() }
+                } label: {
+                    Text(
+                        "Save As...",
+                        comment: "Show the save image dialog"
+                    )
+                }
+
+                if !sdi.path.isEmpty {
+                    Button {
+                        NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: sdi.path).absoluteURL])
+                    } label: {
+                        Text(
+                            "Show in Finder",
+                            comment: "Show image with Finder"
+                        )
+                    }
+                }
+            }
+            Section {
+                Button {
+                    Task { await ImageController.shared.removeImage(sdi) }
+                } label: {
+                    Text(
+                        "Remove",
+                        comment: "Remove image from the gallery"
+                    )
+                }
+            }
+        }
     }
 }
 

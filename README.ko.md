@@ -22,7 +22,7 @@
 
 ## 설명
 
-이 앱은 [Apple Core ML Stable Diffusion](https://github.com/apple/ml-stable-diffusion)을 사용하여 메모리 요구 사항을 줄이면서 Apple Silicon Mac에서 최대 성능과 속도를 달성합니다. Intel Mac에서도 사용가능합니다.
+이 앱은 [Apple Core ML Stable Diffusion](https://github.com/apple/ml-stable-diffusion)을 사용하여 메모리 요구 사항을 줄이면서 Apple Silicon Mac에서 최대 성능과 속도를 달성합니다.
 
 ## 기능
 
@@ -50,22 +50,20 @@
 
 선택한 옵션에 따라 적절한 모델 버전을 사용해야 합니다 (자세한 내용은 모델 섹션 참조).
 
-Intel Mac은 Neural Engine이 없기 때문에 `CPU & GPU`를 사용합니다.
-
 ## 모델
 
 Mochi Diffusion을 사용하려면 모델 파일을 Core ML 포맷으로 변환하거나 다운로드해야 합니다.
 
 몇 가지 모델을 변환하여 [여기](https://huggingface.co/coreml)에 업로드 해놨습니다.
 
-1. Core ML 모델로 [변환 하거나](https://github.com/godly-devotion/MochiDiffusion/wiki/How-to-convert-ckpt-or-safetensors-files-to-Core-ML) 다운
+1. Core ML 모델로 [변환 하거나](https://github.com/godly-devotion/MochiDiffusion/wiki/How-to-convert-Stable-Diffusion-models-to-Core-ML) 다운
     - `split_einsum` 버전은 Neural Engine을 포함한 모든 Compute Unit 옵션과 사용 가능
     - `original` 버전은 `CPU & GPU` 옵션과만 사용 가능
-2. 기본 앱 모델 폴더는 문서 아래에 생성됩니다. 이 위치는 설정에서 변경 할 수 있습니다
+2. 기본 앱 모델 폴더는 홈 디렉토리 아래에 생성됩니다. 이 위치는 설정에서 변경 할 수 있습니다
 3. 모델 폴더에서 앱에 표시할 이름으로 새 폴더를 만든 다음 변환된 모델을 여기로 이동하거나 추출함
 4. 폴더 디렉토리는 다음과 같아야 합니다:
 ```
-문서/
+<사용자 홈 폴더>/
 └── MochiDiffusion/
     └── models/
         ├── stable-diffusion-2-1_split-einsum_compiled/
@@ -73,6 +71,7 @@ Mochi Diffusion을 사용하려면 모델 파일을 Core ML 포맷으로 변환�
         │   ├── TextEncoder.mlmodelc
         │   ├── Unet.mlmodelc
         │   ├── VAEDecoder.mlmodelc
+        │   ├── VAEEncoder.mlmodelc
         │   └── vocab.json
         ├── ...
         └── ...
@@ -80,7 +79,7 @@ Mochi Diffusion을 사용하려면 모델 파일을 Core ML 포맷으로 변환�
 
 ## 시스템 요구 사항
 
-- Apple Silicon칩 (M1와 이후 모델) 또는 Intel Mac
+- Apple Silicon칩 (M1와 이후 모델)
 - macOS Ventura 13.1 와 이후 버전
 - Xcode 14.2 (to build)
 
@@ -99,5 +98,5 @@ Mochi Diffusion은 버그 보고서, 코드 또는 새로운 번역을 통해서
 ## 크레딧
 
 - [Apple's Core ML Stable Diffusion implementation](https://github.com/apple/ml-stable-diffusion)
-- [HuggingFace's Swift UI sample implementation](https://github.com/huggingface/swift-coreml-diffusers)
+- [Hugging Face's Swift UI sample implementation](https://github.com/huggingface/swift-coreml-diffusers)
 - [Zabriskije](https://github.com/Zabriskije)가 만든 앱 아이콘

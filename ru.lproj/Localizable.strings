@@ -7,19 +7,20 @@
 "CFBundleDisplayName" = "Mochi Diffusion";
 "CFBundleName" = "Mochi Diffusion";
 "NSHumanReadableCopyright" = "Автор: Джошуа Парк";
-"%@ model" = "Модель %@";
+"**Auto** selects the most appropriate configuration for the selected model." = "**Автоматический** выбор наиболее подходящей конфигурации для выбранной модели.";
+"**CPU & GPU** is compatible with all models and may be faster on M1 Max, Ultra and later, but will use more memory." = "**CPU & GPU** совместим со всеми моделями и может работать быстрее на M1 Max, Ultra и более поздних моделях, но использует больше памяти.";
+"**CPU & Neural Engine** provides a good balance between speed and low memory usage, but only works with split-einsum models." = "**CPU & Neural Engine** обеспечивает хорошее соотношение между скоростью и низким потреблением памяти, но работает только с моделями split-einsum.";
 "All" = "Все";
 "Apply" = "Применить";
+"Auto (Recommended)" = "Автоматически (рекомендуется)";
 "Autosave & Restore Images" = "Автоматически сохранять и восстанавливать изображения";
-"Based on the option selected the correct model version will need to be used." = "Необходимо использовать правильную версию модели в зависимости от выбранной опции.";
 "CPU & GPU" = "CPU & GPU";
-"CPU & GPU may be faster on M1 Max, Ultra and later but will use more memory." = "CPU & GPU может быть быстрее на M1 Max, Ultra и более новых моделях, но использует больше памяти.";
 "CPU & Neural Engine" = "CPU & Neural Engine";
-"CPU & Neural Engine provides a good balance between speed and low memory usage." = "CPU & Neural Engine обеспечивает хороший баланс между скоростью и низким потреблением памяти.";
 "Check for Updates…" = "Проверить наличие обновлений…";
 "Choose a folder and a name to store the image" = "Выберите папку и имя для сохранения изображения";
 "Choose a folder to save all images" = "Выберите папку для сохранения всех изображений";
 "Choose generated images to import" = "Выберите сгенерированные изображения для импорта";
+"Choose starting image" = "Выберите начальное изображение";
 "Convert all images to High Resolution (this will use more memory)" = "Преобразовать все изображения в высокое разрешение (будет использовано больше памяти)";
 "Convert to High Resolution" = "Преобразовать в высокое разрешение";
 "Copy" = "Копировать";
@@ -27,31 +28,33 @@
 "Copy Options to Sidebar" = "Копировать опции в боковую панель";
 "Description is too long" = "Слишком длинное описание";
 "Download Models" = "Скачать модели";
-"Exclude from Image:" = "Исключить из изображения:";
+"Exclude from Image" = "Исключить из изображения";
 "Filter Inappropriate Images" = "Фильтровать нежелательные изображения";
-"For `original` models, select Use GPU." = "Для моделей \"original\" выберите Использовать GPU.";
-"For `split_einsum` models, select Use Neural Engine." = "Для моделей \"split_einsum\" выберите Использовать Neural Engine.";
 "General" = "Общие";
 "Generate" = "Сгенерировать";
-"Guidance Scale:" = "Уровень соответствия запросу:";
+"Guidance Scale" = "Уровень соответствия запросу";
 "HD" = "HD";
 "Height:" = "Высота:";
 "If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images." = "Если опция выключена, изображения будут удаляться навсегда. Применяется к импортируемым и автоматически сохраняемым изображениям.";
 "Image" = "Изображение";
 "Image %lld of %lld" = "Изображение %lld из %lld";
+"Image Type" = "Тип изображения";
 "Image file name:" = "Имя файла изображения:";
 "Import" = "Импортировать";
 "Import Images..." = "Импортировать изображения...";
-"Include in Image:" = "Включить в изображение:";
+"Improve Translation" = "Улучшить перевод";
+"Include in Image" = "Включить в изображение";
+"Incorrect image size" = "Неверный размер изображения";
 "Loading Model..." = "Загрузка модели...";
 "Loading..." = "Загрузка...";
 "ML Compute Unit" = "Вычислительный блок ML";
+"Manually selecting an incompatible ML Compute Unit may cause poor performance or crash." = "Выбор несовместимого вычислительного модуля ML может привести к снижению производительности или сбою.";
 "Mochi Diffusion" = "Mochi Diffusion";
+"Model" = "Модель";
 "Model Folder" = "Папка для моделей";
-"Model:" = "Модель:";
 "Move Images to Trash" = "Отправить изображения в корзину";
 "No Info" = "Нет информации";
-"Number of Images:" = "Количество изображений:";
+"Number of Images" = "Количество изображений";
 "Open in Finder" = "Открыть в Finder";
 "Quick Look" = "Быстрый просмотр";
 "Reduce Memory Usage" = "Использовать меньше памяти";
@@ -65,20 +68,31 @@
 "Scheduler" = "Планировщик";
 "Search" = "Поиск";
 "Searching: %@" = "Поиск: %@";
-"Seed:" = "Seed:";
-"Select Compute Unit option" = "Выберите вычислительный блок";
+"Seed" = "Seed";
+"Select" = "Выбрать";
 "Select Next" = "Выбрать следующее";
 "Select Previous" = "Выбрать предыдущее";
+"Set as Starting Image" = "Сделать стартовым изображением";
 "Share..." = "Поделиться...";
 "Show in Finder" = "Показать в Finder";
+"Starting Image" = "Начальное изображение";
+"Starting image must be 512x512." = "Начальное изображение должно быть 512х512.";
 "Step %lld of %lld" = "Шаг %lld из %lld";
-"Steps:" = "Шаги:";
+"Steps" = "Шаги";
 "Stop Generation" = "Остановить генерацию";
-"Support Me ♥" = "Поддержать меня ♥";
+"Strength" = "Интенсивность";
+"Strength controls how closely the generated image resembles the starting image.
+Use lower values to generate images that look similar to the starting image.
+Use higher values to allow more creative freedom.
+
+The size of the starting image should be 512 x 512." = "Интенсивность определяет сходство сгенерированного изображения с начальным.
+Используйте более низкие значения для создания изображений, похожих на начальное.
+Используйте более высокие значения для большей творческой свободы.
+
+Размер начального изображения должен быть 512 х 512.";
+"Support Project" = "Поддержать проект";
 "This may take up to 2 minutes if a model is used for the first time" = "Это может занять до двух минут, если модель используется впервые";
 "Toggle Info Panel" = "Переключить отображение панели информации";
-"Use GPU" = "Использовать GPU";
-"Use Neural Engine" = "Использовать Neural Engine";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Использует модуль модели для проверки на безопасность изображений. Не гарантирует, что все неприемлемые изображения будут отфильтрованы.";
 "Website" = "Сайт";
 "Width:" = "Ширина:";

@@ -9,6 +9,7 @@ import CompactSlider
 import CoreML
 import StableDiffusion
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct MochiCompactSliderStyle: CompactSliderStyle {
     func makeBody(configuration: Configuration) -> some View {
@@ -24,6 +25,18 @@ extension NSApplication {
     static var appVersion: String {
         // swiftlint:disable:next force_cast
         Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as! String
+    }
+}
+
+extension View {
+    func syncFocus<T: Equatable>(_ binding: Binding<T>, with focusState: FocusState<T>) -> some View {
+        self
+            .onChange(of: binding.wrappedValue) {
+                focusState.wrappedValue = $0
+            }
+            .onChange(of: focusState.wrappedValue) {
+                binding.wrappedValue = $0
+            }
     }
 }
 
@@ -70,8 +83,38 @@ extension NSImage: Transferable {
 }
 
 extension Text {
+    struct SidebarLabelFormat: ViewModifier {
+        func body(content: Content) -> some View {
+            content
+                .textCase(.uppercase)
+                .font(.caption)
+                .fontWeight(.semibold)
+                .foregroundColor(.secondary)
+        }
+    }
+
+    func sidebarLabelFormat() -> some View {
+        modifier(SidebarLabelFormat())
+    }
+
+    struct HelpTextFormat: ViewModifier {
+        func body(content: Content) -> some View {
+            content
+                .font(.callout)
+                .foregroundColor(.secondary)
+        }
+    }
+
     func helpTextFormat() -> some View {
         modifier(HelpTextFormat())
+    }
+
+    struct SelectableTextFormat: ViewModifier {
+        func body(content: Content) -> some View {
+            content
+                .textSelection(.enabled)
+                .foregroundColor(Color(nsColor: .textColor)) /// Fixes dark text in dark mode SwiftUI bug
+        }
     }
 
     func selectableTextFormat() -> some View {
@@ -93,6 +136,19 @@ extension Binding {
 
 extension CompactSliderStyle where Self == MochiCompactSliderStyle {
     static var `mochi`: MochiCompactSliderStyle { MochiCompactSliderStyle() }
+}
+
+extension UTType {
+    static func fromString(_ fileExtension: String) -> UTType {
+        switch fileExtension {
+        case UTType.jpeg.preferredFilenameExtension!:
+            return UTType.jpeg
+        case UTType.heic.preferredFilenameExtension!:
+            return UTType.heic
+        default:
+            return UTType.png
+        }
+    }
 }
 
 extension MLComputeUnits {

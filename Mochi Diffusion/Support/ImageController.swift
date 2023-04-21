@@ -14,6 +14,26 @@ import UniformTypeIdentifiers
 
 typealias StableDiffusionProgress = StableDiffusionPipeline.Progress
 
+enum ComputeUnitPreference: String {
+    case auto
+    case cpuAndGPU
+    case cpuAndNeuralEngine
+    case all
+
+    func computeUnits(forModel model: SDModel) -> MLComputeUnits {
+        switch self {
+        case .auto:
+            return model.attention.preferredComputeUnits
+        case .cpuAndGPU:
+            return .cpuAndGPU
+        case .cpuAndNeuralEngine:
+            return .cpuAndNeuralEngine
+        case .all:
+            return .all
+        }
+    }
+}
+
 @MainActor
 final class ImageController: ObservableObject {
 
@@ -22,10 +42,13 @@ final class ImageController: ObservableObject {
     private lazy var logger = Logger()
 
     @Published
-    var isInit = true
+    var isLoading = true
 
     @Published
     private(set) var models = [SDModel]()
+
+    @Published
+    var startingImage: CGImage?
 
     @Published
     var numberOfImages = 1.0
@@ -52,27 +75,6 @@ final class ImageController: ObservableObject {
         }
     }
 
-    @AppStorage("ModelDir") var modelDir = ""
-    @AppStorage("Model") private(set) var modelName = ""
-    @AppStorage("AutosaveImages") var autosaveImages = true
-    @AppStorage("ImageDir") var imageDir = ""
-    @AppStorage("Prompt") var prompt = ""
-    @AppStorage("NegativePrompt") var negativePrompt = ""
-    @AppStorage("Steps") var steps = 12.0
-    @AppStorage("Scale") var guidanceScale = 11.0
-    @AppStorage("ImageWidth") var width = 512
-    @AppStorage("ImageHeight") var height = 512
-    @AppStorage("Scheduler") var scheduler: Scheduler = .dpmSolverMultistepScheduler
-    @AppStorage("UpscaleGeneratedImages") var upscaleGeneratedImages = false
-    #if arch(arm64)
-    @AppStorage("MLComputeUnit") var mlComputeUnit: MLComputeUnits = .cpuAndNeuralEngine
-    #else
-    private let mlComputeUnit: MLComputeUnits = .cpuAndGPU
-    #endif
-    @AppStorage("ReduceMemory") var reduceMemory = false
-    @AppStorage("SafetyChecker") var safetyChecker = false
-    @AppStorage("UseTrash") var useTrash = true
-
     @Published
     var currentModel: SDModel? {
         didSet {
@@ -81,12 +83,18 @@ final class ImageController: ObservableObject {
             }
             modelName = model.name
             Task {
+                logger.info("Started loading model: \"\(self.modelName)\"")
                 do {
                     try await ImageGenerator.shared.load(
                         model: model,
-                        computeUnit: mlComputeUnit,
+                        computeUnit: mlComputeUnitPreference.computeUnits(forModel: model),
                         reduceMemory: reduceMemory
                     )
+                    logger.info("Stable Diffusion pipeline successfully loaded")
+                } catch ImageGenerator.GeneratorError.requestedModelNotFound {
+                    logger.error("Couldn't load \(self.modelName) because it doesn't exist.")
+                    modelName = ""
+                    currentModel = nil
                 } catch {
                     modelName = ""
                     currentModel = nil
@@ -94,6 +102,25 @@ final class ImageController: ObservableObject {
             }
         }
     }
+
+    @AppStorage("ModelDir") var modelDir = ""
+    @AppStorage("Model") private(set) var modelName = ""
+    @AppStorage("AutosaveImages") var autosaveImages = true
+    @AppStorage("ImageDir") var imageDir = ""
+    @AppStorage("ImageType") var imageType = UTType.png.preferredFilenameExtension!
+    @AppStorage("Prompt") var prompt = ""
+    @AppStorage("NegativePrompt") var negativePrompt = ""
+    @AppStorage("ImageStrength") var strength = 0.7
+    @AppStorage("Steps") var steps = 12.0
+    @AppStorage("Scale") var guidanceScale = 11.0
+    @AppStorage("ImageWidth") var width = 512
+    @AppStorage("ImageHeight") var height = 512
+    @AppStorage("Scheduler") var scheduler: Scheduler = .dpmSolverMultistepScheduler
+    @AppStorage("UpscaleGeneratedImages") var upscaleGeneratedImages = false
+    @AppStorage("MLComputeUnitPreference") var mlComputeUnitPreference: ComputeUnitPreference = .auto
+    @AppStorage("ReduceMemory") var reduceMemory = false
+    @AppStorage("SafetyChecker") var safetyChecker = false
+    @AppStorage("UseTrash") var useTrash = true
 
     init() {
         Task {
@@ -103,15 +130,16 @@ final class ImageController: ObservableObject {
 
     /// Run init sequence for ImageController
     func load() async {
-        isInit = true
+        isLoading = true
         if autosaveImages {
             await loadImages()
         }
         await loadModels()
-        isInit = false
+        isLoading = false
     }
 
     func loadImages() async {
+        logger.info("Started loading image autosave directory at: \"\(self.imageDir)\"")
         /// If there are unautosaved images,
         /// keep those images in gallery while loading from autosave directory so we don't lose their work
         ImageStore.shared.removeAllExceptUnsaved()
@@ -123,6 +151,8 @@ final class ImageController: ObservableObject {
             logger.info("Found \(count) image(s)")
 
             try await ImageStore.shared.add(images)
+        } catch ImageGenerator.GeneratorError.imageDirectoryNoAccess {
+            logger.error("Couldn't access autosave directory.")
         } catch {
             logger.error("There was a problem loading the images: \(error.localizedDescription)")
         }
@@ -130,6 +160,7 @@ final class ImageController: ObservableObject {
 
     func loadModels() async {
         models = []
+        logger.info("Started loading model directory at: \"\(self.modelDir)\"")
         do {
             async let (foundModels, modelDirURL) = try ImageGenerator.shared.getModels(modelDir: modelDir)
             try await self.models = foundModels
@@ -144,20 +175,30 @@ final class ImageController: ObservableObject {
                 return
             }
             self.currentModel = model
+        } catch ImageGenerator.GeneratorError.modelDirectoryNoAccess {
+            logger.error("Couldn't access model directory.")
+            modelName = ""
+        } catch ImageGenerator.GeneratorError.modelSubDirectoriesNoAccess {
+            logger.error("Could not get model subdirectories.")
+            modelName = ""
+        } catch ImageGenerator.GeneratorError.noModelsFound {
+            logger.error("No models found.")
+            modelName = ""
         } catch {
             modelName = ""
         }
     }
 
     func generate() async {
-        if case .ready = ImageGenerator.shared.state {
-            // continue
-        } else {
+        guard case .ready = ImageGenerator.shared.state,
+            let model = currentModel else {
             return
         }
 
         var pipelineConfig = StableDiffusionPipeline.Configuration(prompt: prompt)
         pipelineConfig.negativePrompt = negativePrompt
+        pipelineConfig.startingImage = startingImage
+        pipelineConfig.strength = Float(strength)
         pipelineConfig.stepCount = Int(steps)
         pipelineConfig.seed = seed
         pipelineConfig.guidanceScale = Float(guidanceScale)
@@ -168,9 +209,10 @@ final class ImageController: ObservableObject {
             pipelineConfig: pipelineConfig,
             autosaveImages: autosaveImages,
             imageDir: imageDir,
+            imageType: imageType,
             numberOfImages: Int(numberOfImages),
             model: modelName,
-            mlComputeUnit: mlComputeUnit,
+            mlComputeUnit: mlComputeUnitPreference.computeUnits(forModel: model),
             scheduler: scheduler,
             upscaleGeneratedImages: upscaleGeneratedImages
         )
@@ -180,14 +222,26 @@ final class ImageController: ObservableObject {
                 try await ImageGenerator.shared.generate(genConfig)
             } catch ImageGenerator.GeneratorError.pipelineNotAvailable {
                 await self.logger.error("Pipeline is not loaded.")
+            } catch StableDiffusionPipeline.Error.startingImageProvidedWithoutEncoder {
+                await self.logger.error("The selected model does not support setting a starting image.")
+                await ImageGenerator.shared.updateState(.ready("The selected model does not support setting a starting image."))
+            } catch Encoder.Error.sampleInputShapeNotCorrect {
+                await self.logger.error("The starting image size doesn't match the size of the image that will be generated.")
+                await ImageGenerator.shared.updateState(.ready("The starting image size doesn't match the size of the image that will be generated."))
             } catch {
                 await self.logger.error("There was a problem generating images: \(error)")
+                await ImageGenerator.shared.updateState(.error("There was a problem generating images: \(error)"))
             }
         }
     }
 
     func upscale(_ sdi: SDImage) async {
         if !sdi.upscaler.isEmpty { return }
+
+        /// Set upscaling animation
+        var upscalingSDI = sdi
+        upscalingSDI.isUpscaling = true
+        ImageStore.shared.update(upscalingSDI)
 
         async let maybeSDI = Upscaler.shared.upscale(sdi: sdi)
         guard let upscaledSDI = await maybeSDI else { return }
@@ -220,6 +274,7 @@ final class ImageController: ObservableObject {
 
     func select(_ id: SDImage.ID) async {
         ImageStore.shared.select(id)
+        FocusController.shared.removeAllFocus()
 
         /// If Quick Look is already open, show selected image
         if quicklookId != nil {
@@ -263,14 +318,63 @@ final class ImageController: ObservableObject {
         await removeImage(sdi)
     }
 
+    func selectStartingImage() async {
+        let panel = NSOpenPanel()
+        panel.allowedContentTypes = [.image]
+        panel.allowsMultipleSelection = false
+        panel.canCreateDirectories = false
+        panel.canChooseDirectories = false
+        panel.canChooseFiles = true
+        panel.message = String(localized: "Choose starting image")
+        panel.prompt = String(localized: "Select", comment: "OK button text for choose starting image panel")
+        let resp = await panel.beginSheetModal(for: NSApplication.shared.mainWindow!)
+        if resp != .OK {
+            return
+        }
+
+        guard let url = panel.url else { return }
+        guard let cgImageSource = CGImageSourceCreateWithURL(url as CFURL, nil) else { return }
+        let imageIndex = CGImageSourceGetPrimaryImageIndex(cgImageSource)
+        guard let cgImage = CGImageSourceCreateImageAtIndex(cgImageSource, imageIndex, nil) else { return }
+        if cgImage.width != 512 || cgImage.height != 512 {
+            let alert = NSAlert()
+            alert.messageText = String(localized: "Incorrect image size")
+            alert.informativeText = String(localized: "Starting image must be 512x512.")
+            alert.alertStyle = .informational
+            alert.addButton(withTitle: "OK")
+            await alert.beginSheetModal(for: NSApplication.shared.mainWindow!)
+            return
+        }
+        startingImage = cgImage
+    }
+
+    func selectStartingImage(sdi: SDImage) async {
+        guard let image = sdi.image else { return }
+        if image.width != 512 || image.height != 512 {
+            let alert = NSAlert()
+            alert.messageText = String(localized: "Incorrect image size")
+            alert.informativeText = String(localized: "Starting image must be 512x512.")
+            alert.alertStyle = .informational
+            alert.addButton(withTitle: "OK")
+            await alert.beginSheetModal(for: NSApplication.shared.mainWindow!)
+            return
+        }
+        startingImage = image
+    }
+
+    func unsetStartingImage() async {
+        startingImage = nil
+    }
+
     func importImages() async {
         let panel = NSOpenPanel()
+        panel.allowedContentTypes = [.image]
         panel.allowsMultipleSelection = true
         panel.canCreateDirectories = false
         panel.canChooseDirectories = false
         panel.canChooseFiles = true
         panel.message = String(localized: "Choose generated images to import")
-        panel.prompt = String(localized: "Import", comment: "Header text for import image open panel")
+        panel.prompt = String(localized: "Import", comment: "OK button text for import image panel")
         let resp = await panel.beginSheetModal(for: NSApplication.shared.mainWindow!)
         if resp != .OK {
             return
@@ -279,11 +383,21 @@ final class ImageController: ObservableObject {
         let selectedURLs = panel.urls
         if selectedURLs.isEmpty { return }
 
+        isLoading = true
         var sdis: [SDImage] = []
         var succeeded = 0, failed = 0
 
         for url in selectedURLs {
-            guard let sdi = createSDImageFromURL(url) else {
+            var importedURL: URL
+            do {
+                importedURL = URL(fileURLWithPath: imageDir, isDirectory: true)
+                importedURL.append(path: url.lastPathComponent)
+                try FileManager.default.copyItem(at: url, to: importedURL)
+            } catch {
+                failed += 1
+                continue
+            }
+            guard let sdi = createSDImageFromURL(importedURL) else {
                 failed += 1
                 continue
             }
@@ -291,6 +405,7 @@ final class ImageController: ObservableObject {
             sdis.append(sdi)
         }
         ImageStore.shared.add(sdis)
+        isLoading = false
 
         let alert = NSAlert()
         alert.messageText = String(localized: "Imported \(succeeded) image(s)")
@@ -305,6 +420,7 @@ final class ImageController: ObservableObject {
     func saveAll() async {
         if ImageStore.shared.images.isEmpty { return }
         let panel = NSOpenPanel()
+        panel.allowedContentTypes = [.image]
         panel.canCreateDirectories = true
         panel.canChooseDirectories = true
         panel.canChooseFiles = false
@@ -316,21 +432,12 @@ final class ImageController: ObservableObject {
         }
 
         guard let selectedURL = panel.url else { return }
+        let type = UTType.fromString(ImageController.shared.imageType)
 
         for (index, sdi) in ImageStore.shared.images.enumerated() {
             let count = index + 1
-            let url = selectedURL.appending(path: "\(String(sdi.prompt.prefix(70)).trimmingCharacters(in: .whitespacesAndNewlines)).\(count).\(sdi.seed).png")
-
-            guard let data = await sdi.imageData(.png) else {
-                NSLog("*** Failed to convert image")
-                continue
-            }
-
-            do {
-                try data.write(to: url)
-            } catch {
-                NSLog("*** Error saving images: \(error)")
-            }
+            let url = selectedURL.appending(path: sdi.filenameWithoutExtension(count: count))
+            await sdi.save(url, type: type)
         }
     }
 

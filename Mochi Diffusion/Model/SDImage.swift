@@ -28,6 +28,7 @@ struct SDImage: Identifiable, Hashable {
     var guidanceScale = 11.0
     var generatedDate = Date()
     var upscaler = ""
+    var isUpscaling = false
     var path = ""
 
     func hash(into hasher: inout Hasher) {
@@ -36,37 +37,50 @@ struct SDImage: Identifiable, Hashable {
 }
 
 extension SDImage {
-    var filename: String {
-        "\(String(prompt.prefix(70)).trimmingCharacters(in: .whitespacesAndNewlines)).\(seed).png"
+    func filenameWithoutExtension() -> String {
+        "\(String(prompt.prefix(70)).trimmingCharacters(in: .whitespacesAndNewlines)).\(seed)"
+    }
+
+    func filenameWithoutExtension(count: Int) -> String {
+        "\(String(prompt.prefix(70)).trimmingCharacters(in: .whitespacesAndNewlines)).\(count).\(seed)"
     }
 
     @MainActor
+    @discardableResult
     /// Save image file to `pathURL`.
-    /// - Parameter pathURL: Full save path, including filename and extension.
-    func save(_ pathURL: URL) async {
-        guard let data = await imageData(UTType.png) else {
+    /// File extension will be automatically added based on `type`.
+    /// - Parameters:
+    ///   - pathURL: Full save path without extension.
+    ///   - type: Image type.
+    /// - Returns: Full file save path with extension.
+    func save(_ pathURL: URL, type: UTType) async -> URL? {
+        guard let data = await imageData(type) else {
             NSLog("*** Failed to create image data")
-            return
+            return nil
         }
 
+        let url = pathURL.appendingPathExtension(for: type)
+
         do {
-            try data.write(to: pathURL, options: .atomic)
+            try data.write(to: url, options: .atomic)
         } catch {
             NSLog("*** Error saving image file: \(error.localizedDescription)")
         }
+
+        return url
     }
 
     @MainActor
     /// Display save image dialog.
     func saveAs() async {
         let panel = NSSavePanel()
-        panel.allowedContentTypes = [.png, .jpeg]
+        panel.allowedContentTypes = [.png, .jpeg, .heic]
         panel.canCreateDirectories = true
         panel.isExtensionHidden = false
         panel.title = String(localized: "Save Image", comment: "Header text for save image panel")
         panel.message = String(localized: "Choose a folder and a name to store the image")
         panel.nameFieldLabel = String(localized: "Image file name:", comment: "File name field label for save image panel")
-        panel.nameFieldStringValue = filename
+        panel.nameFieldStringValue = filenameWithoutExtension()
         let resp = await panel.beginSheetModal(for: NSApplication.shared.mainWindow!)
         if resp != .OK {
             return
@@ -74,7 +88,7 @@ extension SDImage {
 
         guard let url = panel.url else { return }
         let ext = url.pathExtension.lowercased()
-        let type = ext == "png" ? UTType.png : UTType.jpeg
+        let type = UTType.fromString(ext)
 
         guard let data = await imageData(type) else {
             NSLog("*** Failed to create image data")
@@ -86,6 +100,27 @@ extension SDImage {
         } catch {
             NSLog("*** Error saving image file: \(error.localizedDescription)")
         }
+    }
+
+    @MainActor
+    func imageData(_ type: UTType) async -> Data? {
+        guard let image else { return nil }
+        guard let data = CFDataCreateMutable(nil, 0) else { return nil }
+        guard let destination = CGImageDestinationCreateWithData(
+            data,
+            type.identifier as CFString,
+            1,
+            nil
+        ) else { return nil }
+        let iptc = [
+            kCGImagePropertyIPTCCaptionAbstract: metadata(),
+            kCGImagePropertyIPTCOriginatingProgram: "Mochi Diffusion",
+            kCGImagePropertyIPTCProgramVersion: "\(NSApplication.appVersion)"
+        ]
+        let meta = [kCGImagePropertyIPTCDictionary: iptc]
+        CGImageDestinationAddImage(destination, image, meta as CFDictionary)
+        guard CGImageDestinationFinalize(destination) else { return nil }
+        return data as Data
     }
 
     @MainActor
@@ -109,24 +144,37 @@ extension SDImage {
         """
     }
 
-    @MainActor
-    func imageData(_ type: UTType) async -> Data? {
-        guard let image else { return nil }
-        guard let data = CFDataCreateMutable(nil, 0) else { return nil }
-        guard let destination = CGImageDestinationCreateWithData(
-            data,
-            type.identifier as CFString,
-            1,
-            nil
-        ) else { return nil }
-        let iptc = [
-            kCGImagePropertyIPTCCaptionAbstract: metadata(),
-            kCGImagePropertyIPTCOriginatingProgram: "Mochi Diffusion",
-            kCGImagePropertyIPTCProgramVersion: "\(NSApplication.appVersion)"
-        ]
-        let meta = [kCGImagePropertyIPTCDictionary: iptc]
-        CGImageDestinationAddImage(destination, image, meta as CFDictionary)
-        guard CGImageDestinationFinalize(destination) else { return nil }
-        return data as Data
+    func getHumanReadableInfo() -> String {
+    """
+\(Metadata.date.rawValue):
+\(generatedDate.formatted(date: .long, time: .standard))
+
+\(Metadata.model.rawValue):
+\(model)
+
+\(Metadata.size.rawValue):
+\(width) x \(height)\(!upscaler.isEmpty ? " (Upscaled using \(upscaler))" : "")
+
+\(Metadata.includeInImage.rawValue):
+\(prompt)
+
+\(Metadata.excludeFromImage.rawValue):
+\(negativePrompt)
+
+\(Metadata.seed.rawValue):
+\(seed)
+
+\(Metadata.steps.rawValue):
+\(steps)
+
+\(Metadata.guidanceScale.rawValue):
+\(guidanceScale)
+
+\(Metadata.scheduler.rawValue):
+\(scheduler.rawValue)
+
+\(Metadata.mlComputeUnit.rawValue):
+\(MLComputeUnits.toString(mlComputeUnit))
+"""
     }
 }

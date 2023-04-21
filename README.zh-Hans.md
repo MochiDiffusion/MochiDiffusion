@@ -22,15 +22,17 @@
 
 ## 简介
 
-本应用内置 [Apple 的 Core ML Stable Diffusion 框架](https://github.com/apple/ml-stable-diffusion) 以实现在搭载 Apple 芯片的 Mac 上用极低的内存占用发挥出最优性能，并同时兼容搭载 Intel 芯片的 Mac。
+本应用内置 [Apple 的 Core ML Stable Diffusion 框架](https://github.com/apple/ml-stable-diffusion) 以实现在搭载 Apple 芯片的 Mac 上用极低的内存占用发挥出最优性能。
 
 ## 功能
 
 - 极致性能和极低内存占用 (使用神经网络引擎时 ~150MB)
 - 在所有搭载 Apple 芯片的 Mac 上充分发挥神经网络引擎的优势
 - 生成图像时无需联网
+- 图像转图像（也被称为 Image2Image）
 - 在图像的 EXIF 信息中存储所有的关键词（在访达的“显示简介”窗口中查看）
-- 将生成图像超分辨率 (使用 RealESRGAN)
+- 使用 RealESRGAN 放大生成的图像
+- 自动保存 & 恢复图像
 - 自定义 Stable Diffusion Core ML 模型
 - 无需担心损坏的模型
 - 使用 macOS 原生框架 SwiftUI 开发
@@ -50,22 +52,20 @@
 
 你需要根据不同的计算单元选择对应的模型 (详情见模型部分)。
 
-搭载 Intel 芯片的 Mac 只能使用 `CPU 和 GPU`，因其没有配备神经网络引擎。
-
 ## 模型
 
 你需要自行转换或下载 Core ML 模型以使用 Mochi Diffusion。
 
 [这里](https://huggingface.co/coreml) 上传了几个已经转换好的模型
 
-1. [转换](https://github.com/godly-devotion/MochiDiffusion/wiki/How-to-convert-ckpt-or-safetensors-files-to-Core-ML) 或下载 Core ML 模型
+1. [转换](https://github.com/godly-devotion/MochiDiffusion/wiki/How-to-convert-Stable-Diffusion-models-to-Core-ML) 或下载 Core ML 模型
     - `split_einsum` 版本适用于包括神经网络引擎在内的所有计算单元
     - `original` 版本仅适用于 `CPU 和 GPU`
-2. 本应用默认在 文稿 中创建一个模型文件夹，但你可以在应用设置中自定义其路径。
+2. 默认情况下，应用程序的模型文件夹将创建在您的主目录下。 可以在“设置”下自定义此位置
 3. 在模型文件夹中，你可以新建一个文件夹，用自己想在应用内显示的名字为其重命名，再将转换好的模型放到文件夹中
 4. 你的文件夹路径应该像这样:
 ```
-文稿/
+<主目录>/
 └── MochiDiffusion/
     └── models/
         ├── stable-diffusion-2-1_split-einsum_compiled/
@@ -73,6 +73,7 @@
         │   ├── TextEncoder.mlmodelc
         │   ├── Unet.mlmodelc
         │   ├── VAEDecoder.mlmodelc
+        │   ├── VAEEncoder.mlmodelc
         │   └── vocab.json
         ├── ...
         └── ...
@@ -80,7 +81,7 @@
 
 ## 兼容性
 
-- Apple 芯片的 Mac (M1 及后续) 或 Intel 芯片的 Mac (需要高性能 CPU 和 GPU)
+- Apple 芯片的 Mac (M1 及后续)
 - macOS Ventura 13.1 以上
 - Xcode 14.2 (自行构建)
 
@@ -90,16 +91,16 @@
 
 ## 贡献
 
-无论是修复bug，新增代码，还是完善翻译，Mochi Diffusion 欢迎你的贡献。
+无论是修复 bug，新增代码，还是完善翻译，Mochi Diffusion 欢迎你的贡献。
 
-- 如果你发现了一个bug，或者有新的建议和想法，请先在这里 [搜索议题](https://github.com/godly-devotion/MochiDiffusion/issues) 以避免重复。在确认没有重复后，你可以 [创建一个新议题](https://github.com/godly-devotion/MochiDiffusion/issues/new/choose)。
+- 如果你发现了一个bug，或者有新的建议和想法，请先在这里[搜索议题](https://github.com/godly-devotion/MochiDiffusion/issues)以避免重复。在确认没有重复后，你可以[创建一个新议题](https://github.com/godly-devotion/MochiDiffusion/issues/new/choose)。
 
-- 如果你想贡献代码，请 [创建拉取请求](https://github.com/godly-devotion/MochiDiffusion/pulls) 或 [发起一个新的讨论](https://github.com/godly-devotion/MochiDiffusion/discussions) 来探讨。我个人推荐安装 [SwiftLint](https://github.com/realm/SwiftLint#installation) 以规范代码格式。
+- 如果你想贡献代码，请[创建拉取请求](https://github.com/godly-devotion/MochiDiffusion/pulls)或[发起一个新的讨论](https://github.com/godly-devotion/MochiDiffusion/discussions)来探讨。我个人推荐安装 [SwiftLint](https://github.com/realm/SwiftLint#installation) 以规范代码格式。
 
 - 如果你想对 Mochi Diffusion 贡献翻译，请到项目的 [Crowdin 页面](https://crowdin.com/project/mochi-diffusion)，你可以免费创建一个账户然后开始翻译。
 
 ## 致谢
 
 - [Apple's Core ML Stable Diffusion implementation](https://github.com/apple/ml-stable-diffusion)
-- [HuggingFace's Swift UI sample implementation](https://github.com/huggingface/swift-coreml-diffusers)
+- [Hugging Face's Swift UI sample implementation](https://github.com/huggingface/swift-coreml-diffusers)
 - 应用图标作者 [Zabriskije](https://github.com/Zabriskije)
