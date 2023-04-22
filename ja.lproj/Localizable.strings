@@ -21,6 +21,7 @@
 "Convert all images to High Resolution (this will use more memory)" = "すべての画像を高解像度に変換します（これはより多くのメモリを使用します）";
 "Convert to High Resolution" = "高解像度へ変換";
 "Copy" = "コピー";
+"Copy Info" = "情報のコピー";
 "Copy Option to Sidebar" = "オプションをサイドバーにコピー";
 "Copy Options to Sidebar" = "オプションをサイドバーにコピー";
 "Description is too long" = "記述が長すぎます";
