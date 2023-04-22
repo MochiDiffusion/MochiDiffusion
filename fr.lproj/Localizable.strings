@@ -24,6 +24,7 @@
 "Convert all images to High Resolution (this will use more memory)" = "Convertir toutes les images en haute résolution (cela utilisera plus de mémoire)";
 "Convert to High Resolution" = "Convertir en haute résolution";
 "Copy" = "Copier";
+"Copy Info" = "Copier les paramètres";
 "Copy Option to Sidebar" = "Copier l’option dans la barre latérale";
 "Copy Options to Sidebar" = "Copier toutes les options vers la barre latérale";
 "Description is too long" = "La description est trop longue";

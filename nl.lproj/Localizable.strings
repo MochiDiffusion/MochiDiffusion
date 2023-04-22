@@ -7,8 +7,12 @@
 "CFBundleDisplayName" = "Mochi Diffusion";
 "CFBundleName" = "Mochi Diffusion";
 "NSHumanReadableCopyright" = "Door Joshua Park";
+"**Auto** selects the most appropriate configuration for the selected model." = "**Auto** selecteert de meest geschikte configuratie voor het gekozen model.";
+"**CPU & GPU** is compatible with all models and may be faster on M1 Max, Ultra and later, but will use more memory." = "**CPU & GPU** is compatibel met alle modellen en kan sneller zijn met M1 Max, Ultra en later, maar zal meer geheugen gebruiken.";
+"**CPU & Neural Engine** provides a good balance between speed and low memory usage, but only works with split-einsum models." = "**CPU & Neurale Engine** biedt een goede balans tussen snelheid en laag geheugengebruik, maar werkt alleen met split-einsum modellen.";
 "All" = "Alle";
 "Apply" = "Toepassen";
+"Auto (Recommended)" = "Automatisch (aanbevolen)";
 "Autosave & Restore Images" = "Automatisch Opslaan & Afbeeldingen Herstellen";
 "CPU & GPU" = "CPU & GPU";
 "CPU & Neural Engine" = "CPU & Neural Engine";
@@ -20,6 +24,7 @@
 "Convert all images to High Resolution (this will use more memory)" = "Converteer alle afbeeldingen naar High Resolution (dit zal meer geheugen gebruiken)";
 "Convert to High Resolution" = "Converteren naar High Resolution";
 "Copy" = "Kopiëer";
+"Copy Info" = "Kopiëer Info";
 "Copy Option to Sidebar" = "Kopieer optie naar zijbalk";
 "Copy Options to Sidebar" = "Kopieer opties naar zijbalk";
 "Description is too long" = "Beschrijving is te lang";
@@ -34,14 +39,17 @@
 "If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images." = "Als de optie uit staat, worden verwijderde afbeeldingen permanent verwijderd. Geldt voor geïmporteerde en automatisch opgeslagen afbeeldingen.";
 "Image" = "Afbeelding";
 "Image %lld of %lld" = "Afbeelding %lld van %lld";
+"Image Type" = "Afbeeldingstype";
 "Image file name:" = "Naam afbeelding:";
 "Import" = "Importeer";
 "Import Images..." = "Importeer afbeeldingen...";
+"Improve Translation" = "Vertalingen verbeteren";
 "Include in Image" = "In afbeelding opnemen";
 "Incorrect image size" = "Onjuiste afbeelding afmetingen";
 "Loading Model..." = "Model wordt geladen...";
 "Loading..." = "Wordt geladen...";
 "ML Compute Unit" = "ML Compute Unit";
+"Manually selecting an incompatible ML Compute Unit may cause poor performance or crash." = "Handmatig selecteren van een incompatibele ML Compute Unit kan slechte prestaties of crashes veroorzaken.";
 "Mochi Diffusion" = "Mochi Diffusion";
 "Model" = "Model";
 "Model Folder" = "Model Map";
@@ -74,6 +82,16 @@
 "Steps" = "Stappen";
 "Stop Generation" = "Stop Genereren";
 "Strength" = "Intensiteit";
+"Strength controls how closely the generated image resembles the starting image.
+Use lower values to generate images that look similar to the starting image.
+Use higher values to allow more creative freedom.
+
+The size of the starting image should be 512 x 512." = "Sterkte bepaalt hoe sterk de gegenereerde afbeelding op de startafbeelding lijkt.
+Gebruik lagere waarden om afbeeldingen te genereren die lijken op de startafbeelding.
+Gebruik hogere waarden om meer creatieve vrijheid toe te staan.
+
+De startafbeelding moet 512 x 512 zijn.";
+"Support Project" = "Ondersteun project";
 "This may take up to 2 minutes if a model is used for the first time" = "Dit kan tot 2 minuten duren als een model voor het eerst wordt gebruikt";
 "Toggle Info Panel" = "Info paneel in-/uitschakelen";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Gebruikt de safety checker module van het model. Dit garandeert niet dat alle ongepaste afbeeldingen gefilterd zullen worden.";
