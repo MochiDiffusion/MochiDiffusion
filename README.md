@@ -83,7 +83,7 @@ A few models have been converted and uploaded [here](https://huggingface.co/core
 
 - Apple Silicon (M1 and later)
 - macOS Ventura 13.1 and later
-- Xcode 14.2 (to build)
+- Xcode 14.3 (to build)
 
 ## Privacy
 

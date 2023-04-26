@@ -114,7 +114,7 @@ struct GalleryView: View {
                     )
                 }
 
-                if let image = sdi.image, image.width == 512 && image.height == 512 {
+                if let image = sdi.image {
                     Button {
                         Task { await ImageController.shared.selectStartingImage(sdi: sdi) }
                     } label: {

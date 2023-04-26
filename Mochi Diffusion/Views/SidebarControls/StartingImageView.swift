@@ -95,7 +95,7 @@ struct StartingImageView: View {
                     Use lower values to generate images that look similar to the starting image.
                     Use higher values to allow more creative freedom.
 
-                    The size of the starting image should be 512 x 512.
+                    The size of the starting image must match the output image size of the current model.
                     """
                     )
                     .padding()
