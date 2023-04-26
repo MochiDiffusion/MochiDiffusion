@@ -42,7 +42,6 @@
 "Import Images..." = "画像のインポート...";
 "Improve Translation" = "翻訳の改善に協力";
 "Include in Image" = "画像に含める";
-"Incorrect image size" = "間違った画像サイズ";
 "Loading Model..." = "モデルを読み込み中...";
 "Loading..." = "ロード中...";
 "ML Compute Unit" = "ML Compute Unit";
@@ -74,20 +73,10 @@
 "Share..." = "共有...";
 "Show in Finder" = "Finderで表示";
 "Starting Image" = "開始画像";
-"Starting image must be 512x512." = "開始画像は512x512でなければなりません。";
 "Step %lld of %lld" = "ステップ %lld / %lld";
 "Steps" = "ステップ";
 "Stop Generation" = "画像生成の中止";
 "Strength" = "強さ";
-"Strength controls how closely the generated image resembles the starting image.
-Use lower values to generate images that look similar to the starting image.
-Use higher values to allow more creative freedom.
-
-The size of the starting image should be 512 x 512." = "強さは生成される画像が開始画像にどれだけ似ているかを制御します。
-開始画像に似たイメージを生成するには、低い値を使用してください。
-より創造的な自由を許容するには、高い値を使用してください。
-
-開始画像のサイズは512x512にする必要があります。";
 "Support Project" = "プロジェクトをサポート";
 "This may take up to 2 minutes if a model is used for the first time" = "モデルを初めて使用する場合、2分程度かかることがあります";
 "Toggle Info Panel" = "情報パネルの切り替え";
