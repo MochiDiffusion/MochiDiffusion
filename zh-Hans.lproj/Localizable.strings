@@ -42,7 +42,6 @@
 "Import Images..." = "导入图像...";
 "Improve Translation" = "改进翻译";
 "Include in Image" = "关键词";
-"Incorrect image size" = "无法使用该图像分辨率";
 "Loading Model..." = "加载模型中...";
 "Loading..." = "加载中...";
 "ML Compute Unit" = "ML 计算单元";
@@ -74,20 +73,10 @@
 "Share..." = "分享...";
 "Show in Finder" = "在访达中显示";
 "Starting Image" = "原始图像";
-"Starting image must be 512x512." = "原始图像必须为 512x512。";
 "Step %lld of %lld" = "迭代步数 %lld / %lld";
 "Steps" = "迭代步数";
 "Stop Generation" = "终止生成";
 "Strength" = "强度";
-"Strength controls how closely the generated image resembles the starting image.
-Use lower values to generate images that look similar to the starting image.
-Use higher values to allow more creative freedom.
-
-The size of the starting image should be 512 x 512." = "强度控制生成的图片与起始图像的相似程度。
-使用较低的值来生成与起始图像相似的图像。
-使用较高的值可以更自由地创造。
-
-起始图像的大小应该是512 x 512。";
 "Support Project" = "支持项目";
 "This may take up to 2 minutes if a model is used for the first time" = "如果这是首次载入模型，则需要约2分钟的时间";
 "Toggle Info Panel" = "显示/隐藏信息面板";
