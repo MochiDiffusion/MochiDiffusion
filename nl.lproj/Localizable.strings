@@ -45,7 +45,6 @@
 "Import Images..." = "Importeer afbeeldingen...";
 "Improve Translation" = "Vertalingen verbeteren";
 "Include in Image" = "In afbeelding opnemen";
-"Incorrect image size" = "Onjuiste afbeelding afmetingen";
 "Loading Model..." = "Model wordt geladen...";
 "Loading..." = "Wordt geladen...";
 "ML Compute Unit" = "ML Compute Unit";
@@ -77,20 +76,10 @@
 "Share..." = "Delen...";
 "Show in Finder" = "Tonen in Finder";
 "Starting Image" = "Startafbeelding";
-"Starting image must be 512x512." = "Startafbeelding moet 512x512 zijn.";
 "Step %lld of %lld" = "Stap %lld van %lld";
 "Steps" = "Stappen";
 "Stop Generation" = "Stop Genereren";
 "Strength" = "Intensiteit";
-"Strength controls how closely the generated image resembles the starting image.
-Use lower values to generate images that look similar to the starting image.
-Use higher values to allow more creative freedom.
-
-The size of the starting image should be 512 x 512." = "Sterkte bepaalt hoe sterk de gegenereerde afbeelding op de startafbeelding lijkt.
-Gebruik lagere waarden om afbeeldingen te genereren die lijken op de startafbeelding.
-Gebruik hogere waarden om meer creatieve vrijheid toe te staan.
-
-De startafbeelding moet 512 x 512 zijn.";
 "Support Project" = "Ondersteun project";
 "This may take up to 2 minutes if a model is used for the first time" = "Dit kan tot 2 minuten duren als een model voor het eerst wordt gebruikt";
 "Toggle Info Panel" = "Info paneel in-/uitschakelen";
