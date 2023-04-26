@@ -36,7 +36,6 @@
 "Import" = "가져오기";
 "Import Images..." = "이미지 가져오기...";
 "Include in Image" = "프롬프트";
-"Incorrect image size" = "이미지 크기가 잘못되었습니다";
 "Loading Model..." = "모델 로딩 중...";
 "Loading..." = "로딩중...";
 "ML Compute Unit" = "ML Compute Unit";
@@ -67,20 +66,10 @@
 "Share..." = "공유...";
 "Show in Finder" = "Finder에서 보기";
 "Starting Image" = "시작 이미지";
-"Starting image must be 512x512." = "이미지 너비와 높이가 512픽셀 이여야 합니다.";
 "Step %lld of %lld" = "스텝 %lld / %lld";
 "Steps" = "스텝 수";
 "Stop Generation" = "생성 중단";
 "Strength" = "강도";
-"Strength controls how closely the generated image resembles the starting image.
-Use lower values to generate images that look similar to the starting image.
-Use higher values to allow more creative freedom.
-
-The size of the starting image should be 512 x 512." = "강도는 생성된 이미지가 시작 이미지와 얼마나 유사한지를 제어합니다.
-시작 이미지와 비슷하게 보이는 이미지를 생성하려면 더 낮은 값을 사용하십시오.
-보다 창의적인 자유를 허용하려면 더 높은 값을 사용하십시오.
-
-시작 이미지의 너비와 높이가 512픽셀 이여야 합니다.";
 "This may take up to 2 minutes if a model is used for the first time" = "모델을 처음 사용하는 경우 최대 2분 정도 걸릴 수 있습니다.";
 "Toggle Info Panel" = "정보 패널 전환";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "모델의 안전 검사기 모듈을 사용합니다. 모든 노골적인 이미지가 필터링되지 않을 수도 있습니다.";
