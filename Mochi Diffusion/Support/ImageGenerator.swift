@@ -140,6 +140,7 @@ class ImageGenerator: ObservableObject {
         config.computeUnits = computeUnit
         self.pipeline = try StableDiffusionPipeline(
             resourcesAt: model.url,
+            controlNet: [],
             configuration: config,
             disableSafety: true,
             reduceMemory: reduceMemory
