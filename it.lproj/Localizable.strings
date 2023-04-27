@@ -45,7 +45,6 @@
 "Import Images..." = "Importa immagini...";
 "Improve Translation" = "Migliora la traduzione";
 "Include in Image" = "Includi nell\'immagine";
-"Incorrect image size" = "Dimensione immagine errata";
 "Loading Model..." = "Caricamento modello...";
 "Loading..." = "Caricamento...";
 "ML Compute Unit" = "Unità ML";
@@ -77,7 +76,6 @@
 "Share..." = "Condividi...";
 "Show in Finder" = "Mostra nel Finder";
 "Starting Image" = "Immagine iniziale";
-"Starting image must be 512x512." = "L\'immagine iniziale deve essere 512x512.";
 "Step %lld of %lld" = "Passo %lld di %lld";
 "Steps" = "Numero di passi";
 "Stop Generation" = "Ferma la generazione";
@@ -86,11 +84,11 @@
 Use lower values to generate images that look similar to the starting image.
 Use higher values to allow more creative freedom.
 
-The size of the starting image should be 512 x 512." = "Intensità controlla quanto l\'immagine generata assomigli a quella iniziale.
-Usa valori bassi per generare immagini simili a quella di partenza.
-Usa valori alti per consentire maggiore libertà creativa.
+The size of the starting image must match the output image size of the current model." = "Intensità controlla quanto l\'immagine generata assomigli a quella di partenza.
+Usa valori bassi per generare immagini simili a quella originale.
+Usa valori alti per ottenere risultati più creativi.
 
-La dimensione dell\'immagine iniziale deve essere 512 x 512.";
+La dimensione dell\'immagine di partenza deve combaciare con quella che si tenta di generare.";
 "Support Project" = "Supporta il progetto";
 "This may take up to 2 minutes if a model is used for the first time" = "Potrebbero volerci fino a 2 minuti se un modello viene utilizzato per la prima volta";
 "Toggle Info Panel" = "Mostra/nascondi il pannello informazioni";

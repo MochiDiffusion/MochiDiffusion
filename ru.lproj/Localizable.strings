@@ -45,7 +45,6 @@
 "Import Images..." = "Импортировать изображения...";
 "Improve Translation" = "Улучшить перевод";
 "Include in Image" = "Включить в изображение";
-"Incorrect image size" = "Неверный размер изображения";
 "Loading Model..." = "Загрузка модели...";
 "Loading..." = "Загрузка...";
 "ML Compute Unit" = "Вычислительный блок ML";
@@ -77,7 +76,6 @@
 "Share..." = "Поделиться...";
 "Show in Finder" = "Показать в Finder";
 "Starting Image" = "Начальное изображение";
-"Starting image must be 512x512." = "Начальное изображение должно быть 512х512.";
 "Step %lld of %lld" = "Шаг %lld из %lld";
 "Steps" = "Шаги";
 "Stop Generation" = "Остановить генерацию";
@@ -86,11 +84,11 @@
 Use lower values to generate images that look similar to the starting image.
 Use higher values to allow more creative freedom.
 
-The size of the starting image should be 512 x 512." = "Интенсивность определяет сходство сгенерированного изображения с начальным.
-Используйте более низкие значения для создания изображений, похожих на начальное.
-Используйте более высокие значения для большей творческой свободы.
+The size of the starting image must match the output image size of the current model." = "Интенсивность определяет сходство сгенерированного изображения с начальным.
+Используйте более низкие значения, чтобы создавать изображения, похожие на начальное.
+Используйте более высокие значения, для большей творческой свободы.
 
-Размер начального изображения должен быть 512 х 512.";
+Размер начального изображения должен совпадать с размером выводимого изображения для выбранной модели.";
 "Support Project" = "Поддержать проект";
 "This may take up to 2 minutes if a model is used for the first time" = "Это может занять до двух минут, если модель используется впервые";
 "Toggle Info Panel" = "Переключить отображение панели информации";
