@@ -80,6 +80,15 @@
 "Steps" = "Numero di passi";
 "Stop Generation" = "Ferma la generazione";
 "Strength" = "Intensità";
+"Strength controls how closely the generated image resembles the starting image.
+Use lower values to generate images that look similar to the starting image.
+Use higher values to allow more creative freedom.
+
+The size of the starting image must match the output image size of the current model." = "Intensità controlla quanto l\'immagine generata assomigli a quella di partenza.
+Usa valori bassi per generare immagini simili a quella originale.
+Usa valori alti per ottenere risultati più creativi.
+
+La dimensione dell\'immagine di partenza deve combaciare con quella che si tenta di generare.";
 "Support Project" = "Supporta il progetto";
 "This may take up to 2 minutes if a model is used for the first time" = "Potrebbero volerci fino a 2 minuti se un modello viene utilizzato per la prima volta";
 "Toggle Info Panel" = "Mostra/nascondi il pannello informazioni";
