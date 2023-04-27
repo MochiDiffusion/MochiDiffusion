@@ -77,6 +77,15 @@
 "Steps" = "ステップ";
 "Stop Generation" = "画像生成の中止";
 "Strength" = "強さ";
+"Strength controls how closely the generated image resembles the starting image.
+Use lower values to generate images that look similar to the starting image.
+Use higher values to allow more creative freedom.
+
+The size of the starting image must match the output image size of the current model." = "強さは生成される画像が開始画像にどれだけ似ているかを制御します。
+開始画像に似た画像を生成するには、低い値を使用してください。
+より創造的な自由を許容するには、高い値を使用してください。
+
+開始画像のサイズはモデルの出力画像サイズと同じにする必要があります。";
 "Support Project" = "プロジェクトをサポート";
 "This may take up to 2 minutes if a model is used for the first time" = "モデルを初めて使用する場合、2分程度かかることがあります";
 "Toggle Info Panel" = "情報パネルの切り替え";
