@@ -48,6 +48,12 @@ final class ImageController: ObservableObject {
     private(set) var models = [SDModel]()
 
     @Published
+    var controlNet: [String] = []
+
+    @Published
+    var controlNetImages: [CGImage] = []
+
+    @Published
     var startingImage: CGImage?
 
     @Published
@@ -81,24 +87,48 @@ final class ImageController: ObservableObject {
             guard let model = currentModel else {
                 return
             }
+
             modelName = model.name
-            Task {
-                logger.info("Started loading model: \"\(self.modelName)\"")
-                do {
-                    try await ImageGenerator.shared.load(
-                        model: model,
-                        computeUnit: mlComputeUnitPreference.computeUnits(forModel: model),
-                        reduceMemory: reduceMemory
-                    )
-                    logger.info("Stable Diffusion pipeline successfully loaded")
-                } catch ImageGenerator.GeneratorError.requestedModelNotFound {
-                    logger.error("Couldn't load \(self.modelName) because it doesn't exist.")
-                    modelName = ""
-                    currentModel = nil
-                } catch {
-                    modelName = ""
-                    currentModel = nil
-                }
+            controlNet = model.controlNet
+            currentControlNet = model.controlNet.first
+
+            reloadModel()
+        }
+    }
+
+    @Published
+    var currentControlNet: String? { // TODO: Use array
+        didSet {
+            reloadModel()
+        }
+    }
+
+    private func reloadModel() {
+        guard let model = currentModel else {
+            return
+        }
+
+        Task {
+            logger.info("Started loading model: \"\(self.modelName)\"")
+            do {
+                try await ImageGenerator.shared.load(
+                    model: model,
+                    controlNet: currentControlNet.map { [$0] } ?? [],
+                    computeUnit: mlComputeUnitPreference.computeUnits(forModel: model),
+                    reduceMemory: reduceMemory
+                )
+                logger.info("Stable Diffusion pipeline successfully loaded")
+            } catch ImageGenerator.GeneratorError.requestedModelNotFound {
+                logger.error("Couldn't load \(self.modelName) because it doesn't exist.")
+                modelName = ""
+                currentModel = nil
+                controlNet = []
+                currentControlNet = nil
+            } catch {
+                modelName = ""
+                currentModel = nil
+                controlNet = []
+                currentControlNet = nil
             }
         }
     }
@@ -204,6 +234,7 @@ final class ImageController: ObservableObject {
         pipelineConfig.guidanceScale = Float(guidanceScale)
         pipelineConfig.disableSafety = !safetyChecker
         pipelineConfig.schedulerType = convertScheduler(scheduler)
+        pipelineConfig.controlNetInputs = controlNetImages
 
         let genConfig = GenerationConfig(
             pipelineConfig: pipelineConfig,
@@ -319,24 +350,32 @@ final class ImageController: ObservableObject {
     }
 
     func selectStartingImage() async {
+        startingImage = await selectImage(title: "starting")
+    }
+
+    func selectControlNetImage() async {
+        await selectImage(title: "ControlNet").map { controlNetImages.append($0) }
+    }
+
+    func selectImage(title: String) async -> CGImage? {
         let panel = NSOpenPanel()
         panel.allowedContentTypes = [.image]
         panel.allowsMultipleSelection = false
         panel.canCreateDirectories = false
         panel.canChooseDirectories = false
         panel.canChooseFiles = true
-        panel.message = String(localized: "Choose starting image")
-        panel.prompt = String(localized: "Select", comment: "OK button text for choose starting image panel")
+        panel.message = String(localized: "Choose \(title) image")
+        panel.prompt = String(localized: "Select", comment: "OK button text for choose image panel")
         let resp = await panel.beginSheetModal(for: NSApplication.shared.mainWindow!)
         if resp != .OK {
-            return
+            return nil
         }
 
-        guard let url = panel.url else { return }
-        guard let cgImageSource = CGImageSourceCreateWithURL(url as CFURL, nil) else { return }
+        guard let url = panel.url else { return nil }
+        guard let cgImageSource = CGImageSourceCreateWithURL(url as CFURL, nil) else { return nil }
         let imageIndex = CGImageSourceGetPrimaryImageIndex(cgImageSource)
-        guard let cgImage = CGImageSourceCreateImageAtIndex(cgImageSource, imageIndex, nil) else { return }
-        startingImage = cgImage
+
+        return CGImageSourceCreateImageAtIndex(cgImageSource, imageIndex, nil)
     }
 
     func selectStartingImage(sdi: SDImage) async {
@@ -346,6 +385,10 @@ final class ImageController: ObservableObject {
 
     func unsetStartingImage() async {
         startingImage = nil
+    }
+
+    func unsetControlNetImage(_ image: CGImage) async {
+        controlNetImages.removeAll(where: { $0 == image })
     }
 
     func importImages() async {

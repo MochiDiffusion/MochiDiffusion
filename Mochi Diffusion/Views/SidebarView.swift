@@ -20,6 +20,10 @@ struct SidebarView: View {
                     Divider().frame(height: 16)
                 }
                 Group {
+                    ControlNetView()
+                    Divider().frame(height: 16)
+                }
+                Group {
                     NumberOfImagesView()
                     Spacer().frame(height: 6)
                 }
