@@ -36,6 +36,7 @@ struct ControlNetView: View {
                                 .stroke(Color(nsColor: .separatorColor), lineWidth: 1)
                         )
                         .frame(height: 90)
+                        .accessibilityAddTraits(.isButton)
                         .onTapGesture {
                             Task { await ImageController.shared.unsetControlNetImage(image) }
                         }
@@ -51,6 +52,7 @@ struct ControlNetView: View {
                             .stroke(Color(nsColor: .separatorColor), lineWidth: 1)
                     )
                     .frame(height: 90)
+                    .accessibilityAddTraits(.isButton)
                     .onTapGesture {
                         Task { await ImageController.shared.selectControlNetImage() }
                     }

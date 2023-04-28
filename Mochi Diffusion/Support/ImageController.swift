@@ -97,7 +97,7 @@ final class ImageController: ObservableObject {
     }
 
     @Published
-    var currentControlNet: String? { // TODO: Use array
+    var currentControlNet: String? {
         didSet {
             reloadModel()
         }
@@ -388,7 +388,7 @@ final class ImageController: ObservableObject {
     }
 
     func unsetControlNetImage(_ image: CGImage) async {
-        controlNetImages.removeAll(where: { $0 == image })
+        controlNetImages.removeAll { $0 == image }
     }
 
     func importImages() async {

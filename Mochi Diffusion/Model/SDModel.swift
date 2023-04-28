@@ -35,7 +35,7 @@ private func controlNets(_ url: URL) -> [String] {
     let controlNetSymLink = url.appending(component: "controlnet")
 
     guard FileManager.default.fileExists(atPath: controlNetSymLink.path()),
-          let contentsOfControlNet = try? FileManager.default.contentsOfDirectory(atPath: controlNetSymLink.path()) else {
+        let contentsOfControlNet = try? FileManager.default.contentsOfDirectory(atPath: controlNetSymLink.path()) else {
         return []
     }
 
