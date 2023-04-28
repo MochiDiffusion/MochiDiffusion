@@ -38,6 +38,7 @@ struct ControlNetView: View {
 
                 Button {
                     controller.currentControlNets = []
+                    controller.controlNetImages = []
                 } label: {
                     Text(verbatim: "Clear All")
                 }
