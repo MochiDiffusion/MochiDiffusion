@@ -18,14 +18,36 @@ struct ControlNetView: View {
         if controller.controlNet.isEmpty {
             Text("N/A")
         } else {
-            Picker("", selection: $controller.currentControlNet) {
-                Text(verbatim: "None").tag(Optional<String>.none)
-
+            Menu {
                 ForEach(controller.controlNet, id: \.self) { name in
-                    Text(verbatim: name).tag(Optional(name))
+                    Button {
+                        if let index = controller.currentControlNets.firstIndex(of: name) {
+                            controller.currentControlNets.remove(at: index)
+                        } else {
+                            controller.currentControlNets.append(name)
+                        }
+                    } label: {
+                        if controller.currentControlNets.contains(name) {
+                            Image(systemName: "checkmark")
+                        }
+                        Text(verbatim: name)
+                    }
+                }
+
+                Divider()
+
+                Button {
+                    controller.currentControlNets = []
+                } label: {
+                    Text(verbatim: "Clear All")
+                }
+            } label: {
+                if controller.currentControlNets.isEmpty {
+                    Text("None")
+                } else {
+                    Text(controller.currentControlNets.formatted(.list(type: .and)))
                 }
             }
-            .labelsHidden()
 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {

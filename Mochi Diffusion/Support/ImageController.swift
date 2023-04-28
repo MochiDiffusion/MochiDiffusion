@@ -90,14 +90,14 @@ final class ImageController: ObservableObject {
 
             modelName = model.name
             controlNet = model.controlNet
-            currentControlNet = model.controlNet.first
+            currentControlNets = []
 
             reloadModel()
         }
     }
 
     @Published
-    var currentControlNet: String? {
+    var currentControlNets: [String] = [] {
         didSet {
             reloadModel()
         }
@@ -113,7 +113,7 @@ final class ImageController: ObservableObject {
             do {
                 try await ImageGenerator.shared.load(
                     model: model,
-                    controlNet: currentControlNet.map { [$0] } ?? [],
+                    controlNet: currentControlNets,
                     computeUnit: mlComputeUnitPreference.computeUnits(forModel: model),
                     reduceMemory: reduceMemory
                 )
@@ -123,12 +123,12 @@ final class ImageController: ObservableObject {
                 modelName = ""
                 currentModel = nil
                 controlNet = []
-                currentControlNet = nil
+                currentControlNets = []
             } catch {
                 modelName = ""
                 currentModel = nil
                 controlNet = []
-                currentControlNet = nil
+                currentControlNets = []
             }
         }
     }
