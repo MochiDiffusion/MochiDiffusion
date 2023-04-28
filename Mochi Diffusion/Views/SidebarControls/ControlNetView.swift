@@ -19,6 +19,8 @@ struct ControlNetView: View {
             Text("N/A")
         } else {
             Picker("", selection: $controller.currentControlNet) {
+                Text(verbatim: "None").tag(Optional<String>.none)
+
                 ForEach(controller.controlNet, id: \.self) { name in
                     Text(verbatim: name).tag(Optional(name))
                 }
