@@ -27,37 +27,41 @@ struct ControlNetView: View {
             }
             .labelsHidden()
 
-            HStack(alignment: .top) {
-                ForEach(controller.controlNetImages, id: \.self) { image in
-                    Image(image, scale: 1, label: Text(verbatim: ""))
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .padding(3)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 2)
-                                .stroke(Color(nsColor: .separatorColor), lineWidth: 1)
-                        )
-                        .frame(height: 90)
-                        .accessibilityAddTraits(.isButton)
-                        .onTapGesture {
-                            Task { await ImageController.shared.unsetControlNetImage(image) }
-                        }
-                }
-
-                Image(systemName: "photo")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .foregroundColor(Color(nsColor: .separatorColor))
-                    .padding(30)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 2)
-                            .stroke(Color(nsColor: .separatorColor), lineWidth: 1)
-                    )
-                    .frame(height: 90)
-                    .accessibilityAddTraits(.isButton)
-                    .onTapGesture {
-                        Task { await ImageController.shared.selectControlNetImage() }
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack {
+                    ForEach(controller.controlNetImages, id: \.self) { image in
+                        Image(image, scale: 1, label: Text(verbatim: ""))
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .padding(3)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 2)
+                                    .stroke(Color(nsColor: .separatorColor), lineWidth: 1)
+                            )
+                            .frame(height: 90)
+                            .accessibilityAddTraits(.isButton)
+                            .onTapGesture {
+                                Task { await ImageController.shared.unsetControlNetImage(image) }
+                            }
                     }
+
+                    Button {
+                        Task { await ImageController.shared.selectControlNetImage() }
+                    } label: {
+                        Image(systemName: "photo")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .foregroundColor(Color(nsColor: .separatorColor))
+                            .padding(30)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 2)
+                                    .stroke(Color(nsColor: .separatorColor), lineWidth: 1)
+                            )
+                            .background(.background.opacity(0.01))
+                            .frame(height: 90)
+                    }
+                    .buttonStyle(.plain)
+                }
             }
         }
     }
