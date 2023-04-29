@@ -32,10 +32,10 @@ struct SDModel: Identifiable, Hashable {
 }
 
 private func controlNets(_ url: URL) -> [String] {
-    let controlNetSymLink = url.appending(component: "controlnet")
+    let controlNetSymLinkPath = url.appending(component: "controlnet").path(percentEncoded: false)
 
-    guard FileManager.default.fileExists(atPath: controlNetSymLink.path()),
-        let contentsOfControlNet = try? FileManager.default.contentsOfDirectory(atPath: controlNetSymLink.path()) else {
+    guard FileManager.default.fileExists(atPath: controlNetSymLinkPath),
+        let contentsOfControlNet = try? FileManager.default.contentsOfDirectory(atPath: controlNetSymLinkPath) else {
         return []
     }
 
