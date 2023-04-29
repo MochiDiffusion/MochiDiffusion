@@ -18,58 +18,40 @@ struct ControlNetView: View {
         if controller.controlNet.isEmpty {
             Text("N/A")
         } else {
-            Menu {
-                ForEach(controller.controlNet, id: \.self) { name in
-                    Button {
-                        if let index = controller.currentControlNets.firstIndex(of: name) {
-                            controller.currentControlNets.remove(at: index)
-                        } else {
-                            controller.currentControlNets.append(name)
+            ForEach(Array(controller.currentControlNets.enumerated()), id: \.offset) { index, currentControlNet in
+                Menu {
+                    ForEach(controller.controlNet, id: \.self) { name in
+                        Button {
+                            controller.currentControlNets[index].0 = name
+                        } label: {
+                            Text(verbatim: name)
                         }
-                    } label: {
-                        if controller.currentControlNets.contains(name) {
-                            Image(systemName: "checkmark")
-                        }
-                        Text(verbatim: name)
                     }
-                }
-
-                Divider()
-
-                Button {
-                    controller.currentControlNets = []
-                    controller.controlNetImages = []
                 } label: {
-                    Text(verbatim: "Clear All")
-                }
-            } label: {
-                if controller.currentControlNets.isEmpty {
-                    Text("None")
-                } else {
-                    Text(controller.currentControlNets.formatted(.list(type: .and)))
-                }
-            }
-
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack {
-                    ForEach(controller.controlNetImages, id: \.self) { image in
-                        Image(image, scale: 1, label: Text(verbatim: ""))
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .padding(3)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 2)
-                                    .stroke(Color(nsColor: .separatorColor), lineWidth: 1)
-                            )
-                            .frame(height: 90)
-                            .accessibilityAddTraits(.isButton)
-                            .onTapGesture {
-                                Task { await ImageController.shared.unsetControlNetImage(image) }
-                            }
+                    if controller.currentControlNets.isEmpty {
+                        Text("None")
+                    } else {
+                        Text(controller.currentControlNets[index].0)
                     }
+                }
 
+                if let image = currentControlNet.1 {
+                    Image(image, scale: 1, label: Text(verbatim: ""))
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .padding(3)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 2)
+                                .stroke(Color(nsColor: .separatorColor), lineWidth: 1)
+                        )
+                        .frame(height: 90)
+                        .accessibilityAddTraits(.isButton)
+                        .onTapGesture {
+                            Task { await ImageController.shared.unsetControlNetImage(at: index) }
+                        }
+                } else {
                     Button {
-                        Task { await ImageController.shared.selectControlNetImage() }
+                        Task { await ImageController.shared.selectControlNetImage(at: index) }
                     } label: {
                         Image(systemName: "photo")
                             .resizable()
@@ -82,9 +64,42 @@ struct ControlNetView: View {
                             )
                             .background(.background.opacity(0.01))
                             .frame(height: 90)
+                            .onDrop(of: [.fileURL], isTargeted: nil) { providers in
+                                _ = providers.first?.loadDataRepresentation(for: .fileURL) { data, _ in
+                                    guard let data, let urlString = String(data: data, encoding: .utf8), let url = URL(string: urlString) else {
+                                        return
+                                    }
+
+                                    guard let cgImageSource = CGImageSourceCreateWithURL(url as CFURL, nil) else {
+                                        return
+                                    }
+
+                                    let imageIndex = CGImageSourceGetPrimaryImageIndex(cgImageSource)
+
+                                    guard let cgImage = CGImageSourceCreateImageAtIndex(cgImageSource, imageIndex, nil) else {
+                                        return
+                                    }
+
+                                    DispatchQueue.main.async {
+                                        controller.currentControlNets[index].1 = cgImage
+                                    }
+                                }
+
+                                return true
+                            }
                     }
                     .buttonStyle(.plain)
                 }
+
+                Button("Remove") {
+                    controller.currentControlNets.remove(at: index)
+                }
+
+                Divider().frame(height: 16)
+            }
+
+            Button("Add") {
+                controller.currentControlNets.append(("None", nil))
             }
         }
     }

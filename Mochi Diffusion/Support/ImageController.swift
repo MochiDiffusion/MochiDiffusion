@@ -51,9 +51,6 @@ final class ImageController: ObservableObject {
     var controlNet: [String] = []
 
     @Published
-    var controlNetImages: [CGImage] = []
-
-    @Published
     var startingImage: CGImage?
 
     @Published
@@ -97,7 +94,7 @@ final class ImageController: ObservableObject {
     }
 
     @Published
-    var currentControlNets: [String] = [] {
+    var currentControlNets: [(String, CGImage?)] = [] {
         didSet {
             reloadModel()
         }
@@ -113,7 +110,7 @@ final class ImageController: ObservableObject {
             do {
                 try await ImageGenerator.shared.load(
                     model: model,
-                    controlNet: currentControlNets,
+                    controlNet: currentControlNets.filter { $1 != nil }.map(\.0),
                     computeUnit: mlComputeUnitPreference.computeUnits(forModel: model),
                     reduceMemory: reduceMemory
                 )
@@ -234,7 +231,7 @@ final class ImageController: ObservableObject {
         pipelineConfig.guidanceScale = Float(guidanceScale)
         pipelineConfig.disableSafety = !safetyChecker
         pipelineConfig.schedulerType = convertScheduler(scheduler)
-        pipelineConfig.controlNetInputs = controlNetImages
+        pipelineConfig.controlNetInputs = currentControlNets.compactMap(\.1)
 
         let genConfig = GenerationConfig(
             pipelineConfig: pipelineConfig,
@@ -353,8 +350,8 @@ final class ImageController: ObservableObject {
         startingImage = await selectImage(title: "starting")
     }
 
-    func selectControlNetImage() async {
-        await selectImage(title: "ControlNet").map { controlNetImages.append($0) }
+    func selectControlNetImage(at index: Int) async {
+        await selectImage(title: "ControlNet").map { currentControlNets[index].1 = $0 }
     }
 
     func selectImage(title: String) async -> CGImage? {
@@ -387,8 +384,8 @@ final class ImageController: ObservableObject {
         startingImage = nil
     }
 
-    func unsetControlNetImage(_ image: CGImage) async {
-        controlNetImages.removeAll { $0 == image }
+    func unsetControlNetImage(at index: Int) async {
+        currentControlNets[index].1 = nil
     }
 
     func importImages() async {
