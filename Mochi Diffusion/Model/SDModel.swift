@@ -48,7 +48,7 @@ private func identifyAttentionType(_ url: URL) -> SDModelAttentionType? {
 
     let metadataURL: URL
 
-    if FileManager.default.fileExists(atPath: unetMetadataURL.path()) {
+    if FileManager.default.fileExists(atPath: unetMetadataURL.path(percentEncoded: false)) {
         metadataURL = unetMetadataURL
     } else {
         metadataURL = controlledUnetMetadataURL

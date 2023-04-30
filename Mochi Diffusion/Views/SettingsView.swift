@@ -141,6 +141,28 @@ struct SettingsView: View {
 
             GroupBox {
                 VStack(alignment: .leading) {
+                    Text("ControlNet Folder")
+
+                    HStack {
+                        TextField("", text: $controller.controlNetDir)
+                            .disableAutocorrection(true)
+                            .textFieldStyle(.roundedBorder)
+
+                        Button {
+                            NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: controller.controlNetDir).absoluteURL])
+                        } label: {
+                            Image(systemName: "magnifyingglass.circle.fill")
+                                .foregroundColor(Color.secondary)
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        .help("Open in Finder")
+                    }
+                }
+                .padding(4)
+            }
+
+            GroupBox {
+                VStack(alignment: .leading) {
                     HStack {
                         Text("Move Images to Trash")
 

@@ -131,6 +131,7 @@ final class ImageController: ObservableObject {
     }
 
     @AppStorage("ModelDir") var modelDir = ""
+    @AppStorage("ControlNetDir") var controlNetDir = ""
     @AppStorage("Model") private(set) var modelName = ""
     @AppStorage("AutosaveImages") var autosaveImages = true
     @AppStorage("ImageDir") var imageDir = ""
@@ -189,9 +190,10 @@ final class ImageController: ObservableObject {
         models = []
         logger.info("Started loading model directory at: \"\(self.modelDir)\"")
         do {
-            async let (foundModels, modelDirURL) = try ImageGenerator.shared.getModels(modelDir: modelDir)
+            async let (foundModels, modelDirURL, controlNetDirURL) = try ImageGenerator.shared.getModels(modelDir: modelDir, controlNetDir: controlNetDir)
             try await self.models = foundModels
             try await self.modelDir = modelDirURL.path(percentEncoded: false)
+            try await self.controlNetDir = controlNetDirURL.path(percentEncoded: false)
 
             logger.info("Found \(self.models.count) model(s)")
 

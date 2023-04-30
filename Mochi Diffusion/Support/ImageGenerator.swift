@@ -96,10 +96,11 @@ class ImageGenerator: ObservableObject {
         return (sdis, finalImageDirURL)
     }
 
-    func getModels(modelDir: String) async throws -> ([SDModel], URL) {
+    func getModels(modelDir: String, controlNetDir: String) async throws -> ([SDModel], URL, URL) {
         var models: [SDModel] = []
         var finalModelDirURL: URL
         let fm = FileManager.default
+
         /// check if saved model directory exists
         if modelDir.isEmpty {
             /// use default model directory
@@ -109,14 +110,40 @@ class ImageGenerator: ObservableObject {
             /// generate url from saved model directory
             finalModelDirURL = URL(fileURLWithPath: modelDir, isDirectory: true)
         }
+
+        var finalControlNetDirURL: URL
+
         if !fm.fileExists(atPath: finalModelDirURL.path(percentEncoded: false)) {
             print("Creating models directory at: \"\(finalModelDirURL.path(percentEncoded: false))\"")
             try? fm.createDirectory(at: finalModelDirURL, withIntermediateDirectories: true)
         }
+
+        if controlNetDir.isEmpty {
+            finalControlNetDirURL = fm.homeDirectoryForCurrentUser
+            finalControlNetDirURL.append(path: "MochiDiffusion/controlnet/", directoryHint: .isDirectory)
+        } else {
+            finalControlNetDirURL = URL(fileURLWithPath: controlNetDir, isDirectory: true)
+        }
+
+        if !fm.fileExists(atPath: finalControlNetDirURL.path(percentEncoded: false)) {
+            print("Creating ControlNet directory at: \"\(finalControlNetDirURL.path(percentEncoded: false))\"")
+            try? fm.createDirectory(at: finalControlNetDirURL, withIntermediateDirectories: true)
+        }
+
         do {
             let subDirs = try finalModelDirURL.subDirectories()
             models = subDirs
                 .sorted { $0.lastPathComponent.compare($1.lastPathComponent, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedAscending }
+                .map { url in
+                    let controlledUnetMetadataPath = url.appending(components: "ControlledUnet.mlmodelc", "metadata.json").path(percentEncoded: false)
+                    let controlNetSymLinkPath = url.appending(component: "controlnet").path(percentEncoded: false)
+
+                    if fm.fileExists(atPath: controlledUnetMetadataPath), !fm.fileExists(atPath: controlNetSymLinkPath) {
+                        try? fm.createSymbolicLink(atPath: controlNetSymLinkPath, withDestinationPath: finalControlNetDirURL.path(percentEncoded: false))
+                    }
+
+                    return url
+                }
                 .compactMap { SDModel(url: $0, name: $0.lastPathComponent) }
         } catch {
             await updateState(.error("Could not get model subdirectories."))
@@ -126,7 +153,7 @@ class ImageGenerator: ObservableObject {
             await updateState(.error("No models found under: \(finalModelDirURL.path(percentEncoded: false))"))
             throw GeneratorError.noModelsFound
         }
-        return (models, finalModelDirURL)
+        return (models, finalModelDirURL, finalControlNetDirURL)
     }
 
     func load(model: SDModel, controlNet: [String] = [], computeUnit: MLComputeUnits, reduceMemory: Bool) async throws {
