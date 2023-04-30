@@ -5,6 +5,32 @@
     <language>en</language>
 
     <item>
+      <title>v3.2</title>
+      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <sparkle:version>3.2</sparkle:version>
+      <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
+      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <pubDate>Sun, 30 Apr 2023 03:00:00 +0000</pubDate>
+      <enclosure
+        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v3.2/MochiDiffusion_v3.2.dmg"
+        sparkle:edSignature="bgcg08Bkiobu0pznbJCDsXCSc1g2DJa23UVMsjANdHDrPmluIkXNhFZFQXsVLYAgNEPJDNTjyXu0D0VfqdGsAg=="
+        length="66996124"
+        type="application/octet-stream" />
+      <description><![CDATA[
+      <ul>
+      <li>Added animation when converting image to high resolution (@jinhongw)</li>
+      <li>Changed starting image implementation to follow model image size (@vzsg)</li>
+      <li>Changed description too long message to use accent color</li>
+      <li>Improved scheduler speed</li>
+      <li>Updated translations</li>
+      </ul>
+      <p>Special thanks to the following for supporting this project❣️
+      <strong>orange-wedge</strong>, <strong>RuralRob</strong>, <strong>vacekj</strong>, <strong>julien-c</strong>, <strong>BirdSesame</strong>, <strong>li775176364</strong>, <strong>Da-mi-en</strong>, <strong>monks1975</strong>, &amp; various translators</p>
+      ]]>
+      </description>
+    </item>
+
+    <item>
       <title>v3.1</title>
       <link>https://github.com/godly-devotion/MochiDiffusion</link>
       <sparkle:version>3.1</sparkle:version>
