@@ -186,14 +186,33 @@ final class ImageController: ObservableObject {
         }
     }
 
+    private func directoryURL(fromPath directory: String, defaultingTo string: String) -> URL {
+        var finalModelDirURL: URL
+
+        /// check if saved directory exists
+        if directory.isEmpty {
+            /// use default directory
+            finalModelDirURL = FileManager.default.homeDirectoryForCurrentUser
+            finalModelDirURL.append(path: string, directoryHint: .isDirectory)
+        } else {
+            /// generate url from saved directory
+            finalModelDirURL = URL(fileURLWithPath: directory, isDirectory: true)
+        }
+
+        return finalModelDirURL
+    }
+
     func loadModels() async {
         models = []
         logger.info("Started loading model directory at: \"\(self.modelDir)\"")
         do {
-            async let (foundModels, modelDirURL, controlNetDirURL) = try ImageGenerator.shared.getModels(modelDir: modelDir, controlNetDir: controlNetDir)
-            try await self.models = foundModels
-            try await self.modelDir = modelDirURL.path(percentEncoded: false)
-            try await self.controlNetDir = controlNetDirURL.path(percentEncoded: false)
+            let modelDirectoryURL = directoryURL(fromPath: modelDir, defaultingTo: "MochiDiffusion/models/")
+            self.modelDir = modelDirectoryURL.path(percentEncoded: false)
+
+            let controlNetDirectoryURL = directoryURL(fromPath: controlNetDir, defaultingTo: "MochiDiffusion/controlnet/")
+            self.controlNetDir = controlNetDirectoryURL.path(percentEncoded: false)
+
+            await self.models = try ImageGenerator.shared.getModels(modelDirectoryURL: modelDirectoryURL, controlNetDirectoryURL: controlNetDirectoryURL)
 
             logger.info("Found \(self.models.count) model(s)")
 
