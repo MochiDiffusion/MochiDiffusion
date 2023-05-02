@@ -96,12 +96,25 @@ class ImageGenerator: ObservableObject {
         return (sdis, finalImageDirURL)
     }
 
+    private func controlNets(in controlNetDirectoryURL: URL) -> [String] {
+        let controlNetDirectoryPath = controlNetDirectoryURL.path(percentEncoded: false)
+
+        guard FileManager.default.fileExists(atPath: controlNetDirectoryPath),
+            let contentsOfControlNet = try? FileManager.default.contentsOfDirectory(atPath: controlNetDirectoryPath) else {
+            return []
+        }
+
+        return contentsOfControlNet.filter { !$0.hasPrefix(".") }.map { $0.replacing(".mlmodelc", with: "") }
+    }
+
     func getModels(modelDirectoryURL: URL, controlNetDirectoryURL: URL) async throws -> [SDModel] {
         var models: [SDModel] = []
         let fm = FileManager.default
 
         do {
+            let controlNet = controlNets(in: controlNetDirectoryURL)
             let subDirs = try modelDirectoryURL.subDirectories()
+
             models = subDirs
                 .sorted { $0.lastPathComponent.compare($1.lastPathComponent, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedAscending }
                 .map { url in
@@ -114,7 +127,7 @@ class ImageGenerator: ObservableObject {
 
                     return url
                 }
-                .compactMap { SDModel(url: $0, name: $0.lastPathComponent) }
+                .compactMap { SDModel(url: $0, name: $0.lastPathComponent, controlNet: controlNet) }
         } catch {
             await updateState(.error("Could not get model subdirectories."))
             throw GeneratorError.modelSubDirectoriesNoAccess

@@ -19,7 +19,7 @@ struct SDModel: Identifiable, Hashable {
 
     var id: URL { url }
 
-    init?(url: URL, name: String) {
+    init?(url: URL, name: String, controlNet: [String]) {
         guard let attention = identifyAttentionType(url) else {
             return nil
         }
@@ -27,19 +27,8 @@ struct SDModel: Identifiable, Hashable {
         self.url = url
         self.name = name
         self.attention = attention
-        self.controlNet = controlNets(url)
+        self.controlNet = controlNet
     }
-}
-
-private func controlNets(_ url: URL) -> [String] {
-    let controlNetSymLinkPath = url.appending(component: "controlnet").path(percentEncoded: false)
-
-    guard FileManager.default.fileExists(atPath: controlNetSymLinkPath),
-        let contentsOfControlNet = try? FileManager.default.contentsOfDirectory(atPath: controlNetSymLinkPath) else {
-        return []
-    }
-
-    return contentsOfControlNet.filter { !$0.hasPrefix(".") }.map { $0.replacing(".mlmodelc", with: "") }
 }
 
 private func identifyAttentionType(_ url: URL) -> SDModelAttentionType? {
