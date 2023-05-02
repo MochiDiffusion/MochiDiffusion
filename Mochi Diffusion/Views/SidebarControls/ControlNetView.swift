@@ -16,7 +16,7 @@ struct ControlNetView: View {
             .sidebarLabelFormat()
 
         if controller.controlNet.isEmpty {
-            Text("N/A")
+            Text("No ControlNet model found.")
         } else {
             ForEach(Array(controller.currentControlNets.enumerated()), id: \.offset) { index, currentControlNet in
                 Menu {
