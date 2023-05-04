@@ -13,15 +13,11 @@ enum SDModelAttentionType: Hashable, Equatable {
     case original
 
     var preferredComputeUnits: MLComputeUnits {
-        #if arch(arm64)
         switch self {
         case .original:
             return .cpuAndGPU
         case .splitEinsum:
             return .cpuAndNeuralEngine
         }
-        #else
-        return .cpuAndGPU
-        #endif
     }
 }

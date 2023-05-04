@@ -202,7 +202,6 @@ struct SettingsView: View {
                 }
                 .padding(4)
 
-                #if arch(arm64)
                 Divider()
 
                 VStack(alignment: .leading, spacing: 8) {
@@ -249,7 +248,6 @@ struct SettingsView: View {
                         .helpTextFormat()
                 }
                 .padding(4)
-                #endif
             }
 
             GroupBox {
