@@ -94,7 +94,7 @@ final class ImageController: ObservableObject {
     }
 
     @Published
-    var currentControlNets: [(String, CGImage?)] = [] {
+    var currentControlNets: [(String?, CGImage?)] = [] {
         didSet {
             reloadModel()
         }
@@ -110,7 +110,7 @@ final class ImageController: ObservableObject {
             do {
                 try await ImageGenerator.shared.load(
                     model: model,
-                    controlNet: currentControlNets.filter { $1 != nil }.map(\.0),
+                    controlNet: currentControlNets.filter { $0.1 != nil }.compactMap(\.0),
                     computeUnit: mlComputeUnitPreference.computeUnits(forModel: model),
                     reduceMemory: reduceMemory
                 )
@@ -252,7 +252,7 @@ final class ImageController: ObservableObject {
         pipelineConfig.guidanceScale = Float(guidanceScale)
         pipelineConfig.disableSafety = !safetyChecker
         pipelineConfig.schedulerType = convertScheduler(scheduler)
-        pipelineConfig.controlNetInputs = currentControlNets.compactMap(\.1)
+        pipelineConfig.controlNetInputs = currentControlNets.filter { $0.0 != nil }.compactMap(\.1)
 
         let genConfig = GenerationConfig(
             pipelineConfig: pipelineConfig,

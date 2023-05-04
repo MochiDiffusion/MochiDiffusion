@@ -15,92 +15,96 @@ struct ControlNetView: View {
         Text("ControlNet")
             .sidebarLabelFormat()
 
-        if controller.controlNet.isEmpty {
-            Text("No ControlNet model found.")
-        } else {
-            ForEach(Array(controller.currentControlNets.enumerated()), id: \.offset) { index, currentControlNet in
-                Menu {
-                    ForEach(controller.controlNet, id: \.self) { name in
-                        Button {
-                            controller.currentControlNets[index].0 = name
-                        } label: {
-                            Text(verbatim: name)
-                        }
-                    }
-                } label: {
-                    if controller.currentControlNets.isEmpty {
-                        Text("None")
-                    } else {
-                        Text(controller.currentControlNets[index].0)
-                    }
-                }
+        Menu {
+            Button {
+                controller.currentControlNets = []
+            } label: {
+                Text("None")
+            }
 
-                if let image = currentControlNet.1 {
-                    Image(image, scale: 1, label: Text(verbatim: ""))
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .padding(3)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 2)
-                                .stroke(Color(nsColor: .separatorColor), lineWidth: 1)
-                        )
-                        .frame(height: 90)
-                        .accessibilityAddTraits(.isButton)
-                        .onTapGesture {
-                            Task { await ImageController.shared.unsetControlNetImage(at: index) }
-                        }
-                } else {
+            Divider()
+
+            if controller.controlNet.isEmpty {
+                Text("No ControlNet models found")
+            } else {
+                ForEach(controller.controlNet, id: \.self) { name in
                     Button {
-                        Task { await ImageController.shared.selectControlNetImage(at: index) }
+                        if controller.currentControlNets.isEmpty {
+                            controller.currentControlNets = [(name, nil)]
+                        } else {
+                            controller.currentControlNets[0].0 = name
+                        }
                     } label: {
-                        Image(systemName: "photo")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .foregroundColor(Color(nsColor: .separatorColor))
-                            .padding(30)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 2)
-                                    .stroke(Color(nsColor: .separatorColor), lineWidth: 1)
-                            )
-                            .background(.background.opacity(0.01))
-                            .frame(height: 90)
-                            .onDrop(of: [.fileURL], isTargeted: nil) { providers in
-                                _ = providers.first?.loadDataRepresentation(for: .fileURL) { data, _ in
-                                    guard let data, let urlString = String(data: data, encoding: .utf8), let url = URL(string: urlString) else {
-                                        return
-                                    }
-
-                                    guard let cgImageSource = CGImageSourceCreateWithURL(url as CFURL, nil) else {
-                                        return
-                                    }
-
-                                    let imageIndex = CGImageSourceGetPrimaryImageIndex(cgImageSource)
-
-                                    guard let cgImage = CGImageSourceCreateImageAtIndex(cgImageSource, imageIndex, nil) else {
-                                        return
-                                    }
-
-                                    DispatchQueue.main.async {
-                                        controller.currentControlNets[index].1 = cgImage
-                                    }
-                                }
-
-                                return true
-                            }
+                        Text(verbatim: name)
                     }
-                    .buttonStyle(.plain)
                 }
+            }
+        } label: {
+            if let name = controller.currentControlNets.first?.0 {
+                Text(name)
+            } else {
+                Text("None")
+            }
+        }
 
-                Button("Remove") {
-                    controller.currentControlNets.remove(at: index)
+        if let image = controller.currentControlNets.first?.1 {
+            Image(image, scale: 1, label: Text(verbatim: ""))
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .padding(3)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 2)
+                        .stroke(Color(nsColor: .separatorColor), lineWidth: 1)
+                )
+                .frame(height: 90)
+                .accessibilityAddTraits(.isButton)
+                .onTapGesture {
+                    Task { await ImageController.shared.unsetControlNetImage(at: 0) }
                 }
+        } else {
+            Button {
+                Task { await ImageController.shared.selectControlNetImage(at: 0) }
+            } label: {
+                Image(systemName: "photo")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundColor(Color(nsColor: .separatorColor))
+                    .padding(30)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 2)
+                            .stroke(Color(nsColor: .separatorColor), lineWidth: 1)
+                    )
+                    .background(.background.opacity(0.01))
+                    .frame(height: 90)
+                    .onDrop(of: [.fileURL], isTargeted: nil) { providers in
+                        _ = providers.first?.loadDataRepresentation(for: .fileURL) { data, _ in
+                            guard let data, let urlString = String(data: data, encoding: .utf8), let url = URL(string: urlString) else {
+                                return
+                            }
 
-                Divider().frame(height: 16)
-            }
+                            guard let cgImageSource = CGImageSourceCreateWithURL(url as CFURL, nil) else {
+                                return
+                            }
 
-            Button("Add") {
-                controller.currentControlNets.append(("None", nil))
+                            let imageIndex = CGImageSourceGetPrimaryImageIndex(cgImageSource)
+
+                            guard let cgImage = CGImageSourceCreateImageAtIndex(cgImageSource, imageIndex, nil) else {
+                                return
+                            }
+
+                            DispatchQueue.main.async {
+                                if controller.currentControlNets.isEmpty {
+                                    controller.currentControlNets = [(nil, cgImage)]
+                                } else {
+                                    controller.currentControlNets[0].1 = cgImage
+                                }
+                            }
+                        }
+
+                        return true
+                    }
             }
+            .buttonStyle(.plain)
         }
     }
 }

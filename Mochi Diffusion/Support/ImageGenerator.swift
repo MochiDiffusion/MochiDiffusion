@@ -117,17 +117,20 @@ class ImageGenerator: ObservableObject {
 
             models = subDirs
                 .sorted { $0.lastPathComponent.compare($1.lastPathComponent, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedAscending }
-                .map { url in
+                .compactMap { url in
                     let controlledUnetMetadataPath = url.appending(components: "ControlledUnet.mlmodelc", "metadata.json").path(percentEncoded: false)
-                    let controlNetSymLinkPath = url.appending(component: "controlnet").path(percentEncoded: false)
+                    let hasControlNet = fm.fileExists(atPath: controlledUnetMetadataPath)
 
-                    if fm.fileExists(atPath: controlledUnetMetadataPath), !fm.fileExists(atPath: controlNetSymLinkPath) {
-                        try? fm.createSymbolicLink(atPath: controlNetSymLinkPath, withDestinationPath: controlNetDirectoryURL.path(percentEncoded: false))
+                    if hasControlNet {
+                        let controlNetSymLinkPath = url.appending(component: "controlnet").path(percentEncoded: false)
+
+                        if !fm.fileExists(atPath: controlNetSymLinkPath) {
+                            try? fm.createSymbolicLink(atPath: controlNetSymLinkPath, withDestinationPath: controlNetDirectoryURL.path(percentEncoded: false))
+                        }
                     }
 
-                    return url
+                    return SDModel(url: url, name: url.lastPathComponent, controlNet: hasControlNet ? controlNet : [])
                 }
-                .compactMap { SDModel(url: $0, name: $0.lastPathComponent, controlNet: controlNet) }
         } catch {
             await updateState(.error("Could not get model subdirectories."))
             throw GeneratorError.modelSubDirectoriesNoAccess
