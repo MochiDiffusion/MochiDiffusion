@@ -372,7 +372,15 @@ final class ImageController: ObservableObject {
     }
 
     func selectControlNetImage(at index: Int) async {
-        await selectImage(title: "ControlNet").map { currentControlNets[index].1 = $0 }
+        await selectImage(title: "ControlNet").map { image in
+            if currentControlNets.isEmpty {
+                currentControlNets = [(nil, image)]
+            } else if index >= currentControlNets.count {
+                currentControlNets.append((nil, image))
+            } else {
+                currentControlNets[index].1 = image
+            }
+        }
     }
 
     func selectImage(title: String) async -> CGImage? {
