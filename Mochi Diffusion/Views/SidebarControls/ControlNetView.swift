@@ -24,9 +24,7 @@ struct ControlNetView: View {
 
             Divider()
 
-            if controller.controlNet.isEmpty {
-                Text("No ControlNet models found")
-            } else {
+            if !controller.controlNet.isEmpty {
                 ForEach(controller.controlNet, id: \.self) { name in
                     Button {
                         if controller.currentControlNets.isEmpty {

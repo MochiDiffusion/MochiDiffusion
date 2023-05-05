@@ -89,18 +89,18 @@ final class ImageController: ObservableObject {
             controlNet = model.controlNet
             currentControlNets = []
 
-            reloadModel()
+            loadModel()
         }
     }
 
     @Published
     var currentControlNets: [(String?, CGImage?)] = [] {
         didSet {
-            reloadModel()
+            loadModel()
         }
     }
 
-    private func reloadModel() {
+    private func loadModel() {
         guard let model = currentModel else {
             return
         }
