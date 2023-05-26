@@ -91,9 +91,9 @@ struct StartingImageView: View {
                 .popover(isPresented: self.$isInfoPopoverShown, arrowEdge: .top) {
                     Text(
                     """
-                    Strength controls how closely the generated image resembles the starting image vs following the text prompt.
-                    Use lower values to generate images that look more like the starting image.
-                    Use higher values to generate images that more closely follow the text prompt.
+                    Strength controls how closely the generated image resembles the starting image.
+                    Use lower values to generate images that look similar to the starting image.
+                    Use higher values to allow more creative freedom.
 
                     The size of the starting image must match the output image size of the current model.
                     """
