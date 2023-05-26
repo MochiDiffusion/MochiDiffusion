@@ -61,7 +61,7 @@ struct StartingImageView: View {
                 )
                 .sidebarLabelFormat()
 
-                Slider(value: $controller.strength, in: 0.1...1, step: 0.1)
+                Slider(value: $controller.strength, in: 0.685...1, step: 0.035)
                     .controlSize(.mini)
                     .frame(width: 88)
 
