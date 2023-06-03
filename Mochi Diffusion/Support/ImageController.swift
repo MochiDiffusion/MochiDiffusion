@@ -94,7 +94,7 @@ final class ImageController: ObservableObject {
     }
 
     @Published
-    var currentControlNets: [(String?, CGImage?)] = [] {
+    var currentControlNets: [ControlNet] = [] {
         didSet {
             loadModel()
         }
@@ -110,7 +110,7 @@ final class ImageController: ObservableObject {
             do {
                 try await ImageGenerator.shared.load(
                     model: model,
-                    controlNet: currentControlNets.filter { $0.1 != nil }.compactMap(\.0),
+                    controlNet: currentControlNets.filter { $0.image != nil }.compactMap(\.name),
                     computeUnit: mlComputeUnitPreference.computeUnits(forModel: model),
                     reduceMemory: reduceMemory
                 )
@@ -252,7 +252,7 @@ final class ImageController: ObservableObject {
         pipelineConfig.guidanceScale = Float(guidanceScale)
         pipelineConfig.disableSafety = !safetyChecker
         pipelineConfig.schedulerType = convertScheduler(scheduler)
-        pipelineConfig.controlNetInputs = currentControlNets.filter { $0.0 != nil }.compactMap(\.1)
+        pipelineConfig.controlNetInputs = currentControlNets.filter { $0.name != nil }.compactMap(\.image)
 
         let genConfig = GenerationConfig(
             pipelineConfig: pipelineConfig,
@@ -374,11 +374,11 @@ final class ImageController: ObservableObject {
     func selectControlNetImage(at index: Int) async {
         await selectImage(title: "ControlNet").map { image in
             if currentControlNets.isEmpty {
-                currentControlNets = [(nil, image)]
+                currentControlNets = [ControlNet(image: image)]
             } else if index >= currentControlNets.count {
-                currentControlNets.append((nil, image))
+                currentControlNets.append(ControlNet(image: image))
             } else {
-                currentControlNets[index].1 = image
+                currentControlNets[index].image = image
             }
         }
     }
@@ -414,7 +414,7 @@ final class ImageController: ObservableObject {
     }
 
     func unsetControlNetImage(at index: Int) async {
-        currentControlNets[index].1 = nil
+        currentControlNets[index].image = nil
     }
 
     func importImages() async {
