@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		030370312A2BECDD003D2F0C /* ControlNet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 030370302A2BECDD003D2F0C /* ControlNet.swift */; };
 		03061E6229AB9C06009AA2A2 /* FocusController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03061E6129AB9C06009AA2A2 /* FocusController.swift */; };
 		0307B0DA294D4AE500A9BD55 /* FileCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0307B0D9294D4AE500A9BD55 /* FileCommands.swift */; };
 		0311C69929899A660074BCAE /* Metadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0311C69829899A660074BCAE /* Metadata.swift */; };
@@ -51,6 +52,7 @@
 		03F578642967CE9A003A815F /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 03F578622967CE9A003A815F /* Localizable.strings */; };
 		03FD2319295F74B6006EEEE2 /* RealESRGAN.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 03FD2318295F74B6006EEEE2 /* RealESRGAN.mlmodel */; };
 		03FD231B295F7A81006EEEE2 /* Upscaler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03FD231A295F7A81006EEEE2 /* Upscaler.swift */; };
+		58FF218829FAE96200A70C7C /* ControlNetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FF218729FAE96200A70C7C /* ControlNetView.swift */; };
 		9B7392C3298DEAC2006F03D5 /* Tokenizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B7392C2298DEAC2006F03D5 /* Tokenizer.swift */; };
 		D7B03F2029D42F9900DF89DD /* SDModelAttentionType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7B03F1F29D42F9900DF89DD /* SDModelAttentionType.swift */; };
 /* End PBXBuildFile section */
@@ -73,6 +75,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		030370302A2BECDD003D2F0C /* ControlNet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlNet.swift; sourceTree = "<group>"; };
 		03061E6129AB9C06009AA2A2 /* FocusController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusController.swift; sourceTree = "<group>"; };
 		0307B0D9294D4AE500A9BD55 /* FileCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileCommands.swift; sourceTree = "<group>"; };
 		0311C69829899A660074BCAE /* Metadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Metadata.swift; sourceTree = "<group>"; };
@@ -129,6 +132,7 @@
 		03F75CEC2979B3910071CD1C /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		03FD2318295F74B6006EEEE2 /* RealESRGAN.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = RealESRGAN.mlmodel; sourceTree = "<group>"; };
 		03FD231A295F7A81006EEEE2 /* Upscaler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Upscaler.swift; sourceTree = "<group>"; };
+		58FF218729FAE96200A70C7C /* ControlNetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlNetView.swift; sourceTree = "<group>"; };
 		9B7392C2298DEAC2006F03D5 /* Tokenizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tokenizer.swift; sourceTree = "<group>"; };
 		D7B03F1F29D42F9900DF89DD /* SDModelAttentionType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDModelAttentionType.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -199,6 +203,7 @@
 				035EDFF9295A219200080D18 /* GuidanceScaleView.swift */,
 				035EDFFD295A220F00080D18 /* SeedView.swift */,
 				035EDFFF295A224900080D18 /* ModelView.swift */,
+				58FF218729FAE96200A70C7C /* ControlNetView.swift */,
 				035EDFFB295A21D600080D18 /* SizeView.swift */,
 			);
 			path = SidebarControls;
@@ -268,6 +273,7 @@
 		0386DF8E29510D8700CA4CEB /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				030370302A2BECDD003D2F0C /* ControlNet.swift */,
 				03173C17299B3C1300B03456 /* ImageStore.swift */,
 				0311C69829899A660074BCAE /* Metadata.swift */,
 				0395B3102995C70400465B73 /* Scheduler.swift */,
@@ -499,11 +505,13 @@
 				0395B3112995C70400465B73 /* Scheduler.swift in Sources */,
 				0352E2AE294EA2B4003FBF25 /* MessageBanner.swift in Sources */,
 				0386DF8B2950D29400CA4CEB /* InspectorView.swift in Sources */,
+				030370312A2BECDD003D2F0C /* ControlNet.swift in Sources */,
 				0373FF5429A9165600C0180F /* AppCommands.swift in Sources */,
 				03D280F2294FD60E00C7D184 /* PromptView.swift in Sources */,
 				03FD2319295F74B6006EEEE2 /* RealESRGAN.mlmodel in Sources */,
 				035EE000295A224900080D18 /* ModelView.swift in Sources */,
 				03E075792968A153003488F9 /* CircularProgressView.swift in Sources */,
+				58FF218829FAE96200A70C7C /* ControlNetView.swift in Sources */,
 				0352E2AA294EA0E1003FBF25 /* AppView.swift in Sources */,
 				D7B03F2029D42F9900DF89DD /* SDModelAttentionType.swift in Sources */,
 				0352E2B5294EA887003FBF25 /* Functions.swift in Sources */,

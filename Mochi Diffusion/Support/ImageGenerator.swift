@@ -96,40 +96,53 @@ class ImageGenerator: ObservableObject {
         return (sdis, finalImageDirURL)
     }
 
-    func getModels(modelDir: String) async throws -> ([SDModel], URL) {
+    private func controlNets(in controlNetDirectoryURL: URL) -> [String] {
+        let controlNetDirectoryPath = controlNetDirectoryURL.path(percentEncoded: false)
+
+        guard FileManager.default.fileExists(atPath: controlNetDirectoryPath),
+            let contentsOfControlNet = try? FileManager.default.contentsOfDirectory(atPath: controlNetDirectoryPath) else {
+            return []
+        }
+
+        return contentsOfControlNet.filter { !$0.hasPrefix(".") }.map { $0.replacing(".mlmodelc", with: "") }
+    }
+
+    func getModels(modelDirectoryURL: URL, controlNetDirectoryURL: URL) async throws -> [SDModel] {
         var models: [SDModel] = []
-        var finalModelDirURL: URL
         let fm = FileManager.default
-        /// check if saved model directory exists
-        if modelDir.isEmpty {
-            /// use default model directory
-            finalModelDirURL = fm.homeDirectoryForCurrentUser
-            finalModelDirURL.append(path: "MochiDiffusion/models/", directoryHint: .isDirectory)
-        } else {
-            /// generate url from saved model directory
-            finalModelDirURL = URL(fileURLWithPath: modelDir, isDirectory: true)
-        }
-        if !fm.fileExists(atPath: finalModelDirURL.path(percentEncoded: false)) {
-            print("Creating models directory at: \"\(finalModelDirURL.path(percentEncoded: false))\"")
-            try? fm.createDirectory(at: finalModelDirURL, withIntermediateDirectories: true)
-        }
+
         do {
-            let subDirs = try finalModelDirURL.subDirectories()
+            let controlNet = controlNets(in: controlNetDirectoryURL)
+            let subDirs = try modelDirectoryURL.subDirectories()
+
             models = subDirs
                 .sorted { $0.lastPathComponent.compare($1.lastPathComponent, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedAscending }
-                .compactMap { SDModel(url: $0, name: $0.lastPathComponent) }
+                .compactMap { url in
+                    let controlledUnetMetadataPath = url.appending(components: "ControlledUnet.mlmodelc", "metadata.json").path(percentEncoded: false)
+                    let hasControlNet = fm.fileExists(atPath: controlledUnetMetadataPath)
+
+                    if hasControlNet {
+                        let controlNetSymLinkPath = url.appending(component: "controlnet").path(percentEncoded: false)
+
+                        if !fm.fileExists(atPath: controlNetSymLinkPath) {
+                            try? fm.createSymbolicLink(atPath: controlNetSymLinkPath, withDestinationPath: controlNetDirectoryURL.path(percentEncoded: false))
+                        }
+                    }
+
+                    return SDModel(url: url, name: url.lastPathComponent, controlNet: hasControlNet ? controlNet : [])
+                }
         } catch {
             await updateState(.error("Could not get model subdirectories."))
             throw GeneratorError.modelSubDirectoriesNoAccess
         }
         if models.isEmpty {
-            await updateState(.error("No models found under: \(finalModelDirURL.path(percentEncoded: false))"))
+            await updateState(.error("No models found under: \(modelDirectoryURL.path(percentEncoded: false))"))
             throw GeneratorError.noModelsFound
         }
-        return (models, finalModelDirURL)
+        return models
     }
 
-    func load(model: SDModel, computeUnit: MLComputeUnits, reduceMemory: Bool) async throws {
+    func load(model: SDModel, controlNet: [String] = [], computeUnit: MLComputeUnits, reduceMemory: Bool) async throws {
         let fm = FileManager.default
         if !fm.fileExists(atPath: model.url.path) {
             await updateState(.error("Couldn't load \(model.name) because it doesn't exist."))
@@ -138,9 +151,10 @@ class ImageGenerator: ObservableObject {
         await updateState(.loading)
         let config = MLModelConfiguration()
         config.computeUnits = computeUnit
+
         self.pipeline = try StableDiffusionPipeline(
             resourcesAt: model.url,
-            controlNet: [],
+            controlNet: controlNet,
             configuration: config,
             disableSafety: true,
             reduceMemory: reduceMemory

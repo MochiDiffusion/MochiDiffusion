@@ -37,6 +37,10 @@ struct SidebarView: View {
                 }
                 Group {
                     ModelView()
+                    Divider().frame(height: 16)
+                }
+                Group {
+                    ControlNetView()
                 }
             }
             .padding([.horizontal, .bottom])
