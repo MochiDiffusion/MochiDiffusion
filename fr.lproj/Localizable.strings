@@ -20,6 +20,7 @@
 "Choose a folder and a name to store the image" = "Choisir un dossier et un nom pour enregistrer l\'image";
 "Choose a folder to save all images" = "Choisir un dossier pour sauvegarder toutes les images";
 "Choose generated images to import" = "Choisir les images générées à importer";
+"Choose image" = "Sélectionner l\'image";
 "ControlNet" = "ControlNet";
 "ControlNet Folder" = "Répertoire ControlNet";
 "Convert all images to High Resolution (this will use more memory)" = "Convertir toutes les images en haute résolution (cela utilisera plus de mémoire)";
