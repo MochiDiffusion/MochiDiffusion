@@ -17,7 +17,6 @@
 "Choose a folder and a name to store the image" = "이미지를 저장할 폴더와 이름을 선택하세요";
 "Choose a folder to save all images" = "모든 이미지를 저장할 폴더를 선택하세요";
 "Choose generated images to import" = "가져올 생성된 이미지들 선택";
-"Choose starting image" = "시작 이미지 선택";
 "Convert all images to High Resolution (this will use more memory)" = "모든 이미지를 자동으로 고화질로 변경 (더 많은 메모리를 사용)";
 "Convert to High Resolution" = "고화질로 변경";
 "Copy" = "복사";
