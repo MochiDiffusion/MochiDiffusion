@@ -71,6 +71,7 @@ struct ControlNetView: View {
                         }
                 }
                 .buttonStyle(.plain)
+                .disabled(controller.controlNet.isEmpty)
             }
 
             Spacer()
@@ -105,6 +106,7 @@ struct ControlNetView: View {
                         Text("None")
                     }
                 }
+                .disabled(controller.controlNet.isEmpty)
 
                 HStack {
                     Button {
@@ -112,12 +114,14 @@ struct ControlNetView: View {
                     } label: {
                         Image(systemName: "photo")
                     }
+                    .disabled(controller.controlNet.isEmpty)
 
                     Button {
                         Task { await ImageController.shared.unsetControlNetImage(at: 0) }
                     } label: {
                         Image(systemName: "xmark")
                     }
+                    .disabled(controller.controlNet.isEmpty)
                 }
             }
         }
