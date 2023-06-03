@@ -8,7 +8,7 @@
 import CoreGraphics
 import Foundation
 
-struct ControlNet {
+struct SDControlNet {
     var name: String?
     var image: CGImage?
 }

@@ -60,7 +60,7 @@ struct ControlNetView: View {
 
                                 DispatchQueue.main.async {
                                     if controller.currentControlNets.isEmpty {
-                                        controller.currentControlNets = [ControlNet(image: cgImage)]
+                                        controller.currentControlNets = [SDControlNet(image: cgImage)]
                                     } else {
                                         controller.currentControlNets[0].image = cgImage
                                     }
@@ -90,7 +90,7 @@ struct ControlNetView: View {
                         ForEach(controller.controlNet, id: \.self) { name in
                             Button {
                                 if controller.currentControlNets.isEmpty {
-                                    controller.currentControlNets = [ControlNet(name: name)]
+                                    controller.currentControlNets = [SDControlNet(name: name)]
                                 } else {
                                     controller.currentControlNets[0].name = name
                                 }

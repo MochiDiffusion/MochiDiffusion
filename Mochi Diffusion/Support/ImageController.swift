@@ -94,7 +94,7 @@ final class ImageController: ObservableObject {
     }
 
     @Published
-    var currentControlNets: [ControlNet] = [] {
+    var currentControlNets: [SDControlNet] = [] {
         didSet {
             loadModel()
         }
@@ -374,9 +374,9 @@ final class ImageController: ObservableObject {
     func selectControlNetImage(at index: Int) async {
         await selectImage(title: "ControlNet").map { image in
             if currentControlNets.isEmpty {
-                currentControlNets = [ControlNet(image: image)]
+                currentControlNets = [SDControlNet(image: image)]
             } else if index >= currentControlNets.count {
-                currentControlNets.append(ControlNet(image: image))
+                currentControlNets.append(SDControlNet(image: image))
             } else {
                 currentControlNets[index].image = image
             }
