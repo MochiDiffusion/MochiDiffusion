@@ -17,23 +17,16 @@ struct ControlNetView: View {
 
         HStack(alignment: .top) {
             if let image = controller.currentControlNets.first?.image {
-                ZStack(alignment: .topTrailing) {
-                    Image(image, scale: 1, label: Text(verbatim: ""))
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .padding(3)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 2)
-                                .stroke(Color(nsColor: .separatorColor), lineWidth: 1)
-                        )
-                        .frame(height: 90)
-                        .accessibilityAddTraits(.isButton)
-                    Button {
-                        Task { await ImageController.shared.unsetControlNetImage(at: 0) }
-                    } label: {
-                        Image(systemName: "xmark.circle.fill")
-                    }
-                }
+                Image(image, scale: 1, label: Text(verbatim: ""))
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .padding(3)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 2)
+                            .stroke(Color(nsColor: .separatorColor), lineWidth: 1)
+                    )
+                    .frame(height: 90)
+                    .accessibilityAddTraits(.isButton)
             } else {
                 Button {
                     Task { await ImageController.shared.selectControlNetImage(at: 0) }
