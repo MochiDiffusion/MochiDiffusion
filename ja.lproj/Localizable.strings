@@ -17,7 +17,6 @@
 "Choose a folder and a name to store the image" = "画像を保存するフォルダと名前を選択";
 "Choose a folder to save all images" = "すべての画像を保存するフォルダを選択";
 "Choose generated images to import" = "インポートする生成した画像を選択";
-"Choose starting image" = "開始画像の選択";
 "Convert all images to High Resolution (this will use more memory)" = "すべての画像を高解像度に変換します（これはより多くのメモリを使用します）";
 "Convert to High Resolution" = "高解像度へ変換";
 "Copy" = "コピー";
