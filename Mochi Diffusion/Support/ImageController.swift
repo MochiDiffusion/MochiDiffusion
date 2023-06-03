@@ -368,11 +368,11 @@ final class ImageController: ObservableObject {
     }
 
     func selectStartingImage() async {
-        startingImage = await selectImage(title: "starting")
+        startingImage = await selectImage()
     }
 
     func selectControlNetImage(at index: Int) async {
-        await selectImage(title: "ControlNet").map { image in
+        await selectImage().map { image in
             if currentControlNets.isEmpty {
                 currentControlNets = [SDControlNet(image: image)]
             } else if index >= currentControlNets.count {
@@ -383,14 +383,14 @@ final class ImageController: ObservableObject {
         }
     }
 
-    func selectImage(title: String) async -> CGImage? {
+    func selectImage() async -> CGImage? {
         let panel = NSOpenPanel()
         panel.allowedContentTypes = [.image]
         panel.allowsMultipleSelection = false
         panel.canCreateDirectories = false
         panel.canChooseDirectories = false
         panel.canChooseFiles = true
-        panel.message = String(localized: "Choose \(title) image")
+        panel.message = String(localized: "Choose image")
         panel.prompt = String(localized: "Select", comment: "OK button text for choose image panel")
         let resp = await panel.beginSheetModal(for: NSApplication.shared.mainWindow!)
         if resp != .OK {
