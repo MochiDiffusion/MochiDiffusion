@@ -81,7 +81,10 @@ struct ControlNetView: View {
                     Button {
                         controller.currentControlNets = []
                     } label: {
-                        Text("None")
+                        Text(
+                            "None",
+                            comment: "Option to not use ControlNet"
+                        )
                     }
 
                     Divider()
