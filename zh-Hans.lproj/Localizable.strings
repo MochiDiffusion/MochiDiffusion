@@ -17,6 +17,9 @@
 "Choose a folder and a name to store the image" = "选择存储图片的文件夹并命名";
 "Choose a folder to save all images" = "选择保存所有图像的文件夹";
 "Choose generated images to import" = "选择已生成的图像导入";
+"Choose image" = "选择图像";
+"ControlNet" = "ControlNet";
+"ControlNet Folder" = "ControlNet 文件夹";
 "Convert all images to High Resolution (this will use more memory)" = "全部转换为高分辨率图像(将占用更多内存)";
 "Convert to High Resolution" = "转换为高分辨率图像";
 "Copy" = "拷贝";
@@ -50,6 +53,7 @@
 "Model Folder" = "模型文件夹";
 "Move Images to Trash" = "将图像移到废纸篓";
 "No Info" = "无";
+"None" = "无";
 "Number of Images" = "图像数量";
 "Open in Finder" = "在访达中打开";
 "Quick Look" = "快速查看";
