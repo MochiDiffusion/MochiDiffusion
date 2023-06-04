@@ -20,7 +20,9 @@
 "Choose a folder and a name to store the image" = "Scegli una cartella e relativo nome per salvare l\'immagine";
 "Choose a folder to save all images" = "Scegli una cartella dove salvare le immagini";
 "Choose generated images to import" = "Seleziona immagini generate da importare";
-"Choose starting image" = "Scegli immagine iniziale";
+"Choose image" = "Scegli immagine";
+"ControlNet" = "ControlNet";
+"ControlNet Folder" = "Cartella ControlNet";
 "Convert all images to High Resolution (this will use more memory)" = "Converti tutte le immagini in alta risoluzione (maggior utilizzo della memoria)";
 "Convert to High Resolution" = "Converti in alta risoluzione";
 "Copy" = "Copia";
@@ -54,6 +56,7 @@
 "Model Folder" = "Cartella modelli";
 "Move Images to Trash" = "Sposta immagini nel Cestino";
 "No Info" = "Nessun dato";
+"None" = "Nessuno";
 "Number of Images" = "Numero di Immagini";
 "Open in Finder" = "Apri nel Finder";
 "Quick Look" = "Visualizzazione rapida";

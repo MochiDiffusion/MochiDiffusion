@@ -17,7 +17,6 @@
 "Choose a folder and a name to store the image" = "選擇儲存圖片的資料夾並為圖片命名";
 "Choose a folder to save all images" = "選擇一個資料夾儲存所有圖片";
 "Choose generated images to import" = "選擇已生成的圖片匯入";
-"Choose starting image" = "選擇起始圖片";
 "Convert all images to High Resolution (this will use more memory)" = "將所有圖像轉換為高解析度（需使用更多記憶體）";
 "Convert to High Resolution" = "轉換為高解析度";
 "Copy" = "複製";

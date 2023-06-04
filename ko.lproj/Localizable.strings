@@ -17,7 +17,9 @@
 "Choose a folder and a name to store the image" = "이미지를 저장할 폴더와 이름을 선택하세요";
 "Choose a folder to save all images" = "모든 이미지를 저장할 폴더를 선택하세요";
 "Choose generated images to import" = "가져올 생성된 이미지들 선택";
-"Choose starting image" = "시작 이미지 선택";
+"Choose image" = "이미지 선택";
+"ControlNet" = "ControlNet";
+"ControlNet Folder" = "ControlNet 폴더";
 "Convert all images to High Resolution (this will use more memory)" = "모든 이미지를 자동으로 고화질로 변경 (더 많은 메모리를 사용)";
 "Convert to High Resolution" = "고화질로 변경";
 "Copy" = "복사";
@@ -51,6 +53,7 @@
 "Model Folder" = "모델 폴더";
 "Move Images to Trash" = "이미지를 휴지통으로 이동";
 "No Info" = "정보 없음";
+"None" = "없음";
 "Number of Images" = "이미지 수";
 "Open in Finder" = "파인더에서 열기";
 "Quick Look" = "훑어보기";
