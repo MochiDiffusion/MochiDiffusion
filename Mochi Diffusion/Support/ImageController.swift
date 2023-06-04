@@ -390,7 +390,7 @@ final class ImageController: ObservableObject {
         panel.canCreateDirectories = false
         panel.canChooseDirectories = false
         panel.canChooseFiles = true
-        panel.message = String(localized: "Choose image")
+        panel.message = String(localized: "Choose image", comment: "Message text for choosing starting image or ControlNet image")
         panel.prompt = String(localized: "Select", comment: "OK button text for choose image panel")
         let resp = await panel.beginSheetModal(for: NSApplication.shared.mainWindow!)
         if resp != .OK {
