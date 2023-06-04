@@ -138,7 +138,7 @@ final class ImageController: ObservableObject {
     @AppStorage("ImageType") var imageType = UTType.png.preferredFilenameExtension!
     @AppStorage("Prompt") var prompt = ""
     @AppStorage("NegativePrompt") var negativePrompt = ""
-    @AppStorage("ImageStrength") var strength = 0.7
+    @AppStorage("ImageStrength") var strength = 0.825
     @AppStorage("Steps") var steps = 12.0
     @AppStorage("Scale") var guidanceScale = 11.0
     @AppStorage("ImageWidth") var width = 512
