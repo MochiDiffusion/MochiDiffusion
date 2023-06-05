@@ -5,6 +5,29 @@
     <language>en</language>
 
     <item>
+      <title>v4.0</title>
+      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <sparkle:version>4.0</sparkle:version>
+      <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
+      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <pubDate>Mon, 06 Jun 2023 16:05:00 +0000</pubDate>
+      <enclosure
+        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v4.0/MochiDiffusion_v4.0.dmg"
+        sparkle:edSignature="1x5kg+4sGL/pzv2b58DCNTPPaWUm4bCp0+XrVu+XJ2PQqLW235SugXzGiw6lQA/CPKD0TnpQfgZLSii//gPjDg=="
+        length="66512606"
+        type="application/octet-stream" />
+      <description><![CDATA[
+      <ul>
+      <li>Added ControlNet (@stuartjmoore)</li>
+      <li>Changed starting image strength value range (@jrittvo)</li>
+      <li>Removed support for Intel Macs</li>
+      </ul>
+      <p><strong>Note:</strong> Previous Stable Diffusion models will need to be reconverted to support ControlNet. Several Core ML ControlNet models have been converted <a href="https://huggingface.co/jrrjrr/CoreML-Models-For-ControlNet/tree/main/CN">here</a> by @jrittvo. See <a href="https://github.com/godly-devotion/MochiDiffusion/wiki/How-to-convert-ControlNet-models-to-Core-ML">the wiki</a> to find out how to convert the models.</p>
+      ]]>
+      </description>
+    </item>
+
+    <item>
       <title>v3.2</title>
       <link>https://github.com/godly-devotion/MochiDiffusion</link>
       <sparkle:version>3.2</sparkle:version>
