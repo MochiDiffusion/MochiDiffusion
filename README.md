@@ -30,6 +30,7 @@ This app uses [Apple's Core ML Stable Diffusion implementation](https://github.c
 - Runs well on all Apple Silicon Macs by fully utilizing Neural Engine
 - Generate images locally and completely offline
 - Generate images based on an existing image (commonly known as Image2Image)
+- Generate images using ControlNet
 - Generated images are saved with prompt info inside EXIF metadata (view in Finder's Get Info window)
 - Convert generated images to high resolution (using RealESRGAN)
 - Autosave & restore images
