@@ -70,6 +70,16 @@
 "Steps" = "Kroki";
 "Stop Generation" = "Zatrzymaj generowanie";
 "Strength" = "Siła";
+"Strength controls how closely the generated image resembles the starting image.
+Use lower values to generate images that look similar to the starting image.
+Use higher values to allow more creative freedom.
+
+The size of the starting image must match the output image size of the current model." = "Siła kontroluje jak blisko wygenerowany obraz przypomina obraz początkowy.
+Użyj niższych wartości do generowania obrazów, które wyglądają podobnie jak obraz początkowy.
+Użyj wyższych wartości, aby umożliwić większą wolność twórczą.
+
+Rozmiar wyjściowego obrazu musi odpowiadać rozmiarowi obrazu wyjściowego bieżącego modelu.";
+"Support Project" = "Wesprzyj projekt";
 "This may take up to 2 minutes if a model is used for the first time" = "Może to zająć do 2 minut, jeżeli model jest używany po raz pierwszy";
 "Toggle Info Panel" = "Przełącz panel informacji";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Używa modułu sprawdzania bezpieczeństwa modelu. To nie gwarantuje, że wszystkie nieodpowiednie obrazy zostaną przefiltrowane.";
