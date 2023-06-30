@@ -20,6 +20,9 @@
 "Choose a folder and a name to store the image" = "Kies een map en een naam om de afbeelding op te slaan";
 "Choose a folder to save all images" = "Kies een map om alle afbeeldingen in op te slaan";
 "Choose generated images to import" = "Kies gegenereerde afbeeldingen om te importeren";
+"Choose image" = "Kies Afbeelding";
+"ControlNet" = "ControlNet";
+"ControlNet Folder" = "ControlNet map";
 "Convert all images to High Resolution (this will use more memory)" = "Converteer alle afbeeldingen naar High Resolution (dit zal meer geheugen gebruiken)";
 "Convert to High Resolution" = "Converteren naar High Resolution";
 "Copy" = "Kopiëer";
@@ -53,6 +56,7 @@
 "Model Folder" = "Model Map";
 "Move Images to Trash" = "Verplaats Afbeeldingen naar Prullenbak";
 "No Info" = "Geen Informatie";
+"None" = "Geen";
 "Number of Images" = "Aantal Afbeeldingen";
 "Open in Finder" = "Toon in Finder";
 "Quick Look" = "Snelle Weergave";
@@ -79,6 +83,13 @@
 "Steps" = "Stappen";
 "Stop Generation" = "Stop Genereren";
 "Strength" = "Intensiteit";
+"Strength controls how closely the generated image resembles the starting image.
+Use lower values to generate images that look similar to the starting image.
+Use higher values to allow more creative freedom.
+
+The size of the starting image must match the output image size of the current model." = "Sterke bepaalt hoeveel de gegenereerde afbeelding lijkt op de startafbeelding.
+Gebruik lagere waarden om afbeeldingen te genereren die meer lijken op de startafbeelding.
+Gebruik hogere waarden laten voor meer creativiteit.";
 "Support Project" = "Ondersteun project";
 "This may take up to 2 minutes if a model is used for the first time" = "Dit kan tot 2 minuten duren als een model voor het eerst wordt gebruikt";
 "Toggle Info Panel" = "Info paneel in-/uitschakelen";
