@@ -24,7 +24,7 @@ struct GalleryView: View {
                 MessageBanner(message: msg)
             }
 
-            if !store.images.isEmpty {
+            if !store.images.isEmpty || store.currentGeneratingImage != nil {
                 galleryView
             } else {
                 emptyGalleryView
@@ -79,6 +79,10 @@ struct GalleryView: View {
                             .contextMenu {
                                 GalleryItemContextMenuView(sdi: sdi)
                             }
+                    }
+
+                    if let currentImage = store.currentGeneratingImage {
+                        GalleryPreviewView(image: currentImage)
                     }
                 }
                 .padding()

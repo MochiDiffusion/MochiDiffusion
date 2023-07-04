@@ -23,6 +23,9 @@ class ImageStore: ObservableObject {
     private(set) var images: [SDImage] = []
 
     @Published
+    private(set) var currentGeneratingImage: CGImage?
+
+    @Published
     private(set) var selectedId: SDImage.ID?
 
     @Published
@@ -36,6 +39,7 @@ class ImageStore: ObservableObject {
     func add(_ sdi: SDImage) -> SDImage.ID {
         withAnimation {
             allImages.append(sdi)
+            currentGeneratingImage = nil
             return sdi.id
         }
     }
@@ -45,6 +49,12 @@ class ImageStore: ObservableObject {
         withAnimation {
             allImages.append(contentsOf: sdis)
             return sdis.map { $0.id }
+        }
+    }
+
+    func setCurrentGenerating(image: CGImage?) {
+        withAnimation {
+            currentGeneratingImage = image
         }
     }
 
