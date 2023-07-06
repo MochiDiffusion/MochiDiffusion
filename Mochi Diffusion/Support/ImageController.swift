@@ -414,6 +414,7 @@ final class ImageController: ObservableObject {
     }
 
     func unsetControlNetImage(at index: Int) async {
+        guard index < currentControlNets.count else { return }
         currentControlNets[index].image = nil
     }
 
