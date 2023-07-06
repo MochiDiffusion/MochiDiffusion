@@ -12,10 +12,10 @@
     {
       "identity" : "ml-stable-diffusion",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/ml-stable-diffusion",
+      "location" : "https://github.com/vzsg/ml-stable-diffusion",
       "state" : {
-        "branch" : "main",
-        "revision" : "e3875a584b173774357c76beda659df9f62527ec"
+        "branch" : "controlnet-inpaint",
+        "revision" : "fccfeba780d043324827105d3056858d1b60e90c"
       }
     },
     {
