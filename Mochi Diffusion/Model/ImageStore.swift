@@ -33,7 +33,7 @@ class ImageStore: ObservableObject {
         }
     }
 
-    @Published var sortType: ImagesSortType = .ascending {
+    @Published var sortType: ImagesSortType = .oldest {
         didSet {
             updateSortForImages()
         }
@@ -151,19 +151,19 @@ class ImageStore: ObservableObject {
 
     private func updateSortForImages() {
         switch sortType {
-        case .ascending:
+        case .oldest:
             images.sort(by: { $0.generatedDate < $1.generatedDate })
-        case.decending:
+        case.newest:
             images.sort(by: { $0.generatedDate > $1.generatedDate })
         }
     }
 }
 
 enum ImagesSortType: String {
-    case ascending = "Accending"
-    case decending = "Decending"
+    case oldest = "Oldest"
+    case newest = "Newest"
 
-    static let allValues: [ImagesSortType] = [.ascending, .decending]
+    static let allValues: [ImagesSortType] = [.oldest, .newest]
 }
 
 private extension Array where Element == SDImage {
