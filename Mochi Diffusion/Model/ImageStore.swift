@@ -16,6 +16,7 @@ class ImageStore: ObservableObject {
     private var allImages: [SDImage] = [] {
         didSet {
             updateFilteredImages()
+            updateSortForImages()
         }
     }
 
@@ -29,6 +30,12 @@ class ImageStore: ObservableObject {
     var searchText: String = "" {
         didSet {
             updateFilteredImages()
+        }
+    }
+
+    @Published var sortType: ImagesSortType = .ascending {
+        didSet {
+            updateSortForImages()
         }
     }
 
@@ -141,6 +148,22 @@ class ImageStore: ObservableObject {
             }
         }
     }
+
+    private func updateSortForImages() {
+        switch sortType {
+        case .ascending:
+            images.sort(by: { $0.generatedDate < $1.generatedDate })
+        case.decending:
+            images.sort(by: { $0.generatedDate > $1.generatedDate })
+        }
+    }
+}
+
+enum ImagesSortType: String {
+    case ascending = "Accending"
+    case decending = "Decending"
+
+    static let allValues: [ImagesSortType] = [.ascending, .decending]
 }
 
 private extension Array where Element == SDImage {

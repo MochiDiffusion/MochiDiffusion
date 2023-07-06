@@ -65,6 +65,12 @@ struct GalleryToolbarView: View {
             }
         }
 
+        Picker("Sort: ", selection: $store.sortType) {
+            ForEach(ImagesSortType.allValues, id: \.self) { sortType in
+                Text(verbatim: sortType.rawValue)
+            }
+        }
+
         if let sdi = store.selected(), let img = sdi.image {
             let imageView = Image(img, scale: 1, label: Text(verbatim: sdi.prompt))
 
