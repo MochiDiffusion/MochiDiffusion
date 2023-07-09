@@ -8,6 +8,13 @@
 import SwiftUI
 import UniformTypeIdentifiers
 
+enum ImagesSortType: String {
+    case oldestFirst = "Oldest First"
+    case newestFirst = "Newest First"
+
+    static let allValues: [ImagesSortType] = [.oldestFirst, .newestFirst]
+}
+
 @MainActor
 class ImageStore: ObservableObject {
 
@@ -33,7 +40,7 @@ class ImageStore: ObservableObject {
         }
     }
 
-    @Published var sortType: ImagesSortType = .oldest {
+    @Published var sortType: ImagesSortType = .oldestFirst {
         didSet {
             updateSortForImages()
         }
@@ -151,19 +158,12 @@ class ImageStore: ObservableObject {
 
     private func updateSortForImages() {
         switch sortType {
-        case .oldest:
+        case .oldestFirst:
             images.sort(by: { $0.generatedDate < $1.generatedDate })
-        case.newest:
+        case.newestFirst:
             images.sort(by: { $0.generatedDate > $1.generatedDate })
         }
     }
-}
-
-enum ImagesSortType: String {
-    case oldest = "Oldest"
-    case newest = "Newest"
-
-    static let allValues: [ImagesSortType] = [.oldest, .newest]
 }
 
 private extension Array where Element == SDImage {

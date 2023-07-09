@@ -65,7 +65,7 @@ struct GalleryToolbarView: View {
             }
         }
 
-        Picker("Sort: ", selection: $store.sortType) {
+        Picker("Sort", selection: $store.sortType) {
             ForEach(ImagesSortType.allValues, id: \.self) { sortType in
                 Text(verbatim: sortType.rawValue)
             }
