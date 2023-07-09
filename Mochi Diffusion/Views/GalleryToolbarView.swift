@@ -66,9 +66,16 @@ struct GalleryToolbarView: View {
         }
 
         Picker("Sort", selection: $store.sortType) {
-            ForEach(ImagesSortType.allValues, id: \.self) { sortType in
-                Text(verbatim: sortType.rawValue)
-            }
+            Text(
+                "Oldest First",
+                comment: "Picker option to sort images in the gallery from oldest to newest"
+            ).tag(ImagesSortType.oldestFirst)
+
+            Text(
+                "Newest First",
+                comment: "Picker option to sort images in the gallery from newest to oldest"
+            )
+            .tag(ImagesSortType.newestFirst)
         }
 
         if let sdi = store.selected(), let img = sdi.image {

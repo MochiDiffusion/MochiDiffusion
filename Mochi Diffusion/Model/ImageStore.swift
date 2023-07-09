@@ -9,8 +9,8 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 enum ImagesSortType: String {
-    case oldestFirst = "Oldest First"
-    case newestFirst = "Newest First"
+    case oldestFirst
+    case newestFirst
 
     static let allValues: [ImagesSortType] = [.oldestFirst, .newestFirst]
 }
