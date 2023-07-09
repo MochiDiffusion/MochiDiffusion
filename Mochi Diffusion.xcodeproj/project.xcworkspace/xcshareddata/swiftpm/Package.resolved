@@ -15,7 +15,7 @@
       "location" : "https://github.com/vzsg/ml-stable-diffusion",
       "state" : {
         "branch" : "controlnet-inpaint",
-        "revision" : "fccfeba780d043324827105d3056858d1b60e90c"
+        "revision" : "c44c51d4bc6711d996fbdb9e5493162a1de50df1"
       }
     },
     {
