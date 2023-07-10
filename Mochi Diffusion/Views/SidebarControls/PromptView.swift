@@ -100,14 +100,6 @@ struct PromptView: View {
 
             Spacer().frame(height: 2)
 
-            Toggle(isOn: $controller.previewCurrentImages) {
-                Text(
-                    "Show preview?",
-                    comment: "Label for toggle show generating image."
-                )
-            }
-            .help("Show generating images for every step (This may cause low speed)")
-
             HStack {
                 Toggle(isOn: $controller.upscaleGeneratedImages) {
                     Label {

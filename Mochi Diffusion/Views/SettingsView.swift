@@ -202,6 +202,27 @@ struct SettingsView: View {
                 }
                 .padding(4)
             }
+
+            GroupBox {
+                VStack(alignment: .leading) {
+                    HStack {
+                        Text("Show Generating Image Preview")
+
+                        Spacer()
+
+                        Toggle("", isOn: $controller.previewCurrentImages)
+                            .labelsHidden()
+                            .toggleStyle(.switch)
+                            .controlSize(.small)
+                    }
+                    Text(
+                        "Show generating images for each step.\nThis may cause low generation speed.",
+                        comment: "Help text for Show Generating Image Preview setting"
+                    )
+                    .helpTextFormat()
+                }
+                .padding(4)
+            }
         }
     }
 
