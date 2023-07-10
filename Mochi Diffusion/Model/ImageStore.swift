@@ -53,9 +53,7 @@ class ImageStore: ObservableObject {
     }
 
     func setCurrentGenerating(image: CGImage?) {
-        withAnimation {
-            currentGeneratingImage = image
-        }
+        currentGeneratingImage = image
     }
 
     func remove(_ sdi: SDImage) {

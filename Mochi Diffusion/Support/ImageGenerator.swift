@@ -189,10 +189,14 @@ class ImageGenerator: ObservableObject {
             let images = try pipeline.generateImages(configuration: config.pipelineConfig) { [config] progress in
                 Task { @MainActor in
                     state = .running(progress)
+                }
+
+                Task {
                     if config.showPreview, let currentImage = progress.currentImages.first {
-                        ImageStore.shared.setCurrentGenerating(image: currentImage)
+                        await ImageStore.shared.setCurrentGenerating(image: currentImage)
                     }
                 }
+
                 return !generationStopped
             }
             if generationStopped {
