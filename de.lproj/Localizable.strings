@@ -55,9 +55,11 @@
 "Model" = "Modell";
 "Model Folder" = "Model-Ordner";
 "Move Images to Trash" = "Bilder in den Papierkorb verschieben";
+"Newest First" = "Neueste zuerst";
 "No Info" = "Keine Info";
 "None" = "Keine";
 "Number of Images" = "Anzahl der Bilder";
+"Oldest First" = "Älteste zuerst";
 "Open in Finder" = "Im Finder anzeigen";
 "Quick Look" = "Übersicht";
 "Reduce Memory Usage" = "Speicherauslastung reduzieren";
@@ -78,6 +80,7 @@
 "Set as Starting Image" = "Als Ausgangsbild festlegen";
 "Share..." = "Teilen...";
 "Show in Finder" = "In Finder anzeigen";
+"Sort" = "Sortieren";
 "Starting Image" = "Ausgangsbild";
 "Step %lld of %lld" = "Arbeitsschritt %lld von %lld";
 "Steps" = "Arbeitsschritte";
