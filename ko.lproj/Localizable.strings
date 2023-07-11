@@ -52,9 +52,11 @@
 "Model" = "모델";
 "Model Folder" = "모델 폴더";
 "Move Images to Trash" = "이미지를 휴지통으로 이동";
+"Newest First" = "최신 항목 순으로";
 "No Info" = "정보 없음";
 "None" = "없음";
 "Number of Images" = "이미지 수";
+"Oldest First" = "오래된 항목 순으로";
 "Open in Finder" = "파인더에서 열기";
 "Quick Look" = "훑어보기";
 "Reduce Memory Usage" = "메모리 사용량 줄이기";
@@ -75,6 +77,7 @@
 "Set as Starting Image" = "시작 이미지로 선택";
 "Share..." = "공유...";
 "Show in Finder" = "Finder에서 보기";
+"Sort" = "정렬";
 "Starting Image" = "시작 이미지";
 "Step %lld of %lld" = "스텝 %lld / %lld";
 "Steps" = "스텝 수";

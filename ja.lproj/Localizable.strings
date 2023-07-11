@@ -52,9 +52,11 @@
 "Model" = "モデル";
 "Model Folder" = "モデル フォルダ";
 "Move Images to Trash" = "画像をゴミ箱に移動";
+"Newest First" = "新しい順";
 "No Info" = "情報はありません";
 "None" = "なし";
 "Number of Images" = "画像数";
+"Oldest First" = "古い順";
 "Open in Finder" = "Finderに表示";
 "Quick Look" = "クイックルック";
 "Reduce Memory Usage" = "メモリ使用量の削減";
@@ -75,6 +77,7 @@
 "Set as Starting Image" = "開始画像に設定";
 "Share..." = "共有...";
 "Show in Finder" = "Finderで表示";
+"Sort" = "ソート";
 "Starting Image" = "開始画像";
 "Step %lld of %lld" = "ステップ %lld / %lld";
 "Steps" = "ステップ";
