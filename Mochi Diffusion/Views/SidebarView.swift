@@ -13,11 +13,11 @@ struct SidebarView: View {
             VStack(alignment: .leading, spacing: 6) {
                 Group {
                     PromptView()
-                    Divider().frame(height: 16)
+                    Divider().frame(height: 20)
                 }
                 Group {
-                    StartingImageView()
-                    Divider().frame(height: 16)
+                    ModelView()
+                    Divider().frame(height: 24)
                 }
                 Group {
                     NumberOfImagesView()
@@ -33,14 +33,15 @@ struct SidebarView: View {
                 }
                 Group {
                     SeedView()
-                    Spacer().frame(height: 6)
+                    Divider().frame(height: 20)
                 }
                 Group {
-                    ModelView()
-                    Divider().frame(height: 16)
+                    StartingImageView()
+                    Divider().frame(height: 24)
                 }
                 Group {
                     ControlNetView()
+                    Divider().frame(height: 24)
                 }
             }
             .padding([.horizontal, .bottom])
