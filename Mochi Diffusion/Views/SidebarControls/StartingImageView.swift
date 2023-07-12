@@ -43,7 +43,7 @@ struct StartingImageView: View {
         HStack(alignment: .top) {
             VStack(alignment: .leading) {
                 Text(
-                    "Starting Image",
+                    "Input Image",
                     comment: "Label for setting the starting image (commonly known as image2image)"
                 )
                 .sidebarLabelFormat()
@@ -61,9 +61,9 @@ struct StartingImageView: View {
                 )
                 .sidebarLabelFormat()
 
-                Slider(value: $controller.strength, in: 0.685...1, step: 0.035)
+                Slider(value: $controller.strength, in: 0.37...1, step: 0.07)
                     .controlSize(.mini)
-                    .frame(width: 88)
+                    .frame(width: 110)
 
                 HStack {
                     Button {
