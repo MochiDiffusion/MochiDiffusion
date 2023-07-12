@@ -52,9 +52,11 @@
 "Model" = "模型";
 "Model Folder" = "模型文件夹";
 "Move Images to Trash" = "将图像移到废纸篓";
+"Newest First" = "优先显示最新";
 "No Info" = "无";
 "None" = "无";
 "Number of Images" = "图像数量";
+"Oldest First" = "优先显示最旧";
 "Open in Finder" = "在访达中打开";
 "Quick Look" = "快速查看";
 "Reduce Memory Usage" = "减少内存占用";
@@ -75,6 +77,7 @@
 "Set as Starting Image" = "设为原始图像";
 "Share..." = "分享...";
 "Show in Finder" = "在访达中显示";
+"Sort" = "排序";
 "Starting Image" = "原始图像";
 "Step %lld of %lld" = "迭代步数 %lld / %lld";
 "Steps" = "迭代步数";
