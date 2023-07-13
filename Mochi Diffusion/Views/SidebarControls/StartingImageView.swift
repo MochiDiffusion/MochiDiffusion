@@ -63,7 +63,7 @@ struct StartingImageView: View {
 
                 Slider(value: $controller.strength, in: 0.37...1, step: 0.07)
                     .controlSize(.mini)
-                    .frame(width: 110)
+                    .frame(maxWidth: .infinity)
 
                 HStack {
                     Button {
