@@ -5,6 +5,31 @@
     <language>en</language>
 
     <item>
+      <title>v4.1</title>
+      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <sparkle:version>4.1</sparkle:version>
+      <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
+      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <pubDate>Mon, 17 Jul 2023 02:35:09 +0000</pubDate>
+      <enclosure
+        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v4.1/MochiDiffusion_v4.1.dmg"
+        sparkle:edSignature="7f1qNtNrdR5glkTnZ3F6xju8pgkkMvyvXOKTgCRnmtTQFaaMSRFxTpZAWtCDgtSsmeldw0EnZ6pT6WAm89L8Cw=="
+        length="66511320"
+        type="application/octet-stream" />
+      <description><![CDATA[
+      <ul>
+      <li>Added support for inpainting with ControlNet (@vzsg)</li>
+      <li>Added option to sort images by date (@hoseins77)</li>
+      <li>Added symlink support for model directory (@surjikal)</li>
+      <li>Changed starting image strength value range (@jrittvo)</li>
+      <li>Fixed potential crash when clearing ControlNet image (@vzsg)</li>
+      </ul>
+      <p><strong>Note</strong>: To use inpainting, select an inpainting ControlNet model and provide a mask image with transparent pixels.</p>
+      ]]>
+      </description>
+    </item>
+
+    <item>
       <title>v4.0</title>
       <link>https://github.com/godly-devotion/MochiDiffusion</link>
       <sparkle:version>4.0</sparkle:version>
