@@ -52,9 +52,11 @@
 "Model" = "模型";
 "Model Folder" = "模型目錄";
 "Move Images to Trash" = "把圖片移至垃圾桶";
+"Newest First" = "優先顯示最新";
 "No Info" = "無資訊";
 "None" = "無";
 "Number of Images" = "圖片數量";
+"Oldest First" = "優先顯示最舊";
 "Open in Finder" = "在 Finder 中開啟";
 "Quick Look" = "快速查看";
 "Reduce Memory Usage" = "減少記憶體使用量";
@@ -75,6 +77,7 @@
 "Set as Starting Image" = "設為起始圖片";
 "Share..." = "分享 ...";
 "Show in Finder" = "在 Finder中顯示";
+"Sort" = "排序";
 "Starting Image" = "起始圖片";
 "Step %lld of %lld" = "迭代次數 %lld / %lld";
 "Steps" = "迭代次數";

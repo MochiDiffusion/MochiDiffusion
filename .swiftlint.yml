@@ -145,7 +145,8 @@ redundant_void_return: error
 return_arrow_whitespace: error
 self_in_property_initialization: error
 shorthand_operator: error
-sorted_imports: error
+sorted_imports:
+  severity: error
 statement_position:
   severity: error
 switch_case_alignment:

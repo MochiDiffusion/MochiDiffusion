@@ -65,6 +65,19 @@ struct GalleryToolbarView: View {
             }
         }
 
+        Picker("Sort", selection: $store.sortType) {
+            Text(
+                "Oldest First",
+                comment: "Picker option to sort images in the gallery from oldest to newest"
+            ).tag(ImagesSortType.oldestFirst)
+
+            Text(
+                "Newest First",
+                comment: "Picker option to sort images in the gallery from newest to oldest"
+            )
+            .tag(ImagesSortType.newestFirst)
+        }
+
         if let sdi = store.selected(), let img = sdi.image {
             let imageView = Image(img, scale: 1, label: Text(verbatim: sdi.prompt))
 

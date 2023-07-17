@@ -61,9 +61,8 @@ struct StartingImageView: View {
                 )
                 .sidebarLabelFormat()
 
-                Slider(value: $controller.strength, in: 0.685...1, step: 0.035)
+                Slider(value: $controller.strength, in: 0.37...1, step: 0.07)
                     .controlSize(.mini)
-                    .frame(width: 88)
 
                 HStack {
                     Button {
