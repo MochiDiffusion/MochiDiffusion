@@ -215,6 +215,20 @@ struct SettingsView: View {
                             .toggleStyle(.switch)
                             .controlSize(.small)
                     }
+
+                    if controller.previewCurrentImages {
+                        HStack {
+                            Text("Use Denoised Images For Preview")
+
+                            Spacer()
+
+                            Toggle("", isOn: $controller.previewDenoisedImages)
+                                .labelsHidden()
+                                .toggleStyle(.switch)
+                                .controlSize(.small)
+                        }
+                    }
+
                     Text(
                         "Show generating images for each step.\nThis may cause low generation speed.",
                         comment: "Help text for Show Generating Image Preview setting"
