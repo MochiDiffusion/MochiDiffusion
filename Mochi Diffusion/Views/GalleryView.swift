@@ -81,7 +81,7 @@ struct GalleryView: View {
                             }
                     }
 
-                    if let currentImage = store.currentGeneratingImage {
+                    if let currentImage = store.currentGeneratingImage, case let .running(progress) = generator.state {
                         GalleryPreviewView(image: currentImage)
                     }
                 }
