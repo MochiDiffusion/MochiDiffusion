@@ -5,6 +5,28 @@
     <language>en</language>
 
     <item>
+      <title>v4.1.1</title>
+      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <sparkle:version>4.1.1</sparkle:version>
+      <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
+      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <pubDate>Thu, 20 Jul 2023 19:27:11 +0000</pubDate>
+      <enclosure
+        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v4.1.1/MochiDiffusion_v4.1.1.dmg"
+        sparkle:edSignature="MImrGl+2u2yYzU/6PVo2We+oJShXuhFv+ZEyadaNAW+EQSOFYoU0a6B3QZurJytPzjdX5N/BsiDUpy1DWl+XCQ=="
+        length="66511281"
+        type="application/octet-stream" />
+      <description><![CDATA[
+      <ul>
+      <li>Fixed app crash when changing settings</li>
+      <li>Added Norwegian Bokmal translation (Espen Bye)</li>
+      </ul>
+      <p><strong>Note</strong>: To use inpainting, select an inpainting ControlNet model and provide a mask image with transparent pixels.</p>
+      ]]>
+      </description>
+    </item>
+
+    <item>
       <title>v4.1</title>
       <link>https://github.com/godly-devotion/MochiDiffusion</link>
       <sparkle:version>4.1</sparkle:version>
