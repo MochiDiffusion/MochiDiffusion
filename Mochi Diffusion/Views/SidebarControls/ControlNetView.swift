@@ -58,13 +58,7 @@ struct ControlNetView: View {
                                     return
                                 }
 
-                                DispatchQueue.main.async {
-                                    if controller.currentControlNets.isEmpty {
-                                        controller.currentControlNets = [SDControlNet(image: cgImage)]
-                                    } else {
-                                        controller.currentControlNets[0].image = cgImage
-                                    }
-                                }
+                                Task { await controller.setControlNet(SDControlNet(image: cgImage)) }
                             }
 
                             return true
@@ -79,7 +73,7 @@ struct ControlNetView: View {
             VStack(alignment: .trailing) {
                 Menu {
                     Button {
-                        controller.currentControlNets = []
+                        Task { await controller.unsetControlNet() }
                     } label: {
                         Text(
                             "None",
@@ -92,11 +86,7 @@ struct ControlNetView: View {
                     if !controller.controlNet.isEmpty {
                         ForEach(controller.controlNet, id: \.self) { name in
                             Button {
-                                if controller.currentControlNets.isEmpty {
-                                    controller.currentControlNets = [SDControlNet(name: name)]
-                                } else {
-                                    controller.currentControlNets[0].name = name
-                                }
+                                Task { await controller.setControlNet(SDControlNet(name: name)) }
                             } label: {
                                 Text(verbatim: name)
                             }

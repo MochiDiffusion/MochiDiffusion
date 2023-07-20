@@ -94,7 +94,7 @@ final class ImageController: ObservableObject {
     }
 
     @Published
-    var currentControlNets: [SDControlNet] = []
+    private(set) var currentControlNets: [SDControlNet] = []
 
     private func loadPipeline() {
         guard let model = currentModel else {
@@ -366,6 +366,25 @@ final class ImageController: ObservableObject {
     func selectStartingImage() async {
         startingImage = await selectImage()
     }
+    
+    func selectStartingImage(sdi: SDImage) async {
+        guard let image = sdi.image else { return }
+        startingImage = image
+    }
+
+    func unsetStartingImage() async {
+        startingImage = nil
+    }
+
+    func setControlNet(_ controlNet: SDControlNet) async {
+        self.currentControlNets = [controlNet]
+        loadPipeline()
+    }
+
+    func unsetControlNet() async {
+        self.currentControlNets = []
+        loadPipeline()
+    }
 
     func selectControlNetImage(at index: Int) async {
         await selectImage().map { image in
@@ -377,7 +396,11 @@ final class ImageController: ObservableObject {
                 currentControlNets[index].image = image
             }
         }
-        loadPipeline()
+    }
+
+    func unsetControlNetImage(at index: Int) async {
+        guard index < currentControlNets.count else { return }
+        currentControlNets[index].image = nil
     }
 
     func selectImage() async -> CGImage? {
@@ -399,20 +422,6 @@ final class ImageController: ObservableObject {
         let imageIndex = CGImageSourceGetPrimaryImageIndex(cgImageSource)
 
         return CGImageSourceCreateImageAtIndex(cgImageSource, imageIndex, nil)
-    }
-
-    func selectStartingImage(sdi: SDImage) async {
-        guard let image = sdi.image else { return }
-        startingImage = image
-    }
-
-    func unsetStartingImage() async {
-        startingImage = nil
-    }
-
-    func unsetControlNetImage(at index: Int) async {
-        guard index < currentControlNets.count else { return }
-        currentControlNets[index].image = nil
     }
 
     func importImages() async {
