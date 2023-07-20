@@ -366,7 +366,7 @@ final class ImageController: ObservableObject {
     func selectStartingImage() async {
         startingImage = await selectImage()
     }
-    
+
     func selectStartingImage(sdi: SDImage) async {
         guard let image = sdi.image else { return }
         startingImage = image

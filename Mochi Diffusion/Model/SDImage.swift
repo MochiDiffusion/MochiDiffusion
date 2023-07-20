@@ -102,7 +102,6 @@ extension SDImage {
         }
     }
 
-    @MainActor
     func imageData(_ type: UTType) async -> Data? {
         guard let image else { return nil }
         guard let data = CFDataCreateMutable(nil, 0) else { return nil }
@@ -112,10 +111,10 @@ extension SDImage {
             1,
             nil
         ) else { return nil }
-        let iptc = [
+        let iptc = await [
             kCGImagePropertyIPTCCaptionAbstract: metadata(),
             kCGImagePropertyIPTCOriginatingProgram: "Mochi Diffusion",
-            kCGImagePropertyIPTCProgramVersion: "\(NSApplication.appVersion)"
+            kCGImagePropertyIPTCProgramVersion: "\(await NSApplication.appVersion)"
         ]
         let meta = [kCGImagePropertyIPTCDictionary: iptc]
         CGImageDestinationAddImage(destination, image, meta as CFDictionary)
