@@ -153,7 +153,7 @@ class ImageGenerator: ObservableObject {
         config.computeUnits = computeUnit
 
         do {
-            let pipline = try StableDiffusionPipeline(
+            let pipeline = try StableDiffusionPipeline(
                 resourcesAt: model.url,
                 controlNet: controlNet,
                 configuration: config,
@@ -162,7 +162,7 @@ class ImageGenerator: ObservableObject {
             )
 
             DispatchQueue.main.async {
-                self.pipeline = pipline
+                self.pipeline = pipeline
             }
         } catch {
             print("Could not load Model!")
