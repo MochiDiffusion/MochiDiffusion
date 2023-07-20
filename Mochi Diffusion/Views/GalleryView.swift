@@ -51,6 +51,13 @@ struct GalleryView: View {
         ScrollViewReader { proxy in
             ScrollView {
                 LazyVGrid(columns: gridColumns, spacing: 16) {
+
+                    if store.sortType == .newestFirst {
+                        if let currentImage = store.currentGeneratingImage, case .running = generator.state {
+                            GalleryPreviewView(image: currentImage)
+                        }
+                    }
+
                     ForEach(store.images) { sdi in
                         GalleryItemView(sdi: sdi)
                             .accessibilityAddTraits(.isButton)
@@ -81,8 +88,10 @@ struct GalleryView: View {
                             }
                     }
 
-                    if let currentImage = store.currentGeneratingImage, case let .running(progress) = generator.state {
-                        GalleryPreviewView(image: currentImage)
+                    if store.sortType == .oldestFirst {
+                        if let currentImage = store.currentGeneratingImage, case .running = generator.state {
+                            GalleryPreviewView(image: currentImage)
+                        }
                     }
                 }
                 .padding()

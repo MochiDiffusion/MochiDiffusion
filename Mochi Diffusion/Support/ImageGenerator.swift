@@ -194,6 +194,8 @@ class ImageGenerator: ObservableObject {
                 Task {
                     if config.showPreview, let currentImage = progress.currentImages.last {
                         await ImageStore.shared.setCurrentGenerating(image: currentImage)
+                    } else {
+                        await ImageStore.shared.setCurrentGenerating(image: nil)
                     }
                 }
 
