@@ -41,6 +41,19 @@ final class ImageController: ObservableObject {
 
     private lazy var logger = Logger()
 
+    private lazy var modelRepo: ModelRepo = {
+        ModelRepoFactory(
+            localModelDir: modelDir.isEmpty ? nil : modelDir,
+            localControlNetDir: controlNetDir.isEmpty ? nil : controlNetDir
+        ).createModelRepo()
+    }()
+
+    private lazy var imageRepo: ImageRepo = {
+        ImageRepoFactory(
+            localImageDir: imageDir.isEmpty ? nil : imageDir
+        ).createImageRepo()
+    }()
+
     @Published
     var isLoading = true
 
@@ -151,34 +164,31 @@ final class ImageController: ObservableObject {
     @AppStorage("UseTrash") var useTrash = true
 
     init() {
-        Task {
-            await load()
-        }
+        load()
     }
 
     /// Run init sequence for ImageController
-    func load() async {
+    func load() {
         isLoading = true
         if autosaveImages {
-            await loadImages()
+            loadImages()
         }
-        await loadModels()
+        loadModels()
         isLoading = false
     }
 
-    func loadImages() async {
+    func loadImages() {
         logger.info("Started loading image autosave directory at: \"\(self.imageDir)\"")
         /// If there are unautosaved images,
         /// keep those images in gallery while loading from autosave directory so we don't lose their work
         ImageStore.shared.removeAllExceptUnsaved()
         do {
-            async let (images, imageDirURL) = try ImageGenerator.shared.loadImages(imageDir: imageDir)
-            let count = try await images.count
-            try await self.imageDir = imageDirURL.path(percentEncoded: false)
+            let images = try imageRepo.loadImages()
+            imageDir = imageRepo.imagesURL.path(percentEncoded: false)
 
-            logger.info("Found \(count) image(s)")
+            logger.info("Found \(images.count) image(s)")
 
-            try await ImageStore.shared.add(images)
+            ImageStore.shared.add(images)
         } catch ImageGenerator.GeneratorError.imageDirectoryNoAccess {
             logger.error("Couldn't access autosave directory.")
         } catch {
@@ -186,33 +196,13 @@ final class ImageController: ObservableObject {
         }
     }
 
-    private func directoryURL(fromPath directory: String, defaultingTo string: String) -> URL {
-        var finalModelDirURL: URL
-
-        /// check if saved directory exists
-        if directory.isEmpty {
-            /// use default directory
-            finalModelDirURL = FileManager.default.homeDirectoryForCurrentUser
-            finalModelDirURL.append(path: string, directoryHint: .isDirectory)
-        } else {
-            /// generate url from saved directory
-            finalModelDirURL = URL(fileURLWithPath: directory, isDirectory: true)
-        }
-
-        return finalModelDirURL
-    }
-
-    func loadModels() async {
+    func loadModels() {
         models = []
         logger.info("Started loading model directory at: \"\(self.modelDir)\"")
         do {
-            let modelDirectoryURL = directoryURL(fromPath: modelDir, defaultingTo: "MochiDiffusion/models/")
-            self.modelDir = modelDirectoryURL.path(percentEncoded: false)
-
-            let controlNetDirectoryURL = directoryURL(fromPath: controlNetDir, defaultingTo: "MochiDiffusion/controlnet/")
-            self.controlNetDir = controlNetDirectoryURL.path(percentEncoded: false)
-
-            await self.models = try ImageGenerator.shared.getModels(modelDirectoryURL: modelDirectoryURL, controlNetDirectoryURL: controlNetDirectoryURL)
+            self.models = try modelRepo.loadModels()
+            modelDir = modelRepo.modelURL.path(percentEncoded: false)
+            controlNetDir = modelRepo.controlNetURL.path(percentEncoded: false)
 
             logger.info("Found \(self.models.count) model(s)")
 
@@ -359,7 +349,13 @@ final class ImageController: ObservableObject {
             }
         }
 
-        ImageStore.shared.removeAndDelete(sdi, moveToTrash: useTrash)
+        do {
+            try imageRepo.delete(image: sdi, moveToTrash: useTrash)
+        } catch {
+            logger.log(level: .error, "\(error.localizedDescription)")
+        }
+
+        ImageStore.shared.remove(sdi)
     }
 
     func removeCurrentImage() async {
@@ -436,31 +432,14 @@ final class ImageController: ObservableObject {
         if selectedURLs.isEmpty { return }
 
         isLoading = true
-        var sdis: [SDImage] = []
-        var succeeded = 0, failed = 0
-
-        for url in selectedURLs {
-            var importedURL: URL
-            do {
-                importedURL = URL(fileURLWithPath: imageDir, isDirectory: true)
-                importedURL.append(path: url.lastPathComponent)
-                try FileManager.default.copyItem(at: url, to: importedURL)
-            } catch {
-                failed += 1
-                continue
-            }
-            guard let sdi = createSDImageFromURL(importedURL) else {
-                failed += 1
-                continue
-            }
-            succeeded += 1
-            sdis.append(sdi)
-        }
+        let sdis = selectedURLs
+            .compactMap { try? imageRepo.importImage(from: $0) }
         ImageStore.shared.add(sdis)
         isLoading = false
 
         let alert = NSAlert()
-        alert.messageText = String(localized: "Imported \(succeeded) image(s)")
+        alert.messageText = String(localized: "Imported \(sdis.count) image(s)")
+        let failed = selectedURLs.count - sdis.count
         if failed > 0 {
             alert.informativeText = String(localized: "\(failed) image(s) were not imported. Only images generated by Mochi Diffusion 2.2 or later can be imported.")
         }
@@ -484,7 +463,7 @@ final class ImageController: ObservableObject {
         }
 
         guard let selectedURL = panel.url else { return }
-        let type = UTType.fromString(ImageController.shared.imageType)
+        let type = UTType.fromString(self.imageType)
 
         for (index, sdi) in ImageStore.shared.images.enumerated() {
             let count = index + 1

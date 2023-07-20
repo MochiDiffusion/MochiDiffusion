@@ -63,85 +63,6 @@ class ImageGenerator: ObservableObject {
 
     private var generationStopped = false
 
-    func loadImages(imageDir: String) async throws -> ([SDImage], URL) {
-        var finalImageDirURL: URL
-        let fm = FileManager.default
-        /// check if image autosave directory exists
-        if imageDir.isEmpty {
-            /// use default autosave directory
-            finalImageDirURL = fm.homeDirectoryForCurrentUser
-            finalImageDirURL.append(path: "MochiDiffusion/images", directoryHint: .isDirectory)
-        } else {
-            /// generate url from autosave directory
-            finalImageDirURL = URL(fileURLWithPath: imageDir, isDirectory: true)
-        }
-        if !fm.fileExists(atPath: finalImageDirURL.path(percentEncoded: false)) {
-            print("Creating image autosave directory at: \"\(finalImageDirURL.path(percentEncoded: false))\"")
-            try? fm.createDirectory(at: finalImageDirURL, withIntermediateDirectories: true)
-        }
-        let items = try fm.contentsOfDirectory(
-            at: finalImageDirURL,
-            includingPropertiesForKeys: nil,
-            options: .skipsHiddenFiles
-        )
-        let imageURLs = items
-            .filter { $0.isFileURL }
-            .filter { ["png", "jpg", "jpeg", "heic"].contains($0.pathExtension) }
-        var sdis: [SDImage] = []
-        for url in imageURLs {
-            guard let sdi = createSDImageFromURL(url) else { continue }
-            sdis.append(sdi)
-        }
-        sdis.sort { $0.generatedDate < $1.generatedDate }
-        return (sdis, finalImageDirURL)
-    }
-
-    private func controlNets(in controlNetDirectoryURL: URL) -> [String] {
-        let controlNetDirectoryPath = controlNetDirectoryURL.path(percentEncoded: false)
-
-        guard FileManager.default.fileExists(atPath: controlNetDirectoryPath),
-            let contentsOfControlNet = try? FileManager.default.contentsOfDirectory(atPath: controlNetDirectoryPath) else {
-            return []
-        }
-
-        return contentsOfControlNet.filter { !$0.hasPrefix(".") }.map { $0.replacing(".mlmodelc", with: "") }
-    }
-
-    func getModels(modelDirectoryURL: URL, controlNetDirectoryURL: URL) async throws -> [SDModel] {
-        var models: [SDModel] = []
-        let fm = FileManager.default
-
-        do {
-            let controlNet = controlNets(in: controlNetDirectoryURL)
-            let subDirs = try modelDirectoryURL.subDirectories()
-
-            models = subDirs
-                .sorted { $0.lastPathComponent.compare($1.lastPathComponent, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedAscending }
-                .compactMap { url in
-                    let controlledUnetMetadataPath = url.appending(components: "ControlledUnet.mlmodelc", "metadata.json").path(percentEncoded: false)
-                    let hasControlNet = fm.fileExists(atPath: controlledUnetMetadataPath)
-
-                    if hasControlNet {
-                        let controlNetSymLinkPath = url.appending(component: "controlnet").path(percentEncoded: false)
-
-                        if !fm.fileExists(atPath: controlNetSymLinkPath) {
-                            try? fm.createSymbolicLink(atPath: controlNetSymLinkPath, withDestinationPath: controlNetDirectoryURL.path(percentEncoded: false))
-                        }
-                    }
-
-                    return SDModel(url: url, name: url.lastPathComponent, controlNet: hasControlNet ? controlNet : [])
-                }
-        } catch {
-            await updateState(.error("Could not get model subdirectories."))
-            throw GeneratorError.modelSubDirectoriesNoAccess
-        }
-        if models.isEmpty {
-            await updateState(.error("No models found under: \(modelDirectoryURL.path(percentEncoded: false))"))
-            throw GeneratorError.noModelsFound
-        }
-        return models
-    }
-
     func load(model: SDModel, controlNet: [String] = [], computeUnit: MLComputeUnits, reduceMemory: Bool) async throws {
         let fm = FileManager.default
         if !fm.fileExists(atPath: model.url.path) {
@@ -240,17 +161,5 @@ class ImageGenerator: ObservableObject {
         Task { @MainActor in
             self.queueProgress = queueProgress
         }
-    }
-}
-
-extension URL {
-    func subDirectories() throws -> [URL] {
-        guard hasDirectoryPath else { return [] }
-        return try FileManager.default.contentsOfDirectory(
-            at: self,
-            includingPropertiesForKeys: nil,
-            options: [.skipsHiddenFiles]
-        )
-        .filter { $0.resolvingSymlinksInPath().hasDirectoryPath }
     }
 }

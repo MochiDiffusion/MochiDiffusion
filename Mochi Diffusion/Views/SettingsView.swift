@@ -44,10 +44,8 @@ struct SettingsView: View {
                 Spacer()
 
                 Button {
-                    Task {
-                        NSApplication.shared.keyWindow?.close()
-                        await ImageController.shared.load()
-                    }
+                    NSApplication.shared.keyWindow?.close()
+                    ImageController.shared.load()
                 } label: {
                     Text(
                         "Apply",
