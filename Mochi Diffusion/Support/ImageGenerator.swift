@@ -142,7 +142,7 @@ class ImageGenerator: ObservableObject {
         return models
     }
 
-    func load(model: SDModel, controlNet: [String] = [], computeUnit: MLComputeUnits, reduceMemory: Bool) async throws {
+    func loadPipeline(model: SDModel, controlNet: [String] = [], computeUnit: MLComputeUnits, reduceMemory: Bool) async throws {
         let fm = FileManager.default
         if !fm.fileExists(atPath: model.url.path) {
             await updateState(.error("Couldn't load \(model.name) because it doesn't exist."))
