@@ -90,7 +90,7 @@ struct ControlNetView: View {
                     Divider()
 
                     if !controller.controlNet.isEmpty {
-                        ForEach(controller.controlNet, id: \.self) { name in
+                        ForEach(controller.controlNet.sorted(), id: \.self) { name in
                             Button {
                                 if controller.currentControlNets.isEmpty {
                                     controller.currentControlNets = [SDControlNet(name: name)]
