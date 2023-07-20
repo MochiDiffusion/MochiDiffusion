@@ -89,18 +89,14 @@ final class ImageController: ObservableObject {
             controlNet = model.controlNet
             currentControlNets = []
 
-            loadModel()
+            loadPipeline()
         }
     }
 
     @Published
-    var currentControlNets: [SDControlNet] = [] {
-        didSet {
-            loadModel()
-        }
-    }
+    var currentControlNets: [SDControlNet] = []
 
-    private func loadModel() {
+    private func loadPipeline() {
         guard let model = currentModel else {
             return
         }
@@ -108,7 +104,7 @@ final class ImageController: ObservableObject {
         Task {
             logger.info("Started loading model: \"\(self.modelName)\"")
             do {
-                try await ImageGenerator.shared.load(
+                try await ImageGenerator.shared.loadPipeline(
                     model: model,
                     controlNet: currentControlNets.filter { $0.image != nil }.compactMap(\.name),
                     computeUnit: mlComputeUnitPreference.computeUnits(forModel: model),
@@ -381,6 +377,7 @@ final class ImageController: ObservableObject {
                 currentControlNets[index].image = image
             }
         }
+        loadPipeline()
     }
 
     func selectImage() async -> CGImage? {
