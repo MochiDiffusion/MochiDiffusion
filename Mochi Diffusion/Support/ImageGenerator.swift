@@ -142,7 +142,6 @@ class ImageGenerator: ObservableObject {
         return models
     }
 
-    @MainActor
     func load(model: SDModel, controlNet: [String] = [], computeUnit: MLComputeUnits, reduceMemory: Bool) async throws {
         let fm = FileManager.default
         if !fm.fileExists(atPath: model.url.path) {
@@ -153,13 +152,22 @@ class ImageGenerator: ObservableObject {
         let config = MLModelConfiguration()
         config.computeUnits = computeUnit
 
-        self.pipeline = try StableDiffusionPipeline(
-            resourcesAt: model.url,
-            controlNet: controlNet,
-            configuration: config,
-            disableSafety: true,
-            reduceMemory: reduceMemory
-        )
+        do {
+            let pipline = try StableDiffusionPipeline(
+                resourcesAt: model.url,
+                controlNet: controlNet,
+                configuration: config,
+                disableSafety: true,
+                reduceMemory: reduceMemory
+            )
+
+            DispatchQueue.main.async {
+                self.pipeline = pipline
+            }
+        } catch {
+            print("Could not load Model!")
+        }
+
         self.tokenizer = Tokenizer(modelDir: model.url)
         await updateState(.ready(nil))
     }
