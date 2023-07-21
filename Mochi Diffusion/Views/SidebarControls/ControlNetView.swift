@@ -84,7 +84,7 @@ struct ControlNetView: View {
                     Divider()
 
                     if !controller.controlNet.isEmpty {
-                        ForEach(controller.controlNet.sorted(), id: \.self) { name in
+                        ForEach(controller.controlNet.sorted { $0.localizedCaseInsensitiveCompare($1) == .orderedAscending }, id: \.self) { name in
                             Button {
                                 Task { await controller.setControlNet(SDControlNet(name: name)) }
                             } label: {
