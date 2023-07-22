@@ -376,8 +376,21 @@ final class ImageController: ObservableObject {
         startingImage = nil
     }
 
-    func setControlNet(_ controlNet: SDControlNet) async {
-        self.currentControlNets = [controlNet]
+    func setControlNet(name: String) async {
+        if self.currentControlNets.isEmpty {
+            self.currentControlNets = [SDControlNet(name: name)]
+        } else {
+            self.currentControlNets[0].name = name
+        }
+        loadPipeline()
+    }
+
+    func setControlNet(image: CGImage) async {
+        if self.currentControlNets.isEmpty {
+            self.currentControlNets = [SDControlNet(image: image)]
+        } else {
+            self.currentControlNets[0].image = image
+        }
         loadPipeline()
     }
 
