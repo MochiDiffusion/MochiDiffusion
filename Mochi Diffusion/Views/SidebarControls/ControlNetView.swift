@@ -58,7 +58,7 @@ struct ControlNetView: View {
                                     return
                                 }
 
-                                Task { await controller.setControlNet(SDControlNet(image: cgImage)) }
+                                Task { await ImageController.shared.setControlNet(image: cgImage) }
                             }
 
                             return true
@@ -73,7 +73,7 @@ struct ControlNetView: View {
             VStack(alignment: .trailing) {
                 Menu {
                     Button {
-                        Task { await controller.unsetControlNet() }
+                        Task { await ImageController.shared.unsetControlNet() }
                     } label: {
                         Text(
                             "None",
@@ -86,7 +86,7 @@ struct ControlNetView: View {
                     if !controller.controlNet.isEmpty {
                         ForEach(controller.controlNet, id: \.self) { name in
                             Button {
-                                Task { await controller.setControlNet(SDControlNet(name: name)) }
+                                Task { await ImageController.shared.setControlNet(name: name) }
                             } label: {
                                 Text(verbatim: name)
                             }
