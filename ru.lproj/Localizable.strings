@@ -55,9 +55,11 @@
 "Model" = "Модель";
 "Model Folder" = "Папка для моделей";
 "Move Images to Trash" = "Отправить изображения в корзину";
+"Newest First" = "Сначала новые";
 "No Info" = "Нет информации";
 "None" = "Не выбрано";
 "Number of Images" = "Количество изображений";
+"Oldest First" = "Сначала старые";
 "Open in Finder" = "Открыть в Finder";
 "Quick Look" = "Быстрый просмотр";
 "Reduce Memory Usage" = "Использовать меньше памяти";
@@ -78,6 +80,7 @@
 "Set as Starting Image" = "Сделать стартовым изображением";
 "Share..." = "Поделиться...";
 "Show in Finder" = "Показать в Finder";
+"Sort" = "Сортировать";
 "Starting Image" = "Начальное изображение";
 "Step %lld of %lld" = "Шаг %lld из %lld";
 "Steps" = "Шаги";

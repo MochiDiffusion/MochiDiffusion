@@ -141,6 +141,7 @@ final class ImageController: ObservableObject {
     @AppStorage("ImageHeight") var height = 512
     @AppStorage("Scheduler") var scheduler: Scheduler = .dpmSolverMultistepScheduler
     @AppStorage("UpscaleGeneratedImages") var upscaleGeneratedImages = false
+    @AppStorage("ShowGenerationPreview") var showGenerationPreview = false
     @AppStorage("MLComputeUnitPreference") var mlComputeUnitPreference: ComputeUnitPreference = .auto
     @AppStorage("ReduceMemory") var reduceMemory = false
     @AppStorage("SafetyChecker") var safetyChecker = false
@@ -249,6 +250,7 @@ final class ImageController: ObservableObject {
         pipelineConfig.disableSafety = !safetyChecker
         pipelineConfig.schedulerType = convertScheduler(scheduler)
         pipelineConfig.controlNetInputs = currentControlNets.filter { $0.name != nil }.compactMap(\.image)
+        pipelineConfig.useDenoisedIntermediates = showGenerationPreview
 
         let genConfig = GenerationConfig(
             pipelineConfig: pipelineConfig,
@@ -376,8 +378,21 @@ final class ImageController: ObservableObject {
         startingImage = nil
     }
 
-    func setControlNet(_ controlNet: SDControlNet) async {
-        self.currentControlNets = [controlNet]
+    func setControlNet(name: String) async {
+        if self.currentControlNets.isEmpty {
+            self.currentControlNets = [SDControlNet(name: name)]
+        } else {
+            self.currentControlNets[0].name = name
+        }
+        loadPipeline()
+    }
+
+    func setControlNet(image: CGImage) async {
+        if self.currentControlNets.isEmpty {
+            self.currentControlNets = [SDControlNet(image: image)]
+        } else {
+            self.currentControlNets[0].image = image
+        }
         loadPipeline()
     }
 
