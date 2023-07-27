@@ -94,7 +94,7 @@ final class ImageController: ObservableObject {
     }
 
     @Published
-    var currentControlNets: [SDControlNet] = []
+    private(set) var currentControlNets: [SDControlNet] = []
 
     private func loadPipeline() {
         guard let model = currentModel else {
@@ -370,6 +370,38 @@ final class ImageController: ObservableObject {
         startingImage = await selectImage()
     }
 
+    func selectStartingImage(sdi: SDImage) async {
+        guard let image = sdi.image else { return }
+        startingImage = image
+    }
+
+    func unsetStartingImage() async {
+        startingImage = nil
+    }
+
+    func setControlNet(name: String) async {
+        if self.currentControlNets.isEmpty {
+            self.currentControlNets = [SDControlNet(name: name)]
+        } else {
+            self.currentControlNets[0].name = name
+        }
+        loadPipeline()
+    }
+
+    func setControlNet(image: CGImage) async {
+        if self.currentControlNets.isEmpty {
+            self.currentControlNets = [SDControlNet(image: image)]
+        } else {
+            self.currentControlNets[0].image = image
+        }
+        loadPipeline()
+    }
+
+    func unsetControlNet() async {
+        self.currentControlNets = []
+        loadPipeline()
+    }
+
     func selectControlNetImage(at index: Int) async {
         await selectImage().map { image in
             if currentControlNets.isEmpty {
@@ -380,7 +412,11 @@ final class ImageController: ObservableObject {
                 currentControlNets[index].image = image
             }
         }
-        loadPipeline()
+    }
+
+    func unsetControlNetImage(at index: Int) async {
+        guard index < currentControlNets.count else { return }
+        currentControlNets[index].image = nil
     }
 
     func selectImage() async -> CGImage? {
@@ -402,20 +438,6 @@ final class ImageController: ObservableObject {
         let imageIndex = CGImageSourceGetPrimaryImageIndex(cgImageSource)
 
         return CGImageSourceCreateImageAtIndex(cgImageSource, imageIndex, nil)
-    }
-
-    func selectStartingImage(sdi: SDImage) async {
-        guard let image = sdi.image else { return }
-        startingImage = image
-    }
-
-    func unsetStartingImage() async {
-        startingImage = nil
-    }
-
-    func unsetControlNetImage(at index: Int) async {
-        guard index < currentControlNets.count else { return }
-        currentControlNets[index].image = nil
     }
 
     func importImages() async {

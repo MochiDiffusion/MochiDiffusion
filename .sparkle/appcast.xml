@@ -5,6 +5,50 @@
     <language>en</language>
 
     <item>
+      <title>v4.1.3</title>
+      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <sparkle:version>4.1.3</sparkle:version>
+      <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
+      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <pubDate>Sat, 22 Jul 2023 05:10:08 +0000</pubDate>
+      <enclosure
+        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v4.1.3/MochiDiffusion_v4.1.3.dmg"
+        sparkle:edSignature="rhaPIGgaELAU7pH84UJXy7XzMAYTH2LEkwqXp0fu1qqUqqVFo5UALa0TzYC9V/S7L/oxOQFZbsONvOZXLCXCAQ=="
+        length="66528333"
+        type="application/octet-stream" />
+      <description><![CDATA[
+      <ul>
+      <li>Fixed ControlNet</li>
+      <li>Fixed missing Dutch, Polish, &amp; Ukrainian translations</li>
+      </ul>
+      <p><strong>Note</strong>: To use inpainting, select an inpainting ControlNet model and provide a mask image with transparent pixels.</p>
+      ]]>
+      </description>
+    </item>
+
+    <item>
+      <title>v4.1.2</title>
+      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <sparkle:version>4.1.2</sparkle:version>
+      <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
+      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <pubDate>Thu, 20 Jul 2023 23:50:08 +0000</pubDate>
+      <enclosure
+        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v4.1.2/MochiDiffusion_v4.1.2.dmg"
+        sparkle:edSignature="sPk74Gt6sCipVTCJXXdua617jVQ2OoC0XoGg6bjPEhKePxje5b1ivMO5neHSrLIqoTno9wtOYyucM7ZVGk1QDQ=="
+        length="66514301"
+        type="application/octet-stream" />
+      <description><![CDATA[
+      <ul>
+      <li>Fixed app crash when changing settings</li>
+      <li>Added Norwegian Bokmal translation (Espen Bye)</li>
+      </ul>
+      <p><strong>Note</strong>: To use inpainting, select an inpainting ControlNet model and provide a mask image with transparent pixels.</p>
+      ]]>
+      </description>
+    </item>
+
+    <item>
       <title>v4.1.1</title>
       <link>https://github.com/godly-devotion/MochiDiffusion</link>
       <sparkle:version>4.1.1</sparkle:version>
