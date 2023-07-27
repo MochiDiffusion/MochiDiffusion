@@ -209,6 +209,28 @@ struct SettingsView: View {
     private var imageView: some View {
         VStack(alignment: .leading, spacing: 16) {
             GroupBox {
+                VStack(alignment: .leading) {
+                    HStack {
+                        Text("Show Image Preview")
+
+                        Spacer()
+
+                        Toggle("", isOn: $controller.showGenerationPreview)
+                            .labelsHidden()
+                            .toggleStyle(.switch)
+                            .controlSize(.small)
+                    }
+
+                    Text(
+                        "Show the image as its being generated.",
+                        comment: "Help text for Show Image Preview setting"
+                    )
+                    .helpTextFormat()
+                }
+                .padding(4)
+            }
+
+            GroupBox {
                 HStack {
                     Text("Scheduler")
 
