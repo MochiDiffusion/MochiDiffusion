@@ -145,6 +145,7 @@ final class ImageController: ObservableObject {
     @AppStorage("ImageHeight") var height = 512
     @AppStorage("Scheduler") var scheduler: Scheduler = .dpmSolverMultistepScheduler
     @AppStorage("UpscaleGeneratedImages") var upscaleGeneratedImages = false
+    @AppStorage("ShowGenerationPreview") var showGenerationPreview = false
     @AppStorage("MLComputeUnitPreference") var mlComputeUnitPreference: ComputeUnitPreference = .auto
     @AppStorage("ReduceMemory") var reduceMemory = false
     @AppStorage("SafetyChecker") var safetyChecker = false
@@ -253,6 +254,7 @@ final class ImageController: ObservableObject {
         pipelineConfig.disableSafety = !safetyChecker
         pipelineConfig.schedulerType = convertScheduler(scheduler)
         pipelineConfig.controlNetInputs = currentControlNets.filter { $0.name != nil }.compactMap(\.image)
+        pipelineConfig.useDenoisedIntermediates = showGenerationPreview
 
         let genConfig = GenerationConfig(
             pipelineConfig: pipelineConfig,
