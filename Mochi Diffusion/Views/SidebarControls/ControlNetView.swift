@@ -84,7 +84,7 @@ struct ControlNetView: View {
                     Divider()
 
                     if !controller.controlNet.isEmpty {
-                        ForEach(controller.controlNet, id: \.self) { name in
+                        ForEach(controller.controlNet.sorted { $0.compare($1, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedAscending }, id: \.self) { name in
                             Button {
                                 Task { await ImageController.shared.setControlNet(name: name) }
                             } label: {
