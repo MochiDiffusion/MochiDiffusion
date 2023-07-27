@@ -51,7 +51,6 @@ struct GalleryView: View {
         ScrollViewReader { proxy in
             ScrollView {
                 LazyVGrid(columns: gridColumns, spacing: 16) {
-
                     if store.sortType == .newestFirst {
                         if let currentImage = store.currentGeneratingImage, case .running = generator.state {
                             GalleryPreviewView(image: currentImage)

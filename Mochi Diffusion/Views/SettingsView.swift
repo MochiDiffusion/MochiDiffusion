@@ -202,34 +202,34 @@ struct SettingsView: View {
                 }
                 .padding(4)
             }
-
-            GroupBox {
-                VStack(alignment: .leading) {
-                    HStack {
-                        Text("Show Generating Image Preview")
-
-                        Spacer()
-
-                        Toggle("", isOn: $controller.previewCurrentImages)
-                            .labelsHidden()
-                            .toggleStyle(.switch)
-                            .controlSize(.small)
-                    }
-
-                    Text(
-                        "Show generating images for each step.\nThis may cause low generation speed.",
-                        comment: "Help text for Show Generating Image Preview setting"
-                    )
-                    .helpTextFormat()
-                }
-                .padding(4)
-            }
         }
     }
 
     @ViewBuilder
     private var imageView: some View {
         VStack(alignment: .leading, spacing: 16) {
+            GroupBox {
+                VStack(alignment: .leading) {
+                    HStack {
+                        Text("Show Image Preview")
+
+                        Spacer()
+
+                        Toggle("", isOn: $controller.showGenerationPreview)
+                            .labelsHidden()
+                            .toggleStyle(.switch)
+                            .controlSize(.small)
+                    }
+
+                    Text(
+                        "Show the image as its being generated.",
+                        comment: "Help text for Show Image Preview setting"
+                    )
+                    .helpTextFormat()
+                }
+                .padding(4)
+            }
+
             GroupBox {
                 HStack {
                     Text("Scheduler")
