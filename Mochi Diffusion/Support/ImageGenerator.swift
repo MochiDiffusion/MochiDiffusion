@@ -17,6 +17,7 @@ struct GenerationConfig: Sendable {
     var imageDir: String
     var imageType: String
     var numberOfImages: Int
+    var showPreview: Bool
     var model: String
     var mlComputeUnit: MLComputeUnits
     var scheduler: Scheduler
@@ -186,10 +187,19 @@ class ImageGenerator: ObservableObject {
         for index in 0 ..< config.numberOfImages {
             await updateQueueProgress(QueueProgress(index: index, total: inputConfig.numberOfImages))
 
-            let images = try pipeline.generateImages(configuration: config.pipelineConfig) { progress in
+            let images = try pipeline.generateImages(configuration: config.pipelineConfig) { [config] progress in
                 Task { @MainActor in
                     state = .running(progress)
                 }
+
+                Task {
+                    if config.showPreview, let currentImage = progress.currentImages.last {
+                        await ImageStore.shared.setCurrentGenerating(image: currentImage)
+                    } else {
+                        await ImageStore.shared.setCurrentGenerating(image: nil)
+                    }
+                }
+
                 return !generationStopped
             }
             if generationStopped {
