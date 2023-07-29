@@ -106,10 +106,19 @@ class ImageGenerator: ObservableObject {
         for index in 0 ..< config.numberOfImages {
             await updateQueueProgress(QueueProgress(index: index, total: inputConfig.numberOfImages))
 
-            let images = try pipeline.generateImages(configuration: config.pipelineConfig) { progress in
+            let images = try pipeline.generateImages(configuration: config.pipelineConfig) { [config] progress in
                 Task { @MainActor in
                     state = .running(progress)
                 }
+
+                Task {
+                    if config.pipelineConfig.useDenoisedIntermediates, let currentImage = progress.currentImages.last {
+                        await ImageStore.shared.setCurrentGenerating(image: currentImage)
+                    } else {
+                        await ImageStore.shared.setCurrentGenerating(image: nil)
+                    }
+                }
+
                 return !generationStopped
             }
             if generationStopped {
