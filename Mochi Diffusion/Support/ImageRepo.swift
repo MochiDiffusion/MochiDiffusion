@@ -9,24 +9,31 @@ import AppKit
 import CoreML
 import Foundation
 
-struct LocalDiskImageRepo: ImageRepo {
+enum ImageRepoError: Error {
+    case couldNotCreateImage
+}
+
+struct ImageRepo {
+
     private let imageDirPath: String?
-    private let persistenceManager: PersistenceManager
     private let imageDefaultPath = "MochiDiffusion/images/"
+    private let fm = FileManager.default
 
     var imagesURL: URL {
-        persistenceManager
-            .buildDirectory(defaultPath: imageDefaultPath, electedPath: imageDirPath)
+        if let path = imageDirPath {
+            return URL(fileURLWithPath: path, isDirectory: true)
+        } else {
+            return fm.homeDirectoryForCurrentUser.appending(path: imageDefaultPath, directoryHint: .isDirectory)
+        }
     }
 
-    init(imageDirPath: String?, persistenceManager: PersistenceManager) {
+    init(imageDirPath: String?) {
         self.imageDirPath = imageDirPath
-        self.persistenceManager = persistenceManager
     }
 
     func importImage(from url: URL) throws -> SDImage {
         let to = imagesURL.appending(path: url.lastPathComponent)
-        try persistenceManager.copyItem(at: url, to: to)
+        try fm.copyItem(at: url, to: to)
         guard let img = try? createSDImageFromURL(url) else {
             throw ImageRepoError.couldNotCreateImage
         }
@@ -34,7 +41,8 @@ struct LocalDiskImageRepo: ImageRepo {
     }
 
     func loadImages() throws -> [SDImage] {
-        let urls: [URL] = try persistenceManager.contents(of: imagesURL)
+
+        let urls: [URL] = try fm.contentsOfDirectory(at: imagesURL, includingPropertiesForKeys: nil)
             .filter { $0.isFileURL }
             .filter { ["png", "jpg", "jpeg", "heic"].contains($0.pathExtension) }
         return urls
@@ -48,13 +56,18 @@ struct LocalDiskImageRepo: ImageRepo {
 
     func delete(image: SDImage, moveToTrash: Bool) throws {
         let url = URL(fileURLWithPath: image.path, isDirectory: false)
-        try persistenceManager.delete(at: url, moveToTrash: moveToTrash)
+        if moveToTrash {
+            try fm.trashItem(at: url, resultingItemURL: nil)
+        } else {
+            try fm.removeItem(at: url)
+        }
     }
 
     // swiftlint:disable:next cyclomatic_complexity
     private func createSDImageFromURL(_ url: URL) throws -> SDImage? {
-        let dateModified = try persistenceManager.getDateModified(for: url)
-        guard let cgImageSource = CGImageSourceCreateWithURL(url as CFURL, nil) else { return nil }
+
+        guard let dateModified = fm.getDateModified(for: url),
+        let cgImageSource = CGImageSourceCreateWithURL(url as CFURL, nil) else { return nil }
         let imageIndex = CGImageSourceGetPrimaryImageIndex(cgImageSource)
         guard let cgImage = CGImageSourceCreateImageAtIndex(cgImageSource, imageIndex, nil), let properties = CGImageSourceCopyPropertiesAtIndex(cgImageSource, 0, nil), let propDict = properties as? [String: Any], let tiffProp = propDict[kCGImagePropertyTIFFDictionary as String] as? [String: Any], let infoString = tiffProp[kCGImagePropertyTIFFImageDescription as String] as? String else { return nil }
         var sdi = SDImage(

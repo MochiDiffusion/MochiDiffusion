@@ -28,6 +28,25 @@ extension NSApplication {
     }
 }
 
+extension FileManager {
+    func getDateModified(for url: URL) -> Date? {
+        let path = url.path(percentEncoded: false)
+        guard let attributes = try? self.attributesOfItem(atPath: path),
+        let date = attributes[FileAttributeKey.modificationDate] as? Date else {
+            return nil
+        }
+        return date
+    }
+
+    func buildDirectory(defaultPath: String, electedPath: String?) -> URL {
+        if let path = electedPath {
+            return URL(fileURLWithPath: path, isDirectory: true)
+        } else {
+            return self.homeDirectoryForCurrentUser.appending(path: defaultPath, directoryHint: .isDirectory)
+        }
+    }
+}
+
 extension View {
     func syncFocus<T: Equatable>(_ binding: Binding<T>, with focusState: FocusState<T>) -> some View {
         self

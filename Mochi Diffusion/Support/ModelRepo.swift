@@ -7,33 +7,31 @@
 
 import Foundation
 
-struct LocalDiskModelRepo: ModelRepo {
+struct ModelRepo {
 
     private let modelDirPath: String?
     private let controlNetDirPath: String?
-    private let persistenceManager: PersistenceManager
+    private let fm = FileManager.default
 
     private let modelDefaultPath = "MochiDiffusion/models/"
     private let controlNetDefaultPath = "MochiDiffusion/controlnet/"
 
     var modelURL: URL {
-        persistenceManager
-            .buildDirectory(defaultPath: modelDefaultPath, electedPath: modelDirPath)
+        fm.buildDirectory(defaultPath: modelDefaultPath, electedPath: modelDirPath)
     }
     var controlNetURL: URL {
-        persistenceManager
-            .buildDirectory(defaultPath: controlNetDefaultPath, electedPath: controlNetDirPath)
+        fm.buildDirectory(defaultPath: controlNetDefaultPath, electedPath: controlNetDirPath)
     }
     private var modelSubDirectories: [URL] {
-        (try? persistenceManager
-            .subDirectories(of: modelURL)
+        (try? fm
+            .contentsOfDirectory(at: modelURL, includingPropertiesForKeys: nil)
+            .filter { $0.resolvingSymlinksInPath().hasDirectoryPath }
             .sorted { $0.lastPathComponent.compare($1.lastPathComponent, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedAscending }) ?? []
     }
 
-    init(modelDirPath: String?, controlNetDirPath: String?, persistenceManager: PersistenceManager) {
+    init(modelDirPath: String?, controlNetDirPath: String?) {
         self.modelDirPath = modelDirPath
         self.controlNetDirPath = controlNetDirPath
-        self.persistenceManager = persistenceManager
     }
 
     func loadModels() throws -> [SDModel] {
@@ -47,18 +45,19 @@ struct LocalDiskModelRepo: ModelRepo {
 
     private func searchAndCreateUNets(at url: URL) {
         let controlNetSymLinkURL = url.appending(component: "controlnet")
-        if persistenceManager.fileExists(at: controlNetSymLinkURL) {
-            try? persistenceManager.createSymbolicLink(at: controlNetSymLinkURL, withDesinationURL: controlNetURL)
+        if fm.fileExists(atPath: controlNetSymLinkURL.path(percentEncoded: false)) {
+            try? fm.createSymbolicLink(at: controlNetSymLinkURL, withDestinationURL: controlNetURL)
         }
     }
 
     private func directoryHasUNets(url: URL) -> Bool {
         let unetURL = url.appending(components: "ControlledUnet.mlmodelc", "metadata.json")
-        return persistenceManager.fileExists(at: unetURL)
+        return fm.fileExists(atPath: unetURL.path(percentEncoded: false))
     }
 
     private func loadControlNets() -> [String] {
-        guard let nets: [String] = try? persistenceManager.contents(of: controlNetURL) else {
+        let path = controlNetURL.path(percentEncoded: false)
+        guard let nets: [String] = try? fm.contentsOfDirectory(atPath: path) else {
             return []
         }
         return nets

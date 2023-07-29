@@ -41,18 +41,9 @@ final class ImageController: ObservableObject {
 
     private lazy var logger = Logger()
 
-    private lazy var modelRepo: ModelRepo = {
-        ModelRepoFactory(
-            localModelDir: modelDir.isEmpty ? nil : modelDir,
-            localControlNetDir: controlNetDir.isEmpty ? nil : controlNetDir
-        ).createModelRepo()
-    }()
+    private lazy var modelRepo = ModelRepo(modelDirPath: modelDir, controlNetDirPath: controlNetDir)
 
-    private lazy var imageRepo: ImageRepo = {
-        ImageRepoFactory(
-            localImageDir: imageDir.isEmpty ? nil : imageDir
-        ).createImageRepo()
-    }()
+    private lazy var imageRepo = ImageRepo(imageDirPath: imageDir)
 
     @Published
     var isLoading = true
