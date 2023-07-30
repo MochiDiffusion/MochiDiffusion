@@ -6,14 +6,6 @@ body:
     attributes:
       value: |
         Thanks for taking the time to fill out this bug report!
-  - type: checkboxes
-    id: latest-version
-    attributes:
-      label: Running Latest Version
-      description: I've checked that I am running the latest version by going to Mochi Diffusion > Check for Updates...
-      options:
-        - label: I am running the latest version
-          required: true
   - type: dropdown
     id: processor
     attributes:
@@ -23,15 +15,8 @@ body:
         - M1 Pro (or later)
         - M1 Max (or later)
         - M1 Ultra (or later)
-        - Intel
     validations:
       required: true
-  - type: textarea
-    id: intel-processor
-    attributes:
-      label: Intel processor
-      description: If your processor type is Intel, specify the model and GPU.
-      placeholder: 2.2 GHz 6-core Intel Core i7 8750H with AMD Radeon Pro 555X (4GB GDDR5 memory)
   - type: dropdown
     id: memory
     attributes:
