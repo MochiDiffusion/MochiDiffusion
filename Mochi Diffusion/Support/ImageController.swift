@@ -89,18 +89,14 @@ final class ImageController: ObservableObject {
             controlNet = model.controlNet
             currentControlNets = []
 
-            loadModel()
+            loadPipeline()
         }
     }
 
     @Published
-    var currentControlNets: [SDControlNet] = [] {
-        didSet {
-            loadModel()
-        }
-    }
+    private(set) var currentControlNets: [SDControlNet] = []
 
-    private func loadModel() {
+    private func loadPipeline() {
         guard let model = currentModel else {
             return
         }
@@ -108,13 +104,13 @@ final class ImageController: ObservableObject {
         Task {
             logger.info("Started loading model: \"\(self.modelName)\"")
             do {
-                try await ImageGenerator.shared.load(
+                try await ImageGenerator.shared.loadPipeline(
                     model: model,
                     controlNet: currentControlNets.filter { $0.image != nil }.compactMap(\.name),
                     computeUnit: mlComputeUnitPreference.computeUnits(forModel: model),
                     reduceMemory: reduceMemory
                 )
-                logger.info("Stable Diffusion pipeline successfully loaded")
+                logger.info("Stable Diffusion \(model.isXL ? "XL " : "")pipeline successfully loaded")
             } catch ImageGenerator.GeneratorError.requestedModelNotFound {
                 logger.error("Couldn't load \(self.modelName) because it doesn't exist.")
                 modelName = ""
@@ -273,7 +269,7 @@ final class ImageController: ObservableObject {
                 try await ImageGenerator.shared.generate(genConfig)
             } catch ImageGenerator.GeneratorError.pipelineNotAvailable {
                 await self.logger.error("Pipeline is not loaded.")
-            } catch StableDiffusionPipeline.Error.startingImageProvidedWithoutEncoder {
+            } catch PipelineError.startingImageProvidedWithoutEncoder {
                 await self.logger.error("The selected model does not support setting a starting image.")
                 await ImageGenerator.shared.updateState(.ready("The selected model does not support setting a starting image."))
             } catch Encoder.Error.sampleInputShapeNotCorrect {
@@ -373,6 +369,38 @@ final class ImageController: ObservableObject {
         startingImage = await selectImage()
     }
 
+    func selectStartingImage(sdi: SDImage) async {
+        guard let image = sdi.image else { return }
+        startingImage = image
+    }
+
+    func unsetStartingImage() async {
+        startingImage = nil
+    }
+
+    func setControlNet(name: String) async {
+        if self.currentControlNets.isEmpty {
+            self.currentControlNets = [SDControlNet(name: name)]
+        } else {
+            self.currentControlNets[0].name = name
+        }
+        loadPipeline()
+    }
+
+    func setControlNet(image: CGImage) async {
+        if self.currentControlNets.isEmpty {
+            self.currentControlNets = [SDControlNet(image: image)]
+        } else {
+            self.currentControlNets[0].image = image
+        }
+        loadPipeline()
+    }
+
+    func unsetControlNet() async {
+        self.currentControlNets = []
+        loadPipeline()
+    }
+
     func selectControlNetImage(at index: Int) async {
         await selectImage().map { image in
             if currentControlNets.isEmpty {
@@ -383,6 +411,11 @@ final class ImageController: ObservableObject {
                 currentControlNets[index].image = image
             }
         }
+    }
+
+    func unsetControlNetImage(at index: Int) async {
+        guard index < currentControlNets.count else { return }
+        currentControlNets[index].image = nil
     }
 
     func selectImage() async -> CGImage? {
@@ -404,20 +437,6 @@ final class ImageController: ObservableObject {
         let imageIndex = CGImageSourceGetPrimaryImageIndex(cgImageSource)
 
         return CGImageSourceCreateImageAtIndex(cgImageSource, imageIndex, nil)
-    }
-
-    func selectStartingImage(sdi: SDImage) async {
-        guard let image = sdi.image else { return }
-        startingImage = image
-    }
-
-    func unsetStartingImage() async {
-        startingImage = nil
-    }
-
-    func unsetControlNetImage(at index: Int) async {
-        guard index < currentControlNets.count else { return }
-        currentControlNets[index].image = nil
     }
 
     func importImages() async {

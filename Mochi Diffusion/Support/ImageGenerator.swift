@@ -57,7 +57,7 @@ class ImageGenerator: ObservableObject {
     @Published
     private(set) var queueProgress = QueueProgress(index: 0, total: 0)
 
-    private var pipeline: StableDiffusionPipeline?
+    private var pipeline: (any StableDiffusionPipelineProtocol)?
 
     private(set) var tokenizer: Tokenizer?
 
@@ -153,13 +153,27 @@ class ImageGenerator: ObservableObject {
         let config = MLModelConfiguration()
         config.computeUnits = computeUnit
 
-        self.pipeline = try StableDiffusionPipeline(
-            resourcesAt: model.url,
-            controlNet: controlNet,
-            configuration: config,
-            disableSafety: true,
-            reduceMemory: reduceMemory
-        )
+        if model.isXL {
+            if #available(macOS 14.0, *) {
+                self.pipeline = try StableDiffusionXLPipeline(
+                    resourcesAt: model.url,
+                    configuration: config,
+                    reduceMemory: reduceMemory
+                )
+            } else {
+                // Stable Diffusion XL requires macOS 14
+                throw GeneratorError.pipelineNotAvailable
+            }
+        } else {
+            self.pipeline = try StableDiffusionPipeline(
+                resourcesAt: model.url,
+                controlNet: controlNet,
+                configuration: config,
+                disableSafety: true,
+                reduceMemory: reduceMemory
+            )
+        }
+
         self.tokenizer = Tokenizer(modelDir: model.url)
         await updateState(.ready(nil))
     }

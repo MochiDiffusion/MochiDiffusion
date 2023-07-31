@@ -76,7 +76,9 @@
 "Select Previous" = "前を選択";
 "Set as Starting Image" = "開始画像に設定";
 "Share..." = "共有...";
+"Show Image Preview" = "画像のプレビューを表示";
 "Show in Finder" = "Finderで表示";
+"Show the image as its being generated." = "生成される画像を表示します。";
 "Sort" = "ソート";
 "Starting Image" = "開始画像";
 "Step %lld of %lld" = "ステップ %lld / %lld";
