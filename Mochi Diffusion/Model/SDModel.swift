@@ -16,6 +16,7 @@ struct SDModel: Identifiable, Hashable {
     let name: String
     let attention: SDModelAttentionType
     let controlNet: [String]
+    let isXL: Bool
 
     var id: URL { url }
 
@@ -24,10 +25,13 @@ struct SDModel: Identifiable, Hashable {
             return nil
         }
 
+        let isXL = identifyIfXL(url)
+
         self.url = url
         self.name = name
         self.attention = attention
         self.controlNet = controlNet
+        self.isXL = isXL
     }
 }
 
@@ -59,5 +63,30 @@ private func identifyAttentionType(_ url: URL) -> SDModelAttentionType? {
     } catch {
         logger.warning("Failed to parse model metadata at '\(metadataURL)': \(error)")
         return nil
+    }
+}
+
+private func identifyIfXL(_ url: URL) -> Bool {
+    let unetMetadataURL = url.appending(components: "Unet.mlmodelc", "metadata.json")
+    let metadataURL: URL = unetMetadataURL
+
+    struct ModelMetadata: Decodable {
+        let inputSchema: [[String: String]]
+    }
+
+    do {
+        let jsonData = try Data(contentsOf: metadataURL)
+        let metadatas = try JSONDecoder().decode([ModelMetadata].self, from: jsonData)
+
+        guard metadatas.count == 1 else {
+            return false
+        }
+
+        // XL models have 5 inputs total (added: time_ids and text_embeds)
+        let inputNames = metadatas[0].inputSchema.compactMap { $0["name"] }
+        return inputNames.contains("time_ids") && inputNames.contains("text_embeds")
+    } catch {
+        logger.warning("Failed to parse model metadata at '\(metadataURL)': \(error)")
+        return false
     }
 }

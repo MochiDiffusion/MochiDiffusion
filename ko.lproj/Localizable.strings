@@ -76,7 +76,9 @@
 "Select Previous" = "이전 선택";
 "Set as Starting Image" = "시작 이미지로 선택";
 "Share..." = "공유...";
+"Show Image Preview" = "이미지 미리보기";
 "Show in Finder" = "Finder에서 보기";
+"Show the image as its being generated." = "생성되는 이미지를 미리 보기.";
 "Sort" = "정렬";
 "Starting Image" = "시작 이미지";
 "Step %lld of %lld" = "스텝 %lld / %lld";
