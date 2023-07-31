@@ -142,6 +142,7 @@ class ImageGenerator: ObservableObject {
         return models
     }
 
+    @MainActor
     func loadPipeline(model: SDModel, controlNet: [String] = [], computeUnit: MLComputeUnits, reduceMemory: Bool) async throws {
         let fm = FileManager.default
         if !fm.fileExists(atPath: model.url.path) {
