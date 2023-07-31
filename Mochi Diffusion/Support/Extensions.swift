@@ -51,7 +51,7 @@ extension NSImage {
     }
 }
 
-extension NSImage {
+extension NSImage: Transferable {
     private static var urlCache = [Int: URL]()
 
     public static var transferRepresentation: some TransferRepresentation {
