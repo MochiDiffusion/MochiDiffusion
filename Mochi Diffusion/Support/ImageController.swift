@@ -110,7 +110,7 @@ final class ImageController: ObservableObject {
                     computeUnit: mlComputeUnitPreference.computeUnits(forModel: model),
                     reduceMemory: reduceMemory
                 )
-                logger.info("Stable Diffusion pipeline successfully loaded")
+                logger.info("Stable Diffusion \(model.isXL ? "XL " : "")pipeline successfully loaded")
             } catch ImageGenerator.GeneratorError.requestedModelNotFound {
                 logger.error("Couldn't load \(self.modelName) because it doesn't exist.")
                 modelName = ""
@@ -269,7 +269,7 @@ final class ImageController: ObservableObject {
                 try await ImageGenerator.shared.generate(genConfig)
             } catch ImageGenerator.GeneratorError.pipelineNotAvailable {
                 await self.logger.error("Pipeline is not loaded.")
-            } catch StableDiffusionPipeline.Error.startingImageProvidedWithoutEncoder {
+            } catch PipelineError.startingImageProvidedWithoutEncoder {
                 await self.logger.error("The selected model does not support setting a starting image.")
                 await ImageGenerator.shared.updateState(.ready("The selected model does not support setting a starting image."))
             } catch Encoder.Error.sampleInputShapeNotCorrect {
