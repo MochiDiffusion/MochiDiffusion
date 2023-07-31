@@ -57,6 +57,7 @@
 		978106772A684EEA003BB4F3 /* Scheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 978106472A684EEA003BB4F3 /* Scheduler.swift */; };
 		978106782A684EEA003BB4F3 /* SDControlNet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 978106482A684EEA003BB4F3 /* SDControlNet.swift */; };
 		978106792A684EEA003BB4F3 /* SDImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 978106492A684EEA003BB4F3 /* SDImage.swift */; };
+		978EB2572A76387C00C76A6B /* GalleryPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 978EB2562A76387C00C76A6B /* GalleryPreviewView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -123,6 +124,7 @@
 		978106472A684EEA003BB4F3 /* Scheduler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Scheduler.swift; sourceTree = "<group>"; };
 		978106482A684EEA003BB4F3 /* SDControlNet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SDControlNet.swift; sourceTree = "<group>"; };
 		978106492A684EEA003BB4F3 /* SDImage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SDImage.swift; sourceTree = "<group>"; };
+		978EB2562A76387C00C76A6B /* GalleryPreviewView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = GalleryPreviewView.swift; path = "../../../../MochiDiffusion/Mochi Diffusion/Views/GalleryPreviewView.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -186,6 +188,7 @@
 		978106142A684EEA003BB4F3 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				978EB2562A76387C00C76A6B /* GalleryPreviewView.swift */,
 				978106152A684EEA003BB4F3 /* SettingsView.swift */,
 				978106162A684EEA003BB4F3 /* AppView.swift */,
 				978106172A684EEA003BB4F3 /* CircularProgressView.swift */,
@@ -414,6 +417,7 @@
 				9781064F2A684EEA003BB4F3 /* InspectorView.swift in Sources */,
 				978106792A684EEA003BB4F3 /* SDImage.swift in Sources */,
 				9781065C2A684EEA003BB4F3 /* StepsView.swift in Sources */,
+				978EB2572A76387C00C76A6B /* GalleryPreviewView.swift in Sources */,
 				978106652A684EEA003BB4F3 /* Tokenizer.swift in Sources */,
 				9781065E2A684EEA003BB4F3 /* ImageCommands.swift in Sources */,
 				978106572A684EEA003BB4F3 /* GuidanceScaleView.swift in Sources */,
@@ -479,7 +483,6 @@
 				03F75CEC2979B3910071CD1C /* zh-Hant */,
 				0316D7D52983468600340F0C /* es */,
 				038994DB2985D111007F5A61 /* ru */,
-				0352D7BC2A69EA3C00206DE0 /* nb */,
 				032535D72A6B905B00DF76A4 /* nl */,
 				032535D82A6B907B00DF76A4 /* pl */,
 				032535D92A6B90B100DF76A4 /* uk */,

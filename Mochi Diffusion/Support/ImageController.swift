@@ -108,7 +108,7 @@ final class ImageController: ObservableObject {
         Task {
             logger.info("Started loading model: \"\(self.modelName)\"")
             do {
-                try await ImageGenerator.shared.loadPipeline(
+                try await ImageGenerator.shared.load(
                     model: model,
                     controlNet: currentControlNets.filter { $0.image != nil }.compactMap(\.name),
                     computeUnit: mlComputeUnitPreference.computeUnits(forModel: model),
