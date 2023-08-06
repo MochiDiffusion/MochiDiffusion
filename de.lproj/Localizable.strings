@@ -79,7 +79,9 @@
 "Select Previous" = "Vorheriges auswählen";
 "Set as Starting Image" = "Als Ausgangsbild festlegen";
 "Share..." = "Teilen...";
+"Show Image Preview" = "Bildvorschau anzeigen";
 "Show in Finder" = "In Finder anzeigen";
+"Show the image as its being generated." = "Zeige das Bild während es generiert wird.";
 "Sort" = "Sortieren";
 "Starting Image" = "Ausgangsbild";
 "Step %lld of %lld" = "Arbeitsschritt %lld von %lld";
