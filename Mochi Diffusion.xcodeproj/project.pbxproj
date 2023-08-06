@@ -10,7 +10,6 @@
 		030370312A2BECDD003D2F0C /* SDControlNet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 030370302A2BECDD003D2F0C /* SDControlNet.swift */; };
 		03061E6229AB9C06009AA2A2 /* FocusController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03061E6129AB9C06009AA2A2 /* FocusController.swift */; };
 		0307B0DA294D4AE500A9BD55 /* FileCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0307B0D9294D4AE500A9BD55 /* FileCommands.swift */; };
-		030C1B712A7370EE002EF26E /* StableDiffusion in Frameworks */ = {isa = PBXBuildFile; productRef = 030C1B702A7370EE002EF26E /* StableDiffusion */; };
 		0311C69929899A660074BCAE /* Metadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0311C69829899A660074BCAE /* Metadata.swift */; };
 		0311C6BD2989E3EF0074BCAE /* Localizable.stringsdict in Resources */ = {isa = PBXBuildFile; fileRef = 0311C6BF2989E3EF0074BCAE /* Localizable.stringsdict */; };
 		03173C112999D83600B03456 /* ImageGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03173C102999D83600B03456 /* ImageGenerator.swift */; };
@@ -41,6 +40,7 @@
 		0386DF8D2950F25500CA4CEB /* GalleryToolbarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0386DF8C2950F25500CA4CEB /* GalleryToolbarView.swift */; };
 		0388DEB0297B00FC008B1C1C /* CompactSlider in Frameworks */ = {isa = PBXBuildFile; productRef = 0388DEAF297B00FC008B1C1C /* CompactSlider */; };
 		0395B3112995C70400465B73 /* Scheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0395B3102995C70400465B73 /* Scheduler.swift */; };
+		03ADC8B9299581AF00B2843F /* StableDiffusion in Frameworks */ = {isa = PBXBuildFile; productRef = 03ADC8B8299581AF00B2843F /* StableDiffusion */; };
 		03B1ACA8295167B900302F54 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03B1ACA7295167B900302F54 /* SettingsView.swift */; };
 		03CB9D18297399AE0041A4FA /* ImageCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03CB9D17297399AE0041A4FA /* ImageCommands.swift */; };
 		03D280F2294FD60E00C7D184 /* PromptView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03D280F1294FD60E00C7D184 /* PromptView.swift */; };
@@ -130,7 +130,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				036BFC4E294B9FDB00D8AD04 /* Path in Frameworks */,
-				030C1B712A7370EE002EF26E /* StableDiffusion in Frameworks */,
+				03ADC8B9299581AF00B2843F /* StableDiffusion in Frameworks */,
 				0352E2A5294E2591003FBF25 /* Sparkle in Frameworks */,
 				0388DEB0297B00FC008B1C1C /* CompactSlider in Frameworks */,
 			);
@@ -286,7 +286,7 @@
 				036BFC4D294B9FDB00D8AD04 /* Path */,
 				0352E2A4294E2591003FBF25 /* Sparkle */,
 				0388DEAF297B00FC008B1C1C /* CompactSlider */,
-				030C1B702A7370EE002EF26E /* StableDiffusion */,
+				03ADC8B8299581AF00B2843F /* StableDiffusion */,
 			);
 			productName = "Mochi Diffusion";
 			productReference = 036BFC1E294B9F7500D8AD04 /* Mochi Diffusion.app */;
@@ -355,7 +355,7 @@
 				036BFC4C294B9FDB00D8AD04 /* XCRemoteSwiftPackageReference "Path.swift" */,
 				0352E2A3294E2591003FBF25 /* XCRemoteSwiftPackageReference "Sparkle" */,
 				0388DEAE297B00FC008B1C1C /* XCRemoteSwiftPackageReference "CompactSlider" */,
-				030C1B6F2A7370EE002EF26E /* XCRemoteSwiftPackageReference "ml-stable-diffusion" */,
+				03ADC8B7299581AF00B2843F /* XCRemoteSwiftPackageReference "ml-stable-diffusion" */,
 			);
 			productRefGroup = 036BFC1F294B9F7500D8AD04 /* Products */;
 			projectDirPath = "";
@@ -699,14 +699,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		030C1B6F2A7370EE002EF26E /* XCRemoteSwiftPackageReference "ml-stable-diffusion" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/godly-devotion/ml-stable-diffusion";
-			requirement = {
-				branch = main;
-				kind = branch;
-			};
-		};
 		0352E2A3294E2591003FBF25 /* XCRemoteSwiftPackageReference "Sparkle" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/sparkle-project/Sparkle";
@@ -731,14 +723,17 @@
 				minimumVersion = 1.0.0;
 			};
 		};
+		03ADC8B7299581AF00B2843F /* XCRemoteSwiftPackageReference "ml-stable-diffusion" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/ml-stable-diffusion";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		030C1B702A7370EE002EF26E /* StableDiffusion */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 030C1B6F2A7370EE002EF26E /* XCRemoteSwiftPackageReference "ml-stable-diffusion" */;
-			productName = StableDiffusion;
-		};
 		0352E2A4294E2591003FBF25 /* Sparkle */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 0352E2A3294E2591003FBF25 /* XCRemoteSwiftPackageReference "Sparkle" */;
@@ -753,6 +748,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 0388DEAE297B00FC008B1C1C /* XCRemoteSwiftPackageReference "CompactSlider" */;
 			productName = CompactSlider;
+		};
+		03ADC8B8299581AF00B2843F /* StableDiffusion */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 03ADC8B7299581AF00B2843F /* XCRemoteSwiftPackageReference "ml-stable-diffusion" */;
+			productName = StableDiffusion;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
