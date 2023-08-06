@@ -12,10 +12,10 @@
     {
       "identity" : "ml-stable-diffusion",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/ml-stable-diffusion.git",
+      "location" : "https://github.com/apple/ml-stable-diffusion",
       "state" : {
         "branch" : "main",
-        "revision" : "8cf34376f9faf87fc6fe63159e5fae6cbbb71de6"
+        "revision" : "ce8ee78e28613d8a2e4c8b56932b236cb57e7e20"
       }
     },
     {
