@@ -411,6 +411,7 @@ final class ImageController: ObservableObject {
                 currentControlNets[index].image = image
             }
         }
+        loadPipeline()
     }
 
     func unsetControlNetImage(at index: Int) async {
