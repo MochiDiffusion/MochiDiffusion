@@ -9,8 +9,8 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 enum ImagesSortType: String {
-    case oldestFirst
-    case newestFirst
+    case oldestFirst = "OLDEST_FIRST"
+    case newestFirst = "NEWEST_FIRST"
 
     static let allValues: [ImagesSortType] = [.oldestFirst, .newestFirst]
 }
@@ -43,7 +43,8 @@ class ImageStore: ObservableObject {
         }
     }
 
-    @Published var sortType: ImagesSortType = .oldestFirst {
+    @AppStorage("GallerySort")
+    var sortType: ImagesSortType = .oldestFirst {
         didSet {
             updateSortForImages()
         }
