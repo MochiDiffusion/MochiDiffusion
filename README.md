@@ -57,7 +57,7 @@ Depending on the option chosen, you will need to use the correct model version (
 
 You will need to convert or download Core ML models in order to use Mochi Diffusion.
 
-A few models have been converted and uploaded [here](https://huggingface.co/coreml).
+A few models have been converted and uploaded [here](https://huggingface.co/coreml-community).
 
 1. [Convert](https://github.com/godly-devotion/MochiDiffusion/wiki/How-to-convert-Stable-Diffusion-models-to-Core-ML) or download Core ML models
     - `split_einsum` version is compatible with all compute unit options including Neural Engine

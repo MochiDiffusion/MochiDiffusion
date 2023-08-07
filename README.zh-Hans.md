@@ -57,7 +57,7 @@
 
 你需要自行转换或下载 Core ML 模型以使用 Mochi Diffusion。
 
-[这里](https://huggingface.co/coreml) 上传了几个已经转换好的模型
+[这里](https://huggingface.co/coreml-community) 上传了几个已经转换好的模型
 
 1. [转换](https://github.com/godly-devotion/MochiDiffusion/wiki/How-to-convert-Stable-Diffusion-models-to-Core-ML) 或下载 Core ML 模型
     - `split_einsum` 版本适用于包括神经网络引擎在内的所有计算单元

@@ -54,7 +54,7 @@
 
 Mochi Diffusion을 사용하려면 모델 파일을 Core ML 포맷으로 변환하거나 다운로드해야 합니다.
 
-몇 가지 모델을 변환하여 [여기](https://huggingface.co/coreml)에 업로드 해놨습니다.
+몇 가지 모델을 변환하여 [여기](https://huggingface.co/coreml-community)에 업로드 해놨습니다.
 
 1. Core ML 모델로 [변환 하거나](https://github.com/godly-devotion/MochiDiffusion/wiki/How-to-convert-Stable-Diffusion-models-to-Core-ML) 다운
     - `split_einsum` 버전은 Neural Engine을 포함한 모든 Compute Unit 옵션과 사용 가능
