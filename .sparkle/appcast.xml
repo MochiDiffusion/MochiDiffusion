@@ -5,6 +5,31 @@
     <language>en</language>
 
     <item>
+      <title>v4.2</title>
+      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <sparkle:version>4.2</sparkle:version>
+      <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
+      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <pubDate>Mon, 7 Aug 2023 18:49:03 +0000</pubDate>
+      <enclosure
+        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v4.2/MochiDiffusion_v4.2.dmg"
+        sparkle:edSignature="g6Y7TtqdjcSPl/J2z8poHPT5L0aFj8jm5DJ164EV+nB2n9kAGo9M3yl8K4jOXfRslgnMS+vFBJFYT2OUwk1tBQ=="
+        length="66548439"
+        type="application/octet-stream" />
+      <description><![CDATA[
+      <ul>
+      <li>Fixed setting ControlNet image</li>
+      <li>Fixed restoring last gallery sort option</li>
+      <li>Added support for Stable Diffusion XL models (requires macOS 14 beta) (@ZachNagengast)</li>
+      <li>Added setting to show image preview during generation (@hoseins77)</li>
+      <li>Sorted ControlNet list (@jrittvo)</li>
+      <li>Updated link to HuggingFace Core ML Community</li>
+      </ul>
+      ]]>
+      </description>
+    </item>
+
+    <item>
       <title>v4.1.3</title>
       <link>https://github.com/godly-devotion/MochiDiffusion</link>
       <sparkle:version>4.1.3</sparkle:version>
