@@ -62,9 +62,9 @@ extension TransferableImage: Transferable {
         if #available(macOS 14.0, *) {
             return NSImage.transferRepresentation
         } else {
-            return ProxyRepresentation<TransferableImage, URL>(exporting: { transferableImage in
+            return ProxyRepresentation<TransferableImage, URL> { transferableImage in
                 try transferableImage.image.temporaryFileURL()
-            })
+            }
         }
         #else
         return ProxyRepresentation<TransferableImage, URL> { transferableImage in
