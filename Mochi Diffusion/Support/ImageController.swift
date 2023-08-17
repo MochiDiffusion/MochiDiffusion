@@ -73,7 +73,7 @@ final class ImageController: ObservableObject {
     private var quicklookId: UUID? {
         didSet {
             quicklookURL = quicklookId.flatMap { id in
-                try? ImageStore.shared.image(with: id)?.image?.asNSImage().temporaryFileURL()
+                try? ImageStore.shared.image(with: id)?.image?.asTransferableImage().image.temporaryFileURL()
             }
         }
     }
@@ -571,7 +571,7 @@ final class ImageController: ObservableObject {
 }
 
 extension CGImage {
-    func asNSImage() -> NSImage {
-        NSImage(cgImage: self, size: NSSize(width: width, height: height))
+    func asTransferableImage() -> TransferableImage {
+        TransferableImage(image: NSImage(cgImage: self, size: NSSize(width: width, height: height)))
     }
 }
