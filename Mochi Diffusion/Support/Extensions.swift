@@ -61,6 +61,7 @@ extension TransferableImage: Transferable {
         if #available(macOS 14.0, *) {
             return NSImage.transferRepresentation
         } else {
+            // swiftlint:disable:next trailing_closure
             return ProxyRepresentation<TransferableImage, URL>(exporting: { (transferableImage: TransferableImage) in
                 return try transferableImage.image.temporaryFileURL()
             })
