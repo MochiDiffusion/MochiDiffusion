@@ -51,33 +51,48 @@ extension NSImage {
     }
 }
 
-extension NSImage: Transferable {
+@available(macOS, introduced: 13.0, deprecated: 14.0)
+public struct TransferableImage {
+    public let image: NSImage
+}
+
+extension TransferableImage: Transferable {
+    public static var transferRepresentation: some TransferRepresentation {
+        #if swift(>=5.9)
+        if #available(macOS 14.0, *) {
+            return NSImage.transferRepresentation
+        } else {
+            return ProxyRepresentation<TransferableImage, URL> { transferableImage in
+                try transferableImage.image.temporaryFileURL()
+            }
+        }
+        #else
+        return ProxyRepresentation<TransferableImage, URL> { transferableImage in
+            try transferableImage.image.temporaryFileURL()
+        }
+        #endif
+    }
+}
+
+extension NSImage {
     private static var urlCache = [Int: URL]()
 
-    public static var transferRepresentation: some TransferRepresentation {
-        // swiftlint:disable:next trailing_closure
-        ProxyRepresentation<NSImage, URL>(exporting: { image in
-            let nsImage: NSImage = image
-            return try nsImage.temporaryFileURL()
-        })
-    }
-
     public static func cleanupTempFiles() {
-        for url in NSImage.urlCache {
+        for url in self.urlCache {
             try? FileManager.default.removeItem(at: url.value)
         }
     }
 
     func temporaryFileURL() throws -> URL {
         let imageHash = self.getImageHash()
-        if let cachedURL = NSImage.urlCache[imageHash] {
+        if let cachedURL = Self.urlCache[imageHash] {
             return cachedURL
         }
         let name = String(imageHash)
         let url = FileManager.default.temporaryDirectory.appendingPathComponent(name, conformingTo: .png)
         let fileWrapper = FileWrapper(regularFileWithContents: self.toPngData())
         try fileWrapper.write(to: url, originalContentsURL: nil)
-        NSImage.urlCache[imageHash] = url
+        Self.urlCache[imageHash] = url
         return url
     }
 }
