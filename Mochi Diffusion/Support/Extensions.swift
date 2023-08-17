@@ -63,8 +63,9 @@ extension TransferableImage: Transferable {
         } else {
             // swiftlint:disable:next trailing_closure
             return ProxyRepresentation<TransferableImage, URL>(exporting: { (transferableImage: TransferableImage) in
-                return try transferableImage.image.temporaryFileURL()
-            })
+                    return try transferableImage.image.temporaryFileURL()
+                }
+            )
         }
     }
 }
