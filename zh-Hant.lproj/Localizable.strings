@@ -76,7 +76,9 @@
 "Select Previous" = "上一張";
 "Set as Starting Image" = "設為起始圖片";
 "Share..." = "分享 ...";
+"Show Image Preview" = "顯示圖像預覽";
 "Show in Finder" = "在 Finder中顯示";
+"Show the image as its being generated." = "在生成過程中顯示圖像";
 "Sort" = "排序";
 "Starting Image" = "起始圖片";
 "Step %lld of %lld" = "迭代次數 %lld / %lld";
