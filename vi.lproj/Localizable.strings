@@ -1,4 +1,4 @@
-"CFBundleDisplayName" = "Mochi Diffusion ";
+"CFBundleDisplayName" = "Mochi Diffusion";
 "CFBundleName" = "Mochi Diffusion";
 "NSHumanReadableCopyright" = "Bởi Joshua Park";
 "**Auto** selects the most appropriate configuration for the selected model." = "**Tự động** chọn cấu hình phù hợp nhất với kiểu máy đã chọn.";
