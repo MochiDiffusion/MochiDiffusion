@@ -8,3 +8,89 @@
 "Apply" = "Áp dụng";
 "Auto (Recommended)" = "Tự động (Khuyến khích)";
 "Autosave & Restore Images" = "Tự động lưu & Khôi phục hình ảnh";
+"CPU & Neural Engine" = "CPU & Neural Engine";
+"Check for Updates…" = "Kiểm tra cập nhật…";
+"Choose a folder and a name to store the image" = "Chọn thư mục và tên để lưu trữ hình ảnh";
+"Choose a folder to save all images" = "Chọn thư mục để lưu toàn bộ ảnh";
+"Choose generated images to import" = "Choose generated images to import";
+"Choose image" = "Lựa chọn hình ảnh ";
+"ControlNet" = "ControlNet";
+"ControlNet Folder" = "Thư mục ControlNet";
+"Convert all images to High Resolution (this will use more memory)" = "Chuyển đổi tất cả hình ảnh sang Độ phân giải cao (sẽ sử dụng nhiều bộ nhớ hơn)";
+"Convert to High Resolution" = "Chuyển đổi sang Độ phân giải cao";
+"Copy" = "Sao chép ";
+"Copy Info" = "Sao chép thông tin";
+"Copy Option to Sidebar" = "Sao chép tùy chọn sang Sidebar";
+"Copy Options to Sidebar" = "Sao chép tùy chọn sang Sidebar";
+"Description is too long" = "Mô tả quá dài";
+"Download Models" = "Tải xuống mô hình";
+"Exclude from Image" = "Loại trừ khỏi hình ảnh";
+"Filter Inappropriate Images" = "Lọc hình ảnh không phù hợp";
+"General" = "Tổng quan";
+"Generate" = "Tạo ra";
+"Guidance Scale" = "Thang hướng dẫn";
+"HD" = "HD";
+"Height:" = "Chiều cao:";
+"If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images." = "Nếu tùy chọn bị tắt, hình ảnh bị xóa sẽ bị xóa vĩnh viễn. Áp dụng cho hình ảnh được nhập và lưu tự động.";
+"Image" = "Hình ảnh ";
+"Image Type" = "Lọai hình ảnh";
+"Image file name:" = "Tên tập tin hình ảnh:";
+"Import" = "Nhập vào";
+"Import Images..." = "Nhập hình ảnh...";
+"Improve Translation" = "Cải thiện bản dịch";
+"Include in Image" = "Đưa vào hình ảnh";
+"Loading Model..." = "Đang tải mô hình...";
+"Loading..." = "Đang tải...";
+"ML Compute Unit" = "Đơn vị tính toán ML";
+"Manually selecting an incompatible ML Compute Unit may cause poor performance or crash." = "Việc chọn Đơn vị điện toán ML không tương thích theo cách thủ công có thể gây ra sự cố hoặc hiệu suất kém.";
+"Model" = "Mô hình";
+"Model Folder" = "Thư mục mô hình ";
+"Move Images to Trash" = "Di chuyển hình ảnh vào thùng rác";
+"Newest First" = "Mới nhất Đầu tiên";
+"No Info" = "Không có thông tin";
+"None" = "Không có";
+"Number of Images" = "Số lượng các hình ảnh";
+"Oldest First" = "Cũ nhất đầu tiên";
+"Open in Finder" = "Mở trong Finder";
+"Quick Look" = "Cái nhìn lướt qua";
+"Reduce Memory Usage" = "Giảm mức sử dụng bộ nhớ";
+"Reduce memory usage further at the cost of speed." = "Giảm mức sử dụng bộ nhớ hơn nữa với chi phí tốc độ.";
+"Release Notes" = "Ghi chú phát hành";
+"Remove" = "Xóa";
+"Save" = "Lưu";
+"Save All..." = "Lưu Tất cả...";
+"Save As..." = "Lưu thành...";
+"Save Image" = "Lưu ảnh";
+"Scheduler" = "Bảng lập kế hoạch";
+"Search" = "Tìm kiếm";
+"Seed" = "Hạt giống";
+"Select" = "Chọn";
+"Select Next" = "Chọn Tiếp";
+"Select Previous" = "Chọn Trước";
+"Set as Starting Image" = "Đặt làm hình ảnh bắt đầu";
+"Share..." = "Chia sẻ...";
+"Show Image Preview" = "Hiển thị bản xem trước hình ảnh";
+"Show in Finder" = "Hiển thị trong Finder";
+"Show the image as its being generated." = "Hiển thị hình ảnh khi nó được tạo.";
+"Sort" = "Loại";
+"Starting Image" = "Hình ảnh bắt đầu";
+"Step %lld of %lld" = "Bước %lld của %lld";
+"Steps" = "Bước";
+"Stop Generation" = "Dừng tạo";
+"Strength" = "Sức mạnh";
+"Strength controls how closely the generated image resembles the starting image.
+Use lower values to generate images that look similar to the starting image.
+Use higher values to allow more creative freedom.
+
+The size of the starting image must match the output image size of the current model." = "Độ mạnh kiểm soát mức độ giống nhau của hình ảnh được tạo với hình ảnh ban đầu.
+ Sử dụng các giá trị thấp hơn để tạo ra hình ảnh trông giống với hình ảnh bắt đầu.
+ Sử dụng giá trị cao hơn để cho phép tự do sáng tạo hơn.
+
+ Kích thước của hình ảnh bắt đầu phải phù hợp với kích thước hình ảnh đầu ra của mô hình hiện tại.";
+"Support Project" = "Dự án hỗ trợ";
+"This may take up to 2 minutes if a model is used for the first time" = "Quá trình này có thể mất tối đa 2 phút nếu sử dụng mô hình lần đầu tiên";
+"Toggle Info Panel" = "Chuyển đổi bảng thông tin";
+"Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Sử dụng mô-đun kiểm tra an toàn của mô hình.";
+"Website" = "Trang web";
+"Width:" = "Chiều rộng:";
+"random" = "ngẫu nhiên";
