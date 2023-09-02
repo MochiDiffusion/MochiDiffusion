@@ -99,5 +99,5 @@ The size of the starting image must match the output image size of the current m
 "Toggle Info Panel" = "정보 패널 전환";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "모델의 안전 검사기 모듈을 사용합니다. 모든 노골적인 이미지가 필터링되지 않을 수도 있습니다.";
 "Website" = "웹사이트";
-"Width:" = "세로길이:";
+"Width:" = "가로길이:";
 "random" = "랜덤";
