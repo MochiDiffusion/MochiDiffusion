@@ -1,2 +1,6 @@
-bundles:
-  - 3
+targets:
+  - name: Localizations (strings file)
+    sources:
+      - en.xliff
+    file: '/%osx_code%/Localizable.strings'
+    format: macosx
