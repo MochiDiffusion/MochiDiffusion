@@ -13,6 +13,7 @@ import UniformTypeIdentifiers
 
 struct GenerationConfig: Sendable {
     var pipelineConfig: StableDiffusionPipeline.Configuration
+    var isXL: Bool
     var autosaveImages: Bool
     var imageDir: String
     var imageType: String
@@ -186,6 +187,11 @@ class ImageGenerator: ObservableObject {
         generationStopped = false
         var config = inputConfig
         config.pipelineConfig.seed = config.pipelineConfig.seed == 0 ? UInt32.random(in: 0 ..< UInt32.max) : config.pipelineConfig.seed
+
+        if config.isXL {
+            config.pipelineConfig.encoderScaleFactor = 0.13025
+            config.pipelineConfig.decoderScaleFactor = 0.13025
+        }
 
         var sdi = SDImage()
         sdi.prompt = config.pipelineConfig.prompt

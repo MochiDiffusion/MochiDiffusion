@@ -254,6 +254,7 @@ final class ImageController: ObservableObject {
 
         let genConfig = GenerationConfig(
             pipelineConfig: pipelineConfig,
+            isXL: model.isXL,
             autosaveImages: autosaveImages,
             imageDir: imageDir,
             imageType: imageType,
