@@ -15,7 +15,7 @@
       "location" : "https://github.com/apple/ml-stable-diffusion",
       "state" : {
         "branch" : "main",
-        "revision" : "b392a0aca09a8321c8955ee84b48e9e9fdb49c93"
+        "revision" : "94814cfa41935efd8151a43758360a54e4e3c5d5"
       }
     },
     {
@@ -32,8 +32,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/sparkle-project/Sparkle",
       "state" : {
-        "revision" : "87e4fcbac39912f9cdb9a9acf205cad60e1ca3bc",
-        "version" : "2.4.2"
+        "revision" : "f0ceaf5cc9f3f23daa0ccb6dcebd79fc96ccc7d9",
+        "version" : "2.5.0"
       }
     },
     {
