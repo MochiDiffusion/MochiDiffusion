@@ -5,6 +5,32 @@
     <language>en</language>
 
     <item>
+      <title>v4.3</title>
+      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <sparkle:version>4.3</sparkle:version>
+      <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
+      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <pubDate>Thu, 28 Sep 2023 05:34:57 +0000</pubDate>
+      <enclosure
+        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v4.3/MochiDiffusion_v4.3.dmg"
+        sparkle:edSignature="aNsBDLpgdNxWuv1coG3DJuBcE8//hXHtVakzk0ECLqa44trm5qkDKHUme9xbDrAGvms/sysP1g85M+TVh72rCQ=="
+        length="67087259"
+        type="application/octet-stream" />
+      <description><![CDATA[
+      <ul>
+      <li>Added support for Stable Diffusion XL refiner (@ZachNagengast)<ul>
+      <li>Model must have <code>UnetRefiner.mlmodelc</code> file</li>
+      </ul>
+      </li>
+      <li>Added Vietnamese translation (Toàn Hoàng Đức)</li>
+      <li>Fixed noisy generated image (@ZachNagengast)</li>
+      <li>Fixed Xcode build on macOS 14 (@ZachNagengast)</li>
+      </ul>
+      ]]>
+      </description>
+    </item>
+
+    <item>
       <title>v4.2</title>
       <link>https://github.com/godly-devotion/MochiDiffusion</link>
       <sparkle:version>4.2</sparkle:version>
