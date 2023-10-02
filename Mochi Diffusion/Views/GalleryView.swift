@@ -31,9 +31,8 @@ struct GalleryView: View {
             }
         }
         .background(
-            Image(systemName: "circle.fill")
+            Image("GalleryBackground")
                 .resizable(resizingMode: .tile)
-                .foregroundColor(Color.black.opacity(colorScheme == .dark ? 0.05 : 0.02))
         )
         .navigationTitle(
             store.searchText.isEmpty ?
