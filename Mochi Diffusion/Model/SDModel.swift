@@ -36,15 +36,9 @@ struct SDModel: Identifiable, Hashable {
 }
 
 private func identifyAttentionType(_ url: URL) -> SDModelAttentionType? {
-    let unetMetadataURL = url.appending(components: "Unet.mlmodelc", "metadata.json")
-    let controlledUnetMetadataURL = url.appending(components: "ControlledUnet.mlmodelc", "metadata.json")
-
-    let metadataURL: URL
-
-    if FileManager.default.fileExists(atPath: unetMetadataURL.path(percentEncoded: false)) {
-        metadataURL = unetMetadataURL
-    } else {
-        metadataURL = controlledUnetMetadataURL
+    guard let metadataURL = unetMetadataURL(from: url) else {
+        logger.warning("No model metadata found at '\(url)'")
+        return nil
     }
 
     struct ModelMetadata: Decodable {
@@ -67,8 +61,10 @@ private func identifyAttentionType(_ url: URL) -> SDModelAttentionType? {
 }
 
 private func identifyIfXL(_ url: URL) -> Bool {
-    let unetMetadataURL = url.appending(components: "Unet.mlmodelc", "metadata.json")
-    let metadataURL: URL = unetMetadataURL
+    guard let metadataURL = unetMetadataURL(from: url) else {
+        logger.warning("No model metadata found at '\(url)'")
+        return false
+    }
 
     struct ModelMetadata: Decodable {
         let inputSchema: [[String: String]]
@@ -88,5 +84,17 @@ private func identifyIfXL(_ url: URL) -> Bool {
     } catch {
         logger.warning("Failed to parse model metadata at '\(metadataURL)': \(error)")
         return false
+    }
+}
+
+private func unetMetadataURL(from url: URL) -> URL? {
+    let potentialMetadataURLs = [
+        url.appending(components: "Unet.mlmodelc", "metadata.json"),
+        url.appending(components: "UnetChunk1.mlmodelc", "metadata.json"),
+        url.appending(components: "ControlledUnet.mlmodelc", "metadata.json")
+    ]
+
+    return potentialMetadataURLs.first {
+        FileManager.default.fileExists(atPath: $0.path(percentEncoded: false))
     }
 }
