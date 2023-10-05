@@ -5,6 +5,27 @@
     <language>en</language>
 
     <item>
+      <title>v4.3.1</title>
+      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <sparkle:version>4.3.1</sparkle:version>
+      <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
+      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <pubDate>Thu, 5 Oct 2023 03:00:35 +0000</pubDate>
+      <enclosure
+        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v4.3.1/MochiDiffusion_v4.3.1.dmg"
+        sparkle:edSignature="C4aGIryQxPf8myV/k9dv77NgMFCPbsb+Allro53gzJ+kt72lvZ3xiHzD6CMgi7ScF22joPMOhzgUHMJO5u6UAg=="
+        length="67104602"
+        type="application/octet-stream" />
+      <description><![CDATA[
+      <p><img src="https://github.com/godly-devotion/MochiDiffusion/assets/1341760/d71e28e9-2b3f-4c79-8845-9f370f457340" alt="roundels"></p>
+      <ul>
+      <li>Fixed the image gallery background&#39;s round things on macOS Sonoma (@vzsg)</li>
+      </ul>
+      ]]>
+      </description>
+    </item>
+
+    <item>
       <title>v4.3</title>
       <link>https://github.com/godly-devotion/MochiDiffusion</link>
       <sparkle:version>4.3</sparkle:version>
