@@ -11,6 +11,7 @@ struct ImageCommands: Commands {
     @ObservedObject var controller: ImageController
     @ObservedObject var generator: ImageGenerator
     @ObservedObject var store: ImageStore
+    @ObservedObject var focusController: FocusController
 
     var body: some Commands {
         CommandMenu("Image") {
@@ -41,8 +42,8 @@ struct ImageCommands: Commands {
                         comment: "Select next image in Gallery"
                     )
                 }
-                .keyboardShortcut(.rightArrow, modifiers: .command)
-                .disabled(store.images.isEmpty)
+                .keyboardShortcut(.rightArrow, modifiers: [])
+                .disabled(store.images.isEmpty || focusController.isTextFieldFocused)
 
                 Button {
                     Task { await ImageController.shared.selectPrevious() }
@@ -52,8 +53,8 @@ struct ImageCommands: Commands {
                         comment: "Select previous image in Gallery"
                     )
                 }
-                .keyboardShortcut(.leftArrow, modifiers: .command)
-                .disabled(store.images.isEmpty)
+                .keyboardShortcut(.leftArrow, modifiers: [])
+                .disabled(store.images.isEmpty || focusController.isTextFieldFocused)
             }
             Section {
                 Button {
@@ -88,7 +89,7 @@ struct ImageCommands: Commands {
                     )
                 }
                 .keyboardShortcut(.delete, modifiers: .command)
-                .disabled(store.selected() == nil)
+                .disabled(store.selected() == nil || focusController.isTextFieldFocused)
             }
         }
     }
