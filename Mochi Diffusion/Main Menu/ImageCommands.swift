@@ -13,10 +13,6 @@ struct ImageCommands: Commands {
     @ObservedObject var store: ImageStore
     @ObservedObject var focusController: FocusController
 
-    private var isTextFieldFocused: Bool {
-        $focusController.negativePromptFieldIsFocused.wrappedValue || $focusController.promptFieldIsFocused.wrappedValue || $focusController.seedFieldIsFocused.wrappedValue
-    }
-
     var body: some Commands {
         CommandMenu("Image") {
             Section {
@@ -47,7 +43,7 @@ struct ImageCommands: Commands {
                     )
                 }
                 .keyboardShortcut(.rightArrow, modifiers: .command)
-                .disabled(store.images.isEmpty || isTextFieldFocused)
+                .disabled(store.images.isEmpty || focusController.isTextFieldFocused)
 
                 Button {
                     Task { await ImageController.shared.selectPrevious() }
@@ -58,7 +54,7 @@ struct ImageCommands: Commands {
                     )
                 }
                 .keyboardShortcut(.leftArrow, modifiers: .command)
-                .disabled(store.images.isEmpty || isTextFieldFocused)
+                .disabled(store.images.isEmpty || focusController.isTextFieldFocused)
             }
             Section {
                 Button {
@@ -93,7 +89,7 @@ struct ImageCommands: Commands {
                     )
                 }
                 .keyboardShortcut(.delete, modifiers: .command)
-                .disabled(store.selected() == nil || isTextFieldFocused)
+                .disabled(store.selected() == nil || focusController.isTextFieldFocused)
             }
         }
     }

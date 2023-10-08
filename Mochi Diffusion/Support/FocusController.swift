@@ -19,6 +19,10 @@ final class FocusController: ObservableObject {
 
     @Published var seedFieldIsFocused = false
 
+    var isTextFieldFocused: Bool {
+        negativePromptFieldIsFocused || promptFieldIsFocused || seedFieldIsFocused
+    }
+
     /// Remove focus from all fields.
     func removeAllFocus() {
         promptFieldIsFocused = false
