@@ -42,7 +42,7 @@ struct ImageCommands: Commands {
                         comment: "Select next image in Gallery"
                     )
                 }
-                .keyboardShortcut(.rightArrow, modifiers: .command)
+                .keyboardShortcut(.rightArrow, modifiers: [])
                 .disabled(store.images.isEmpty || focusController.isTextFieldFocused)
 
                 Button {
@@ -53,7 +53,7 @@ struct ImageCommands: Commands {
                         comment: "Select previous image in Gallery"
                     )
                 }
-                .keyboardShortcut(.leftArrow, modifiers: .command)
+                .keyboardShortcut(.leftArrow, modifiers: [])
                 .disabled(store.images.isEmpty || focusController.isTextFieldFocused)
             }
             Section {
