@@ -5,6 +5,28 @@
     <language>en</language>
 
     <item>
+      <title>v4.4</title>
+      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <sparkle:version>4.4</sparkle:version>
+      <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
+      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <pubDate>Mon, 9 Oct 2023 17:02:57 +0000</pubDate>
+      <enclosure
+        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v4.4/MochiDiffusion_v4.4.dmg"
+        sparkle:edSignature="kRNoQ1iQJYhUyDZcPJ3KsTTEEpebxIav7Z4gHMKNwwWsVK//cdrXoeOoFdFDPknsrI4rnD64Mx2TnKuufCzZAQ=="
+        length="67104325"
+        type="application/octet-stream" />
+      <description><![CDATA[
+      <ul>
+      <li>Fixed problem selecting models with chunked Unets (@vzsg)</li>
+      <li>Fixed conflicting keyboard shortcuts between text inputs and gallery (@hoseins77)</li>
+      <li>Changed gallery selection keyboard shortcuts to no longer require command key</li>
+      </ul>
+      ]]>
+      </description>
+    </item>
+
+    <item>
       <title>v4.3.1</title>
       <link>https://github.com/godly-devotion/MochiDiffusion</link>
       <sparkle:version>4.3.1</sparkle:version>
