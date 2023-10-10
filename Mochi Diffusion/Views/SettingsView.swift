@@ -46,7 +46,7 @@ struct SettingsView: View {
                 Button {
                     Task {
                         NSApplication.shared.keyWindow?.close()
-                        await ImageController.shared.load()
+                        await controller.load()
                     }
                 } label: {
                     Text(
@@ -85,7 +85,8 @@ struct SettingsView: View {
                             .disabled(!$controller.autosaveImages.wrappedValue)
 
                         Button {
-                            NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: controller.imageDir).absoluteURL])
+                            guard let url = showOpenPanel(from: URL(string: controller.imageDir)) else { return }
+                            controller.imageDir = url.path(percentEncoded: false)
                         } label: {
                             Image(systemName: "magnifyingglass.circle.fill")
                                 .foregroundColor(Color.secondary)
@@ -127,7 +128,8 @@ struct SettingsView: View {
                             .textFieldStyle(.roundedBorder)
 
                         Button {
-                            NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: controller.modelDir).absoluteURL])
+                            guard let url = showOpenPanel(from: URL(string: controller.modelDir)) else { return }
+                            controller.modelDir = url.path(percentEncoded: false)
                         } label: {
                             Image(systemName: "magnifyingglass.circle.fill")
                                 .foregroundColor(Color.secondary)
@@ -149,7 +151,8 @@ struct SettingsView: View {
                             .textFieldStyle(.roundedBorder)
 
                         Button {
-                            NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: controller.controlNetDir).absoluteURL])
+                            guard let url = showOpenPanel(from: URL(string: controller.controlNetDir)) else { return }
+                            controller.controlNetDir = url.path(percentEncoded: false)
                         } label: {
                             Image(systemName: "magnifyingglass.circle.fill")
                                 .foregroundColor(Color.secondary)
@@ -315,6 +318,22 @@ struct SettingsView: View {
                 .padding(4)
             }
         }
+    }
+
+    private func showOpenPanel(from initialDirectoryURL: URL?) -> URL? {
+        let openPanel = NSOpenPanel()
+        openPanel.directoryURL = initialDirectoryURL
+        openPanel.allowsMultipleSelection = false
+        openPanel.canChooseDirectories = true
+        openPanel.canChooseFiles = false
+        openPanel.canCreateDirectories = true
+        let response = openPanel.runModal()
+
+        guard response == .OK, let url = openPanel.url else {
+            return nil
+        }
+
+        return url
     }
 }
 
