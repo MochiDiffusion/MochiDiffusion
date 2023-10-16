@@ -20,7 +20,7 @@ struct GalleryPreviewView: View {
                 let step = Int(progress.step) + 1
                 let stepValue = Double(step) / Double(progress.stepCount)
                 let stepLabel = String(
-                    localized: "Step \(step) of \(progress.stepCount) | Estimated Time: \(calculateGenerateEstimation(generator.lastStepGenerationElapsedTime, stepsLeft: progress.stepCount - step))",
+                    localized: "Step \(step) of \(progress.stepCount) - About \(formatTimeRemaining(generator.lastStepGenerationElapsedTime, stepsLeft: progress.stepCount - step))",
                     comment: "Text displaying the current step progress and count"
                 )
                 ProgressView(stepLabel, value: stepValue, total: 1)
@@ -30,17 +30,5 @@ struct GalleryPreviewView: View {
             }
         }
         .padding(4)
-    }
-
-    func calculateGenerateEstimation(_ interval: Double?, stepsLeft: Int) -> String {
-        guard let interval else {return "-"}
-
-        let formatter = DateComponentsFormatter()
-        formatter.allowedUnits = [.hour, .minute, .second]
-        formatter.unitsStyle = .short
-
-        let formattedString = formatter.string(from: TimeInterval((interval / 1_000_000_000) * Double(stepsLeft)))
-
-        return formattedString ?? "-"
     }
 }
