@@ -209,7 +209,6 @@ class ImageGenerator: ObservableObject {
 
         for index in 0 ..< config.numberOfImages {
             await updateQueueProgress(QueueProgress(index: index, total: inputConfig.numberOfImages))
-            let numbers = [13, 14]
             generationStartTime = DispatchTime.now()
             let images = try pipeline.generateImages(configuration: config.pipelineConfig) { [config] progress in
 
