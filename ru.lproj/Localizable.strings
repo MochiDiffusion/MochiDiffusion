@@ -84,7 +84,7 @@
 "Show the image as its being generated." = "Показывать изображение в процессе создания.";
 "Sort" = "Сортировать";
 "Starting Image" = "Начальное изображение";
-"Step %lld of %lld" = "Шаг %lld из %lld";
+"Step %lld of %lld - About %@" = "Шаг %lld из %lld - О программе %@";
 "Steps" = "Шаги";
 "Stop Generation" = "Остановить генерацию";
 "Strength" = "Интенсивность";
