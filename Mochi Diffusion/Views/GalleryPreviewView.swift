@@ -21,7 +21,7 @@ struct GalleryPreviewView: View {
                 let stepValue = Double(step) / Double(progress.stepCount)
                 let stepLabel = String(
                     localized: "Step \(step) of \(progress.stepCount) - About \(formatTimeRemaining(generator.lastStepGenerationElapsedTime, stepsLeft: progress.stepCount - step))",
-                    comment: "Text displaying the current step progress and count"
+                    comment: "Text displaying the current step progress, count, and time remaining"
                 )
                 ProgressView(stepLabel, value: stepValue, total: 1)
                     .padding(8)
