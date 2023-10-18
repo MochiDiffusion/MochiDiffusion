@@ -81,7 +81,6 @@
 "Show the image as its being generated." = "生成される画像を表示します。";
 "Sort" = "ソート";
 "Starting Image" = "開始画像";
-"Step %lld of %lld" = "ステップ %lld / %lld";
 "Steps" = "ステップ";
 "Stop Generation" = "画像生成の中止";
 "Strength" = "強さ";
