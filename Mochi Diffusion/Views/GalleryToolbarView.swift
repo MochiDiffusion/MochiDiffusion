@@ -49,7 +49,7 @@ struct GalleryToolbarView: View {
             }
             .popover(isPresented: self.$isStatusPopoverShown, arrowEdge: .bottom) {
                 let stepLabel = String(
-                    localized: "Step \(step) of \(progress.stepCount)",
+                    localized: "Step \(step) of \(progress.stepCount) - About \(formatTimeRemaining(generator.lastStepGenerationElapsedTime, stepsLeft: progress.stepCount - step))",
                     comment: "Text displaying the current step progress and count"
                 )
                 let imageCountLabel = String(

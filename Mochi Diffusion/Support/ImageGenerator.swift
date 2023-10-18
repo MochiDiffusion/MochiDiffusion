@@ -64,6 +64,11 @@ class ImageGenerator: ObservableObject {
 
     private var generationStopped = false
 
+    @Published
+    private(set) var lastStepGenerationElapsedTime: Double?
+
+    private var generationStartTime: DispatchTime?
+
     func loadImages(imageDir: String) async throws -> ([SDImage], URL) {
         var finalImageDirURL: URL
         let fm = FileManager.default
@@ -204,10 +209,14 @@ class ImageGenerator: ObservableObject {
 
         for index in 0 ..< config.numberOfImages {
             await updateQueueProgress(QueueProgress(index: index, total: inputConfig.numberOfImages))
-
+            generationStartTime = DispatchTime.now()
             let images = try pipeline.generateImages(configuration: config.pipelineConfig) { [config] progress in
+
                 Task { @MainActor in
                     state = .running(progress)
+                    let endTime = DispatchTime.now()
+                    lastStepGenerationElapsedTime = Double(endTime.uptimeNanoseconds - (generationStartTime?.uptimeNanoseconds ?? 0))
+                    generationStartTime = endTime
                 }
 
                 Task {
