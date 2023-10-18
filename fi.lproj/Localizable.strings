@@ -46,7 +46,6 @@
 "Select Next" = "Valitse Seuraava";
 "Select Previous" = "Valitse Edellinen";
 "Share..." = "Jaa...";
-"Step %lld of %lld" = "Vaihe %lld / %lld";
 "Steps" = "Vaiheet";
 "Stop Generation" = "Pysäytä generointi";
 "This may take up to 2 minutes if a model is used for the first time" = "Tämä voi kestää enintään 2 minuuttia, jos mallia käytetään ensimmäisen kerran";
