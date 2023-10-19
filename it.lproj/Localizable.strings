@@ -84,6 +84,7 @@
 "Show the image as its being generated." = "Mostra l\'immagine mentre viene generata.";
 "Sort" = "Ordina";
 "Starting Image" = "Immagine iniziale";
+"Step %lld of %lld - About %@" = "Passo %lld di %lld - Circa %@";
 "Steps" = "Numero di passi";
 "Stop Generation" = "Ferma la generazione";
 "Strength" = "Intensità";
