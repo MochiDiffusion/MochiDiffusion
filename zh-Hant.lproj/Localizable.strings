@@ -81,7 +81,7 @@
 "Show the image as its being generated." = "在生成過程中顯示圖像";
 "Sort" = "排序";
 "Starting Image" = "起始圖片";
-"Step %lld of %lld" = "迭代次數 %lld / %lld";
+"Step %lld of %lld - About %@" = "第 %lld/%lld 叠代 - 約 %@";
 "Steps" = "迭代次數";
 "Stop Generation" = "停止生成？";
 "Strength" = "強度";
