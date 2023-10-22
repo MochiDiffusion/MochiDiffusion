@@ -20,9 +20,13 @@
 "Choose a folder and a name to store the image" = "Оберіть теку і назву для зберігання зображення";
 "Choose a folder to save all images" = "Оберіть теку для збереження усіх зображень";
 "Choose generated images to import" = "Оберіть згенеровані зображення для імпорту";
+"Choose image" = "Вибрати зображення";
+"ControlNet" = "ControlNet";
+"ControlNet Folder" = "Тека ControlNet";
 "Convert all images to High Resolution (this will use more memory)" = "Перетворити всі зображення у високу роздільну здатність (буде використано більше пам\'яті)";
 "Convert to High Resolution" = "Перетворити у високу роздільну здатність";
 "Copy" = "Копіювати";
+"Copy Info" = "Скопіювати інформацію";
 "Copy Option to Sidebar" = "Копіювати опцію у бічну панель";
 "Copy Options to Sidebar" = "Копіювати опції у бічну панель";
 "Description is too long" = "Опис занадто довгий";
@@ -51,8 +55,11 @@
 "Model" = "Модель";
 "Model Folder" = "Тека для моделей";
 "Move Images to Trash" = "Перемістити зображення до смітника";
+"Newest First" = "Спочатку нові";
 "No Info" = "Немає інформації";
+"None" = "Нічого";
 "Number of Images" = "Кількість зображень";
+"Oldest First" = "Спочатку старіші";
 "Open in Finder" = "Відкрити у Finder";
 "Quick Look" = "Швидкий перегляд";
 "Reduce Memory Usage" = "Використовувати менше пам\'яті";
@@ -72,11 +79,24 @@
 "Select Previous" = "Обрати попереднє";
 "Set as Starting Image" = "Встановити як початкове зображення";
 "Share..." = "Поширити...";
+"Show Image Preview" = "Показати зображення попереднього перегляду";
 "Show in Finder" = "Показати у Finder";
+"Show the image as its being generated." = "Показувати зображення під час його створення.";
+"Sort" = "Сортувати";
 "Starting Image" = "Початкове зображення";
+"Step %lld of %lld - About %@" = "Крок %lld із %lld - Ще приблизно %@";
 "Steps" = "Кроки";
 "Stop Generation" = "Зупинити генерацію";
 "Strength" = "Інтенсивність";
+"Strength controls how closely the generated image resembles the starting image.
+Use lower values to generate images that look similar to the starting image.
+Use higher values to allow more creative freedom.
+
+The size of the starting image must match the output image size of the current model." = "Інтенсивність впливає на те, наскільки згенероване зображення відповідатиме початковому.
+Використовуйте нижчі значення для створення зображення, яке буде більш схожим на початкове.
+Використовуйте вищі значення для більшої свободи творчості.
+
+Розмір початкового зображення має співпадати із розміром поточної моделі.";
 "Support Project" = "Підтримати проєкт";
 "This may take up to 2 minutes if a model is used for the first time" = "Це може зайняти до 2 хвилин, якщо модель використовується вперше";
 "Toggle Info Panel" = "Сховати/показати інформаційну панель";
