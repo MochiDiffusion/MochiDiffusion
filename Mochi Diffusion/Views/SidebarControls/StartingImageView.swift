@@ -10,6 +10,7 @@ import SwiftUI
 
 struct ImageView: View {
     @Binding var image: CGImage?
+    @EnvironmentObject private var controller: ImageController
 
     var body: some View {
         if let image = image {
@@ -22,16 +23,46 @@ struct ImageView: View {
                         .stroke(Color(nsColor: .separatorColor), lineWidth: 1)
                 )
         } else {
-            Image(systemName: "photo")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .foregroundColor(Color(nsColor: .separatorColor))
-                .padding(30)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 2)
-                        .stroke(Color(nsColor: .separatorColor), lineWidth: 1)
-                )
+            Button {
+                Task { await ImageController.shared.selectStartingImage() }
+            } label: {
+                Image(systemName: "photo")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .foregroundColor(Color(nsColor: .separatorColor))
+                    .padding(30)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 2)
+                            .stroke(Color(nsColor: .separatorColor), lineWidth: 1)
+                    )
+                    .background(.background.opacity(0.01))
+                    .frame(height: 90)
+                    .onDrop(of: [.fileURL], isTargeted: nil) { providers in
+                        _ = providers.first?.loadDataRepresentation(for: .fileURL) { data, _ in
+                            guard let data, let urlString = String(data: data, encoding: .utf8), let url = URL(string: urlString) else {
+                                return
+                            }
+
+                            guard let cgImageSource = CGImageSourceCreateWithURL(url as CFURL, nil) else {
+                                return
+                            }
+
+                            let imageIndex = CGImageSourceGetPrimaryImageIndex(cgImageSource)
+
+                            guard let cgImage = CGImageSourceCreateImageAtIndex(cgImageSource, imageIndex, nil) else {
+                                return
+                            }
+
+                            Task { await ImageController.shared.setStartingImage(image: cgImage) }
+                        }
+
+                        return true
+                    }
+            }
+            .buttonStyle(.plain)
+            .disabled(controller.controlNet.isEmpty)
         }
+
     }
 }
 

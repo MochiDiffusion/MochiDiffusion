@@ -366,6 +366,10 @@ final class ImageController: ObservableObject {
         await removeImage(sdi)
     }
 
+    func setStartingImage(image: CGImage) {
+        startingImage = image
+    }
+
     func selectStartingImage() async {
         startingImage = await selectImage()
     }
