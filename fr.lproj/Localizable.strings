@@ -55,9 +55,11 @@
 "Model" = "Modèle";
 "Model Folder" = "Dossier du Modèle";
 "Move Images to Trash" = "Déplacer les images vers la Corbeille";
+"Newest First" = "Les plus récentes en premier";
 "No Info" = "Aucune Information";
 "None" = "Aucun";
 "Number of Images" = "Nombre d\'images";
+"Oldest First" = "Les plus anciennes en premier";
 "Open in Finder" = "Afficher dans le Finder";
 "Quick Look" = "Coup d\'oeil";
 "Reduce Memory Usage" = "Réduire l\'utilisation de la mémoire";
@@ -77,8 +79,12 @@
 "Select Previous" = "Sélectionnez Précédent";
 "Set as Starting Image" = "Définir comme image de départ";
 "Share..." = "Partager...";
+"Show Image Preview" = "Afficher l\'aperçu de l\'image";
 "Show in Finder" = "Afficher dans le Finder";
+"Show the image as its being generated." = "Afficher l\'image en cours de génération.";
+"Sort" = "Trier";
 "Starting Image" = "Image de départ";
+"Step %lld of %lld - About %@" = "Étape %lld sur %lld - À propos de %@";
 "Steps" = "Étapes";
 "Stop Generation" = "Arrêter la génération";
 "Strength" = "Intensité";
