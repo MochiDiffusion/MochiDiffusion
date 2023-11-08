@@ -5,6 +5,29 @@
     <language>en</language>
 
     <item>
+      <title>v4.5</title>
+      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <sparkle:version>4.5</sparkle:version>
+      <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
+      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <pubDate>Wed, 8 Nov 2023 19:21:05 +0000</pubDate>
+      <enclosure
+        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v4.5/MochiDiffusion_v4.5.dmg"
+        sparkle:edSignature="BSrdRU4n6gwuqX5EqJM1islKVpyRlxxj+wlXFMjoCeWHe84yfxdZq7aeM6t04AEVrqSXCRpDaqwc9ehbbZiyAA=="
+        length="67128499"
+        type="application/octet-stream" />
+      <description><![CDATA[
+      <ul>
+      <li>Added time remaining info for currently generating image (@hoseins77)</li>
+      <li>Changed starting image strength slider range (@gdbing)</li>
+      <li>Changed magnifier button in Settings to show folder selection dialog (@vzsg)</li>
+      <li>Updated translations</li>
+      </ul>
+      ]]>
+      </description>
+    </item>
+
+    <item>
       <title>v4.4</title>
       <link>https://github.com/godly-devotion/MochiDiffusion</link>
       <sparkle:version>4.4</sparkle:version>
