@@ -46,15 +46,15 @@ struct StartingImageView: View {
                 comment: "Label for setting the starting image (commonly known as image2image)"
             )
             .sidebarLabelFormat()
-            
+
             HStack(alignment: .top) {
                 VStack(alignment: .leading) {
                     ImageView(image: $controller.startingImage)
                         .frame(height: 90)
                 }
-                
+
                 Spacer()
-                
+
                 VStack(alignment: .trailing) {
                     HStack {
                         Button {
@@ -62,7 +62,7 @@ struct StartingImageView: View {
                         } label: {
                             Image(systemName: "photo")
                         }
-                        
+
                         Button {
                             Task { await ImageController.shared.unsetStartingImage() }
                         } label: {
@@ -77,9 +77,9 @@ struct StartingImageView: View {
                     comment: "Label for starting image strength slider control"
                 )
                 .sidebarLabelFormat()
-                
+
                 Spacer()
-                
+
                 Button {
                     self.isInfoPopoverShown.toggle()
                 } label: {
@@ -93,7 +93,7 @@ struct StartingImageView: View {
                 Strength controls how closely the generated image resembles the starting image.
                 Use lower values to generate images that look similar to the starting image.
                 Use higher values to allow more creative freedom.
-                
+
                 The size of the starting image must match the output image size of the current model.
                 """
                     )
@@ -104,7 +104,7 @@ struct StartingImageView: View {
                 Text(verbatim: "\(controller.strength.formatted(.number.precision(.fractionLength(2))))")
                 Spacer()
             }
-             .compactSliderStyle(.mochi)
+            .compactSliderStyle(.mochi)
         }
     }
 }
