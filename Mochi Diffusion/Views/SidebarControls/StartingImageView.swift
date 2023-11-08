@@ -40,55 +40,55 @@ struct StartingImageView: View {
     @State private var isInfoPopoverShown = false
 
     var body: some View {
-        VStack(alignment: .leading) {
-            Text(
-                "Image-to-image",
-                comment: "Label for setting the starting image (commonly known as image2image)"
-            )
-            .sidebarLabelFormat()
+        Text(
+            "Starting Image",
+            comment: "Label for setting the starting image (commonly known as image2image)"
+        )
+        .sidebarLabelFormat()
 
-            HStack(alignment: .top) {
-                VStack(alignment: .leading) {
-                    ImageView(image: $controller.startingImage)
-                        .frame(height: 90)
-                }
+        HStack(alignment: .top) {
+            VStack(alignment: .leading) {
+                ImageView(image: $controller.startingImage)
+                    .frame(height: 90)
+            }
 
-                Spacer()
+            Spacer()
 
-                VStack(alignment: .trailing) {
-                    HStack {
-                        Button {
-                            Task { await ImageController.shared.selectStartingImage() }
-                        } label: {
-                            Image(systemName: "photo")
-                        }
+            VStack(alignment: .trailing) {
+                HStack {
+                    Button {
+                        Task { await ImageController.shared.selectStartingImage() }
+                    } label: {
+                        Image(systemName: "photo")
+                    }
 
-                        Button {
-                            Task { await ImageController.shared.unsetStartingImage() }
-                        } label: {
-                            Image(systemName: "xmark")
-                        }
+                    Button {
+                        Task { await ImageController.shared.unsetStartingImage() }
+                    } label: {
+                        Image(systemName: "xmark")
                     }
                 }
             }
-            HStack {
+        }
+
+        HStack {
+            Text(
+                "Strength",
+                comment: "Label for starting image strength slider control"
+            )
+            .sidebarLabelFormat()
+
+            Spacer()
+
+            Button {
+                self.isInfoPopoverShown.toggle()
+            } label: {
+                Image(systemName: "info.circle")
+                    .foregroundColor(Color.secondary)
+            }
+            .buttonStyle(PlainButtonStyle())
+            .popover(isPresented: self.$isInfoPopoverShown, arrowEdge: .top) {
                 Text(
-                    "Strength",
-                    comment: "Label for starting image strength slider control"
-                )
-                .sidebarLabelFormat()
-
-                Spacer()
-
-                Button {
-                    self.isInfoPopoverShown.toggle()
-                } label: {
-                    Image(systemName: "info.circle")
-                        .foregroundColor(Color.secondary)
-                }
-                .buttonStyle(PlainButtonStyle())
-                .popover(isPresented: self.$isInfoPopoverShown, arrowEdge: .top) {
-                    Text(
                 """
                 Strength controls how closely the generated image resembles the starting image.
                 Use lower values to generate images that look similar to the starting image.
@@ -96,16 +96,16 @@ struct StartingImageView: View {
 
                 The size of the starting image must match the output image size of the current model.
                 """
-                    )
-                    .padding()
-                }
+                )
+                .padding()
             }
-            CompactSlider(value: $controller.strength, in: 0.0...1.0, step: 0.05) {
-                Text(verbatim: "\(controller.strength.formatted(.number.precision(.fractionLength(2))))")
-                Spacer()
-            }
-            .compactSliderStyle(.mochi)
         }
+
+        CompactSlider(value: $controller.strength, in: 0.0...1.0, step: 0.05) {
+            Text(verbatim: "\(controller.strength.formatted(.number.precision(.fractionLength(2))))")
+            Spacer()
+        }
+        .compactSliderStyle(.mochi)
     }
 }
 
