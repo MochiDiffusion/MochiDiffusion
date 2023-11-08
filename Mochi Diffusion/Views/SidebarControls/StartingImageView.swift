@@ -8,9 +8,9 @@
 import CompactSlider
 import SwiftUI
 
-struct ImageView: View {
-    @Binding var image: CGImage?
-    @EnvironmentObject private var controller: ImageController
+struct ImageWellView: View {
+    var image: CGImage?
+    let setImage: (CGImage?) async -> Void
 
     var body: some View {
         if let image = image {
@@ -24,7 +24,7 @@ struct ImageView: View {
                 )
         } else {
             Button {
-                Task { await ImageController.shared.selectStartingImage() }
+                Task { await setImage(ImageController.shared.selectImage()) }
             } label: {
                 Image(systemName: "photo")
                     .resizable()
@@ -36,7 +36,6 @@ struct ImageView: View {
                             .stroke(Color(nsColor: .separatorColor), lineWidth: 1)
                     )
                     .background(.background.opacity(0.01))
-                    .frame(height: 90)
                     .onDrop(of: [.fileURL], isTargeted: nil) { providers in
                         _ = providers.first?.loadDataRepresentation(for: .fileURL) { data, _ in
                             guard let data, let urlString = String(data: data, encoding: .utf8), let url = URL(string: urlString) else {
@@ -53,16 +52,14 @@ struct ImageView: View {
                                 return
                             }
 
-                            Task { await ImageController.shared.setStartingImage(image: cgImage) }
+                            Task { await self.setImage(cgImage) }
                         }
 
                         return true
                     }
             }
             .buttonStyle(.plain)
-            .disabled(controller.controlNet.isEmpty)
         }
-
     }
 }
 
@@ -79,8 +76,14 @@ struct StartingImageView: View {
 
         HStack(alignment: .top) {
             VStack(alignment: .leading) {
-                ImageView(image: $controller.startingImage)
-                    .frame(height: 90)
+                ImageWellView(image: controller.startingImage) { image in
+                    if let image {
+                        ImageController.shared.setStartingImage(image: image)
+                    } else {
+                        await ImageController.shared.unsetStartingImage()
+                    }
+                }
+                .frame(height: 90)
             }
 
             Spacer()
