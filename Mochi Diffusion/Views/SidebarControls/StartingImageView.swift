@@ -40,14 +40,14 @@ struct StartingImageView: View {
     @State private var isInfoPopoverShown = false
 
     var body: some View {
+        Text(
+            "Starting Image",
+            comment: "Label for setting the starting image (commonly known as image2image)"
+        )
+        .sidebarLabelFormat()
+
         HStack(alignment: .top) {
             VStack(alignment: .leading) {
-                Text(
-                    "Starting Image",
-                    comment: "Label for setting the starting image (commonly known as image2image)"
-                )
-                .sidebarLabelFormat()
-
                 ImageView(image: $controller.startingImage)
                     .frame(height: 90)
             }
@@ -55,15 +55,6 @@ struct StartingImageView: View {
             Spacer()
 
             VStack(alignment: .trailing) {
-                Text(
-                    "Strength",
-                    comment: "Label for starting image strength slider control"
-                )
-                .sidebarLabelFormat()
-
-                Slider(value: $controller.strength, in: 0.37...1, step: 0.07)
-                    .controlSize(.mini)
-
                 HStack {
                     Button {
                         Task { await ImageController.shared.selectStartingImage() }
@@ -77,30 +68,44 @@ struct StartingImageView: View {
                         Image(systemName: "xmark")
                     }
                 }
-
-                Spacer()
-
-                Button {
-                    self.isInfoPopoverShown.toggle()
-                } label: {
-                    Image(systemName: "info.circle")
-                        .foregroundColor(Color.secondary)
-                }
-                .buttonStyle(PlainButtonStyle())
-                .popover(isPresented: self.$isInfoPopoverShown, arrowEdge: .top) {
-                    Text(
-                    """
-                    Strength controls how closely the generated image resembles the starting image.
-                    Use lower values to generate images that look similar to the starting image.
-                    Use higher values to allow more creative freedom.
-
-                    The size of the starting image must match the output image size of the current model.
-                    """
-                    )
-                    .padding()
-                }
             }
         }
+
+        HStack {
+            Text(
+                "Strength",
+                comment: "Label for starting image strength slider control"
+            )
+            .sidebarLabelFormat()
+
+            Spacer()
+
+            Button {
+                self.isInfoPopoverShown.toggle()
+            } label: {
+                Image(systemName: "info.circle")
+                    .foregroundColor(Color.secondary)
+            }
+            .buttonStyle(PlainButtonStyle())
+            .popover(isPresented: self.$isInfoPopoverShown, arrowEdge: .top) {
+                Text(
+                """
+                Strength controls how closely the generated image resembles the starting image.
+                Use lower values to generate images that look similar to the starting image.
+                Use higher values to allow more creative freedom.
+
+                The size of the starting image must match the output image size of the current model.
+                """
+                )
+                .padding()
+            }
+        }
+
+        CompactSlider(value: $controller.strength, in: 0.0...1.0, step: 0.05) {
+            Text(verbatim: "\(controller.strength.formatted(.number.precision(.fractionLength(2))))")
+            Spacer()
+        }
+        .compactSliderStyle(.mochi)
     }
 }
 
