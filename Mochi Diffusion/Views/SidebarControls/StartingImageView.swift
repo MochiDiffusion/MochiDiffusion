@@ -7,33 +7,6 @@
 
 import SwiftUI
 
-struct ImageView: View {
-    @Binding var image: CGImage?
-
-    var body: some View {
-        if let image = image {
-            Image(image, scale: 1, label: Text(verbatim: ""))
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .padding(3)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 2)
-                        .stroke(Color(nsColor: .separatorColor), lineWidth: 1)
-                )
-        } else {
-            Image(systemName: "photo")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .foregroundColor(Color(nsColor: .separatorColor))
-                .padding(30)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 2)
-                        .stroke(Color(nsColor: .separatorColor), lineWidth: 1)
-                )
-        }
-    }
-}
-
 struct StartingImageView: View {
     @EnvironmentObject private var controller: ImageController
     @State private var isInfoPopoverShown = false
@@ -46,10 +19,14 @@ struct StartingImageView: View {
         .sidebarLabelFormat()
 
         HStack(alignment: .top) {
-            VStack(alignment: .leading) {
-                ImageView(image: $controller.startingImage)
-                    .frame(height: 90)
+            ImageWellView(image: controller.startingImage) { image in
+                if let image {
+                    ImageController.shared.setStartingImage(image: image)
+                } else {
+                    await ImageController.shared.unsetStartingImage()
+                }
             }
+            .frame(height: 90)
 
             Spacer()
 
