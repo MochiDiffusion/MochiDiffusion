@@ -292,11 +292,11 @@ final class ImageController: ObservableObject {
                     )
                     try await ImageGenerator.shared.generate(genConfig)
                 } catch ImageGenerator.GeneratorError.requestedModelNotFound {
-                    // TODO:
+                    await self.logger.error("Couldn't load \(genConfig.model.name) because it doesn't exist.")
+                    await ImageGenerator.shared.updateState(.ready("Couldn't load \(genConfig.model.name) because it doesn't exist."))
                 } catch ImageGenerator.GeneratorError.pipelineNotAvailable {
                     await self.logger.error("Pipeline is not available.")
-                    await self.logger.error("There was a problem loading pipelines")
-                    // TODO: is it XL?
+                    await ImageGenerator.shared.updateState(.ready("There was a problem loading pipeline."))
                 } catch PipelineError.startingImageProvidedWithoutEncoder {
                     await self.logger.error("The selected model does not support setting a starting image.")
                     await ImageGenerator.shared.updateState(.ready("The selected model does not support setting a starting image."))
