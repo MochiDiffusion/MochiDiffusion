@@ -11,17 +11,19 @@ import OSLog
 @preconcurrency import StableDiffusion
 import UniformTypeIdentifiers
 
-struct GenerationConfig: Sendable {
+struct GenerationConfig: Sendable, Identifiable {
+    let id = UUID()
     var pipelineConfig: StableDiffusionPipeline.Configuration
     var isXL: Bool
     var autosaveImages: Bool
     var imageDir: String
     var imageType: String
     var numberOfImages: Int
-    var model: String
+    let model: SDModel
     var mlComputeUnit: MLComputeUnits
     var scheduler: Scheduler
     var upscaleGeneratedImages: Bool
+    var controlNets: [String]
 }
 
 class ImageGenerator: ObservableObject {
@@ -213,7 +215,7 @@ class ImageGenerator: ObservableObject {
         var sdi = SDImage()
         sdi.prompt = config.pipelineConfig.prompt
         sdi.negativePrompt = config.pipelineConfig.negativePrompt
-        sdi.model = config.model
+        sdi.model = config.model.name
         sdi.scheduler = config.scheduler
         sdi.mlComputeUnit = config.mlComputeUnit
         sdi.steps = config.pipelineConfig.stepCount

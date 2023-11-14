@@ -42,6 +42,12 @@ final class ImageController: ObservableObject {
     private lazy var logger = Logger()
 
     @Published
+    var generationQueue = [GenerationConfig]()
+
+    @Published
+    var currentGeneration: GenerationConfig?
+
+    @Published
     var isLoading = true
 
     @Published
@@ -235,8 +241,7 @@ final class ImageController: ObservableObject {
     }
 
     func generate() async {
-        guard case .ready = ImageGenerator.shared.state,
-            let model = currentModel else {
+        guard let model = currentModel else {
             return
         }
 
@@ -259,26 +264,50 @@ final class ImageController: ObservableObject {
             imageDir: imageDir,
             imageType: imageType,
             numberOfImages: Int(numberOfImages),
-            model: modelName,
+            model: model,
             mlComputeUnit: mlComputeUnitPreference.computeUnits(forModel: model),
             scheduler: scheduler,
-            upscaleGeneratedImages: upscaleGeneratedImages
+            upscaleGeneratedImages: upscaleGeneratedImages,
+            controlNets: currentControlNets.filter { $0.image != nil }.compactMap(\.name)
         )
 
-        Task.detached(priority: .high) {
-            do {
-                try await ImageGenerator.shared.generate(genConfig)
-            } catch ImageGenerator.GeneratorError.pipelineNotAvailable {
-                await self.logger.error("Pipeline is not loaded.")
-            } catch PipelineError.startingImageProvidedWithoutEncoder {
-                await self.logger.error("The selected model does not support setting a starting image.")
-                await ImageGenerator.shared.updateState(.ready("The selected model does not support setting a starting image."))
-            } catch Encoder.Error.sampleInputShapeNotCorrect {
-                await self.logger.error("The starting image size doesn't match the size of the image that will be generated.")
-                await ImageGenerator.shared.updateState(.ready("The starting image size doesn't match the size of the image that will be generated."))
-            } catch {
-                await self.logger.error("There was a problem generating images: \(error)")
-                await ImageGenerator.shared.updateState(.error("There was a problem generating images: \(error)"))
+        self.generationQueue.append(genConfig)
+        await self.runNextGeneration()
+    }
+
+    private func runNextGeneration() async {
+        guard !self.generationQueue.isEmpty else { return }
+        if case .ready = ImageGenerator.shared.state {
+            let genConfig = generationQueue.removeFirst()
+            self.currentGeneration = genConfig
+            Task.detached(priority: .high) {
+                do {
+                    try await ImageGenerator.shared.loadPipeline(
+                        model: genConfig.model,
+                        controlNet: genConfig.controlNets,
+                        computeUnit: genConfig.mlComputeUnit,
+                        reduceMemory: self.reduceMemory
+                    )
+                    try await ImageGenerator.shared.generate(genConfig)
+                } catch ImageGenerator.GeneratorError.requestedModelNotFound {
+                    // TODO:
+                } catch ImageGenerator.GeneratorError.pipelineNotAvailable {
+                    await self.logger.error("Pipeline is not available.")
+                    await self.logger.error("There was a problem loading pipelines")
+                    // TODO: is it XL?
+                } catch PipelineError.startingImageProvidedWithoutEncoder {
+                    await self.logger.error("The selected model does not support setting a starting image.")
+                    await ImageGenerator.shared.updateState(.ready("The selected model does not support setting a starting image."))
+                } catch Encoder.Error.sampleInputShapeNotCorrect {
+                    await self.logger.error("The starting image size doesn't match the size of the image that will be generated.")
+                    await ImageGenerator.shared.updateState(.ready("The starting image size doesn't match the size of the image that will be generated."))
+                } catch {
+                    await self.logger.error("There was a problem generating images: \(error)")
+                    await ImageGenerator.shared.updateState(.error("There was a problem generating images: \(error)"))
+                }
+
+                await MainActor.run { self.currentGeneration = nil }
+                await self.runNextGeneration()
             }
         }
     }
