@@ -40,7 +40,6 @@ class ImageGenerator: ObservableObject {
     }
 
     enum State: Sendable {
-        case idle
         case ready(String?)
         case error(String)
         case loading
@@ -49,7 +48,7 @@ class ImageGenerator: ObservableObject {
 
     @MainActor
     @Published
-    private(set) var state = State.idle
+    private(set) var state = State.ready(nil)
 
     struct QueueProgress: Sendable {
         var index = 0
