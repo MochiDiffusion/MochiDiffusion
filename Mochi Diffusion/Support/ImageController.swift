@@ -274,44 +274,43 @@ final class ImageController: ObservableObject {
         )
 
         self.generationQueue.append(genConfig)
-        await self.runNextGeneration()
+        Task.detached(priority: .high) {
+            await self.runGenerationJobs()
+        }
     }
 
-    private func runNextGeneration() async {
-        guard !self.generationQueue.isEmpty else { return }
-        if case .ready = ImageGenerator.shared.state {
+    private func runGenerationJobs() async {
+        guard case .ready = ImageGenerator.shared.state else { return }
+
+        while !self.generationQueue.isEmpty {
             let genConfig = generationQueue.removeFirst()
             self.currentGeneration = genConfig
-            Task.detached(priority: .high) {
-                do {
-                    try await ImageGenerator.shared.loadPipeline(
-                        model: genConfig.model,
-                        controlNet: genConfig.controlNets,
-                        computeUnit: genConfig.mlComputeUnit,
-                        reduceMemory: self.reduceMemory
-                    )
-                    try await ImageGenerator.shared.generate(genConfig)
-                } catch ImageGenerator.GeneratorError.requestedModelNotFound {
-                    await self.logger.error("Couldn't load \(genConfig.model.name) because it doesn't exist.")
-                    await ImageGenerator.shared.updateState(.ready("Couldn't load \(genConfig.model.name) because it doesn't exist."))
-                } catch ImageGenerator.GeneratorError.pipelineNotAvailable {
-                    await self.logger.error("Pipeline is not available.")
-                    await ImageGenerator.shared.updateState(.ready("There was a problem loading pipeline."))
-                } catch PipelineError.startingImageProvidedWithoutEncoder {
-                    await self.logger.error("The selected model does not support setting a starting image.")
-                    await ImageGenerator.shared.updateState(.ready("The selected model does not support setting a starting image."))
-                } catch Encoder.Error.sampleInputShapeNotCorrect {
-                    await self.logger.error("The starting image size doesn't match the size of the image that will be generated.")
-                    await ImageGenerator.shared.updateState(.ready("The starting image size doesn't match the size of the image that will be generated."))
-                } catch {
-                    await self.logger.error("There was a problem generating images: \(error)")
-                    await ImageGenerator.shared.updateState(.error("There was a problem generating images: \(error)"))
-                }
-
-                await MainActor.run { self.currentGeneration = nil }
-                await self.runNextGeneration()
+            do {
+                try await ImageGenerator.shared.loadPipeline(
+                    model: genConfig.model,
+                    controlNet: genConfig.controlNets,
+                    computeUnit: genConfig.mlComputeUnit,
+                    reduceMemory: self.reduceMemory
+                )
+                try await ImageGenerator.shared.generate(genConfig)
+            } catch ImageGenerator.GeneratorError.requestedModelNotFound {
+                self.logger.error("Couldn't load \(genConfig.model.name) because it doesn't exist.")
+                await ImageGenerator.shared.updateState(.ready("Couldn't load \(genConfig.model.name) because it doesn't exist."))
+            } catch ImageGenerator.GeneratorError.pipelineNotAvailable {
+                self.logger.error("Pipeline is not available.")
+                await ImageGenerator.shared.updateState(.ready("There was a problem loading pipeline."))
+            } catch PipelineError.startingImageProvidedWithoutEncoder {
+                self.logger.error("The selected model does not support setting a starting image.")
+                await ImageGenerator.shared.updateState(.ready("The selected model does not support setting a starting image."))
+            } catch Encoder.Error.sampleInputShapeNotCorrect {
+                self.logger.error("The starting image size doesn't match the size of the image that will be generated.")
+                await ImageGenerator.shared.updateState(.ready("The starting image size doesn't match the size of the image that will be generated."))
+            } catch {
+                self.logger.error("There was a problem generating images: \(error)")
+                await ImageGenerator.shared.updateState(.error("There was a problem generating images: \(error)"))
             }
         }
+        self.currentGeneration = nil
     }
 
     func upscale(_ sdi: SDImage) async {
