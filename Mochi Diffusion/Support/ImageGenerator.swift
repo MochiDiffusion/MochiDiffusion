@@ -69,6 +69,8 @@ class ImageGenerator: ObservableObject {
 
     private var generationStartTime: DispatchTime?
 
+    private var currentPipelineHash: Int?
+
     func loadImages(imageDir: String) async throws -> ([SDImage], URL) {
         var finalImageDirURL: URL
         let fm = FileManager.default
@@ -154,6 +156,15 @@ class ImageGenerator: ObservableObject {
             await updateState(.error("Couldn't load \(model.name) because it doesn't exist."))
             throw GeneratorError.requestedModelNotFound
         }
+
+        var hasher = Hasher()
+        hasher.combine(model)
+        hasher.combine(controlNet)
+        hasher.combine(computeUnit)
+        hasher.combine(reduceMemory)
+        let hash = hasher.finalize()
+        guard hash != self.currentPipelineHash else { return }
+
         await updateState(.loading)
         let config = MLModelConfiguration()
         config.computeUnits = computeUnit
@@ -179,6 +190,7 @@ class ImageGenerator: ObservableObject {
             )
         }
 
+        self.currentPipelineHash = hash
         self.tokenizer = Tokenizer(modelDir: model.url)
         await updateState(.ready(nil))
     }
