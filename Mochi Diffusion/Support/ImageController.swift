@@ -95,7 +95,9 @@ final class ImageController: ObservableObject {
             controlNet = model.controlNet
             currentControlNets = []
 
-            loadPipeline()
+            if case .ready = ImageGenerator.shared.state {
+                loadPipeline()
+            }
         }
     }
 
@@ -418,7 +420,10 @@ final class ImageController: ObservableObject {
         } else {
             self.currentControlNets[0].name = name
         }
-        loadPipeline()
+
+        if case .ready = ImageGenerator.shared.state {
+            loadPipeline()
+        }
     }
 
     func setControlNet(image: CGImage) async {
@@ -427,12 +432,18 @@ final class ImageController: ObservableObject {
         } else {
             self.currentControlNets[0].image = image
         }
-        loadPipeline()
+
+        if case .ready = ImageGenerator.shared.state {
+            loadPipeline()
+        }
     }
 
     func unsetControlNet() async {
         self.currentControlNets = []
-        loadPipeline()
+
+        if case .ready = ImageGenerator.shared.state {
+            loadPipeline()
+        }
     }
 
     func selectControlNetImage(at index: Int) async {
@@ -445,7 +456,10 @@ final class ImageController: ObservableObject {
                 currentControlNets[index].image = image
             }
         }
-        loadPipeline()
+
+        if case .ready = ImageGenerator.shared.state {
+            loadPipeline()
+        }
     }
 
     func unsetControlNetImage(at index: Int) async {
