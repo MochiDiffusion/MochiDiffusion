@@ -11,17 +11,19 @@ import OSLog
 @preconcurrency import StableDiffusion
 import UniformTypeIdentifiers
 
-struct GenerationConfig: Sendable {
+struct GenerationConfig: Sendable, Identifiable {
+    let id = UUID()
     var pipelineConfig: StableDiffusionPipeline.Configuration
     var isXL: Bool
     var autosaveImages: Bool
     var imageDir: String
     var imageType: String
     var numberOfImages: Int
-    var model: String
+    let model: SDModel
     var mlComputeUnit: MLComputeUnits
     var scheduler: Scheduler
     var upscaleGeneratedImages: Bool
+    var controlNets: [String]
 }
 
 class ImageGenerator: ObservableObject {
@@ -38,7 +40,6 @@ class ImageGenerator: ObservableObject {
     }
 
     enum State: Sendable {
-        case idle
         case ready(String?)
         case error(String)
         case loading
@@ -47,7 +48,7 @@ class ImageGenerator: ObservableObject {
 
     @MainActor
     @Published
-    private(set) var state = State.idle
+    private(set) var state = State.ready(nil)
 
     struct QueueProgress: Sendable {
         var index = 0
@@ -68,6 +69,8 @@ class ImageGenerator: ObservableObject {
     private(set) var lastStepGenerationElapsedTime: Double?
 
     private var generationStartTime: DispatchTime?
+
+    private var currentPipelineHash: Int?
 
     func loadImages(imageDir: String) async throws -> ([SDImage], URL) {
         var finalImageDirURL: URL
@@ -154,6 +157,15 @@ class ImageGenerator: ObservableObject {
             await updateState(.error("Couldn't load \(model.name) because it doesn't exist."))
             throw GeneratorError.requestedModelNotFound
         }
+
+        var hasher = Hasher()
+        hasher.combine(model)
+        hasher.combine(controlNet)
+        hasher.combine(computeUnit)
+        hasher.combine(reduceMemory)
+        let hash = hasher.finalize()
+        guard hash != self.currentPipelineHash else { return }
+
         await updateState(.loading)
         let config = MLModelConfiguration()
         config.computeUnits = computeUnit
@@ -179,6 +191,7 @@ class ImageGenerator: ObservableObject {
             )
         }
 
+        self.currentPipelineHash = hash
         self.tokenizer = Tokenizer(modelDir: model.url)
         await updateState(.ready(nil))
     }
@@ -201,7 +214,7 @@ class ImageGenerator: ObservableObject {
         var sdi = SDImage()
         sdi.prompt = config.pipelineConfig.prompt
         sdi.negativePrompt = config.pipelineConfig.negativePrompt
-        sdi.model = config.model
+        sdi.model = config.model.name
         sdi.scheduler = config.scheduler
         sdi.mlComputeUnit = config.mlComputeUnit
         sdi.steps = config.pipelineConfig.stepCount
