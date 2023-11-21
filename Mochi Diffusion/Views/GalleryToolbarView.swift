@@ -14,55 +14,30 @@ struct GalleryToolbarView: View {
     @State private var isStatusPopoverShown = false
 
     var body: some View {
-        if case .loading = generator.state {
-            Button {
-                self.isStatusPopoverShown.toggle()
-            } label: {
+        Button {
+            self.isStatusPopoverShown.toggle()
+        } label: {
+            if case let .running(progress) = generator.state, let progress = progress, progress.stepCount > 0 {
+                let step = Int(progress.step) + 1
+                let stepValue = Double(step) / Double(progress.stepCount)
+                CircularProgressView(progress: stepValue)
+                    .frame(width: 16, height: 16)
+            } else if case .loading = generator.state {
                 ProgressView()
                     .progressViewStyle(.circular)
                     .controlSize(.small)
-                    .frame(width: 16)
-            }
-            .popover(isPresented: self.$isStatusPopoverShown, arrowEdge: .bottom) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Loading Model...")
-                    Text(
-                        "This may take up to 2 minutes if a model is used for the first time",
-                        comment: "Help text for the loading model message"
-                    )
-                    .foregroundColor(.secondary)
-                }
-                .padding()
-            }
-        }
-
-        if case let .running(progress) = generator.state, let progress = progress, progress.stepCount > 0 {
-            let step = Int(progress.step) + 1
-            let stepValue = Double(step) / Double(progress.stepCount)
-            let progressValue = Double(generator.queueProgress.index + 1) / Double(generator.queueProgress.total)
-
-            Button {
-                self.isStatusPopoverShown.toggle()
-            } label: {
-                CircularProgressView(progress: stepValue)
+                    .frame(width: 16, height: 16)
+            } else {
+                // to prevent UI flicker when transitioning from running to ready to loading
+                Color.clear
                     .frame(width: 16, height: 16)
             }
-            .popover(isPresented: self.$isStatusPopoverShown, arrowEdge: .bottom) {
-                let stepLabel = String(
-                    localized: "Step \(step) of \(progress.stepCount) - About \(formatTimeRemaining(generator.lastStepGenerationElapsedTime, stepsLeft: progress.stepCount - step))",
-                    comment: "Text displaying the current step progress, count, and time remaining"
-                )
-                let imageCountLabel = String(
-                    localized: "Image \(generator.queueProgress.index + 1) of \(generator.queueProgress.total)",
-                    comment: "Text displaying the image generation progress and count"
-                )
-                VStack(spacing: 12) {
-                    ProgressView(stepLabel, value: stepValue, total: 1)
-                    ProgressView(imageCountLabel, value: progressValue, total: 1)
-                }
+        }
+        .disabled(generator.state == .ready(nil))
+        .popover(isPresented: self.$isStatusPopoverShown, arrowEdge: .bottom) {
+            JobQueueView()
+                .frame(width: 360, height: 180)
                 .padding()
-                .frame(width: 300)
-            }
         }
 
         Picker("Sort", selection: $store.sortType) {
