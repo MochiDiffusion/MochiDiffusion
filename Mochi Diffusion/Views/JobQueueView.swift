@@ -11,7 +11,23 @@ struct JobQueueView: View {
     @EnvironmentObject private var generator: ImageGenerator
     @EnvironmentObject private var controller: ImageController
 
-    @State private var progressData: (Double, String) = (-1, "Loading...")
+    @State private var progressData: (Double, String)?
+
+    private func updateProgressData() {
+        if case let .running(progress) = generator.state, let progress = progress, progress.stepCount > 0 {
+            let step = Double(progress.step + 1)
+            let totalStepProgress = Double(generator.queueProgress.index * progress.stepCount) + step
+            let totalStepCount = Double(generator.queueProgress.total * progress.stepCount)
+
+            let stepLabel = String(
+                localized: "About \(formatTimeRemaining(generator.lastStepGenerationElapsedTime, stepsLeft: Int(totalStepCount - totalStepProgress)))",
+                comment: "Text displaying the time remaining"
+            )
+            progressData = (totalStepProgress / totalStepCount, stepLabel)
+        } else if case .loading = generator.state {
+            progressData = (-1, "Loading...")
+        }
+    }
 
     var body: some View {
         ScrollView {
@@ -20,20 +36,11 @@ struct JobQueueView: View {
                     JobView(config: currentGeneration, progress: progressData) {
                         Task { await generator.stopGenerate() }
                     }
-                    .onChange(of: generator.state) { newState in
-                        if case let .running(progress) = newState, let progress = progress, progress.stepCount > 0 {
-                            let step = Double(progress.step + 1)
-                            let totalStepProgress = Double(generator.queueProgress.index * progress.stepCount) + step
-                            let totalStepCount = Double(generator.queueProgress.total * progress.stepCount)
-
-                            let stepLabel = String(
-                                localized: "About \(formatTimeRemaining(generator.lastStepGenerationElapsedTime, stepsLeft: Int(totalStepCount - totalStepProgress)))",
-                                comment: "Text displaying the time remaining"
-                            )
-                            progressData = (totalStepProgress / totalStepCount, stepLabel)
-                        } else if case .loading = newState {
-                            progressData = (-1, "Loading...")
-                        }
+                    .onAppear {
+                        updateProgressData()
+                    }
+                    .onChange(of: generator.state) { _ in
+                        updateProgressData()
                     }
                 }
                 ForEach(controller.generationQueue) { generation in
