@@ -37,7 +37,6 @@ struct GalleryToolbarView: View {
         .popover(isPresented: self.$isStatusPopoverShown, arrowEdge: .bottom) {
             JobQueueView()
                 .frame(width: 360, height: 180)
-                .padding()
         }
 
         Picker("Sort", selection: $store.sortType) {

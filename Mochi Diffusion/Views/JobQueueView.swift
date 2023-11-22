@@ -50,6 +50,7 @@ struct JobQueueView: View {
                     }
                 }
             }
+            .padding()
         }
     }
 }
