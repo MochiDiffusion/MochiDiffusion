@@ -7,6 +7,7 @@
 "CFBundleDisplayName" = "Mochi Diffusion";
 "CFBundleName" = "Mochi Diffusion";
 "NSHumanReadableCopyright" = "Por Joshua Park";
+"About %@" = "Acerca de %@";
 "All" = "Todos";
 "Apply" = "Aplicar";
 "Autosave & Restore Images" = "Autoguardar y Recuperar Imágenes";

@@ -157,12 +157,12 @@ private struct InfoPopoverView: View {
     var body: some View {
         VStack(alignment: .leading) {
 
-            Text("Prompt")
+            Text("Include in Image")
                 .sidebarLabelFormat()
             Text(config.pipelineConfig.prompt)
 
             if !config.pipelineConfig.negativePrompt.isEmpty {
-                Text("Negative Prompt")
+                Text("Exclude from Image")
                     .sidebarLabelFormat()
                 Text(config.pipelineConfig.negativePrompt)
             }

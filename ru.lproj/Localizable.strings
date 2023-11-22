@@ -10,6 +10,7 @@
 "**Auto** selects the most appropriate configuration for the selected model." = "**Автоматический** выбор наиболее подходящей конфигурации для выбранной модели.";
 "**CPU & GPU** is compatible with all models and may be faster on M1 Max, Ultra and later, but will use more memory." = "**CPU & GPU** совместим со всеми моделями и может работать быстрее на M1 Max, Ultra и более поздних моделях, но использует больше памяти.";
 "**CPU & Neural Engine** provides a good balance between speed and low memory usage, but only works with split-einsum models." = "**CPU & Neural Engine** обеспечивает хорошее соотношение между скоростью и низким потреблением памяти, но работает только с моделями split-einsum.";
+"About %@" = "около %@";
 "All" = "Все";
 "Apply" = "Применить";
 "Auto (Recommended)" = "Автоматически (рекомендуется)";
