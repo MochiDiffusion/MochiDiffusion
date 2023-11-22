@@ -24,6 +24,7 @@
 "Choose image" = "Bild auswählen";
 "ControlNet" = "ControlNet";
 "ControlNet Folder" = "ControlNet Ordner";
+"ControlNet Image" = "ControlNet Bild";
 "Convert all images to High Resolution (this will use more memory)" = "Alle Bilder in hohe Auflösung konvertieren (dies wird mehr Speicher verbrauchen)";
 "Convert to High Resolution" = "In hohe Auflösung konvertieren";
 "Copy" = "Kopieren";

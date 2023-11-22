@@ -24,6 +24,7 @@
 "Choose image" = "Scegli immagine";
 "ControlNet" = "ControlNet";
 "ControlNet Folder" = "Cartella ControlNet";
+"ControlNet Image" = "Immagine ControlNet";
 "Convert all images to High Resolution (this will use more memory)" = "Converti tutte le immagini in alta risoluzione (maggior utilizzo della memoria)";
 "Convert to High Resolution" = "Converti in alta risoluzione";
 "Copy" = "Copia";

@@ -23,6 +23,7 @@
 "Choose image" = "Kies Afbeelding";
 "ControlNet" = "ControlNet";
 "ControlNet Folder" = "ControlNet map";
+"ControlNet Image" = "ControlNet Afbeelding";
 "Convert all images to High Resolution (this will use more memory)" = "Converteer alle afbeeldingen naar High Resolution (dit zal meer geheugen gebruiken)";
 "Convert to High Resolution" = "Converteren naar High Resolution";
 "Copy" = "Kopiëer";

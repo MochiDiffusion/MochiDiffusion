@@ -21,6 +21,7 @@
 "Choose image" = "選擇圖片";
 "ControlNet" = "ControlNet";
 "ControlNet Folder" = "ControlNet 目錄";
+"ControlNet Image" = "ControlNet 圖片";
 "Convert all images to High Resolution (this will use more memory)" = "將所有圖像轉換為高解析度（需使用更多記憶體）";
 "Convert to High Resolution" = "轉換為高解析度";
 "Copy" = "複製";

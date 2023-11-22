@@ -10,6 +10,7 @@
 "**Auto** selects the most appropriate configuration for the selected model." = "**Automatikus** kiválasztja a legmegfelelőbb beállítást a modellnek.";
 "**CPU & GPU** is compatible with all models and may be faster on M1 Max, Ultra and later, but will use more memory." = "A CPU és GPU kompatibilis minden modellel, és gyorsabb lehet az M1 Max, Ultra és későbbi verziókon, de több memóriát fog használni.";
 "**CPU & Neural Engine** provides a good balance between speed and low memory usage, but only works with split-einsum models." = "A CPU és a Neural Engine jó egyensúlyt biztosít a sebesség és az alacsony memóriaigény között, de csak a split-einsum modellekkel működik.";
+"About %@" = "Kürülbelül %@";
 "All" = "Összes";
 "Apply" = "Alkalmaz";
 "Auto (Recommended)" = "Automatikus (Javasolt)";
@@ -23,6 +24,7 @@
 "Choose image" = "Kép választása";
 "ControlNet" = "ControlNet";
 "ControlNet Folder" = "ControlNet könyvtár";
+"ControlNet Image" = "ControlNet Kép";
 "Convert all images to High Resolution (this will use more memory)" = "Mindegyik kép nagy felbontásúra (ez több memóriát fog használni)";
 "Convert to High Resolution" = "Nagy felbontásúra konvertálás";
 "Copy" = "Másolás";

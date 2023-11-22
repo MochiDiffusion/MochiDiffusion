@@ -20,6 +20,7 @@
 "Choose image" = "Velg bilde";
 "ControlNet" = "ControlNet";
 "ControlNet Folder" = "ControlNet-mappe";
+"ControlNet Image" = "ControlNet Bilde";
 "Convert all images to High Resolution (this will use more memory)" = "Konverter alle bilder til høy oppløsning (dette vil bruke mer minne)";
 "Convert to High Resolution" = "Konverter til høy oppløsning";
 "Copy" = "Kopier";
