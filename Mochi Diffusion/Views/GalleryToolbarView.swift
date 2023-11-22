@@ -36,7 +36,7 @@ struct GalleryToolbarView: View {
         .disabled(generator.state == .ready(nil))
         .popover(isPresented: self.$isStatusPopoverShown, arrowEdge: .bottom) {
             JobQueueView()
-                .frame(width: 360, height: 180)
+                .frame(width: 420, height: 240)
         }
 
         Picker("Sort", selection: $store.sortType) {

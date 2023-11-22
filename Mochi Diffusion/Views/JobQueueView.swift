@@ -209,7 +209,7 @@ private struct InfoPopoverView: View {
                 Text("ControlNet")
                     .sidebarLabelFormat()
                 Text(controlNetName)
-                Image(controlNetImage, scale: 4, label: Text("Control Net Image"))
+                Image(controlNetImage, scale: 4, label: Text("ControlNet Image"))
             }
 
             HStack {
