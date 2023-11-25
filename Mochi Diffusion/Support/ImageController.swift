@@ -249,7 +249,9 @@ final class ImageController: ObservableObject {
 
         var pipelineConfig = StableDiffusionPipeline.Configuration(prompt: prompt)
         pipelineConfig.negativePrompt = negativePrompt
-        pipelineConfig.startingImage = startingImage
+        if let size = currentModel?.inputSize {
+            pipelineConfig.startingImage = startingImage?.scaledAndCroppedTo(size: size)
+        }
         pipelineConfig.strength = Float(strength)
         pipelineConfig.stepCount = Int(steps)
         pipelineConfig.seed = seed
