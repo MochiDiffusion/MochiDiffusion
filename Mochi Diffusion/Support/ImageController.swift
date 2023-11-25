@@ -258,7 +258,11 @@ final class ImageController: ObservableObject {
         pipelineConfig.guidanceScale = Float(guidanceScale)
         pipelineConfig.disableSafety = !safetyChecker
         pipelineConfig.schedulerType = convertScheduler(scheduler)
-        pipelineConfig.controlNetInputs = currentControlNets.filter { $0.name != nil }.compactMap(\.image)
+        for controlNet in currentControlNets {
+            if let name = controlNet.name, let size = currentModel?.inputSize, let image = controlNet.image?.scaledAndCroppedTo(size: size) {
+                pipelineConfig.controlNetInputs.append(image)
+            }
+        }
         pipelineConfig.useDenoisedIntermediates = showGenerationPreview
 
         let genConfig = GenerationConfig(
