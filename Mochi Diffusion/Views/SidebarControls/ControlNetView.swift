@@ -16,20 +16,14 @@ struct ControlNetView: View {
             .sidebarLabelFormat()
 
         HStack(alignment: .top) {
-            let aspectRatio: Double = {
-                if let size = controller.currentModel?.inputSize {
-                    return size.width / size.height
-                } else {
-                    return 1.0
-                }
-            }()
-            ImageWellView(image: controller.currentControlNets.first?.image, aspectRatio: aspectRatio) { image in
+            ImageWellView(image: controller.currentControlNets.first?.image, size: controller.currentModel?.inputSize) { image in
                 if let image {
                     await ImageController.shared.setControlNet(image: image)
                 } else {
                     await ImageController.shared.unsetControlNet()
                 }
             }
+            .frame(width: 90, height: 90)
             .disabled(controller.controlNet.isEmpty)
 
             Spacer()

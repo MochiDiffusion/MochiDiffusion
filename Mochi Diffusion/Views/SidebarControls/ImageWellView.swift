@@ -9,34 +9,50 @@ import SwiftUI
 
 struct ImageWellView: View {
     var image: CGImage?
-    var aspectRatio: Double
+    let widthModifier: Double
+    let heightModifier: Double
     let setImage: (CGImage?) async -> Void
+
+    init(image: CGImage? = nil, size: CGSize?, setImage: @escaping (CGImage?) async -> Void) {
+        self.image = image
+        if let width = size?.width, let height = size?.height {
+            let aspectRatio = width / height
+            self.widthModifier = aspectRatio > 1.0 ? 1 / aspectRatio : 1.0
+            self.heightModifier = aspectRatio < 1.0 ? aspectRatio : 1.0
+        } else {
+            self.widthModifier = 1.0
+            self.heightModifier = 1.0
+        }
+        self.setImage = setImage
+    }
 
     var body: some View {
         Button {
             Task { await setImage(ImageController.shared.selectImage()) }
         } label: {
-            ZStack {
-                RoundedRectangle(cornerRadius: 2)
-                    .stroke(Color(nsColor: .separatorColor), lineWidth: 1)
-                    .background(.background.opacity(0.01))
-
-                if let image = image {
-                    Image(image, scale: 1, label: Text(verbatim: ""))
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                } else {
-                    Image(systemName: "photo")
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 30)
-                        .foregroundColor(Color(nsColor: .separatorColor))
+            GeometryReader { proxy in
+                ZStack {
+                    if let image = image {
+                        Image(image, scale: 1, label: Text(verbatim: ""))
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: proxy.size.width * widthModifier, height: proxy.size.height * heightModifier)
+                            .clipped()
+                    } else {
+                        RoundedRectangle(cornerRadius: 2)
+                            .stroke(Color(nsColor: .separatorColor), lineWidth: 1)
+                            .background(.background.opacity(0.01))
+                            .frame(width: proxy.size.width * widthModifier, height: proxy.size.height * heightModifier)
+                        Image(systemName: "photo")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 30)
+                            .foregroundColor(Color(nsColor: .separatorColor))
+                    }
                 }
+                .frame(width: proxy.size.width, height: proxy.size.height)
             }
-            .frame(width: 80 * aspectRatio, height: 80)
-            .clipped()
         }
-        .aspectRatio(contentMode: .fill)
         .buttonStyle(.plain)
         .onDrop(of: [.fileURL], isTargeted: nil) { providers in
             _ = providers.first?.loadDataRepresentation(for: .fileURL) { data, _ in

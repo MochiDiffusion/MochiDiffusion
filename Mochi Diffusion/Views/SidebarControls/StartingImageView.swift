@@ -20,20 +20,14 @@ struct StartingImageView: View {
         .sidebarLabelFormat()
 
         HStack(alignment: .top) {
-            let aspectRatio: Double = {
-                if let size = controller.currentModel?.inputSize {
-                    return size.width / size.height
-                } else {
-                    return 1.0
-                }
-            }()
-            ImageWellView(image: controller.startingImage, aspectRatio: aspectRatio) { image in
+            ImageWellView(image: controller.startingImage, size: controller.currentModel?.inputSize) { image in
                 if let image {
                     ImageController.shared.setStartingImage(image: image)
                 } else {
                     await ImageController.shared.unsetStartingImage()
                 }
             }
+            .frame(width: 90, height: 90)
 
             Spacer()
 
