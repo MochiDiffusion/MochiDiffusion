@@ -17,8 +17,8 @@ struct ImageWellView: View {
         self.image = image
         if let width = size?.width, let height = size?.height {
             let aspectRatio = width / height
-            self.widthModifier = aspectRatio > 1.0 ? 1 / aspectRatio : 1.0
-            self.heightModifier = aspectRatio < 1.0 ? aspectRatio : 1.0
+            self.widthModifier = aspectRatio < 1.0 ? aspectRatio : 1.0
+            self.heightModifier = aspectRatio > 1.0 ? 1 / aspectRatio : 1.0
         } else {
             self.widthModifier = 1.0
             self.heightModifier = 1.0
