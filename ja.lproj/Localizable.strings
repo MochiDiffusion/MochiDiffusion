@@ -7,7 +7,6 @@
 "**Auto** selects the most appropriate configuration for the selected model." = "**自動**は選択したモデルに最適な設定を選択します。";
 "**CPU & GPU** is compatible with all models and may be faster on M1 Max, Ultra and later, but will use more memory." = "**CPU & GPU** はすべてのモデルと互換性があり、M1 Max、Ultraおよびそれ以降では高速であるかもしれませんが、より多くのメモリを使用します。";
 "**CPU & Neural Engine** provides a good balance between speed and low memory usage, but only works with split-einsum models." = "**CPU & ニューラルエンジン** は速度とメモリ使用量のバランスが良いですが、split-einsum モデルでのみ動作します。";
-"About %@" = "およそ%@";
 "All" = "全て";
 "Apply" = "適用";
 "Auto (Recommended)" = "自動 (推奨)";
@@ -21,7 +20,6 @@
 "Choose image" = "画像を選択";
 "ControlNet" = "ControlNet";
 "ControlNet Folder" = "ControlNet フォルダ";
-"ControlNet Image" = "ControlNet 画像";
 "Convert all images to High Resolution (this will use more memory)" = "すべての画像を高解像度に変換します（これはより多くのメモリを使用します）";
 "Convert to High Resolution" = "高解像度へ変換";
 "Copy" = "コピー";

@@ -7,7 +7,6 @@
 "CFBundleDisplayName" = "Mochi Diffusion";
 "CFBundleName" = "Mochi Diffusion";
 "NSHumanReadableCopyright" = "Por Joshua Park";
-"About %@" = "Acerca de %@";
 "All" = "Todos";
 "Apply" = "Aplicar";
 "Autosave & Restore Images" = "Autoguardar y Recuperar Imágenes";
@@ -17,7 +16,6 @@
 "Choose a folder and a name to store the image" = "Elige una carpeta y un nombre para guardar la imagen";
 "Choose a folder to save all images" = "Elige una carpeta para guardar todas las imágenes";
 "Choose generated images to import" = "Elige imágenes generadas para importar";
-"ControlNet Image" = "Imagen ControlNet";
 "Convert all images to High Resolution (this will use more memory)" = "Convertir todas las imágenes a Alta Resolución (esto usará más memoria)";
 "Convert to High Resolution" = "Convertir a Alta Resolución";
 "Copy" = "Copiar";

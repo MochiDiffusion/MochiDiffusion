@@ -10,7 +10,6 @@
 "**Auto** selects the most appropriate configuration for the selected model." = "**Auto** wählt die passendste Konfiguration für das ausgewählte Modell aus.";
 "**CPU & GPU** is compatible with all models and may be faster on M1 Max, Ultra and later, but will use more memory." = "**CPU & GPU** ist mit allen Modellen kompatibel und kann auf M1 Max, Ultra schneller sein, wird aber mehr Speicher benötigen.";
 "**CPU & Neural Engine** provides a good balance between speed and low memory usage, but only works with split-einsum models." = "**CPU & Neural Engine** bietet eine gute Balance zwischen Geschwindigkeit und niedriger Speicherauslastung, funktioniert aber nur mit Split-Einsum-Modellen.";
-"About %@" = "Über %@";
 "All" = "Alle";
 "Apply" = "Bestätigen";
 "Auto (Recommended)" = "Auto (Empfohlen)";
@@ -24,7 +23,6 @@
 "Choose image" = "Bild auswählen";
 "ControlNet" = "ControlNet";
 "ControlNet Folder" = "ControlNet Ordner";
-"ControlNet Image" = "ControlNet Bild";
 "Convert all images to High Resolution (this will use more memory)" = "Alle Bilder in hohe Auflösung konvertieren (dies wird mehr Speicher verbrauchen)";
 "Convert to High Resolution" = "In hohe Auflösung konvertieren";
 "Copy" = "Kopieren";
