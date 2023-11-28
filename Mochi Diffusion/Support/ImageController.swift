@@ -157,6 +157,7 @@ final class ImageController: ObservableObject {
 
     private var imageFolderMonitor: FolderMonitor?
     private var modelFolderMonitor: FolderMonitor?
+    private var controlNetFolderMonitor: FolderMonitor?
 
     init() {
         Task {
@@ -190,6 +191,11 @@ final class ImageController: ObservableObject {
             }
         }
         self.modelFolderMonitor = FolderMonitor(path: modelDir) {
+            Task {
+                await self.loadModels()
+            }
+        }
+        self.controlNetFolderMonitor = FolderMonitor(path: controlNetDir) {
             Task {
                 await self.loadModels()
             }
