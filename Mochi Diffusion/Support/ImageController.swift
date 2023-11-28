@@ -156,6 +156,8 @@ final class ImageController: ObservableObject {
     @AppStorage("UseTrash") var useTrash = true
 
     private var imageFolderMonitor: FolderMonitor?
+    private var modelFolderMonitor: FolderMonitor?
+
     init() {
         Task {
             await load()
@@ -185,6 +187,11 @@ final class ImageController: ObservableObject {
                     ImageStore.shared.add(additions)
                     ImageStore.shared.remove(removals)
                 }
+            }
+        }
+        self.modelFolderMonitor = FolderMonitor(path: modelDir) {
+            Task {
+                await self.loadModels()
             }
         }
     }
