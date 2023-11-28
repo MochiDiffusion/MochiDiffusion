@@ -75,6 +75,14 @@ class ImageStore: ObservableObject {
         remove(sdi.id)
     }
 
+    func remove(_ sdis: [SDImage]) {
+        withAnimation {
+            allImages.removeAll { sdi in
+                sdis.map { $0.id }.contains(sdi.id)
+            }
+        }
+    }
+
     func remove(_ id: SDImage.ID) {
         withAnimation {
             guard let index = index(for: id) else { return }
