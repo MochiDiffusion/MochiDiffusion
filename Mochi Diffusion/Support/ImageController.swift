@@ -259,7 +259,7 @@ final class ImageController: ObservableObject {
         pipelineConfig.disableSafety = !safetyChecker
         pipelineConfig.schedulerType = convertScheduler(scheduler)
         for controlNet in currentControlNets {
-            if let name = controlNet.name, let size = currentModel?.inputSize, let image = controlNet.image?.scaledAndCroppedTo(size: size) {
+            if let _ = controlNet.name, let size = currentModel?.inputSize, let image = controlNet.image?.scaledAndCroppedTo(size: size) {
                 pipelineConfig.controlNetInputs.append(image)
             }
         }
