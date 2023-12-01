@@ -11,7 +11,8 @@ import SwiftUI
 
 struct InfoGridRow: View {
     var type: LocalizedStringKey
-    var text: String
+    var text: String?
+    var image: CGImage?
     var showCopyToPromptOption: Bool
     var callback: (@MainActor () -> Void)?
 
@@ -36,9 +37,16 @@ struct InfoGridRow: View {
                 Text("")
             }
 
-            Text(text)
-                .selectableTextFormat()
-                .frame(maxWidth: .infinity, alignment: .leading)
+            if let image = image {
+                Image(image, scale: 4, label: Text(type))
+                    .resizable()
+                    .aspectRatio(CGSize(width: image.width, height: image.height), contentMode: .fit)
+                    .frame(height: image.height >= image.width ? 90 : 90 * Double(image.height) / Double(image.width))
+            } else if let text = text {
+                Text(text)
+                    .selectableTextFormat()
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
         }
         Spacer().frame(height: 12)
     }

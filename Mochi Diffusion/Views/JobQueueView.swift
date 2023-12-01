@@ -5,6 +5,7 @@
 //  Created by Graham Bing on 2023-11-18.
 //
 
+import CoreML
 import SwiftUI
 
 struct JobQueueView: View {
@@ -115,8 +116,7 @@ private struct JobView: View {
             .buttonStyle(.plain)
             .popover(isPresented: self.$isGetInfoPopoverShown, arrowEdge: .bottom) {
                 InfoPopoverView(config: config)
-                    .frame(width: 240)
-                    .padding()
+                    .frame(width: 320)
             }
         }
     }
@@ -156,68 +156,102 @@ private struct InfoPopoverView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading) {
+        ScrollView {
+            VStack(alignment: .leading) {
+                Grid(alignment: .leading, horizontalSpacing: 4) {
+                    // swiftlint:disable trailing_closure
+                    InfoGridRow(
+                        type: LocalizedStringKey(Metadata.model.rawValue),
+                        text: config.model.name,
+                        showCopyToPromptOption: false
+                    )
+                    InfoGridRow(
+                        type: LocalizedStringKey(Metadata.includeInImage.rawValue),
+                        text: config.pipelineConfig.prompt,
+                        showCopyToPromptOption: true,
+                        callback: { controller.prompt = config.pipelineConfig.prompt }
+                    )
+                    InfoGridRow(
+                        type: LocalizedStringKey(Metadata.excludeFromImage.rawValue),
+                        text: config.pipelineConfig.negativePrompt,
+                        showCopyToPromptOption: true,
+                        callback: { controller.negativePrompt = config.pipelineConfig.negativePrompt }
+                    )
+                    if config.pipelineConfig.seed != 0 {
+                        InfoGridRow(
+                            type: LocalizedStringKey(Metadata.seed.rawValue),
+                            text: String(config.pipelineConfig.seed),
+                            showCopyToPromptOption: true,
+                            callback: { controller.seed = config.pipelineConfig.seed }
+                        )
+                    }
+                    if config.numberOfImages != 1 {
+                        InfoGridRow(
+                            type: LocalizedStringKey("Number of Images"),
+                            text: String(config.numberOfImages),
+                            showCopyToPromptOption: true,
+                            callback: { controller.numberOfImages = Double(config.numberOfImages) }
+                        )
+                    }
+                    InfoGridRow(
+                        type: LocalizedStringKey(Metadata.steps.rawValue),
+                        text: String(config.pipelineConfig.stepCount),
+                        showCopyToPromptOption: true,
+                        callback: { controller.steps = Double(config.pipelineConfig.stepCount) }
+                    )
+                    InfoGridRow(
+                        type: LocalizedStringKey(Metadata.guidanceScale.rawValue),
+                        text: String(config.pipelineConfig.guidanceScale.formatted(.number.precision(.fractionLength(2)))),
+                        showCopyToPromptOption: true,
+                        callback: { controller.guidanceScale = Double(config.pipelineConfig.guidanceScale) }
+                    )
+                    InfoGridRow(
+                        type: LocalizedStringKey(Metadata.scheduler.rawValue),
+                        text: config.scheduler.rawValue,
+                        showCopyToPromptOption: true,
+                        callback: { controller.scheduler = config.scheduler }
+                    )
+                    InfoGridRow(
+                        type: LocalizedStringKey(Metadata.mlComputeUnit.rawValue),
+                        text: MLComputeUnits.toString(config.mlComputeUnit),
+                        showCopyToPromptOption: false
+                    )
+                    if let startingImage = config.pipelineConfig.startingImage {
+                        InfoGridRow(
+                            type: LocalizedStringKey("Starting Image"),
+                            image: startingImage,
+                            showCopyToPromptOption: false
+                        )
+                        InfoGridRow(
+                            type: LocalizedStringKey("Strength"),
+                            text: config.pipelineConfig.strength.formatted(.number.precision(.fractionLength(2))),
+                            showCopyToPromptOption: true,
+                            callback: { controller.strength = Double(config.pipelineConfig.strength) }
+                        )
+                    }
+                    if let controlNetName = config.controlNets.first, let controlNetImage = config.pipelineConfig.controlNetInputs.first {
+                        InfoGridRow(
+                            type: LocalizedStringKey("ControlNet"),
+                            text: controlNetName,
+                            showCopyToPromptOption: false
+                        )
+                        InfoGridRow(
+                            type: LocalizedStringKey("ControlNet Image"),
+                            image: controlNetImage,
+                            showCopyToPromptOption: false
+                        )
+                    }
+                    // swiftlint:enable trailing_closure
+                }
 
-            Text("Include in Image")
-                .sidebarLabelFormat()
-            Text(config.pipelineConfig.prompt)
-
-            if !config.pipelineConfig.negativePrompt.isEmpty {
-                Text("Exclude from Image")
-                    .sidebarLabelFormat()
-                Text(config.pipelineConfig.negativePrompt)
-            }
-
-            if config.numberOfImages != 1 {
-                Text("Number of Images")
-                    .sidebarLabelFormat()
-                Text("\(config.numberOfImages)")
-                    .monospacedDigit()
-            }
-
-            Text("Steps")
-                .sidebarLabelFormat()
-            Text("\(config.pipelineConfig.stepCount)")
-                .monospacedDigit()
-
-            Text("Guidance Scale")
-                .sidebarLabelFormat()
-            Text(config.pipelineConfig.guidanceScale.formatted(.number.precision(.fractionLength(2))))
-                .monospacedDigit()
-
-            Text("Model")
-                .sidebarLabelFormat()
-            Text(config.model.name)
-
-            if config.pipelineConfig.seed != 0 {
-                Text("Seed")
-                    .sidebarLabelFormat()
-                Text("\(config.pipelineConfig.seed)")
-                    .monospacedDigit()
-            }
-
-            if let startingImage = config.pipelineConfig.startingImage {
-                Text("Starting Image")
-                    .sidebarLabelFormat()
-                Image(startingImage, scale: 4, label: Text("Starting Image"))
-                Text("Strength")
-                    .sidebarLabelFormat()
-                Text(config.pipelineConfig.strength.formatted(.number.precision(.fractionLength(2))))
-            }
-
-            if let controlNetName = config.controlNets.first, let controlNetImage = config.pipelineConfig.controlNetInputs.first {
-                Text("ControlNet")
-                    .sidebarLabelFormat()
-                Text(controlNetName)
-                Image(controlNetImage, scale: 4, label: Text("ControlNet Image"))
-            }
-
-            HStack {
-                Spacer()
-                Button("Copy Options to Sidebar") {
-                    copyOptionsToSidebar()
+                HStack {
+                    Spacer()
+                    Button("Copy Options to Sidebar") {
+                        copyOptionsToSidebar()
+                    }
                 }
             }
+            .padding()
         }
     }
 }
