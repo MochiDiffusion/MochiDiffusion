@@ -118,10 +118,14 @@ struct PromptView: View {
                 Button {
                     Task { await ImageController.shared.generate() }
                 } label: {
-                    Text(
-                        "Generate",
-                        comment: "Button to generate image"
-                    )
+                    if case .ready = ImageGenerator.shared.state {
+                        Text(
+                            "Generate",
+                            comment: "Button to generate image"
+                        )
+                    } else {
+                        Text("Add to Queue")
+                    }
                 }
                 .disabled(controller.modelName.isEmpty)
                 .buttonStyle(.borderedProminent)
