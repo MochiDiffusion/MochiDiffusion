@@ -11,12 +11,13 @@ import os.log
 
 private let logger = Logger()
 
-struct SDModel: Identifiable, Hashable {
+struct SDModel: Identifiable {
     let url: URL
     let name: String
     let attention: SDModelAttentionType
     let controlNet: [String]
     let isXL: Bool
+    let inputSize: CGSize?
 
     var id: URL { url }
 
@@ -32,6 +33,13 @@ struct SDModel: Identifiable, Hashable {
         self.attention = attention
         self.controlNet = controlNet
         self.isXL = isXL
+        self.inputSize = identifyInputSize(url)
+    }
+}
+
+extension SDModel: Hashable {
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
     }
 }
 
@@ -96,5 +104,24 @@ private func unetMetadataURL(from url: URL) -> URL? {
 
     return potentialMetadataURLs.first {
         FileManager.default.fileExists(atPath: $0.path(percentEncoded: false))
+    }
+}
+
+private func identifyInputSize(_ url: URL) -> CGSize? {
+    let encoderMetadataURL = url.appending(path: "VAEEncoder.mlmodelc").appending(path: "metadata.json")
+    if let jsonData = try? Data(contentsOf: encoderMetadataURL),
+        let jsonArray = try? JSONSerialization.jsonObject(with: jsonData) as? [[String: Any]],
+        let jsonItem = jsonArray.first,
+        let inputSchema = jsonItem["inputSchema"] as? [[String: Any]],
+        let controlnetCond = inputSchema.first,
+        let shapeString = controlnetCond["shape"] as? String {
+        let shapeIntArray = shapeString.trimmingCharacters(in: CharacterSet(charactersIn: "[]"))
+            .components(separatedBy: ", ")
+            .compactMap { Int($0.trimmingCharacters(in: .whitespaces)) }
+        let width = shapeIntArray[3]
+        let height = shapeIntArray[2]
+        return CGSize(width: width, height: height)
+    } else {
+        return nil
     }
 }

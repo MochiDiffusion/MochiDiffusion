@@ -249,14 +249,20 @@ final class ImageController: ObservableObject {
 
         var pipelineConfig = StableDiffusionPipeline.Configuration(prompt: prompt)
         pipelineConfig.negativePrompt = negativePrompt
-        pipelineConfig.startingImage = startingImage
+        if let size = currentModel?.inputSize {
+            pipelineConfig.startingImage = startingImage?.scaledAndCroppedTo(size: size)
+        }
         pipelineConfig.strength = Float(strength)
         pipelineConfig.stepCount = Int(steps)
         pipelineConfig.seed = seed
         pipelineConfig.guidanceScale = Float(guidanceScale)
         pipelineConfig.disableSafety = !safetyChecker
         pipelineConfig.schedulerType = convertScheduler(scheduler)
-        pipelineConfig.controlNetInputs = currentControlNets.filter { $0.name != nil }.compactMap(\.image)
+        for controlNet in currentControlNets {
+            if controlNet.name != nil, let size = currentModel?.inputSize, let image = controlNet.image?.scaledAndCroppedTo(size: size) {
+                pipelineConfig.controlNetInputs.append(image)
+            }
+        }
         pipelineConfig.useDenoisedIntermediates = showGenerationPreview
 
         let genConfig = GenerationConfig(

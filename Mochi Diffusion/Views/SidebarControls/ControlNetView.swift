@@ -16,15 +16,15 @@ struct ControlNetView: View {
             .sidebarLabelFormat()
 
         HStack(alignment: .top) {
-            ImageWellView(image: controller.currentControlNets.first?.image) { image in
+            ImageWellView(image: controller.currentControlNets.first?.image, size: controller.currentModel?.inputSize) { image in
                 if let image {
                     await ImageController.shared.setControlNet(image: image)
                 } else {
                     await ImageController.shared.unsetControlNet()
                 }
             }
+            .frame(width: 90, height: 90)
             .disabled(controller.controlNet.isEmpty)
-            .frame(height: 90)
 
             Spacer()
 
