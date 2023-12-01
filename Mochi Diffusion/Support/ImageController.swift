@@ -94,45 +94,11 @@ final class ImageController: ObservableObject {
             modelName = model.name
             controlNet = model.controlNet
             currentControlNets = []
-
-            if case .ready = ImageGenerator.shared.state {
-                loadPipeline()
-            }
         }
     }
 
     @Published
     private(set) var currentControlNets: [SDControlNet] = []
-
-    private func loadPipeline() {
-        guard let model = currentModel else {
-            return
-        }
-
-        Task {
-            logger.info("Started loading model: \"\(self.modelName)\"")
-            do {
-                try await ImageGenerator.shared.loadPipeline(
-                    model: model,
-                    controlNet: currentControlNets.filter { $0.image != nil }.compactMap(\.name),
-                    computeUnit: mlComputeUnitPreference.computeUnits(forModel: model),
-                    reduceMemory: reduceMemory
-                )
-                logger.info("Stable Diffusion \(model.isXL ? "XL " : "")pipeline successfully loaded")
-            } catch ImageGenerator.GeneratorError.requestedModelNotFound {
-                logger.error("Couldn't load \(self.modelName) because it doesn't exist.")
-                modelName = ""
-                currentModel = nil
-                controlNet = []
-                currentControlNets = []
-            } catch {
-                modelName = ""
-                currentModel = nil
-                controlNet = []
-                currentControlNets = []
-            }
-        }
-    }
 
     @AppStorage("ModelDir") var modelDir = ""
     @AppStorage("ControlNetDir") var controlNetDir = ""
@@ -425,10 +391,6 @@ final class ImageController: ObservableObject {
         } else {
             self.currentControlNets[0].name = name
         }
-
-        if case .ready = ImageGenerator.shared.state {
-            loadPipeline()
-        }
     }
 
     func setControlNet(image: CGImage) async {
@@ -437,18 +399,10 @@ final class ImageController: ObservableObject {
         } else {
             self.currentControlNets[0].image = image
         }
-
-        if case .ready = ImageGenerator.shared.state {
-            loadPipeline()
-        }
     }
 
     func unsetControlNet() async {
         self.currentControlNets = []
-
-        if case .ready = ImageGenerator.shared.state {
-            loadPipeline()
-        }
     }
 
     func selectControlNetImage(at index: Int) async {
@@ -460,10 +414,6 @@ final class ImageController: ObservableObject {
             } else {
                 currentControlNets[index].image = image
             }
-        }
-
-        if case .ready = ImageGenerator.shared.state {
-            loadPipeline()
         }
     }
 
