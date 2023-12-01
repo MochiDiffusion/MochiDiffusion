@@ -14,26 +14,27 @@ struct GalleryToolbarView: View {
     @State private var isStatusPopoverShown = false
 
     var body: some View {
-        Button {
-            self.isStatusPopoverShown.toggle()
-        } label: {
+        ZStack {
             if case let .running(progress) = generator.state, let progress = progress, progress.stepCount > 0 {
                 let step = Int(progress.step) + 1
                 let stepValue = Double(step) / Double(progress.stepCount)
-                CircularProgressView(progress: stepValue)
-                    .frame(width: 16, height: 16)
+                Button {
+                    self.isStatusPopoverShown.toggle()
+                } label: {
+                    CircularProgressView(progress: stepValue)
+                        .frame(width: 16, height: 16)
+                }
             } else if case .loading = generator.state {
-                ProgressView()
-                    .progressViewStyle(.circular)
-                    .controlSize(.small)
-                    .frame(width: 16, height: 16)
-            } else {
-                // to prevent UI flicker when transitioning from running to ready to loading
-                Color.clear
-                    .frame(width: 16, height: 16)
+                Button {
+                    self.isStatusPopoverShown.toggle()
+                } label: {
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                        .controlSize(.small)
+                        .frame(width: 16, height: 16)
+                }
             }
         }
-        .disabled(generator.state == .ready(nil))
         .popover(isPresented: self.$isStatusPopoverShown, arrowEdge: .bottom) {
             JobQueueView()
                 .frame(width: 420, height: 240)
