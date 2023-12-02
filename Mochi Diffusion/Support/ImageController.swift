@@ -98,7 +98,7 @@ final class ImageController: ObservableObject {
     }
 
     @Published
-    private(set) var currentControlNets: [SDControlNet] = []
+    private(set) var currentControlNets: [(name: String?, image: CGImage?)] = []
 
     @AppStorage("ModelDir") var modelDir = ""
     @AppStorage("ControlNetDir") var controlNetDir = ""
@@ -387,7 +387,7 @@ final class ImageController: ObservableObject {
 
     func setControlNet(name: String) async {
         if self.currentControlNets.isEmpty {
-            self.currentControlNets = [SDControlNet(name: name)]
+            self.currentControlNets = [(name: name, image: nil)]
         } else {
             self.currentControlNets[0].name = name
         }
@@ -395,7 +395,7 @@ final class ImageController: ObservableObject {
 
     func setControlNet(image: CGImage) async {
         if self.currentControlNets.isEmpty {
-            self.currentControlNets = [SDControlNet(image: image)]
+            self.currentControlNets = [(name: nil, image: image)]
         } else {
             self.currentControlNets[0].image = image
         }
@@ -408,9 +408,9 @@ final class ImageController: ObservableObject {
     func selectControlNetImage(at index: Int) async {
         await selectImage().map { image in
             if currentControlNets.isEmpty {
-                currentControlNets = [SDControlNet(image: image)]
+                currentControlNets = [(name: nil, image: image)]
             } else if index >= currentControlNets.count {
-                currentControlNets.append(SDControlNet(image: image))
+                currentControlNets.append((name: nil, image: image))
             } else {
                 currentControlNets[index].image = image
             }
