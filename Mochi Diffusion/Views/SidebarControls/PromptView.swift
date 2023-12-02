@@ -124,7 +124,10 @@ struct PromptView: View {
                             comment: "Button to generate image"
                         )
                     } else {
-                        Text("Add to Queue")
+                        Text(
+                            "Add to Queue",
+                            comment: "Button to generate image"
+                        )
                     }
                 }
                 .disabled(controller.modelName.isEmpty)
