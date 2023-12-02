@@ -37,14 +37,12 @@
 "Height:" = "高度:";
 "If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images." = "如关闭选项，移除的图像将被永久删除。该选项适用于导入的图像和自动保存的图像。";
 "Image" = "图像";
-"Image %lld of %lld" = "图像 %lld / %lld";
 "Image Type" = "图像格式";
 "Image file name:" = "图像文件名：";
 "Import" = "导入";
 "Import Images..." = "导入图像...";
 "Improve Translation" = "改进翻译";
 "Include in Image" = "关键词";
-"Loading Model..." = "加载模型中...";
 "Loading..." = "加载中...";
 "ML Compute Unit" = "ML 计算单元";
 "Manually selecting an incompatible ML Compute Unit may cause poor performance or crash." = "选择不兼容的 ML 计算单元可能会导致性能不佳或崩溃。";
@@ -95,7 +93,6 @@ The size of the starting image must match the output image size of the current m
 
 原始图像的大小必须与当前模型的输出图像大小匹配。";
 "Support Project" = "支持项目";
-"This may take up to 2 minutes if a model is used for the first time" = "如果这是首次载入模型，则需要约2分钟的时间";
 "Toggle Info Panel" = "显示/隐藏信息面板";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "使用模型的安全检查模块，但它不能保证过滤所有的不良内容";
 "Website" = "网站";
