@@ -40,14 +40,12 @@
 "Height:" = "Altezza:";
 "If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images." = "Se l\'opzione è disattivata, le immagini rimosse vengono eliminate definitivamente. Questo si applica alle immagini importate e a quelle salvate automaticamente.";
 "Image" = "Immagine";
-"Image %lld of %lld" = "Immagine %lld di %lld";
 "Image Type" = "Tipo immagine";
 "Image file name:" = "Nome file immagine:";
 "Import" = "Importa";
 "Import Images..." = "Importa immagini...";
 "Improve Translation" = "Migliora la traduzione";
 "Include in Image" = "Includi nell\'immagine";
-"Loading Model..." = "Caricamento modello...";
 "Loading..." = "Caricamento...";
 "ML Compute Unit" = "Unità ML";
 "Manually selecting an incompatible ML Compute Unit may cause poor performance or crash." = "Selezionare un\'Unità ML incompatibile potrebbe causare cattive prestazioni o addirittura crash.";
@@ -98,7 +96,6 @@ Usa valori alti per ottenere risultati più creativi.
 
 La dimensione dell\'immagine di partenza deve combaciare con quella che si tenta di generare.";
 "Support Project" = "Supporta il progetto";
-"This may take up to 2 minutes if a model is used for the first time" = "Potrebbero volerci fino a 2 minuti se un modello viene utilizzato per la prima volta";
 "Toggle Info Panel" = "Mostra/nascondi il pannello informazioni";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Utilizza il modulo di verifica della sicurezza del modello. Questo non garantisce che tutti i contenuti inappropriati vengano filtrati.";
 "Website" = "Sito Web";
