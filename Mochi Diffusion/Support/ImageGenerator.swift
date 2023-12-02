@@ -105,7 +105,7 @@ class ImageGenerator: ObservableObject {
         return (sdis, finalImageDirURL)
     }
 
-    private func controlNets(in controlNetDirectoryURL: URL) -> [String] {
+    private func controlNets(in controlNetDirectoryURL: URL) -> [SDControlNet] {
         let controlNetDirectoryPath = controlNetDirectoryURL.path(percentEncoded: false)
 
         guard FileManager.default.fileExists(atPath: controlNetDirectoryPath),
@@ -113,7 +113,7 @@ class ImageGenerator: ObservableObject {
             return []
         }
 
-        return contentsOfControlNet.filter { !$0.hasPrefix(".") }.map { $0.replacing(".mlmodelc", with: "") }
+        return contentsOfControlNet.compactMap { SDControlNet(url: controlNetDirectoryURL.appending(path: $0)) }
     }
 
     func getModels(modelDirectoryURL: URL, controlNetDirectoryURL: URL) async throws -> [SDModel] {
