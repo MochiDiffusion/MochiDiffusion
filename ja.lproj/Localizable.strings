@@ -37,14 +37,12 @@
 "Height:" = "高さ:";
 "If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images." = "オプションがオフの場合、削除された画像は永久になくなります。インポートした画像と自動的に保存された画像に適用されます。";
 "Image" = "画像";
-"Image %lld of %lld" = "画像 %lld / %lld";
 "Image Type" = "画像タイプ";
 "Image file name:" = "画像ファイル名:";
 "Import" = "インポート";
 "Import Images..." = "画像のインポート...";
 "Improve Translation" = "翻訳の改善に協力";
 "Include in Image" = "画像に含める";
-"Loading Model..." = "モデルを読み込み中...";
 "Loading..." = "ロード中...";
 "ML Compute Unit" = "ML Compute Unit";
 "Manually selecting an incompatible ML Compute Unit may cause poor performance or crash." = "互換性のないMLを手動で選択すると、パフォーマンスが低下したりクラッシュする可能性があります。";
@@ -95,7 +93,6 @@ The size of the starting image must match the output image size of the current m
 
 開始画像のサイズはモデルの出力画像サイズと同じにする必要があります。";
 "Support Project" = "プロジェクトをサポート";
-"This may take up to 2 minutes if a model is used for the first time" = "モデルを初めて使用する場合、2分程度かかることがあります";
 "Toggle Info Panel" = "情報パネルの切り替え";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "モデルのセーフティ チェッカー モジュールを使用します。 これは、すべての不適切な画像が除外されることを保証するものではありません。";
 "Website" = "Web サイト";
