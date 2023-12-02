@@ -43,7 +43,6 @@
 "Select Previous" = "Välj föregående";
 "Share..." = "Dela...";
 "Steps" = "Steg";
-"Stop Generation" = "Stoppa generering";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Använder modellens säkerhetskontrollmodul. Detta garanterar inte att alla olämpliga bilder kommer att filtreras.";
 "Website" = "Hemsida";
 "Width:" = "Bredd:";
