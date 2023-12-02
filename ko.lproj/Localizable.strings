@@ -7,6 +7,8 @@
 "**Auto** selects the most appropriate configuration for the selected model." = "**자동**은 선택한 모델에 가장 적합한 옵션을 선택합니다.";
 "**CPU & GPU** is compatible with all models and may be faster on M1 Max, Ultra and later, but will use more memory." = "**CPU & GPU**는 M1 Max, Ultra에서 더 빠를 수 있지만 더 많은 메모리를 사용.";
 "**CPU & Neural Engine** provides a good balance between speed and low memory usage, but only works with split-einsum models." = "**CPU & Neural Engine**는 빠른 속도와 낮은 메모리 사용량 간의 적절한 균형을 제공.";
+"About %@" = "약 %@";
+"Add to Queue" = "목록에 추가";
 "All" = "모두 사용";
 "Apply" = "적용";
 "Auto (Recommended)" = "자동 (권장)";
@@ -20,6 +22,7 @@
 "Choose image" = "이미지 선택";
 "ControlNet" = "ControlNet";
 "ControlNet Folder" = "ControlNet 폴더";
+"ControlNet Image" = "ControlNet 이미지";
 "Convert all images to High Resolution (this will use more memory)" = "모든 이미지를 자동으로 고화질로 변경 (더 많은 메모리를 사용)";
 "Convert to High Resolution" = "고화질로 변경";
 "Copy" = "복사";
@@ -81,7 +84,6 @@
 "Starting Image" = "시작 이미지";
 "Step %lld of %lld - About %@" = "스텝 %lld / %lld – 약 %@";
 "Steps" = "스텝 수";
-"Stop Generation" = "생성 중단";
 "Strength" = "강도";
 "Strength controls how closely the generated image resembles the starting image.
 Use lower values to generate images that look similar to the starting image.
