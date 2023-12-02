@@ -84,7 +84,6 @@
 "Starting Image" = "Kezdő kép";
 "Step %lld of %lld - About %@" = "Lépés %lld / %lld - Kürülbelül %@";
 "Steps" = "Lépések száma";
-"Stop Generation" = "Generálás leállítása";
 "Strength" = "Erősség";
 "Strength controls how closely the generated image resembles the starting image.
 Use lower values to generate images that look similar to the starting image.
