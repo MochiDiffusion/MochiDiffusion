@@ -45,7 +45,6 @@
 "Select Previous" = "Valitse Edellinen";
 "Share..." = "Jaa...";
 "Steps" = "Vaiheet";
-"Stop Generation" = "Pysäytä generointi";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Käyttää mallin turvatarkistusmoduulia. Tämä ei takaa, että kaikki sopimattomat kuvat suodatetaan.";
 "Website" = "Nettisivu";
 "Width:" = "Leveys:";
