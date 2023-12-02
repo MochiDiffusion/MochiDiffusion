@@ -115,26 +115,24 @@ struct PromptView: View {
 
                 Spacer()
 
-                if case .running = generator.state {
-                    Button {
-                        Task { await ImageGenerator.shared.stopGenerate() }
-                    } label: {
-                        Text("Stop Generation")
-                    }
-                    .controlSize(.large)
-                } else {
-                    Button {
-                        Task { await ImageController.shared.generate() }
-                    } label: {
+                Button {
+                    Task { await ImageController.shared.generate() }
+                } label: {
+                    if case .ready = ImageGenerator.shared.state {
                         Text(
                             "Generate",
                             comment: "Button to generate image"
                         )
+                    } else {
+                        Text(
+                            "Add to Queue",
+                            comment: "Button to generate image"
+                        )
                     }
-                    .disabled(controller.modelName.isEmpty)
-                    .buttonStyle(.borderedProminent)
-                    .controlSize(.large)
                 }
+                .disabled(controller.modelName.isEmpty)
+                .buttonStyle(.borderedProminent)
+                .controlSize(.large)
             }
         }
     }
