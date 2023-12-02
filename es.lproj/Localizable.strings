@@ -69,7 +69,6 @@
 "Starting Image" = "Imagen Inicial";
 "Step %lld of %lld - About %@" = "Paso %lld de %lld - Acerca de %@";
 "Steps" = "Pasos";
-"Stop Generation" = "Detener Generación";
 "Strength" = "Intensidad";
 "Strength controls how closely the generated image resembles the starting image.
 Use lower values to generate images that look similar to the starting image.
