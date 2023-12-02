@@ -84,7 +84,6 @@
 "Starting Image" = "Начальное изображение";
 "Step %lld of %lld - About %@" = "Шаг %lld из %lld - около %@";
 "Steps" = "Шаги";
-"Stop Generation" = "Остановить генерацию";
 "Strength" = "Интенсивность";
 "Strength controls how closely the generated image resembles the starting image.
 Use lower values to generate images that look similar to the starting image.
