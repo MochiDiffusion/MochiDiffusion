@@ -21,19 +21,24 @@ struct SDModel: Identifiable {
 
     var id: URL { url }
 
-    init?(url: URL, name: String, controlNet: [String]) {
+    init?(url: URL, name: String, controlNet: [SDControlNet]) {
         guard let attention = identifyAttentionType(url) else {
             return nil
         }
 
         let isXL = identifyIfXL(url)
+        let size = identifyInputSize(url)
 
         self.url = url
         self.name = name
         self.attention = attention
-        self.controlNet = controlNet
+        if let size = size {
+            self.controlNet = controlNet.filter { $0.size == size && $0.attention == attention }.map { $0.name }
+        } else {
+            self.controlNet = []
+        }
         self.isXL = isXL
-        self.inputSize = identifyInputSize(url)
+        self.inputSize = size
     }
 }
 
