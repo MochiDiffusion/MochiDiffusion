@@ -20,10 +20,8 @@
 "HD" = "HD";
 "Height:" = "Altura:";
 "Image" = "Imagem";
-"Image %lld of %lld" = "Imagem %lld de %lld";
 "Import" = "Importar";
 "Include in Image" = "Incluir na imagem";
-"Loading Model..." = "Carregando modelos...";
 "ML Compute Unit" = "Unidade de computação ML";
 "Mochi Diffusion" = "Mochi Diffusion";
 "Model" = "Modelo";
@@ -46,8 +44,6 @@
 "Select Previous" = "Selecione Anterior";
 "Share..." = "Compartilhar...";
 "Steps" = "Passos";
-"Stop Generation" = "Parar criação";
-"This may take up to 2 minutes if a model is used for the first time" = "Isto pode levar até 2 minutos se um modelo é usado pela primeira vez";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Utiliza o módulo verificador de segurança do modelo. Isso não garante que todas as imagens impróprias serão filtradas.";
 "Website" = "Site";
 "Width:" = "Largura:";

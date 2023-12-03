@@ -40,14 +40,12 @@
 "Height:" = "Высота:";
 "If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images." = "Если опция выключена, изображения будут удаляться навсегда. Применяется к импортируемым и автоматически сохраняемым изображениям.";
 "Image" = "Изображение";
-"Image %lld of %lld" = "Изображение %lld из %lld";
 "Image Type" = "Тип изображения";
 "Image file name:" = "Имя файла изображения:";
 "Import" = "Импортировать";
 "Import Images..." = "Импортировать изображения...";
 "Improve Translation" = "Улучшить перевод";
 "Include in Image" = "Включить в изображение";
-"Loading Model..." = "Загрузка модели...";
 "Loading..." = "Загрузка...";
 "ML Compute Unit" = "Вычислительный блок ML";
 "Manually selecting an incompatible ML Compute Unit may cause poor performance or crash." = "Выбор несовместимого вычислительного модуля ML может привести к снижению производительности или сбою.";
@@ -86,7 +84,6 @@
 "Starting Image" = "Начальное изображение";
 "Step %lld of %lld - About %@" = "Шаг %lld из %lld - около %@";
 "Steps" = "Шаги";
-"Stop Generation" = "Остановить генерацию";
 "Strength" = "Интенсивность";
 "Strength controls how closely the generated image resembles the starting image.
 Use lower values to generate images that look similar to the starting image.
@@ -98,7 +95,6 @@ The size of the starting image must match the output image size of the current m
 
 Размер начального изображения должен совпадать с размером выводимого изображения для выбранной модели.";
 "Support Project" = "Поддержать проект";
-"This may take up to 2 minutes if a model is used for the first time" = "Это может занять до двух минут, если модель используется впервые";
 "Toggle Info Panel" = "Переключить отображение панели информации";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Использует модуль модели для проверки на безопасность изображений. Не гарантирует, что все неприемлемые изображения будут отфильтрованы.";
 "Website" = "Сайт";

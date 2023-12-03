@@ -7,6 +7,8 @@
 "**Auto** selects the most appropriate configuration for the selected model." = "**自动**能为所选模型选择最合适的配置。";
 "**CPU & GPU** is compatible with all models and may be faster on M1 Max, Ultra and later, but will use more memory." = "**CPU & GPU** 与所有模型兼容，而且可能在 M1 Max、M1 Ultra 及更高版本上速度更快，但会占用更多内存。";
 "**CPU & Neural Engine** provides a good balance between speed and low memory usage, but only works with split-einsum models." = "**CPU & 神经网络引擎**在性能和内存占用之间提供了良好的平衡，但仅适用于 split-einsum 模型。";
+"About %@" = "关于 %@";
+"Add to Queue" = "添加到队列";
 "All" = "全部";
 "Apply" = "应用";
 "Auto (Recommended)" = "自动 (推荐)";
@@ -20,6 +22,7 @@
 "Choose image" = "选择图像";
 "ControlNet" = "ControlNet";
 "ControlNet Folder" = "ControlNet 文件夹";
+"ControlNet Image" = "ControlNet 图像";
 "Convert all images to High Resolution (this will use more memory)" = "全部转换为高分辨率图像(将占用更多内存)";
 "Convert to High Resolution" = "转换为高分辨率图像";
 "Copy" = "拷贝";
@@ -37,14 +40,12 @@
 "Height:" = "高度:";
 "If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images." = "如关闭选项，移除的图像将被永久删除。该选项适用于导入的图像和自动保存的图像。";
 "Image" = "图像";
-"Image %lld of %lld" = "图像 %lld / %lld";
 "Image Type" = "图像格式";
 "Image file name:" = "图像文件名：";
 "Import" = "导入";
 "Import Images..." = "导入图像...";
 "Improve Translation" = "改进翻译";
 "Include in Image" = "关键词";
-"Loading Model..." = "加载模型中...";
 "Loading..." = "加载中...";
 "ML Compute Unit" = "ML 计算单元";
 "Manually selecting an incompatible ML Compute Unit may cause poor performance or crash." = "选择不兼容的 ML 计算单元可能会导致性能不佳或崩溃。";
@@ -83,7 +84,6 @@
 "Starting Image" = "原始图像";
 "Step %lld of %lld - About %@" = "第 %lld/%lld 迭代 - 约 %@";
 "Steps" = "迭代步数";
-"Stop Generation" = "终止生成";
 "Strength" = "强度";
 "Strength controls how closely the generated image resembles the starting image.
 Use lower values to generate images that look similar to the starting image.
@@ -95,7 +95,6 @@ The size of the starting image must match the output image size of the current m
 
 原始图像的大小必须与当前模型的输出图像大小匹配。";
 "Support Project" = "支持项目";
-"This may take up to 2 minutes if a model is used for the first time" = "如果这是首次载入模型，则需要约2分钟的时间";
 "Toggle Info Panel" = "显示/隐藏信息面板";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "使用模型的安全检查模块，但它不能保证过滤所有的不良内容";
 "Website" = "网站";

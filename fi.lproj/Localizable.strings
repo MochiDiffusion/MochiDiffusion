@@ -20,9 +20,7 @@
 "HD" = "HD";
 "Height:" = "Korkeus:";
 "Image" = "Kuva";
-"Image %lld of %lld" = "Kuva %lld / %lld";
 "Include in Image" = "Sisällytä kuvaan";
-"Loading Model..." = "Ladataan Mallia...";
 "ML Compute Unit" = "ML-laskentayksikkö";
 "Mochi Diffusion" = "Mochi Diffusion";
 "Model" = "Malli";
@@ -47,8 +45,6 @@
 "Select Previous" = "Valitse Edellinen";
 "Share..." = "Jaa...";
 "Steps" = "Vaiheet";
-"Stop Generation" = "Pysäytä generointi";
-"This may take up to 2 minutes if a model is used for the first time" = "Tämä voi kestää enintään 2 minuuttia, jos mallia käytetään ensimmäisen kerran";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Käyttää mallin turvatarkistusmoduulia. Tämä ei takaa, että kaikki sopimattomat kuvat suodatetaan.";
 "Website" = "Nettisivu";
 "Width:" = "Leveys:";

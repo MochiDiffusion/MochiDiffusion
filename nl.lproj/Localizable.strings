@@ -40,14 +40,12 @@
 "Height:" = "Hoogte:";
 "If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images." = "Als de optie uit staat, worden verwijderde afbeeldingen permanent verwijderd. Geldt voor geïmporteerde en automatisch opgeslagen afbeeldingen.";
 "Image" = "Afbeelding";
-"Image %lld of %lld" = "Afbeelding %lld van %lld";
 "Image Type" = "Afbeeldingstype";
 "Image file name:" = "Naam afbeelding:";
 "Import" = "Importeer";
 "Import Images..." = "Importeer afbeeldingen...";
 "Improve Translation" = "Vertalingen verbeteren";
 "Include in Image" = "In afbeelding opnemen";
-"Loading Model..." = "Model wordt geladen...";
 "Loading..." = "Wordt geladen...";
 "ML Compute Unit" = "ML Compute Unit";
 "Manually selecting an incompatible ML Compute Unit may cause poor performance or crash." = "Handmatig selecteren van een incompatibele ML Compute Unit kan slechte prestaties of crashes veroorzaken.";
@@ -80,7 +78,6 @@
 "Show in Finder" = "Tonen in Finder";
 "Starting Image" = "Startafbeelding";
 "Steps" = "Stappen";
-"Stop Generation" = "Stop Genereren";
 "Strength" = "Intensiteit";
 "Strength controls how closely the generated image resembles the starting image.
 Use lower values to generate images that look similar to the starting image.
@@ -90,7 +87,6 @@ The size of the starting image must match the output image size of the current m
 Gebruik lagere waarden om afbeeldingen te genereren die meer lijken op de startafbeelding.
 Gebruik hogere waarden laten voor meer creativiteit.";
 "Support Project" = "Ondersteun project";
-"This may take up to 2 minutes if a model is used for the first time" = "Dit kan tot 2 minuten duren als een model voor het eerst wordt gebruikt";
 "Toggle Info Panel" = "Info paneel in-/uitschakelen";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Gebruikt de safety checker module van het model. Dit garandeert niet dat alle ongepaste afbeeldingen gefilterd zullen worden.";
 "Website" = "Website";

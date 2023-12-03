@@ -7,6 +7,8 @@
 "**Auto** selects the most appropriate configuration for the selected model." = "**自動**は選択したモデルに最適な設定を選択します。";
 "**CPU & GPU** is compatible with all models and may be faster on M1 Max, Ultra and later, but will use more memory." = "**CPU & GPU** はすべてのモデルと互換性があり、M1 Max、Ultraおよびそれ以降では高速であるかもしれませんが、より多くのメモリを使用します。";
 "**CPU & Neural Engine** provides a good balance between speed and low memory usage, but only works with split-einsum models." = "**CPU & ニューラルエンジン** は速度とメモリ使用量のバランスが良いですが、split-einsum モデルでのみ動作します。";
+"About %@" = "%@について";
+"Add to Queue" = "キューに追加";
 "All" = "全て";
 "Apply" = "適用";
 "Auto (Recommended)" = "自動 (推奨)";
@@ -20,6 +22,7 @@
 "Choose image" = "画像を選択";
 "ControlNet" = "ControlNet";
 "ControlNet Folder" = "ControlNet フォルダ";
+"ControlNet Image" = "ControlNet画像";
 "Convert all images to High Resolution (this will use more memory)" = "すべての画像を高解像度に変換します（これはより多くのメモリを使用します）";
 "Convert to High Resolution" = "高解像度へ変換";
 "Copy" = "コピー";
@@ -37,14 +40,12 @@
 "Height:" = "高さ:";
 "If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images." = "オプションがオフの場合、削除された画像は永久になくなります。インポートした画像と自動的に保存された画像に適用されます。";
 "Image" = "画像";
-"Image %lld of %lld" = "画像 %lld / %lld";
 "Image Type" = "画像タイプ";
 "Image file name:" = "画像ファイル名:";
 "Import" = "インポート";
 "Import Images..." = "画像のインポート...";
 "Improve Translation" = "翻訳の改善に協力";
 "Include in Image" = "画像に含める";
-"Loading Model..." = "モデルを読み込み中...";
 "Loading..." = "ロード中...";
 "ML Compute Unit" = "ML Compute Unit";
 "Manually selecting an incompatible ML Compute Unit may cause poor performance or crash." = "互換性のないMLを手動で選択すると、パフォーマンスが低下したりクラッシュする可能性があります。";
@@ -83,7 +84,6 @@
 "Starting Image" = "開始画像";
 "Step %lld of %lld - About %@" = "ステップ %lld / %lld - およそ%@";
 "Steps" = "ステップ";
-"Stop Generation" = "画像生成の中止";
 "Strength" = "強さ";
 "Strength controls how closely the generated image resembles the starting image.
 Use lower values to generate images that look similar to the starting image.
@@ -95,7 +95,6 @@ The size of the starting image must match the output image size of the current m
 
 開始画像のサイズはモデルの出力画像サイズと同じにする必要があります。";
 "Support Project" = "プロジェクトをサポート";
-"This may take up to 2 minutes if a model is used for the first time" = "モデルを初めて使用する場合、2分程度かかることがあります";
 "Toggle Info Panel" = "情報パネルの切り替え";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "モデルのセーフティ チェッカー モジュールを使用します。 これは、すべての不適切な画像が除外されることを保証するものではありません。";
 "Website" = "Web サイト";

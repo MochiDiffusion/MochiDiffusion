@@ -40,14 +40,12 @@
 "Height:" = "Wysokość:";
 "If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images." = "Jeśli opcja jest wyłączona, skasowane obrazy są trwale usuwane. Dotyczy zaimportowanych i automatycznie zapisanych obrazów.";
 "Image" = "Obraz";
-"Image %lld of %lld" = "Obraz %lld z %lld";
 "Image Type" = "Rodzaj obrazu";
 "Image file name:" = "Nazwa pliku obrazu:";
 "Import" = "Importuj";
 "Import Images..." = "Importuj obrazy...";
 "Improve Translation" = "Popraw tłumaczenie";
 "Include in Image" = "Uwzględnij w obrazie";
-"Loading Model..." = "Wczytywanie modelu...";
 "Loading..." = "Wczytywanie...";
 "ML Compute Unit" = "Jednostka Obliczeniowa ML";
 "Manually selecting an incompatible ML Compute Unit may cause poor performance or crash." = "Ręczne wybranie niezgodnej jednostki obliczeniowej ML może spowodować słabą wydajność lub awarię.";
@@ -80,7 +78,6 @@
 "Show in Finder" = "Pokaż w Finderze";
 "Starting Image" = "Obraz początkowy";
 "Steps" = "Kroki";
-"Stop Generation" = "Zatrzymaj generowanie";
 "Strength" = "Siła";
 "Strength controls how closely the generated image resembles the starting image.
 Use lower values to generate images that look similar to the starting image.
@@ -92,7 +89,6 @@ Użyj wyższych wartości, aby umożliwić większą wolność twórczą.
 
 Rozmiar wyjściowego obrazu musi odpowiadać rozmiarowi obrazu wyjściowego bieżącego modelu.";
 "Support Project" = "Wesprzyj projekt";
-"This may take up to 2 minutes if a model is used for the first time" = "Może to zająć do 2 minut, jeżeli model jest używany po raz pierwszy";
 "Toggle Info Panel" = "Przełącz panel informacji";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Używa modułu sprawdzania bezpieczeństwa modelu. To nie gwarantuje, że wszystkie nieodpowiednie obrazy zostaną przefiltrowane.";
 "Website" = "Strona";

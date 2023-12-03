@@ -37,14 +37,12 @@
 "Height:" = "高度：";
 "If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images." = "如果關閉此選項，移除的圖片將被永久刪除。此選項適用於匯入的圖片與自動儲存的圖片。";
 "Image" = "圖片";
-"Image %lld of %lld" = "圖片 %lld / %lld";
 "Image Type" = "圖片格式";
 "Image file name:" = "圖片檔案名稱：";
 "Import" = "匯入";
 "Import Images..." = "匯入圖片 ...";
 "Improve Translation" = "改進翻譯";
 "Include in Image" = "關鍵詞";
-"Loading Model..." = "載入模型中 ...";
 "Loading..." = "載入中 ...";
 "ML Compute Unit" = "ML 計算單元";
 "Manually selecting an incompatible ML Compute Unit may cause poor performance or crash." = "手動選擇不相容的 ML 計算單元可能會導致性能不佳或程式崩潰。";
@@ -83,7 +81,6 @@
 "Starting Image" = "起始圖片";
 "Step %lld of %lld - About %@" = "第 %lld/%lld 叠代 - 約 %@";
 "Steps" = "迭代次數";
-"Stop Generation" = "停止生成？";
 "Strength" = "強度";
 "Strength controls how closely the generated image resembles the starting image.
 Use lower values to generate images that look similar to the starting image.
@@ -95,7 +92,6 @@ The size of the starting image must match the output image size of the current m
 
 原始圖像的大小必須與當前模型的輸出圖像大小匹配。";
 "Support Project" = "協助此專案";
-"This may take up to 2 minutes if a model is used for the first time" = "首次載入模型可能需要多達 2 分鐘";
 "Toggle Info Panel" = "切換資訊面板";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "使用模型的安全檢查模組（無法保證所有不適當圖片都會被過濾）";
 "Website" = "網站";

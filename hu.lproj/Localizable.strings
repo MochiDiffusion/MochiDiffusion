@@ -40,14 +40,12 @@
 "Height:" = "Magasság:";
 "If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images." = "Ha ki van kapcsolva a képek végérvényesen törlődnek. Ez a importált és az automatikusan mentett képekre is igaz.";
 "Image" = "Kép";
-"Image %lld of %lld" = "Kép %lld / %lld";
 "Image Type" = "Kép típusa";
 "Image file name:" = "Kép neve:";
 "Import" = "Importálás";
 "Import Images..." = "Képek importálása...";
 "Improve Translation" = "Fordítás javítása";
 "Include in Image" = "Kép csatolása";
-"Loading Model..." = "Model betöltése...";
 "Loading..." = "Betöltés...";
 "ML Compute Unit" = "ML Compute egység";
 "Manually selecting an incompatible ML Compute Unit may cause poor performance or crash." = "Az inkompatibilis ML Compute egység kiválasztása degradált tejesítményhez és instabilitáshoz vezethet.";
@@ -86,7 +84,6 @@
 "Starting Image" = "Kezdő kép";
 "Step %lld of %lld - About %@" = "Lépés %lld / %lld - Kürülbelül %@";
 "Steps" = "Lépések száma";
-"Stop Generation" = "Generálás leállítása";
 "Strength" = "Erősség";
 "Strength controls how closely the generated image resembles the starting image.
 Use lower values to generate images that look similar to the starting image.
@@ -96,7 +93,6 @@ The size of the starting image must match the output image size of the current m
 
 A kiindulási kép méretének meg kell egyeznie a jelenlegi modell kimeneti képméretével.";
 "Support Project" = "A projekt támogatása";
-"This may take up to 2 minutes if a model is used for the first time" = "Ez akár 2 percig is eltarthat, ha a model először töltödik be";
 "Toggle Info Panel" = "Infó panel megjelenítése";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Hasznája a model explicit szűrőjét. Ez nem garantálja, hogy minden képet sikeresen kiszűrne.";
 "Website" = "Weboldal";
