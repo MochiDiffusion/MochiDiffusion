@@ -81,6 +81,7 @@ struct GalleryView: View {
                             .simultaneousGesture(TapGesture().onEnded {
                                 Task { await ImageController.shared.select(sdi.id) }
                             })
+                            .draggable(URL(fileURLWithPath: sdi.path))
                             .contextMenu {
                                 GalleryItemContextMenuView(sdi: sdi)
                             }

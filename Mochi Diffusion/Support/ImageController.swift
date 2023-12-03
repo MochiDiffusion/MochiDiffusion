@@ -121,9 +121,50 @@ final class ImageController: ObservableObject {
     @AppStorage("SafetyChecker") var safetyChecker = false
     @AppStorage("UseTrash") var useTrash = true
 
+    private var imageFolderMonitor: FolderMonitor?
+    private var modelFolderMonitor: FolderMonitor?
+    private var controlNetFolderMonitor: FolderMonitor?
+
     init() {
         Task {
             await load()
+        }
+        self.imageFolderMonitor = FolderMonitor(path: imageDir) {
+            if let fileList = try? FileManager.default.contentsOfDirectory(atPath: self.imageDir) {
+                var additions = [SDImage]()
+                var removals = [SDImage]()
+                fileList.forEach { filePath in
+                    if !ImageStore.shared.images.map({ URL(filePath: $0.path).lastPathComponent }).contains(where: {
+                        $0 == filePath
+                    }) {
+                        let fileURL = URL(filePath: self.imageDir).appending(component: filePath)
+                        if let sdi = createSDImageFromURL(fileURL) {
+                            additions.append(sdi)
+                        }
+                    }
+                }
+                ImageStore.shared.images.forEach { sdi in
+                    if !fileList.contains(where: {
+                        $0 == URL(filePath: sdi.path).lastPathComponent
+                    }) {
+                        removals.append(sdi)
+                    }
+                }
+                Task {
+                    ImageStore.shared.add(additions)
+                    ImageStore.shared.remove(removals)
+                }
+            }
+        }
+        self.modelFolderMonitor = FolderMonitor(path: modelDir) {
+            Task {
+                await self.loadModels()
+            }
+        }
+        self.controlNetFolderMonitor = FolderMonitor(path: controlNetDir) {
+            Task {
+                await self.loadModels()
+            }
         }
     }
 
