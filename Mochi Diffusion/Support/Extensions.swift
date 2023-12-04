@@ -124,7 +124,7 @@ extension NSImage {
 
     func temporaryFileURL() throws -> URL {
         let imageHash = self.getImageHash()
-        if let cachedURL = Self.urlCache[imageHash] {
+        if let cachedURL = Self.urlCache[imageHash], FileManager.default.fileExists(atPath: cachedURL.path(percentEncoded: false)) {
             return cachedURL
         }
         let name = String(imageHash)

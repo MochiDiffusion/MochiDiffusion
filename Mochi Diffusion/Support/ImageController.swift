@@ -145,6 +145,7 @@ final class ImageController: ObservableObject {
                 }
                 ImageStore.shared.images.forEach { sdi in
                     if !fileList.contains(where: {
+                        sdi.path.isEmpty || // ignore images generated with autosave disabled
                         $0 == URL(filePath: sdi.path).lastPathComponent
                     }) {
                         removals.append(sdi)

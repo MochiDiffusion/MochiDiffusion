@@ -81,7 +81,20 @@ struct GalleryView: View {
                             .simultaneousGesture(TapGesture().onEnded {
                                 Task { await ImageController.shared.select(sdi.id) }
                             })
-                            .draggable(URL(fileURLWithPath: sdi.path))
+                            .onDrag {
+                                if !sdi.path.isEmpty, let item = NSItemProvider(contentsOf: URL(fileURLWithPath: sdi.path)) {
+                                    return item
+                                }
+
+                                if let cgImage = sdi.image {
+                                    let nsImage = NSImage(cgImage: cgImage, size: CGSize(width: sdi.width, height: sdi.height))
+                                    if let tempURL = try? nsImage.temporaryFileURL(), let item = NSItemProvider(contentsOf: tempURL) {
+                                        return item
+                                    }
+                                }
+
+                                return NSItemProvider()
+                            }
                             .contextMenu {
                                 GalleryItemContextMenuView(sdi: sdi)
                             }
