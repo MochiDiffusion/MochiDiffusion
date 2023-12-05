@@ -7,6 +7,8 @@
 "**Auto** selects the most appropriate configuration for the selected model." = "**Auto** 會為所選模型選擇最適合的配置。";
 "**CPU & GPU** is compatible with all models and may be faster on M1 Max, Ultra and later, but will use more memory." = "「CPU 和 GPU」相容於所有模型，並且在 M1 Max、M1 Ultra 和之後的晶片上可能更快，但會使用更多的記憶體。";
 "**CPU & Neural Engine** provides a good balance between speed and low memory usage, but only works with split-einsum models." = "「CPU 和 神經網路引擎」提供了速度和低記憶體使用之間的良好平衡，但只適用於 split-einsum 模型。";
+"About %@" = "關於 %@";
+"Add to Queue" = "添加到隊列";
 "All" = "全部";
 "Apply" = "套用";
 "Auto (Recommended)" = "自動（建議）";
@@ -20,6 +22,7 @@
 "Choose image" = "選擇圖片";
 "ControlNet" = "ControlNet";
 "ControlNet Folder" = "ControlNet 目錄";
+"ControlNet Image" = "ControlNet 圖像";
 "Convert all images to High Resolution (this will use more memory)" = "將所有圖像轉換為高解析度（需使用更多記憶體）";
 "Convert to High Resolution" = "轉換為高解析度";
 "Copy" = "複製";
