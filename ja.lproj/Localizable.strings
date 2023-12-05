@@ -75,25 +75,25 @@
 "Select" = "選択";
 "Select Next" = "次を選択";
 "Select Previous" = "前を選択";
-"Set as Starting Image" = "開始画像に設定";
+"Set as Starting Image" = "元画像に設定";
 "Share..." = "共有...";
 "Show Image Preview" = "画像のプレビューを表示";
 "Show in Finder" = "Finderで表示";
 "Show the image as its being generated." = "生成される画像を表示します。";
 "Sort" = "ソート";
-"Starting Image" = "開始画像";
-"Step %lld of %lld - About %@" = "ステップ %lld / %lld - およそ%@";
+"Starting Image" = "元画像";
+"Step %lld of %lld - About %@" = "ステップ %lld / %lld - 残り %@";
 "Steps" = "ステップ";
 "Strength" = "強さ";
 "Strength controls how closely the generated image resembles the starting image.
 Use lower values to generate images that look similar to the starting image.
 Use higher values to allow more creative freedom.
 
-The size of the starting image must match the output image size of the current model." = "強さは生成される画像が開始画像にどれだけ似ているかを制御します。
-開始画像に似た画像を生成するには、低い値を使用してください。
+The size of the starting image must match the output image size of the current model." = "強さは生成される画像が元画像にどれだけ似ているかを制御します。
+元画像に忠実な画像を生成するには、低い値を使用してください。
 より創造的な自由を許容するには、高い値を使用してください。
 
-開始画像のサイズはモデルの出力画像サイズと同じにする必要があります。";
+元画像のサイズはモデルの出力画像サイズと同じにする必要があります。";
 "Support Project" = "プロジェクトをサポート";
 "Toggle Info Panel" = "情報パネルの切り替え";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "モデルのセーフティ チェッカー モジュールを使用します。 これは、すべての不適切な画像が除外されることを保証するものではありません。";
