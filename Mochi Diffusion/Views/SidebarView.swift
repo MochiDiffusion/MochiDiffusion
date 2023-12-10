@@ -20,6 +20,10 @@ struct SidebarView: View {
                     Divider().frame(height: 16)
                 }
                 Group {
+                    ModelView()
+                    Spacer().frame(height: 6)
+                }
+                Group {
                     NumberOfImagesView()
                     Spacer().frame(height: 6)
                 }
@@ -33,10 +37,6 @@ struct SidebarView: View {
                 }
                 Group {
                     SeedView()
-                    Spacer().frame(height: 6)
-                }
-                Group {
-                    ModelView()
                     Divider().frame(height: 16)
                 }
                 Group {

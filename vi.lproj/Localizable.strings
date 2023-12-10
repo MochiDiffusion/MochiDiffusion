@@ -39,7 +39,6 @@
 "Import Images..." = "Nhập hình ảnh...";
 "Improve Translation" = "Cải thiện bản dịch";
 "Include in Image" = "Đưa vào hình ảnh";
-"Loading Model..." = "Đang tải mô hình...";
 "Loading..." = "Đang tải...";
 "ML Compute Unit" = "Đơn vị tính toán ML";
 "Manually selecting an incompatible ML Compute Unit may cause poor performance or crash." = "Việc chọn Đơn vị điện toán ML không tương thích theo cách thủ công có thể gây ra sự cố hoặc hiệu suất kém.";
@@ -75,7 +74,6 @@
 "Sort" = "Loại";
 "Starting Image" = "Hình ảnh bắt đầu";
 "Steps" = "Bước";
-"Stop Generation" = "Dừng tạo";
 "Strength" = "Sức mạnh";
 "Strength controls how closely the generated image resembles the starting image.
 Use lower values to generate images that look similar to the starting image.
@@ -87,7 +85,6 @@ The size of the starting image must match the output image size of the current m
 
  Kích thước của hình ảnh bắt đầu phải phù hợp với kích thước hình ảnh đầu ra của mô hình hiện tại.";
 "Support Project" = "Dự án hỗ trợ";
-"This may take up to 2 minutes if a model is used for the first time" = "Quá trình này có thể mất tối đa 2 phút nếu sử dụng mô hình lần đầu tiên";
 "Toggle Info Panel" = "Chuyển đổi bảng thông tin";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Sử dụng mô-đun kiểm tra an toàn của mô hình.";
 "Website" = "Trang web";

@@ -42,6 +42,12 @@ final class ImageController: ObservableObject {
     private lazy var logger = Logger()
 
     @Published
+    var generationQueue = [GenerationConfig]()
+
+    @Published
+    var currentGeneration: GenerationConfig?
+
+    @Published
     var isLoading = true
 
     @Published
@@ -88,43 +94,11 @@ final class ImageController: ObservableObject {
             modelName = model.name
             controlNet = model.controlNet
             currentControlNets = []
-
-            loadPipeline()
         }
     }
 
     @Published
-    private(set) var currentControlNets: [SDControlNet] = []
-
-    private func loadPipeline() {
-        guard let model = currentModel else {
-            return
-        }
-
-        Task {
-            logger.info("Started loading model: \"\(self.modelName)\"")
-            do {
-                try await ImageGenerator.shared.loadPipeline(
-                    model: model,
-                    controlNet: currentControlNets.filter { $0.image != nil }.compactMap(\.name),
-                    computeUnit: mlComputeUnitPreference.computeUnits(forModel: model),
-                    reduceMemory: reduceMemory
-                )
-                logger.info("Stable Diffusion \(model.isXL ? "XL " : "")pipeline successfully loaded")
-            } catch ImageGenerator.GeneratorError.requestedModelNotFound {
-                logger.error("Couldn't load \(self.modelName) because it doesn't exist.")
-                modelName = ""
-                currentModel = nil
-                controlNet = []
-                currentControlNets = []
-            } catch {
-                modelName = ""
-                currentModel = nil
-                controlNet = []
-                currentControlNets = []
-            }
-        }
-    }
+    private(set) var currentControlNets: [(name: String?, image: CGImage?)] = []
 
     @AppStorage("ModelDir") var modelDir = ""
     @AppStorage("ControlNetDir") var controlNetDir = ""
@@ -147,9 +121,51 @@ final class ImageController: ObservableObject {
     @AppStorage("SafetyChecker") var safetyChecker = false
     @AppStorage("UseTrash") var useTrash = true
 
+    private var imageFolderMonitor: FolderMonitor?
+    private var modelFolderMonitor: FolderMonitor?
+    private var controlNetFolderMonitor: FolderMonitor?
+
     init() {
         Task {
             await load()
+        }
+        self.imageFolderMonitor = FolderMonitor(path: imageDir) {
+            if let fileList = try? FileManager.default.contentsOfDirectory(atPath: self.imageDir) {
+                var additions = [SDImage]()
+                var removals = [SDImage]()
+                fileList.forEach { filePath in
+                    if !ImageStore.shared.images.map({ URL(filePath: $0.path).lastPathComponent }).contains(where: {
+                        $0 == filePath
+                    }) {
+                        let fileURL = URL(filePath: self.imageDir).appending(component: filePath)
+                        if let sdi = createSDImageFromURL(fileURL) {
+                            additions.append(sdi)
+                        }
+                    }
+                }
+                ImageStore.shared.images.forEach { sdi in
+                    if !fileList.contains(where: {
+                        sdi.path.isEmpty || // ignore images generated with autosave disabled
+                        $0 == URL(filePath: sdi.path).lastPathComponent
+                    }) {
+                        removals.append(sdi)
+                    }
+                }
+                Task {
+                    ImageStore.shared.add(additions)
+                    ImageStore.shared.remove(removals)
+                }
+            }
+        }
+        self.modelFolderMonitor = FolderMonitor(path: modelDir) {
+            Task {
+                await self.loadModels()
+            }
+        }
+        self.controlNetFolderMonitor = FolderMonitor(path: controlNetDir) {
+            Task {
+                await self.loadModels()
+            }
         }
     }
 
@@ -235,21 +251,26 @@ final class ImageController: ObservableObject {
     }
 
     func generate() async {
-        guard case .ready = ImageGenerator.shared.state,
-            let model = currentModel else {
+        guard let model = currentModel else {
             return
         }
 
         var pipelineConfig = StableDiffusionPipeline.Configuration(prompt: prompt)
         pipelineConfig.negativePrompt = negativePrompt
-        pipelineConfig.startingImage = startingImage
+        if let size = currentModel?.inputSize {
+            pipelineConfig.startingImage = startingImage?.scaledAndCroppedTo(size: size)
+        }
         pipelineConfig.strength = Float(strength)
         pipelineConfig.stepCount = Int(steps)
         pipelineConfig.seed = seed
         pipelineConfig.guidanceScale = Float(guidanceScale)
         pipelineConfig.disableSafety = !safetyChecker
         pipelineConfig.schedulerType = convertScheduler(scheduler)
-        pipelineConfig.controlNetInputs = currentControlNets.filter { $0.name != nil }.compactMap(\.image)
+        for controlNet in currentControlNets {
+            if controlNet.name != nil, let size = currentModel?.inputSize, let image = controlNet.image?.scaledAndCroppedTo(size: size) {
+                pipelineConfig.controlNetInputs.append(image)
+            }
+        }
         pipelineConfig.useDenoisedIntermediates = showGenerationPreview
 
         let genConfig = GenerationConfig(
@@ -259,28 +280,51 @@ final class ImageController: ObservableObject {
             imageDir: imageDir,
             imageType: imageType,
             numberOfImages: Int(numberOfImages),
-            model: modelName,
+            model: model,
             mlComputeUnit: mlComputeUnitPreference.computeUnits(forModel: model),
             scheduler: scheduler,
-            upscaleGeneratedImages: upscaleGeneratedImages
+            upscaleGeneratedImages: upscaleGeneratedImages,
+            controlNets: currentControlNets.filter { $0.image != nil }.compactMap(\.name)
         )
 
+        self.generationQueue.append(genConfig)
         Task.detached(priority: .high) {
+            await self.runGenerationJobs()
+        }
+    }
+
+    private func runGenerationJobs() async {
+        guard case .ready = ImageGenerator.shared.state else { return }
+
+        while !self.generationQueue.isEmpty {
+            let genConfig = generationQueue.removeFirst()
+            self.currentGeneration = genConfig
             do {
+                try await ImageGenerator.shared.loadPipeline(
+                    model: genConfig.model,
+                    controlNet: genConfig.controlNets,
+                    computeUnit: genConfig.mlComputeUnit,
+                    reduceMemory: self.reduceMemory
+                )
                 try await ImageGenerator.shared.generate(genConfig)
+            } catch ImageGenerator.GeneratorError.requestedModelNotFound {
+                self.logger.error("Couldn't load \(genConfig.model.name) because it doesn't exist.")
+                await ImageGenerator.shared.updateState(.ready("Couldn't load \(genConfig.model.name) because it doesn't exist."))
             } catch ImageGenerator.GeneratorError.pipelineNotAvailable {
-                await self.logger.error("Pipeline is not loaded.")
+                self.logger.error("Pipeline is not available.")
+                await ImageGenerator.shared.updateState(.ready("There was a problem loading pipeline."))
             } catch PipelineError.startingImageProvidedWithoutEncoder {
-                await self.logger.error("The selected model does not support setting a starting image.")
+                self.logger.error("The selected model does not support setting a starting image.")
                 await ImageGenerator.shared.updateState(.ready("The selected model does not support setting a starting image."))
             } catch Encoder.Error.sampleInputShapeNotCorrect {
-                await self.logger.error("The starting image size doesn't match the size of the image that will be generated.")
+                self.logger.error("The starting image size doesn't match the size of the image that will be generated.")
                 await ImageGenerator.shared.updateState(.ready("The starting image size doesn't match the size of the image that will be generated."))
             } catch {
-                await self.logger.error("There was a problem generating images: \(error)")
+                self.logger.error("There was a problem generating images: \(error)")
                 await ImageGenerator.shared.updateState(.error("There was a problem generating images: \(error)"))
             }
         }
+        self.currentGeneration = nil
     }
 
     func upscale(_ sdi: SDImage) async {
@@ -385,38 +429,34 @@ final class ImageController: ObservableObject {
 
     func setControlNet(name: String) async {
         if self.currentControlNets.isEmpty {
-            self.currentControlNets = [SDControlNet(name: name)]
+            self.currentControlNets = [(name: name, image: nil)]
         } else {
             self.currentControlNets[0].name = name
         }
-        loadPipeline()
     }
 
     func setControlNet(image: CGImage) async {
         if self.currentControlNets.isEmpty {
-            self.currentControlNets = [SDControlNet(image: image)]
+            self.currentControlNets = [(name: nil, image: image)]
         } else {
             self.currentControlNets[0].image = image
         }
-        loadPipeline()
     }
 
     func unsetControlNet() async {
         self.currentControlNets = []
-        loadPipeline()
     }
 
     func selectControlNetImage(at index: Int) async {
         await selectImage().map { image in
             if currentControlNets.isEmpty {
-                currentControlNets = [SDControlNet(image: image)]
+                currentControlNets = [(name: nil, image: image)]
             } else if index >= currentControlNets.count {
-                currentControlNets.append(SDControlNet(image: image))
+                currentControlNets.append((name: nil, image: image))
             } else {
                 currentControlNets[index].image = image
             }
         }
-        loadPipeline()
     }
 
     func unsetControlNetImage(at index: Int) async {

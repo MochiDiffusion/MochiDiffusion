@@ -7,6 +7,8 @@
 "**Auto** selects the most appropriate configuration for the selected model." = "**자동**은 선택한 모델에 가장 적합한 옵션을 선택합니다.";
 "**CPU & GPU** is compatible with all models and may be faster on M1 Max, Ultra and later, but will use more memory." = "**CPU & GPU**는 M1 Max, Ultra에서 더 빠를 수 있지만 더 많은 메모리를 사용.";
 "**CPU & Neural Engine** provides a good balance between speed and low memory usage, but only works with split-einsum models." = "**CPU & Neural Engine**는 빠른 속도와 낮은 메모리 사용량 간의 적절한 균형을 제공.";
+"About %@" = "약 %@";
+"Add to Queue" = "목록에 추가";
 "All" = "모두 사용";
 "Apply" = "적용";
 "Auto (Recommended)" = "자동 (권장)";
@@ -20,6 +22,7 @@
 "Choose image" = "이미지 선택";
 "ControlNet" = "ControlNet";
 "ControlNet Folder" = "ControlNet 폴더";
+"ControlNet Image" = "ControlNet 이미지";
 "Convert all images to High Resolution (this will use more memory)" = "모든 이미지를 자동으로 고화질로 변경 (더 많은 메모리를 사용)";
 "Convert to High Resolution" = "고화질로 변경";
 "Copy" = "복사";
@@ -37,14 +40,12 @@
 "Height:" = "세로길이:";
 "If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images." = "옵션을 끄면 삭제된 이미지는 영구적으로 없어집니다. 가져온 이미지와 자동으로 저장된 이미지에 적용됩니다.";
 "Image" = "이미지";
-"Image %lld of %lld" = "이미지 %lld / %lld";
 "Image Type" = "이미지 유형";
 "Image file name:" = "이미지 파일 이름";
 "Import" = "가져오기";
 "Import Images..." = "이미지 가져오기...";
 "Improve Translation" = "번역 개선하기";
 "Include in Image" = "프롬프트";
-"Loading Model..." = "모델 로딩 중...";
 "Loading..." = "로딩중...";
 "ML Compute Unit" = "ML Compute Unit";
 "Manually selecting an incompatible ML Compute Unit may cause poor performance or crash." = "모델과 맞지 않는 ML Compute Unit을 선택하면 성능이 저하되거나 충돌이 발생할 수 있습니다.";
@@ -83,7 +84,6 @@
 "Starting Image" = "시작 이미지";
 "Step %lld of %lld - About %@" = "스텝 %lld / %lld – 약 %@";
 "Steps" = "스텝 수";
-"Stop Generation" = "생성 중단";
 "Strength" = "강도";
 "Strength controls how closely the generated image resembles the starting image.
 Use lower values to generate images that look similar to the starting image.
@@ -95,7 +95,6 @@ The size of the starting image must match the output image size of the current m
 
 시작 이미지의 크기는 현재 모델의 출력 이미지 크기와 일치해야 합니다.";
 "Support Project" = "프로젝트 후원하기";
-"This may take up to 2 minutes if a model is used for the first time" = "모델을 처음 사용하는 경우 최대 2분 정도 걸릴 수 있습니다.";
 "Toggle Info Panel" = "정보 패널 전환";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "모델의 안전 검사기 모듈을 사용합니다. 모든 노골적인 이미지가 필터링되지 않을 수도 있습니다.";
 "Website" = "웹사이트";

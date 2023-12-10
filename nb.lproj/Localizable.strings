@@ -37,14 +37,12 @@
 "Height:" = "Høyde:";
 "If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images." = "Hvis alternativet er slått av, blir fjernet bilder slettet permanent. Gjelder for importerte og autolagrede bilder.";
 "Image" = "Bilde";
-"Image %lld of %lld" = "Bilde: %lld av %lld";
 "Image Type" = "Bildetype";
 "Image file name:" = "Navn på bildefil:";
 "Import" = "Importer";
 "Import Images..." = "Importer bilder...";
 "Improve Translation" = "Forbedre oversettelse";
 "Include in Image" = "Inkludere i bilde";
-"Loading Model..." = "Laster modell...";
 "Loading..." = "Laster...";
 "ML Compute Unit" = "ML beregningsenhet";
 "Manually selecting an incompatible ML Compute Unit may cause poor performance or crash." = "Valg av en inkompatibel ML beregningsenhet kan forårsake dårlig ytelse eller krasj.";
@@ -80,7 +78,6 @@
 "Sort" = "Sorter";
 "Starting Image" = "Startbilde";
 "Steps" = "Steg";
-"Stop Generation" = "Stopp generering";
 "Strength" = "Styrke";
 "Strength controls how closely the generated image resembles the starting image.
 Use lower values to generate images that look similar to the starting image.
@@ -92,7 +89,6 @@ Bruk høyere verdier for å tillate kreativ frihet.
 
 Størrelsen på startbildet må samsvare med utdatabildets størrelse på den gjeldende modellen.";
 "Support Project" = "Støtt prosjektet";
-"This may take up to 2 minutes if a model is used for the first time" = "Dette kan ta opptil 2 minutter hvis en modell brukes for første gang";
 "Toggle Info Panel" = "Vis/skjul informasjonspanel";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Bruker en sikkerhetskontroll til modellen. Dette garanterer ikke at alle upassende bilder vil bli filtrert.";
 "Website" = "Nettside";

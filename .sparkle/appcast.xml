@@ -5,6 +5,32 @@
     <language>en</language>
 
     <item>
+      <title>v4.6</title>
+      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <sparkle:version>4.6</sparkle:version>
+      <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
+      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <pubDate>Wed, 6 Dec 2023 20:00:14 +0000</pubDate>
+      <enclosure
+        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v4.6/MochiDiffusion_v4.6.dmg"
+        sparkle:edSignature="60biGiBR00SPutaPSDtv/yzHaROFfT1EiJlCuu/o90+e7YmfSUB9IDE1Qh5cXpBDh2wVDq/uLKHC3dfWbi1fCw=="
+        length="67106121"
+        type="application/octet-stream" />
+      <description><![CDATA[
+        <ul>
+        <li>Added auto refresh of Image, Model, &amp; ControlNet list (@gdbing)</li>
+        <li>Added ability to queue images (@gdbing)</li>
+        <li>Added ability to drag and drop gallery images out (@gdbing)</li>
+        <li>Added ability to set the Starting Image by dragging and dropping an image (@gdbing)</li>
+        <li>Added automatic resizing of input images based on output image size (@gdbing)</li>
+        <li>Added Hungarian translation (Janos Hunyadi)</li>
+        <li>Changed ControlNet list to only show those compatible with the currently selected model (@gdbing)</li>
+        </ul>
+      ]]>
+      </description>
+    </item>
+
+    <item>
       <title>v4.5</title>
       <link>https://github.com/godly-devotion/MochiDiffusion</link>
       <sparkle:version>4.5</sparkle:version>

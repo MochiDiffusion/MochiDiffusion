@@ -21,13 +21,6 @@ struct ModelView: View {
                 }
             }
             .labelsHidden()
-
-            Button {
-                Task { await ImageController.shared.loadModels() }
-            } label: {
-                Image(systemName: "arrow.clockwise")
-                    .frame(minWidth: 18)
-            }
         }
     }
 }

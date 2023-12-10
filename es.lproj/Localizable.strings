@@ -32,14 +32,12 @@
 "Height:" = "Altura:";
 "If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images." = "Si la opción está desactivada, las imágenes eliminadas se eliminan permanentemente. Se aplica a las imágenes importadas y autoguardadas.";
 "Image" = "Imagen";
-"Image %lld of %lld" = "Imagen %lld de %lld";
 "Image Type" = "Tipo de Imagen";
 "Image file name:" = "Nombre de archivo de imagen:";
 "Import" = "Importar";
 "Import Images..." = "Importar Imágenes...";
 "Improve Translation" = "Mejorar traducción";
 "Include in Image" = "Incluir en Imagen";
-"Loading Model..." = "Cargando Modelo...";
 "Loading..." = "Cargando...";
 "ML Compute Unit" = "Unidad de Computación ML";
 "Mochi Diffusion" = "Mochi Diffusion";
@@ -71,7 +69,6 @@
 "Starting Image" = "Imagen Inicial";
 "Step %lld of %lld - About %@" = "Paso %lld de %lld - Acerca de %@";
 "Steps" = "Pasos";
-"Stop Generation" = "Detener Generación";
 "Strength" = "Intensidad";
 "Strength controls how closely the generated image resembles the starting image.
 Use lower values to generate images that look similar to the starting image.
@@ -83,7 +80,6 @@ Usa valores más altos para permitir más libertad creativa.
 
 El tamaño de la imagen inicial debe coincidir con el tamaño de la imagen actual del modelo.";
 "Support Project" = "Apoya el proyecto";
-"This may take up to 2 minutes if a model is used for the first time" = "Esto puede tardar hasta 2 minutos si un modelo es usado por primera vez";
 "Toggle Info Panel" = "Activar/Desactivar Panel de Información";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Usa el módulo de comprobación de seguridad del modelo. Esto no garantiza que todas las imágenes inapropiadas sean filtradas.";
 "Website" = "Sitio Web";

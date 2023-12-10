@@ -40,14 +40,12 @@
 "Height:" = "Висота:";
 "If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images." = "Якщо параметр вимкнуто, вилучені зображення будуть видалені назавжди. Застосовується лише для імпортованих та автоматично збережених зображень.";
 "Image" = "Зображення";
-"Image %lld of %lld" = "Зображення %lld із %lld";
 "Image Type" = "Тип зображення";
 "Image file name:" = "Назва файлу зображення:";
 "Import" = "Імпортувати";
 "Import Images..." = "Імпорт зображень...";
 "Improve Translation" = "Вдосконалити переклад";
 "Include in Image" = "Включити до зображення";
-"Loading Model..." = "Завантаження моделі...";
 "Loading..." = "Завантаження…";
 "ML Compute Unit" = "Обчислювальний блок ML";
 "Manually selecting an incompatible ML Compute Unit may cause poor performance or crash." = "Вибір несумісного обчислювального модуля ML може призвести до зниження продуктивності або аварійного збою.";
@@ -86,7 +84,6 @@
 "Starting Image" = "Початкове зображення";
 "Step %lld of %lld - About %@" = "Крок %lld із %lld - Ще приблизно %@";
 "Steps" = "Кроки";
-"Stop Generation" = "Зупинити генерацію";
 "Strength" = "Інтенсивність";
 "Strength controls how closely the generated image resembles the starting image.
 Use lower values to generate images that look similar to the starting image.
@@ -98,7 +95,6 @@ The size of the starting image must match the output image size of the current m
 
 Розмір початкового зображення має співпадати із розміром поточної моделі.";
 "Support Project" = "Підтримати проєкт";
-"This may take up to 2 minutes if a model is used for the first time" = "Це може зайняти до 2 хвилин, якщо модель використовується вперше";
 "Toggle Info Panel" = "Сховати/показати інформаційну панель";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Використовує модуль моделі для перевірки зображень на безпечність. Це не гарантує, що всі неприйнятні зображення будуть відфільтровані.";
 "Website" = "Вебсайт";

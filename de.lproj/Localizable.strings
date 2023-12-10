@@ -10,6 +10,8 @@
 "**Auto** selects the most appropriate configuration for the selected model." = "**Auto** wählt die passendste Konfiguration für das ausgewählte Modell aus.";
 "**CPU & GPU** is compatible with all models and may be faster on M1 Max, Ultra and later, but will use more memory." = "**CPU & GPU** ist mit allen Modellen kompatibel und kann auf M1 Max, Ultra schneller sein, wird aber mehr Speicher benötigen.";
 "**CPU & Neural Engine** provides a good balance between speed and low memory usage, but only works with split-einsum models." = "**CPU & Neural Engine** bietet eine gute Balance zwischen Geschwindigkeit und niedriger Speicherauslastung, funktioniert aber nur mit Split-Einsum-Modellen.";
+"About %@" = "Über %@";
+"Add to Queue" = "Zur Warteschlange hinzufügen";
 "All" = "Alle";
 "Apply" = "Bestätigen";
 "Auto (Recommended)" = "Auto (Empfohlen)";
@@ -23,6 +25,7 @@
 "Choose image" = "Bild auswählen";
 "ControlNet" = "ControlNet";
 "ControlNet Folder" = "ControlNet Ordner";
+"ControlNet Image" = "ControlNet Bild";
 "Convert all images to High Resolution (this will use more memory)" = "Alle Bilder in hohe Auflösung konvertieren (dies wird mehr Speicher verbrauchen)";
 "Convert to High Resolution" = "In hohe Auflösung konvertieren";
 "Copy" = "Kopieren";
@@ -40,14 +43,12 @@
 "Height:" = "Höhe:";
 "If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images." = "Wenn die Option deaktiviert ist, werden gelöschte Bilder dauerhaft gelöscht. Gilt für importierte und automatisch gespeicherte Bilder.";
 "Image" = "Bild";
-"Image %lld of %lld" = "Bild %lld von %lld";
 "Image Type" = "Bildtyp";
 "Image file name:" = "Name der Bilddatein:";
 "Import" = "Importieren";
 "Import Images..." = "Bilder importieren...";
 "Improve Translation" = "Übersetzung verbessern";
 "Include in Image" = "Soll im Bild enthalten sein";
-"Loading Model..." = "Modell wird geladen...";
 "Loading..." = "Lade...";
 "ML Compute Unit" = "ML Recheneinheit";
 "Manually selecting an incompatible ML Compute Unit may cause poor performance or crash." = "Die manuelle Auswahl einer inkompatiblen ML Compute Unit kann zu schlechter Performance oder zum Absturz führen.";
@@ -86,7 +87,6 @@
 "Starting Image" = "Ausgangsbild";
 "Step %lld of %lld - About %@" = "Schritt %lld von %lld - Über %@";
 "Steps" = "Arbeitsschritte";
-"Stop Generation" = "Generierung stoppen";
 "Strength" = "Stärke";
 "Strength controls how closely the generated image resembles the starting image.
 Use lower values to generate images that look similar to the starting image.
@@ -98,7 +98,6 @@ Benutze höhere Werte, um mehr kreative Freiheit zu ermöglichen.
 
 Die Größe des Startbildes muss mit der Bildgröße des aktuellen Modells übereinstimmen.";
 "Support Project" = "Unterstütze das Projekt";
-"This may take up to 2 minutes if a model is used for the first time" = "Dies kann bis zu 2 Minuten dauern, wenn ein Modell zum ersten Mal verwendet wird";
 "Toggle Info Panel" = "Infoleiste ein-/ausschalten";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Verwendet das Safety-Checker-Modul des Modells. Dies garantiert nicht, dass alle unangemessenen Bilder gefiltert werden.";
 "Website" = "Webseite";
