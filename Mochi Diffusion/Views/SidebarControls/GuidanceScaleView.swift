@@ -13,7 +13,7 @@ struct GuidanceScaleView: View {
     var body: some View {
         Text("Guidance Scale")
             .sidebarLabelFormat()
-        MochiSlider(value: $controller.guidanceScale, bounds: 1...20, step: 0.5, fractionLength: 1)
+        MochiSlider(value: $controller.guidanceScale, bounds: 1...20, step: 0.5)
     }
 }
 

@@ -13,7 +13,7 @@ struct NumberOfImagesView: View {
     var body: some View {
         Text("Number of Images")
             .sidebarLabelFormat()
-        MochiSlider(value: $controller.numberOfImages, bounds: 1...100, step: 1, fractionLength: 0)
+        MochiSlider(value: $controller.numberOfImages, bounds: 1...100, step: 1, strictUpperBound: false)
     }
 }
 

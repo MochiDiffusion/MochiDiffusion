@@ -13,7 +13,7 @@ struct StepsView: View {
     var body: some View {
         Text("Steps")
             .sidebarLabelFormat()
-        MochiSlider(value: $controller.steps, bounds: 2...50, step: 1, fractionLength: 0)
+        MochiSlider(value: $controller.steps, bounds: 2...50, step: 1, strictUpperBound: false)
     }
 }
 

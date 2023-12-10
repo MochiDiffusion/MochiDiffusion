@@ -76,7 +76,7 @@ struct StartingImageView: View {
                 .padding()
             }
         }
-        MochiSlider(value: $controller.strength, bounds: 0.0...1.0, step: 0.05, fractionLength: 2)
+        MochiSlider(value: $controller.strength, bounds: 0.0...1.0, step: 0.05)
     }
 }
 

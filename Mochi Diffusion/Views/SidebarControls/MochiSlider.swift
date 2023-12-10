@@ -9,13 +9,21 @@ import CompactSlider
 import SwiftUI
 
 struct MochiSlider: View {
-
     @EnvironmentObject private var focusCon: FocusController
 
     @Binding var value: Double
-    let bounds: ClosedRange<Double>
-    let step: Double
-    let fractionLength: Int
+    private let bounds: ClosedRange<Double>
+    private let step: Double
+    private let fractionLength: Int
+    private let strictUpperBound: Bool
+
+    init(value: Binding<Double>, bounds: ClosedRange<Double>, step: Decimal, strictUpperBound: Bool = true) {
+        _value = value
+        self.bounds = bounds
+        self.step = (step as NSDecimalNumber).doubleValue
+        self.fractionLength = max(0, -step.exponent)
+        self.strictUpperBound = strictUpperBound
+    }
 
     @State private var text: String = ""
     @State private var isEditable = false
@@ -34,7 +42,10 @@ struct MochiSlider: View {
                             focusCon.focusedSliderField = newValue
                         } else {
                             if let doubleValue = Double(text) {
-                                let newValue = min(max(doubleValue, bounds.lowerBound), bounds.upperBound)
+                                var newValue = max(doubleValue, bounds.lowerBound)
+                                if strictUpperBound {
+                                    newValue = min(newValue, bounds.upperBound)
+                                }
                                 self.value = newValue
                             }
                             self.isEditable = false
