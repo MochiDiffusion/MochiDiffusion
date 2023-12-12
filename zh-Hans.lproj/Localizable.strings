@@ -72,7 +72,7 @@
 "Search" = "搜索";
 "Searching: %@" = "搜索中: %@";
 "Seed" = "随机种";
-"Select" = "确认";
+"Select" = "选择";
 "Select Next" = "下一张";
 "Select Previous" = "上一张";
 "Set as Starting Image" = "设为原始图像";
@@ -96,7 +96,7 @@ The size of the starting image must match the output image size of the current m
 原始图像的大小必须与当前模型的输出图像大小匹配。";
 "Support Project" = "支持项目";
 "Toggle Info Panel" = "显示/隐藏信息面板";
-"Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "使用模型的安全检查模块，但它不能保证过滤所有的不良内容";
+"Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "使用模型的安全检查模块，但它不能保证能过滤所有的不良内容。";
 "Website" = "网站";
 "Width:" = "宽度：";
 "random" = "随机";
