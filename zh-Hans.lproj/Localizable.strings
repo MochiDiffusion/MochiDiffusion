@@ -7,7 +7,7 @@
 "**Auto** selects the most appropriate configuration for the selected model." = "**自动**能为所选模型选择最合适的配置。";
 "**CPU & GPU** is compatible with all models and may be faster on M1 Max, Ultra and later, but will use more memory." = "**CPU & GPU** 与所有模型兼容，而且可能在 M1 Max、M1 Ultra 及更高版本上速度更快，但会占用更多内存。";
 "**CPU & Neural Engine** provides a good balance between speed and low memory usage, but only works with split-einsum models." = "**CPU & 神经网络引擎**在性能和内存占用之间提供了良好的平衡，但仅适用于 split-einsum 模型。";
-"About %@" = "关于 %@";
+"About %@" = "约 %@";
 "Add to Queue" = "添加到队列";
 "All" = "全部";
 "Apply" = "应用";
