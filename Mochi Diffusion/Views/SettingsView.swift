@@ -14,6 +14,7 @@ import UserNotifications
 struct SettingsView: View {
     @EnvironmentObject private var controller: ImageController
     @EnvironmentObject private var notificationController: NotificationController
+
     var body: some View {
         VStack(spacing: 16) {
             TabView {

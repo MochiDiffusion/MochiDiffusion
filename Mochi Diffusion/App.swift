@@ -40,7 +40,6 @@ struct MochiDiffusionApp: App {
                 .environmentObject(generator)
                 .environmentObject(store)
                 .environmentObject(focusCon)
-                .environmentObject(notificationController)
                 .sheet(isPresented: $controller.isLoading) {
                     VStack {
                         ProgressView()
