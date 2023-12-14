@@ -1,0 +1,64 @@
+//
+//  NotificationProvider.swift
+//  Mochi Diffusion
+//
+//  Created by Jonathan Mendoza on 13/12/2023.
+//
+
+import Foundation
+import SwiftUI
+import UserNotifications
+
+/// Singleton class to manage all UNUserNotificationCenter interactions
+class NotificationController: ObservableObject {
+    static let shared = NotificationController()
+    @Published var authStatus: UNAuthorizationStatus = .notDetermined
+    @AppStorage("SendNotification") var sendNotification = false
+
+    private let notificationCenter = UNUserNotificationCenter.current()
+    private static let queueEmptyNotificationId = "queueEmpty"
+    /// Triggers the prompt to request the user to allow the app to send local notifications
+    func requestForNotificationAuthorization() {
+        notificationCenter.getNotificationSettings { settings in
+            if settings.authorizationStatus == .notDetermined {
+                self.notificationCenter.requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+                    if let error = error {
+                        print("Error in requesting for notification authorization: \(error)")
+                        return
+                    }
+                    Task {
+                        await self.fetchAuthStatus()
+                    }
+                    if !granted {print("User declined authorization prompt")}
+                }
+            }
+        }
+    }
+    /// Fetches current UserNotificationAuthorization status from UserNotificationCenter
+    /// There does not seem to be a nice way to directly observe that property
+    /// So we just fetch the current value as required and "cache" it in this
+    /// class's property `authStatus`
+    func fetchAuthStatus() async -> UNAuthorizationStatus {
+        let settings = await self.notificationCenter.notificationSettings()
+        Task { @MainActor in
+            self.authStatus = settings.authorizationStatus
+        }
+        return settings.authorizationStatus
+    }
+
+    func sendQueueEmptyNotification() async {
+        // if the user has notifications turned on in our app's settings window,
+        // but the authStatus is not authorized, fetch the latest authorization status
+        // from UserNotificationCenter
+        var currentAuthStatus = authStatus
+        if sendNotification, authStatus != .authorized {
+            currentAuthStatus = await fetchAuthStatus()
+        }
+        guard sendNotification, currentAuthStatus == .authorized else { return }
+        let content = UNMutableNotificationContent()
+        content.title = "Image Generation Complete"
+        content.body = "Your new images have been generated"
+        content.sound = .default
+        try? await notificationCenter.add(.init(identifier: NotificationController.queueEmptyNotificationId, content: content, trigger: nil))
+    }
+}

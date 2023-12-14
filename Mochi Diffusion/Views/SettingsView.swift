@@ -9,10 +9,11 @@ import CoreML
 import StableDiffusion
 import SwiftUI
 import UniformTypeIdentifiers
+import UserNotifications
 
 struct SettingsView: View {
     @EnvironmentObject private var controller: ImageController
-
+    @EnvironmentObject private var notificationController: NotificationController
     var body: some View {
         VStack(spacing: 16) {
             TabView {
@@ -204,6 +205,41 @@ struct SettingsView: View {
                     .helpTextFormat()
                 }
                 .padding(4)
+            }
+            GroupBox {
+                VStack(alignment: .leading) {
+                    HStack {
+                        Text("Send Notifications")
+
+                        Spacer()
+
+                        Toggle("", isOn: $notificationController.sendNotification)
+                            .labelsHidden()
+                            .toggleStyle(.switch)
+                            .controlSize(.small)
+                            .onChange(of: notificationController.sendNotification) { value in
+                                if value {
+                                    notificationController.requestForNotificationAuthorization()
+                                }
+                            }
+                    }
+                    Text(
+                        "Send a notification when image generation is done.",
+                        comment: "Help text Send Notifications setting"
+                    )
+                    .helpTextFormat()
+                    if notificationController.sendNotification, notificationController.authStatus != .authorized {
+                        // on iOS there is `openNotificationSettingsURLString` but for macOS,
+                        // seems like we need to manually call this here.
+                        Link(destination: URL(string: "x-apple.systempreferences:com.apple.preference.notifications")!) {
+                            Text("Authorize Mochi Diffusion in System Settings to start receiving notifications.")
+                            .multilineTextAlignment(.leading)
+                        }
+                    }
+                }
+                .padding(4)
+            }.task {
+                let _ = await notificationController.fetchAuthStatus()
             }
         }
     }

@@ -8,6 +8,7 @@
 import QuickLook
 import Sparkle
 import SwiftUI
+import UserNotifications
 
 @main
 struct MochiDiffusionApp: App {
@@ -15,6 +16,7 @@ struct MochiDiffusionApp: App {
     @StateObject private var generator: ImageGenerator
     @StateObject private var store: ImageStore
     @StateObject private var focusCon: FocusController
+    @StateObject private var notificationController: NotificationController
     private let updaterController: SPUStandardUpdaterController
 
     init() {
@@ -22,6 +24,7 @@ struct MochiDiffusionApp: App {
         self._generator = .init(wrappedValue: .shared)
         self._store = .init(wrappedValue: .shared)
         self._focusCon = .init(wrappedValue: .shared)
+        self._notificationController = .init(wrappedValue: .shared)
 
         updaterController = SPUStandardUpdaterController(
             startingUpdater: true,
@@ -37,6 +40,7 @@ struct MochiDiffusionApp: App {
                 .environmentObject(generator)
                 .environmentObject(store)
                 .environmentObject(focusCon)
+                .environmentObject(notificationController)
                 .sheet(isPresented: $controller.isLoading) {
                     VStack {
                         ProgressView()
@@ -67,6 +71,7 @@ struct MochiDiffusionApp: App {
         Settings {
             SettingsView()
                 .environmentObject(controller)
+                .environmentObject(notificationController)
         }
     }
 }
