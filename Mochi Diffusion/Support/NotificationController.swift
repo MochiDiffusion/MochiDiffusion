@@ -20,7 +20,7 @@ class NotificationController: ObservableObject {
     /// Triggers the prompt to request the user to allow the app to send local notifications
     func requestForNotificationAuthorization() {
         notificationCenter.getNotificationSettings { settings in
-            if settings.authorizationStatus == .notDetermined {
+            if settings.authorizationStatus != .authorized {
                 self.notificationCenter.requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
                     if let error = error {
                         print("Error in requesting for notification authorization: \(error)")
