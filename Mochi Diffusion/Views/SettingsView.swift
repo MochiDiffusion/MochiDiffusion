@@ -240,7 +240,7 @@ struct SettingsView: View {
                 }
                 .padding(4)
             }.task {
-                let _ = await notificationController.fetchAuthStatus()
+                _ = await notificationController.fetchAuthStatus()
             }
         }
     }

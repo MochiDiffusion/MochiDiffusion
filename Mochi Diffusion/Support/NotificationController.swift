@@ -48,10 +48,10 @@ class NotificationController: ObservableObject {
 
     func sendQueueEmptyNotification() async {
         // if the user has notifications turned on in our app's settings window,
-        // but the authStatus is not authorized, fetch the latest authorization status
-        // from UserNotificationCenter
-        var currentAuthStatus = authStatus
-        if sendNotification, authStatus != .authorized {
+        // we still need to fetch the latest authorization status
+        // from UserNotificationCenter in case they turned it off there
+        var currentAuthStatus: UNAuthorizationStatus?
+        if sendNotification {
             currentAuthStatus = await fetchAuthStatus()
         }
         guard sendNotification, currentAuthStatus == .authorized else { return }
