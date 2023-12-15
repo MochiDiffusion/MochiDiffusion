@@ -10,6 +10,7 @@
 "About %@" = "约 %@";
 "Add to Queue" = "添加到队列";
 "All" = "全部";
+"Allow Mochi Diffusion to send notifications under System Settings." = "在系统设置中允许 Mochi Diffusion 推送通知";
 "Apply" = "应用";
 "Auto (Recommended)" = "自动 (推荐)";
 "Autosave & Restore Images" = "自动保存 & 恢复图像";
@@ -56,9 +57,11 @@
 "Newest First" = "优先显示最新";
 "No Info" = "无";
 "None" = "无";
+"Notifications" = "通知";
 "Number of Images" = "图像数量";
 "Oldest First" = "优先显示最旧";
 "Open in Finder" = "在访达中打开";
+"Play notification sound" = "播放通知声音";
 "Quick Look" = "快速查看";
 "Reduce Memory Usage" = "减少内存占用";
 "Reduce memory usage further at the cost of speed." = "牺牲性能以换取更低的内存占用";
@@ -75,6 +78,8 @@
 "Select" = "选择";
 "Select Next" = "下一张";
 "Select Previous" = "上一张";
+"Send Notifications" = "推送通知";
+"Send notification when images are ready." = "当图像准备好时推送通知";
 "Set as Starting Image" = "设为原始图像";
 "Share..." = "分享...";
 "Show Image Preview" = "显示图像预览";
