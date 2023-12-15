@@ -53,6 +53,7 @@
 		03FD2319295F74B6006EEEE2 /* RealESRGAN.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 03FD2318295F74B6006EEEE2 /* RealESRGAN.mlmodel */; };
 		03FD231B295F7A81006EEEE2 /* Upscaler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03FD231A295F7A81006EEEE2 /* Upscaler.swift */; };
 		58FF218829FAE96200A70C7C /* ControlNetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FF218729FAE96200A70C7C /* ControlNetView.swift */; };
+		71D315162B2A584E007FFDEB /* NotificationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71D315152B2A584E007FFDEB /* NotificationController.swift */; };
 		948853A52A543CB200B4AD86 /* GalleryPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 948853A42A543CB200B4AD86 /* GalleryPreviewView.swift */; };
 		9B7392C3298DEAC2006F03D5 /* Tokenizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B7392C2298DEAC2006F03D5 /* Tokenizer.swift */; };
 		C11A03882B099D9600540F7F /* JobQueueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C11A03872B099D9600540F7F /* JobQueueView.swift */; };
@@ -122,6 +123,7 @@
 		03FD2318295F74B6006EEEE2 /* RealESRGAN.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = RealESRGAN.mlmodel; sourceTree = "<group>"; };
 		03FD231A295F7A81006EEEE2 /* Upscaler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Upscaler.swift; sourceTree = "<group>"; };
 		58FF218729FAE96200A70C7C /* ControlNetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlNetView.swift; sourceTree = "<group>"; };
+		71D315152B2A584E007FFDEB /* NotificationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationController.swift; sourceTree = "<group>"; };
 		948853A42A543CB200B4AD86 /* GalleryPreviewView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GalleryPreviewView.swift; sourceTree = "<group>"; };
 		9B7392C2298DEAC2006F03D5 /* Tokenizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tokenizer.swift; sourceTree = "<group>"; };
 		C11A03872B099D9600540F7F /* JobQueueView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JobQueueView.swift; sourceTree = "<group>"; };
@@ -169,6 +171,7 @@
 				03173C102999D83600B03456 /* ImageGenerator.swift */,
 				9B7392C2298DEAC2006F03D5 /* Tokenizer.swift */,
 				03FD231A295F7A81006EEEE2 /* Upscaler.swift */,
+				71D315152B2A584E007FFDEB /* NotificationController.swift */,
 			);
 			path = Support;
 			sourceTree = "<group>";
@@ -442,6 +445,7 @@
 				03173C132999E2B500B03456 /* SDModel.swift in Sources */,
 				0352E2B1294EA30D003FBF25 /* Extensions.swift in Sources */,
 				03CB9D18297399AE0041A4FA /* ImageCommands.swift in Sources */,
+				71D315162B2A584E007FFDEB /* NotificationController.swift in Sources */,
 				035E76F62970E809008DDFDE /* CVPixelBuffer+Create.swift in Sources */,
 				03173C112999D83600B03456 /* ImageGenerator.swift in Sources */,
 				0311C69929899A660074BCAE /* Metadata.swift in Sources */,

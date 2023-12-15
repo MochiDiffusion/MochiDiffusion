@@ -325,6 +325,9 @@ final class ImageController: ObservableObject {
             }
         }
         self.currentGeneration = nil
+        Task.detached {
+            await NotificationController.shared.sendQueueEmptyNotification()
+        }
     }
 
     func upscale(_ sdi: SDImage) async {
