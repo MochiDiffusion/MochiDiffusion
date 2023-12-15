@@ -107,4 +107,5 @@ Die Größe des Startbildes muss mit der Bildgröße des aktuellen Modells über
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Verwendet das Safety-Checker-Modul des Modells. Dies garantiert nicht, dass alle unangemessenen Bilder gefiltert werden.";
 "Website" = "Webseite";
 "Width:" = "Breite:";
+"Your images are ready!" = "Ihre Bilder sind fertig!";
 "random" = "zufällig";
