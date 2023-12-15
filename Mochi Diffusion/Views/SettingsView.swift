@@ -378,7 +378,7 @@ struct SettingsView: View {
 
                         Spacer()
 
-                        Toggle("", isOn: $notificationController.notificationSound)
+                        Toggle("", isOn: $notificationController.playNotificationSound)
                             .disabled(!notificationController.sendNotification)
                             .labelsHidden()
                             .toggleStyle(.switch)

@@ -14,7 +14,7 @@ class NotificationController: ObservableObject {
     static let shared = NotificationController()
     @Published var authStatus: UNAuthorizationStatus = .notDetermined
     @AppStorage("SendNotification") var sendNotification = true
-    @AppStorage("NotificationSound") var notificationSound = true
+    @AppStorage("PlayNotificationSound") var playNotificationSound = true
 
     private let notificationCenter = UNUserNotificationCenter.current()
     private static let queueEmptyNotificationId = "queueEmpty"
@@ -61,7 +61,7 @@ class NotificationController: ObservableObject {
         let content = UNMutableNotificationContent()
         content.title = "Mochi Diffusion"
         content.body = String(localized: "Your images are ready!")
-        content.sound = notificationSound ? .default : nil
+        content.sound = playNotificationSound ? .default : nil
         try? await notificationCenter.add(.init(identifier: NotificationController.queueEmptyNotificationId, content: content, trigger: nil))
     }
 }
