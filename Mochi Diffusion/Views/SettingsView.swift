@@ -40,6 +40,17 @@ struct SettingsView: View {
                             Image(systemName: "photo")
                         }
                     }
+                notificationsView
+                    .tabItem {
+                        Label {
+                            Text(
+                                "Notifications",
+                                comment: "Settings tab header label"
+                            )
+                        } icon: {
+                            Image(systemName: "bell.badge")
+                        }
+                    }
             }
 
             HStack {
@@ -207,41 +218,6 @@ struct SettingsView: View {
                 }
                 .padding(4)
             }
-            GroupBox {
-                VStack(alignment: .leading) {
-                    HStack {
-                        Text("Send Notifications")
-
-                        Spacer()
-
-                        Toggle("", isOn: $notificationController.sendNotification)
-                            .labelsHidden()
-                            .toggleStyle(.switch)
-                            .controlSize(.small)
-                            .onChange(of: notificationController.sendNotification) { value in
-                                if value {
-                                    notificationController.requestForNotificationAuthorization()
-                                }
-                            }
-                    }
-                    Text(
-                        "Send a notification when image generation is done.",
-                        comment: "Help text Send Notifications setting"
-                    )
-                    .helpTextFormat()
-                    if notificationController.sendNotification, notificationController.authStatus != .authorized {
-                        // on iOS there is `openNotificationSettingsURLString` but for macOS,
-                        // seems like we need to manually call this here.
-                        Link(destination: URL(string: "x-apple.systempreferences:com.apple.preference.notifications")!) {
-                            Text("Authorize Mochi Diffusion in System Settings to start receiving notifications.")
-                            .multilineTextAlignment(.leading)
-                        }
-                    }
-                }
-                .padding(4)
-            }.task {
-                _ = await notificationController.fetchAuthStatus()
-            }
         }
     }
 
@@ -353,6 +329,65 @@ struct SettingsView: View {
                     .helpTextFormat()
                 }
                 .padding(4)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var notificationsView: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            GroupBox {
+                VStack(alignment: .leading) {
+                    HStack {
+                        Text("Send Notifications")
+
+                        Spacer()
+
+                        Toggle("", isOn: $notificationController.sendNotification)
+                            .labelsHidden()
+                            .toggleStyle(.switch)
+                            .controlSize(.small)
+                            .onChange(of: notificationController.sendNotification) { value in
+                                if value {
+                                    notificationController.requestForNotificationAuthorization()
+                                }
+                            }
+                    }
+                    Text(
+                        "Send notification when images are ready.",
+                        comment: "Help text for Send Notifications setting"
+                    )
+                    .helpTextFormat()
+
+                    if notificationController.sendNotification, notificationController.authStatus != .authorized {
+                        // on iOS there is `openNotificationSettingsURLString` but for macOS,
+                        // seems like we need to manually call this here.
+                        Link(destination: URL(string: "x-apple.systempreferences:com.apple.preference.notifications")!) {
+                            Text("Allow Mochi Diffusion to send notifications under System Settings.")
+                                .multilineTextAlignment(.leading)
+                        }
+                    }
+                }
+                .padding(4)
+
+                Divider()
+
+                VStack(alignment: .leading) {
+                    HStack {
+                        Text("Play notification sound")
+
+                        Spacer()
+
+                        Toggle("", isOn: $notificationController.notificationSound)
+                            .disabled(!notificationController.sendNotification)
+                            .labelsHidden()
+                            .toggleStyle(.switch)
+                            .controlSize(.small)
+                    }
+                }
+                .padding(4)
+            }.task {
+                _ = await notificationController.fetchAuthStatus()
             }
         }
     }

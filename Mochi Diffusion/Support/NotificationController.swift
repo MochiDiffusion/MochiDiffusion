@@ -13,27 +13,30 @@ import UserNotifications
 class NotificationController: ObservableObject {
     static let shared = NotificationController()
     @Published var authStatus: UNAuthorizationStatus = .notDetermined
-    @AppStorage("SendNotification") var sendNotification = false
+    @AppStorage("SendNotification") var sendNotification = true
+    @AppStorage("NotificationSound") var notificationSound = true
 
     private let notificationCenter = UNUserNotificationCenter.current()
     private static let queueEmptyNotificationId = "queueEmpty"
+
     /// Triggers the prompt to request the user to allow the app to send local notifications
     func requestForNotificationAuthorization() {
         notificationCenter.getNotificationSettings { settings in
             if settings.authorizationStatus != .authorized {
                 self.notificationCenter.requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
                     if let error = error {
-                        print("Error in requesting for notification authorization: \(error)")
+                        print("Error requesting notification authorization: \(error)")
                         return
                     }
                     Task {
                         await self.fetchAuthStatus()
                     }
-                    if !granted {print("User declined authorization prompt")}
+                    if !granted { print("User declined authorization prompt") }
                 }
             }
         }
     }
+
     /// Fetches current UserNotificationAuthorization status from UserNotificationCenter
     /// There does not seem to be a nice way to directly observe that property
     /// So we just fetch the current value as required and "cache" it in this
@@ -56,9 +59,9 @@ class NotificationController: ObservableObject {
         }
         guard sendNotification, currentAuthStatus == .authorized else { return }
         let content = UNMutableNotificationContent()
-        content.title = "Image Generation Complete"
-        content.body = "Your new images have been generated"
-        content.sound = .default
+        content.title = "Mochi Diffusion"
+        content.body = "Your images are ready!"
+        content.sound = notificationSound ? .default : nil
         try? await notificationCenter.add(.init(identifier: NotificationController.queueEmptyNotificationId, content: content, trigger: nil))
     }
 }
