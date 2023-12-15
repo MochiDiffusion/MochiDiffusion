@@ -60,7 +60,7 @@ class NotificationController: ObservableObject {
         guard sendNotification, currentAuthStatus == .authorized else { return }
         let content = UNMutableNotificationContent()
         content.title = "Mochi Diffusion"
-        content.body = "Your images are ready!"
+        content.body = String(localized: "Your images are ready!")
         content.sound = notificationSound ? .default : nil
         try? await notificationCenter.add(.init(identifier: NotificationController.queueEmptyNotificationId, content: content, trigger: nil))
     }
