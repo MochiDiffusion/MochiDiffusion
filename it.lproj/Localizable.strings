@@ -13,6 +13,7 @@
 "About %@" = "Circa %@";
 "Add to Queue" = "Aggiungi alla coda";
 "All" = "Tutti";
+"Allow Mochi Diffusion to send notifications under System Settings." = "Consenti a Mochi Diffusion di inviare notifiche in Impostazioni di Sistema.";
 "Apply" = "Applica";
 "Auto (Recommended)" = "Automatica (Consigliato)";
 "Autosave & Restore Images" = "Salvataggio automatico e ripristino immagini";
@@ -59,9 +60,11 @@
 "Newest First" = "Più recenti";
 "No Info" = "Nessun dato";
 "None" = "Nessuno";
+"Notifications" = "Notifiche";
 "Number of Images" = "Numero di Immagini";
 "Oldest First" = "Meno recenti";
 "Open in Finder" = "Apri nel Finder";
+"Play notification sound" = "Riproduci suono di notifica";
 "Quick Look" = "Visualizzazione rapida";
 "Reduce Memory Usage" = "Riduci l\'utilizzo della memoria";
 "Reduce memory usage further at the cost of speed." = "Riduci ulteriormente l\'utilizzo della memoria a discapito della velocità.";
@@ -78,6 +81,8 @@
 "Select" = "Seleziona";
 "Select Next" = "Seleziona successiva";
 "Select Previous" = "Seleziona precedente";
+"Send Notifications" = "Invia notifiche";
+"Send notification when images are ready." = "Invia una notifica quando le immagini sono pronte.";
 "Set as Starting Image" = "Imposta come immagine iniziale";
 "Share..." = "Condividi...";
 "Show Image Preview" = "Mostra anteprima immagine";
@@ -102,4 +107,5 @@ La dimensione dell\'immagine di partenza deve combaciare con quella che si tenta
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Utilizza il modulo di verifica della sicurezza del modello. Questo non garantisce che tutti i contenuti inappropriati vengano filtrati.";
 "Website" = "Sito Web";
 "Width:" = "Larghezza:";
+"Your images are ready!" = "Le immagini sono pronte!";
 "random" = "casuale";

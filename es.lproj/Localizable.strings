@@ -8,6 +8,7 @@
 "CFBundleName" = "Mochi Diffusion";
 "NSHumanReadableCopyright" = "Por Joshua Park";
 "All" = "Todos";
+"Allow Mochi Diffusion to send notifications under System Settings." = "Permitir a Mochi Diffusion enviar notificaciones en Configuración del sistema.";
 "Apply" = "Aplicar";
 "Autosave & Restore Images" = "Autoguardar y Recuperar Imágenes";
 "CPU & GPU" = "CPU & GPU";
@@ -45,8 +46,10 @@
 "Model Folder" = "Directorio de Modelos";
 "Move Images to Trash" = "Mover Imágenes a la Papelera";
 "No Info" = "Sin información";
+"Notifications" = "Notificaciones";
 "Number of Images" = "Número de Imágenes";
 "Open in Finder" = "Mostrar en Finder";
+"Play notification sound" = "Reproducir sonido de notificación";
 "Quick Look" = "Vista Rápida";
 "Reduce Memory Usage" = "Reducir el Uso de Memoria";
 "Reduce memory usage further at the cost of speed." = "Reducir aún más el uso de memoria a costa de la velocidad.";
@@ -63,6 +66,8 @@
 "Select" = "Seleccionar";
 "Select Next" = "Seleccionar Siguiente";
 "Select Previous" = "Seleccionar Anterior";
+"Send Notifications" = "Enviar notificaciones";
+"Send notification when images are ready." = "Enviar una notificación cuando las imágenes estén preparadas.";
 "Set as Starting Image" = "Establecer como Imagen Inicial";
 "Share..." = "Compartir...";
 "Show in Finder" = "Mostrar en el Finder";
@@ -84,4 +89,5 @@ El tamaño de la imagen inicial debe coincidir con el tamaño de la imagen actua
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Usa el módulo de comprobación de seguridad del modelo. Esto no garantiza que todas las imágenes inapropiadas sean filtradas.";
 "Website" = "Sitio Web";
 "Width:" = "Ancho:";
+"Your images are ready!" = "¡Tus imágenes están listas!";
 "random" = "aleatorio";
