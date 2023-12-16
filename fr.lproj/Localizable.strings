@@ -102,4 +102,5 @@ La taille de l\'image de départ doit être conforme à celles produites par le 
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Utilise le module de vérification de la sécurité du modèle. Cela ne garantit pas que toutes les images inappropriées seront filtrées.";
 "Website" = "Site Web";
 "Width:" = "Largeur :";
+"Your images are ready!" = "Vos images sont prêtes!";
 "random" = "aléatoire";
