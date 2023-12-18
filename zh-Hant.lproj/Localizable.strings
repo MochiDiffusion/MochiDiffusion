@@ -104,4 +104,5 @@ The size of the starting image must match the output image size of the current m
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "使用模型的安全檢查模組，但其無法保證所有不適當的圖片都會被過濾。";
 "Website" = "網站";
 "Width:" = "寬度：";
+"Your images are ready!" = "你的圖像已生成完成！";
 "random" = "隨機";
