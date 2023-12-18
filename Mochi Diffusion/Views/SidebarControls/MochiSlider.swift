@@ -51,21 +51,21 @@ struct MochiSlider: View {
     ///   5. TextField frame is updated
     ///   6. TextField redraws its content within its frame
     /// Without the affordance the UI stutters because TextField draws its content differently when it doesn't fit in the frame
-    private var textFieldWidth: Double {
-        let textWidth = (text as NSString).size(withAttributes: [.font: NSFont.preferredFont(forTextStyle: .body)]).width
+    private var textFieldSize: CGSize {
+        let textSize = (text as NSString).size(withAttributes: [.font: NSFont.preferredFont(forTextStyle: .body)])
 
         if focusedSlider != self.id {
-            return textWidth
+            return textSize
         } else {
             let mWidth = ("M" as NSString).size(withAttributes: [.font: NSFont.preferredFont(forTextStyle: .body)]).width
-            return textWidth + mWidth
+            return CGSize(width: textSize.width + mWidth, height: textSize.height)
         }
     }
 
     var body: some View {
         CompactSlider(value: $value, in: bounds, step: step) {
             TextField("", text: $text)
-                .frame(width: textFieldWidth)
+                .frame(width: textFieldSize.width, height: textFieldSize.height * 0.7)
                 .textFieldStyle(PlainTextFieldStyle())
                 .focused($focusedSlider, equals: self.id)
             Spacer()
