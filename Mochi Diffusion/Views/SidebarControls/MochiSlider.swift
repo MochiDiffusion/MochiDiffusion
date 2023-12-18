@@ -70,27 +70,13 @@ struct MochiSlider: View {
                 .focused($focusedSlider, equals: self.id)
             Spacer()
         }
-
         .compactSliderStyle(.mochi)
-        .onChange(of: focusCon.focusedSliderField) { newValue in
-            self.focusedSlider = newValue
-        }
-        .onChange(of: _focusedSlider.wrappedValue) { newValue in
-            if newValue == self.id {
-                focusCon.focusedSliderField = newValue
-            } else {
-                self.text = value.formatted(.number.precision(.fractionLength(fractionLength)))
-            }
-        }
-        .onSubmit {
-            self.focusedSlider = nil
-        }
-        .onExitCommand {
-            self.focusedSlider = nil
-        }
         .onAppear {
             self.text = value.formatted(.number.precision(.fractionLength(fractionLength)))
         }
+
+        // MARK: onChange
+
         .onChange(of: self.text) { newValue in
             guard let newDouble = stringToDouble(newValue) else { return }
 
@@ -114,5 +100,25 @@ struct MochiSlider: View {
                 self.focusedSlider = nil
             }
         }
+
+        // MARK: Focus
+
+        .onChange(of: focusCon.focusedSliderField) { newValue in
+            self.focusedSlider = newValue
+        }
+        .onChange(of: _focusedSlider.wrappedValue) { newValue in
+            if newValue == self.id {
+                focusCon.focusedSliderField = newValue
+            } else {
+                self.text = value.formatted(.number.precision(.fractionLength(fractionLength)))
+            }
+        }
+        .onSubmit {
+            self.focusedSlider = nil
+        }
+        .onExitCommand {
+            self.focusedSlider = nil
+        }
+
     }
 }
