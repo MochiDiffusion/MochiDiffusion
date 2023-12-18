@@ -10,6 +10,7 @@
 "About %@" = "약 %@";
 "Add to Queue" = "목록에 추가";
 "All" = "모두 사용";
+"Allow Mochi Diffusion to send notifications under System Settings." = "시스템 설정에서 Mochi Diffusion이 알림을 보내도록 허용하세요.";
 "Apply" = "적용";
 "Auto (Recommended)" = "자동 (권장)";
 "Autosave & Restore Images" = "이미지 자동 저장 및 복원";
@@ -56,9 +57,11 @@
 "Newest First" = "최신 항목 순으로";
 "No Info" = "정보 없음";
 "None" = "없음";
+"Notifications" = "알림";
 "Number of Images" = "이미지 수";
 "Oldest First" = "오래된 항목 순으로";
 "Open in Finder" = "Finder에서 열기";
+"Play notification sound" = "알림 사운드 재생";
 "Quick Look" = "훑어보기";
 "Reduce Memory Usage" = "메모리 사용량 줄이기";
 "Reduce memory usage further at the cost of speed." = "속도를 희생해서 메모리 사용을 더 줄임.";
@@ -75,6 +78,8 @@
 "Select" = "선택";
 "Select Next" = "다음 선택";
 "Select Previous" = "이전 선택";
+"Send Notifications" = "알림 허용";
+"Send notification when images are ready." = "이미지가 생성되면 알림을 보냅니다.";
 "Set as Starting Image" = "시작 이미지로 선택";
 "Share..." = "공유...";
 "Show Image Preview" = "이미지 미리보기";
@@ -99,4 +104,5 @@ The size of the starting image must match the output image size of the current m
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "모델의 안전 검사기 모듈을 사용합니다. 모든 노골적인 이미지가 필터링되지 않을 수도 있습니다.";
 "Website" = "웹사이트";
 "Width:" = "가로길이:";
+"Your images are ready!" = "이미지가 생성되었습니다!";
 "random" = "랜덤";

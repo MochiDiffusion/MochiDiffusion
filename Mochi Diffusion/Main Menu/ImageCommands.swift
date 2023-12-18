@@ -77,7 +77,7 @@ struct ImageCommands: Commands {
                         comment: "View current image using Quick Look"
                     )
                 }
-                .keyboardShortcut("L", modifiers: .command)
+                .keyboardShortcut(" ", modifiers: [])
                 .disabled(store.selected() == nil)
             }
             Section {

@@ -7,9 +7,10 @@
 "**Auto** selects the most appropriate configuration for the selected model." = "**自动**能为所选模型选择最合适的配置。";
 "**CPU & GPU** is compatible with all models and may be faster on M1 Max, Ultra and later, but will use more memory." = "**CPU & GPU** 与所有模型兼容，而且可能在 M1 Max、M1 Ultra 及更高版本上速度更快，但会占用更多内存。";
 "**CPU & Neural Engine** provides a good balance between speed and low memory usage, but only works with split-einsum models." = "**CPU & 神经网络引擎**在性能和内存占用之间提供了良好的平衡，但仅适用于 split-einsum 模型。";
-"About %@" = "关于 %@";
+"About %@" = "约 %@";
 "Add to Queue" = "添加到队列";
 "All" = "全部";
+"Allow Mochi Diffusion to send notifications under System Settings." = "在系统设置中允许 Mochi Diffusion 推送通知";
 "Apply" = "应用";
 "Auto (Recommended)" = "自动 (推荐)";
 "Autosave & Restore Images" = "自动保存 & 恢复图像";
@@ -56,9 +57,11 @@
 "Newest First" = "优先显示最新";
 "No Info" = "无";
 "None" = "无";
+"Notifications" = "通知";
 "Number of Images" = "图像数量";
 "Oldest First" = "优先显示最旧";
 "Open in Finder" = "在访达中打开";
+"Play notification sound" = "播放通知声音";
 "Quick Look" = "快速查看";
 "Reduce Memory Usage" = "减少内存占用";
 "Reduce memory usage further at the cost of speed." = "牺牲性能以换取更低的内存占用";
@@ -72,9 +75,11 @@
 "Search" = "搜索";
 "Searching: %@" = "搜索中: %@";
 "Seed" = "随机种";
-"Select" = "确认";
+"Select" = "选择";
 "Select Next" = "下一张";
 "Select Previous" = "上一张";
+"Send Notifications" = "推送通知";
+"Send notification when images are ready." = "当图像准备好时推送通知";
 "Set as Starting Image" = "设为原始图像";
 "Share..." = "分享...";
 "Show Image Preview" = "显示图像预览";
@@ -96,7 +101,8 @@ The size of the starting image must match the output image size of the current m
 原始图像的大小必须与当前模型的输出图像大小匹配。";
 "Support Project" = "支持项目";
 "Toggle Info Panel" = "显示/隐藏信息面板";
-"Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "使用模型的安全检查模块，但它不能保证过滤所有的不良内容";
+"Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "使用模型的安全检查模块，但它不能保证能过滤所有的不良内容。";
 "Website" = "网站";
 "Width:" = "宽度：";
+"Your images are ready!" = "你的图像已生成完成！";
 "random" = "随机";

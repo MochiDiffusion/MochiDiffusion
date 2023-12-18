@@ -13,6 +13,7 @@
 "About %@" = "Über %@";
 "Add to Queue" = "Zur Warteschlange hinzufügen";
 "All" = "Alle";
+"Allow Mochi Diffusion to send notifications under System Settings." = "Mochi Diffusion erlauben, Mitteilungen zu senden.";
 "Apply" = "Bestätigen";
 "Auto (Recommended)" = "Auto (Empfohlen)";
 "Autosave & Restore Images" = "Bilder automatisch speichern und wiederherstellen";
@@ -59,9 +60,11 @@
 "Newest First" = "Neueste zuerst";
 "No Info" = "Keine Info";
 "None" = "Keine";
+"Notifications" = "Mitteilungen";
 "Number of Images" = "Anzahl der Bilder";
 "Oldest First" = "Älteste zuerst";
 "Open in Finder" = "Im Finder anzeigen";
+"Play notification sound" = "Mitteilungston abspielen";
 "Quick Look" = "Übersicht";
 "Reduce Memory Usage" = "Speicherauslastung reduzieren";
 "Reduce memory usage further at the cost of speed." = "Reduziert die Speicherauslastung auf Kosten der Geschwindigkeit.";
@@ -78,6 +81,8 @@
 "Select" = "Auswählen";
 "Select Next" = "Nächstes auswählen";
 "Select Previous" = "Vorheriges auswählen";
+"Send Notifications" = "Mitteilungen senden";
+"Send notification when images are ready." = "Mitteilung senden, wenn Bilder fertig sind.";
 "Set as Starting Image" = "Als Ausgangsbild festlegen";
 "Share..." = "Teilen...";
 "Show Image Preview" = "Bildvorschau anzeigen";
@@ -102,4 +107,5 @@ Die Größe des Startbildes muss mit der Bildgröße des aktuellen Modells über
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Verwendet das Safety-Checker-Modul des Modells. Dies garantiert nicht, dass alle unangemessenen Bilder gefiltert werden.";
 "Website" = "Webseite";
 "Width:" = "Breite:";
+"Your images are ready!" = "Ihre Bilder sind fertig!";
 "random" = "zufällig";

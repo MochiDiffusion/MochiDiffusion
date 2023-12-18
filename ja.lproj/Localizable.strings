@@ -7,9 +7,10 @@
 "**Auto** selects the most appropriate configuration for the selected model." = "**自動**は選択したモデルに最適な設定を選択します。";
 "**CPU & GPU** is compatible with all models and may be faster on M1 Max, Ultra and later, but will use more memory." = "**CPU & GPU** はすべてのモデルと互換性があり、M1 Max、Ultraおよびそれ以降では高速であるかもしれませんが、より多くのメモリを使用します。";
 "**CPU & Neural Engine** provides a good balance between speed and low memory usage, but only works with split-einsum models." = "**CPU & ニューラルエンジン** は速度とメモリ使用量のバランスが良いですが、split-einsum モデルでのみ動作します。";
-"About %@" = "%@について";
+"About %@" = "およそ %@";
 "Add to Queue" = "キューに追加";
 "All" = "全て";
+"Allow Mochi Diffusion to send notifications under System Settings." = "Mochi Diffusionがシステム設定で通知できるようにします。";
 "Apply" = "適用";
 "Auto (Recommended)" = "自動 (推奨)";
 "Autosave & Restore Images" = "画像の自動保存と復元";
@@ -56,9 +57,11 @@
 "Newest First" = "新しい順";
 "No Info" = "情報はありません";
 "None" = "なし";
+"Notifications" = "通知";
 "Number of Images" = "画像数";
 "Oldest First" = "古い順";
 "Open in Finder" = "Finderに表示";
+"Play notification sound" = "通知音を鳴らす";
 "Quick Look" = "クイックルック";
 "Reduce Memory Usage" = "メモリ使用量の削減";
 "Reduce memory usage further at the cost of speed." = "スピードを犠牲にしてメモリ使用量をさらに削減。";
@@ -75,6 +78,8 @@
 "Select" = "選択";
 "Select Next" = "次を選択";
 "Select Previous" = "前を選択";
+"Send Notifications" = "通知する";
+"Send notification when images are ready." = "画像の準備ができたら通知します。";
 "Set as Starting Image" = "元画像に設定";
 "Share..." = "共有...";
 "Show Image Preview" = "画像のプレビューを表示";
@@ -99,4 +104,5 @@ The size of the starting image must match the output image size of the current m
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "モデルのセーフティ チェッカー モジュールを使用します。 これは、すべての不適切な画像が除外されることを保証するものではありません。";
 "Website" = "Web サイト";
 "Width:" = "幅:";
+"Your images are ready!" = "画像の準備ができました！";
 "random" = "ランダム";
