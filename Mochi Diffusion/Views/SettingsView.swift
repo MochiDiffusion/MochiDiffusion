@@ -343,15 +343,61 @@ struct SettingsView: View {
 
                         Spacer()
 
-                        Toggle("", isOn: $notificationController.sendNotification)
-                            .labelsHidden()
-                            .toggleStyle(.switch)
-                            .controlSize(.small)
-                            .onChange(of: notificationController.sendNotification) { value in
-                                if value {
-                                    notificationController.requestForNotificationAuthorization()
-                                }
+                        Menu {
+                            Button(action: {
+                                notificationController.requestForNotificationAuthorization()
+                                notificationController.sendNotification = .always
+                            }, label: {
+                                Text("Always", comment: "When a notification will be sent")
+                            })
+                            Button(action: {
+                                notificationController.requestForNotificationAuthorization()
+                                notificationController.sendNotification = .background
+                            }, label: {
+                                Text("In Background", comment: "When a notification will be sent")
+                            })
+                            Button(action: {
+                                notificationController.sendNotification = .never
+                            }, label: {
+                                Text("Never", comment: "When a notification will be sent")
+                            })
+                        } label: {
+                            switch notificationController.sendNotification {
+                            case .always:
+                                Text("Always", comment: "When a notification will be sent")
+                            case .background:
+                                Text("In Background", comment: "When a notification will be sent")
+                            case .never:
+                                Text("Never", comment: "When a notification will be sent")
                             }
+                        }
+                        Menu {
+                            Button(action: {
+                                notificationController.whenNotification = .everyImage
+                            }, label: {
+                                Text("After every Image", comment: "When a notification will be sent")
+                            })
+                            Button(action: {
+                                notificationController.whenNotification = .everyTask
+                            }, label: {
+                                Text("After every Task", comment: "When a notification will be sent")
+                            })
+                            Button(action: {
+                                notificationController.whenNotification = .allTasks
+                            }, label: {
+                                Text("After all Tasks", comment: "When a notification will be sent")
+                            })
+                        } label: {
+                            switch notificationController.whenNotification {
+                            case .everyImage:
+                                Text("After every Image", comment: "When a notification will be sent")
+                            case .everyTask:
+                                Text("After every Task", comment: "When a notification will be sent")
+                            case .allTasks:
+                                Text("After all Tasks", comment: "When a notification will be sent")
+                            }
+                        }
+                        .disabled(notificationController.sendNotification == .never)
                     }
                     Text(
                         "Send notification when images are ready.",
@@ -359,7 +405,7 @@ struct SettingsView: View {
                     )
                     .helpTextFormat()
 
-                    if notificationController.sendNotification, notificationController.authStatus != .authorized {
+                    if notificationController.sendNotification != .never, notificationController.authStatus != .authorized {
                         // on iOS there is `openNotificationSettingsURLString` but for macOS,
                         // seems like we need to manually call this here.
                         Link(destination: URL(string: "x-apple.systempreferences:com.apple.preference.notifications")!) {
@@ -379,7 +425,7 @@ struct SettingsView: View {
                         Spacer()
 
                         Toggle("", isOn: $notificationController.playNotificationSound)
-                            .disabled(!notificationController.sendNotification)
+                            .disabled(notificationController.sendNotification == .never)
                             .labelsHidden()
                             .toggleStyle(.switch)
                             .controlSize(.small)

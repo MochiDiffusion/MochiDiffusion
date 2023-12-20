@@ -22,6 +22,8 @@ struct GalleryView: View {
                 MessageBanner(message: msg)
             } else if case let .ready(msg) = generator.state, let msg = msg {
                 MessageBanner(message: msg)
+            } else if case let .notification(msg) = NotificationController.shared.state {
+                MessageBanner(message: msg)
             }
 
             if !store.images.isEmpty || store.currentGeneratingImage != nil {

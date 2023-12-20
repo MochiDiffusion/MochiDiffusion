@@ -271,6 +271,10 @@ class ImageGenerator: ObservableObject {
                     sdi.path = path.path(percentEncoded: false)
                 }
                 await ImageStore.shared.add(sdi)
+                // image ready
+                if NotificationController.shared.whenNotification == .everyImage && NotificationController.shared.sendNotification != .never {
+                    await NotificationController.shared.sendQueueEmptyNotification()
+                }
             }
             config.pipelineConfig.seed += 1
         }

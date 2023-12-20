@@ -307,6 +307,10 @@ final class ImageController: ObservableObject {
                     reduceMemory: self.reduceMemory
                 )
                 try await ImageGenerator.shared.generate(genConfig)
+                // one task ready
+                if NotificationController.shared.whenNotification == .everyTask && NotificationController.shared.sendNotification != .never {
+                    await NotificationController.shared.sendQueueEmptyNotification()
+                }
             } catch ImageGenerator.GeneratorError.requestedModelNotFound {
                 self.logger.error("Couldn't load \(genConfig.model.name) because it doesn't exist.")
                 await ImageGenerator.shared.updateState(.ready("Couldn't load \(genConfig.model.name) because it doesn't exist."))
@@ -325,8 +329,11 @@ final class ImageController: ObservableObject {
             }
         }
         self.currentGeneration = nil
+        // all tasks ready
         Task.detached {
-            await NotificationController.shared.sendQueueEmptyNotification()
+            if NotificationController.shared.whenNotification == .allTasks && NotificationController.shared.sendNotification != .never {
+                await NotificationController.shared.sendQueueEmptyNotification()
+            }
         }
     }
 
