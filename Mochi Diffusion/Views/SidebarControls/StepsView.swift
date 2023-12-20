@@ -14,7 +14,7 @@ struct StepsView: View {
     var body: some View {
         Text("Steps")
             .sidebarLabelFormat()
-        CompactSlider(value: $controller.steps, in: 2...50, step: 1) {
+        CompactSlider(value: $controller.steps, in: 1...50, step: 1) {
             Text(verbatim: "\(controller.steps.formatted(.number.precision(.fractionLength(0))))")
             Spacer()
         }
