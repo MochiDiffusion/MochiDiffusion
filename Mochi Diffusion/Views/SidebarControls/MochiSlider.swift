@@ -10,7 +10,6 @@ import SwiftUI
 
 struct MochiSlider: View {
     @EnvironmentObject private var focusCon: FocusController
-
     @Binding var value: Double
     private let bounds: ClosedRange<Double>
     private let step: Double
@@ -119,6 +118,5 @@ struct MochiSlider: View {
         .onExitCommand {
             self.focusedSlider = nil
         }
-
     }
 }
