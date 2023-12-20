@@ -25,6 +25,7 @@ struct MochiSlider: View {
     }
 
     @State private var text: String = ""
+    @State private var isEditable = false
     @FocusState private var focusedSlider: UUID?
     private let id = UUID()
 
@@ -39,34 +40,27 @@ struct MochiSlider: View {
         return nil
     }
 
-    /// TextField overlays the slider, so the TextField frame should be as small as possible, to leave as much of the slider accessible as possible
-    /// If the slider is not focused, the frame is tightly fit to the text
-    /// If the slider is focused, the frame needs an M width affordance, to accomodate text entry
-    /// The sequence of events upon text entry:
-    ///   1. User presses key
-    ///   2. TextField redraws its content within its frame
-    ///   3. Binding updates `text`
-    ///   4. `textFieldWidth` is recalculated
-    ///   5. TextField frame is updated
-    ///   6. TextField redraws its content within its frame
-    /// Without the affordance the UI stutters because TextField draws its content differently when it doesn't fit in the frame
-    private var textFieldSize: CGSize {
-        let textSize = (text as NSString).size(withAttributes: [.font: NSFont.preferredFont(forTextStyle: .body)])
-
-        if focusedSlider != self.id {
-            return textSize
-        } else {
-            let mWidth = ("M" as NSString).size(withAttributes: [.font: NSFont.preferredFont(forTextStyle: .body)]).width
-            return CGSize(width: textSize.width + mWidth, height: textSize.height)
-        }
-    }
-
     var body: some View {
         CompactSlider(value: $value, in: bounds, step: step) {
-            TextField("", text: $text)
-                .frame(width: textFieldSize.width, height: textFieldSize.height * 0.7)
-                .textFieldStyle(PlainTextFieldStyle())
-                .focused($focusedSlider, equals: self.id)
+            if isEditable {
+                TextField("", text: $text)
+                    .focused($focusedSlider, equals: self.id)
+            } else {
+                Text(text)
+                    .padding(.leading, 4)
+                    .padding(.bottom, 1)
+                    .gesture(TapGesture(count: 2).onEnded {
+                        self.isEditable = true
+                        self.focusedSlider = self.id
+                    })
+                    .onHover { inside in
+                        if inside {
+                            NSCursor.iBeam.push()
+                        } else {
+                            NSCursor.pop()
+                        }
+                    }
+            }
             Spacer()
         }
         .compactSliderStyle(.mochi)
@@ -96,7 +90,6 @@ struct MochiSlider: View {
             let significantDifference = step / 2 // ignore insignificant differences caused by float imprecision
             if max(textDouble, newValue) - min(textDouble, newValue) > significantDifference {
                 self.text = newValue.formatted(.number.precision(.fractionLength(fractionLength)))
-                self.focusedSlider = nil
             }
         }
 
@@ -110,13 +103,16 @@ struct MochiSlider: View {
                 focusCon.focusedSliderField = newValue
             } else {
                 self.text = value.formatted(.number.precision(.fractionLength(fractionLength)))
+                self.isEditable = false
             }
         }
         .onSubmit {
             self.focusedSlider = nil
+            self.isEditable = false
         }
         .onExitCommand {
             self.focusedSlider = nil
+            self.isEditable = false
         }
     }
 }
