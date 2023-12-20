@@ -209,6 +209,7 @@ class ImageGenerator: ObservableObject {
         if config.isXL {
             config.pipelineConfig.encoderScaleFactor = 0.13025
             config.pipelineConfig.decoderScaleFactor = 0.13025
+            config.pipelineConfig.schedulerTimestepSpacing = .karras
         }
 
         var sdi = SDImage()
