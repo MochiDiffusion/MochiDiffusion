@@ -49,7 +49,7 @@ struct MochiSlider: View {
                 Text(text)
                     .padding(.leading, 4)
                     .padding(.bottom, 1)
-                    .gesture(TapGesture(count: 2).onEnded {
+                    .gesture(TapGesture(count: 1).onEnded {
                         self.isEditable = true
                         self.focusedSlider = self.id
                     })
