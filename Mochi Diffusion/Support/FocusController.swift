@@ -19,8 +19,10 @@ final class FocusController: ObservableObject {
 
     @Published var seedFieldIsFocused = false
 
+    @Published var focusedSliderField: UUID?
+
     var isTextFieldFocused: Bool {
-        negativePromptFieldIsFocused || promptFieldIsFocused || seedFieldIsFocused
+        negativePromptFieldIsFocused || promptFieldIsFocused || seedFieldIsFocused || (focusedSliderField != nil)
     }
 
     /// Remove focus from all fields.
@@ -28,5 +30,6 @@ final class FocusController: ObservableObject {
         promptFieldIsFocused = false
         negativePromptFieldIsFocused = false
         seedFieldIsFocused = false
+        focusedSliderField = nil
     }
 }

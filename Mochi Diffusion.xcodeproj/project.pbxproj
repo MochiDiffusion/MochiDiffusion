@@ -59,6 +59,7 @@
 		C11A03882B099D9600540F7F /* JobQueueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C11A03872B099D9600540F7F /* JobQueueView.swift */; };
 		C1220FC02AFB122F007E5055 /* ImageWellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1220FBF2AFB122F007E5055 /* ImageWellView.swift */; };
 		C1ADEC2C2B16957800E142CA /* FolderMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1ADEC2B2B16957800E142CA /* FolderMonitor.swift */; };
+		C116D4952AFC382E00314FE3 /* MochiSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C116D4942AFC382E00314FE3 /* MochiSlider.swift */; };
 		D7B03F2029D42F9900DF89DD /* SDModelAttentionType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7B03F1F29D42F9900DF89DD /* SDModelAttentionType.swift */; };
 /* End PBXBuildFile section */
 
@@ -129,6 +130,7 @@
 		C11A03872B099D9600540F7F /* JobQueueView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JobQueueView.swift; sourceTree = "<group>"; };
 		C1220FBF2AFB122F007E5055 /* ImageWellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageWellView.swift; sourceTree = "<group>"; };
 		C1ADEC2B2B16957800E142CA /* FolderMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderMonitor.swift; sourceTree = "<group>"; };
+		C116D4942AFC382E00314FE3 /* MochiSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MochiSlider.swift; sourceTree = "<group>"; };
 		D7B03F1F29D42F9900DF89DD /* SDModelAttentionType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDModelAttentionType.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -189,6 +191,7 @@
 				58FF218729FAE96200A70C7C /* ControlNetView.swift */,
 				035EDFFB295A21D600080D18 /* SizeView.swift */,
 				C1220FBF2AFB122F007E5055 /* ImageWellView.swift */,
+				C116D4942AFC382E00314FE3 /* MochiSlider.swift */,
 			);
 			path = SidebarControls;
 			sourceTree = "<group>";
@@ -428,6 +431,7 @@
 				035EDFFC295A21D600080D18 /* SizeView.swift in Sources */,
 				0395B3112995C70400465B73 /* Scheduler.swift in Sources */,
 				0352E2AE294EA2B4003FBF25 /* MessageBanner.swift in Sources */,
+				C116D4952AFC382E00314FE3 /* MochiSlider.swift in Sources */,
 				0386DF8B2950D29400CA4CEB /* InspectorView.swift in Sources */,
 				948853A52A543CB200B4AD86 /* GalleryPreviewView.swift in Sources */,
 				030370312A2BECDD003D2F0C /* SDControlNet.swift in Sources */,

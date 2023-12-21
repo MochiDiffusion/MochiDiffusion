@@ -5,7 +5,6 @@
 //  Created by Joshua Park on 2/27/23.
 //
 
-import CompactSlider
 import SwiftUI
 
 struct StartingImageView: View {
@@ -77,12 +76,7 @@ struct StartingImageView: View {
                 .padding()
             }
         }
-
-        CompactSlider(value: $controller.strength, in: 0.0...1.0, step: 0.05) {
-            Text(verbatim: "\(controller.strength.formatted(.number.precision(.fractionLength(2))))")
-            Spacer()
-        }
-        .compactSliderStyle(.mochi)
+        MochiSlider(value: $controller.strength, bounds: 0.0...1.0, step: 0.05)
     }
 }
 

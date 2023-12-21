@@ -5,7 +5,6 @@
 //  Created by Joshua Park on 12/26/22.
 //
 
-import CompactSlider
 import SwiftUI
 
 struct GuidanceScaleView: View {
@@ -14,11 +13,7 @@ struct GuidanceScaleView: View {
     var body: some View {
         Text("Guidance Scale")
             .sidebarLabelFormat()
-        CompactSlider(value: $controller.guidanceScale, in: 1...20, step: 0.5) {
-            Text(verbatim: "\(controller.guidanceScale.formatted(.number.precision(.fractionLength(1))))")
-            Spacer()
-        }
-        .compactSliderStyle(.mochi)
+        MochiSlider(value: $controller.guidanceScale, bounds: 1...20, step: 0.5)
     }
 }
 
