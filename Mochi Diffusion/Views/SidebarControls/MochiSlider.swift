@@ -30,7 +30,7 @@ struct MochiSlider: View {
     private let id = UUID()
 
     func stringToDouble(_ string: String) -> Double? {
-        if let doubleValue = Double(string) {
+        if let doubleValue = Double(string.components(separatedBy: ",").joined(separator: ".")) {
             var newValue = max(doubleValue, bounds.lowerBound)
             if strictUpperBound {
                 newValue = min(newValue, bounds.upperBound)
