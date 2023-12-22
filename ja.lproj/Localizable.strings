@@ -5,8 +5,8 @@
 "CFBundleName" = "Mochi Diffusion";
 "NSHumanReadableCopyright" = "By Joshua Park";
 "**Auto** selects the most appropriate configuration for the selected model." = "**自動**は選択したモデルに最適な設定を選択します。";
-"**CPU & GPU** is compatible with all models and may be faster on M1 Max, Ultra and later, but will use more memory." = "**CPU & GPU** はすべてのモデルと互換性があり、M1 Max、Ultraおよびそれ以降では高速であるかもしれませんが、より多くのメモリを使用します。";
-"**CPU & Neural Engine** provides a good balance between speed and low memory usage, but only works with split-einsum models." = "**CPU & ニューラルエンジン** は速度とメモリ使用量のバランスが良いですが、split-einsum モデルでのみ動作します。";
+"**CPU & GPU** is compatible with all models and may be faster on M1 Max, Ultra and later, but will use more memory." = "**CPU & GPU** はすべてのモデルに互換性があり、M1 Max、Ultra以降では速くなる可能性がありますが、多くのメモリが必要になります。";
+"**CPU & Neural Engine** provides a good balance between speed and low memory usage, but only works with split-einsum models." = "**CPU & Neural Engine** は速度とメモリ使用量のバランスが良いですが、split-einsum モデルでのみ動作します。";
 "About %@" = "およそ %@";
 "Add to Queue" = "キューに追加";
 "All" = "全て";
@@ -49,7 +49,7 @@
 "Include in Image" = "画像に含める";
 "Loading..." = "ロード中...";
 "ML Compute Unit" = "ML Compute Unit";
-"Manually selecting an incompatible ML Compute Unit may cause poor performance or crash." = "互換性のないMLを手動で選択すると、パフォーマンスが低下したりクラッシュする可能性があります。";
+"Manually selecting an incompatible ML Compute Unit may cause poor performance or crash." = "互換性のない演算ユニットを手動で選択すると、パフォーマンスが低下したりクラッシュする可能性があります。";
 "Mochi Diffusion" = "Mochi Diffusion";
 "Model" = "モデル";
 "Model Folder" = "モデル フォルダ";
