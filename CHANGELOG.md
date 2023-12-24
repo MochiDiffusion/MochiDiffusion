@@ -1,3 +1,13 @@
+# [v4.7](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v4.7) - 24 Dec 2023
+
+- Added option to send notifications when images are ready ([@mangoes-dev](https://github.com/mangoes-dev))
+- Added ability to change slider control values by keyboard input ([@gdbing](https://github.com/gdbing))
+- Changed Quick Look shortcut to spacebar (like Finder)
+- Changed scheduler timestep to Karras for SDXL models
+- Changed minimum step option to 1 ([@amikot](https://github.com/amikot))
+- Updated translations
+
+
 # [v4.6](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v4.6) - 06 Dec 2023
 
 - Added auto refresh of Image, Model, & ControlNet list ([@gdbing](https://github.com/gdbing))
