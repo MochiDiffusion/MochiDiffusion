@@ -5,6 +5,31 @@
     <language>en</language>
 
     <item>
+      <title>v4.7</title>
+      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <sparkle:version>4.7</sparkle:version>
+      <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
+      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <pubDate>Sun, 24 Dec 2023 05:00:12 +0000</pubDate>
+      <enclosure
+        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v4.7/MochiDiffusion_v4.7.dmg"
+        sparkle:edSignature="4iSEPl6JJRGoe0/nuKI14WTwwl39KIbXUxWfiEbhqmISBwRIfiX9PS1swwBTSjrgfIpKXwH87hLj3zCh4Zk3Ag=="
+        length="67066137"
+        type="application/octet-stream" />
+      <description><![CDATA[
+        <ul>
+        <li>Added option to send notifications when images are ready (@mangoes-dev)</li>
+        <li>Added ability to change slider control values by keyboard input (@gdbing)</li>
+        <li>Changed Quick Look shortcut to spacebar (like Finder)</li>
+        <li>Changed scheduler timestep to Karras for SDXL models</li>
+        <li>Changed minimum step option to 1 (@amikot)</li>
+        <li>Updated translations</li>
+        </ul>
+      ]]>
+      </description>
+    </item>
+
+    <item>
       <title>v4.6</title>
       <link>https://github.com/godly-devotion/MochiDiffusion</link>
       <sparkle:version>4.6</sparkle:version>
