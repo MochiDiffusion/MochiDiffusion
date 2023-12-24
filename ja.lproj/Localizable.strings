@@ -49,7 +49,7 @@
 "Include in Image" = "画像に含める";
 "Loading..." = "ロード中...";
 "ML Compute Unit" = "ML Compute Unit";
-"Manually selecting an incompatible ML Compute Unit may cause poor performance or crash." = "互換性のない演算ユニットを手動で選択すると、パフォーマンスが低下したりクラッシュする可能性があります。";
+"Manually selecting an incompatible ML Compute Unit may cause poor performance or crash." = "互換性のないML Compute Unitを手動で選択すると、パフォーマンスが低下したりクラッシュする可能性があります。";
 "Mochi Diffusion" = "Mochi Diffusion";
 "Model" = "モデル";
 "Model Folder" = "モデル フォルダ";
