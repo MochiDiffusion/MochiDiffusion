@@ -10,7 +10,10 @@
 "**Auto** selects the most appropriate configuration for the selected model." = "**Автоматический** выбор наиболее подходящей конфигурации для выбранной модели.";
 "**CPU & GPU** is compatible with all models and may be faster on M1 Max, Ultra and later, but will use more memory." = "**CPU & GPU** совместим со всеми моделями и может работать быстрее на M1 Max, Ultra и более поздних моделях, но использует больше памяти.";
 "**CPU & Neural Engine** provides a good balance between speed and low memory usage, but only works with split-einsum models." = "**CPU & Neural Engine** обеспечивает хорошее соотношение между скоростью и низким потреблением памяти, но работает только с моделями split-einsum.";
+"About %@" = "Около %@";
+"Add to Queue" = "Добавить в очередь";
 "All" = "Все";
+"Allow Mochi Diffusion to send notifications under System Settings." = "Разрешить Mochi Diffusion отправлять уведомления в настройках системы.";
 "Apply" = "Применить";
 "Auto (Recommended)" = "Автоматически (рекомендуется)";
 "Autosave & Restore Images" = "Автоматически сохранять и восстанавливать изображения";
@@ -23,6 +26,7 @@
 "Choose image" = "Выбрать изображение";
 "ControlNet" = "ControlNet";
 "ControlNet Folder" = "Папка ControlNet";
+"ControlNet Image" = "Изображение ControlNet";
 "Convert all images to High Resolution (this will use more memory)" = "Преобразовать все изображения в высокое разрешение (будет использовано больше памяти)";
 "Convert to High Resolution" = "Преобразовать в высокое разрешение";
 "Copy" = "Копировать";
@@ -56,9 +60,11 @@
 "Newest First" = "Сначала новые";
 "No Info" = "Нет информации";
 "None" = "Не выбрано";
+"Notifications" = "Уведомления";
 "Number of Images" = "Количество изображений";
 "Oldest First" = "Сначала старые";
 "Open in Finder" = "Открыть в Finder";
+"Play notification sound" = "Воспроизводить звуковой сигнал уведомления";
 "Quick Look" = "Быстрый просмотр";
 "Reduce Memory Usage" = "Использовать меньше памяти";
 "Reduce memory usage further at the cost of speed." = "Использовать еще меньше памяти за счет скорости.";
@@ -75,6 +81,8 @@
 "Select" = "Выбрать";
 "Select Next" = "Выбрать следующее";
 "Select Previous" = "Выбрать предыдущее";
+"Send Notifications" = "Отправлять уведомления";
+"Send notification when images are ready." = "Отправлять уведомление, когда изображения готовы.";
 "Set as Starting Image" = "Сделать стартовым изображением";
 "Share..." = "Поделиться...";
 "Show Image Preview" = "Показывать предпросмотр изображения";
@@ -99,4 +107,5 @@ The size of the starting image must match the output image size of the current m
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Использует модуль модели для проверки на безопасность изображений. Не гарантирует, что все неприемлемые изображения будут отфильтрованы.";
 "Website" = "Сайт";
 "Width:" = "Ширина:";
+"Your images are ready!" = "Изображения готовы!";
 "random" = "случайное";
