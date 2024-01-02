@@ -5,6 +5,26 @@
     <language>en</language>
 
     <item>
+      <title>v4.7.1</title>
+      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <sparkle:version>4.7.1</sparkle:version>
+      <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
+      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <pubDate>Tue, 02 Jan 2024 14:35:52 +0000</pubDate>
+      <enclosure
+        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v4.7.1/MochiDiffusion_v4.7.1.dmg"
+        sparkle:edSignature="1pOtDnU1fgFLHZIsk9zjKDzchRyjzLM+j2m9dgKFFQslnNdRqlcJmYCv7NdJmMQOpqWmw5qsPX5QBDbpJC24BA=="
+        length="67067380"
+        type="application/octet-stream" />
+      <description><![CDATA[
+      <ul>
+      <li>Fixed using slider for countries that use decimal commas (@haiodo)</li>
+      </ul>
+      ]]>
+      </description>
+    </item>
+
+    <item>
       <title>v4.7</title>
       <link>https://github.com/godly-devotion/MochiDiffusion</link>
       <sparkle:version>4.7</sparkle:version>
@@ -17,14 +37,14 @@
         length="67066137"
         type="application/octet-stream" />
       <description><![CDATA[
-        <ul>
-        <li>Added option to send notifications when images are ready (@mangoes-dev)</li>
-        <li>Added ability to change slider control values by keyboard input (@gdbing)</li>
-        <li>Changed Quick Look shortcut to spacebar (like Finder)</li>
-        <li>Changed scheduler timestep to Karras for SDXL models</li>
-        <li>Changed minimum step option to 1 (@amikot)</li>
-        <li>Updated translations</li>
-        </ul>
+      <ul>
+      <li>Added option to send notifications when images are ready (@mangoes-dev)</li>
+      <li>Added ability to change slider control values by keyboard input (@gdbing)</li>
+      <li>Changed Quick Look shortcut to spacebar (like Finder)</li>
+      <li>Changed scheduler timestep to Karras for SDXL models</li>
+      <li>Changed minimum step option to 1 (@amikot)</li>
+      <li>Updated translations</li>
+      </ul>
       ]]>
       </description>
     </item>
@@ -42,15 +62,15 @@
         length="67106121"
         type="application/octet-stream" />
       <description><![CDATA[
-        <ul>
-        <li>Added auto refresh of Image, Model, &amp; ControlNet list (@gdbing)</li>
-        <li>Added ability to queue images (@gdbing)</li>
-        <li>Added ability to drag and drop gallery images out (@gdbing)</li>
-        <li>Added ability to set the Starting Image by dragging and dropping an image (@gdbing)</li>
-        <li>Added automatic resizing of input images based on output image size (@gdbing)</li>
-        <li>Added Hungarian translation (Janos Hunyadi)</li>
-        <li>Changed ControlNet list to only show those compatible with the currently selected model (@gdbing)</li>
-        </ul>
+      <ul>
+      <li>Added auto refresh of Image, Model, &amp; ControlNet list (@gdbing)</li>
+      <li>Added ability to queue images (@gdbing)</li>
+      <li>Added ability to drag and drop gallery images out (@gdbing)</li>
+      <li>Added ability to set the Starting Image by dragging and dropping an image (@gdbing)</li>
+      <li>Added automatic resizing of input images based on output image size (@gdbing)</li>
+      <li>Added Hungarian translation (Janos Hunyadi)</li>
+      <li>Changed ControlNet list to only show those compatible with the currently selected model (@gdbing)</li>
+      </ul>
       ]]>
       </description>
     </item>
