@@ -1,3 +1,8 @@
+# [v4.7.1](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v4.7.1) - 02 Jan 2024
+
+- Fixed using slider for countries that use decimal commas ([@haiodo](https://github.com/haiodo))
+
+
 # [v4.7](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v4.7) - 24 Dec 2023
 
 - Added option to send notifications when images are ready ([@mangoes-dev](https://github.com/mangoes-dev))
