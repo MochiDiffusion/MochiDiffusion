@@ -76,7 +76,8 @@ empty_enum_arguments: error
 empty_parameters: error
 empty_parentheses_with_trailing_closure: error
 empty_string: error
-explicit_init: error
+explicit_init:
+  severity: error
 file_name_no_space:
   severity: error
 file_types_order:
@@ -178,10 +179,10 @@ yoda_condition: error
 custom_rules:
   swiftui_state_private:
     regex: '@(State|StateObject|EnvironmentObject)\s+var'
-    message: 'SwiftUI @State/@StateObject/@EnvironmentObject properties should be private'
+    message: "SwiftUI @State/@StateObject/@EnvironmentObject properties should be private"
   swiftui_environment_private:
     regex: '@Environment\(\\\.\w+\)\s+var'
-    message: 'SwiftUI @Environment properties should be private'
+    message: "SwiftUI @Environment properties should be private"
   no_alignment_center:
     regex: '\b\(alignment: .center\b'
-    message: 'This alignment is the default.'
+    message: "This alignment is the default."
