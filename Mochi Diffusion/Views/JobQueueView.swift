@@ -26,7 +26,11 @@ struct JobQueueView: View {
             )
             progressData = (totalStepProgress / totalStepCount, stepLabel)
         } else if case .loading = generator.state {
-            progressData = (-1, "Loading model for first time may take a few minutes")
+            let stepLabel = String(
+                localized: "Loading the model for the first time may take a few minutes",
+                comment: "Text displayed when the model is being loaded"
+            )
+            progressData = (-1, stepLabel)
         }
     }
 
