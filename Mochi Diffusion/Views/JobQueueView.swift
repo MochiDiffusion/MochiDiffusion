@@ -26,7 +26,7 @@ struct JobQueueView: View {
             )
             progressData = (totalStepProgress / totalStepCount, stepLabel)
         } else if case .loading = generator.state {
-            progressData = (-1, "Loading model, first-time use may take up to 2 minutes")
+            progressData = (-1, "Loading model for first time may take a few minutes")
         }
     }
 
@@ -101,13 +101,6 @@ private struct JobView: View {
     var controlButtons: some View {
         HStack {
             Button {
-                stop()
-            } label: {
-                Image(systemName: "xmark.circle.fill")
-            }
-            .foregroundStyle(.secondary)
-            .buttonStyle(.plain)
-            Button {
                 isGetInfoPopoverShown = true
             } label: {
                 Image(systemName: "info.circle.fill")
@@ -118,6 +111,14 @@ private struct JobView: View {
                 InfoPopoverView(config: config)
                     .frame(width: 320)
             }
+
+            Button {
+                stop()
+            } label: {
+                Image(systemName: "xmark.circle.fill")
+            }
+            .foregroundStyle(.secondary)
+            .buttonStyle(.plain)
         }
     }
 }
