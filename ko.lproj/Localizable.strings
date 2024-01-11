@@ -47,6 +47,7 @@
 "Import Images..." = "이미지 가져오기...";
 "Improve Translation" = "번역 개선하기";
 "Include in Image" = "프롬프트";
+"Loading the model for the first time may take a few minutes" = "모델을 처음으로 로드하는 데 몇 분 정도 걸릴 수 있습니다";
 "Loading..." = "로딩중...";
 "ML Compute Unit" = "ML Compute Unit";
 "Manually selecting an incompatible ML Compute Unit may cause poor performance or crash." = "모델과 맞지 않는 ML Compute Unit을 선택하면 성능이 저하되거나 충돌이 발생할 수 있습니다.";
