@@ -83,8 +83,8 @@
 ## 兼容性
 
 - Apple 芯片的 Mac (M1 及后续)
-- macOS Ventura 13.1 以上
-- Xcode 14.3 (自行构建)
+- macOS Sonoma 14.0 以上
+- Xcode 15.2 (自行构建)
 
 ## 隐私
 

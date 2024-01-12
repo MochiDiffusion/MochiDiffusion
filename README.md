@@ -83,8 +83,8 @@ A few models have been converted and uploaded [here](https://huggingface.co/core
 ## Compatibility
 
 - Apple Silicon (M1 and later)
-- macOS Ventura 13.1 and later
-- Xcode 14.3 (to build)
+- macOS Sonoma 14.0 and later
+- Xcode 15.2 (to build)
 
 ## Privacy
 

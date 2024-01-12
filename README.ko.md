@@ -80,8 +80,8 @@ Mochi Diffusion을 사용하려면 모델 파일을 Core ML 포맷으로 변환�
 ## 시스템 요구 사항
 
 - Apple Silicon칩 (M1와 이후 모델)
-- macOS Ventura 13.1 와 이후 버전
-- Xcode 14.3 (to build)
+- macOS Sonoma 14.0 와 이후 버전
+- Xcode 15.2 (to build)
 
 ## 개인 정보
 
