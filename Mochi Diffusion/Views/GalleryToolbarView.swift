@@ -102,9 +102,7 @@ struct GalleryToolbarView: View {
         }
 
         Button {
-            withAnimation {
-                isShowingInspector.toggle()
-            }
+            isShowingInspector.toggle()
         } label: {
             Label {
                 Text(
