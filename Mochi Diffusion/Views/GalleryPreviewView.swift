@@ -19,16 +19,28 @@ struct GalleryPreviewView: View {
             if case let .running(progress) = generator.state, let progress = progress, progress.stepCount > 0 {
                 let step = Int(progress.step) + 1
                 let stepValue = Double(step) / Double(progress.stepCount)
-                let stepLabel = String(
-                    localized: "Step \(step) of \(progress.stepCount) - About \(formatTimeRemaining(generator.lastStepGenerationElapsedTime, stepsLeft: progress.stepCount - step))",
-                    comment: "Text displaying the current step progress, count, and time remaining"
+
+                let progressLabel = String(
+                    localized: "About \(formatTimeRemaining(generator.lastStepGenerationElapsedTime, stepsLeft: progress.stepCount - step))",
+                    comment: "Text displaying the current time remaining"
                 )
-                ProgressView(stepLabel, value: stepValue, total: 1)
-                    .padding(8)
-                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 8))
-                    .padding(12)
+
+                VStack(alignment: .leading) {
+                    HStack {
+                        Spacer()
+                        Text("\(step)/\(progress.stepCount)")
+                            .padding(6)
+                            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 4))
+                    }
+                    Spacer()
+                    ProgressView(progressLabel, value: stepValue, total: 1)
+                        .padding(6)
+                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 4))
+                        .foregroundStyle(.secondary)
+                }
+                .padding(4)
             }
         }
-        .padding(4)
+        .padding(2)
     }
 }
