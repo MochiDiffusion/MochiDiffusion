@@ -50,6 +50,7 @@
 "Import Images..." = "Bilder importieren...";
 "Improve Translation" = "Übersetzung verbessern";
 "Include in Image" = "Soll im Bild enthalten sein";
+"Loading the model for the first time may take a few minutes" = "Das erstmalige Laden des Modells kann einige Minuten dauern";
 "Loading..." = "Lade...";
 "ML Compute Unit" = "ML Recheneinheit";
 "Manually selecting an incompatible ML Compute Unit may cause poor performance or crash." = "Die manuelle Auswahl einer inkompatiblen ML Compute Unit kann zu schlechter Performance oder zum Absturz führen.";
