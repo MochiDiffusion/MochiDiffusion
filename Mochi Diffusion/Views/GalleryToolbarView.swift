@@ -19,7 +19,7 @@ struct GalleryToolbarView: View {
             Button {
                 self.isStatusPopoverShown.toggle()
             } label: {
-                if case let .running(progress) = generator.state, let progress = progress {
+                if case let .running(progress) = generator.state, let progress = progress, progress.stepCount > 0 {
                     ToolbarCircularProgressView(progress)
                 } else if case .loading = generator.state {
                     ProgressView()
@@ -48,18 +48,54 @@ struct GalleryToolbarView: View {
             .tag(ImagesSortType.newestFirst)
         }
 
-        Group {
-            toolbarActionsView
+        if let sdi = store.selected(), let img = sdi.image {
+            let imageView = Image(img, scale: 1, label: Text(verbatim: sdi.prompt))
 
-            if let sdi = store.selected(), let img = sdi.image {
-                let imageView = Image(img, scale: 1, label: Text(verbatim: sdi.prompt))
-                ShareLink(item: imageView, preview: SharePreview(sdi.prompt, image: imageView))
-                    .help("Share...")
-            } else {
-                Button("Share...", systemImage: "square.and.arrow.up") {}
-                    .disabled(true)
+            Button {
+                Task { await ImageController.shared.removeCurrentImage() }
+            } label: {
+                Label {
+                    Text(
+                        "Remove",
+                        comment: "Toolbar button to remove the selected image"
+                    )
+                } icon: {
+                    Image(systemName: "trash")
+                }
+                .help("Remove")
             }
+            Button {
+                Task { await ImageController.shared.upscaleCurrentImage() }
+            } label: {
+                Label {
+                    Text("Convert to High Resolution")
+                } icon: {
+                    Image(systemName: "wand.and.stars")
+                }
+                .help("Convert to High Resolution")
+            }
+
+            Spacer()
+
+            Button {
+                Task { await sdi.saveAs() }
+            } label: {
+                Label {
+                    Text(
+                        "Save As...",
+                        comment: "Toolbar button to show the save image dialog"
+                    )
+                } icon: {
+                    Image(systemName: "square.and.arrow.down")
+                }
+                .help("Save As...")
+            }
+            ShareLink(item: imageView, preview: SharePreview(sdi.prompt, image: imageView))
+                .help("Share...")
+        } else {
+            disabledToolbarActionView
         }
+
         Button {
             withAnimation {
                 isShowingInspector.toggle()
@@ -92,105 +128,62 @@ struct GalleryToolbarView: View {
         }
     }
 
-    // ToolbarAction allows us to enumerate among all buttons
-    private enum ToolbarAction: CaseIterable {
-        case remove, convertToHighRes, saveAs
-
-        var title: String {
-            switch self {
-            case .remove:
-                return "Remove"
-            case .convertToHighRes:
-                return "Convert to High Resolution"
-            case .saveAs:
-                return "Save As..."
-            }
-        }
-
-        var systemImageName: String {
-            switch self {
-            case .remove:
-                return "trash"
-            case .convertToHighRes:
-                return "wand.and.stars"
-            case .saveAs:
-                return "square.and.arrow.down"
-            }
-        }
-
-        var helpText: String {
-            switch self {
-            case .remove:
-                return "Remove the selected image"
-            case .convertToHighRes:
-                return "Convert the selected image to high resolution"
-            case .saveAs:
-                return "Save the selected image"
-            }
-        }
-    }
-
-    // Single Tool Bar Button
-    private struct ToolBarButton: View {
-        var action: ToolbarAction
-        var isEnabled: Bool
-        var performAction: (() async -> Void)?
-
-        var body: some View {
-            Button {
-                if isEnabled, let performAction = performAction {
-                    Task {
-                        await performAction()
-                    }
-                }
-            } label: {
-                Label {
-                    Text(action.title)
-                } icon: {
-                    Image(systemName: action.systemImageName)
-                }
-            }
-            .disabled(!isEnabled)
-            .opacity(isEnabled ? 1 : 0.5)
-            .help(action.helpText)
-        }
-    }
-
-    // All Tool Bar Buttons (looping through them)
     @ViewBuilder
-    private var toolbarActionsView: some View {
-        ForEach(ToolbarAction.allCases, id: \.self) { action in
-            let isEnabled = determineIfEnabled(for: action)
-            let actionToPerform = getAction(for: action)
-
-            ToolBarButton(action: action, isEnabled: isEnabled, performAction: actionToPerform)
-        }
-    }
-
-    // Determining if toolbar button can be used
-    private func determineIfEnabled(for action: ToolbarAction) -> Bool {
-        switch action {
-        case .convertToHighRes,
-             .remove,
-             .saveAs:
-            return store.selected() != nil
-        }
-    }
-
-    // Getting toolbar action.
-    private func getAction(for action: ToolbarAction) -> (() async -> Void)? {
-        switch action {
-        case .remove:
-            return { await ImageController.shared.removeCurrentImage() }
-        case .convertToHighRes:
-            return { await ImageController.shared.upscaleCurrentImage() }
-        case .saveAs:
-            if let sdi = store.selected() {
-                return { await sdi.saveAs() }
-            } else {
-                return nil
+    private var disabledToolbarActionView: some View {
+        Button {
+            // noop
+        } label: {
+            Label {
+                Text(
+                    "Remove",
+                    comment: "Toolbar button to remove the selected image"
+                )
+            } icon: {
+                Image(systemName: "trash")
             }
         }
+        .disabled(true)
+
+        Button {
+            // noop
+        } label: {
+            Label {
+                Text("Convert to High Resolution")
+            } icon: {
+                Image(systemName: "wand.and.stars")
+            }
+        }
+        .disabled(true)
+
+        Spacer()
+
+        Button {
+            // noop
+        } label: {
+            Label {
+                Text(
+                    "Save As...",
+                    comment: "Toolbar button to show the save image dialog"
+                )
+            } icon: {
+                Image(systemName: "square.and.arrow.down")
+            }
+        }
+        .disabled(true)
+
+        Button {
+            // noop
+        } label: {
+            Label {
+                Text(
+                    "Share...",
+                    comment: "Toolbar button to show the system share sheet"
+                )
+            } icon: {
+                Image(systemName: "square.and.arrow.up")
+            }
+        }
+        .disabled(true)
     }
 }
 
