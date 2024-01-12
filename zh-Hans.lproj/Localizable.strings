@@ -47,6 +47,7 @@
 "Import Images..." = "导入图像...";
 "Improve Translation" = "改进翻译";
 "Include in Image" = "关键词";
+"Loading the model for the first time may take a few minutes" = "首次加载模型可能需要几分钟";
 "Loading..." = "加载中...";
 "ML Compute Unit" = "ML 计算单元";
 "Manually selecting an incompatible ML Compute Unit may cause poor performance or crash." = "选择不兼容的 ML 计算单元可能会导致性能不佳或崩溃。";
