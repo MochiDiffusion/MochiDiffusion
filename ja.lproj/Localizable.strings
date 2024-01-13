@@ -47,6 +47,7 @@
 "Import Images..." = "画像のインポート...";
 "Improve Translation" = "翻訳の改善に協力";
 "Include in Image" = "画像に含める";
+"Loading the model for the first time may take a few minutes" = "初めてモデルを読み込む際には数分かかることがあります";
 "Loading..." = "ロード中...";
 "ML Compute Unit" = "ML Compute Unit";
 "Manually selecting an incompatible ML Compute Unit may cause poor performance or crash." = "互換性のないML Compute Unitを手動で選択すると、パフォーマンスが低下したりクラッシュする可能性があります。";
