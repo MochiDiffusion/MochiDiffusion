@@ -50,6 +50,7 @@
 "Import Images..." = "Импортировать изображения...";
 "Improve Translation" = "Улучшить перевод";
 "Include in Image" = "Включить в изображение";
+"Loading the model for the first time may take a few minutes" = "Загрузка модели в первый раз может занять несколько минут";
 "Loading..." = "Загрузка...";
 "ML Compute Unit" = "Вычислительный блок ML";
 "Manually selecting an incompatible ML Compute Unit may cause poor performance or crash." = "Выбор несовместимого вычислительного модуля ML может привести к снижению производительности или сбою.";
