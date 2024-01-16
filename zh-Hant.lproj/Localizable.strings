@@ -96,8 +96,8 @@ Use lower values to generate images that look similar to the starting image.
 Use higher values to allow more creative freedom.
 
 The size of the starting image must match the output image size of the current model." = "強度控製生成圖像和原始圖像的相似程度。
-較高的強度會讓生成圖像和原始圖像更加相似。
-較低的強度能帶來更多創作自由。
+較低的強度會讓生成圖像和原始圖像更加相似。
+較高的強度能帶來更多創作自由。
 
 原始圖像的大小必須與當前模型的輸出圖像大小匹配。";
 "Support Project" = "協助此專案";
