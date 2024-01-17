@@ -90,26 +90,15 @@ extension CGImage {
     }
 }
 
-@available(macOS, introduced: 13.0, deprecated: 14.0)
 public struct TransferableImage {
     public let image: NSImage
 }
 
 extension TransferableImage: Transferable {
     public static var transferRepresentation: some TransferRepresentation {
-        #if swift(>=5.9)
-        if #available(macOS 14.0, *) {
-            return NSImage.transferRepresentation
-        } else {
-            return ProxyRepresentation<TransferableImage, URL> { transferableImage in
-                try transferableImage.image.temporaryFileURL()
-            }
-        }
-        #else
-        return ProxyRepresentation<TransferableImage, URL> { transferableImage in
+        ProxyRepresentation<TransferableImage, URL> { transferableImage in
             try transferableImage.image.temporaryFileURL()
         }
-        #endif
     }
 }
 
