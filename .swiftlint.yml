@@ -5,7 +5,6 @@ disabled_rules:
   - line_length
   - type_body_length
 opt_in_rules:
-  - accessibility_trait_for_button
   - closure_end_indentation
   - closure_spacing
   - collection_alignment
@@ -18,7 +17,6 @@ opt_in_rules:
   - empty_string
   - explicit_init
   - file_name_no_space
-  - file_types_order
   - identical_operands
   - implicit_return
   - implicitly_unwrapped_optional
@@ -76,10 +74,9 @@ empty_enum_arguments: error
 empty_parameters: error
 empty_parentheses_with_trailing_closure: error
 empty_string: error
-explicit_init: error
-file_name_no_space:
+explicit_init:
   severity: error
-file_types_order:
+file_name_no_space:
   severity: error
 force_cast: warning
 force_try: error
@@ -178,10 +175,10 @@ yoda_condition: error
 custom_rules:
   swiftui_state_private:
     regex: '@(State|StateObject|EnvironmentObject)\s+var'
-    message: 'SwiftUI @State/@StateObject/@EnvironmentObject properties should be private'
+    message: "SwiftUI @State/@StateObject/@EnvironmentObject properties should be private"
   swiftui_environment_private:
     regex: '@Environment\(\\\.\w+\)\s+var'
-    message: 'SwiftUI @Environment properties should be private'
+    message: "SwiftUI @Environment properties should be private"
   no_alignment_center:
     regex: '\b\(alignment: .center\b'
-    message: 'This alignment is the default.'
+    message: "This alignment is the default."

@@ -14,19 +14,13 @@ struct AppView: View {
     var body: some View {
         NavigationSplitView {
             SidebarView()
-                .navigationSplitViewColumnWidth(min: 250, ideal: 300)
+                .navigationSplitViewColumnWidth(min: 250, ideal: 300, max: 450)
         } detail: {
-            HStack(spacing: 0) {
-                GalleryView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-
-                Divider()
-
-                if isShowingInspector {
+            GalleryView()
+                .inspector(isPresented: $isShowingInspector) {
                     InspectorView()
-                        .frame(maxWidth: 340)
+                        .inspectorColumnWidth(min: 300, ideal: 300, max: 500)
                 }
-            }
         }
         .toolbar {
             GalleryToolbarView(isShowingInspector: $isShowingInspector)

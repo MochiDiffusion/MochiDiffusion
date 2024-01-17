@@ -171,16 +171,11 @@ class ImageGenerator: ObservableObject {
         config.computeUnits = computeUnit
 
         if model.isXL {
-            if #available(macOS 14.0, *) {
-                self.pipeline = try StableDiffusionXLPipeline(
-                    resourcesAt: model.url,
-                    configuration: config,
-                    reduceMemory: reduceMemory
-                )
-            } else {
-                // Stable Diffusion XL requires macOS 14
-                throw GeneratorError.pipelineNotAvailable
-            }
+            self.pipeline = try StableDiffusionXLPipeline(
+                resourcesAt: model.url,
+                configuration: config,
+                reduceMemory: reduceMemory
+            )
         } else {
             self.pipeline = try StableDiffusionPipeline(
                 resourcesAt: model.url,
