@@ -19,7 +19,7 @@ struct AppView: View {
             GalleryView()
                 .inspector(isPresented: $isShowingInspector) {
                     InspectorView()
-                        .inspectorColumnWidth(min: 300, ideal: 300, max: 400)
+                        .inspectorColumnWidth(min: 300, ideal: 300, max: 500)
                 }
         }
         .toolbar {
