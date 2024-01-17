@@ -39,6 +39,7 @@
 "Import Images..." = "Importar Imágenes...";
 "Improve Translation" = "Mejorar traducción";
 "Include in Image" = "Incluir en Imagen";
+"Loading the model for the first time may take a few minutes" = "Cargar el modelo por primera vez puede tardar unos minutos";
 "Loading..." = "Cargando...";
 "ML Compute Unit" = "Unidad de Computación ML";
 "Mochi Diffusion" = "Mochi Diffusion";
