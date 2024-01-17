@@ -60,8 +60,8 @@ struct GalleryView: View {
                         GalleryItemView(sdi: sdi)
                             .accessibilityAddTraits(.isButton)
                             .transition(.niceFade)
-                            .onChange(of: store.selected()) { target in
-                                if let sdi = target {
+                            .onChange(of: store.selected()) {
+                                if let sdi = store.selected() {
                                     withAnimation {
                                         proxy.scrollTo(sdi.id)
                                     }

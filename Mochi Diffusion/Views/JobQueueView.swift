@@ -44,7 +44,7 @@ struct JobQueueView: View {
                     .onAppear {
                         updateProgressData()
                     }
-                    .onChange(of: generator.state) { _ in
+                    .onChange(of: generator.state) {
                         updateProgressData()
                     }
                 }

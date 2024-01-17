@@ -32,7 +32,6 @@ final class Upscaler {
         }
 
         self.request.imageCropAndScaleOption = .scaleFill /// output image's ratio will be fixed later
-        self.request.usesCPUOnly = false
     }
 
     func upscale(cgImage: CGImage) async -> CGImage? {

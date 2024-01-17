@@ -32,10 +32,10 @@ extension View {
     func syncFocus<T: Equatable>(_ binding: Binding<T>, with focusState: FocusState<T>) -> some View {
         self
             .onChange(of: binding.wrappedValue) {
-                focusState.wrappedValue = $0
+                focusState.wrappedValue = binding.wrappedValue
             }
             .onChange(of: focusState.wrappedValue) {
-                binding.wrappedValue = $0
+                binding.wrappedValue = focusState.wrappedValue
             }
     }
 }

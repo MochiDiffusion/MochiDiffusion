@@ -347,8 +347,8 @@ struct SettingsView: View {
                             .labelsHidden()
                             .toggleStyle(.switch)
                             .controlSize(.small)
-                            .onChange(of: notificationController.sendNotification) { value in
-                                if value {
+                            .onChange(of: notificationController.sendNotification) {
+                                if notificationController.sendNotification {
                                     notificationController.requestForNotificationAuthorization()
                                 }
                             }

@@ -70,8 +70,8 @@ struct MochiSlider: View {
 
         // MARK: onChange
 
-        .onChange(of: self.text) { newValue in
-            guard let newDouble = stringToDouble(newValue) else { return }
+        .onChange(of: self.text) {
+            guard let newDouble = stringToDouble(self.text) else { return }
 
             let roundedDouble = Double(round(newDouble / step) * step)
             self.value = roundedDouble
@@ -84,23 +84,23 @@ struct MochiSlider: View {
         ///   3. `.onChange(of: self.value)` updates `text` to "6.0"
         ///   4. User types ".5"
         ///   5. `text` is "6.0.5"
-        .onChange(of: self.value) { newValue in
+        .onChange(of: self.value) {
             guard let textDouble = stringToDouble(self.text) else { return }
 
             let significantDifference = step / 2 // ignore insignificant differences caused by float imprecision
-            if max(textDouble, newValue) - min(textDouble, newValue) > significantDifference {
-                self.text = newValue.formatted(.number.precision(.fractionLength(fractionLength)))
+            if max(textDouble, self.value) - min(textDouble, self.value) > significantDifference {
+                self.text = self.value.formatted(.number.precision(.fractionLength(fractionLength)))
             }
         }
 
         // MARK: Focus
 
-        .onChange(of: focusCon.focusedSliderField) { newValue in
-            self.focusedSlider = newValue
+        .onChange(of: focusCon.focusedSliderField) {
+            self.focusedSlider = focusCon.focusedSliderField
         }
-        .onChange(of: _focusedSlider.wrappedValue) { newValue in
-            if newValue == self.id {
-                focusCon.focusedSliderField = newValue
+        .onChange(of: _focusedSlider.wrappedValue) {
+            if _focusedSlider.wrappedValue == self.id {
+                focusCon.focusedSliderField = _focusedSlider.wrappedValue
             } else {
                 self.text = value.formatted(.number.precision(.fractionLength(fractionLength)))
                 self.isEditable = false
