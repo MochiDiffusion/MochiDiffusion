@@ -5,7 +5,6 @@ disabled_rules:
   - line_length
   - type_body_length
 opt_in_rules:
-  - accessibility_trait_for_button
   - closure_end_indentation
   - closure_spacing
   - collection_alignment
@@ -18,7 +17,6 @@ opt_in_rules:
   - empty_string
   - explicit_init
   - file_name_no_space
-  - file_types_order
   - identical_operands
   - implicit_return
   - implicitly_unwrapped_optional
@@ -79,8 +77,6 @@ empty_string: error
 explicit_init:
   severity: error
 file_name_no_space:
-  severity: error
-file_types_order:
   severity: error
 force_cast: warning
 force_try: error
