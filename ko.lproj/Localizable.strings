@@ -88,7 +88,6 @@
 "Show the image as its being generated." = "생성되는 이미지를 미리 보기.";
 "Sort" = "정렬";
 "Starting Image" = "시작 이미지";
-"Step %lld of %lld - About %@" = "스텝 %lld / %lld – 약 %@";
 "Steps" = "스텝 수";
 "Strength" = "강도";
 "Strength controls how closely the generated image resembles the starting image.
