@@ -91,7 +91,6 @@
 "Show the image as its being generated." = "Показывать изображение в процессе создания.";
 "Sort" = "Сортировать";
 "Starting Image" = "Начальное изображение";
-"Step %lld of %lld - About %@" = "Шаг %lld из %lld - около %@";
 "Steps" = "Шаги";
 "Strength" = "Интенсивность";
 "Strength controls how closely the generated image resembles the starting image.
