@@ -40,6 +40,7 @@ class ImageStore: ObservableObject {
     var searchText: String = "" {
         didSet {
             updateFilteredImages()
+            updateSortForImages()
         }
     }
 
