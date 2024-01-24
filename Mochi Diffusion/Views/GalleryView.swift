@@ -53,13 +53,20 @@ struct GalleryView: View {
                     if store.sortType == .newestFirst {
                         if let currentImage = store.currentGeneratingImage, case .running = generator.state {
                             GalleryPreviewView(image: currentImage)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 2)
+                                        .stroke(
+                                            Color(nsColor: .controlBackgroundColor),
+                                            lineWidth: 4
+                                        )
+                                )
                         }
                     }
 
                     ForEach(store.images) { sdi in
                         GalleryItemView(sdi: sdi)
                             .accessibilityAddTraits(.isButton)
-                            .transition(.niceFade)
+                            .transition(.galleryItemTransition)
                             .onChange(of: store.selected()) {
                                 if let sdi = store.selected() {
                                     withAnimation {
@@ -103,6 +110,13 @@ struct GalleryView: View {
                     if store.sortType == .oldestFirst {
                         if let currentImage = store.currentGeneratingImage, case .running = generator.state {
                             GalleryPreviewView(image: currentImage)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 2)
+                                        .stroke(
+                                            Color(nsColor: .controlBackgroundColor),
+                                            lineWidth: 4
+                                        )
+                                )
                         }
                     }
                 }
@@ -193,7 +207,7 @@ struct GalleryView: View {
 }
 
 extension AnyTransition {
-    static var niceFade: AnyTransition {
+    static var galleryItemTransition: AnyTransition {
         .asymmetric(
             insertion: .opacity,
             removal: .scale.combined(with: .opacity)
