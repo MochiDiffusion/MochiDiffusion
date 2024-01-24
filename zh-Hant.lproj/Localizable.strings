@@ -88,7 +88,6 @@
 "Show the image as its being generated." = "在生成過程中顯示圖像";
 "Sort" = "排序";
 "Starting Image" = "起始圖片";
-"Step %lld of %lld - About %@" = "第 %lld/%lld 叠代 - 約 %@";
 "Steps" = "迭代次數";
 "Strength" = "強度";
 "Strength controls how closely the generated image resembles the starting image.
