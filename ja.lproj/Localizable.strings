@@ -88,7 +88,6 @@
 "Show the image as its being generated." = "生成される画像を表示します。";
 "Sort" = "ソート";
 "Starting Image" = "元画像";
-"Step %lld of %lld - About %@" = "ステップ %lld / %lld - 残り %@";
 "Steps" = "ステップ";
 "Strength" = "強さ";
 "Strength controls how closely the generated image resembles the starting image.

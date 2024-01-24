@@ -86,7 +86,6 @@
 "Show the image as its being generated." = "Afficher l\'image en cours de génération.";
 "Sort" = "Trier";
 "Starting Image" = "Image de départ";
-"Step %lld of %lld - About %@" = "Étape %lld sur %lld - Environ %@";
 "Steps" = "Étapes";
 "Strength" = "Intensité";
 "Strength controls how closely the generated image resembles the starting image.
