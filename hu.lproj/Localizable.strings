@@ -82,7 +82,6 @@
 "Show the image as its being generated." = "Mutasd a képet generálás közben.";
 "Sort" = "Rendezés";
 "Starting Image" = "Kezdő kép";
-"Step %lld of %lld - About %@" = "Lépés %lld / %lld - Kürülbelül %@";
 "Steps" = "Lépések száma";
 "Strength" = "Erősség";
 "Strength controls how closely the generated image resembles the starting image.
