@@ -82,7 +82,6 @@
 "Show the image as its being generated." = "Показувати зображення під час його створення.";
 "Sort" = "Сортувати";
 "Starting Image" = "Початкове зображення";
-"Step %lld of %lld - About %@" = "Крок %lld із %lld - Ще приблизно %@";
 "Steps" = "Кроки";
 "Strength" = "Інтенсивність";
 "Strength controls how closely the generated image resembles the starting image.
