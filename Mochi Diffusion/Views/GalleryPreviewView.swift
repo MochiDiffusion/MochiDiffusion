@@ -12,7 +12,7 @@ struct GalleryPreviewView: View {
     var image: CGImage
 
     var body: some View {
-        ZStack(alignment: .bottom) {
+        ZStack {
             Image(image, scale: 1, label: Text(""))
                 .resizable()
                 .aspectRatio(contentMode: .fit)
@@ -37,6 +37,7 @@ struct GalleryPreviewView: View {
                         .padding(8)
                         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 8))
                 }
+                .aspectRatio(CGFloat(image.width / image.height), contentMode: .fit)
                 .padding(8)
             }
         }
