@@ -11,7 +11,6 @@
 "**CPU & GPU** is compatible with all models and may be faster on M1 Max, Ultra and later, but will use more memory." = "**CPU & GPU** is compatibel met alle modellen en kan sneller zijn met M1 Max, Ultra en later, maar zal meer geheugen gebruiken.";
 "**CPU & Neural Engine** provides a good balance between speed and low memory usage, but only works with split-einsum models." = "**CPU & Neurale Engine** biedt een goede balans tussen snelheid en laag geheugengebruik, maar werkt alleen met split-einsum modellen.";
 "All" = "Alle";
-"Apply" = "Toepassen";
 "Auto (Recommended)" = "Automatisch (aanbevolen)";
 "Autosave & Restore Images" = "Automatisch Opslaan & Afbeeldingen Herstellen";
 "CPU & GPU" = "CPU & GPU";

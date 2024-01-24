@@ -2,7 +2,6 @@
 "CFBundleName" = "Mochi Diffusion";
 "NSHumanReadableCopyright" = "Tekijä: Joshua Park";
 "All" = "Kaikki";
-"Apply" = "Käytä";
 "CPU & GPU" = "CPU & GPU";
 "CPU & Neural Engine" = "CPU & Neural Engine";
 "Check for Updates…" = "Tarkista päivitykset…";

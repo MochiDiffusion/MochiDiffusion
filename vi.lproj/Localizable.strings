@@ -5,7 +5,6 @@
 "**CPU & GPU** is compatible with all models and may be faster on M1 Max, Ultra and later, but will use more memory." = "**CPU & GPU** tương thích với tất cả các kiểu máy và có thể chạy nhanh hơn trên M1 Max, Ultra trở lên, nhưng sẽ sử dụng nhiều bộ nhớ hơn.";
 "**CPU & Neural Engine** provides a good balance between speed and low memory usage, but only works with split-einsum models." = "**CPU & Neural Engine** cung cấp sự cân bằng tốt giữa tốc độ và mức sử dụng bộ nhớ thấp, nhưng chỉ hoạt động với các mô hình chia nhỏ.";
 "All" = "Tất cả";
-"Apply" = "Áp dụng";
 "Auto (Recommended)" = "Tự động (Khuyến khích)";
 "Autosave & Restore Images" = "Tự động lưu & Khôi phục hình ảnh";
 "CPU & Neural Engine" = "CPU & Neural Engine";

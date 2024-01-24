@@ -11,7 +11,6 @@
 "**CPU & GPU** is compatible with all models and may be faster on M1 Max, Ultra and later, but will use more memory." = "A CPU és GPU kompatibilis minden modellel, és gyorsabb lehet az M1 Max, Ultra és későbbi verziókon, de több memóriát fog használni.";
 "**CPU & Neural Engine** provides a good balance between speed and low memory usage, but only works with split-einsum models." = "A CPU és a Neural Engine jó egyensúlyt biztosít a sebesség és az alacsony memóriaigény között, de csak a split-einsum modellekkel működik.";
 "All" = "Összes";
-"Apply" = "Alkalmaz";
 "Auto (Recommended)" = "Automatikus (Javasolt)";
 "Autosave & Restore Images" = "Automatikus mentés & Képek visszatöltése";
 "CPU & GPU" = "CPU & GPU";
