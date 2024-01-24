@@ -52,23 +52,6 @@ struct SettingsView: View {
                         }
                     }
             }
-
-            HStack {
-                Spacer()
-
-                Button {
-                    Task {
-                        NSApplication.shared.keyWindow?.close()
-                        await controller.load()
-                    }
-                } label: {
-                    Text(
-                        "Apply",
-                        comment: "Button to apply the selected settings"
-                    )
-                }
-                .buttonStyle(.borderedProminent)
-            }
         }
         .padding()
         .frame(width: 450, alignment: .top)
