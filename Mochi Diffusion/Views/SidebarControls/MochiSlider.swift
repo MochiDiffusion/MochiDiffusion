@@ -9,7 +9,7 @@ import CompactSlider
 import SwiftUI
 
 struct MochiSlider: View {
-    @EnvironmentObject private var focusCon: FocusController
+    @Environment(FocusController.self) private var focusCon: FocusController
     @Binding var value: Double
     private let bounds: ClosedRange<Double>
     private let step: Double

@@ -9,10 +9,12 @@ import SwiftUI
 
 struct SeedView: View {
     @EnvironmentObject private var controller: ImageController
-    @EnvironmentObject private var focusCon: FocusController
+    @Environment(FocusController.self) private var focusCon: FocusController
     @FocusState private var focused: Bool
 
     var body: some View {
+        @Bindable var focusCon = focusCon
+
         Text("Seed")
             .sidebarLabelFormat()
         HStack {

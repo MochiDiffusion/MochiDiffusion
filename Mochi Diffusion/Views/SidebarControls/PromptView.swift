@@ -78,9 +78,11 @@ struct PromptTextEditor: View {
 struct PromptView: View {
     @EnvironmentObject private var controller: ImageController
     @EnvironmentObject private var generator: ImageGenerator
-    @EnvironmentObject private var focusCon: FocusController
+    @Environment(FocusController.self) private var focusCon: FocusController
 
     var body: some View {
+        @Bindable var focusCon = focusCon
+
         VStack(alignment: .leading, spacing: 6) {
             Text("Include in Image")
                 .sidebarLabelFormat()
@@ -142,5 +144,5 @@ struct PromptView: View {
     PromptView()
         .environmentObject(ImageController.shared)
         .environmentObject(ImageGenerator.shared)
-        .environmentObject(FocusController.shared)
+        .environment(FocusController.shared)
 }

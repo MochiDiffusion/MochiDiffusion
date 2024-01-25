@@ -11,7 +11,7 @@ struct ImageCommands: Commands {
     @ObservedObject var controller: ImageController
     @ObservedObject var generator: ImageGenerator
     var store: ImageStore
-    @ObservedObject var focusController: FocusController
+    var focusController: FocusController
 
     var body: some Commands {
         CommandMenu("Image") {

@@ -8,18 +8,17 @@
 import Foundation
 import SwiftUI
 
-@MainActor
-final class FocusController: ObservableObject {
+@Observable final class FocusController {
 
     static let shared = FocusController()
 
-    @Published var promptFieldIsFocused = false
+    var promptFieldIsFocused = false
 
-    @Published var negativePromptFieldIsFocused = false
+    var negativePromptFieldIsFocused = false
 
-    @Published var seedFieldIsFocused = false
+    var seedFieldIsFocused = false
 
-    @Published var focusedSliderField: UUID?
+    var focusedSliderField: UUID?
 
     var isTextFieldFocused: Bool {
         negativePromptFieldIsFocused || promptFieldIsFocused || seedFieldIsFocused || (focusedSliderField != nil)

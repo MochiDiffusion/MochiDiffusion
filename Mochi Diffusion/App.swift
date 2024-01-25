@@ -15,7 +15,7 @@ struct MochiDiffusionApp: App {
     @StateObject private var controller: ImageController
     @StateObject private var generator: ImageGenerator
     @State private var store: ImageStore
-    @StateObject private var focusCon: FocusController
+    @State private var focusCon: FocusController
     @StateObject private var notificationController: NotificationController
     private let updaterController: SPUStandardUpdaterController
 
@@ -39,7 +39,7 @@ struct MochiDiffusionApp: App {
                 .environmentObject(controller)
                 .environmentObject(generator)
                 .environment(store)
-                .environmentObject(focusCon)
+                .environment(focusCon)
                 .sheet(isPresented: $controller.isLoading) {
                     VStack {
                         ProgressView()
