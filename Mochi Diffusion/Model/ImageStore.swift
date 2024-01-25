@@ -39,12 +39,8 @@ enum ImagesSortType: String {
         }
     }
 
-    @ObservationIgnored
-    @AppStorage("GallerySort")
-    private var _sortType: ImagesSortType = .oldestFirst
-
-    @ObservationIgnored
-    var sortType: ImagesSortType {
+    @ObservationIgnored @AppStorage("GallerySort") private var _sortType: ImagesSortType = .oldestFirst
+    @ObservationIgnored var sortType: ImagesSortType {
         get {
             access(keyPath: \.sortType)
             return _sortType
