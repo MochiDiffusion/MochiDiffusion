@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ImageCommands: Commands {
-    @ObservedObject var controller: ImageController
+    var controller: ImageController
     var generator: ImageGenerator
     var store: ImageStore
     var focusController: FocusController

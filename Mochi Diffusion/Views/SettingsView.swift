@@ -12,7 +12,7 @@ import UniformTypeIdentifiers
 import UserNotifications
 
 struct SettingsView: View {
-    @EnvironmentObject private var controller: ImageController
+    @Environment(ImageController.self) private var controller: ImageController
     @Environment(NotificationController.self) private var notificationController: NotificationController
 
     var body: some View {
@@ -60,6 +60,8 @@ struct SettingsView: View {
 
     @ViewBuilder
     private var generalView: some View {
+        @Bindable var controller = controller
+
         VStack(alignment: .leading, spacing: 16) {
             GroupBox {
                 VStack(alignment: .leading) {
@@ -206,6 +208,8 @@ struct SettingsView: View {
 
     @ViewBuilder
     private var imageView: some View {
+        @Bindable var controller = controller
+
         VStack(alignment: .leading, spacing: 16) {
             GroupBox {
                 VStack(alignment: .leading) {
@@ -318,10 +322,10 @@ struct SettingsView: View {
 
     @ViewBuilder
     private var notificationsView: some View {
-        @Bindable var notificationController = notificationController
-
         VStack(alignment: .leading, spacing: 16) {
             GroupBox {
+                @Bindable var notificationController = notificationController
+
                 VStack(alignment: .leading) {
                     HStack {
                         Text("Send Notifications")
@@ -396,5 +400,5 @@ struct SettingsView: View {
 
 #Preview {
     SettingsView()
-        .environmentObject(ImageController.shared)
+        .environment(ImageController.shared)
 }

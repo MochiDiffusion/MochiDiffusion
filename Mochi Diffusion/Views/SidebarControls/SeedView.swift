@@ -8,11 +8,12 @@
 import SwiftUI
 
 struct SeedView: View {
-    @EnvironmentObject private var controller: ImageController
+    @Environment(ImageController.self) private var controller: ImageController
     @Environment(FocusController.self) private var focusCon: FocusController
     @FocusState private var focused: Bool
 
     var body: some View {
+        @Bindable var controller = controller
         @Bindable var focusCon = focusCon
 
         Text("Seed")
@@ -53,5 +54,5 @@ extension Formatter {
 
 #Preview {
     SeedView()
-        .environmentObject(ImageController.shared)
+        .environment(ImageController.shared)
 }

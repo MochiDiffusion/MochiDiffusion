@@ -9,7 +9,7 @@ import CoreML
 import SwiftUI
 
 struct ControlNetView: View {
-    @EnvironmentObject private var controller: ImageController
+    @Environment(ImageController.self) private var controller: ImageController
 
     var body: some View {
         Text("ControlNet")
@@ -81,5 +81,5 @@ struct ControlNetView: View {
 
 #Preview {
     ControlNetView()
-        .environmentObject(ImageController.shared)
+        .environment(ImageController.shared)
 }

@@ -9,9 +9,11 @@ import CoreML
 import SwiftUI
 
 struct ModelView: View {
-    @EnvironmentObject private var controller: ImageController
+    @Environment(ImageController.self) private var controller: ImageController
 
     var body: some View {
+        @Bindable var controller = controller
+
         Text("Model")
             .sidebarLabelFormat()
         HStack {
@@ -27,5 +29,5 @@ struct ModelView: View {
 
 #Preview {
     ModelView()
-        .environmentObject(ImageController.shared)
+        .environment(ImageController.shared)
 }
