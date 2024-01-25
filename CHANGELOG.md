@@ -1,3 +1,15 @@
+# [v5.0](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v5.0) - 25 Jan 2024
+
+- Added ability to resize Inspector width
+- Removed unnecessary Apply button from Settings window
+- Fixed animation glitch when images are added or removed from the gallery
+- Fixed gallery occasionally incorrectly sorting by Oldest First
+- Fixed missing localization for initial model loading message
+- Updated generation preview UI and show by default
+- Updated system requirements to macOS 14
+  - macOS 14 and later is required to use split-einsum v2 & SDXL models
+- General performance improvements
+
 # [v4.7.1](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v4.7.1) - 02 Jan 2024
 
 - Fixed using slider for countries that use decimal commas ([@haiodo](https://github.com/haiodo))
