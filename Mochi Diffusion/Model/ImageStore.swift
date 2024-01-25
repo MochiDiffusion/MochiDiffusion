@@ -15,8 +15,7 @@ enum ImagesSortType: String {
     static let allValues: [ImagesSortType] = [.oldestFirst, .newestFirst]
 }
 
-@MainActor
-class ImageStore: ObservableObject {
+@Observable public class ImageStore {
 
     static let shared = ImageStore()
 
@@ -27,16 +26,12 @@ class ImageStore: ObservableObject {
         }
     }
 
-    @Published
     private(set) var images: [SDImage] = []
 
-    @Published
     private(set) var currentGeneratingImage: CGImage?
 
-    @Published
     private(set) var selectedId: SDImage.ID?
 
-    @Published
     var searchText: String = "" {
         didSet {
             updateFilteredImages()
@@ -44,10 +39,21 @@ class ImageStore: ObservableObject {
         }
     }
 
+    @ObservationIgnored
     @AppStorage("GallerySort")
-    var sortType: ImagesSortType = .oldestFirst {
-        didSet {
-            updateSortForImages()
+    private var _sortType: ImagesSortType = .oldestFirst
+
+    @ObservationIgnored
+    var sortType: ImagesSortType {
+        get {
+            access(keyPath: \.sortType)
+            return _sortType
+        }
+        set {
+            withMutation(keyPath: \.sortType) {
+                _sortType = newValue
+                updateSortForImages()
+            }
         }
     }
 

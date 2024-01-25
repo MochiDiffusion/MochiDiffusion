@@ -53,7 +53,7 @@ struct InfoGridRow: View {
 }
 
 struct InspectorView: View {
-    @EnvironmentObject private var store: ImageStore
+    @Environment(ImageStore.self) private var store: ImageStore
 
     var body: some View {
         VStack(spacing: 0) {
@@ -251,9 +251,7 @@ extension CGImage {
     }
 }
 
-struct InspectorView_Previews: PreviewProvider {
-    static var previews: some View {
-        InspectorView()
-            .environmentObject(ImageStore.shared)
-    }
+#Preview {
+    InspectorView()
+        .environment(ImageStore.shared)
 }

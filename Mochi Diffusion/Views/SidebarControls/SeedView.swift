@@ -49,9 +49,7 @@ extension Formatter {
     }()
 }
 
-struct SeedView_Previews: PreviewProvider {
-    static var previews: some View {
-        SeedView()
-            .environmentObject(ImageController.shared)
-    }
+#Preview {
+    SeedView()
+        .environmentObject(ImageController.shared)
 }

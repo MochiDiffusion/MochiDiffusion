@@ -19,8 +19,6 @@ struct MessageBanner: View {
     }
 }
 
-struct MessageBanner_Previews: PreviewProvider {
-    static var previews: some View {
-        MessageBanner(message: "Hello world!")
-    }
+#Preview {
+    MessageBanner(message: "Hello world!")
 }

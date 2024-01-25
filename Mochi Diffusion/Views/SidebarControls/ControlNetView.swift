@@ -79,9 +79,7 @@ struct ControlNetView: View {
     }
 }
 
-struct ControlNetView_Previews: PreviewProvider {
-    static var previews: some View {
-        ControlNetView()
-            .environmentObject(ImageController.shared)
-    }
+#Preview {
+    ControlNetView()
+        .environmentObject(ImageController.shared)
 }

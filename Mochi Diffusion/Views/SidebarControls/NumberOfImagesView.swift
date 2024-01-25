@@ -17,9 +17,7 @@ struct NumberOfImagesView: View {
     }
 }
 
-struct NumberOfImagesView_Previews: PreviewProvider {
-    static var previews: some View {
-        NumberOfImagesView()
-            .environmentObject(ImageController.shared)
-    }
+#Preview {
+    NumberOfImagesView()
+        .environmentObject(ImageController.shared)
 }

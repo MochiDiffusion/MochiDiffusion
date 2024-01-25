@@ -80,9 +80,7 @@ struct StartingImageView: View {
     }
 }
 
-struct StartingImageView_Previews: PreviewProvider {
-    static var previews: some View {
-        StartingImageView()
-            .environmentObject(ImageController.shared)
-    }
+#Preview {
+    StartingImageView()
+        .environmentObject(ImageController.shared)
 }

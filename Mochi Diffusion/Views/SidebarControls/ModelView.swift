@@ -25,9 +25,7 @@ struct ModelView: View {
     }
 }
 
-struct ModelView_Previews: PreviewProvider {
-    static var previews: some View {
-        ModelView()
-            .environmentObject(ImageController.shared)
-    }
+#Preview {
+    ModelView()
+        .environmentObject(ImageController.shared)
 }

@@ -138,11 +138,9 @@ struct PromptView: View {
     }
 }
 
-struct PromptView_Previews: PreviewProvider {
-    static var previews: some View {
-        PromptView()
-            .environmentObject(ImageController.shared)
-            .environmentObject(ImageGenerator.shared)
-            .environmentObject(FocusController.shared)
-    }
+#Preview {
+    PromptView()
+        .environmentObject(ImageController.shared)
+        .environmentObject(ImageGenerator.shared)
+        .environmentObject(FocusController.shared)
 }

@@ -84,13 +84,11 @@ struct GalleryItemView: View {
     }
 }
 
-struct UpscalingAnimation_Previews: PreviewProvider {
-    static var previews: some View {
-        VStack {
-            UpscalingAnimationView()
-                .frame(width: 300, height: 300)
-                .border(.selection, width: 5)
-        }
-        .frame(width: 350, height: 350)
+#Preview {
+    VStack {
+        UpscalingAnimationView()
+            .frame(width: 300, height: 300)
+            .border(.selection, width: 5)
     }
+    .frame(width: 350, height: 350)
 }

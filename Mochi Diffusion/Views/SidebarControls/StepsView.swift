@@ -17,9 +17,7 @@ struct StepsView: View {
     }
 }
 
-struct StepsView_Previews: PreviewProvider {
-    static var previews: some View {
-        StepsView()
-            .environmentObject(ImageController.shared)
-    }
+#Preview {
+    StepsView()
+        .environmentObject(ImageController.shared)
 }

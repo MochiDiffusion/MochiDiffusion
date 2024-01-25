@@ -14,7 +14,7 @@ import UserNotifications
 struct MochiDiffusionApp: App {
     @StateObject private var controller: ImageController
     @StateObject private var generator: ImageGenerator
-    @StateObject private var store: ImageStore
+    @State private var store: ImageStore
     @StateObject private var focusCon: FocusController
     @StateObject private var notificationController: NotificationController
     private let updaterController: SPUStandardUpdaterController
@@ -38,7 +38,7 @@ struct MochiDiffusionApp: App {
             AppView()
                 .environmentObject(controller)
                 .environmentObject(generator)
-                .environmentObject(store)
+                .environment(store)
                 .environmentObject(focusCon)
                 .sheet(isPresented: $controller.isLoading) {
                     VStack {

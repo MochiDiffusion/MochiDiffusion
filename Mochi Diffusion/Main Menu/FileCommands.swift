@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct FileCommands: Commands {
-    @ObservedObject var store: ImageStore
+    var store: ImageStore
 
     var body: some Commands {
         CommandGroup(replacing: .saveItem) {

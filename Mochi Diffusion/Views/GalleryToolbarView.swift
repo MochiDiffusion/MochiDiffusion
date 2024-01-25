@@ -10,10 +10,12 @@ import SwiftUI
 struct GalleryToolbarView: View {
     @Binding var isShowingInspector: Bool
     @EnvironmentObject private var generator: ImageGenerator
-    @EnvironmentObject private var store: ImageStore
+    @Environment(ImageStore.self) private var store: ImageStore
     @State private var isStatusPopoverShown = false
 
     var body: some View {
+        @Bindable var store = store
+
         ZStack {
             if case let .running(progress) = generator.state, let progress = progress, progress.stepCount > 0 {
                 let step = progress.step + 1
@@ -175,10 +177,8 @@ struct GalleryToolbarView: View {
     }
 }
 
-struct GalleryToolbarView_Previews: PreviewProvider {
-    static var previews: some View {
-        GalleryToolbarView(isShowingInspector: .constant(true))
-            .environmentObject(ImageGenerator.shared)
-            .environmentObject(ImageStore.shared)
-    }
+#Preview {
+    GalleryToolbarView(isShowingInspector: .constant(true))
+        .environmentObject(ImageGenerator.shared)
+        .environment(ImageStore.shared)
 }

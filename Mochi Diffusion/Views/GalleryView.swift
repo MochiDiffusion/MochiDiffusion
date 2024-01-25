@@ -12,7 +12,7 @@ struct GalleryView: View {
     @Environment(\.colorScheme) private var colorScheme
 
     @EnvironmentObject private var generator: ImageGenerator
-    @EnvironmentObject private var store: ImageStore
+    @Environment(ImageStore.self) private var store: ImageStore
 
     private let gridColumns = [GridItem(.adaptive(minimum: 200), spacing: 16)]
 

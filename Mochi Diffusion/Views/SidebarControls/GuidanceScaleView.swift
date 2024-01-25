@@ -17,9 +17,7 @@ struct GuidanceScaleView: View {
     }
 }
 
-struct GuidanceScaleView_Previews: PreviewProvider {
-    static var previews: some View {
-        GuidanceScaleView()
-            .environmentObject(ImageController.shared)
-    }
+#Preview {
+    GuidanceScaleView()
+        .environmentObject(ImageController.shared)
 }

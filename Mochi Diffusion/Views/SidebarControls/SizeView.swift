@@ -43,9 +43,7 @@ struct SizeView: View {
     }
 }
 
-struct SizeView_Previews: PreviewProvider {
-    static var previews: some View {
-        SizeView()
-            .environmentObject(ImageController.shared)
-    }
+#Preview {
+    SizeView()
+        .environmentObject(ImageController.shared)
 }

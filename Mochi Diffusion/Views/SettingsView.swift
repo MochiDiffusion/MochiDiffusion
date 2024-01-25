@@ -392,9 +392,7 @@ struct SettingsView: View {
     }
 }
 
-struct SettingsView_Previews: PreviewProvider {
-    static var previews: some View {
-        SettingsView()
-            .environmentObject(ImageController.shared)
-    }
+#Preview {
+    SettingsView()
+        .environmentObject(ImageController.shared)
 }

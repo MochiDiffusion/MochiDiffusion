@@ -230,9 +230,9 @@ class ImageGenerator: ObservableObject {
 
                 Task {
                     if config.pipelineConfig.useDenoisedIntermediates, let currentImage = progress.currentImages.last {
-                        await ImageStore.shared.setCurrentGenerating(image: currentImage)
+                        ImageStore.shared.setCurrentGenerating(image: currentImage)
                     } else {
-                        await ImageStore.shared.setCurrentGenerating(image: nil)
+                        ImageStore.shared.setCurrentGenerating(image: nil)
                     }
                 }
 
@@ -259,14 +259,14 @@ class ImageGenerator: ObservableObject {
 
                 if config.autosaveImages && !config.imageDir.isEmpty {
                     var pathURL = URL(fileURLWithPath: config.imageDir, isDirectory: true)
-                    let count = await ImageStore.shared.images.endIndex + 1
+                    let count = ImageStore.shared.images.endIndex + 1
                     pathURL.append(path: sdi.filenameWithoutExtension(count: count))
 
                     let type = UTType.fromString(config.imageType)
                     guard let path = await sdi.save(pathURL, type: type) else { continue }
                     sdi.path = path.path(percentEncoded: false)
                 }
-                await ImageStore.shared.add(sdi)
+                ImageStore.shared.add(sdi)
             }
             config.pipelineConfig.seed += 1
         }
