@@ -8,7 +8,7 @@
 import Foundation
 import SwiftUI
 
-@Observable final class FocusController {
+@Observable public final class FocusController {
 
     static let shared = FocusController()
 

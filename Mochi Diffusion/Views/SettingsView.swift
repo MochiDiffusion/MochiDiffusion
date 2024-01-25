@@ -13,7 +13,7 @@ import UserNotifications
 
 struct SettingsView: View {
     @EnvironmentObject private var controller: ImageController
-    @EnvironmentObject private var notificationController: NotificationController
+    @Environment(NotificationController.self) private var notificationController: NotificationController
 
     var body: some View {
         VStack(spacing: 16) {
@@ -318,6 +318,8 @@ struct SettingsView: View {
 
     @ViewBuilder
     private var notificationsView: some View {
+        @Bindable var notificationController = notificationController
+
         VStack(alignment: .leading, spacing: 16) {
             GroupBox {
                 VStack(alignment: .leading) {

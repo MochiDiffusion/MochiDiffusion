@@ -16,7 +16,7 @@ struct MochiDiffusionApp: App {
     @StateObject private var generator: ImageGenerator
     @State private var store: ImageStore
     @State private var focusCon: FocusController
-    @StateObject private var notificationController: NotificationController
+    @State private var notificationController: NotificationController
     private let updaterController: SPUStandardUpdaterController
 
     init() {
@@ -70,7 +70,7 @@ struct MochiDiffusionApp: App {
         Settings {
             SettingsView()
                 .environmentObject(controller)
-                .environmentObject(notificationController)
+                .environment(notificationController)
         }
     }
 }

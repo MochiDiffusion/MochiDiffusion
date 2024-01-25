@@ -15,7 +15,7 @@ enum ImagesSortType: String {
     static let allValues: [ImagesSortType] = [.oldestFirst, .newestFirst]
 }
 
-@Observable public class ImageStore {
+@Observable public final class ImageStore {
 
     static let shared = ImageStore()
 

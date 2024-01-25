@@ -9,12 +9,43 @@ import Foundation
 import SwiftUI
 import UserNotifications
 
-/// Singleton class to manage all UNUserNotificationCenter interactions
-class NotificationController: ObservableObject {
+@Observable public final class NotificationController {
     static let shared = NotificationController()
-    @Published var authStatus: UNAuthorizationStatus = .notDetermined
-    @AppStorage("SendNotification") var sendNotification = true
-    @AppStorage("PlayNotificationSound") var playNotificationSound = true
+    var authStatus: UNAuthorizationStatus = .notDetermined
+
+    @ObservationIgnored
+    @AppStorage("SendNotification")
+    private var _sendNotification = true
+
+    @ObservationIgnored
+    var sendNotification: Bool {
+        get {
+            access(keyPath: \.sendNotification)
+            return _sendNotification
+        }
+        set {
+            withMutation(keyPath: \.sendNotification) {
+                _sendNotification = newValue
+            }
+        }
+    }
+
+    @ObservationIgnored
+    @AppStorage("PlayNotificationSound")
+    private var _playNotificationSound = true
+
+    @ObservationIgnored
+    var playNotificationSound: Bool {
+        get {
+            access(keyPath: \.playNotificationSound)
+            return _playNotificationSound
+        }
+        set {
+            withMutation(keyPath: \.playNotificationSound) {
+                _playNotificationSound = newValue
+            }
+        }
+    }
 
     private let notificationCenter = UNUserNotificationCenter.current()
     private static let queueEmptyNotificationId = "queueEmpty"
