@@ -5,6 +5,36 @@
     <language>en</language>
 
     <item>
+      <title>v5.0</title>
+      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <sparkle:version>5.0</sparkle:version>
+      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <pubDate>Thu, 25 Jan 2024 20:50:46 +0000</pubDate>
+      <enclosure
+        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v5.0/MochiDiffusion_v5.0.dmg"
+        sparkle:edSignature="INLyZo3YOVi1HIYrsaCoJTD3Q168WlHU/sjS8ytWx87390ulQcJnaDWKuX/RK0xlVBghRDQ3yKqBlhG5U0BcCA=="
+        length="67061540"
+        type="application/octet-stream" />
+      <description><![CDATA[
+      <ul>
+      <li>Added ability to resize Inspector width</li>
+      <li>Removed unnecessary Apply button from Settings window</li>
+      <li>Fixed animation glitch when images are added or removed from the gallery</li>
+      <li>Fixed gallery occasionally incorrectly sorting by Oldest First</li>
+      <li>Fixed missing localization for initial model loading message</li>
+      <li>Updated generation preview UI and show by default</li>
+      <li>Updated system requirements to macOS 14<ul>
+      <li>macOS 14 and later is required to use split-einsum v2 &amp; SDXL models</li>
+      </ul>
+      </li>
+      <li>General performance improvements</li>
+      </ul>
+      ]]>
+      </description>
+    </item>
+
+    <item>
       <title>v4.7.1</title>
       <link>https://github.com/godly-devotion/MochiDiffusion</link>
       <sparkle:version>4.7.1</sparkle:version>
