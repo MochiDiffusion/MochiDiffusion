@@ -26,7 +26,7 @@ struct GenerationConfig: Sendable, Identifiable {
     var controlNets: [String]
 }
 
-class ImageGenerator: ObservableObject {
+@Observable public final class ImageGenerator {
 
     static let shared = ImageGenerator()
 
@@ -46,8 +46,6 @@ class ImageGenerator: ObservableObject {
         case running(StableDiffusionProgress?)
     }
 
-    @MainActor
-    @Published
     private(set) var state = State.ready(nil)
 
     struct QueueProgress: Sendable {
@@ -55,8 +53,6 @@ class ImageGenerator: ObservableObject {
         var total = 0
     }
 
-    @MainActor
-    @Published
     private(set) var queueProgress = QueueProgress(index: 0, total: 0)
 
     private var pipeline: (any StableDiffusionPipelineProtocol)?
@@ -65,7 +61,6 @@ class ImageGenerator: ObservableObject {
 
     private var generationStopped = false
 
-    @Published
     private(set) var lastStepGenerationElapsedTime: Double?
 
     private var generationStartTime: DispatchTime?

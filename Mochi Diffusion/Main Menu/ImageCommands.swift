@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ImageCommands: Commands {
     @ObservedObject var controller: ImageController
-    @ObservedObject var generator: ImageGenerator
+    var generator: ImageGenerator
     var store: ImageStore
     var focusController: FocusController
 

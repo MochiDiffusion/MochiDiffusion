@@ -9,7 +9,7 @@ import CoreML
 import SwiftUI
 
 struct JobQueueView: View {
-    @EnvironmentObject private var generator: ImageGenerator
+    @Environment(ImageGenerator.self) private var generator: ImageGenerator
     @EnvironmentObject private var controller: ImageController
 
     @State private var progressData: (Double, String)?

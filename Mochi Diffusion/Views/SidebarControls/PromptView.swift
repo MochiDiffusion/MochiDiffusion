@@ -17,7 +17,7 @@ struct PromptTextEditor: View {
 
     @FocusState private var focused: Bool
 
-    @EnvironmentObject private var generator: ImageGenerator
+    @Environment(ImageGenerator.self) private var generator: ImageGenerator
 
     private let tokenLimit = 75
 
@@ -77,7 +77,7 @@ struct PromptTextEditor: View {
 
 struct PromptView: View {
     @EnvironmentObject private var controller: ImageController
-    @EnvironmentObject private var generator: ImageGenerator
+    @Environment(ImageGenerator.self) private var generator: ImageGenerator
     @Environment(FocusController.self) private var focusCon: FocusController
 
     var body: some View {
@@ -143,6 +143,6 @@ struct PromptView: View {
 #Preview {
     PromptView()
         .environmentObject(ImageController.shared)
-        .environmentObject(ImageGenerator.shared)
+        .environment(ImageGenerator.shared)
         .environment(FocusController.shared)
 }

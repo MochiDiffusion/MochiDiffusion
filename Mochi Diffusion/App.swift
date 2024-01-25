@@ -13,7 +13,7 @@ import UserNotifications
 @main
 struct MochiDiffusionApp: App {
     @StateObject private var controller: ImageController
-    @StateObject private var generator: ImageGenerator
+    @State private var generator: ImageGenerator
     @State private var store: ImageStore
     @State private var focusCon: FocusController
     @State private var notificationController: NotificationController
@@ -37,7 +37,7 @@ struct MochiDiffusionApp: App {
         Window("Mochi Diffusion", id: "main") {
             AppView()
                 .environmentObject(controller)
-                .environmentObject(generator)
+                .environment(generator)
                 .environment(store)
                 .environment(focusCon)
                 .sheet(isPresented: $controller.isLoading) {

@@ -9,7 +9,7 @@ import SwiftUI
 
 struct GalleryToolbarView: View {
     @Binding var isShowingInspector: Bool
-    @EnvironmentObject private var generator: ImageGenerator
+    @Environment(ImageGenerator.self) private var generator: ImageGenerator
     @Environment(ImageStore.self) private var store: ImageStore
     @State private var isStatusPopoverShown = false
 
@@ -179,6 +179,6 @@ struct GalleryToolbarView: View {
 
 #Preview {
     GalleryToolbarView(isShowingInspector: .constant(true))
-        .environmentObject(ImageGenerator.shared)
+        .environment(ImageGenerator.shared)
         .environment(ImageStore.shared)
 }

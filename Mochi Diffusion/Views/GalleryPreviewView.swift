@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct GalleryPreviewView: View {
-    @EnvironmentObject private var generator: ImageGenerator
+    @Environment(ImageGenerator.self) private var generator: ImageGenerator
     var image: CGImage
 
     var body: some View {

@@ -10,8 +10,7 @@ import SwiftUI
 struct GalleryView: View {
 
     @Environment(\.colorScheme) private var colorScheme
-
-    @EnvironmentObject private var generator: ImageGenerator
+    @Environment(ImageGenerator.self) private var generator: ImageGenerator
     @Environment(ImageStore.self) private var store: ImageStore
 
     private let gridColumns = [GridItem(.adaptive(minimum: 200), spacing: 16)]
