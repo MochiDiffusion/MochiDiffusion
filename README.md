@@ -37,7 +37,7 @@
 
 ## Downloads
 
-Download the latest version from the [releases](https://github.com/godly-devotion/MochiDiffusion/releases) page.
+[Download the latest version](https://github.com/godly-devotion/MochiDiffusion/releases).
 
 [Download community models](https://huggingface.co/coreml-community#models).
 
