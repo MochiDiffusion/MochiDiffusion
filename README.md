@@ -20,12 +20,9 @@
 
 ![Screenshot](.github/images/screenshot.png)
 
-## Description
-
-This app uses [Apple's Core ML Stable Diffusion implementation](https://github.com/apple/ml-stable-diffusion) to achieve maximum performance and speed on Apple Silicon based Macs while reducing memory requirements.
-
 ## Features
 
+- App uses [Apple's Core ML Stable Diffusion implementation](https://github.com/apple/ml-stable-diffusion) to achieve maximum performance and speed on Apple Silicon based Macs while reducing memory requirements
 - Extremely fast and memory efficient (~150MB with Neural Engine)
 - Runs well on all Apple Silicon Macs by fully utilizing Neural Engine
 - Generate images locally and completely offline
