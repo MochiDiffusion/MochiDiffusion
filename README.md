@@ -39,10 +39,6 @@
 
 Download the latest version from the [releases](https://github.com/godly-devotion/MochiDiffusion/releases) page.
 
-## Running
-
-When using a model for the very first time, it may take up to 2 minutes for the Neural Engine to compile a cached version. Afterwards, subsequent generations will be much faster.
-
 ## Compute Unit
 
 - `CPU & Neural Engine` provides a good balance between speed and low memory usage
@@ -52,9 +48,15 @@ Depending on the option chosen, you will need to use the correct model version (
 
 ## Models
 
-You will need to convert or download Core ML models in order to use Mochi Diffusion.
+[Download community models](https://huggingface.co/coreml-community#models).
 
-A few models have been converted and uploaded [here](https://huggingface.co/coreml-community).
+[Download ControlNet models](https://huggingface.co/coreml-community/ControlNet-Models-For-Core-ML/tree/main/CN).
+
+When using a model for the very first time, it may take up to 2 minutes for the Neural Engine to compile a cached version. Afterwards, subsequent generations will be much faster.
+
+### Manual
+
+You will need to convert or download Core ML models in order to use Mochi Diffusion.
 
 1. [Convert](https://github.com/godly-devotion/MochiDiffusion/wiki/How-to-convert-Stable-Diffusion-models-to-Core-ML) or download Core ML models
     - `split_einsum` version is compatible with all compute unit options including Neural Engine
