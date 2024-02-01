@@ -37,11 +37,11 @@
 
 ## Downloads
 
-[Download the latest version](https://github.com/godly-devotion/MochiDiffusion/releases).
+[Latest version](https://github.com/godly-devotion/MochiDiffusion/releases)
 
-[Download community models](https://huggingface.co/coreml-community#models).
+[Community models](https://huggingface.co/coreml-community#models)
 
-[Download ControlNet models](https://huggingface.co/coreml-community/ControlNet-Models-For-Core-ML/tree/main/CN).
+[ControlNet models](https://huggingface.co/coreml-community/ControlNet-Models-For-Core-ML/tree/main/CN)
 
 When using a model for the very first time, it may take up to 2 minutes for the Neural Engine to compile a cached version. Afterwards, subsequent generations will be much faster.
 
