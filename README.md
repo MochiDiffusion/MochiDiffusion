@@ -35,9 +35,15 @@
 - No worries about pickled models
 - macOS native app using SwiftUI
 
-## Releases
+## Downloads
 
 Download the latest version from the [releases](https://github.com/godly-devotion/MochiDiffusion/releases) page.
+
+[Download community models](https://huggingface.co/coreml-community#models).
+
+[Download ControlNet models](https://huggingface.co/coreml-community/ControlNet-Models-For-Core-ML/tree/main/CN).
+
+When using a model for the very first time, it may take up to 2 minutes for the Neural Engine to compile a cached version. Afterwards, subsequent generations will be much faster.
 
 ## Compute Unit
 
@@ -47,14 +53,6 @@ Download the latest version from the [releases](https://github.com/godly-devotio
 Depending on the option chosen, you will need to use the correct model version (see Models section for details).
 
 ## Models
-
-[Download community models](https://huggingface.co/coreml-community#models).
-
-[Download ControlNet models](https://huggingface.co/coreml-community/ControlNet-Models-For-Core-ML/tree/main/CN).
-
-When using a model for the very first time, it may take up to 2 minutes for the Neural Engine to compile a cached version. Afterwards, subsequent generations will be much faster.
-
-### Manual
 
 You will need to convert or download Core ML models in order to use Mochi Diffusion.
 
