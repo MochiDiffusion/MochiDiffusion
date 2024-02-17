@@ -6,7 +6,7 @@
 //
 
 import CoreML
-import StableDiffusion
+import GuernikaKit
 import SwiftUI
 
 struct InfoGridRow: View {

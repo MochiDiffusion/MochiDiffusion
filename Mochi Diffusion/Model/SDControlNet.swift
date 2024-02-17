@@ -49,7 +49,7 @@ private func identifyControlNetSize(_ url: URL) -> CGSize? {
         return nil
     }
 
-    guard let controlnetCond = inputSchema.first(where: { ($0["name"] as? String) == "controlnet_cond" }) else {
+    guard let controlnetCond = inputSchema.first(where: { ($0["name"] as? String) == "controlnet_cond" }) ?? inputSchema.first(where: { ($0["name"] as? String) == "input" }) else {
         print("Error: 'controlnet_cond' not found in 'inputSchema'")
         return nil
     }

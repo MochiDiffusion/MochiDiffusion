@@ -18,17 +18,17 @@ struct GalleryPreviewView: View {
                 .aspectRatio(contentMode: .fit)
             if case let .running(progress) = generator.state, let progress = progress, progress.stepCount > 0 {
                 let step = progress.step + 1
-                let stepValue = Double(step) / Double(progress.stepCount)
+                let stepValue = Double(step) / Double(progress.stepCount + 1)
 
                 let progressLabel = String(
-                    localized: "About \(formatTimeRemaining(generator.lastStepGenerationElapsedTime, stepsLeft: progress.stepCount - step))",
+                    localized: "About \(formatTimeRemaining(generator.lastStepGenerationElapsedTime, stepsLeft: progress.stepCount - step + 1))",
                     comment: "Text displaying the current time remaining"
                 )
 
                 VStack(alignment: .leading) {
                     HStack {
                         Spacer()
-                        Text(verbatim: "\(step)/\(progress.stepCount)")
+                        Text(verbatim: "\(step)/\(progress.stepCount + 1)")
                             .padding(6)
                             .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 4))
                     }

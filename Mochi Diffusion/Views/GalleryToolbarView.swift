@@ -19,7 +19,7 @@ struct GalleryToolbarView: View {
         ZStack {
             if case let .running(progress) = generator.state, let progress = progress, progress.stepCount > 0 {
                 let step = progress.step + 1
-                let stepValue = Double(step) / Double(progress.stepCount)
+                let stepValue = Double(step) / Double(progress.stepCount + 1)
 
                 Button {
                     self.isStatusPopoverShown.toggle()

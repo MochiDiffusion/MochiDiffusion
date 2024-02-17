@@ -10,12 +10,12 @@
       }
     },
     {
-      "identity" : "ml-stable-diffusion",
+      "identity" : "guernikakit",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/ml-stable-diffusion",
+      "location" : "https://github.com/GuernikaCore/GuernikaKit.git",
       "state" : {
-        "branch" : "main",
-        "revision" : "d456a972cd7d84cab2ec353a29896d59b8602248"
+        "revision" : "2c1ce26535279b309149acba47ae65e6a9394cb5",
+        "version" : "1.5.0"
       }
     },
     {
@@ -28,21 +28,30 @@
       }
     },
     {
+      "identity" : "randomgenerator",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/GuernikaCore/RandomGenerator.git",
+      "state" : {
+        "revision" : "7c91e2f454ecc753075a526cf5ffc34d3c4a10c5",
+        "version" : "1.0.0"
+      }
+    },
+    {
+      "identity" : "schedulers",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/GuernikaCore/Schedulers.git",
+      "state" : {
+        "revision" : "5e6ab9fa91aa56fc34edc6bae9de1caa7f13deb8",
+        "version" : "1.2.0"
+      }
+    },
+    {
       "identity" : "sparkle",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/sparkle-project/Sparkle",
       "state" : {
         "revision" : "47d3d90aee3c52b6f61d04ceae426e607df62347",
         "version" : "2.5.2"
-      }
-    },
-    {
-      "identity" : "swift-argument-parser",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-argument-parser.git",
-      "state" : {
-        "revision" : "fddd1c00396eed152c45a46bea9f47b98e59301d",
-        "version" : "1.2.0"
       }
     }
   ],

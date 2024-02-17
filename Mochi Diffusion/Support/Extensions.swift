@@ -7,7 +7,7 @@
 
 import CompactSlider
 import CoreML
-import StableDiffusion
+import GuernikaKit
 import SwiftUI
 import UniformTypeIdentifiers
 

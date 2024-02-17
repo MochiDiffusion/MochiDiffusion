@@ -6,23 +6,23 @@
 //
 
 import Foundation
-import StableDiffusion
+import GuernikaKit
 
 final class Tokenizer {
     private let bpeTokenizer: BPETokenizer
 
     init?(modelDir: URL) {
-        let mergesURL = modelDir.appendingPathComponent("merges.txt", conformingTo: .url)
-        let vocabURL = modelDir.appendingPathComponent("vocab.json", conformingTo: .url)
+        let mergesURL = modelDir.appendingPathComponent("TextEncoder.mlmodelc/merges.txt", conformingTo: .url)
+        let vocabURL = modelDir.appendingPathComponent("TextEncoder.mlmodelc/vocab.json", conformingTo: .url)
 
         do {
-            try self.bpeTokenizer = BPETokenizer(mergesAt: mergesURL, vocabularyAt: vocabURL)
+            try self.bpeTokenizer = BPETokenizer(mergesUrl: mergesURL, vocabularyUrl: vocabURL, addedVocabUrl: nil)
         } catch {
             return nil
         }
     }
 
     func countTokens(_ inString: String) -> Int {
-        bpeTokenizer.tokenize(input: inString).0.count
+        bpeTokenizer.tokenize(inString).0.count
     }
 }

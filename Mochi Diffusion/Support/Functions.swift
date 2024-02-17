@@ -9,7 +9,7 @@ import AppKit
 import CoreGraphics
 import CoreML
 import Foundation
-import StableDiffusion
+import GuernikaKit
 import UniformTypeIdentifiers
 
 func compareVersion(_ thisVersion: String, _ compareTo: String) -> ComparisonResult {

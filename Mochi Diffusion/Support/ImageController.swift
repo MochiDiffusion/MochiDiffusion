@@ -8,11 +8,11 @@
 import CoreML
 import Foundation
 import os
-import StableDiffusion
+import GuernikaKit
 import SwiftUI
 import UniformTypeIdentifiers
 
-typealias StableDiffusionProgress = StableDiffusionPipeline.Progress
+typealias StableDiffusionProgress = DiffusionProgress
 
 enum ComputeUnitPreference: String {
     case auto
@@ -109,11 +109,11 @@ final class ImageController: ObservableObject {
     @AppStorage("Prompt") var prompt = ""
     @AppStorage("NegativePrompt") var negativePrompt = ""
     @AppStorage("ImageStrength") var strength = 0.75
-    @AppStorage("Steps") var steps = 12.0
-    @AppStorage("Scale") var guidanceScale = 11.0
+    @AppStorage("Steps") var steps = 15.0
+    @AppStorage("Scale") var guidanceScale = 5.0
     @AppStorage("ImageWidth") var width = 512
     @AppStorage("ImageHeight") var height = 512
-    @AppStorage("Scheduler") var scheduler: Scheduler = .dpmSolverMultistepScheduler
+    @AppStorage("Scheduler") var scheduler: Scheduler = .dpmSolverMultistepKarras
     @AppStorage("UpscaleGeneratedImages") var upscaleGeneratedImages = false
     @AppStorage("ShowGenerationPreview") var showGenerationPreview = true
     @AppStorage("MLComputeUnitPreference") var mlComputeUnitPreference: ComputeUnitPreference = .auto
@@ -255,23 +255,35 @@ final class ImageController: ObservableObject {
             return
         }
 
-        var pipelineConfig = StableDiffusionPipeline.Configuration(prompt: prompt)
+        var pipelineConfig = SampleInput(prompt: prompt)
         pipelineConfig.negativePrompt = negativePrompt
         if let size = currentModel?.inputSize {
-            pipelineConfig.startingImage = startingImage?.scaledAndCroppedTo(size: size)
+            pipelineConfig.initImage = startingImage?.scaledAndCroppedTo(size: size)
+        }
+        if startingImage == nil && currentControlNets.isEmpty{
+            strength = 1.0
         }
         pipelineConfig.strength = Float(strength)
         pipelineConfig.stepCount = Int(steps)
         pipelineConfig.seed = seed
+        pipelineConfig.originalStepCount = 50
         pipelineConfig.guidanceScale = Float(guidanceScale)
-        pipelineConfig.disableSafety = !safetyChecker
-        pipelineConfig.schedulerType = convertScheduler(scheduler)
+        pipelineConfig.scheduler = convertScheduler(scheduler)
         for controlNet in currentControlNets {
-            if controlNet.name != nil, let size = currentModel?.inputSize, let image = controlNet.image?.scaledAndCroppedTo(size: size) {
-                pipelineConfig.controlNetInputs.append(image)
+            if controlNet.name != nil, let size = model.inputSize, let image = controlNet.image?.scaledAndCroppedTo(size: size) {
+                if ImageGenerator.shared.pipeline?.supportsControlNet == true{
+                    let c = try? ControlNet(modelAt: URL(fileURLWithPath: controlNetDir + controlNet.name! + ".mlmodelc"))
+                    let cinput = ConditioningInput.init(module: c!)
+                    cinput.image = image
+                    ImageGenerator.shared.pipeline?.conditioningInput = [cinput]
+                }else{
+                    let a = try? T2IAdapter(modelAt: URL(fileURLWithPath: controlNetDir + controlNet.name! + ".mlmodelc"))
+                    let ainput = ConditioningInput.init(module: a!)
+                    ainput.image = image
+                    ImageGenerator.shared.pipeline?.conditioningInput = [ainput]
+                }
             }
         }
-        pipelineConfig.useDenoisedIntermediates = showGenerationPreview
 
         let genConfig = GenerationConfig(
             pipelineConfig: pipelineConfig,
@@ -313,12 +325,6 @@ final class ImageController: ObservableObject {
             } catch ImageGenerator.GeneratorError.pipelineNotAvailable {
                 self.logger.error("Pipeline is not available.")
                 await ImageGenerator.shared.updateState(.ready("There was a problem loading pipeline."))
-            } catch PipelineError.startingImageProvidedWithoutEncoder {
-                self.logger.error("The selected model does not support setting a starting image.")
-                await ImageGenerator.shared.updateState(.ready("The selected model does not support setting a starting image."))
-            } catch Encoder.Error.sampleInputShapeNotCorrect {
-                self.logger.error("The starting image size doesn't match the size of the image that will be generated.")
-                await ImageGenerator.shared.updateState(.ready("The starting image size doesn't match the size of the image that will be generated."))
             } catch {
                 self.logger.error("There was a problem generating images: \(error)")
                 await ImageGenerator.shared.updateState(.error("There was a problem generating images: \(error)"))
