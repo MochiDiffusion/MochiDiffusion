@@ -23,7 +23,7 @@ jobs:
 
       - name: Run SwiftLint
         run: |
-          /usr/local/bin/swiftlint lint
+          /opt/homebrew/bin/swiftlint lint
 
       - name: Build and Analyze
         run: >
