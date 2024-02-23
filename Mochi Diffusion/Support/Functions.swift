@@ -9,7 +9,6 @@ import AppKit
 import CoreGraphics
 import CoreML
 import Foundation
-import GuernikaKit
 import UniformTypeIdentifiers
 
 func compareVersion(_ thisVersion: String, _ compareTo: String) -> ComparisonResult {
