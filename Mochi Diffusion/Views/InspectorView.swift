@@ -6,7 +6,6 @@
 //
 
 import CoreML
-import GuernikaKit
 import SwiftUI
 
 struct InfoGridRow: View {
