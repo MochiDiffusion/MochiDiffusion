@@ -7,7 +7,6 @@
 
 import CompactSlider
 import CoreML
-import GuernikaKit
 import SwiftUI
 import UniformTypeIdentifiers
 

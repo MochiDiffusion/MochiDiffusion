@@ -17,7 +17,7 @@ struct SDModel: Identifiable {
     let attention: SDModelAttentionType
     let controlNet: [String]
     let isXL: Bool
-    let inputSize: CGSize?
+    var inputSize: CGSize?
 
     var id: URL { url }
 
@@ -103,8 +103,7 @@ private func identifyIfXL(_ url: URL) -> Bool {
 private func unetMetadataURL(from url: URL) -> URL? {
     let potentialMetadataURLs = [
         url.appending(components: "Unet.mlmodelc", "metadata.json"),
-        url.appending(components: "UnetChunk1.mlmodelc", "metadata.json"),
-        url.appending(components: "ControlledUnet.mlmodelc", "metadata.json")
+        url.appending(components: "UnetChunk1.mlmodelc", "metadata.json")
     ]
 
     return potentialMetadataURLs.first {
@@ -113,11 +112,11 @@ private func unetMetadataURL(from url: URL) -> URL? {
 }
 
 private func identifyInputSize(_ url: URL) -> CGSize? {
-    let encoderMetadataURL = url.appending(path: "VAEEncoder.mlmodelc").appending(path: "metadata.json")
+    let encoderMetadataURL = url.appending(path: "VAEDecoder.mlmodelc").appending(path: "metadata.json")
     if let jsonData = try? Data(contentsOf: encoderMetadataURL),
         let jsonArray = try? JSONSerialization.jsonObject(with: jsonData) as? [[String: Any]],
         let jsonItem = jsonArray.first,
-        let inputSchema = jsonItem["inputSchema"] as? [[String: Any]],
+        let inputSchema = jsonItem["outputSchema"] as? [[String: Any]],
         let controlnetCond = inputSchema.first,
         let shapeString = controlnetCond["shape"] as? String {
         let shapeIntArray = shapeString.trimmingCharacters(in: CharacterSet(charactersIn: "[]"))

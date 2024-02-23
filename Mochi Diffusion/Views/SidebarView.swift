@@ -24,6 +24,10 @@ struct SidebarView: View {
                     Spacer().frame(height: 6)
                 }
                 Group {
+                    SizeView()
+                    Spacer().frame(height: 6)
+                }
+                Group {
                     NumberOfImagesView()
                     Spacer().frame(height: 6)
                 }

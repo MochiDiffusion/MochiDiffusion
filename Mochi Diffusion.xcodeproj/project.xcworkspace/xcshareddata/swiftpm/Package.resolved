@@ -14,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/GuernikaCore/GuernikaKit.git",
       "state" : {
-        "revision" : "2c1ce26535279b309149acba47ae65e6a9394cb5",
-        "version" : "1.5.0"
+        "revision" : "dae44bf061ffa84df7f882cb563070d484488e44",
+        "version" : "1.6.0"
       }
     },
     {
@@ -41,14 +41,14 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/GuernikaCore/Schedulers.git",
       "state" : {
-        "revision" : "5e6ab9fa91aa56fc34edc6bae9de1caa7f13deb8",
-        "version" : "1.2.0"
+        "revision" : "1f517514d679e38bb9915c3a74bf04f75d5b5875",
+        "version" : "1.4.0"
       }
     },
     {
       "identity" : "sparkle",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/sparkle-project/Sparkle",
+      "location" : "https://github.com/sparkle-project/Sparkle.git",
       "state" : {
         "revision" : "47d3d90aee3c52b6f61d04ceae426e607df62347",
         "version" : "2.5.2"

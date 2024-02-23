@@ -78,7 +78,7 @@ struct GalleryView: View {
                                 RoundedRectangle(cornerRadius: 2)
                                     .stroke(
                                         store.selectedId == sdi.id ? Color.accentColor : Color(nsColor: .controlBackgroundColor),
-                                        lineWidth: 4
+                                        lineWidth: 2
                                     )
                             )
                             .gesture(TapGesture(count: 2).onEnded {

@@ -58,6 +58,9 @@ final class ImageController: ObservableObject {
 
     @Published
     var startingImage: CGImage?
+    
+    @Published
+    var maskImage: CGImage?
 
     @Published
     var numberOfImages = 1.0
@@ -257,12 +260,16 @@ final class ImageController: ObservableObject {
 
         var pipelineConfig = SampleInput(prompt: prompt)
         pipelineConfig.negativePrompt = negativePrompt
-        if let size = currentModel?.inputSize {
-            pipelineConfig.initImage = startingImage?.scaledAndCroppedTo(size: size)
+        pipelineConfig.size = CGSize(width: ImageController.shared.width, height: ImageController.shared.height)
+        
+        if let size = pipelineConfig.size, startingImage != nil{
+           pipelineConfig.initImage = startingImage?.scaledAndCroppedTo(size: size)
+            pipelineConfig.inpaintMask = maskImage?.scaledAndCroppedTo(size: size)
         }
         if startingImage == nil && currentControlNets.isEmpty{
             strength = 1.0
         }
+        
         pipelineConfig.strength = Float(strength)
         pipelineConfig.stepCount = Int(steps)
         pipelineConfig.seed = seed
@@ -270,7 +277,7 @@ final class ImageController: ObservableObject {
         pipelineConfig.guidanceScale = Float(guidanceScale)
         pipelineConfig.scheduler = convertScheduler(scheduler)
         for controlNet in currentControlNets {
-            if controlNet.name != nil, let size = model.inputSize, let image = controlNet.image?.scaledAndCroppedTo(size: size) {
+            if controlNet.name != nil, let size = pipelineConfig.size, let image = controlNet.image?.scaledAndCroppedTo(size: size) {
                 if ImageGenerator.shared.pipeline?.supportsControlNet == true{
                     let c = try? ControlNet(modelAt: URL(fileURLWithPath: controlNetDir + controlNet.name! + ".mlmodelc"))
                     let cinput = ConditioningInput.init(module: c!)

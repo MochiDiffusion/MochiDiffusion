@@ -16,6 +16,7 @@ struct GalleryPreviewView: View {
             Image(image, scale: 1, label: Text(""))
                 .resizable()
                 .aspectRatio(contentMode: .fit)
+                .frame(width: 200, height: 200)
             if case let .running(progress) = generator.state, let progress = progress, progress.stepCount > 0 {
                 let step = progress.step + 1
                 let stepValue = Double(step) / Double(progress.stepCount + 1)
@@ -37,7 +38,7 @@ struct GalleryPreviewView: View {
                         .padding(8)
                         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 8))
                 }
-                .aspectRatio(CGFloat(image.width / image.height), contentMode: .fit)
+//                .aspectRatio(CGFloat(image.width / image.height), contentMode: .fit)
                 .padding(8)
             }
         }

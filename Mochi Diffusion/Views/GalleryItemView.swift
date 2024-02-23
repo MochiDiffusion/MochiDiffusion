@@ -78,6 +78,8 @@ struct GalleryItemView: View {
                     UpscalingAnimationView()
                 }
             }
+            .frame(width: 210, height: 210)
+            .background(image.averageColor?.blur(radius: 0.5).opacity(0.3))
         } else {
             Color.clear
         }
@@ -88,7 +90,7 @@ struct GalleryItemView: View {
     VStack {
         UpscalingAnimationView()
             .frame(width: 300, height: 300)
-            .border(.selection, width: 5)
+            .border(.selection, width: 3)
     }
     .frame(width: 350, height: 350)
 }
