@@ -184,7 +184,7 @@ struct GenerationConfig: Sendable, Identifiable {
             self.pipeline = modelresource as! StableDiffusionMainPipeline
         }
 
-        self.pipeline?.reduceMemory = reduceMemory
+        self.pipeline?.reduceMemory = true//reduceMemory
         self.currentPipelineHash = hash
         self.tokenizer = Tokenizer(modelDir: model.url)
         await updateState(.ready(nil))
