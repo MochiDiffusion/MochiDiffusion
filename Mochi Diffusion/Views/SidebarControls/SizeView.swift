@@ -32,6 +32,18 @@ struct SizeView: View {
                 .labelsHidden()
             }
             VStack(alignment: .leading) {
+                Spacer()
+                Button {
+                    let w = controller.width, h = controller.height
+                    controller.width = h
+                    controller.height = w
+                } label: {
+                    Image(systemName: "arrow.right.arrow.left.circle.fill")
+                }
+                .buttonBorderShape(.circle)
+            }
+
+            VStack(alignment: .leading) {
                 Text(
                     "Height:",
                     comment: "Label for image height picker"
