@@ -14,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/GuernikaCore/GuernikaKit.git",
       "state" : {
-        "revision" : "dae44bf061ffa84df7f882cb563070d484488e44",
-        "version" : "1.6.0"
+        "revision" : "2c1ce26535279b309149acba47ae65e6a9394cb5",
+        "version" : "1.5.0"
       }
     },
     {
