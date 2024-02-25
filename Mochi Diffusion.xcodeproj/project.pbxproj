@@ -728,8 +728,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/GuernikaCore/GuernikaKit.git";
 			requirement = {
-				kind = upToNextMinorVersion;
-				minimumVersion = 1.5.0;
+				kind = revision;
+				revision = 54e269da911e5bd82171a7da3000ea1b51ad26f4;
 			};
 		};
 		E4EC46302B890B6D00351E8C /* XCRemoteSwiftPackageReference "Sparkle" */ = {
