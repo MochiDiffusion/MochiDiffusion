@@ -22,6 +22,8 @@ struct StartingImageView: View {
 
         HStack(alignment: .top) {
             ImageWellView(image: controller.startingImage, size: CGSize(width: controller.width, height: controller.height)) { image in
+                maskImage = nil
+                controller.maskImage = nil
                 if let image {
                     ImageController.shared.setStartingImage(image: image)
                 } else {
@@ -95,7 +97,7 @@ struct StartingImageView: View {
         }
         MochiSlider(value: $controller.strength, bounds: 0.0...1.0, step: 0.05)
             .popover(isPresented: self.$isMaskPopoverShown, arrowEdge: .top) {
-                MaskEditorView(startingImage: controller.startingImage, maskImage: $maskImage)
+                MaskEditorView(startingImage: controller.startingImage?.scaledAndCroppedTo(size: CGSize(width: controller.width, height: controller.height)), maskImage: $maskImage)
             }
     }
 }
