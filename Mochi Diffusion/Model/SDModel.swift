@@ -18,6 +18,7 @@ struct SDModel: Identifiable {
     let controlNet: [String]
     let isXL: Bool
     var inputSize: CGSize?
+    var controltype: ControlType?
 
     var id: URL { url }
 
@@ -28,17 +29,19 @@ struct SDModel: Identifiable {
 
         let isXL = identifyIfXL(url)
         let size = identifyInputSize(url)
+        let controltype = identifyControlNetType(url)
 
         self.url = url
         self.name = name
         self.attention = attention
         if let size = size {
-            self.controlNet = controlNet.filter { $0.size == size && $0.attention == attention }.map { $0.name }
+            self.controlNet = controlNet.filter { $0.size == size && $0.attention == attention && $0.controltype == controltype ?? .all}.map { $0.name }
         } else {
             self.controlNet = []
         }
         self.isXL = isXL
         self.inputSize = size
+        self.controltype = controltype
     }
 }
 
@@ -127,5 +130,37 @@ private func identifyInputSize(_ url: URL) -> CGSize? {
         return CGSize(width: width, height: height)
     } else {
         return nil
+    }
+}
+
+private func identifyControlNetType(_ url: URL) -> ControlType? {
+    let metadataURL = url.appending(path: "Unet.mlmodelc").appending(path: "metadata.json")
+
+    guard let jsonData = try? Data(contentsOf: metadataURL) else {
+        print("Error: Could not read data from \(metadataURL)")
+        return nil
+    }
+
+    guard let jsonArray = (try? JSONSerialization.jsonObject(with: jsonData)) as? [[String: Any]] else {
+        print("Error: Could not parse JSON data")
+        return nil
+    }
+
+    guard let jsonItem = jsonArray.first else {
+        print("Error: JSON array is empty")
+        return nil
+    }
+
+    guard let inputSchema = jsonItem["inputSchema"] as? [[String: Any]] else {
+        print("Error: Missing 'inputSchema' in JSON")
+        return nil
+    }
+
+    if inputSchema.first(where: { ($0["name"] as? String) == "adapter_res_samples_00" }) != nil && inputSchema.first(where: { ($0["name"] as? String) == "down_block_res_samples_00" }) != nil {
+        return .all
+    }else if inputSchema.first(where: { ($0["name"] as? String) == "adapter_res_samples_00" }) != nil {
+        return .T2IAdapter
+    }else{
+        return .ControlNet
     }
 }

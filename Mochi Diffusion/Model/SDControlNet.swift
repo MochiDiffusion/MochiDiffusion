@@ -8,21 +8,28 @@
 import CoreGraphics
 import Foundation
 
+enum ControlType{
+    case ControlNet
+    case T2IAdapter
+    case all
+}
+
 struct SDControlNet {
     let name: String
     let url: URL
     let size: CGSize
     let attention: SDModelAttentionType
+    let controltype: ControlType
 
     init?(url: URL) {
         guard let size = identifyControlNetSize(url), let attention = identifyControlNetAttentionType(url) else {
             return nil
         }
-
         self.name = url.deletingPathExtension().lastPathComponent
         self.url = url
         self.size = size
         self.attention = attention
+        self.controltype = identifyControlNetType(url)!
     }
 }
 
@@ -94,5 +101,35 @@ private func identifyControlNetAttentionType(_ url: URL) -> SDModelAttentionType
     } catch {
         print("Failed to parse model metadata at '\(metadataURL)': \(error)")
         return nil
+    }
+}
+
+private func identifyControlNetType(_ url: URL) -> ControlType? {
+    let metadataURL = url.appendingPathComponent("metadata.json")
+
+    guard let jsonData = try? Data(contentsOf: metadataURL) else {
+        print("Error: Could not read data from \(metadataURL)")
+        return nil
+    }
+
+    guard let jsonArray = (try? JSONSerialization.jsonObject(with: jsonData)) as? [[String: Any]] else {
+        print("Error: Could not parse JSON data")
+        return nil
+    }
+
+    guard let jsonItem = jsonArray.first else {
+        print("Error: JSON array is empty")
+        return nil
+    }
+
+    guard let inputSchema = jsonItem["inputSchema"] as? [[String: Any]] else {
+        print("Error: Missing 'inputSchema' in JSON")
+        return nil
+    }
+
+    if inputSchema.first(where: { ($0["name"] as? String) == "controlnet_cond" }) != nil {
+        return .ControlNet
+    }else{
+        return .T2IAdapter
     }
 }
