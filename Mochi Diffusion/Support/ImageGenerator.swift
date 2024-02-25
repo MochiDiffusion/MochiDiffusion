@@ -216,7 +216,7 @@ struct GenerationConfig: Sendable, Identifiable {
             await updateQueueProgress(QueueProgress(index: index, total: inputConfig.numberOfImages))
             generationStartTime = DispatchTime.now()
             
-            let images = try pipeline.generateImages(input: config.pipelineConfig) { progress in
+            let image = try pipeline.generateImages(input: config.pipelineConfig) { progress in
 
                 Task { @MainActor in
                     state = .running(progress)
