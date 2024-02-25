@@ -227,7 +227,11 @@ struct GenerationConfig: Sendable, Identifiable {
 
                 Task {
                     let currentImage = progress.currentLatentSample
-                    ImageStore.shared.setCurrentGenerating(image: pipeline.latentToImage(currentImage))
+                    if await ImageController.shared.showHighqualityPreview{
+                        ImageStore.shared.setCurrentGenerating(image: try pipeline.decodeToImage(currentImage))
+                    }else{
+                        ImageStore.shared.setCurrentGenerating(image: pipeline.latentToImage(currentImage))
+                    }
                 }
 
                 return !generationStopped
@@ -236,7 +240,7 @@ struct GenerationConfig: Sendable, Identifiable {
                 break
             }
             
-            guard let image = images else { continue }
+            guard let image = image else { continue }
             if config.upscaleGeneratedImages {
                 guard let upscaledImg = await Upscaler.shared.upscale(cgImage: image) else { continue }
                 sdi.image = upscaledImg

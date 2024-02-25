@@ -145,7 +145,7 @@ private struct InfoPopoverView: View {
 
             if let startingImage = config.pipelineConfig.initImage, let strength = config.pipelineConfig.strength {
                 controller.startingImage = startingImage
-                controller.strength = Double(config.pipelineConfig.strength!)
+                controller.strength = Double(strength)
             } else {
                 await controller.unsetStartingImage()
             }
