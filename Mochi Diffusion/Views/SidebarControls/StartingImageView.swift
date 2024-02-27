@@ -97,7 +97,14 @@ struct StartingImageView: View {
         }
         MochiSlider(value: $controller.strength, bounds: 0.0...1.0, step: 0.05)
             .popover(isPresented: self.$isMaskPopoverShown, arrowEdge: .top) {
-                MaskEditorView(startingImage: controller.startingImage?.scaledAndCroppedTo(size: CGSize(width: controller.width, height: controller.height)), maskImage: $maskImage)
+                let screenHeight = NSScreen.main?.frame.height ?? 0
+                let screenWidth = NSScreen.main?.frame.width ?? 0
+                let aspectRatio = CGSize(width: controller.width, height: controller.height).aspectRatio
+                if aspectRatio <= 1{
+                    MaskEditorView(startingImage: controller.startingImage?.scaledAndCroppedTo(size: CGSize(width: (screenHeight * aspectRatio * 0.6).rounded(), height: (screenHeight * 0.6).rounded())), maskImage: $maskImage)
+                }else{
+                    MaskEditorView(startingImage: controller.startingImage?.scaledAndCroppedTo(size: CGSize(width: (screenWidth * 0.5).rounded(), height: (screenWidth / aspectRatio * 0.5).rounded())), maskImage: $maskImage)
+                }
             }
     }
 }
@@ -121,12 +128,10 @@ struct MaskEditorView: View {
             ZStack {
                 if let startingImage = startingImage {
                     Image(nsImage: NSImage(cgImage: startingImage, size: NSSize(width: startingImage.width, height: startingImage.height)))
-//                        .resizable()
                         .aspectRatio(contentMode: .fit)
                 }
                 if let maskImage = maskImage {
                     Image(nsImage: maskImage)
-//                        .resizable()
                         .aspectRatio(contentMode: .fit)
                 }
             }
