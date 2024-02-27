@@ -121,12 +121,12 @@ struct MaskEditorView: View {
             ZStack {
                 if let startingImage = startingImage {
                     Image(nsImage: NSImage(cgImage: startingImage, size: NSSize(width: startingImage.width, height: startingImage.height)))
-                        .resizable()
+//                        .resizable()
                         .aspectRatio(contentMode: .fit)
                 }
                 if let maskImage = maskImage {
                     Image(nsImage: maskImage)
-                        .resizable()
+//                        .resizable()
                         .aspectRatio(contentMode: .fit)
                 }
             }
