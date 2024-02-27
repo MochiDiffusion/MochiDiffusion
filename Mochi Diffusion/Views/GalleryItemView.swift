@@ -73,13 +73,13 @@ struct GalleryItemView: View {
                 Image(image, scale: 1, label: Text(verbatim: String(sdi.seed)))
                     .resizable()
                     .aspectRatio(contentMode: .fit)
-                    .padding(4)
                 if sdi.isUpscaling {
                     UpscalingAnimationView()
                 }
             }
             .frame(width: 210, height: 210)
-            .background(image.averageColor?.blur(radius: 0.5).opacity(0.3))
+            .background(image.averageColor?.blur(radius: 0.5).opacity(0.5))
+            .cornerRadius(10.0)
         } else {
             Color.clear
         }
