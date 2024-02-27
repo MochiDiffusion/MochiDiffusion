@@ -18,7 +18,11 @@ enum Scheduler: String, CaseIterable {
     case dpmSolverSinglestep = "DPM++ SDE"
     
     case dpmSolverSinglestepKarras = "DPM++ SDE Karras"
+    
+    case dpm2 = "DPM2"
 
+    case dpm2Karras = "DPM2 Karras"
+    
     case eulerDiscrete = "Euler"
     
     case eulerDiscreteKarras = "Euler Karras"
@@ -26,27 +30,35 @@ enum Scheduler: String, CaseIterable {
     case eulerAncenstralDiscrete = "Euler Ancenstral"
     
     case lcm = "LCM"
+    
+    case pndm = "PNDM"
 }
 
 func convertScheduler(_ scheduler: Scheduler) -> Schedulers {
     switch scheduler {
     case .ddim:
-        return Schedulers.ddim
+        return .ddim
     case .dpmSolverMultistep:
-        return Schedulers.dpmSolverMultistep
+        return .dpmSolverMultistep
     case .dpmSolverMultistepKarras:
-        return Schedulers.dpmSolverMultistepKarras
+        return .dpmSolverMultistepKarras
     case .dpmSolverSinglestep:
-        return Schedulers.dpmSolverSinglestep
+        return .dpmSolverSinglestep
     case .dpmSolverSinglestepKarras:
-        return Schedulers.dpmSolverSinglestepKarras
+        return .dpmSolverSinglestepKarras
+    case .dpm2:
+        return .dpm2
+    case .dpm2Karras:
+        return .dpm2Karras
     case .eulerDiscrete:
-        return Schedulers.eulerDiscrete
+        return .eulerDiscrete
     case .eulerDiscreteKarras:
-        return Schedulers.eulerDiscreteKarras
+        return .eulerDiscreteKarras
     case .eulerAncenstralDiscrete:
-        return Schedulers.eulerAncenstralDiscrete
+        return .eulerAncenstralDiscrete
     case .lcm:
         return .lcm
+    case .pndm:
+        return .pndm
     }
 }
