@@ -19,6 +19,7 @@ struct SDModel: Identifiable {
     let isXL: Bool
     var inputSize: CGSize?
     var controltype: ControlType?
+    var allowsVariableSize: Bool
 
     var id: URL { url }
 
@@ -42,6 +43,7 @@ struct SDModel: Identifiable {
         self.isXL = isXL
         self.inputSize = size
         self.controltype = controltype
+        self.allowsVariableSize = identifyAllowsVariableSize(url)!
     }
 }
 
@@ -162,5 +164,35 @@ private func identifyControlNetType(_ url: URL) -> ControlType? {
         return .T2IAdapter
     }else{
         return .ControlNet
+    }
+}
+
+private func identifyAllowsVariableSize(_ url: URL) -> Bool? {
+    let metadataURL = url.appending(path: "Unet.mlmodelc").appending(path: "metadata.json")
+
+    guard let jsonData = try? Data(contentsOf: metadataURL) else {
+        print("Error: Could not read data from \(metadataURL)")
+        return nil
+    }
+
+    guard let jsonArray = (try? JSONSerialization.jsonObject(with: jsonData)) as? [[String: Any]] else {
+        print("Error: Could not parse JSON data")
+        return nil
+    }
+
+    guard let jsonItem = jsonArray.first else {
+        print("Error: JSON array is empty")
+        return nil
+    }
+
+    guard let inputSchema = jsonItem["inputSchema"] as? [[String: Any]] else {
+        print("Error: Missing 'inputSchema' in JSON")
+        return nil
+    }
+
+    if inputSchema.first(where: { ($0["hasShapeFlexibility"] as? String) == "1" }) != nil {
+        return true
+    }else{
+        return false
     }
 }

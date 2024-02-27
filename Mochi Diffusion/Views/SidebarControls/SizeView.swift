@@ -30,6 +30,7 @@ struct SizeView: View {
                     }
                 }
                 .labelsHidden()
+                .disabled(!(controller.currentModel?.allowsVariableSize ?? false))
             }
             VStack(alignment: .leading) {
                 Spacer()
@@ -41,6 +42,7 @@ struct SizeView: View {
                     Image(systemName: "arrow.right.arrow.left.circle.fill")
                 }
                 .buttonBorderShape(.circle)
+                .disabled(!(controller.currentModel?.allowsVariableSize ?? false))
             }
 
             VStack(alignment: .leading) {
@@ -54,6 +56,7 @@ struct SizeView: View {
                     }
                 }
                 .labelsHidden()
+                .disabled(!(controller.currentModel?.allowsVariableSize ?? false))
             }
         }
     }

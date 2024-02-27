@@ -260,7 +260,12 @@ final class ImageController: ObservableObject {
 
         var pipelineConfig = SampleInput(prompt: prompt)
         pipelineConfig.negativePrompt = negativePrompt
-        pipelineConfig.size = CGSize(width: ImageController.shared.width, height: ImageController.shared.height)
+        
+        if model.allowsVariableSize{
+            pipelineConfig.size = CGSize(width: ImageController.shared.width, height: ImageController.shared.height)
+        }else{
+            pipelineConfig.size = model.inputSize
+        }
         
         if let size = pipelineConfig.size, startingImage != nil{
            pipelineConfig.initImage = startingImage?.scaledAndCroppedTo(size: size)
