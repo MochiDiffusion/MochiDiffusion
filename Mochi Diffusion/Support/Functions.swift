@@ -57,7 +57,7 @@ func createSDImageFromURL(_ url: URL) -> SDImage? {
         case Metadata.upscaler:
             sdi.upscaler = String(value)
         case Metadata.scheduler:
-            sdi.scheduler = Scheduler(rawValue: String(value))!
+            sdi.scheduler = Scheduler(rawValue: String(value)) ?? Scheduler.dpmSolverMultistepKarras
         case Metadata.mlComputeUnit:
             sdi.mlComputeUnit = MLComputeUnits.fromString(value)
         case Metadata.generator:
