@@ -93,7 +93,13 @@ final class ImageController: ObservableObject {
             guard let model = currentModel else {
                 return
             }
+            if let height = currentModel?.inputSize?.height {
+                ImageController.shared.height = Int(height)
+            }
 
+            if let width = currentModel?.inputSize?.width {
+                ImageController.shared.width = Int(width)
+            }
             modelName = model.name
             controlNet = model.controlNet
             currentControlNets = []
