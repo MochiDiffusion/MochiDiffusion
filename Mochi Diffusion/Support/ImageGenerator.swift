@@ -279,7 +279,7 @@ struct GenerationConfig: Sendable, Identifiable {
     }
     
     func hackVAE(model: SDModel) async throws {
-        let resourcePath = model.url.path()
+        let resourcePath = model.url.path(percentEncoded: false)
         if model.isXL{
             if FileManager.default.fileExists(atPath: resourcePath + "VAEDecoder.mlmodelc/model.mil.bak"){
                 let vaedecoderMIL = resourcePath + "VAEDecoder.mlmodelc/model.mil"
