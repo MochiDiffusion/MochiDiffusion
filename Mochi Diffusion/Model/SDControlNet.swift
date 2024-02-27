@@ -22,14 +22,14 @@ struct SDControlNet {
     let controltype: ControlType
 
     init?(url: URL) {
-        guard let size = identifyControlNetSize(url), let attention = identifyControlNetAttentionType(url) else {
+        guard let size = identifyControlNetSize(url), let attention = identifyControlNetAttentionType(url), let type = identifyControlNetType(url) else {
             return nil
         }
         self.name = url.deletingPathExtension().lastPathComponent
         self.url = url
         self.size = size
         self.attention = attention
-        self.controltype = identifyControlNetType(url)!
+        self.controltype = type
     }
 }
 
