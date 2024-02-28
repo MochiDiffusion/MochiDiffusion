@@ -36,7 +36,16 @@ struct StartingImageView: View {
                 .resizable()
                 .aspectRatio(contentMode: .fit)
             )
-            
+            .popover(isPresented: self.$isMaskPopoverShown, arrowEdge: .top) {
+                let screenHeight = NSScreen.main?.frame.height ?? 0
+                let screenWidth = NSScreen.main?.frame.width ?? 0
+                let aspectRatio = CGSize(width: controller.width, height: controller.height).aspectRatio
+                if aspectRatio <= 1{
+                    MaskEditorView(startingImage: controller.startingImage?.scaledAndCroppedTo(size: CGSize(width: (screenHeight * aspectRatio * 0.6).rounded(), height: (screenHeight * 0.6).rounded())), maskImage: $maskImage)
+                }else{
+                    MaskEditorView(startingImage: controller.startingImage?.scaledAndCroppedTo(size: CGSize(width: (screenWidth * 0.5).rounded(), height: (screenWidth / aspectRatio * 0.5).rounded())), maskImage: $maskImage)
+                }
+            }
             Spacer()
 
             VStack(alignment: .trailing) {
@@ -96,16 +105,6 @@ struct StartingImageView: View {
             }
         }
         MochiSlider(value: $controller.strength, bounds: 0.0...1.0, step: 0.05)
-            .popover(isPresented: self.$isMaskPopoverShown, arrowEdge: .top) {
-                let screenHeight = NSScreen.main?.frame.height ?? 0
-                let screenWidth = NSScreen.main?.frame.width ?? 0
-                let aspectRatio = CGSize(width: controller.width, height: controller.height).aspectRatio
-                if aspectRatio <= 1{
-                    MaskEditorView(startingImage: controller.startingImage?.scaledAndCroppedTo(size: CGSize(width: (screenHeight * aspectRatio * 0.6).rounded(), height: (screenHeight * 0.6).rounded())), maskImage: $maskImage)
-                }else{
-                    MaskEditorView(startingImage: controller.startingImage?.scaledAndCroppedTo(size: CGSize(width: (screenWidth * 0.5).rounded(), height: (screenWidth / aspectRatio * 0.5).rounded())), maskImage: $maskImage)
-                }
-            }
     }
 }
 
@@ -121,7 +120,7 @@ struct MaskEditorView: View {
     @State private var startPoint: CGPoint?
     @State private var endPoint: CGPoint?
     @State private var paths: [PathWrapper] = []
-    @State private var radius: CGFloat = 50
+    @State private var radius: CGFloat = 80
     
     var body: some View {
         VStack(alignment: .trailing){
@@ -135,6 +134,8 @@ struct MaskEditorView: View {
                         .aspectRatio(contentMode: .fit)
                 }
             }
+            .frame(width: CGFloat(startingImage?.width ?? 0), height: CGFloat(startingImage?.height ?? 0))
+
             HStack{
                 Spacer()
                 Button {
