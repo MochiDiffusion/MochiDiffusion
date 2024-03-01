@@ -107,7 +107,7 @@ final class ImageController: ObservableObject {
     }
 
     @Published
-    private(set) var currentControlNets: [(name: String?, image: CGImage?, type: ControlType?)] = []
+    private(set) var currentControlNets: [(name: String?, image: CGImage?)] = []
 
     @AppStorage("ModelDir") var modelDir = ""
     @AppStorage("ControlNetDir") var controlNetDir = ""
@@ -287,9 +287,11 @@ final class ImageController: ObservableObject {
         pipelineConfig.originalStepCount = 50
         pipelineConfig.guidanceScale = Float(guidanceScale)
         pipelineConfig.scheduler = convertScheduler(scheduler)
+
         for controlNet in currentControlNets {
             if controlNet.name != nil, let size = pipelineConfig.size, let image = controlNet.image?.scaledAndCroppedTo(size: size) {
-                if ImageGenerator.shared.pipeline?.supportsControlNet == true && controlNet.type == .ControlNet{
+                let control = SDControlNet(url: URL(fileURLWithPath: controlNetDir + controlNet.name! + ".mlmodelc"))
+                if (model.controltype == .ControlNet || model.controltype == .all) && control?.controltype == .ControlNet{
                     guard let c = try? ControlNet(modelAt: URL(fileURLWithPath: controlNetDir + controlNet.name! + ".mlmodelc")) else {
                         self.logger.error("Couldn't load ControlNet \(controlNet.name!)")
                         continue
@@ -297,7 +299,7 @@ final class ImageController: ObservableObject {
                     let cinput = ConditioningInput.init(module: c)
                     cinput.image = image
                     ImageGenerator.shared.pipeline?.conditioningInput = [cinput]
-                }else if ImageGenerator.shared.pipeline?.supportsAdapter == true && controlNet.type == .T2IAdapter{
+                }else if (model.controltype == .T2IAdapter || model.controltype == .all) && control?.controltype == .T2IAdapter{
                     guard let a = try? T2IAdapter(modelAt: URL(fileURLWithPath: controlNetDir + controlNet.name! + ".mlmodelc")) else {
                         self.logger.error("Couldn't load T2IAdapter \(controlNet.name!)")
                         continue
@@ -462,7 +464,7 @@ final class ImageController: ObservableObject {
 
     func setControlNet(name: String) async {
         if self.currentControlNets.isEmpty {
-            self.currentControlNets = [(name: name, image: nil, type: nil)]
+            self.currentControlNets = [(name: name, image: nil)]
         } else {
             self.currentControlNets[0].name = name
         }
@@ -470,10 +472,9 @@ final class ImageController: ObservableObject {
 
     func setControlNet(image: CGImage) async {
         if self.currentControlNets.isEmpty {
-            self.currentControlNets = [(name: nil, image: image, type: nil)]
+            self.currentControlNets = [(name: nil, image: image)]
         } else {
             self.currentControlNets[0].image = image
-            self.currentControlNets[0].type = models[0].controltype
         }
     }
 
@@ -484,9 +485,9 @@ final class ImageController: ObservableObject {
     func selectControlNetImage(at index: Int) async {
         await selectImage().map { image in
             if currentControlNets.isEmpty {
-                currentControlNets = [(name: nil, image: image, type: nil)]
+                currentControlNets = [(name: nil, image: image)]
             } else if index >= currentControlNets.count {
-                currentControlNets.append((name: nil, image: image, type: models[index].controltype))
+                currentControlNets.append((name: nil, image: image))
             } else {
                 currentControlNets[index].image = image
             }
