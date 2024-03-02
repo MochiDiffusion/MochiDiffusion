@@ -32,6 +32,10 @@ struct SDModel: Identifiable {
         let size = identifyInputSize(url)
         let controltype = identifyControlNetType(url)
 
+        if size == nil{
+            return nil
+        }
+        
         self.url = url
         self.name = name
         self.attention = attention
@@ -124,6 +128,9 @@ private func identifyInputSize(_ url: URL) -> CGSize? {
         let inputSchema = jsonItem["outputSchema"] as? [[String: Any]],
         let controlnetCond = inputSchema.first,
         let shapeString = controlnetCond["shape"] as? String {
+        if shapeString == "[]"{
+            return nil
+        }
         let shapeIntArray = shapeString.trimmingCharacters(in: CharacterSet(charactersIn: "[]"))
             .components(separatedBy: ", ")
             .compactMap { Int($0.trimmingCharacters(in: .whitespaces)) }
