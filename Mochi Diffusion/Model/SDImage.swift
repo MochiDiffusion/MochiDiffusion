@@ -111,37 +111,14 @@ extension SDImage {
             1,
             nil
         ) else { return nil }
-        let iptc = await [
-            kCGImagePropertyIPTCCaptionAbstract: metadata(),
-            kCGImagePropertyIPTCOriginatingProgram: "Mochi Diffusion",
-            kCGImagePropertyIPTCProgramVersion: "\(await NSApplication.appVersion)"
-        ]
-        let meta = [kCGImagePropertyIPTCDictionary: iptc]
-        CGImageDestinationAddImage(destination, image, meta as CFDictionary)
+        
+        let metadata = CreateMetadata(PositivePrompt: prompt, NegativePrompt: negativePrompt, Width: width, Height: height, Seed: seed, GuidanceScale: Float(guidanceScale), Scheduler: scheduler, StepCount: steps, CurrentModel: model, Upscaler: upscaler, CurrentStyle: "", ComputeUnits: mlComputeUnit ?? .cpuAndGPU)
+        
+        CGImageDestinationAddImage(destination, image, metadata)
         guard CGImageDestinationFinalize(destination) else { return nil }
         return data as Data
     }
 
-    @MainActor
-    func metadata() -> String {
-        """
-        \(Metadata.includeInImage.rawValue): \(prompt); \
-        \(Metadata.excludeFromImage.rawValue): \(negativePrompt); \
-        \(Metadata.model.rawValue): \(model); \
-        \(Metadata.steps.rawValue): \(steps); \
-        \(Metadata.guidanceScale.rawValue): \(guidanceScale); \
-        \(Metadata.seed.rawValue): \(seed); \
-        \(Metadata.size.rawValue): \(width)x\(height);
-        """
-        +
-        (!upscaler.isEmpty ? " \(Metadata.upscaler.rawValue): \(upscaler); " : " ")
-        +
-        """
-        \(Metadata.scheduler.rawValue): \(scheduler.rawValue); \
-        \(Metadata.mlComputeUnit.rawValue): \(MLComputeUnits.toString(mlComputeUnit)); \
-        \(Metadata.generator.rawValue): Mochi Diffusion \(NSApplication.appVersion)
-        """
-    }
 
     func getHumanReadableInfo() -> String {
     """

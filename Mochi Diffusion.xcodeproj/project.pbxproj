@@ -59,6 +59,7 @@
 		C1220FC02AFB122F007E5055 /* ImageWellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1220FBF2AFB122F007E5055 /* ImageWellView.swift */; };
 		C1ADEC2C2B16957800E142CA /* FolderMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1ADEC2B2B16957800E142CA /* FolderMonitor.swift */; };
 		D7B03F2029D42F9900DF89DD /* SDModelAttentionType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7B03F1F29D42F9900DF89DD /* SDModelAttentionType.swift */; };
+		DFB38FB92B938F7A0067E8A7 /* MetadataHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFB38FB82B938F7A0067E8A7 /* MetadataHelper.swift */; };
 		E45FA5822B7F7E4B009E90F0 /* GuernikaKit in Frameworks */ = {isa = PBXBuildFile; productRef = E45FA5812B7F7E4B009E90F0 /* GuernikaKit */; };
 		E4EC46322B890B6D00351E8C /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = E4EC46312B890B6D00351E8C /* Sparkle */; };
 		E4F15B1D2B86720F00E1EC3C /* de-coremldata.bin in Resources */ = {isa = PBXBuildFile; fileRef = E4F15B1C2B86720F00E1EC3C /* de-coremldata.bin */; };
@@ -134,6 +135,7 @@
 		C1220FBF2AFB122F007E5055 /* ImageWellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageWellView.swift; sourceTree = "<group>"; };
 		C1ADEC2B2B16957800E142CA /* FolderMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderMonitor.swift; sourceTree = "<group>"; };
 		D7B03F1F29D42F9900DF89DD /* SDModelAttentionType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDModelAttentionType.swift; sourceTree = "<group>"; };
+		DFB38FB82B938F7A0067E8A7 /* MetadataHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetadataHelper.swift; sourceTree = "<group>"; };
 		E4F15B1C2B86720F00E1EC3C /* de-coremldata.bin */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; path = "de-coremldata.bin"; sourceTree = "<group>"; };
 		E4F15B1E2B8673DB00E1EC3C /* en-coremldata.bin */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; path = "en-coremldata.bin"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -178,6 +180,7 @@
 				9B7392C2298DEAC2006F03D5 /* Tokenizer.swift */,
 				03FD231A295F7A81006EEEE2 /* Upscaler.swift */,
 				71D315152B2A584E007FFDEB /* NotificationController.swift */,
+				DFB38FB82B938F7A0067E8A7 /* MetadataHelper.swift */,
 			);
 			path = Support;
 			sourceTree = "<group>";
@@ -425,6 +428,7 @@
 				03D280F2294FD60E00C7D184 /* PromptView.swift in Sources */,
 				03FD2319295F74B6006EEEE2 /* RealESRGAN.mlmodel in Sources */,
 				035EE000295A224900080D18 /* ModelView.swift in Sources */,
+				DFB38FB92B938F7A0067E8A7 /* MetadataHelper.swift in Sources */,
 				03E075792968A153003488F9 /* CircularProgressView.swift in Sources */,
 				58FF218829FAE96200A70C7C /* ControlNetView.swift in Sources */,
 				C11A03882B099D9600540F7F /* JobQueueView.swift in Sources */,
