@@ -226,12 +226,14 @@ private struct InfoPopoverView: View {
                             image: startingImage,
                             showCopyToPromptOption: false
                         )
-                        InfoGridRow(
-                            type: LocalizedStringKey("Strength"),
-                            text: config.pipelineConfig.strength!.formatted(.number.precision(.fractionLength(2))),
-                            showCopyToPromptOption: true,
-                            callback: { controller.strength = Double(config.pipelineConfig.strength!) }
-                        )
+                        if let strength = config.pipelineConfig.strength {
+                            InfoGridRow(
+                                type: LocalizedStringKey("Strength"),
+                                text: strength.formatted(.number.precision(.fractionLength(2))),
+                                showCopyToPromptOption: true,
+                                callback: { controller.strength = Double(config.pipelineConfig.strength!) }
+                            )
+                        }
                     }
 //                    if let controlNetName = config.controlNets.first, let controlNetImage = config.pipelineConfig.controlNetInputs.first {
 //                        InfoGridRow(
