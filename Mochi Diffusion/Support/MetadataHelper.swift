@@ -12,14 +12,14 @@ import CoreML
 // import GuernikaKit
 import StableDiffusion
 
-func CreateMetadata (PositivePrompt: String, NegativePrompt: String, Width: Int, Height: Int, Seed: UInt32, GuidanceScale: Float, Scheduler: Scheduler, StepCount: Int, CurrentModel: String, Upscaler: String, CurrentStyle: String, ComputeUnits: MLComputeUnits)-> NSMutableDictionary{
-    var SchedulerString = ""
+func CreateMetadata (positivePrompt: String, negativePrompt: String, width: Int, height: Int, seed: UInt32, guidanceScale: Float, scheduler: Scheduler, stepCount: Int, currentModel: String, upscaler: String, currentStyle: String, computeUnits: MLComputeUnits)-> NSMutableDictionary{
+    var schedulerString = ""
     var mlComputeUnit = ""
     /// Schedulers for ML-Stable-diffusion
-    if Scheduler == .pndmScheduler{
-        SchedulerString = "PNDM"}
-    if Scheduler == .dpmSolverMultistepScheduler{
-        SchedulerString = "DPM-Solver++"}
+    if scheduler == .pndmScheduler{
+        schedulerString = "PNDM"}
+    if scheduler == .dpmSolverMultistepScheduler{
+        schedulerString = "DPM-Solver++"}
     
     /// Schedulers for Guernika kit
 //    if Scheduler == .ddim{
@@ -48,36 +48,36 @@ func CreateMetadata (PositivePrompt: String, NegativePrompt: String, Width: Int,
 //        SchedulerString = "PNDM"}
     
     
-    if ComputeUnits == .cpuOnly{
+    if computeUnits == .cpuOnly{
         mlComputeUnit = "cpuOnly"}
-    if ComputeUnits == .cpuAndGPU{
+    if computeUnits == .cpuAndGPU{
         mlComputeUnit = "cpuAndGPU"}
-    if ComputeUnits == .cpuAndNeuralEngine{
+    if computeUnits == .cpuAndNeuralEngine{
         mlComputeUnit = "cpuAndNeuralEngine"}
   
     // Add metadata
     let meta = NSMutableDictionary()
-    // EXIF Metadata (User Comment)
+    // EXIF Metadata (User Comment) - used by most other apps "c" and "uc" for prompts are established naming conventions kept for compatability.
     let exifMetadata = NSMutableDictionary()
-    exifMetadata[kCGImagePropertyExifUserComment as String] = "{\"c\":\"\(PositivePrompt)\", \"uc\":\"\(NegativePrompt)\", \"seed\":\(Seed), \"guidance_scale\":\(GuidanceScale), \"sampler\":\"\(SchedulerString)\", \"steps\":\(StepCount), \"model\":\"\(CurrentModel)\", \"Upscaler\":\"\(Upscaler)\", \"styles\":\"\(CurrentStyle)\"}"
+    exifMetadata[kCGImagePropertyExifUserComment as String] = "{\"c\":\"\(positivePrompt)\", \"uc\":\"\(negativePrompt)\", \"seed\":\(seed), \"guidance_scale\":\(guidanceScale), \"sampler\":\"\(schedulerString)\", \"steps\":\(stepCount), \"model\":\"\(currentModel)\", \"Upscaler\":\"\(upscaler)\", \"styles\":\"\(currentStyle)\"}"
     meta[kCGImagePropertyExifDictionary as String] = exifMetadata
     // IPTC Metadata (Caption)
     let iptcMetadata = NSMutableDictionary()
     
     iptcMetadata[kCGImagePropertyIPTCCaptionAbstract as String] = """
-    \(Metadata.includeInImage.rawValue): \(PositivePrompt); \
-    \(Metadata.excludeFromImage.rawValue): \(NegativePrompt); \
-    \(Metadata.model.rawValue): \(CurrentModel); \
-    \(Metadata.steps.rawValue): \(StepCount); \
-    \(Metadata.guidanceScale.rawValue): \(GuidanceScale); \
-    \(Metadata.seed.rawValue): \(Seed); \
-    \(Metadata.size.rawValue): \(Width)x\(Height);
+    \(Metadata.includeInImage.rawValue): \(positivePrompt); \
+    \(Metadata.excludeFromImage.rawValue): \(negativePrompt); \
+    \(Metadata.model.rawValue): \(currentModel); \
+    \(Metadata.steps.rawValue): \(stepCount); \
+    \(Metadata.guidanceScale.rawValue): \(guidanceScale); \
+    \(Metadata.seed.rawValue): \(seed); \
+    \(Metadata.size.rawValue): \(width)x\(height);
     """
     +
-    (!Upscaler.isEmpty ? " \(Metadata.upscaler.rawValue): \(Upscaler); " : " ")
+    (!upscaler.isEmpty ? " \(Metadata.upscaler.rawValue): \(upscaler); " : " ")
     +
     """
-    \(Metadata.scheduler.rawValue): \(Scheduler.rawValue); \
+    \(Metadata.scheduler.rawValue): \(scheduler.rawValue); \
     \(Metadata.mlComputeUnit.rawValue): \(mlComputeUnit); \
     \(Metadata.generator.rawValue): Mochi Diffusion \(NSApplication.appVersion)
     """
@@ -89,7 +89,7 @@ func CreateMetadata (PositivePrompt: String, NegativePrompt: String, Width: Int,
     
     // TIFF Metadata (Image Description)
     let tiffMetadata = NSMutableDictionary()
-    tiffMetadata[kCGImagePropertyTIFFImageDescription as String] = "c:\(PositivePrompt), uc:\(NegativePrompt), seed:\(Seed), Guidance Scale:\(GuidanceScale), Sampler:\(SchedulerString), Steps:\(StepCount), Model:\(CurrentModel), upscaler:\(Upscaler), Size:\(Width)x\(Height)"
+    tiffMetadata[kCGImagePropertyTIFFImageDescription as String] = "c:\(positivePrompt), uc:\(negativePrompt), seed:\(seed), Guidance Scale:\(guidanceScale), Sampler:\(schedulerString), Steps:\(stepCount), Model:\(currentModel), upscaler:\(upscaler), Size:\(width)x\(height)"
     meta[kCGImagePropertyTIFFDictionary as String] = tiffMetadata
     return meta
 }

@@ -111,7 +111,7 @@ extension SDImage {
             1,
             nil
         ) else { return nil }
-        let metadata = CreateMetadata(PositivePrompt: prompt, NegativePrompt: negativePrompt, Width: width, Height: height, Seed: seed, GuidanceScale: Float(guidanceScale), Scheduler: scheduler, StepCount: steps, CurrentModel: model, Upscaler: upscaler, CurrentStyle: "", ComputeUnits: mlComputeUnit ?? .cpuAndGPU)
+        let metadata = CreateMetadata(positivePrompt: prompt, negativePrompt: negativePrompt, width: width, height: height, seed: seed, guidanceScale: Float(guidanceScale), scheduler: scheduler, stepCount: steps, currentModel: model, upscaler: upscaler, currentStyle: "", computeUnits: mlComputeUnit ?? .cpuAndGPU)
 
          CGImageDestinationAddImage(destination, image, metadata)
         guard CGImageDestinationFinalize(destination) else { return nil }
