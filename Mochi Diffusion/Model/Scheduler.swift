@@ -27,7 +27,7 @@ enum Scheduler: String, CaseIterable {
     
     case eulerDiscreteKarras = "Euler Karras"
     
-    case eulerAncenstralDiscrete = "Euler Ancenstral"
+    case eulerAncestralDiscrete = "Euler Ancestral"
     
     case lcm = "LCM"
     
@@ -54,8 +54,8 @@ func convertScheduler(_ scheduler: Scheduler) -> Schedulers {
         return .eulerDiscrete
     case .eulerDiscreteKarras:
         return .eulerDiscreteKarras
-    case .eulerAncenstralDiscrete:
-        return .eulerAncenstralDiscrete
+    case .eulerAncestralDiscrete:
+        return .eulerAncestralDiscrete
     case .lcm:
         return .lcm
     case .pndm:
