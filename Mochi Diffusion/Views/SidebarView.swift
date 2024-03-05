@@ -16,6 +16,10 @@ struct SidebarView: View {
                     Divider().frame(height: 16)
                 }
                 Group {
+                    StyleView()
+                    Divider().frame(height: 16)
+                }
+                Group {
                     StartingImageView()
                     Divider().frame(height: 16)
                 }

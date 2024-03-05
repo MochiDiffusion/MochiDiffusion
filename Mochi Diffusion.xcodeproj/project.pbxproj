@@ -60,6 +60,7 @@
 		C1ADEC2C2B16957800E142CA /* FolderMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1ADEC2B2B16957800E142CA /* FolderMonitor.swift */; };
 		D7B03F2029D42F9900DF89DD /* SDModelAttentionType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7B03F1F29D42F9900DF89DD /* SDModelAttentionType.swift */; };
 		E45FA5822B7F7E4B009E90F0 /* GuernikaKit in Frameworks */ = {isa = PBXBuildFile; productRef = E45FA5812B7F7E4B009E90F0 /* GuernikaKit */; };
+		E487AD572B97803E00EF68FB /* StyleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E487AD562B97803E00EF68FB /* StyleView.swift */; };
 		E4EC46322B890B6D00351E8C /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = E4EC46312B890B6D00351E8C /* Sparkle */; };
 		E4F15B1D2B86720F00E1EC3C /* de-coremldata.bin in Resources */ = {isa = PBXBuildFile; fileRef = E4F15B1C2B86720F00E1EC3C /* de-coremldata.bin */; };
 		E4F15B1F2B8673DB00E1EC3C /* en-coremldata.bin in Resources */ = {isa = PBXBuildFile; fileRef = E4F15B1E2B8673DB00E1EC3C /* en-coremldata.bin */; };
@@ -134,6 +135,7 @@
 		C1220FBF2AFB122F007E5055 /* ImageWellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageWellView.swift; sourceTree = "<group>"; };
 		C1ADEC2B2B16957800E142CA /* FolderMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderMonitor.swift; sourceTree = "<group>"; };
 		D7B03F1F29D42F9900DF89DD /* SDModelAttentionType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDModelAttentionType.swift; sourceTree = "<group>"; };
+		E487AD562B97803E00EF68FB /* StyleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StyleView.swift; sourceTree = "<group>"; };
 		E4F15B1C2B86720F00E1EC3C /* de-coremldata.bin */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; path = "de-coremldata.bin"; sourceTree = "<group>"; };
 		E4F15B1E2B8673DB00E1EC3C /* en-coremldata.bin */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; path = "en-coremldata.bin"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -196,6 +198,7 @@
 				035EDFFB295A21D600080D18 /* SizeView.swift */,
 				C1220FBF2AFB122F007E5055 /* ImageWellView.swift */,
 				C116D4942AFC382E00314FE3 /* MochiSlider.swift */,
+				E487AD562B97803E00EF68FB /* StyleView.swift */,
 			);
 			path = SidebarControls;
 			sourceTree = "<group>";
@@ -426,6 +429,7 @@
 				03FD2319295F74B6006EEEE2 /* RealESRGAN.mlmodel in Sources */,
 				035EE000295A224900080D18 /* ModelView.swift in Sources */,
 				03E075792968A153003488F9 /* CircularProgressView.swift in Sources */,
+				E487AD572B97803E00EF68FB /* StyleView.swift in Sources */,
 				58FF218829FAE96200A70C7C /* ControlNetView.swift in Sources */,
 				C11A03882B099D9600540F7F /* JobQueueView.swift in Sources */,
 				C1ADEC2C2B16957800E142CA /* FolderMonitor.swift in Sources */,
