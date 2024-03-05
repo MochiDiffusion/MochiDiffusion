@@ -24,6 +24,14 @@ struct GenerationConfig: Sendable, Identifiable {
     var scheduler: Scheduler
     var upscaleGeneratedImages: Bool
     var controlNets: [String]
+
+    func pipelineHash() -> Int {
+        var hasher = Hasher()
+        hasher.combine(model)
+        hasher.combine(controlNets)
+        hasher.combine(mlComputeUnit)
+        return hasher.finalize()
+    }
 }
 
 @Observable public final class ImageGenerator {
@@ -64,10 +72,6 @@ struct GenerationConfig: Sendable, Identifiable {
     private(set) var lastStepGenerationElapsedTime: Double?
 
     private var generationStartTime: DispatchTime?
-
-    private var currentPipelineHash: Int?
-    
-    private var lastSize: CGSize?
 
     func loadImages(imageDir: String) async throws -> ([SDImage], URL) {
         var finalImageDirURL: URL
@@ -153,26 +157,7 @@ struct GenerationConfig: Sendable, Identifiable {
             await updateState(.error("Couldn't load \(model.name) because it doesn't exist."))
             throw GeneratorError.requestedModelNotFound
         }
-        var hasher = Hasher()
-        hasher.combine(model)
-        hasher.combine(controlNet)
-        hasher.combine(computeUnit)
-        hasher.combine(reduceMemory)
-        let hash = hasher.finalize()
-        var cSize = await CGSize(width: ImageController.shared.width, height: ImageController.shared.height)
-        if model.allowsVariableSize == false{
-            cSize = model.inputSize!
-        }
-        
-        if hash == self.currentPipelineHash {
-            if await ImageController.shared.startingImage != nil && lastSize == cSize {
-                return
-            } else if await ImageController.shared.startingImage == nil{
-                return
-            }
-        }
 
-        lastSize = await CGSize(width: ImageController.shared.width, height: ImageController.shared.height)
         await updateState(.loading)
         let config = MLModelConfiguration()
         config.computeUnits = computeUnit
@@ -192,8 +177,7 @@ struct GenerationConfig: Sendable, Identifiable {
             self.pipeline = modelresource as! StableDiffusionMainPipeline
         }
     
-        self.pipeline?.reduceMemory = true//reduceMemory
-        self.currentPipelineHash = hash
+        self.pipeline?.reduceMemory = reduceMemory
         self.tokenizer = Tokenizer(modelDir: model.url)
         await updateState(.ready(nil))
     }

@@ -332,6 +332,9 @@ final class ImageController: ObservableObject {
         }
     }
 
+    private var prevPipeline: Int?
+    private var prevSize: CGSize?
+
     private func runGenerationJobs() async {
         guard case .ready = ImageGenerator.shared.state else { return }
 
@@ -339,12 +342,27 @@ final class ImageController: ObservableObject {
             let genConfig = generationQueue.removeFirst()
             self.currentGeneration = genConfig
             do {
-                try await ImageGenerator.shared.loadPipeline(
-                    model: genConfig.model,
-                    controlNet: genConfig.controlNets,
-                    computeUnit: genConfig.mlComputeUnit,
-                    reduceMemory: self.reduceMemory
-                )
+                if prevPipeline != genConfig.pipelineHash() {
+                    prevSize = nil
+                }
+                var reduceMemoryOrUpdateInputShape: Bool = self.reduceMemory
+                if genConfig.pipelineConfig.initImage != nil {
+                    if prevSize != genConfig.pipelineConfig.size {
+                        reduceMemoryOrUpdateInputShape = true
+                        prevPipeline = nil
+                        // resize VAEncoder
+                        prevSize = genConfig.pipelineConfig.size
+                    }
+                }
+                if prevPipeline != genConfig.pipelineHash() {
+                    try await ImageGenerator.shared.loadPipeline(
+                        model: genConfig.model,
+                        controlNet: genConfig.controlNets,
+                        computeUnit: genConfig.mlComputeUnit,
+                        reduceMemory: reduceMemoryOrUpdateInputShape
+                    )
+                    prevPipeline = genConfig.pipelineHash()
+                }
                 try await ImageGenerator.shared.generate(genConfig)
             } catch ImageGenerator.GeneratorError.requestedModelNotFound {
                 self.logger.error("Couldn't load \(genConfig.model.name) because it doesn't exist.")
