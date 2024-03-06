@@ -11,7 +11,6 @@ struct StartingImageView: View {
     @EnvironmentObject private var controller: ImageController
     @State private var isInfoPopoverShown = false
     @State private var isMaskPopoverShown = false
-    @State private var maskImage: NSImage? = nil
 
     var body: some View {
         Text(
@@ -22,7 +21,6 @@ struct StartingImageView: View {
 
         HStack(alignment: .top) {
             ImageWellView(image: controller.startingImage, size: CGSize(width: controller.width, height: controller.height)) { image in
-                maskImage = nil
                 controller.maskImage = nil
                 if let image {
                     ImageController.shared.setStartingImage(image: image)
@@ -41,9 +39,9 @@ struct StartingImageView: View {
                 let screenWidth = NSScreen.main?.frame.width ?? 0
                 let aspectRatio = CGSize(width: controller.width, height: controller.height).aspectRatio
                 if aspectRatio <= 1{
-                    MaskEditorView(startingImage: controller.startingImage?.scaledAndCroppedTo(size: CGSize(width: (screenHeight * aspectRatio * 0.6).rounded(), height: (screenHeight * 0.6).rounded())), maskImage: $maskImage)
+                    MaskEditorView(startingImage: controller.startingImage?.scaledAndCroppedTo(size: CGSize(width: (screenHeight * aspectRatio * 0.6).rounded(), height: (screenHeight * 0.6).rounded())), maskImage: $controller.maskImage)
                 }else{
-                    MaskEditorView(startingImage: controller.startingImage?.scaledAndCroppedTo(size: CGSize(width: (screenWidth * 0.5).rounded(), height: (screenWidth / aspectRatio * 0.5).rounded())), maskImage: $maskImage)
+                    MaskEditorView(startingImage: controller.startingImage?.scaledAndCroppedTo(size: CGSize(width: (screenWidth * 0.5).rounded(), height: (screenWidth / aspectRatio * 0.5).rounded())), maskImage: $controller.maskImage)
                 }
             }
             Spacer()
@@ -51,7 +49,7 @@ struct StartingImageView: View {
             VStack(alignment: .trailing) {
                 HStack {
                     Button {
-                        maskImage = nil
+                        controller.maskImage = nil
                         Task { await ImageController.shared.selectStartingImage() }
                     } label: {
                         Image(systemName: "photo")
@@ -65,7 +63,6 @@ struct StartingImageView: View {
                     .disabled(controller.startingImage == nil)
                     
                     Button {
-                        maskImage = nil
                         controller.maskImage = nil
                         Task { await ImageController.shared.unsetStartingImage() }
                     } label: {
@@ -114,9 +111,8 @@ struct PathWrapper: Identifiable {
 }
 
 struct MaskEditorView: View {
-    @EnvironmentObject private var controller: ImageController
     let startingImage: CGImage?
-    @Binding var maskImage: NSImage?
+    @Binding var maskImage: CGImage?
     @State private var startPoint: CGPoint?
     @State private var endPoint: CGPoint?
     @State private var paths: [PathWrapper] = []
@@ -125,13 +121,13 @@ struct MaskEditorView: View {
     var body: some View {
         VStack(alignment: .trailing){
             ZStack {
-                if let startingImage = startingImage {
+                if let startingImage {
                     Image(nsImage: NSImage(cgImage: startingImage, size: NSSize(width: startingImage.width, height: startingImage.height)))
                         .aspectRatio(contentMode: .fit)
-                }
-                if let maskImage = maskImage {
-                    Image(nsImage: maskImage)
-                        .aspectRatio(contentMode: .fit)
+                    if let maskImage {
+                        Image(nsImage: NSImage(cgImage: maskImage, size: NSSize(width: startingImage.width, height: startingImage.height)))
+                            .aspectRatio(contentMode: .fit)
+                    }
                 }
             }
             .frame(width: CGFloat(startingImage?.width ?? 0), height: CGFloat(startingImage?.height ?? 0))
@@ -141,7 +137,6 @@ struct MaskEditorView: View {
                 Button {
                     paths.removeAll()
                     maskImage = nil
-                    controller.maskImage = nil
                 } label: {
                     Image(systemName: "arrow.clockwise.circle")
                         .font(.system(size: 30))
@@ -168,7 +163,6 @@ struct MaskEditorView: View {
                 .onEnded { _ in
                     startPoint = nil
                     endPoint = nil
-                    controller.maskImage = maskImage?.cgImage
                 }
         )
     }
@@ -206,8 +200,7 @@ struct MaskEditorView: View {
             maskContext.fillPath()
         }
 
-        if let maskCGImage = maskContext.makeImage() {
-            let maskImage = NSImage(cgImage: maskCGImage, size: imageSize)
+        if let maskImage = maskContext.makeImage() {
             self.maskImage = maskImage
         }
     }
