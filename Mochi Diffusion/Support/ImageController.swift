@@ -280,9 +280,7 @@ final class ImageController: ObservableObject {
            pipelineConfig.initImage = startingImage?.scaledAndCroppedTo(size: size)
             pipelineConfig.inpaintMask = maskImage?.scaledAndCroppedTo(size: size)
         }
-        if startingImage == nil && currentControlNets.isEmpty{
-            strength = 1.0
-        }
+        let strength = startingImage == nil && currentControlNets.isEmpty ? 1.0 : self.strength
         
         pipelineConfig.strength = Float(strength)
         pipelineConfig.stepCount = Int(steps)
