@@ -93,12 +93,12 @@ final class ImageController: ObservableObject {
             guard let model = currentModel else {
                 return
             }
-            if let height = currentModel?.inputSize?.height {
-                ImageController.shared.height = Int(height)
+            if let modelHeight = currentModel?.inputSize?.height {
+                self.height = Int(modelHeight)
             }
 
-            if let width = currentModel?.inputSize?.width {
-                ImageController.shared.width = Int(width)
+            if let modelWidth = currentModel?.inputSize?.width {
+                self.width = Int(modelWidth)
             }
             modelName = model.name
             controlNet = model.controlNet
@@ -271,7 +271,7 @@ final class ImageController: ObservableObject {
         pipelineConfig.negativePrompt = styleNegativePrompt + ", " + negativePrompt
         
         if model.allowsVariableSize{
-            pipelineConfig.size = CGSize(width: ImageController.shared.width, height: ImageController.shared.height)
+            pipelineConfig.size = CGSize(width: self.width, height: self.height)
         }else{
             pipelineConfig.size = model.inputSize
         }
