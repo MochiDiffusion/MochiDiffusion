@@ -55,7 +55,7 @@ func convertScheduler(_ scheduler: Scheduler) -> Schedulers {
     case .eulerDiscreteKarras:
         return .eulerDiscreteKarras
     case .eulerAncestralDiscrete:
-        return .eulerAncestralDiscrete
+        return .eulerAncenstralDiscrete
     case .lcm:
         return .lcm
     case .pndm:
