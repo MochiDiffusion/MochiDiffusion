@@ -161,9 +161,7 @@ struct GenerationConfig: Sendable, Identifiable {
         await updateState(.loading)
         let config = MLModelConfiguration()
         config.computeUnits = computeUnit
-        if model.allowsVariableSize && vaeAllowsVariableSize(model.url) == false{
-            await modifyInputSize(model.url, height: ImageController.shared.height, width: ImageController.shared.width)
-        }
+
         let modelresource = try GuernikaKit.load(at: model.url)
 
         switch modelresource {

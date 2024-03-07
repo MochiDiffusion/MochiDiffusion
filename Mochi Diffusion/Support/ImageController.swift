@@ -350,7 +350,11 @@ final class ImageController: ObservableObject {
                     if prevSize != genConfig.pipelineConfig.size {
                         reduceMemoryOrUpdateInputShape = true
                         prevPipeline = nil
-                        // resize VAEncoder
+                        if genConfig.model.allowsVariableSize && vaeAllowsVariableSize(genConfig.model.url) == false {
+                            modifyInputSize(genConfig.model.url,
+                                            height: Int(genConfig.pipelineConfig.size!.height),
+                                            width: Int(genConfig.pipelineConfig.size!.width))
+                        }
                         prevSize = genConfig.pipelineConfig.size
                     }
                 }
