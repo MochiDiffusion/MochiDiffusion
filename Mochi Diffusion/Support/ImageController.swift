@@ -117,9 +117,6 @@ final class ImageController: ObservableObject {
     @AppStorage("ImageType") var imageType = UTType.png.preferredFilenameExtension!
     @AppStorage("Prompt") var prompt = ""
     @AppStorage("NegativePrompt") var negativePrompt = ""
-    @AppStorage("StylePrompt") var stylePrompt = ""
-    @AppStorage("StyleNegativePrompt") var styleNegativePrompt = ""
-    @AppStorage("SelectedStyle") var selectedStyle: String?
     @AppStorage("ImageStrength") var strength = 0.75
     @AppStorage("Steps") var steps = 15.0
     @AppStorage("Scale") var guidanceScale = 5.0
@@ -267,8 +264,8 @@ final class ImageController: ObservableObject {
             return
         }
 
-        var pipelineConfig = SampleInput(prompt: stylePrompt.replacingOccurrences(of: "{prompt}", with: prompt))
-        pipelineConfig.negativePrompt = styleNegativePrompt + ", " + negativePrompt
+        var pipelineConfig = SampleInput(prompt: prompt)
+        pipelineConfig.negativePrompt = negativePrompt
         
         if model.allowsVariableSize{
             pipelineConfig.size = CGSize(width: self.width, height: self.height)
