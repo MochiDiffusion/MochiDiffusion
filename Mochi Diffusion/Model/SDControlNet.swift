@@ -8,9 +8,9 @@
 import CoreGraphics
 import Foundation
 
-enum ControlType{
-    case ControlNet
-    case T2IAdapter
+enum ControlType {
+    case controlNet
+    case t2IAdapter
     case all
 }
 
@@ -128,8 +128,8 @@ private func identifyControlNetType(_ url: URL) -> ControlType? {
     }
 
     if inputSchema.first(where: { ($0["name"] as? String) == "controlnet_cond" }) != nil {
-        return .ControlNet
-    }else{
-        return .T2IAdapter
+        return .controlNet
+    } else {
+        return .t2IAdapter
     }
 }
