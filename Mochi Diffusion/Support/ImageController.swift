@@ -34,38 +34,28 @@ enum ComputeUnitPreference: String {
     }
 }
 
-@MainActor
-final class ImageController: ObservableObject {
+@Observable public final class ImageController {
 
     static let shared = ImageController()
 
-    private lazy var logger = Logger()
+    private var logger = Logger()
 
-    @Published
     var generationQueue = [GenerationConfig]()
 
-    @Published
     var currentGeneration: GenerationConfig?
 
-    @Published
     var isLoading = true
 
-    @Published
     private(set) var models = [SDModel]()
 
-    @Published
     var controlNet: [String] = []
 
-    @Published
     var startingImage: CGImage?
 
-    @Published
     var numberOfImages = 1.0
 
-    @Published
     var seed: UInt32 = 0
 
-    @Published
     var quicklookURL: URL? {
         didSet {
             /// When Quick Look is manually dismissed with its close button, the system will set this to nil.
@@ -84,7 +74,6 @@ final class ImageController: ObservableObject {
         }
     }
 
-    @Published
     var currentModel: SDModel? {
         didSet {
             guard let model = currentModel else {
@@ -97,29 +86,267 @@ final class ImageController: ObservableObject {
         }
     }
 
-    @Published
     private(set) var currentControlNets: [(name: String?, image: CGImage?)] = []
 
-    @AppStorage("ModelDir") var modelDir = ""
-    @AppStorage("ControlNetDir") var controlNetDir = ""
-    @AppStorage("Model") private(set) var modelName = ""
-    @AppStorage("AutosaveImages") var autosaveImages = true
-    @AppStorage("ImageDir") var imageDir = ""
-    @AppStorage("ImageType") var imageType = UTType.png.preferredFilenameExtension!
-    @AppStorage("Prompt") var prompt = ""
-    @AppStorage("NegativePrompt") var negativePrompt = ""
-    @AppStorage("ImageStrength") var strength = 0.75
-    @AppStorage("Steps") var steps = 12.0
-    @AppStorage("Scale") var guidanceScale = 11.0
-    @AppStorage("ImageWidth") var width = 512
-    @AppStorage("ImageHeight") var height = 512
-    @AppStorage("Scheduler") var scheduler: Scheduler = .dpmSolverMultistepScheduler
-    @AppStorage("UpscaleGeneratedImages") var upscaleGeneratedImages = false
-    @AppStorage("ShowGenerationPreview") var showGenerationPreview = true
-    @AppStorage("MLComputeUnitPreference") var mlComputeUnitPreference: ComputeUnitPreference = .auto
-    @AppStorage("ReduceMemory") var reduceMemory = false
-    @AppStorage("SafetyChecker") var safetyChecker = false
-    @AppStorage("UseTrash") var useTrash = true
+    @ObservationIgnored @AppStorage("ModelDir") private var _modelDir = ""
+    @ObservationIgnored var modelDir: String {
+        get {
+            access(keyPath: \.modelDir)
+            return _modelDir
+        }
+        set {
+            withMutation(keyPath: \.modelDir) {
+                _modelDir = newValue
+            }
+        }
+    }
+
+    @ObservationIgnored @AppStorage("ControlNetDir") private var _controlNetDir = ""
+    @ObservationIgnored var controlNetDir: String {
+        get {
+            access(keyPath: \.controlNetDir)
+            return _controlNetDir
+        }
+        set {
+            withMutation(keyPath: \.controlNetDir) {
+                _controlNetDir = newValue
+            }
+        }
+    }
+
+    @ObservationIgnored @AppStorage("Model") private var _modelName = ""
+    @ObservationIgnored private(set) var modelName: String {
+        get {
+            access(keyPath: \.modelName)
+            return _modelName
+        }
+        set {
+            withMutation(keyPath: \.modelName) {
+                _modelName = newValue
+            }
+        }
+    }
+
+    @ObservationIgnored @AppStorage("AutosaveImages") private var _autosaveImages = true
+    @ObservationIgnored var autosaveImages: Bool {
+        get {
+            access(keyPath: \.autosaveImages)
+            return _autosaveImages
+        }
+        set {
+            withMutation(keyPath: \.autosaveImages) {
+                _autosaveImages = newValue
+            }
+        }
+    }
+
+    @ObservationIgnored @AppStorage("ImageDir") private var _imageDir = ""
+    @ObservationIgnored var imageDir: String {
+        get {
+            access(keyPath: \.imageDir)
+            return _imageDir
+        }
+        set {
+            withMutation(keyPath: \.imageDir) {
+                _imageDir = newValue
+            }
+        }
+    }
+
+    @ObservationIgnored @AppStorage("ImageType") private var _imageType = UTType.png.preferredFilenameExtension!
+    @ObservationIgnored var imageType: String {
+        get {
+            access(keyPath: \.imageType)
+            return _imageType
+        }
+        set {
+            withMutation(keyPath: \.imageType) {
+                _imageType = newValue
+            }
+        }
+    }
+
+    @ObservationIgnored @AppStorage("Prompt") private var _prompt = ""
+    @ObservationIgnored var prompt: String {
+        get {
+            access(keyPath: \.prompt)
+            return _prompt
+        }
+        set {
+            withMutation(keyPath: \.prompt) {
+                _prompt = newValue
+            }
+        }
+    }
+
+    @ObservationIgnored @AppStorage("NegativePrompt") private var _negativePrompt = ""
+    @ObservationIgnored var negativePrompt: String {
+        get {
+            access(keyPath: \.negativePrompt)
+            return _negativePrompt
+        }
+        set {
+            withMutation(keyPath: \.negativePrompt) {
+                _negativePrompt = newValue
+            }
+        }
+    }
+
+    @ObservationIgnored @AppStorage("ImageStrength") private var _strength = 0.75
+    @ObservationIgnored var strength: Double {
+        get {
+            access(keyPath: \.strength)
+            return _strength
+        }
+        set {
+            withMutation(keyPath: \.strength) {
+                _strength = newValue
+            }
+        }
+    }
+
+    @ObservationIgnored @AppStorage("Steps") private var _steps = 12.0
+    @ObservationIgnored var steps: Double {
+        get {
+            access(keyPath: \.steps)
+            return _steps
+        }
+        set {
+            withMutation(keyPath: \.steps) {
+                _steps = newValue
+            }
+        }
+    }
+
+    @ObservationIgnored @AppStorage("Scale") private var _guidanceScale = 11.0
+    @ObservationIgnored var guidanceScale: Double {
+        get {
+            access(keyPath: \.guidanceScale)
+            return _guidanceScale
+        }
+        set {
+            withMutation(keyPath: \.guidanceScale) {
+                _guidanceScale = newValue
+            }
+        }
+    }
+
+    @ObservationIgnored @AppStorage("ImageWidth") private var _width = 512
+    @ObservationIgnored var width: Int {
+        get {
+            access(keyPath: \.width)
+            return _width
+        }
+        set {
+            withMutation(keyPath: \.width) {
+                _width = newValue
+            }
+        }
+    }
+
+    @ObservationIgnored @AppStorage("ImageHeight") private var _height = 512
+    @ObservationIgnored var height: Int {
+        get {
+            access(keyPath: \.height)
+            return _height
+        }
+        set {
+            withMutation(keyPath: \.height) {
+                _height = newValue
+            }
+        }
+    }
+
+    @ObservationIgnored @AppStorage("Scheduler") private var _scheduler: Scheduler = .dpmSolverMultistepScheduler
+    @ObservationIgnored var scheduler: Scheduler {
+        get {
+            access(keyPath: \.scheduler)
+            return _scheduler
+        }
+        set {
+            withMutation(keyPath: \.scheduler) {
+                _scheduler = newValue
+            }
+        }
+    }
+
+    @ObservationIgnored @AppStorage("UpscaleGeneratedImages") private var _upscaleGeneratedImages = false
+    @ObservationIgnored var upscaleGeneratedImages: Bool {
+        get {
+            access(keyPath: \.upscaleGeneratedImages)
+            return _upscaleGeneratedImages
+        }
+        set {
+            withMutation(keyPath: \.upscaleGeneratedImages) {
+                _upscaleGeneratedImages = newValue
+            }
+        }
+    }
+
+    @ObservationIgnored @AppStorage("ShowGenerationPreview") private var _showGenerationPreview = true
+    @ObservationIgnored var showGenerationPreview: Bool {
+        get {
+            access(keyPath: \.showGenerationPreview)
+            return _showGenerationPreview
+        }
+        set {
+            withMutation(keyPath: \.showGenerationPreview) {
+                _showGenerationPreview = newValue
+            }
+        }
+    }
+
+    @ObservationIgnored @AppStorage("MLComputeUnitPreference") private var _mlComputeUnitPreference: ComputeUnitPreference = .auto
+    @ObservationIgnored var mlComputeUnitPreference: ComputeUnitPreference {
+        get {
+            access(keyPath: \.mlComputeUnitPreference)
+            return _mlComputeUnitPreference
+        }
+        set {
+            withMutation(keyPath: \.mlComputeUnitPreference) {
+                _mlComputeUnitPreference = newValue
+            }
+        }
+    }
+
+    @ObservationIgnored @AppStorage("ReduceMemory") private var _reduceMemory = false
+    @ObservationIgnored var reduceMemory: Bool {
+        get {
+            access(keyPath: \.reduceMemory)
+            return _reduceMemory
+        }
+        set {
+            withMutation(keyPath: \.reduceMemory) {
+                _reduceMemory = newValue
+            }
+        }
+    }
+
+    @ObservationIgnored @AppStorage("SafetyChecker") private var _safetyChecker = false
+    @ObservationIgnored var safetyChecker: Bool {
+        get {
+            access(keyPath: \.safetyChecker)
+            return _safetyChecker
+        }
+        set {
+            withMutation(keyPath: \.safetyChecker) {
+                _safetyChecker = newValue
+            }
+        }
+    }
+
+    @ObservationIgnored @AppStorage("UseTrash") private var _useTrash = true
+    @ObservationIgnored var useTrash: Bool {
+        get {
+            access(keyPath: \.useTrash)
+            return _useTrash
+        }
+        set {
+            withMutation(keyPath: \.useTrash) {
+                _useTrash = newValue
+            }
+        }
+    }
 
     private var imageFolderMonitor: FolderMonitor?
     private var modelFolderMonitor: FolderMonitor?
@@ -151,10 +378,8 @@ final class ImageController: ObservableObject {
                         removals.append(sdi)
                     }
                 }
-                Task {
-                    ImageStore.shared.add(additions)
-                    ImageStore.shared.remove(removals)
-                }
+                ImageStore.shared.add(additions)
+                ImageStore.shared.remove(removals)
             }
         }
         self.modelFolderMonitor = FolderMonitor(path: modelDir) {
@@ -467,6 +692,7 @@ final class ImageController: ObservableObject {
         currentControlNets[index].image = nil
     }
 
+    @MainActor
     func selectImage() async -> CGImage? {
         let panel = NSOpenPanel()
         panel.allowedContentTypes = [.image]
@@ -488,6 +714,7 @@ final class ImageController: ObservableObject {
         return CGImageSourceCreateImageAtIndex(cgImageSource, imageIndex, nil)
     }
 
+    @MainActor
     func importImages() async {
         let panel = NSOpenPanel()
         panel.allowedContentTypes = [.image]
@@ -539,6 +766,7 @@ final class ImageController: ObservableObject {
         await alert.beginSheetModal(for: NSApplication.shared.mainWindow!)
     }
 
+    @MainActor
     func saveAll() async {
         if ImageStore.shared.images.isEmpty { return }
         let panel = NSOpenPanel()

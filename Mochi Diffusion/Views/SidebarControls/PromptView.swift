@@ -76,11 +76,12 @@ struct PromptTextEditor: View {
 }
 
 struct PromptView: View {
-    @EnvironmentObject private var controller: ImageController
+    @Environment(ImageController.self) private var controller: ImageController
     @Environment(ImageGenerator.self) private var generator: ImageGenerator
     @Environment(FocusController.self) private var focusCon: FocusController
 
     var body: some View {
+        @Bindable var controller = controller
         @Bindable var focusCon = focusCon
 
         VStack(alignment: .leading, spacing: 6) {
@@ -142,7 +143,7 @@ struct PromptView: View {
 
 #Preview {
     PromptView()
-        .environmentObject(ImageController.shared)
+        .environment(ImageController.shared)
         .environment(ImageGenerator.shared)
         .environment(FocusController.shared)
 }

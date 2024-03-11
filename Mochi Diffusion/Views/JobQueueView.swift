@@ -10,7 +10,7 @@ import SwiftUI
 
 struct JobQueueView: View {
     @Environment(ImageGenerator.self) private var generator: ImageGenerator
-    @EnvironmentObject private var controller: ImageController
+    @Environment(ImageController.self) private var controller: ImageController
 
     @State private var progressData: (Double, String)?
 
@@ -127,7 +127,7 @@ private struct JobView: View {
 }
 
 private struct InfoPopoverView: View {
-    @EnvironmentObject private var controller: ImageController
+    @Environment(ImageController.self) private var controller: ImageController
     let config: GenerationConfig
 
     func copyOptionsToSidebar() {

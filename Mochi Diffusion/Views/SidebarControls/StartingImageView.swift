@@ -8,10 +8,12 @@
 import SwiftUI
 
 struct StartingImageView: View {
-    @EnvironmentObject private var controller: ImageController
+    @Environment(ImageController.self) private var controller: ImageController
     @State private var isInfoPopoverShown = false
 
     var body: some View {
+        @Bindable var controller = controller
+
         Text(
             "Starting Image",
             comment: "Label for setting the starting image (commonly known as image2image)"
@@ -82,5 +84,5 @@ struct StartingImageView: View {
 
 #Preview {
     StartingImageView()
-        .environmentObject(ImageController.shared)
+        .environment(ImageController.shared)
 }

@@ -8,9 +8,11 @@
 import SwiftUI
 
 struct StepsView: View {
-    @EnvironmentObject private var controller: ImageController
+    @Environment(ImageController.self) private var controller: ImageController
 
     var body: some View {
+        @Bindable var controller = controller
+
         Text("Steps")
             .sidebarLabelFormat()
         MochiSlider(value: $controller.steps, bounds: 1...50, step: 1, strictUpperBound: false)
@@ -19,5 +21,5 @@ struct StepsView: View {
 
 #Preview {
     StepsView()
-        .environmentObject(ImageController.shared)
+        .environment(ImageController.shared)
 }

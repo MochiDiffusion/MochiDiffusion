@@ -8,12 +8,14 @@
 import SwiftUI
 
 struct SizeView: View {
-    @EnvironmentObject private var controller: ImageController
+    @Environment(ImageController.self) private var controller: ImageController
     private let imageSizes = [
         256, 320, 384, 448, 512, 576, 640, 704, 768
     ]
 
     var body: some View {
+        @Bindable var controller = controller
+
         HStack {
             VStack(alignment: .leading) {
                 Text(
@@ -45,5 +47,5 @@ struct SizeView: View {
 
 #Preview {
     SizeView()
-        .environmentObject(ImageController.shared)
+        .environment(ImageController.shared)
 }

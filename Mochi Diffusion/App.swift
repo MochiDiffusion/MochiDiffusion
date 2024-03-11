@@ -12,7 +12,7 @@ import UserNotifications
 
 @main
 struct MochiDiffusionApp: App {
-    @StateObject private var controller: ImageController
+    @State private var controller: ImageController
     @State private var generator: ImageGenerator
     @State private var store: ImageStore
     @State private var focusCon: FocusController
@@ -34,9 +34,11 @@ struct MochiDiffusionApp: App {
     }
 
     var body: some Scene {
+        @Bindable var controller = controller
+
         Window("Mochi Diffusion", id: "main") {
             AppView()
-                .environmentObject(controller)
+                .environment(controller)
                 .environment(generator)
                 .environment(store)
                 .environment(focusCon)
@@ -69,7 +71,7 @@ struct MochiDiffusionApp: App {
 
         Settings {
             SettingsView()
-                .environmentObject(controller)
+                .environment(controller)
                 .environment(notificationController)
         }
     }

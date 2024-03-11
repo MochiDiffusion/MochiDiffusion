@@ -8,9 +8,11 @@
 import SwiftUI
 
 struct GuidanceScaleView: View {
-    @EnvironmentObject private var controller: ImageController
+    @Environment(ImageController.self) private var controller: ImageController
 
     var body: some View {
+        @Bindable var controller = controller
+
         Text("Guidance Scale")
             .sidebarLabelFormat()
         MochiSlider(value: $controller.guidanceScale, bounds: 1...20, step: 0.5)
@@ -19,5 +21,5 @@ struct GuidanceScaleView: View {
 
 #Preview {
     GuidanceScaleView()
-        .environmentObject(ImageController.shared)
+        .environment(ImageController.shared)
 }
