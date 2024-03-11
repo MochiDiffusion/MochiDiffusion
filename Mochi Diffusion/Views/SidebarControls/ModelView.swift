@@ -24,7 +24,7 @@ struct ModelView: View {
             .labelsHidden()
 
             Button {
-                NSWorkspace.shared.open(URL(fileURLWithPath: controller.modelDir))        
+                NSWorkspace.shared.open(URL(fileURLWithPath: controller.modelDir))
             } label: {
                 Text(verbatim: "...")
             }
