@@ -5,6 +5,7 @@
 //  Created by Joshua Park on 12/26/22.
 //
 
+import AppKit
 import CoreML
 import SwiftUI
 
@@ -21,6 +22,13 @@ struct ModelView: View {
                 }
             }
             .labelsHidden()
+
+            Button {
+                NSWorkspace.shared.open(URL(fileURLWithPath: controller.modelDir))
+            } label: {
+                Text(verbatim: "...")
+            }
+            .help("Show models in Finder")
         }
     }
 }
