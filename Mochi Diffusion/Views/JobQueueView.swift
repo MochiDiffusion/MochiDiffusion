@@ -16,7 +16,7 @@ struct JobQueueView: View {
 
     private func updateProgressData() {
         if case let .running(progress) = generator.state, let progress = progress, progress.stepCount > 0 {
-            let step = progress.step + 1
+            let step = progress.step
             let stepValue = Double(step) / Double(progress.stepCount)
 
             let progressLabel = String(
@@ -143,19 +143,19 @@ private struct InfoPopoverView: View {
 
             controller.currentModel = config.model
 
-            if let startingImage = config.pipelineConfig.startingImage {
+            if let startingImage = config.pipelineConfig.initImage, let strength = config.pipelineConfig.strength {
                 controller.startingImage = startingImage
-                controller.strength = Double(config.pipelineConfig.strength)
+                controller.strength = Double(strength)
             } else {
                 await controller.unsetStartingImage()
             }
 
-            if let controlNetName = config.controlNets.first, let controlNetImage = config.pipelineConfig.controlNetInputs.first {
-                await controller.setControlNet(name: controlNetName)
-                await controller.setControlNet(image: controlNetImage)
-            } else {
-                await controller.unsetControlNet()
-            }
+//            if let controlNetName = config.controlNets.first, let controlNetImage = config.pipelineConfig.controlNetInputs.first {
+//                await controller.setControlNet(name: controlNetName)
+//                await controller.setControlNet(image: controlNetImage)
+//            } else {
+//                await controller.unsetControlNet()
+//            }
         }
     }
 
@@ -220,31 +220,33 @@ private struct InfoPopoverView: View {
                         text: MLComputeUnits.toString(config.mlComputeUnit),
                         showCopyToPromptOption: false
                     )
-                    if let startingImage = config.pipelineConfig.startingImage {
+                    if let startingImage = config.pipelineConfig.initImage {
                         InfoGridRow(
                             type: LocalizedStringKey("Starting Image"),
                             image: startingImage,
                             showCopyToPromptOption: false
                         )
-                        InfoGridRow(
-                            type: LocalizedStringKey("Strength"),
-                            text: config.pipelineConfig.strength.formatted(.number.precision(.fractionLength(2))),
-                            showCopyToPromptOption: true,
-                            callback: { controller.strength = Double(config.pipelineConfig.strength) }
-                        )
+                        if let strength = config.pipelineConfig.strength {
+                            InfoGridRow(
+                                type: LocalizedStringKey("Strength"),
+                                text: strength.formatted(.number.precision(.fractionLength(2))),
+                                showCopyToPromptOption: true,
+                                callback: { controller.strength = Double(config.pipelineConfig.strength!) }
+                            )
+                        }
                     }
-                    if let controlNetName = config.controlNets.first, let controlNetImage = config.pipelineConfig.controlNetInputs.first {
-                        InfoGridRow(
-                            type: LocalizedStringKey("ControlNet"),
-                            text: controlNetName,
-                            showCopyToPromptOption: false
-                        )
-                        InfoGridRow(
-                            type: LocalizedStringKey("ControlNet Image"),
-                            image: controlNetImage,
-                            showCopyToPromptOption: false
-                        )
-                    }
+//                    if let controlNetName = config.controlNets.first, let controlNetImage = config.pipelineConfig.controlNetInputs.first {
+//                        InfoGridRow(
+//                            type: LocalizedStringKey("ControlNet"),
+//                            text: controlNetName,
+//                            showCopyToPromptOption: false
+//                        )
+//                        InfoGridRow(
+//                            type: LocalizedStringKey("ControlNet Image"),
+//                            image: controlNetImage,
+//                            showCopyToPromptOption: false
+//                        )
+//                    }
                     // swiftlint:enable trailing_closure
                 }
 

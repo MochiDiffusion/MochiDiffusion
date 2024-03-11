@@ -6,7 +6,6 @@
 //
 
 import CoreML
-import StableDiffusion
 import SwiftUI
 
 struct InfoGridRow: View {

@@ -6,7 +6,6 @@
 //
 
 import CoreML
-import StableDiffusion
 import SwiftUI
 import UniformTypeIdentifiers
 import UserNotifications
@@ -210,18 +209,18 @@ struct SettingsView: View {
             GroupBox {
                 VStack(alignment: .leading) {
                     HStack {
-                        Text("Show Image Preview")
+                        Text("Show High Quality Image Preview")
 
                         Spacer()
 
-                        Toggle("", isOn: $controller.showGenerationPreview)
+                        Toggle("", isOn: $controller.showHighqualityPreview)
                             .labelsHidden()
                             .toggleStyle(.switch)
                             .controlSize(.small)
                     }
 
                     Text(
-                        "Show the image as its being generated.",
+                        "A high-quality preview, which will affect the speed.",
                         comment: "Help text for Show Image Preview setting"
                     )
                     .helpTextFormat()

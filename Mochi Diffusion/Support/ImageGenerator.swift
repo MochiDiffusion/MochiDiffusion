@@ -8,12 +8,12 @@
 import Combine
 import CoreML
 import OSLog
-@preconcurrency import StableDiffusion
+@preconcurrency import GuernikaKit
 import UniformTypeIdentifiers
 
 struct GenerationConfig: Sendable, Identifiable {
     let id = UUID()
-    var pipelineConfig: StableDiffusionPipeline.Configuration
+    var pipelineConfig: SampleInput
     var isXL: Bool
     var autosaveImages: Bool
     var imageDir: String
@@ -55,7 +55,7 @@ struct GenerationConfig: Sendable, Identifiable {
 
     private(set) var queueProgress = QueueProgress(index: 0, total: 0)
 
-    private var pipeline: (any StableDiffusionPipelineProtocol)?
+    public var pipeline: (any StableDiffusionPipeline)?
 
     private(set) var tokenizer: Tokenizer?
 
@@ -66,6 +66,8 @@ struct GenerationConfig: Sendable, Identifiable {
     private var generationStartTime: DispatchTime?
 
     private var currentPipelineHash: Int?
+    
+    private var lastSize: CGSize?
 
     func loadImages(imageDir: String) async throws -> ([SDImage], URL) {
         var finalImageDirURL: URL
@@ -122,9 +124,8 @@ struct GenerationConfig: Sendable, Identifiable {
             models = subDirs
                 .sorted { $0.lastPathComponent.compare($1.lastPathComponent, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedAscending }
                 .compactMap { url in
-                    let controlledUnetMetadataPath = url.appending(components: "ControlledUnet.mlmodelc", "metadata.json").path(percentEncoded: false)
+                    let controlledUnetMetadataPath = url.appending(components: "Unet.mlmodelc", "metadata.json").path(percentEncoded: false)
                     let hasControlNet = fm.fileExists(atPath: controlledUnetMetadataPath)
-
                     if hasControlNet {
                         let controlNetSymLinkPath = url.appending(component: "controlnet").path(percentEncoded: false)
 
@@ -152,35 +153,46 @@ struct GenerationConfig: Sendable, Identifiable {
             await updateState(.error("Couldn't load \(model.name) because it doesn't exist."))
             throw GeneratorError.requestedModelNotFound
         }
-
         var hasher = Hasher()
         hasher.combine(model)
         hasher.combine(controlNet)
         hasher.combine(computeUnit)
         hasher.combine(reduceMemory)
         let hash = hasher.finalize()
-        guard hash != self.currentPipelineHash else { return }
+        var cSize = await CGSize(width: ImageController.shared.width, height: ImageController.shared.height)
+        if model.allowsVariableSize == false{
+            cSize = model.inputSize!
+        }
+        
+        if hash == self.currentPipelineHash {
+            if await ImageController.shared.startingImage != nil && lastSize == cSize {
+                return
+            } else if await ImageController.shared.startingImage == nil{
+                return
+            }
+        }
 
+        lastSize = await CGSize(width: ImageController.shared.width, height: ImageController.shared.height)
         await updateState(.loading)
         let config = MLModelConfiguration()
         config.computeUnits = computeUnit
-
-        if model.isXL {
-            self.pipeline = try StableDiffusionXLPipeline(
-                resourcesAt: model.url,
-                configuration: config,
-                reduceMemory: reduceMemory
-            )
-        } else {
-            self.pipeline = try StableDiffusionPipeline(
-                resourcesAt: model.url,
-                controlNet: controlNet,
-                configuration: config,
-                disableSafety: true,
-                reduceMemory: reduceMemory
-            )
+        if model.allowsVariableSize && vaeAllowsVariableSize(model.url) == false{
+            await modifyInputSize(model.url, height: ImageController.shared.height, width: ImageController.shared.width)
         }
+        let modelresource = try GuernikaKit.load(at: model.url)
 
+        switch modelresource {
+        case is StableDiffusionXLPipeline:
+            self.pipeline = modelresource as! StableDiffusionXLPipeline
+        case is StableDiffusionXLRefinerPipeline:
+            self.pipeline = modelresource as! StableDiffusionXLRefinerPipeline
+        case is StableDiffusionPix2PixPipeline:
+            self.pipeline = modelresource as! StableDiffusionPix2PixPipeline
+        default:
+            self.pipeline = modelresource as! StableDiffusionMainPipeline
+        }
+    
+        self.pipeline?.reduceMemory = true//reduceMemory
         self.currentPipelineHash = hash
         self.tokenizer = Tokenizer(modelDir: model.url)
         await updateState(.ready(nil))
@@ -193,15 +205,10 @@ struct GenerationConfig: Sendable, Identifiable {
         }
         await updateState(.loading)
         generationStopped = false
+       
         var config = inputConfig
         config.pipelineConfig.seed = config.pipelineConfig.seed == 0 ? UInt32.random(in: 0 ..< UInt32.max) : config.pipelineConfig.seed
-
-        if config.isXL {
-            config.pipelineConfig.encoderScaleFactor = 0.13025
-            config.pipelineConfig.decoderScaleFactor = 0.13025
-            config.pipelineConfig.schedulerTimestepSpacing = .karras
-        }
-
+        
         var sdi = SDImage()
         sdi.prompt = config.pipelineConfig.prompt
         sdi.negativePrompt = config.pipelineConfig.negativePrompt
@@ -210,11 +217,16 @@ struct GenerationConfig: Sendable, Identifiable {
         sdi.mlComputeUnit = config.mlComputeUnit
         sdi.steps = config.pipelineConfig.stepCount
         sdi.guidanceScale = Double(config.pipelineConfig.guidanceScale)
-
+        
+        if pipeline.allowsVariableSize && vaeAllowsVariableSize(config.model.url) == false{
+            try await hackVAE(model: config.model)
+        }
+        
         for index in 0 ..< config.numberOfImages {
             await updateQueueProgress(QueueProgress(index: index, total: inputConfig.numberOfImages))
             generationStartTime = DispatchTime.now()
-            let images = try pipeline.generateImages(configuration: config.pipelineConfig) { [config] progress in
+            
+            let image = try pipeline.generateImages(input: config.pipelineConfig) { progress in
 
                 Task { @MainActor in
                     state = .running(progress)
@@ -224,10 +236,11 @@ struct GenerationConfig: Sendable, Identifiable {
                 }
 
                 Task {
-                    if config.pipelineConfig.useDenoisedIntermediates, let currentImage = progress.currentImages.last {
-                        ImageStore.shared.setCurrentGenerating(image: currentImage)
-                    } else {
-                        ImageStore.shared.setCurrentGenerating(image: nil)
+                    let currentImage = progress.currentLatentSample
+                    if await ImageController.shared.showHighqualityPreview{
+                        ImageStore.shared.setCurrentGenerating(image: try pipeline.decodeToImage(currentImage))
+                    }else{
+                        ImageStore.shared.setCurrentGenerating(image: pipeline.latentToImage(currentImage))
                     }
                 }
 
@@ -236,38 +249,37 @@ struct GenerationConfig: Sendable, Identifiable {
             if generationStopped {
                 break
             }
-            for image in images {
-                guard let image = image else { continue }
-                if config.upscaleGeneratedImages {
-                    guard let upscaledImg = await Upscaler.shared.upscale(cgImage: image) else { continue }
-                    sdi.image = upscaledImg
-                    sdi.aspectRatio = CGFloat(Double(upscaledImg.width) / Double(upscaledImg.height))
-                    sdi.upscaler = "RealESRGAN"
-                } else {
-                    sdi.image = image
-                    sdi.aspectRatio = CGFloat(Double(image.width) / Double(image.height))
-                }
-                sdi.id = UUID()
-                sdi.seed = config.pipelineConfig.seed
-                sdi.generatedDate = Date.now
-                sdi.path = ""
-
-                if config.autosaveImages && !config.imageDir.isEmpty {
-                    var pathURL = URL(fileURLWithPath: config.imageDir, isDirectory: true)
-                    let count = ImageStore.shared.images.endIndex + 1
-                    pathURL.append(path: sdi.filenameWithoutExtension(count: count))
-
-                    let type = UTType.fromString(config.imageType)
-                    guard let path = await sdi.save(pathURL, type: type) else { continue }
-                    sdi.path = path.path(percentEncoded: false)
-                }
-                ImageStore.shared.add(sdi)
+            
+            guard let image = image else { continue }
+            if config.upscaleGeneratedImages {
+                guard let upscaledImg = await Upscaler.shared.upscale(cgImage: image) else { continue }
+                sdi.image = upscaledImg
+                sdi.aspectRatio = CGFloat(Double(upscaledImg.width) / Double(upscaledImg.height))
+                sdi.upscaler = "RealESRGAN"
+            } else {
+                sdi.image = image
+                sdi.aspectRatio = CGFloat(Double(image.width) / Double(image.height))
             }
+            sdi.id = UUID()
+            sdi.seed = config.pipelineConfig.seed
+            sdi.generatedDate = Date.now
+            sdi.path = ""
+
+            if config.autosaveImages && !config.imageDir.isEmpty {
+                var pathURL = URL(fileURLWithPath: config.imageDir, isDirectory: true)
+                let count = ImageStore.shared.images.endIndex + 1
+                pathURL.append(path: sdi.filenameWithoutExtension(count: count))
+
+                let type = UTType.fromString(config.imageType)
+                guard let path = await sdi.save(pathURL, type: type) else { continue }
+                sdi.path = path.path(percentEncoded: false)
+            }
+            ImageStore.shared.add(sdi)
             config.pipelineConfig.seed += 1
         }
         await updateState(.ready(nil))
     }
-
+    
     func stopGenerate() async {
         generationStopped = true
     }

@@ -53,10 +53,10 @@ struct GalleryView: View {
                         if let currentImage = store.currentGeneratingImage, case .running = generator.state {
                             GalleryPreviewView(image: currentImage)
                                 .overlay(
-                                    RoundedRectangle(cornerRadius: 2)
+                                    RoundedRectangle(cornerRadius: 10)
                                         .stroke(
                                             Color(nsColor: .controlBackgroundColor),
-                                            lineWidth: 4
+                                            lineWidth: 2
                                         )
                                 )
                         }
@@ -75,10 +75,10 @@ struct GalleryView: View {
                             }
                             .aspectRatio(sdi.aspectRatio, contentMode: .fit)
                             .overlay(
-                                RoundedRectangle(cornerRadius: 2)
+                                RoundedRectangle(cornerRadius: 10)
                                     .stroke(
                                         store.selectedId == sdi.id ? Color.accentColor : Color(nsColor: .controlBackgroundColor),
-                                        lineWidth: 4
+                                        lineWidth: 2
                                     )
                             )
                             .gesture(TapGesture(count: 2).onEnded {
@@ -110,11 +110,12 @@ struct GalleryView: View {
                         if let currentImage = store.currentGeneratingImage, case .running = generator.state {
                             GalleryPreviewView(image: currentImage)
                                 .overlay(
-                                    RoundedRectangle(cornerRadius: 2)
+                                    RoundedRectangle(cornerRadius: 10)
                                         .stroke(
                                             Color(nsColor: .controlBackgroundColor),
-                                            lineWidth: 4
+                                            lineWidth: 2
                                         )
+                                        .frame(width: 210, height: 210)
                                 )
                         }
                     }

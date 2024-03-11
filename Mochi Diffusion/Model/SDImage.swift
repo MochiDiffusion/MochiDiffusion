@@ -9,7 +9,7 @@ import AppKit
 import CoreGraphics
 import CoreML
 import Foundation
-import StableDiffusion
+import GuernikaKit
 import UniformTypeIdentifiers
 
 struct SDImage: Identifiable, Hashable {
@@ -21,11 +21,11 @@ struct SDImage: Identifiable, Hashable {
     var height: Int { self.image?.height ?? 0 }
     var aspectRatio: CGFloat = 0.0
     var model = ""
-    var scheduler = Scheduler.dpmSolverMultistepScheduler
+    var scheduler = Scheduler.dpmSolverMultistepKarras
     var mlComputeUnit: MLComputeUnits?
     var seed: UInt32 = 0
-    var steps = 28
-    var guidanceScale = 11.0
+    var steps = 15
+    var guidanceScale = 5.0
     var generatedDate = Date()
     var upscaler = ""
     var isUpscaling = false

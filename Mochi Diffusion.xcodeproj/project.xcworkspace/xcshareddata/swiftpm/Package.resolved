@@ -10,12 +10,12 @@
       }
     },
     {
-      "identity" : "ml-stable-diffusion",
+      "identity" : "guernikakit",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/ml-stable-diffusion",
+      "location" : "https://github.com/GuernikaCore/GuernikaKit.git",
       "state" : {
-        "branch" : "main",
-        "revision" : "d456a972cd7d84cab2ec353a29896d59b8602248"
+        "revision" : "500b1f80ca14159afe7a9d14b7ce100413a568fc",
+        "version" : "1.6.1"
       }
     },
     {
@@ -28,21 +28,30 @@
       }
     },
     {
-      "identity" : "sparkle",
+      "identity" : "randomgenerator",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/sparkle-project/Sparkle",
+      "location" : "https://github.com/GuernikaCore/RandomGenerator.git",
       "state" : {
-        "revision" : "47d3d90aee3c52b6f61d04ceae426e607df62347",
-        "version" : "2.5.2"
+        "revision" : "7c91e2f454ecc753075a526cf5ffc34d3c4a10c5",
+        "version" : "1.0.0"
       }
     },
     {
-      "identity" : "swift-argument-parser",
+      "identity" : "schedulers",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-argument-parser.git",
+      "location" : "https://github.com/GuernikaCore/Schedulers.git",
       "state" : {
-        "revision" : "fddd1c00396eed152c45a46bea9f47b98e59301d",
-        "version" : "1.2.0"
+        "revision" : "1f517514d679e38bb9915c3a74bf04f75d5b5875",
+        "version" : "1.4.0"
+      }
+    },
+    {
+      "identity" : "sparkle",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/sparkle-project/Sparkle.git",
+      "state" : {
+        "revision" : "47d3d90aee3c52b6f61d04ceae426e607df62347",
+        "version" : "2.5.2"
       }
     }
   ],

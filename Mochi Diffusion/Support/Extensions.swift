@@ -7,7 +7,6 @@
 
 import CompactSlider
 import CoreML
-import StableDiffusion
 import SwiftUI
 import UniformTypeIdentifiers
 
