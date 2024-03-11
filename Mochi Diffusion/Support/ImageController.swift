@@ -348,8 +348,7 @@ final class ImageController: ObservableObject {
                         reduceMemoryOrUpdateInputShape = true
                         prevPipeline = nil
                         if genConfig.model.allowsVariableSize && vaeAllowsVariableSize(genConfig.model.url) == false {
-                            modifyInputSize(
-                                genConfig.model.url,
+                            genConfig.model.modifyInputSize(
                                 height: Int(genConfig.pipelineConfig.size!.height),
                                 width: Int(genConfig.pipelineConfig.size!.width)
                             )

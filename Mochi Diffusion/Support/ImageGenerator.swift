@@ -201,7 +201,7 @@ struct GenerationConfig: Sendable, Identifiable {
         sdi.guidanceScale = Double(config.pipelineConfig.guidanceScale)
 
         if pipeline.allowsVariableSize && vaeAllowsVariableSize(config.model.url) == false {
-            try await hackVAE(model: config.model)
+            try await config.model.hackVAE()
         }
 
         for index in 0 ..< config.numberOfImages {
