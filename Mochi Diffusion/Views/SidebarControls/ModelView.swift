@@ -22,14 +22,14 @@ struct ModelView: View {
                 }
             }
             .labelsHidden()
-            Button(action: openDirectoryInFinder) {
-                Text("…")
-            }.help("Open models directory in Finder")
-        }
-    }
 
-    private func openDirectoryInFinder() {
-        NSWorkspace.shared.open(URL(fileURLWithPath: controller.modelDir))
+            Button {
+                NSWorkspace.shared.open(URL(fileURLWithPath: controller.modelDir))        
+            } label: {
+                Text(verbatim: "...")
+            }
+            .help("Show models in Finder")
+        }
     }
 }
 
