@@ -30,6 +30,8 @@ struct GenerationConfig: Sendable, Identifiable {
         hasher.combine(model)
         hasher.combine(controlNets)
         hasher.combine(mlComputeUnit)
+        hasher.combine(pipelineConfig.size)
+        hasher.combine(pipelineConfig.initImage == nil)
         return hasher.finalize()
     }
 }
@@ -63,7 +65,7 @@ struct GenerationConfig: Sendable, Identifiable {
 
     private(set) var queueProgress = QueueProgress(index: 0, total: 0)
 
-    public var pipeline: (any StableDiffusionPipeline)?
+    private var pipeline: (any StableDiffusionPipeline)?
 
     private(set) var tokenizer: Tokenizer?
 
@@ -128,8 +130,8 @@ struct GenerationConfig: Sendable, Identifiable {
             models = subDirs
                 .sorted { $0.lastPathComponent.compare($1.lastPathComponent, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedAscending }
                 .compactMap { url in
-                    let controlledUnetMetadataPath = url.appending(components: "Unet.mlmodelc", "metadata.json").path(percentEncoded: false)
-                    let hasControlNet = fm.fileExists(atPath: controlledUnetMetadataPath)
+                    let unetMetadataPath = url.appending(components: "Unet.mlmodelc", "metadata.json").path(percentEncoded: false)
+                    let hasControlNet = fm.fileExists(atPath: unetMetadataPath)
                     if hasControlNet {
                         let controlNetSymLinkPath = url.appending(component: "controlnet").path(percentEncoded: false)
 
@@ -199,10 +201,6 @@ struct GenerationConfig: Sendable, Identifiable {
         sdi.mlComputeUnit = config.mlComputeUnit
         sdi.steps = config.pipelineConfig.stepCount
         sdi.guidanceScale = Double(config.pipelineConfig.guidanceScale)
-
-        if pipeline.allowsVariableSize && vaeAllowsVariableSize(config.model.url) == false {
-            try await config.model.hackVAE()
-        }
 
         for index in 0 ..< config.numberOfImages {
             await updateQueueProgress(QueueProgress(index: index, total: inputConfig.numberOfImages))

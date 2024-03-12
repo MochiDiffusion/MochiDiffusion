@@ -330,7 +330,6 @@ final class ImageController: ObservableObject {
     }
 
     private var prevPipeline: Int?
-    private var prevSize: CGSize?
 
     private func runGenerationJobs() async {
         guard case .ready = ImageGenerator.shared.state else { return }
@@ -340,23 +339,15 @@ final class ImageController: ObservableObject {
             self.currentGeneration = genConfig
             do {
                 if prevPipeline != genConfig.pipelineHash() {
-                    prevSize = nil
-                }
-                var reduceMemoryOrUpdateInputShape: Bool = self.reduceMemory
-                if genConfig.pipelineConfig.initImage != nil {
-                    if prevSize != genConfig.pipelineConfig.size {
+                    try await genConfig.model.hackVAE()
+                    var reduceMemoryOrUpdateInputShape = self.reduceMemory
+                    if genConfig.pipelineConfig.initImage != nil {
                         reduceMemoryOrUpdateInputShape = true
-                        prevPipeline = nil
-                        if genConfig.model.allowsVariableSize && vaeAllowsVariableSize(genConfig.model.url) == false {
-                            genConfig.model.modifyInputSize(
-                                height: Int(genConfig.pipelineConfig.size!.height),
-                                width: Int(genConfig.pipelineConfig.size!.width)
-                            )
-                        }
-                        prevSize = genConfig.pipelineConfig.size
+                        genConfig.model.modifyInputSize(
+                            height: Int(genConfig.pipelineConfig.size!.height),
+                            width: Int(genConfig.pipelineConfig.size!.width)
+                        )
                     }
-                }
-                if prevPipeline != genConfig.pipelineHash() {
                     try await ImageGenerator.shared.loadPipeline(
                         model: genConfig.model,
                         controlNet: genConfig.controlNets,
