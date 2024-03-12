@@ -18,8 +18,9 @@ struct SDModel: Identifiable {
     let controlNet: [String]
     let isXL: Bool
     var inputSize: CGSize?
-    var controltype: ControlType?
-    var allowsVariableSize: Bool
+    let controltype: ControlType?
+    let allowsVariableSize: Bool
+    private let vaeAllowsVariableSize: Bool
 
     var id: URL { url }
 
@@ -27,6 +28,7 @@ struct SDModel: Identifiable {
         guard
             let attention = identifyAttentionType(url),
             let allowsVariableSize = identifyAllowsVariableSize(url),
+            let vaeAllowsVariableSize = identifyVaeAllowsVariableSize(url),
             let size = identifyInputSize(url)
         else {
             return nil
@@ -43,12 +45,211 @@ struct SDModel: Identifiable {
         self.inputSize = size
         self.controltype = controltype
         self.allowsVariableSize = allowsVariableSize
+        self.vaeAllowsVariableSize = vaeAllowsVariableSize
     }
 }
 
 extension SDModel: Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
+    }
+}
+
+extension SDModel {
+    /// replace VAEEncoder.mlmodelc/coremldata.bin with en-coremldata.bin
+    /// replace VAEDecoder.mlmodelc/coremldata.bin with de-coremldata.bin
+    func resizeableCopy(target: URL, controlNet: [SDControlNet] = []) -> SDModel? {
+        guard allowsVariableSize && !vaeAllowsVariableSize else {
+            return nil
+        }
+        do {
+            if !FileManager.default.fileExists(atPath: target.path(percentEncoded: false)) {
+                try recursiveHardLink(source: url, target: target)
+
+                let encoderBinURL = target.appending(components: "VAEEncoder.mlmodelc", "coremldata.bin")
+                try FileManager.default.removeItem(at: encoderBinURL)
+                try FileManager.default.copyItem(at: Bundle.main.url(forResource: "en-coremldata", withExtension: "bin")!, to: encoderBinURL)
+
+                let decoderBinURL = target.appending(components: "VAEDecoder.mlmodelc", "coremldata.bin")
+                try FileManager.default.removeItem(at: decoderBinURL)
+                try FileManager.default.copyItem(at: Bundle.main.url(forResource: "de-coremldata", withExtension: "bin")!, to: decoderBinURL)
+
+                let encoderMilURL = target.appending(components: "VAEEncoder.mlmodelc", "model.mil")
+                let encoderMilBakURL = target.appending(components: "VAEEncoder.mlmodelc", "model.mil.bak")
+                try FileManager.default.removeItem(at: encoderMilURL)
+                try FileManager.default.copyItem(at: url.appending(components: "VAEEncoder.mlmodelc", "model.mil"), to: encoderMilBakURL)
+
+                let decoderMilURL = target.appending(components: "VAEDecoder.mlmodelc", "model.mil")
+                let decoderMilBakURL = target.appending(components: "VAEDecoder.mlmodelc", "model.mil.bak")
+                try FileManager.default.removeItem(at: decoderMilURL)
+                try FileManager.default.copyItem(at: url.appending(components: "VAEDecoder.mlmodelc", "model.mil"), to: decoderMilBakURL)
+
+                let encoderMetadataURL = target.appending(components: "VAEEncoder.mlmodelc", "metadata.json")
+                try FileManager.default.removeItem(at: encoderMetadataURL)
+                try FileManager.default.copyItem(at: url.appending(components: "VAEEncoder.mlmodelc", "metadata.json"), to: encoderMetadataURL)
+            }
+
+            return SDModel(url: target, name: name, controlNet: controlNet)
+        } catch {
+            print("ERROR: Unable to create resizeable copy of SDModel \(name)")
+            return nil
+        }
+    }
+
+    /// overwrite shape data in VAEEncoder.mlmodelc/model.mil
+    func modifyEncoderMil(width: Int, height: Int) {
+        let milURL = url.appending(components: "VAEEncoder.mlmodelc", "model.mil")
+        let milBakUrl = url.appending(components: "VAEEncoder.mlmodelc", "model.mil.bak")
+        do {
+            var fileContent = try String(contentsOf: milBakUrl, encoding: .utf8)
+            if isXL {
+                fileContent = fileContent.replacingOccurrences(of: "[1, 8, 128, 128]", with: "[1, 8, \(height / 8), \(width / 8)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 1, 16384, 512]", with: "[1, 1, \(height / 8 * width / 8), 512]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 1, 16384, 16384]", with: "[1, 1, \(height / 8 * width / 8), \(height / 8 * width / 8)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 16384, 1, 512]", with: "[1, \(height / 8 * width / 8), 1, 512]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 16384, 512]", with: "[1, \(height / 8 * width / 8), 512]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 512, 16384]", with: "[1, 512, \(height / 8 * width / 8)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 32, 16, 16384]", with: "[1, 32, 16, \(height / 8 * width / 8)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 32, 16, 128, 128]", with: "[1, 32, 16, \(height / 8), \(width / 8)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 512, 128, 128]", with: "[1, 512, \(height / 8), \(width / 8)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 512, 257, 257]", with: "[1, 512, \(height / 4 + 1), \(width / 4 + 1)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 32, 16, 256, 256]", with: "[1, 32, 16, \(height / 4), \(width / 4)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 512, 256, 256]", with: "[1, 512, \(height / 4), \(width / 4)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 32, 8, 256, 256]", with: "[1, 32, 8, \(height / 4), \(width / 4)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 256, 256, 256]", with: "[1, 256, \(height / 4), \(width / 4)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 256, 513, 513]", with: "[1, 256, \(height / 2 + 1), \(width / 2 + 1)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 32, 8, 512, 512]", with: "[1, 32, 8, \(height / 2), \(width / 2)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 256, 512, 512]", with: "[1, 256, \(height / 2), \(width / 2)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 32, 4, 512, 512]", with: "[1, 32, 4, \(height / 2), \(width / 2)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 128, 512, 512]", with: "[1, 128, \(height / 2), \(width / 2)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 128, 1025, 1025]", with: "[1, 128, \(height + 1), \(width + 1)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 128, 1024, 1024]", with: "[1, 128, \(height), \(width)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 32, 4, 1024, 1024]", with: "[1, 32, 4, \(height), \(width)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 3, 1024, 1024]", with: "[1, 3, \(height), \(width)]")
+            } else {
+                fileContent = fileContent.replacingOccurrences(of: "[1, 8, 64, 64]", with: "[1, 8, \(height / 8), \(width / 8)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 1, 4096, 512]", with: "[1, 1, \(height / 8 * width / 8), 512]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 1, 4096, 4096]", with: "[1, 1, \(height / 8 * width / 8), \(height / 8 * width / 8)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 4096, 1, 512]", with: "[1, \(height / 8 * width / 8), 1, 512]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 4096, 512]", with: "[1, \(height / 8 * width / 8), 512]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 512, 4096]", with: "[1, 512, \(height / 8 * width / 8)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 32, 16, 4096]", with: "[1, 32, 16, \(height / 8 * width / 8)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 32, 16, 64, 64]", with: "[1, 32, 16, \(height / 8), \(width / 8)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 512, 64, 64]", with: "[1, 512, \(height / 8), \(width / 8)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 512, 129, 129]", with: "[1, 512, \(height / 4 + 1), \(width / 4 + 1)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 32, 16, 128, 128]", with: "[1, 32, 16, \(height / 4), \(width / 4)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 512, 128, 128]", with: "[1, 512, \(height / 4), \(width / 4)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 32, 8, 128, 128]", with: "[1, 32, 8, \(height / 4), \(width / 4)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 256, 128, 128]", with: "[1, 256, \(height / 4), \(width / 4)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 256, 257, 257]", with: "[1, 256, \(height / 2 + 1), \(width / 2 + 1)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 32, 8, 256, 256]", with: "[1, 32, 8, \(height / 2), \(width / 2)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 256, 256, 256]", with: "[1, 256, \(height / 2), \(width / 2)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 32, 4, 256, 256]", with: "[1, 32, 4, \(height / 2), \(width / 2)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 128, 256, 256]", with: "[1, 128, \(height / 2), \(width / 2)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 128, 513, 513]", with: "[1, 128, \(height + 1), \(width + 1)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 128, 512, 512]", with: "[1, 128, \(height), \(width)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 32, 4, 512, 512]", with: "[1, 32, 4, \(height), \(width)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 3, 512, 512]", with: "[1, 3, \(height), \(width)]")
+            }
+            try fileContent.write(to: milURL, atomically: false, encoding: .utf8)
+        } catch {
+            print("Error: Unable to modify \(milURL.path(percentEncoded: false))")
+        }
+    }
+
+    /// overwrite shape data in VAEDecoder.mlmodelc/model.mil
+    func modifyDecoderMil(width: Int, height: Int) {
+        let milURL = url.appending(components: "VAEDecoder.mlmodelc", "model.mil")
+        let milBakURL = url.appending(components: "VAEDecoder.mlmodelc", "model.mil.bak")
+        do {
+            var fileContent = try String(contentsOf: milBakURL, encoding: .utf8)
+            if isXL {
+                fileContent = fileContent.replacingOccurrences(of: "[1, 4, 128, 128]", with: "[1, 4, \(height / 8), \(width / 8)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 512, 128, 128]", with: "[1, 512, \(height / 8), \(width / 8)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 32, 16, 128, 128]", with: "[1, 32, 16, \(height / 8), \(width / 8)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 32, 16, 16384]", with: "[1, 32, 16, \(height / 8 * width / 8)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 512, 16384]", with: "[1, 512, \(height / 8 * width / 8)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 16384, 512]", with: "[1, \(height / 8 * width / 8), 512]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 16384, 1, 512]", with: "[1, \(height / 8 * width / 8), 1, 512]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 1, 16384, 512]", with: "[1, 1, \(height / 8 * width / 8), 512]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 1, 16384, 16384]", with: "[1, 1, \(height / 8 * width / 8), \(height / 8 * width / 8)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 512, 256, 256]", with: "[1, 512, \(height / 4), \(width / 4)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 32, 16, 256, 256]", with: "[1, 32, 16, \(height / 4), \(width / 4)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 512, 512, 512]", with: "[1, 512, \(height / 2), \(width / 2)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 32, 16, 512, 512]", with: "[1, 32, 16, \(height / 2), \(width / 2)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 256, 512, 512]", with: "[1, 256, \(height / 2), \(width / 2)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 32, 8, 512, 512]", with: "[1, 32, 8, \(height / 2), \(width / 2)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 256, 1024, 1024]", with: "[1, 256, \(height), \(width)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 32, 8, 1024, 1024]", with: "[1, 32, 8, \(height), \(width)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 128, 1024, 1024]", with: "[1, 128, \(height), \(width)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 32, 4, 1024, 1024]", with: "[1, 32, 4, \(height), \(width)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 3, 1024, 1024]", with: "[1, 3, \(height), \(width)]")
+            } else {
+                fileContent = fileContent.replacingOccurrences(of: "[1, 4, 64, 64]", with: "[1, 4, \(height / 8), \(width / 8)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 512, 64, 64]", with: "[1, 512, \(height / 8), \(width / 8)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 32, 16, 64, 64]", with: "[1, 32, 16, \(height / 8), \(width / 8)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 32, 16, 4096]", with: "[1, 32, 16, \(height / 8 * width / 8)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 512, 4096]", with: "[1, 512, \(height / 8 * width / 8)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 4096, 512]", with: "[1, \(height / 8 * width / 8), 512]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 4096, 1, 512]", with: "[1, \(height / 8 * width / 8), 1, 512]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 1, 4096, 512]", with: "[1, 1, \(height / 8 * width / 8), 512]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 1, 4096, 4096]", with: "[1, 1, \(height / 8 * width / 8), \(height / 8 * width / 8)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 512, 128, 128]", with: "[1, 512, \(height / 4), \(width / 4)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 32, 16, 128, 128]", with: "[1, 32, 16, \(height / 4), \(width / 4)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 512, 256, 256]", with: "[1, 512, \(height / 2), \(width / 2)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 32, 16, 256, 256]", with: "[1, 32, 16, \(height / 2), \(width / 2)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 256, 256, 256]", with: "[1, 256, \(height / 2), \(width / 2)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 32, 8, 256, 256]", with: "[1, 32, 8, \(height / 2), \(width / 2)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 256, 512, 512]", with: "[1, 256, \(height), \(width)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 32, 8, 512, 512]", with: "[1, 32, 8, \(height), \(width)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 128, 512, 512]", with: "[1, 128, \(height), \(width)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 32, 4, 512, 512]", with: "[1, 32, 4, \(height), \(width)]")
+                fileContent = fileContent.replacingOccurrences(of: "[1, 3, 512, 512]", with: "[1, 3, \(height), \(width)]")
+            }
+            try fileContent.write(to: milURL, atomically: false, encoding: .utf8)
+        } catch {
+            print("Error: Unable to modify \(milURL.path(percentEncoded: false))")
+        }
+    }
+
+    /// Writes desired size value to inputSchema["shape"] of VAEEncoder.mlmodelc/metadata.json
+    public func modifyInputSize(width: Int, height: Int) {
+        guard allowsVariableSize && !vaeAllowsVariableSize else {
+            print("ERROR: model \(name) cannot modify input size")
+            return
+        }
+
+        let encoderMetadataURL = url.appendingPathComponent("VAEEncoder.mlmodelc").appendingPathComponent("metadata.json")
+        guard
+            let jsonData = try? Data(contentsOf: encoderMetadataURL),
+            var jsonArray = try? JSONSerialization.jsonObject(with: jsonData) as? [[String: Any]],
+            var jsonItem = jsonArray.first,
+            var inputSchema = jsonItem["inputSchema"] as? [[String: Any]],
+            var controlnetCond = inputSchema.first,
+            var shapeString = controlnetCond["shape"] as? String
+        else {
+            return
+        }
+
+        var shapeIntArray = shapeString.trimmingCharacters(in: CharacterSet(charactersIn: "[]"))
+            .components(separatedBy: ", ")
+            .compactMap { Int($0.trimmingCharacters(in: .whitespaces)) }
+
+        shapeIntArray[3] = width
+        shapeIntArray[2] = height
+        shapeString = "[\(shapeIntArray.map { String($0) }.joined(separator: ", "))]"
+
+        controlnetCond["shape"] = shapeString
+        inputSchema[0] = controlnetCond
+        jsonItem["inputSchema"] = inputSchema
+        jsonArray[0] = jsonItem
+
+        if let updatedJsonData = try? JSONSerialization.data(withJSONObject: jsonArray, options: .prettyPrinted) {
+            try? updatedJsonData.write(to: encoderMetadataURL)
+            print("update metadata.")
+        } else {
+            print("Failed to update metadata.")
+        }
     }
 }
 
@@ -169,6 +370,7 @@ private func identifyControlNetType(_ url: URL) -> ControlType? {
     }
 }
 
+// swiftlint:disable discouraged_optional_boolean
 private func identifyAllowsVariableSize(_ url: URL) -> Bool? {
     let metadataURL = url.appending(path: "Unet.mlmodelc").appending(path: "metadata.json")
 
@@ -195,7 +397,7 @@ private func identifyAllowsVariableSize(_ url: URL) -> Bool? {
     return inputSchema.first { ($0["hasShapeFlexibility"] as? String) == "1" } != nil
 }
 
-public func vaeAllowsVariableSize(_ url: URL) -> Bool? {
+private func identifyVaeAllowsVariableSize(_ url: URL) -> Bool? {
     let metadataURL = url.appending(path: "VAEDecoder.mlmodelc").appending(path: "metadata.json")
 
     guard let jsonData = try? Data(contentsOf: metadataURL) else {
@@ -220,192 +422,4 @@ public func vaeAllowsVariableSize(_ url: URL) -> Bool? {
 
     return inputSchema.first { ($0["hasShapeFlexibility"] as? String) == "1" } != nil
 }
-
-extension SDModel {
-    func hackVAE() async throws {
-        let resourcePath = url.path(percentEncoded: false)
-
-        func updateModelFiles(modelType: String, modelName: String, transformClosure: (String) async throws -> Void) async throws {
-            let milPath = "\(resourcePath)/\(modelName).mlmodelc/model.mil"
-            let milBakPath = "\(milPath).bak"
-            let binPath = "\(resourcePath)/\(modelName).mlmodelc/coremldata.bin"
-            let binBakPath = "\(binPath).bak"
-
-            if FileManager.default.fileExists(atPath: milBakPath) {
-                try FileManager.default.removeItem(atPath: milPath)
-                try FileManager.default.copyItem(atPath: milBakPath, toPath: milPath)
-                try FileManager.default.removeItem(atPath: binPath)
-                try FileManager.default.copyItem(at: Bundle.main.url(forResource: "\(modelType)-coremldata", withExtension: "bin")!, to: URL(fileURLWithPath: binPath))
-                try await transformClosure(milPath)
-            } else {
-                try FileManager.default.copyItem(atPath: milPath, toPath: milBakPath)
-                try FileManager.default.copyItem(atPath: binPath, toPath: binBakPath)
-                try FileManager.default.removeItem(atPath: binPath)
-                try FileManager.default.copyItem(at: Bundle.main.url(forResource: "\(modelType)-coremldata", withExtension: "bin")!, to: URL(fileURLWithPath: binPath))
-                try await transformClosure(milPath)
-            }
-        }
-
-        let transformClosure: (String, (String, Int, Int) async throws -> Void) async throws -> Void = { modelPath, function in
-            try await function(modelPath, ImageController.shared.height, ImageController.shared.width)
-        }
-
-        if isXL {
-            try await updateModelFiles(modelType: "de", modelName: "VAEDecoder") { vaedecoderMIL in
-                try await transformClosure(vaedecoderMIL, vaeDeSDXL)
-            }
-            try await updateModelFiles(modelType: "en", modelName: "VAEEncoder") { vaeencoderMIL in
-                try await transformClosure(vaeencoderMIL, vaeEnSDXL)
-            }
-        } else {
-            try await updateModelFiles(modelType: "de", modelName: "VAEDecoder") { vaedecoderMIL in
-                try await transformClosure(vaedecoderMIL, vaeDeSD)
-            }
-            try await updateModelFiles(modelType: "en", modelName: "VAEEncoder") { vaeencoderMIL in
-                try await transformClosure(vaeencoderMIL, vaeEnSD)
-            }
-        }
-    }
-
-    private func modifyMILFile(path: String, oldDimensions: String, newDimensions: String) {
-        do {
-            let fileContent = try String(contentsOf: URL(fileURLWithPath: path), encoding: .utf8)
-            let modifiedContent = fileContent.replacingOccurrences(of: oldDimensions, with: newDimensions)
-            try modifiedContent.write(to: URL(fileURLWithPath: path), atomically: false, encoding: .utf8)
-        } catch {
-            print("Error modifying MIL file: \(error)")
-        }
-    }
-
-    public func modifyInputSize(height: Int, width: Int) {
-        let encoderMetadataURL = url.appendingPathComponent("VAEEncoder.mlmodelc").appendingPathComponent("metadata.json")
-        guard
-            let jsonData = try? Data(contentsOf: encoderMetadataURL),
-            var jsonArray = try? JSONSerialization.jsonObject(with: jsonData) as? [[String: Any]],
-            var jsonItem = jsonArray.first,
-            var inputSchema = jsonItem["inputSchema"] as? [[String: Any]],
-            var controlnetCond = inputSchema.first,
-            var shapeString = controlnetCond["shape"] as? String
-        else {
-            return
-        }
-
-        var shapeIntArray = shapeString.trimmingCharacters(in: CharacterSet(charactersIn: "[]"))
-            .components(separatedBy: ", ")
-            .compactMap { Int($0.trimmingCharacters(in: .whitespaces)) }
-
-        shapeIntArray[3] = width
-        shapeIntArray[2] = height
-        shapeString = "[\(shapeIntArray.map { String($0) }.joined(separator: ", "))]"
-
-        controlnetCond["shape"] = shapeString
-        inputSchema[0] = controlnetCond
-        jsonItem["inputSchema"] = inputSchema
-        jsonArray[0] = jsonItem
-
-        if let updatedJsonData = try? JSONSerialization.data(withJSONObject: jsonArray, options: .prettyPrinted) {
-            try? updatedJsonData.write(to: encoderMetadataURL)
-            print("update metadata.")
-        } else {
-            print("Failed to update metadata.")
-        }
-    }
-
-    private func vaeDeSDXL(vaeMIL: String, height: Int, width: Int) {
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 4, 128, 128]", newDimensions: "[1, 4, \(height / 8), \(width / 8)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 512, 128, 128]", newDimensions: "[1, 512, \(height / 8), \(width / 8)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 32, 16, 128, 128]", newDimensions: "[1, 32, 16, \(height / 8), \(width / 8)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 32, 16, 16384]", newDimensions: "[1, 32, 16, \(height / 8 * width / 8)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 512, 16384]", newDimensions: "[1, 512, \(height / 8 * width / 8)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 16384, 512]", newDimensions: "[1, \(height / 8 * width / 8), 512]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 16384, 1, 512]", newDimensions: "[1, \(height / 8 * width / 8), 1, 512]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 1, 16384, 512]", newDimensions: "[1, 1, \(height / 8 * width / 8), 512]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 1, 16384, 16384]", newDimensions: "[1, 1, \(height / 8 * width / 8), \(height / 8 * width / 8)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 512, 256, 256]", newDimensions: "[1, 512, \(height / 4), \(width / 4)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 32, 16, 256, 256]", newDimensions: "[1, 32, 16, \(height / 4), \(width / 4)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 512, 512, 512]", newDimensions: "[1, 512, \(height / 2), \(width / 2)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 32, 16, 512, 512]", newDimensions: "[1, 32, 16, \(height / 2), \(width / 2)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 256, 512, 512]", newDimensions: "[1, 256, \(height / 2), \(width / 2)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 32, 8, 512, 512]", newDimensions: "[1, 32, 8, \(height / 2), \(width / 2)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 256, 1024, 1024]", newDimensions: "[1, 256, \(height), \(width)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 32, 8, 1024, 1024]", newDimensions: "[1, 32, 8, \(height), \(width)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 128, 1024, 1024]", newDimensions: "[1, 128, \(height), \(width)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 32, 4, 1024, 1024]", newDimensions: "[1, 32, 4, \(height), \(width)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 3, 1024, 1024]", newDimensions: "[1, 3, \(height), \(width)]")
-    }
-
-    private func vaeEnSDXL(vaeMIL: String, height: Int, width: Int) {
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 8, 128, 128]", newDimensions: "[1, 8, \(height / 8), \(width / 8)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 1, 16384, 512]", newDimensions: "[1, 1, \(height / 8 * width / 8), 512]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 1, 16384, 16384]", newDimensions: "[1, 1, \(height / 8 * width / 8), \(height / 8 * width / 8)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 16384, 1, 512]", newDimensions: "[1, \(height / 8 * width / 8), 1, 512]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 16384, 512]", newDimensions: "[1, \(height / 8 * width / 8), 512]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 512, 16384]", newDimensions: "[1, 512, \(height / 8 * width / 8)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 32, 16, 16384]", newDimensions: "[1, 32, 16, \(height / 8 * width / 8)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 32, 16, 128, 128]", newDimensions: "[1, 32, 16, \(height / 8), \(width / 8)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 512, 128, 128]", newDimensions: "[1, 512, \(height / 8), \(width / 8)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 512, 257, 257]", newDimensions: "[1, 512, \(height / 4 + 1), \(width / 4 + 1)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 32, 16, 256, 256]", newDimensions: "[1, 32, 16, \(height / 4), \(width / 4)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 512, 256, 256]", newDimensions: "[1, 512, \(height / 4), \(width / 4)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 32, 8, 256, 256]", newDimensions: "[1, 32, 8, \(height / 4), \(width / 4)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 256, 256, 256]", newDimensions: "[1, 256, \(height / 4), \(width / 4)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 256, 513, 513]", newDimensions: "[1, 256, \(height / 2 + 1), \(width / 2 + 1)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 32, 8, 512, 512]", newDimensions: "[1, 32, 8, \(height / 2), \(width / 2)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 256, 512, 512]", newDimensions: "[1, 256, \(height / 2), \(width / 2)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 32, 4, 512, 512]", newDimensions: "[1, 32, 4, \(height / 2), \(width / 2)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 128, 512, 512]", newDimensions: "[1, 128, \(height / 2), \(width / 2)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 128, 1025, 1025]", newDimensions: "[1, 128, \(height + 1), \(width + 1)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 128, 1024, 1024]", newDimensions: "[1, 128, \(height), \(width)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 32, 4, 1024, 1024]", newDimensions: "[1, 32, 4, \(height), \(width)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 3, 1024, 1024]", newDimensions: "[1, 3, \(height), \(width)]")
-    }
-
-    private func vaeDeSD(vaeMIL: String, height: Int, width: Int) {
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 4, 64, 64]", newDimensions: "[1, 4, \(height / 8), \(width / 8)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 512, 64, 64]", newDimensions: "[1, 512, \(height / 8), \(width / 8)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 32, 16, 64, 64]", newDimensions: "[1, 32, 16, \(height / 8), \(width / 8)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 32, 16, 4096]", newDimensions: "[1, 32, 16, \(height / 8 * width / 8)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 512, 4096]", newDimensions: "[1, 512, \(height / 8 * width / 8)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 4096, 512]", newDimensions: "[1, \(height / 8 * width / 8), 512]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 4096, 1, 512]", newDimensions: "[1, \(height / 8 * width / 8), 1, 512]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 1, 4096, 512]", newDimensions: "[1, 1, \(height / 8 * width / 8), 512]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 1, 4096, 4096]", newDimensions: "[1, 1, \(height / 8 * width / 8), \(height / 8 * width / 8)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 512, 128, 128]", newDimensions: "[1, 512, \(height / 4), \(width / 4)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 32, 16, 128, 128]", newDimensions: "[1, 32, 16, \(height / 4), \(width / 4)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 512, 256, 256]", newDimensions: "[1, 512, \(height / 2), \(width / 2)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 32, 16, 256, 256]", newDimensions: "[1, 32, 16, \(height / 2), \(width / 2)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 256, 256, 256]", newDimensions: "[1, 256, \(height / 2), \(width / 2)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 32, 8, 256, 256]", newDimensions: "[1, 32, 8, \(height / 2), \(width / 2)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 256, 512, 512]", newDimensions: "[1, 256, \(height), \(width)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 32, 8, 512, 512]", newDimensions: "[1, 32, 8, \(height), \(width)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 128, 512, 512]", newDimensions: "[1, 128, \(height), \(width)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 32, 4, 512, 512]", newDimensions: "[1, 32, 4, \(height), \(width)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 3, 512, 512]", newDimensions: "[1, 3, \(height), \(width)]")
-    }
-
-    private func vaeEnSD(vaeMIL: String, height: Int, width: Int) {
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 8, 64, 64]", newDimensions: "[1, 8, \(height / 8), \(width / 8)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 1, 4096, 512]", newDimensions: "[1, 1, \(height / 8 * width / 8), 512]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 1, 4096, 4096]", newDimensions: "[1, 1, \(height / 8 * width / 8), \(height / 8 * width / 8)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 4096, 1, 512]", newDimensions: "[1, \(height / 8 * width / 8), 1, 512]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 4096, 512]", newDimensions: "[1, \(height / 8 * width / 8), 512]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 512, 4096]", newDimensions: "[1, 512, \(height / 8 * width / 8)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 32, 16, 4096]", newDimensions: "[1, 32, 16, \(height / 8 * width / 8)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 32, 16, 64, 64]", newDimensions: "[1, 32, 16, \(height / 8), \(width / 8)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 512, 64, 64]", newDimensions: "[1, 512, \(height / 8), \(width / 8)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 512, 129, 129]", newDimensions: "[1, 512, \(height / 4 + 1), \(width / 4 + 1)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 32, 16, 128, 128]", newDimensions: "[1, 32, 16, \(height / 4), \(width / 4)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 512, 128, 128]", newDimensions: "[1, 512, \(height / 4), \(width / 4)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 32, 8, 128, 128]", newDimensions: "[1, 32, 8, \(height / 4), \(width / 4)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 256, 128, 128]", newDimensions: "[1, 256, \(height / 4), \(width / 4)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 256, 257, 257]", newDimensions: "[1, 256, \(height / 2 + 1), \(width / 2 + 1)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 32, 8, 256, 256]", newDimensions: "[1, 32, 8, \(height / 2), \(width / 2)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 256, 256, 256]", newDimensions: "[1, 256, \(height / 2), \(width / 2)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 32, 4, 256, 256]", newDimensions: "[1, 32, 4, \(height / 2), \(width / 2)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 128, 256, 256]", newDimensions: "[1, 128, \(height / 2), \(width / 2)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 128, 513, 513]", newDimensions: "[1, 128, \(height + 1), \(width + 1)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 128, 512, 512]", newDimensions: "[1, 128, \(height), \(width)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 32, 4, 512, 512]", newDimensions: "[1, 32, 4, \(height), \(width)]")
-        modifyMILFile(path: vaeMIL, oldDimensions: "[1, 3, 512, 512]", newDimensions: "[1, 3, \(height), \(width)]")
-    }
-}
+// swiftlint:enable discouraged_optional_boolean
