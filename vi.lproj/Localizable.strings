@@ -1,6 +1,3 @@
-"CFBundleDisplayName" = "Mochi Diffusion";
-"CFBundleName" = "Mochi Diffusion";
-"NSHumanReadableCopyright" = "Bởi Joshua Park";
 "**Auto** selects the most appropriate configuration for the selected model." = "**Tự động** chọn cấu hình phù hợp nhất với kiểu máy đã chọn.";
 "**CPU & GPU** is compatible with all models and may be faster on M1 Max, Ultra and later, but will use more memory." = "**CPU & GPU** tương thích với tất cả các kiểu máy và có thể chạy nhanh hơn trên M1 Max, Ultra trở lên, nhưng sẽ sử dụng nhiều bộ nhớ hơn.";
 "**CPU & Neural Engine** provides a good balance between speed and low memory usage, but only works with split-einsum models." = "**CPU & Neural Engine** cung cấp sự cân bằng tốt giữa tốc độ và mức sử dụng bộ nhớ thấp, nhưng chỉ hoạt động với các mô hình chia nhỏ.";
