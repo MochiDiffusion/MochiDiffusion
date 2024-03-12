@@ -103,3 +103,6 @@ The size of the starting image must match the output image size of the current m
 "Width:" = "宽度：";
 "Your images are ready!" = "您的图像已经生成完毕！";
 "random" = "随机";
+"CFBundleDisplayName" = "Mochi Diffusion";
+"CFBundleName" = "Mochi Diffusion";
+"NSHumanReadableCopyright" = "作者 Joshua Park";
