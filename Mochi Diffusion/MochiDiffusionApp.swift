@@ -1,5 +1,5 @@
 //
-//  App.swift
+//  MochiDiffusionApp.swift
 //  Mochi Diffusion
 //
 //  Created by Joshua Park on 12/16/22.
