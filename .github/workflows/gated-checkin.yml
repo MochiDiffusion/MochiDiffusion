@@ -1,8 +1,8 @@
-name: Analyze Build
+name: Gated Check-in
 
 on:
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   build:
