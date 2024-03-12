@@ -106,3 +106,6 @@ Die Größe des Startbildes muss mit der Bildgröße des aktuellen Modells über
 "Width:" = "Breite:";
 "Your images are ready!" = "Ihre Bilder sind fertig!";
 "random" = "zufällig";
+"CFBundleDisplayName" = "Mochi Diffusion";
+"CFBundleName" = "Mochi Diffusion";
+"NSHumanReadableCopyright" = "Von Joshua Park";
