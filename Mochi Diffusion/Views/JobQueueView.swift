@@ -15,12 +15,15 @@ struct JobQueueView: View {
     @State private var progressData: (Double, String)?
 
     private func updateProgressData() {
-        if case let .running(progress) = generator.state, let progress = progress, progress.stepCount > 0 {
+        if case .running(let progress) = generator.state, let progress = progress,
+            progress.stepCount > 0
+        {
             let step = progress.step + 1
             let stepValue = Double(step) / Double(progress.stepCount)
 
             let progressLabel = String(
-                localized: "About \(formatTimeRemaining(generator.lastStepGenerationElapsedTime, stepsLeft: progress.stepCount - step))",
+                localized:
+                    "About \(formatTimeRemaining(generator.lastStepGenerationElapsedTime, stepsLeft: progress.stepCount - step))",
                 comment: "Text displaying the current time remaining"
             )
             progressData = (stepValue, progressLabel)
@@ -150,7 +153,9 @@ private struct InfoPopoverView: View {
                 await controller.unsetStartingImage()
             }
 
-            if let controlNetName = config.controlNets.first, let controlNetImage = config.pipelineConfig.controlNetInputs.first {
+            if let controlNetName = config.controlNets.first,
+                let controlNetImage = config.pipelineConfig.controlNetInputs.first
+            {
                 await controller.setControlNet(name: controlNetName)
                 await controller.setControlNet(image: controlNetImage)
             } else {
@@ -163,7 +168,6 @@ private struct InfoPopoverView: View {
         ScrollView {
             VStack(alignment: .leading) {
                 Grid(alignment: .leading, horizontalSpacing: 4) {
-                    // swiftlint:disable trailing_closure
                     InfoGridRow(
                         type: LocalizedStringKey(Metadata.model.rawValue),
                         text: config.model.name,
@@ -179,7 +183,9 @@ private struct InfoPopoverView: View {
                         type: LocalizedStringKey(Metadata.excludeFromImage.rawValue),
                         text: config.pipelineConfig.negativePrompt,
                         showCopyToPromptOption: true,
-                        callback: { controller.negativePrompt = config.pipelineConfig.negativePrompt }
+                        callback: {
+                            controller.negativePrompt = config.pipelineConfig.negativePrompt
+                        }
                     )
                     if config.pipelineConfig.seed != 0 {
                         InfoGridRow(
@@ -205,9 +211,13 @@ private struct InfoPopoverView: View {
                     )
                     InfoGridRow(
                         type: LocalizedStringKey(Metadata.guidanceScale.rawValue),
-                        text: String(config.pipelineConfig.guidanceScale.formatted(.number.precision(.fractionLength(2)))),
+                        text: String(
+                            config.pipelineConfig.guidanceScale.formatted(
+                                .number.precision(.fractionLength(2)))),
                         showCopyToPromptOption: true,
-                        callback: { controller.guidanceScale = Double(config.pipelineConfig.guidanceScale) }
+                        callback: {
+                            controller.guidanceScale = Double(config.pipelineConfig.guidanceScale)
+                        }
                     )
                     InfoGridRow(
                         type: LocalizedStringKey(Metadata.scheduler.rawValue),
@@ -228,12 +238,17 @@ private struct InfoPopoverView: View {
                         )
                         InfoGridRow(
                             type: LocalizedStringKey("Strength"),
-                            text: config.pipelineConfig.strength.formatted(.number.precision(.fractionLength(2))),
+                            text: config.pipelineConfig.strength.formatted(
+                                .number.precision(.fractionLength(2))),
                             showCopyToPromptOption: true,
-                            callback: { controller.strength = Double(config.pipelineConfig.strength) }
+                            callback: {
+                                controller.strength = Double(config.pipelineConfig.strength)
+                            }
                         )
                     }
-                    if let controlNetName = config.controlNets.first, let controlNetImage = config.pipelineConfig.controlNetInputs.first {
+                    if let controlNetName = config.controlNets.first,
+                        let controlNetImage = config.pipelineConfig.controlNetInputs.first
+                    {
                         InfoGridRow(
                             type: LocalizedStringKey("ControlNet"),
                             text: controlNetName,
@@ -245,7 +260,6 @@ private struct InfoPopoverView: View {
                             showCopyToPromptOption: false
                         )
                     }
-                    // swiftlint:enable trailing_closure
                 }
 
                 HStack {
@@ -272,8 +286,8 @@ extension ImageGenerator.State: Equatable {
         case (.running(let lhsProgress), .running(let rhsProgress)):
             // This is NOT a comprehensive comparison
             // it is just enough to fulfill the .onChange requirements in JobQueueView
-            return lhsProgress?.step == rhsProgress?.step &&
-            lhsProgress?.stepCount == rhsProgress?.stepCount
+            return lhsProgress?.step == rhsProgress?.step
+                && lhsProgress?.stepCount == rhsProgress?.stepCount
         default:
             return false
         }

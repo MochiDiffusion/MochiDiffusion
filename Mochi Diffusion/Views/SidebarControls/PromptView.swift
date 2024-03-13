@@ -56,7 +56,8 @@ struct PromptTextEditor: View {
                 if tooManyTokens {
                     Text(
                         "Description is too long",
-                        comment: "Message warning the user that the prompt (or negative prompt) is too long and part of it may get cut off"
+                        comment:
+                            "Message warning the user that the prompt (or negative prompt) is too long and part of it may get cut off"
                     )
                     .font(.caption)
                     .foregroundColor(.accentColor)
@@ -107,7 +108,8 @@ struct PromptView: View {
                     Label {
                         Text(
                             "HD",
-                            comment: "Label for toggle to auto convert generated images to high resolution"
+                            comment:
+                                "Label for toggle to auto convert generated images to high resolution"
                         )
                     } icon: {
                         Image(systemName: "wand.and.stars")

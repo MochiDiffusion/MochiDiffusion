@@ -96,7 +96,7 @@
 
 - 如果你发现了一个bug，或者有新的建议和想法，请先在这里[搜索议题](https://github.com/godly-devotion/MochiDiffusion/issues)以避免重复。在确认没有重复后，你可以[创建一个新议题](https://github.com/godly-devotion/MochiDiffusion/issues/new/choose)。
 
-- 如果你想贡献代码，请[创建拉取请求](https://github.com/godly-devotion/MochiDiffusion/pulls)或[发起一个新的讨论](https://github.com/godly-devotion/MochiDiffusion/discussions)来探讨。我个人推荐安装 [SwiftLint](https://github.com/realm/SwiftLint#installation) 以规范代码格式。
+- 如果你想贡献代码，请[创建拉取请求](https://github.com/godly-devotion/MochiDiffusion/pulls)或[发起一个新的讨论](https://github.com/godly-devotion/MochiDiffusion/discussions)来探讨。我个人推荐安装 [swift-format](https://github.com/apple/swift-format#getting-swift-format) 以规范代码格式。
 
 - 如果你想对 Mochi Diffusion 贡献翻译，请到项目的 [Crowdin 页面](https://crowdin.com/project/mochi-diffusion)，你可以免费创建一个账户然后开始翻译。
 

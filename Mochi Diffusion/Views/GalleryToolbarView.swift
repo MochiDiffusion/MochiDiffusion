@@ -17,7 +17,9 @@ struct GalleryToolbarView: View {
         @Bindable var store = store
 
         ZStack {
-            if case let .running(progress) = generator.state, let progress = progress, progress.stepCount > 0 {
+            if case .running(let progress) = generator.state, let progress = progress,
+                progress.stepCount > 0
+            {
                 let step = progress.step + 1
                 let stepValue = Double(step) / Double(progress.stepCount)
 

@@ -23,13 +23,13 @@ struct MochiCompactSliderStyle: CompactSliderStyle {
 
 extension NSApplication {
     static var appVersion: String {
-        // swiftlint:disable:next force_cast
         Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as! String
     }
 }
 
 extension View {
-    func syncFocus<T: Equatable>(_ binding: Binding<T>, with focusState: FocusState<T>) -> some View {
+    func syncFocus<T: Equatable>(_ binding: Binding<T>, with focusState: FocusState<T>) -> some View
+    {
         self
             .onChange(of: binding.wrappedValue) {
                 focusState.wrappedValue = binding.wrappedValue
@@ -55,7 +55,9 @@ extension CGImage {
     func scaledAndCroppedTo(size: CGSize) -> CGImage? {
         let sizeRatio = size.width / size.height
         let imageSizeRatio = Double(self.width) / Double(self.height)
-        let scaleFactor = sizeRatio > imageSizeRatio ? size.width / Double(self.width) : size.height / Double(self.height)
+        let scaleFactor =
+            sizeRatio > imageSizeRatio
+            ? size.width / Double(self.width) : size.height / Double(self.height)
         let scaledWidth = CGFloat(self.width) * scaleFactor
         let scaledHeight = CGFloat(self.height) * scaleFactor
 
@@ -63,15 +65,17 @@ extension CGImage {
         let cropX = (scaledWidth - size.width) / 2.0
         let cropY = (scaledHeight - size.height) / 2.0
 
-        guard let context = CGContext(
-            data: nil,
-            width: Int(size.width),
-            height: Int(size.height),
-            bitsPerComponent: self.bitsPerComponent,
-            bytesPerRow: 0,
-            space: self.colorSpace ?? CGColorSpaceCreateDeviceRGB(),
-            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
-        ) else {
+        guard
+            let context = CGContext(
+                data: nil,
+                width: Int(size.width),
+                height: Int(size.height),
+                bitsPerComponent: self.bitsPerComponent,
+                bytesPerRow: 0,
+                space: self.colorSpace ?? CGColorSpaceCreateDeviceRGB(),
+                bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+            )
+        else {
             return nil
         }
 
@@ -113,11 +117,14 @@ extension NSImage {
 
     func temporaryFileURL() throws -> URL {
         let imageHash = self.getImageHash()
-        if let cachedURL = Self.urlCache[imageHash], FileManager.default.fileExists(atPath: cachedURL.path(percentEncoded: false)) {
+        if let cachedURL = Self.urlCache[imageHash],
+            FileManager.default.fileExists(atPath: cachedURL.path(percentEncoded: false))
+        {
             return cachedURL
         }
         let name = String(imageHash)
-        let url = FileManager.default.temporaryDirectory.appendingPathComponent(name, conformingTo: .png)
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent(
+            name, conformingTo: .png)
         let fileWrapper = FileWrapper(regularFileWithContents: self.toPngData())
         try fileWrapper.write(to: url, originalContentsURL: nil)
         Self.urlCache[imageHash] = url
@@ -156,7 +163,8 @@ extension Text {
         func body(content: Content) -> some View {
             content
                 .textSelection(.enabled)
-                .foregroundColor(Color(nsColor: .textColor)) /// Fixes dark text in dark mode SwiftUI bug
+                .foregroundColor(Color(nsColor: .textColor))
+            /// Fixes dark text in dark mode SwiftUI bug
         }
     }
 

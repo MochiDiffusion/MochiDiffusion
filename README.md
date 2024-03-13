@@ -96,7 +96,7 @@ Mochi Diffusion is always looking for contributions, whether it's through bug re
 
 - If you find a bug, or would like to suggest a new feature or enhancement, try [searching for your problem first](https://github.com/godly-devotion/MochiDiffusion/issues) as it helps avoid duplicates. If you can't find your issue, feel free to [create a new issue](https://github.com/godly-devotion/MochiDiffusion/issues/new/choose). Don't create an issue for your question as those are for bugs and feature requests only.
 
-- If you're looking to contribute code, feel free to [open a Pull Request](https://github.com/godly-devotion/MochiDiffusion/pulls). I recommend installing [SwiftLint](https://github.com/realm/SwiftLint#installation) to catch lint issues.
+- If you're looking to contribute code, feel free to [open a Pull Request](https://github.com/godly-devotion/MochiDiffusion/pulls). I recommend installing [swift-format](https://github.com/apple/swift-format#getting-swift-format) to catch lint issues.
 
 - If you'd like to translate Mochi Diffusion to your language, please visit the [project page on Crowdin](https://crowdin.com/project/mochi-diffusion). You can create an account for free and start translating and/or approving.
 

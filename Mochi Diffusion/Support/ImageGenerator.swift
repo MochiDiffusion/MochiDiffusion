@@ -80,7 +80,9 @@ struct GenerationConfig: Sendable, Identifiable {
             finalImageDirURL = URL(fileURLWithPath: imageDir, isDirectory: true)
         }
         if !fm.fileExists(atPath: finalImageDirURL.path(percentEncoded: false)) {
-            print("Creating image autosave directory at: \"\(finalImageDirURL.path(percentEncoded: false))\"")
+            print(
+                "Creating image autosave directory at: \"\(finalImageDirURL.path(percentEncoded: false))\""
+            )
             try? fm.createDirectory(at: finalImageDirURL, withIntermediateDirectories: true)
         }
         let items = try fm.contentsOfDirectory(
@@ -88,7 +90,8 @@ struct GenerationConfig: Sendable, Identifiable {
             includingPropertiesForKeys: nil,
             options: .skipsHiddenFiles
         )
-        let imageURLs = items
+        let imageURLs =
+            items
             .filter { $0.isFileURL }
             .filter { ["png", "jpg", "jpeg", "heic"].contains($0.pathExtension) }
         var sdis: [SDImage] = []
@@ -104,11 +107,15 @@ struct GenerationConfig: Sendable, Identifiable {
         let controlNetDirectoryPath = controlNetDirectoryURL.path(percentEncoded: false)
 
         guard FileManager.default.fileExists(atPath: controlNetDirectoryPath),
-            let contentsOfControlNet = try? FileManager.default.contentsOfDirectory(atPath: controlNetDirectoryPath) else {
+            let contentsOfControlNet = try? FileManager.default.contentsOfDirectory(
+                atPath: controlNetDirectoryPath)
+        else {
             return []
         }
 
-        return contentsOfControlNet.compactMap { SDControlNet(url: controlNetDirectoryURL.appending(path: $0)) }
+        return contentsOfControlNet.compactMap {
+            SDControlNet(url: controlNetDirectoryURL.appending(path: $0))
+        }
     }
 
     func getModels(modelDirectoryURL: URL, controlNetDirectoryURL: URL) async throws -> [SDModel] {
@@ -119,34 +126,50 @@ struct GenerationConfig: Sendable, Identifiable {
             let controlNet = controlNets(in: controlNetDirectoryURL)
             let subDirs = try modelDirectoryURL.subDirectories()
 
-            models = subDirs
-                .sorted { $0.lastPathComponent.compare($1.lastPathComponent, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedAscending }
+            models =
+                subDirs
+                .sorted {
+                    $0.lastPathComponent.compare(
+                        $1.lastPathComponent, options: [.caseInsensitive, .diacriticInsensitive])
+                        == .orderedAscending
+                }
                 .compactMap { url in
-                    let controlledUnetMetadataPath = url.appending(components: "ControlledUnet.mlmodelc", "metadata.json").path(percentEncoded: false)
+                    let controlledUnetMetadataPath = url.appending(
+                        components: "ControlledUnet.mlmodelc", "metadata.json"
+                    ).path(percentEncoded: false)
                     let hasControlNet = fm.fileExists(atPath: controlledUnetMetadataPath)
 
                     if hasControlNet {
-                        let controlNetSymLinkPath = url.appending(component: "controlnet").path(percentEncoded: false)
+                        let controlNetSymLinkPath = url.appending(component: "controlnet").path(
+                            percentEncoded: false)
 
                         if !fm.fileExists(atPath: controlNetSymLinkPath) {
-                            try? fm.createSymbolicLink(atPath: controlNetSymLinkPath, withDestinationPath: controlNetDirectoryURL.path(percentEncoded: false))
+                            try? fm.createSymbolicLink(
+                                atPath: controlNetSymLinkPath,
+                                withDestinationPath: controlNetDirectoryURL.path(
+                                    percentEncoded: false))
                         }
                     }
 
-                    return SDModel(url: url, name: url.lastPathComponent, controlNet: hasControlNet ? controlNet : [])
+                    return SDModel(
+                        url: url, name: url.lastPathComponent,
+                        controlNet: hasControlNet ? controlNet : [])
                 }
         } catch {
             await updateState(.error("Could not get model subdirectories."))
             throw GeneratorError.modelSubDirectoriesNoAccess
         }
         if models.isEmpty {
-            await updateState(.error("No models found under: \(modelDirectoryURL.path(percentEncoded: false))"))
+            await updateState(
+                .error("No models found under: \(modelDirectoryURL.path(percentEncoded: false))"))
             throw GeneratorError.noModelsFound
         }
         return models
     }
 
-    func loadPipeline(model: SDModel, controlNet: [String] = [], computeUnit: MLComputeUnits, reduceMemory: Bool) async throws {
+    func loadPipeline(
+        model: SDModel, controlNet: [String] = [], computeUnit: MLComputeUnits, reduceMemory: Bool
+    ) async throws {
         let fm = FileManager.default
         if !fm.fileExists(atPath: model.url.path) {
             await updateState(.error("Couldn't load \(model.name) because it doesn't exist."))
@@ -194,7 +217,9 @@ struct GenerationConfig: Sendable, Identifiable {
         await updateState(.loading)
         generationStopped = false
         var config = inputConfig
-        config.pipelineConfig.seed = config.pipelineConfig.seed == 0 ? UInt32.random(in: 0 ..< UInt32.max) : config.pipelineConfig.seed
+        config.pipelineConfig.seed =
+            config.pipelineConfig.seed == 0
+            ? UInt32.random(in: 0..<UInt32.max) : config.pipelineConfig.seed
 
         if config.isXL {
             config.pipelineConfig.encoderScaleFactor = 0.13025
@@ -211,20 +236,25 @@ struct GenerationConfig: Sendable, Identifiable {
         sdi.steps = config.pipelineConfig.stepCount
         sdi.guidanceScale = Double(config.pipelineConfig.guidanceScale)
 
-        for index in 0 ..< config.numberOfImages {
-            await updateQueueProgress(QueueProgress(index: index, total: inputConfig.numberOfImages))
+        for index in 0..<config.numberOfImages {
+            await updateQueueProgress(
+                QueueProgress(index: index, total: inputConfig.numberOfImages))
             generationStartTime = DispatchTime.now()
-            let images = try pipeline.generateImages(configuration: config.pipelineConfig) { [config] progress in
+            let images = try pipeline.generateImages(configuration: config.pipelineConfig) {
+                [config] progress in
 
                 Task { @MainActor in
                     state = .running(progress)
                     let endTime = DispatchTime.now()
-                    lastStepGenerationElapsedTime = Double(endTime.uptimeNanoseconds - (generationStartTime?.uptimeNanoseconds ?? 0))
+                    lastStepGenerationElapsedTime = Double(
+                        endTime.uptimeNanoseconds - (generationStartTime?.uptimeNanoseconds ?? 0))
                     generationStartTime = endTime
                 }
 
                 Task {
-                    if config.pipelineConfig.useDenoisedIntermediates, let currentImage = progress.currentImages.last {
+                    if config.pipelineConfig.useDenoisedIntermediates,
+                        let currentImage = progress.currentImages.last
+                    {
                         ImageStore.shared.setCurrentGenerating(image: currentImage)
                     } else {
                         ImageStore.shared.setCurrentGenerating(image: nil)
@@ -239,9 +269,12 @@ struct GenerationConfig: Sendable, Identifiable {
             for image in images {
                 guard let image = image else { continue }
                 if config.upscaleGeneratedImages {
-                    guard let upscaledImg = await Upscaler.shared.upscale(cgImage: image) else { continue }
+                    guard let upscaledImg = await Upscaler.shared.upscale(cgImage: image) else {
+                        continue
+                    }
                     sdi.image = upscaledImg
-                    sdi.aspectRatio = CGFloat(Double(upscaledImg.width) / Double(upscaledImg.height))
+                    sdi.aspectRatio = CGFloat(
+                        Double(upscaledImg.width) / Double(upscaledImg.height))
                     sdi.upscaler = "RealESRGAN"
                 } else {
                     sdi.image = image

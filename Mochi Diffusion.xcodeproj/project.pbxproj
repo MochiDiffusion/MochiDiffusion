@@ -16,6 +16,7 @@
 		03173C132999E2B500B03456 /* SDModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03173C122999E2B500B03456 /* SDModel.swift */; };
 		03173C152999F5C700B03456 /* ImageController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03173C142999F5C700B03456 /* ImageController.swift */; };
 		03173C18299B3C1300B03456 /* ImageStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03173C17299B3C1300B03456 /* ImageStore.swift */; };
+		0328BCE92BA11DEB004B5AE0 /* SwiftFormat in Frameworks */ = {isa = PBXBuildFile; productRef = 0328BCE82BA11DEB004B5AE0 /* SwiftFormat */; };
 		0352E2A5294E2591003FBF25 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 0352E2A4294E2591003FBF25 /* Sparkle */; };
 		0352E2A7294E3148003FBF25 /* HelpCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0352E2A6294E3148003FBF25 /* HelpCommands.swift */; };
 		0352E2AA294EA0E1003FBF25 /* AppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0352E2A9294EA0E1003FBF25 /* AppView.swift */; };
@@ -142,6 +143,7 @@
 				036BFC4E294B9FDB00D8AD04 /* Path in Frameworks */,
 				03ADC8B9299581AF00B2843F /* StableDiffusion in Frameworks */,
 				0352E2A5294E2591003FBF25 /* Sparkle in Frameworks */,
+				0328BCE92BA11DEB004B5AE0 /* SwiftFormat in Frameworks */,
 				0388DEB0297B00FC008B1C1C /* CompactSlider in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -302,6 +304,7 @@
 				0352E2A4294E2591003FBF25 /* Sparkle */,
 				0388DEAF297B00FC008B1C1C /* CompactSlider */,
 				03ADC8B8299581AF00B2843F /* StableDiffusion */,
+				0328BCE82BA11DEB004B5AE0 /* SwiftFormat */,
 			);
 			productName = "Mochi Diffusion";
 			productReference = 036BFC1E294B9F7500D8AD04 /* Mochi Diffusion.app */;
@@ -315,7 +318,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1420;
-				LastUpgradeCheck = 1430;
+				LastUpgradeCheck = 1530;
 				TargetAttributes = {
 					036BFC1D294B9F7500D8AD04 = {
 						CreatedOnToolsVersion = 14.2;
@@ -371,6 +374,7 @@
 				0352E2A3294E2591003FBF25 /* XCRemoteSwiftPackageReference "Sparkle" */,
 				0388DEAE297B00FC008B1C1C /* XCRemoteSwiftPackageReference "CompactSlider" */,
 				03ADC8B7299581AF00B2843F /* XCRemoteSwiftPackageReference "ml-stable-diffusion" */,
+				0328BCE72BA11DEA004B5AE0 /* XCRemoteSwiftPackageReference "swift-format" */,
 			);
 			productRefGroup = 036BFC1F294B9F7500D8AD04 /* Products */;
 			projectDirPath = "";
@@ -412,7 +416,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export PATH=\"$PATH:/opt/homebrew/bin\"\nif which swiftlint > /dev/null; then\n  swiftlint\nelse\n  echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
+			shellScript = "export PATH=\"$PATH:/opt/homebrew/bin\"\nif which swift-format > /dev/null; then\n  swift-format lint -s -p -r ./\nelse\n  echo \"warning: swift-format not installed, download from https://github.com/apple/swift-format\"\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -547,6 +551,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -611,6 +616,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -719,6 +725,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		0328BCE72BA11DEA004B5AE0 /* XCRemoteSwiftPackageReference "swift-format" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-format";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 510.0.1;
+			};
+		};
 		0352E2A3294E2591003FBF25 /* XCRemoteSwiftPackageReference "Sparkle" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/sparkle-project/Sparkle";
@@ -754,6 +768,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		0328BCE82BA11DEB004B5AE0 /* SwiftFormat */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0328BCE72BA11DEA004B5AE0 /* XCRemoteSwiftPackageReference "swift-format" */;
+			productName = SwiftFormat;
+		};
 		0352E2A4294E2591003FBF25 /* Sparkle */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 0352E2A3294E2591003FBF25 /* XCRemoteSwiftPackageReference "Sparkle" */;

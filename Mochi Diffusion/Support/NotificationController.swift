@@ -26,7 +26,8 @@ import UserNotifications
         }
     }
 
-    @ObservationIgnored @AppStorage("PlayNotificationSound") private var _playNotificationSound = true
+    @ObservationIgnored @AppStorage("PlayNotificationSound") private var _playNotificationSound =
+        true
     @ObservationIgnored var playNotificationSound: Bool {
         get {
             access(keyPath: \.playNotificationSound)
@@ -46,7 +47,8 @@ import UserNotifications
     func requestForNotificationAuthorization() {
         notificationCenter.getNotificationSettings { settings in
             if settings.authorizationStatus != .authorized {
-                self.notificationCenter.requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+                self.notificationCenter.requestAuthorization(options: [.alert, .sound, .badge]) {
+                    granted, error in
                     if let error = error {
                         print("Error requesting notification authorization: \(error)")
                         return
@@ -85,6 +87,9 @@ import UserNotifications
         content.title = "Mochi Diffusion"
         content.body = String(localized: "Your images are ready!")
         content.sound = playNotificationSound ? .default : nil
-        try? await notificationCenter.add(.init(identifier: NotificationController.queueEmptyNotificationId, content: content, trigger: nil))
+        try? await notificationCenter.add(
+            .init(
+                identifier: NotificationController.queueEmptyNotificationId, content: content,
+                trigger: nil))
     }
 }

@@ -50,11 +50,15 @@ struct MochiDiffusionApp: App {
                     .padding([.leading, .trailing], 60)
                 }
                 .quickLookPreview($controller.quicklookURL)
-                .onReceive(NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification)) { _ in
+                .onReceive(
+                    NotificationCenter.default.publisher(
+                        for: NSApplication.willTerminateNotification)
+                ) { _ in
                     /// cleanup quick look temp images
                     NSImage.cleanupTempFiles()
                     /// cleanup MPS temp folder
-                    let mpsURL = FileManager.default.temporaryDirectory.appendingPathComponent("com.apple.MetalPerformanceShadersGraph", isDirectory: true)
+                    let mpsURL = FileManager.default.temporaryDirectory.appendingPathComponent(
+                        "com.apple.MetalPerformanceShadersGraph", isDirectory: true)
                     try? FileManager.default.removeItem(at: mpsURL)
                 }
         }
@@ -62,7 +66,9 @@ struct MochiDiffusionApp: App {
             AppCommands(updater: updaterController.updater)
             FileCommands(store: store)
             SidebarCommands()
-            ImageCommands(controller: controller, generator: generator, store: store, focusController: focusCon)
+            ImageCommands(
+                controller: controller, generator: generator, store: store,
+                focusController: focusCon)
             HelpCommands()
         }
         .defaultSize(width: 1_120, height: 670)

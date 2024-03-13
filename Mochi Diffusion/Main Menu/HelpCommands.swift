@@ -12,7 +12,8 @@ struct HelpCommands: Commands {
             Section {
                 Link(
                     "Release Notes",
-                    destination: URL(string: "https://github.com/godly-devotion/MochiDiffusion/releases")!
+                    destination: URL(
+                        string: "https://github.com/godly-devotion/MochiDiffusion/releases")!
                 )
                 Link(
                     "Website",

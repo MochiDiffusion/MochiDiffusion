@@ -31,7 +31,8 @@ final class Upscaler {
             }
         }
 
-        self.request.imageCropAndScaleOption = .scaleFill /// output image's ratio will be fixed later
+        self.request.imageCropAndScaleOption = .scaleFill
+        /// output image's ratio will be fixed later
     }
 
     func upscale(cgImage: CGImage) async -> CGImage? {
@@ -39,14 +40,18 @@ final class Upscaler {
         let requests: [VNRequest] = [request]
 
         try? handler.perform(requests)
-        guard let observation = self.request.results?.first as? VNPixelBufferObservation else { return nil }
+        guard let observation = self.request.results?.first as? VNPixelBufferObservation else {
+            return nil
+        }
         let upscaledWidth = cgImage.width * 4
         let upscaledHeight = cgImage.height * 4
-        guard let pixelBuffer = resizePixelBuffer(
-            observation.pixelBuffer,
-            width: upscaledWidth,
-            height: upscaledHeight
-        ) else { return nil }
+        guard
+            let pixelBuffer = resizePixelBuffer(
+                observation.pixelBuffer,
+                width: upscaledWidth,
+                height: upscaledHeight
+            )
+        else { return nil }
         return self.convertPixelBufferToCGImage(pixelBuffer: pixelBuffer)
     }
 
@@ -66,6 +71,7 @@ final class Upscaler {
         let context = CIContext(options: nil)
         let width = CVPixelBufferGetWidth(pixelBuffer)
         let height = CVPixelBufferGetHeight(pixelBuffer)
-        return context.createCGImage(ciImage, from: CGRect(x: 0, y: 0, width: width, height: height))
+        return context.createCGImage(
+            ciImage, from: CGRect(x: 0, y: 0, width: width, height: height))
     }
 }

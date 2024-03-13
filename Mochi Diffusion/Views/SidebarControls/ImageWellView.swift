@@ -36,13 +36,18 @@ struct ImageWellView: View {
                         Image(image, scale: 1, label: Text(verbatim: ""))
                             .resizable()
                             .scaledToFill()
-                            .frame(width: proxy.size.width * widthModifier, height: proxy.size.height * heightModifier)
+                            .frame(
+                                width: proxy.size.width * widthModifier,
+                                height: proxy.size.height * heightModifier
+                            )
                             .clipped()
                     } else {
                         RoundedRectangle(cornerRadius: 2)
                             .stroke(Color(nsColor: .separatorColor), lineWidth: 1)
                             .background(.background.opacity(0.01))
-                            .frame(width: proxy.size.width * widthModifier, height: proxy.size.height * heightModifier)
+                            .frame(
+                                width: proxy.size.width * widthModifier,
+                                height: proxy.size.height * heightModifier)
                         Image(systemName: "photo")
                             .resizable()
                             .scaledToFit()
@@ -56,7 +61,9 @@ struct ImageWellView: View {
         .buttonStyle(.plain)
         .onDrop(of: [.fileURL], isTargeted: nil) { providers in
             _ = providers.first?.loadDataRepresentation(for: .fileURL) { data, _ in
-                guard let data, let urlString = String(data: data, encoding: .utf8), let url = URL(string: urlString) else {
+                guard let data, let urlString = String(data: data, encoding: .utf8),
+                    let url = URL(string: urlString)
+                else {
                     return
                 }
 
@@ -66,7 +73,8 @@ struct ImageWellView: View {
 
                 let imageIndex = CGImageSourceGetPrimaryImageIndex(cgImageSource)
 
-                guard let cgImage = CGImageSourceCreateImageAtIndex(cgImageSource, imageIndex, nil) else {
+                guard let cgImage = CGImageSourceCreateImageAtIndex(cgImageSource, imageIndex, nil)
+                else {
                     return
                 }
 

@@ -16,18 +16,27 @@ func compareVersion(_ thisVersion: String, _ compareTo: String) -> ComparisonRes
     thisVersion.compare(compareTo, options: .numeric)
 }
 
-// swiftlint:disable:next cyclomatic_complexity
 func createSDImageFromURL(_ url: URL) -> SDImage? {
-    guard let attr = try? FileManager.default.attributesOfItem(atPath: url.path(percentEncoded: false)) else { return nil }
+    guard
+        let attr = try? FileManager.default.attributesOfItem(
+            atPath: url.path(percentEncoded: false))
+    else { return nil }
     let maybeDateModified = attr[FileAttributeKey.modificationDate] as? Date
     guard let dateModified = maybeDateModified else { return nil }
     guard let cgImageSource = CGImageSourceCreateWithURL(url as CFURL, nil) else { return nil }
     let imageIndex = CGImageSourceGetPrimaryImageIndex(cgImageSource)
-    guard let cgImage = CGImageSourceCreateImageAtIndex(cgImageSource, imageIndex, nil) else { return nil }
-    guard let properties = CGImageSourceCopyPropertiesAtIndex(cgImageSource, 0, nil) else { return nil }
+    guard let cgImage = CGImageSourceCreateImageAtIndex(cgImageSource, imageIndex, nil) else {
+        return nil
+    }
+    guard let properties = CGImageSourceCopyPropertiesAtIndex(cgImageSource, 0, nil) else {
+        return nil
+    }
     guard let propDict = properties as? [String: Any] else { return nil }
-    guard let tiffProp = propDict[kCGImagePropertyTIFFDictionary as String] as? [String: Any] else { return nil }
-    guard let infoString = tiffProp[kCGImagePropertyTIFFImageDescription as String] as? String else { return nil }
+    guard let tiffProp = propDict[kCGImagePropertyTIFFDictionary as String] as? [String: Any] else {
+        return nil
+    }
+    guard let infoString = tiffProp[kCGImagePropertyTIFFImageDescription as String] as? String
+    else { return nil }
     var sdi = SDImage(
         id: UUID(),
         image: cgImage,
@@ -38,7 +47,9 @@ func createSDImageFromURL(_ url: URL) -> SDImage? {
     var generatedVersion = ""
     for field in infoString.split(separator: "; ") {
         guard let separatorIndex = field.firstIndex(of: ":") else { continue }
-        guard let key = Metadata(rawValue: String(field[field.startIndex..<separatorIndex])) else { continue }
+        guard let key = Metadata(rawValue: String(field[field.startIndex..<separatorIndex])) else {
+            continue
+        }
         let valueIndex = field.index(separatorIndex, offsetBy: 2)
         let value = String(field[valueIndex...])
 
@@ -82,7 +93,8 @@ func formatTimeRemaining(_ interval: Double?, stepsLeft: Int) -> String {
     formatter.allowedUnits = [.hour, .minute, .second]
     formatter.unitsStyle = .short
 
-    let formattedString = formatter.string(from: TimeInterval((interval / 1_000_000_000) * Double(stepsLeft)))
+    let formattedString = formatter.string(
+        from: TimeInterval((interval / 1_000_000_000) * Double(stepsLeft)))
 
     return formattedString ?? "-"
 }

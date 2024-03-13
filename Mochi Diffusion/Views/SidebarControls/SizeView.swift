@@ -10,7 +10,7 @@ import SwiftUI
 struct SizeView: View {
     @EnvironmentObject private var controller: ImageController
     private let imageSizes = [
-        256, 320, 384, 448, 512, 576, 640, 704, 768
+        256, 320, 384, 448, 512, 576, 640, 704, 768,
     ]
 
     var body: some View {

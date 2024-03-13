@@ -42,7 +42,9 @@ struct FileCommands: Commands {
             if let sdi = store.selected() {
                 Section {
                     Button {
-                        NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: sdi.path).absoluteURL])
+                        NSWorkspace.shared.activateFileViewerSelecting([
+                            URL(fileURLWithPath: sdi.path).absoluteURL
+                        ])
                     } label: {
                         Text(
                             "Show in Finder",

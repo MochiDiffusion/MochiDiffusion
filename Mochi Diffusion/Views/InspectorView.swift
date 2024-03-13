@@ -40,8 +40,12 @@ struct InfoGridRow: View {
             if let image = image {
                 Image(image, scale: 4, label: Text(type))
                     .resizable()
-                    .aspectRatio(CGSize(width: image.width, height: image.height), contentMode: .fit)
-                    .frame(height: image.height >= image.width ? 90 : 90 * Double(image.height) / Double(image.width))
+                    .aspectRatio(
+                        CGSize(width: image.width, height: image.height), contentMode: .fit
+                    )
+                    .frame(
+                        height: image.height >= image.width
+                            ? 90 : 90 * Double(image.height) / Double(image.width))
             } else if let text = text {
                 Text(text)
                     .selectableTextFormat()
@@ -79,7 +83,8 @@ struct InspectorView: View {
                         )
                         InfoGridRow(
                             type: LocalizedStringKey(Metadata.size.rawValue),
-                            text: "\(sdi.width) x \(sdi.height)\(!sdi.upscaler.isEmpty ? " (Upscaled using \(sdi.upscaler))" : "")",
+                            text:
+                                "\(sdi.width) x \(sdi.height)\(!sdi.upscaler.isEmpty ? " (Upscaled using \(sdi.upscaler))" : "")",
                             showCopyToPromptOption: false
                         )
                         InfoGridRow(
@@ -135,7 +140,8 @@ struct InspectorView: View {
                     } label: {
                         Text(
                             "Copy Options to Sidebar",
-                            comment: "Button to copy the currently selected image's generation options to the prompt input sidebar"
+                            comment:
+                                "Button to copy the currently selected image's generation options to the prompt input sidebar"
                         )
                     }
                     Button {
@@ -146,7 +152,8 @@ struct InspectorView: View {
                     } label: {
                         Text(
                             "Copy Info",
-                            comment: "Button to copy the currently selected image's generation options to the clipboard"
+                            comment:
+                                "Button to copy the currently selected image's generation options to the clipboard"
                         )
                     }
                 }
@@ -177,20 +184,23 @@ extension CGImage {
         let colorSpace = CGColorSpaceCreateDeviceRGB()
 
         /// ARGB format
-        let bitmapInfo: UInt32 = CGBitmapInfo.byteOrder32Little.rawValue | CGImageAlphaInfo.premultipliedFirst.rawValue
+        let bitmapInfo: UInt32 =
+            CGBitmapInfo.byteOrder32Little.rawValue | CGImageAlphaInfo.premultipliedFirst.rawValue
 
         /// 8 bits for each color channel, we're doing ARGB so 32 bits (4 bytes) total, and thus if the image is n pixels wide, and has 4 bytes per pixel, the total bytes per row is 4n.
         /// That gives us 2^8 = 256 color variations for each RGB channel or 256 * 256 * 256 = ~16.7M color options in total.
         /// That seems like a lot, but lots of HDR movies are in 10 bit, which is (2^10)^3 = 1 billion color options!
-        guard let context = CGContext(
-            data: nil,
-            width: width,
-            height: height,
-            bitsPerComponent: 8,
-            bytesPerRow: width * 4,
-            space: colorSpace,
-            bitmapInfo: bitmapInfo
-        ) else { return nil }
+        guard
+            let context = CGContext(
+                data: nil,
+                width: width,
+                height: height,
+                bitsPerComponent: 8,
+                bytesPerRow: width * 4,
+                space: colorSpace,
+                bitmapInfo: bitmapInfo
+            )
+        else { return nil }
 
         /// Draw our resized image
         context.draw(self, in: CGRect(origin: .zero, size: size))
@@ -206,9 +216,9 @@ extension CGImage {
         var totalGreen = 0
 
         /// Column of pixels in image
-        for x in 0 ..< width {
+        for x in 0..<width {
             /// Row of pixels in image
-            for y in 0 ..< height {
+            for y in 0..<height {
                 /// To get the pixel location just think of the image as a grid of pixels,
                 /// but stored as one long row rather than columns and rows,
                 /// so for instance to map the pixel from the grid in the 15th row and 3 columns in to our "long row",

@@ -1,36 +1,32 @@
-/*
-  Copyright (c) 2017-2021 M.I. Hollemans
-
-  Permission is hereby granted, free of charge, to any person obtaining a copy
-  of this software and associated documentation files (the "Software"), to
-  deal in the Software without restriction, including without limitation the
-  rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-  sell copies of the Software, and to permit persons to whom the Software is
-  furnished to do so, subject to the following conditions:
-
-  The above copyright notice and this permission notice shall be included in
-  all copies or substantial portions of the Software.
-
-  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-  IN THE SOFTWARE.
-*/
+//  Copyright (c) 2017-2021 M.I. Hollemans
+//
+//  Permission is hereby granted, free of charge, to any person obtaining a copy
+//  of this software and associated documentation files (the "Software"), to
+//  deal in the Software without restriction, including without limitation the
+//  rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+//  sell copies of the Software, and to permit persons to whom the Software is
+//  furnished to do so, subject to the following conditions:
+//
+//  The above copyright notice and this permission notice shall be included in
+//  all copies or substantial portions of the Software.
+//
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+//  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+//  IN THE SOFTWARE.
 
 import Accelerate
 import CoreImage
 import Foundation
 
-/**
- First crops the pixel buffer, then resizes it.
-
- This function requires the caller to pass in both the source and destination
- pixel buffers. The dimensions of destination pixel buffer should be at least
- `scaleWidth` x `scaleHeight` pixels.
- */
+/// First crops the pixel buffer, then resizes it.
+///
+/// This function requires the caller to pass in both the source and destination
+/// pixel buffers. The dimensions of destination pixel buffer should be at least
+/// `scaleWidth` x `scaleHeight` pixels.
 public func resizePixelBuffer(
     from srcPixelBuffer: CVPixelBuffer,
     to dstPixelBuffer: CVPixelBuffer,
@@ -60,7 +56,8 @@ public func resizePixelBuffer(
     defer { CVPixelBufferUnlockBaseAddress(dstPixelBuffer, dstFlags) }
 
     guard let srcData = CVPixelBufferGetBaseAddress(srcPixelBuffer),
-        let dstData = CVPixelBufferGetBaseAddress(dstPixelBuffer) else {
+        let dstData = CVPixelBufferGetBaseAddress(dstPixelBuffer)
+    else {
         print("Error: could not get pixel buffer base address")
         return
     }
@@ -88,11 +85,9 @@ public func resizePixelBuffer(
     }
 }
 
-/**
- First crops the pixel buffer, then resizes it.
-
- This allocates a new destination pixel buffer that is Metal-compatible.
- */
+/// First crops the pixel buffer, then resizes it.
+///
+/// This allocates a new destination pixel buffer that is Metal-compatible.
 public func resizePixelBuffer(
     _ srcPixelBuffer: CVPixelBuffer,
     cropX: Int,
@@ -127,11 +122,9 @@ public func resizePixelBuffer(
     return dstPixelBuffer
 }
 
-/**
- Resizes a CVPixelBuffer to a new width and height.
-
- This allocates a new destination pixel buffer that is Metal-compatible.
- */
+/// Resizes a CVPixelBuffer to a new width and height.
+///
+/// This allocates a new destination pixel buffer that is Metal-compatible.
 public func resizePixelBuffer(
     _ pixelBuffer: CVPixelBuffer,
     width: Int,

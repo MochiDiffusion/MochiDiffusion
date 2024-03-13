@@ -16,14 +16,14 @@ jobs:
         with:
           xcode-version: latest-stable
 
-      - name: Install SwiftLint
+      - name: Install swift-format
         run: |
           brew update
-          brew install swiftlint
+          brew install swift-format
 
-      - name: Run SwiftLint
+      - name: Lint using swift-format
         run: |
-          /opt/homebrew/bin/swiftlint lint
+          /opt/homebrew/bin/swift-format lint -s -p -r ./
 
       - name: Build and Analyze
         run: >

@@ -18,7 +18,7 @@ struct SeedView: View {
         Text("Seed")
             .sidebarLabelFormat()
         HStack {
-            TextField("random", value: $controller.seed, formatter: Formatter.seedFormatter)
+            TextField("random", value: $controller.seed, formatter: Formatter.seed)
                 .focused($focused)
                 .syncFocus($focusCon.seedFieldIsFocused, with: _focused)
                 .textFieldStyle(.roundedBorder)
@@ -37,7 +37,7 @@ struct SeedView: View {
 }
 
 extension Formatter {
-    static let seedFormatter: NumberFormatter = {
+    static let seed: NumberFormatter = {
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
         formatter.minimum = 0
