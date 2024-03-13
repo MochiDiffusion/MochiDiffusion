@@ -81,6 +81,7 @@
 "Share..." = "分享 ...";
 "Show Image Preview" = "顯示圖像預覽";
 "Show in Finder" = "在 Finder中顯示";
+"Show models in Finder" = "在訪達中顯示模型";
 "Show the image as its being generated." = "在生成過程中顯示圖像";
 "Sort" = "排序";
 "Starting Image" = "起始圖片";
@@ -102,3 +103,6 @@ The size of the starting image must match the output image size of the current m
 "Width:" = "寬度：";
 "Your images are ready!" = "你的圖像已生成完成！";
 "random" = "隨機";
+"CFBundleDisplayName" = "Mochi Diffusion";
+"CFBundleName" = "Mochi Diffusion";
+"NSHumanReadableCopyright" = "作者 Joshua Park";
