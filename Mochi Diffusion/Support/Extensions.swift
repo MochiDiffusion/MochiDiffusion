@@ -227,3 +227,14 @@ extension MLComputeUnits {
         }
     }
 }
+
+extension FileManager {
+    func temporaryDirectoryInSameVolume(as url: URL, name: String = "temp") throws -> URL {
+        let defaultTempDir = FileManager.default.temporaryDirectory
+        if (try defaultTempDir.resourceValues(forKeys: [.volumeURLKey]).volume) == (try url.resourceValues(forKeys: [.volumeURLKey]).volume) {
+            return defaultTempDir.appending(path: name)
+        } else {
+            return url.deletingLastPathComponent().appending(path: name)
+        }
+    }
+}

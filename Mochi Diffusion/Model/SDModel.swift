@@ -67,31 +67,33 @@ extension SDModel {
                 try recursiveHardLink(source: url, target: target)
 
                 let encoderBinURL = target.appending(components: "VAEEncoder.mlmodelc", "coremldata.bin")
-                try FileManager.default.removeItem(at: encoderBinURL)
+                try? FileManager.default.removeItem(at: encoderBinURL)
                 try FileManager.default.copyItem(at: Bundle.main.url(forResource: "en-coremldata", withExtension: "bin")!, to: encoderBinURL)
 
                 let decoderBinURL = target.appending(components: "VAEDecoder.mlmodelc", "coremldata.bin")
-                try FileManager.default.removeItem(at: decoderBinURL)
+                try? FileManager.default.removeItem(at: decoderBinURL)
                 try FileManager.default.copyItem(at: Bundle.main.url(forResource: "de-coremldata", withExtension: "bin")!, to: decoderBinURL)
 
                 let encoderMilURL = target.appending(components: "VAEEncoder.mlmodelc", "model.mil")
                 let encoderMilBakURL = target.appending(components: "VAEEncoder.mlmodelc", "model.mil.bak")
-                try FileManager.default.removeItem(at: encoderMilURL)
+                try? FileManager.default.removeItem(at: encoderMilURL)
+                try? FileManager.default.removeItem(at: encoderMilBakURL)
                 try FileManager.default.copyItem(at: url.appending(components: "VAEEncoder.mlmodelc", "model.mil"), to: encoderMilBakURL)
 
                 let decoderMilURL = target.appending(components: "VAEDecoder.mlmodelc", "model.mil")
                 let decoderMilBakURL = target.appending(components: "VAEDecoder.mlmodelc", "model.mil.bak")
-                try FileManager.default.removeItem(at: decoderMilURL)
+                try? FileManager.default.removeItem(at: decoderMilURL)
+                try? FileManager.default.removeItem(at: decoderMilBakURL)
                 try FileManager.default.copyItem(at: url.appending(components: "VAEDecoder.mlmodelc", "model.mil"), to: decoderMilBakURL)
 
                 let encoderMetadataURL = target.appending(components: "VAEEncoder.mlmodelc", "metadata.json")
-                try FileManager.default.removeItem(at: encoderMetadataURL)
+                try? FileManager.default.removeItem(at: encoderMetadataURL)
                 try FileManager.default.copyItem(at: url.appending(components: "VAEEncoder.mlmodelc", "metadata.json"), to: encoderMetadataURL)
             }
 
             return SDModel(url: target, name: name, controlNet: controlNet)
         } catch {
-            print("ERROR: Unable to create resizeable copy of SDModel \(name)")
+            print("ERROR: Unable to create resizeable copy of SDModel \(name) \(error)")
             return nil
         }
     }

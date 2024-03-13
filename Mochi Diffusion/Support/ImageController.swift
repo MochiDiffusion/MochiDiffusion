@@ -109,7 +109,13 @@ final class ImageController: ObservableObject {
     @Published
     private(set) var currentControlNets: [(name: String?, image: CGImage?)] = []
 
-    @AppStorage("ModelDir") var modelDir = ""
+    @AppStorage("ModelDir") var modelDir = "" {
+        didSet {
+            Task {
+                await reloadModels()
+            }
+        }
+    }
     @AppStorage("ControlNetDir") var controlNetDir = ""
     @AppStorage("Model") private(set) var modelName = ""
     @AppStorage("AutosaveImages") var autosaveImages = true
@@ -129,6 +135,8 @@ final class ImageController: ObservableObject {
     @AppStorage("ReduceMemory") var reduceMemory = false
     @AppStorage("SafetyChecker") var safetyChecker = false
     @AppStorage("UseTrash") var useTrash = true
+
+    var variableSizeModelDir: URL?
 
     private var imageFolderMonitor: FolderMonitor?
     private var modelFolderMonitor: FolderMonitor?
@@ -168,12 +176,12 @@ final class ImageController: ObservableObject {
         }
         self.modelFolderMonitor = FolderMonitor(path: modelDir) {
             Task {
-                await self.loadModels()
+                await self.reloadModels()
             }
         }
         self.controlNetFolderMonitor = FolderMonitor(path: controlNetDir) {
             Task {
-                await self.loadModels()
+                await self.reloadModels()
             }
         }
     }
@@ -224,17 +232,39 @@ final class ImageController: ObservableObject {
         return finalModelDirURL
     }
 
-    func loadModels() async {
+    private func loadModels() async {
+        let modelDirectoryURL = directoryURL(fromPath: modelDir, defaultingTo: "MochiDiffusion/models/")
+        self.modelDir = modelDirectoryURL.path(percentEncoded: false)
+
+        let controlNetDirectoryURL = directoryURL(fromPath: controlNetDir, defaultingTo: "MochiDiffusion/controlnet/")
+        self.controlNetDir = controlNetDirectoryURL.path(percentEncoded: false)
+
+        await reloadModels()
+    }
+
+    private func reloadModels() async {
         models = []
         logger.info("Started loading model directory at: \"\(self.modelDir)\"")
+
         do {
-            let modelDirectoryURL = directoryURL(fromPath: modelDir, defaultingTo: "MochiDiffusion/models/")
-            self.modelDir = modelDirectoryURL.path(percentEncoded: false)
+            if let variableSizeModelDir {
+                try? FileManager.default.removeItem(at: variableSizeModelDir)
+            }
+            self.variableSizeModelDir = try FileManager.default.temporaryDirectoryInSameVolume(as: URL(fileURLWithPath: modelDir), name: "variable size models")
+            let modelDirectoryURL = URL(filePath: self.modelDir)
+            let controlNetDirectoryURL = URL(filePath: self.controlNetDir)
 
-            let controlNetDirectoryURL = directoryURL(fromPath: controlNetDir, defaultingTo: "MochiDiffusion/controlnet/")
-            self.controlNetDir = controlNetDirectoryURL.path(percentEncoded: false)
-
-            await self.models = try ImageGenerator.shared.getModels(modelDirectoryURL: modelDirectoryURL, controlNetDirectoryURL: controlNetDirectoryURL)
+            var vmodels = [SDModel]()
+            for model in try await ImageGenerator.shared.getModels(modelDirectoryURL: modelDirectoryURL, controlNetDirectoryURL: controlNetDirectoryURL) {
+                if model.allowsVariableSize {
+                    if let resizeableCopy = model.resizeableCopy(target: variableSizeModelDir!.appending(component: model.name)) {
+                        vmodels.append(resizeableCopy)
+                    }
+                } else {
+                    vmodels.append(model)
+                }
+            }
+            self.models = vmodels
 
             logger.info("Found \(self.models.count) model(s)")
 
@@ -296,7 +326,7 @@ final class ImageController: ObservableObject {
                     }
                     let cinput = ConditioningInput(module: c)
                     cinput.image = image
-                    ImageGenerator.shared.pipeline?.conditioningInput = [cinput]
+//                    ImageGenerator.shared.pipeline?.conditioningInput = [cinput]
                 } else if (model.controltype == .t2IAdapter || model.controltype == .all) && control?.controltype == .t2IAdapter {
                     guard let a = try? T2IAdapter(modelAt: URL(fileURLWithPath: controlNetDir + controlNet.name! + ".mlmodelc")) else {
                         self.logger.error("Couldn't load T2IAdapter \(controlNet.name!)")
@@ -304,7 +334,7 @@ final class ImageController: ObservableObject {
                     }
                     let ainput = ConditioningInput(module: a)
                     ainput.image = image
-                    ImageGenerator.shared.pipeline?.conditioningInput = [ainput]
+//                    ImageGenerator.shared.pipeline?.conditioningInput = [ainput]
                 }
             }
         }
