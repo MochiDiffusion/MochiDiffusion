@@ -167,7 +167,7 @@ struct GenerationConfig: Sendable, Identifiable {
         return models
     }
 
-    func loadPipeline(
+    func preparePipeline(
         model: SDModel, controlNet: [String] = [], computeUnit: MLComputeUnits, reduceMemory: Bool
     ) async throws {
         let fm = FileManager.default
@@ -206,6 +206,10 @@ struct GenerationConfig: Sendable, Identifiable {
 
         self.currentPipelineHash = hash
         self.tokenizer = Tokenizer(modelDir: model.url)
+    }
+
+    func loadPipeline(model: SDModel, controlNet: [String] = [], computeUnit: MLComputeUnits, reduceMemory: Bool) async throws {
+        try await preparePipeline(model: model, controlNet: controlNet, computeUnit: computeUnit, reduceMemory: reduceMemory)
         await updateState(.ready(nil))
     }
 

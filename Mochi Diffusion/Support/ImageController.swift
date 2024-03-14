@@ -311,7 +311,7 @@ final class ImageController: ObservableObject {
             let genConfig = generationQueue.removeFirst()
             self.currentGeneration = genConfig
             do {
-                try await ImageGenerator.shared.loadPipeline(
+                try await ImageGenerator.shared.preparePipeline(
                     model: genConfig.model,
                     controlNet: genConfig.controlNets,
                     computeUnit: genConfig.mlComputeUnit,

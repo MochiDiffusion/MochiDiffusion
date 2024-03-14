@@ -77,7 +77,6 @@ struct GalleryItemView: View {
                 Image(image, scale: 1, label: Text(verbatim: String(sdi.seed)))
                     .resizable()
                     .aspectRatio(contentMode: .fit)
-                    .padding(4)
                 if sdi.isUpscaling {
                     UpscalingAnimationView()
                 }
