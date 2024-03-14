@@ -20,7 +20,7 @@ We have very precise rules over how our Git Pull Request commit messages must be
 This format leads to **easier to read commit history**.
 Note that Pull Requests are squash merged so this rule only applies to the final commit message shown in GitHub's PR page.
 
-Each commit message consists of a **header**, a **body**, and a **footer**.
+Each commit message consists of a **header** and a **body**.
 
 
 ```
