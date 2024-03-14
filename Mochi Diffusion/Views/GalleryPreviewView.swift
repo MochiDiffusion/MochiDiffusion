@@ -21,15 +21,15 @@ struct GalleryPreviewView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
             }
-                .overlay(
-                    RoundedRectangle(cornerRadius: 2)
-                        .stroke(strokeColor, lineWidth: 4)
-                )
-                .onReceive(timer) { _ in
-                    withAnimation(.linear(duration: 1)) {
-                        strokeColor = (strokeColor == .black) ? .cyan : .black
-                    }
+            .overlay(
+                RoundedRectangle(cornerRadius: 2)
+                    .stroke(strokeColor, lineWidth: 4)
+            )
+            .onReceive(timer) { _ in
+                withAnimation(.linear(duration: 1)) {
+                    strokeColor = (strokeColor == .black) ? .cyan : .black
                 }
+            }
         }
     }
 }

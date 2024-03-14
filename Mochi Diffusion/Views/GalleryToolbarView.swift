@@ -28,8 +28,8 @@ struct GalleryToolbarView: View {
 
             ZStack {
                 if case .running(let progress) = generator.state, let progress = progress,
-                progress.stepCount > 0
-            {
+                    progress.stepCount > 0
+                {
                     Button {
                         self.isStatusPopoverShown.toggle()
                     } label: {
@@ -190,11 +190,14 @@ struct GalleryToolbarView: View {
     @ViewBuilder
     private func progressBarView() -> some View {
         VStack(spacing: 0) {
-            if case let .running(progress) = generator.state, let progress = progress, progress.stepCount > 0 {
+            if case .running(let progress) = generator.state, let progress = progress,
+                progress.stepCount > 0
+            {
                 let step = progress.step + 1
                 let stepValue = Double(step) / Double(progress.stepCount)
                 let progressText = String(
-                    localized: "About \(formatTimeRemaining(generator.lastStepGenerationElapsedTime, stepsLeft: progress.stepCount - step))",
+                    localized:
+                        "About \(formatTimeRemaining(generator.lastStepGenerationElapsedTime, stepsLeft: progress.stepCount - step))",
                     comment: "Text displaying the current time remaining"
                 )
 
