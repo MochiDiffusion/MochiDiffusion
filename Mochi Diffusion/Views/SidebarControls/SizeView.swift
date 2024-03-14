@@ -13,9 +13,9 @@ struct SizeView: View {
         512, 576, 640, 768, 832, 896
     ]
     private let sdxlimageSizes = [
-        512, 576, 640, 768, 832, 896, 1024, 1152, 1216, 1280, 1344, 1536
+        512, 576, 640, 768, 832, 896, 1_024, 1_152, 1_216, 1_280, 1_344, 1_536
     ]
-    
+
     var body: some View {
         HStack {
             let imageSizes: [Int] = ImageController.shared.currentModel?.isXL ?? false ? sdxlimageSizes : sdimageSizes

@@ -85,3 +85,26 @@ func formatTimeRemaining(_ interval: Double?, stepsLeft: Int) -> String {
 
     return formattedString ?? "-"
 }
+
+func recursiveHardLink(source: URL, target: URL) throws {
+    let fileManager = FileManager.default
+
+    guard fileManager.fileExists(atPath: source.path) else {
+        throw NSError(domain: "Source does not exist", code: 1, userInfo: nil)
+    }
+
+    guard !fileManager.fileExists(atPath: target.path) else {
+        throw NSError(domain: "Target already exists", code: 1, userInfo: nil)
+    }
+
+    if let isDirectory = try? source.resourceValues(forKeys: [.isDirectoryKey]).isDirectory, isDirectory {
+        try fileManager.createDirectory(at: target, withIntermediateDirectories: true, attributes: nil)
+        let contents = try fileManager.contentsOfDirectory(at: source, includingPropertiesForKeys: nil, options: [])
+        for item in contents {
+            let itemTarget = target.appending(component: item.lastPathComponent)
+            try recursiveHardLink(source: item, target: itemTarget)
+        }
+    } else {
+        try fileManager.linkItem(at: source, to: target)
+    }
+}

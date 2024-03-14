@@ -7,8 +7,8 @@
 
 import CoreML
 import Foundation
-import os
 import GuernikaKit
+import os
 import SwiftUI
 import UniformTypeIdentifiers
 
@@ -58,7 +58,7 @@ final class ImageController: ObservableObject {
 
     @Published
     var startingImage: CGImage?
-    
+
     @Published
     var maskImage: CGImage?
 
@@ -109,7 +109,13 @@ final class ImageController: ObservableObject {
     @Published
     private(set) var currentControlNets: [(name: String?, image: CGImage?)] = []
 
-    @AppStorage("ModelDir") var modelDir = ""
+    @AppStorage("ModelDir") var modelDir = "" {
+        didSet {
+            Task {
+                await reloadModels()
+            }
+        }
+    }
     @AppStorage("ControlNetDir") var controlNetDir = ""
     @AppStorage("Model") private(set) var modelName = ""
     @AppStorage("AutosaveImages") var autosaveImages = true
@@ -117,9 +123,6 @@ final class ImageController: ObservableObject {
     @AppStorage("ImageType") var imageType = UTType.png.preferredFilenameExtension!
     @AppStorage("Prompt") var prompt = ""
     @AppStorage("NegativePrompt") var negativePrompt = ""
-    @AppStorage("StylePrompt") var stylePrompt = ""
-    @AppStorage("StyleNegativePrompt") var styleNegativePrompt = ""
-    @AppStorage("SelectedStyle") var selectedStyle: String?
     @AppStorage("ImageStrength") var strength = 0.75
     @AppStorage("Steps") var steps = 15.0
     @AppStorage("Scale") var guidanceScale = 5.0
@@ -132,6 +135,8 @@ final class ImageController: ObservableObject {
     @AppStorage("ReduceMemory") var reduceMemory = false
     @AppStorage("SafetyChecker") var safetyChecker = false
     @AppStorage("UseTrash") var useTrash = true
+
+    var variableSizeModelDir: URL?
 
     private var imageFolderMonitor: FolderMonitor?
     private var modelFolderMonitor: FolderMonitor?
@@ -171,12 +176,12 @@ final class ImageController: ObservableObject {
         }
         self.modelFolderMonitor = FolderMonitor(path: modelDir) {
             Task {
-                await self.loadModels()
+                await self.reloadModels()
             }
         }
         self.controlNetFolderMonitor = FolderMonitor(path: controlNetDir) {
             Task {
-                await self.loadModels()
+                await self.reloadModels()
             }
         }
     }
@@ -227,17 +232,39 @@ final class ImageController: ObservableObject {
         return finalModelDirURL
     }
 
-    func loadModels() async {
+    private func loadModels() async {
+        let modelDirectoryURL = directoryURL(fromPath: modelDir, defaultingTo: "MochiDiffusion/models/")
+        self.modelDir = modelDirectoryURL.path(percentEncoded: false)
+
+        let controlNetDirectoryURL = directoryURL(fromPath: controlNetDir, defaultingTo: "MochiDiffusion/controlnet/")
+        self.controlNetDir = controlNetDirectoryURL.path(percentEncoded: false)
+
+        await reloadModels()
+    }
+
+    private func reloadModels() async {
         models = []
         logger.info("Started loading model directory at: \"\(self.modelDir)\"")
+
         do {
-            let modelDirectoryURL = directoryURL(fromPath: modelDir, defaultingTo: "MochiDiffusion/models/")
-            self.modelDir = modelDirectoryURL.path(percentEncoded: false)
+            if let variableSizeModelDir {
+                try? FileManager.default.removeItem(at: variableSizeModelDir)
+            }
+            self.variableSizeModelDir = try FileManager.default.temporaryDirectoryInSameVolume(as: URL(fileURLWithPath: modelDir), name: "variable size models")
+            let modelDirectoryURL = URL(filePath: self.modelDir)
+            let controlNetDirectoryURL = URL(filePath: self.controlNetDir)
 
-            let controlNetDirectoryURL = directoryURL(fromPath: controlNetDir, defaultingTo: "MochiDiffusion/controlnet/")
-            self.controlNetDir = controlNetDirectoryURL.path(percentEncoded: false)
-
-            await self.models = try ImageGenerator.shared.getModels(modelDirectoryURL: modelDirectoryURL, controlNetDirectoryURL: controlNetDirectoryURL)
+            var vmodels = [SDModel]()
+            for model in try await ImageGenerator.shared.getModels(modelDirectoryURL: modelDirectoryURL, controlNetDirectoryURL: controlNetDirectoryURL) {
+                if model.allowsVariableSize {
+                    if let resizeableCopy = model.resizeableCopy(target: variableSizeModelDir!.appending(component: model.name)) {
+                        vmodels.append(resizeableCopy)
+                    }
+                } else {
+                    vmodels.append(model)
+                }
+            }
+            self.models = vmodels
 
             logger.info("Found \(self.models.count) model(s)")
 
@@ -267,21 +294,21 @@ final class ImageController: ObservableObject {
             return
         }
 
-        var pipelineConfig = SampleInput(prompt: stylePrompt.replacingOccurrences(of: "{prompt}", with: prompt))
-        pipelineConfig.negativePrompt = styleNegativePrompt + ", " + negativePrompt
-        
-        if model.allowsVariableSize{
+        var pipelineConfig = SampleInput(prompt: prompt)
+        pipelineConfig.negativePrompt = negativePrompt
+
+        if model.allowsVariableSize {
             pipelineConfig.size = CGSize(width: self.width, height: self.height)
-        }else{
+        } else {
             pipelineConfig.size = model.inputSize
         }
-        
-        if let size = pipelineConfig.size, startingImage != nil{
-           pipelineConfig.initImage = startingImage?.scaledAndCroppedTo(size: size)
+
+        if let size = pipelineConfig.size, startingImage != nil {
+            pipelineConfig.initImage = startingImage?.scaledAndCroppedTo(size: size)
             pipelineConfig.inpaintMask = maskImage?.scaledAndCroppedTo(size: size)
         }
         let strength = startingImage == nil && currentControlNets.isEmpty ? 1.0 : self.strength
-        
+
         pipelineConfig.strength = Float(strength)
         pipelineConfig.stepCount = Int(steps)
         pipelineConfig.seed = seed
@@ -292,22 +319,22 @@ final class ImageController: ObservableObject {
         for controlNet in currentControlNets {
             if controlNet.name != nil, let size = pipelineConfig.size, let image = controlNet.image?.scaledAndCroppedTo(size: size) {
                 let control = SDControlNet(url: URL(fileURLWithPath: controlNetDir + controlNet.name! + ".mlmodelc"))
-                if (model.controltype == .ControlNet || model.controltype == .all) && control?.controltype == .ControlNet{
+                if (model.controltype == .controlNet || model.controltype == .all) && control?.controltype == .controlNet {
                     guard let c = try? ControlNet(modelAt: URL(fileURLWithPath: controlNetDir + controlNet.name! + ".mlmodelc")) else {
                         self.logger.error("Couldn't load ControlNet \(controlNet.name!)")
                         continue
                     }
-                    let cinput = ConditioningInput.init(module: c)
+                    let cinput = ConditioningInput(module: c)
                     cinput.image = image
-                    ImageGenerator.shared.pipeline?.conditioningInput = [cinput]
-                }else if (model.controltype == .T2IAdapter || model.controltype == .all) && control?.controltype == .T2IAdapter{
+//                    ImageGenerator.shared.pipeline?.conditioningInput = [cinput]
+                } else if (model.controltype == .t2IAdapter || model.controltype == .all) && control?.controltype == .t2IAdapter {
                     guard let a = try? T2IAdapter(modelAt: URL(fileURLWithPath: controlNetDir + controlNet.name! + ".mlmodelc")) else {
                         self.logger.error("Couldn't load T2IAdapter \(controlNet.name!)")
                         continue
                     }
-                    let ainput = ConditioningInput.init(module: a)
+                    let ainput = ConditioningInput(module: a)
                     ainput.image = image
-                    ImageGenerator.shared.pipeline?.conditioningInput = [ainput]
+//                    ImageGenerator.shared.pipeline?.conditioningInput = [ainput]
                 }
             }
         }
@@ -332,6 +359,8 @@ final class ImageController: ObservableObject {
         }
     }
 
+    private var prevPipeline: Int?
+
     private func runGenerationJobs() async {
         guard case .ready = ImageGenerator.shared.state else { return }
 
@@ -339,12 +368,29 @@ final class ImageController: ObservableObject {
             let genConfig = generationQueue.removeFirst()
             self.currentGeneration = genConfig
             do {
-                try await ImageGenerator.shared.loadPipeline(
-                    model: genConfig.model,
-                    controlNet: genConfig.controlNets,
-                    computeUnit: genConfig.mlComputeUnit,
-                    reduceMemory: self.reduceMemory
-                )
+                if prevPipeline != genConfig.pipelineHash() {
+                    guard let size = genConfig.pipelineConfig.size else {
+                        break
+                    }
+                    let width = Int(size.width)
+                    let height = Int(size.height)
+
+                    genConfig.model.modifyEncoderMil(width: width, height: height)
+                    genConfig.model.modifyDecoderMil(width: width, height: height)
+
+                    var reduceMemoryOrUpdateInputShape = self.reduceMemory
+                    if genConfig.pipelineConfig.initImage != nil {
+                        reduceMemoryOrUpdateInputShape = true
+                        genConfig.model.modifyInputSize(width: width, height: height)
+                    }
+                    try await ImageGenerator.shared.loadPipeline(
+                        model: genConfig.model,
+                        controlNet: genConfig.controlNets,
+                        computeUnit: genConfig.mlComputeUnit,
+                        reduceMemory: reduceMemoryOrUpdateInputShape
+                    )
+                    prevPipeline = genConfig.pipelineHash()
+                }
                 try await ImageGenerator.shared.generate(genConfig)
             } catch ImageGenerator.GeneratorError.requestedModelNotFound {
                 self.logger.error("Couldn't load \(genConfig.model.name) because it doesn't exist.")

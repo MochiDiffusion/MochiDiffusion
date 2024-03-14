@@ -38,9 +38,9 @@ struct StartingImageView: View {
                 let screenHeight = NSScreen.main?.frame.height ?? 0
                 let screenWidth = NSScreen.main?.frame.width ?? 0
                 let aspectRatio = CGSize(width: controller.width, height: controller.height).aspectRatio
-                if aspectRatio <= 1{
+                if aspectRatio <= 1 {
                     MaskEditorView(startingImage: controller.startingImage?.scaledAndCroppedTo(size: CGSize(width: (screenHeight * aspectRatio * 0.6).rounded(), height: (screenHeight * 0.6).rounded())), maskImage: $controller.maskImage)
-                }else{
+                } else {
                     MaskEditorView(startingImage: controller.startingImage?.scaledAndCroppedTo(size: CGSize(width: (screenWidth * 0.5).rounded(), height: (screenWidth / aspectRatio * 0.5).rounded())), maskImage: $controller.maskImage)
                 }
             }
@@ -61,7 +61,7 @@ struct StartingImageView: View {
                         Image(systemName: "paintbrush")
                     }
                     .disabled(controller.startingImage == nil)
-                    
+
                     Button {
                         controller.maskImage = nil
                         Task { await ImageController.shared.unsetStartingImage() }
@@ -117,9 +117,9 @@ struct MaskEditorView: View {
     @State private var endPoint: CGPoint?
     @State private var paths: [PathWrapper] = []
     @State private var radius: CGFloat = 80
-    
+
     var body: some View {
-        VStack(alignment: .trailing){
+        VStack(alignment: .trailing) {
             ZStack {
                 if let startingImage {
                     Image(nsImage: NSImage(cgImage: startingImage, size: NSSize(width: startingImage.width, height: startingImage.height)))
@@ -132,7 +132,7 @@ struct MaskEditorView: View {
             }
             .frame(width: CGFloat(startingImage?.width ?? 0), height: CGFloat(startingImage?.height ?? 0))
 
-            HStack{
+            HStack {
                 Spacer()
                 Button {
                     paths.removeAll()
@@ -166,11 +166,11 @@ struct MaskEditorView: View {
                 }
         )
     }
-    
+
     func updateMaskImage() {
         guard let endPoint = endPoint else { return }
 
-        let center = CGPoint(x: (endPoint.x) , y: (endPoint.y))
+        let center = CGPoint(x: (endPoint.x), y: (endPoint.y))
         let adjustedY = CGFloat(startingImage?.height ?? 0) - center.y
 
         let path = Path { path in
@@ -179,12 +179,12 @@ struct MaskEditorView: View {
         paths.append(PathWrapper(path: path))
         drawPaths()
     }
-    
+
     func drawPaths() {
         guard let startingImage = startingImage else { return }
         let imageSize = CGSize(width: startingImage.width, height: startingImage.height)
         let imageRect = CGRect(origin: .zero, size: imageSize)
-        
+
         let width = Int(imageSize.width)
         let height = Int(imageSize.height)
 
@@ -205,7 +205,6 @@ struct MaskEditorView: View {
         }
     }
 }
-
 
 #Preview {
     StartingImageView()

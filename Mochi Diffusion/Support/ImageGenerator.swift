@@ -7,8 +7,8 @@
 
 import Combine
 import CoreML
-import OSLog
 @preconcurrency import GuernikaKit
+import OSLog
 import UniformTypeIdentifiers
 
 struct GenerationConfig: Sendable, Identifiable {
@@ -24,6 +24,16 @@ struct GenerationConfig: Sendable, Identifiable {
     var scheduler: Scheduler
     var upscaleGeneratedImages: Bool
     var controlNets: [String]
+
+    func pipelineHash() -> Int {
+        var hasher = Hasher()
+        hasher.combine(model)
+        hasher.combine(controlNets)
+        hasher.combine(mlComputeUnit)
+        hasher.combine(pipelineConfig.size)
+        hasher.combine(pipelineConfig.initImage == nil)
+        return hasher.finalize()
+    }
 }
 
 @Observable public final class ImageGenerator {
@@ -55,7 +65,7 @@ struct GenerationConfig: Sendable, Identifiable {
 
     private(set) var queueProgress = QueueProgress(index: 0, total: 0)
 
-    public var pipeline: (any StableDiffusionPipeline)?
+    private var pipeline: (any StableDiffusionPipeline)?
 
     private(set) var tokenizer: Tokenizer?
 
@@ -64,10 +74,6 @@ struct GenerationConfig: Sendable, Identifiable {
     private(set) var lastStepGenerationElapsedTime: Double?
 
     private var generationStartTime: DispatchTime?
-
-    private var currentPipelineHash: Int?
-    
-    private var lastSize: CGSize?
 
     func loadImages(imageDir: String) async throws -> ([SDImage], URL) {
         var finalImageDirURL: URL
@@ -124,8 +130,8 @@ struct GenerationConfig: Sendable, Identifiable {
             models = subDirs
                 .sorted { $0.lastPathComponent.compare($1.lastPathComponent, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedAscending }
                 .compactMap { url in
-                    let controlledUnetMetadataPath = url.appending(components: "Unet.mlmodelc", "metadata.json").path(percentEncoded: false)
-                    let hasControlNet = fm.fileExists(atPath: controlledUnetMetadataPath)
+                    let unetMetadataPath = url.appending(components: "Unet.mlmodelc", "metadata.json").path(percentEncoded: false)
+                    let hasControlNet = fm.fileExists(atPath: unetMetadataPath)
                     if hasControlNet {
                         let controlNetSymLinkPath = url.appending(component: "controlnet").path(percentEncoded: false)
 
@@ -153,47 +159,25 @@ struct GenerationConfig: Sendable, Identifiable {
             await updateState(.error("Couldn't load \(model.name) because it doesn't exist."))
             throw GeneratorError.requestedModelNotFound
         }
-        var hasher = Hasher()
-        hasher.combine(model)
-        hasher.combine(controlNet)
-        hasher.combine(computeUnit)
-        hasher.combine(reduceMemory)
-        let hash = hasher.finalize()
-        var cSize = await CGSize(width: ImageController.shared.width, height: ImageController.shared.height)
-        if model.allowsVariableSize == false{
-            cSize = model.inputSize!
-        }
-        
-        if hash == self.currentPipelineHash {
-            if await ImageController.shared.startingImage != nil && lastSize == cSize {
-                return
-            } else if await ImageController.shared.startingImage == nil{
-                return
-            }
-        }
 
-        lastSize = await CGSize(width: ImageController.shared.width, height: ImageController.shared.height)
         await updateState(.loading)
         let config = MLModelConfiguration()
         config.computeUnits = computeUnit
-        if model.allowsVariableSize && vaeAllowsVariableSize(model.url) == false{
-            await modifyInputSize(model.url, height: ImageController.shared.height, width: ImageController.shared.width)
-        }
+
         let modelresource = try GuernikaKit.load(at: model.url)
 
         switch modelresource {
         case is StableDiffusionXLPipeline:
-            self.pipeline = modelresource as! StableDiffusionXLPipeline
+            self.pipeline = modelresource as? StableDiffusionXLPipeline
         case is StableDiffusionXLRefinerPipeline:
-            self.pipeline = modelresource as! StableDiffusionXLRefinerPipeline
+            self.pipeline = modelresource as? StableDiffusionXLRefinerPipeline
         case is StableDiffusionPix2PixPipeline:
-            self.pipeline = modelresource as! StableDiffusionPix2PixPipeline
+            self.pipeline = modelresource as? StableDiffusionPix2PixPipeline
         default:
-            self.pipeline = modelresource as! StableDiffusionMainPipeline
+            self.pipeline = modelresource as? StableDiffusionMainPipeline
         }
-    
-        self.pipeline?.reduceMemory = true//reduceMemory
-        self.currentPipelineHash = hash
+
+        self.pipeline?.reduceMemory = reduceMemory
         self.tokenizer = Tokenizer(modelDir: model.url)
         await updateState(.ready(nil))
     }
@@ -205,10 +189,10 @@ struct GenerationConfig: Sendable, Identifiable {
         }
         await updateState(.loading)
         generationStopped = false
-       
+
         var config = inputConfig
         config.pipelineConfig.seed = config.pipelineConfig.seed == 0 ? UInt32.random(in: 0 ..< UInt32.max) : config.pipelineConfig.seed
-        
+
         var sdi = SDImage()
         sdi.prompt = config.pipelineConfig.prompt
         sdi.negativePrompt = config.pipelineConfig.negativePrompt
@@ -217,15 +201,11 @@ struct GenerationConfig: Sendable, Identifiable {
         sdi.mlComputeUnit = config.mlComputeUnit
         sdi.steps = config.pipelineConfig.stepCount
         sdi.guidanceScale = Double(config.pipelineConfig.guidanceScale)
-        
-        if pipeline.allowsVariableSize && vaeAllowsVariableSize(config.model.url) == false{
-            try await hackVAE(model: config.model)
-        }
-        
+
         for index in 0 ..< config.numberOfImages {
             await updateQueueProgress(QueueProgress(index: index, total: inputConfig.numberOfImages))
             generationStartTime = DispatchTime.now()
-            
+
             let image = try pipeline.generateImages(input: config.pipelineConfig) { progress in
 
                 Task { @MainActor in
@@ -237,9 +217,9 @@ struct GenerationConfig: Sendable, Identifiable {
 
                 Task {
                     let currentImage = progress.currentLatentSample
-                    if await ImageController.shared.showHighqualityPreview{
+                    if await ImageController.shared.showHighqualityPreview {
                         ImageStore.shared.setCurrentGenerating(image: try pipeline.decodeToImage(currentImage))
-                    }else{
+                    } else {
                         ImageStore.shared.setCurrentGenerating(image: pipeline.latentToImage(currentImage))
                     }
                 }
@@ -249,7 +229,7 @@ struct GenerationConfig: Sendable, Identifiable {
             if generationStopped {
                 break
             }
-            
+
             guard let image = image else { continue }
             if config.upscaleGeneratedImages {
                 guard let upscaledImg = await Upscaler.shared.upscale(cgImage: image) else { continue }
@@ -279,7 +259,7 @@ struct GenerationConfig: Sendable, Identifiable {
         }
         await updateState(.ready(nil))
     }
-    
+
     func stopGenerate() async {
         generationStopped = true
     }

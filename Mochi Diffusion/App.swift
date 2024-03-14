@@ -56,6 +56,10 @@ struct MochiDiffusionApp: App {
                     /// cleanup MPS temp folder
                     let mpsURL = FileManager.default.temporaryDirectory.appendingPathComponent("com.apple.MetalPerformanceShadersGraph", isDirectory: true)
                     try? FileManager.default.removeItem(at: mpsURL)
+                    /// cleanup modified variable size models
+                    if let variableSizeModelDir = controller.variableSizeModelDir {
+                        try? FileManager.default.removeItem(at: variableSizeModelDir)
+                    }
                 }
         }
         .commands {
