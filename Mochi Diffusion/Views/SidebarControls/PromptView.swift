@@ -17,7 +17,7 @@ struct PromptTextEditor: View {
 
     @FocusState private var focused: Bool
 
-    @Environment(ImageGenerator.self) private var generator: ImageGenerator
+    let tokenizer: Tokenizer?
 
     private let tokenLimit = 75
 
@@ -32,7 +32,7 @@ struct PromptTextEditor: View {
     }
 
     private var tokens: Int {
-        guard let tokenizer = generator.tokenizer else {
+        guard let tokenizer else {
             return estimatedTokens
         }
         return tokenizer.countTokens(text)
@@ -78,7 +78,6 @@ struct PromptTextEditor: View {
 
 struct PromptView: View {
     @EnvironmentObject private var controller: ImageController
-    @Environment(ImageGenerator.self) private var generator: ImageGenerator
     @Environment(FocusController.self) private var focusCon: FocusController
 
     var body: some View {
@@ -90,7 +89,8 @@ struct PromptView: View {
             PromptTextEditor(
                 text: $controller.prompt,
                 height: 120,
-                focusBinding: $focusCon.promptFieldIsFocused
+                focusBinding: $focusCon.promptFieldIsFocused,
+                tokenizer: controller.currentModel?.tokenizer
             )
 
             Text("Exclude from Image")
@@ -98,7 +98,8 @@ struct PromptView: View {
             PromptTextEditor(
                 text: $controller.negativePrompt,
                 height: 70,
-                focusBinding: $focusCon.negativePromptFieldIsFocused
+                focusBinding: $focusCon.negativePromptFieldIsFocused,
+                tokenizer: controller.currentModel?.tokenizer
             )
 
             Spacer().frame(height: 2)
@@ -145,6 +146,5 @@ struct PromptView: View {
 #Preview {
     PromptView()
         .environmentObject(ImageController.shared)
-        .environment(ImageGenerator.shared)
         .environment(FocusController.shared)
 }

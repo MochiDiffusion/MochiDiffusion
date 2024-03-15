@@ -18,6 +18,7 @@ struct SDModel: Identifiable {
     let controlNet: [String]
     let isXL: Bool
     let inputSize: CGSize?
+    let tokenizer: Tokenizer?
 
     var id: URL { url }
 
@@ -40,10 +41,15 @@ struct SDModel: Identifiable {
         }
         self.isXL = isXL
         self.inputSize = size
+        self.tokenizer = Tokenizer(modelDir: url)
     }
 }
 
 extension SDModel: Hashable {
+    static func == (lhs: SDModel, rhs: SDModel) -> Bool {
+        lhs.url == rhs.url
+    }
+
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
