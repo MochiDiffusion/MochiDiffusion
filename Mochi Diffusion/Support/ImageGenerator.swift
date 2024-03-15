@@ -27,7 +27,6 @@ struct GenerationConfig: Sendable, Identifiable {
 }
 
 @Observable public final class ImageGenerator {
-
     static let shared = ImageGenerator()
 
     enum GeneratorError: Error {
@@ -88,8 +87,7 @@ struct GenerationConfig: Sendable, Identifiable {
         let items = try fm.contentsOfDirectory(
             at: finalImageDirURL,
             includingPropertiesForKeys: nil,
-            options: .skipsHiddenFiles
-        )
+            options: .skipsHiddenFiles)
         let imageURLs =
             items
             .filter { $0.isFileURL }
@@ -167,7 +165,7 @@ struct GenerationConfig: Sendable, Identifiable {
         return models
     }
 
-    func loadPipeline(
+    func preparePipeline(
         model: SDModel, controlNet: [String] = [], computeUnit: MLComputeUnits, reduceMemory: Bool
     ) async throws {
         let fm = FileManager.default
@@ -192,20 +190,26 @@ struct GenerationConfig: Sendable, Identifiable {
             self.pipeline = try StableDiffusionXLPipeline(
                 resourcesAt: model.url,
                 configuration: config,
-                reduceMemory: reduceMemory
-            )
+                reduceMemory: reduceMemory)
         } else {
             self.pipeline = try StableDiffusionPipeline(
                 resourcesAt: model.url,
                 controlNet: controlNet,
                 configuration: config,
                 disableSafety: true,
-                reduceMemory: reduceMemory
-            )
+                reduceMemory: reduceMemory)
         }
 
         self.currentPipelineHash = hash
         self.tokenizer = Tokenizer(modelDir: model.url)
+    }
+
+    func loadPipeline(
+        model: SDModel, controlNet: [String] = [], computeUnit: MLComputeUnits, reduceMemory: Bool
+    ) async throws {
+        try await preparePipeline(
+            model: model, controlNet: controlNet, computeUnit: computeUnit,
+            reduceMemory: reduceMemory)
         await updateState(.ready(nil))
     }
 
@@ -285,7 +289,7 @@ struct GenerationConfig: Sendable, Identifiable {
                 sdi.generatedDate = Date.now
                 sdi.path = ""
 
-                if config.autosaveImages && !config.imageDir.isEmpty {
+                if config.autosaveImages, !config.imageDir.isEmpty {
                     var pathURL = URL(fileURLWithPath: config.imageDir, isDirectory: true)
                     let count = ImageStore.shared.images.endIndex + 1
                     pathURL.append(path: sdi.filenameWithoutExtension(count: count))

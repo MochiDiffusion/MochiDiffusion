@@ -9,41 +9,27 @@ import SwiftUI
 
 struct GalleryPreviewView: View {
     @Environment(ImageGenerator.self) private var generator: ImageGenerator
-    var image: CGImage
+    @Environment(ImageStore.self) private var store: ImageStore
+    @State private var strokeColor = Color.black
+
+    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     var body: some View {
-        ZStack {
-            Image(image, scale: 1, label: Text(""))
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-            if case .running(let progress) = generator.state, let progress = progress,
-                progress.stepCount > 0
-            {
-                let step = progress.step + 1
-                let stepValue = Double(step) / Double(progress.stepCount)
-
-                let progressLabel = String(
-                    localized:
-                        "About \(formatTimeRemaining(generator.lastStepGenerationElapsedTime, stepsLeft: progress.stepCount - step))",
-                    comment: "Text displaying the current time remaining"
-                )
-
-                VStack(alignment: .leading) {
-                    HStack {
-                        Spacer()
-                        Text(verbatim: "\(step)/\(progress.stepCount)")
-                            .padding(6)
-                            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 4))
-                    }
-                    Spacer()
-                    ProgressView(progressLabel, value: stepValue, total: 1)
-                        .padding(8)
-                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 8))
+        if let image = store.currentGeneratingImage, case .running = generator.state {
+            ZStack {
+                Image(image, scale: 1, label: Text(""))
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+            }
+            .overlay(
+                RoundedRectangle(cornerRadius: 2)
+                    .stroke(strokeColor, lineWidth: 4)
+            )
+            .onReceive(timer) { _ in
+                withAnimation(.linear(duration: 1)) {
+                    strokeColor = (strokeColor == .black) ? .cyan : .black
                 }
-                .aspectRatio(CGFloat(image.width / image.height), contentMode: .fit)
-                .padding(8)
             }
         }
-        .padding(4)
     }
 }

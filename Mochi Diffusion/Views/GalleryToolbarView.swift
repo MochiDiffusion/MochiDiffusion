@@ -16,34 +16,43 @@ struct GalleryToolbarView: View {
     var body: some View {
         @Bindable var store = store
 
-        ZStack {
-            if case .running(let progress) = generator.state, let progress = progress,
-                progress.stepCount > 0
-            {
-                let step = progress.step + 1
-                let stepValue = Double(step) / Double(progress.stepCount)
-
+        HStack {
+            if shouldShowProgress(forState: generator.state) {
+                progressBarView()
                 Button {
-                    self.isStatusPopoverShown.toggle()
+                    Task { await generator.stopGenerate() }
                 } label: {
-                    CircularProgressView(progress: stepValue)
-                        .frame(width: 16, height: 16)
-                }
-            } else if case .loading = generator.state {
-                Button {
-                    self.isStatusPopoverShown.toggle()
-                } label: {
-                    ProgressView()
-                        .progressViewStyle(.circular)
-                        .controlSize(.small)
-                        .frame(width: 16, height: 16)
+                    Image(systemName: "xmark.circle.fill")
                 }
             }
+
+            ZStack {
+                if case .running(let progress) = generator.state, let progress = progress,
+                    progress.stepCount > 0
+                {
+                    Button {
+                        self.isStatusPopoverShown.toggle()
+                    } label: {
+                        Image(systemName: "info.circle.fill")
+                            .frame(width: 16, height: 16)
+                    }
+                } else if case .loading = generator.state {
+                    Button {
+                        self.isStatusPopoverShown.toggle()
+                    } label: {
+                        ProgressView()
+                            .progressViewStyle(.circular)
+                            .controlSize(.small)
+                            .frame(width: 16, height: 16)
+                    }
+                }
+            }
+            .popover(isPresented: self.$isStatusPopoverShown, arrowEdge: .bottom) {
+                JobQueueView()
+                    .frame(width: 420, height: 240)
+            }
         }
-        .popover(isPresented: self.$isStatusPopoverShown, arrowEdge: .bottom) {
-            JobQueueView()
-                .frame(width: 420, height: 240)
-        }
+        .frame(width: 400)
 
         Picker("Sort", selection: $store.sortType) {
             Text(
@@ -176,6 +185,56 @@ struct GalleryToolbarView: View {
             }
         }
         .disabled(true)
+    }
+
+    @ViewBuilder
+    private func progressBarView() -> some View {
+        VStack(spacing: 0) {
+            if case .running(let progress) = generator.state, let progress = progress,
+                progress.stepCount > 0
+            {
+                let step = progress.step + 1
+                let stepValue = Double(step) / Double(progress.stepCount)
+                let progressText = String(
+                    localized:
+                        "About \(formatTimeRemaining(generator.lastStepGenerationElapsedTime, stepsLeft: progress.stepCount - step))",
+                    comment: "Text displaying the current time remaining"
+                )
+
+                ProgressView(value: stepValue)
+                    .progressViewStyle(LinearProgressViewStyle())
+                    .frame(height: 12)
+                    .padding(.top, 4)
+                    .padding([.leading, .trailing], 8)
+                Text(progressText)
+                    .font(.caption)
+                    .padding(.bottom, 4)
+                    .padding([.leading, .trailing], 8)
+            } else if case .loading = generator.state {
+                let progressLabel = String(
+                    localized: "Loading the model...",
+                    comment: "Text displayed when the model is being loaded"
+                )
+                Text(progressLabel)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .frame(height: 36)
+        .overlay(
+            RoundedRectangle(cornerRadius: 4)
+                .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+        )
+        .background(Color.gray.opacity(0.05))
+        .cornerRadius(4)
+    }
+
+    func shouldShowProgress(forState state: ImageGenerator.State) -> Bool {
+        switch state {
+        case .loading, .running:
+            return true
+        default:
+            return false
+        }
     }
 }
 

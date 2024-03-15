@@ -50,18 +50,7 @@ struct GalleryView: View {
             ScrollView {
                 LazyVGrid(columns: gridColumns, spacing: 16) {
                     if store.sortType == .newestFirst {
-                        if let currentImage = store.currentGeneratingImage,
-                            case .running = generator.state
-                        {
-                            GalleryPreviewView(image: currentImage)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 2)
-                                        .stroke(
-                                            Color(nsColor: .controlBackgroundColor),
-                                            lineWidth: 4
-                                        )
-                                )
-                        }
+                        GalleryPreviewView()
                     }
 
                     ForEach(store.images) { sdi in
@@ -122,18 +111,7 @@ struct GalleryView: View {
                     }
 
                     if store.sortType == .oldestFirst {
-                        if let currentImage = store.currentGeneratingImage,
-                            case .running = generator.state
-                        {
-                            GalleryPreviewView(image: currentImage)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 2)
-                                        .stroke(
-                                            Color(nsColor: .controlBackgroundColor),
-                                            lineWidth: 4
-                                        )
-                                )
-                        }
+                        GalleryPreviewView()
                     }
                 }
                 .padding()
