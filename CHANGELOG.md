@@ -1,4 +1,4 @@
-# [v5.0](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v5.0) - 25 Jan 2024
+# [v5.0](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v5.0) - 25 Jan 2024
 
 - Added ability to resize Inspector width
 - Removed unnecessary Apply button from Settings window
@@ -10,12 +10,12 @@
   - macOS 14 and later is required to use split-einsum v2 & SDXL models
 - General performance improvements
 
-# [v4.7.1](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v4.7.1) - 02 Jan 2024
+# [v4.7.1](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v4.7.1) - 02 Jan 2024
 
 - Fixed using slider for countries that use decimal commas ([@haiodo](https://github.com/haiodo))
 
 
-# [v4.7](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v4.7) - 24 Dec 2023
+# [v4.7](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v4.7) - 24 Dec 2023
 
 - Added option to send notifications when images are ready ([@mangoes-dev](https://github.com/mangoes-dev))
 - Added ability to change slider control values by keyboard input ([@gdbing](https://github.com/gdbing))
@@ -25,7 +25,7 @@
 - Updated translations
 
 
-# [v4.6](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v4.6) - 06 Dec 2023
+# [v4.6](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v4.6) - 06 Dec 2023
 
 - Added auto refresh of Image, Model, & ControlNet list ([@gdbing](https://github.com/gdbing))
 - Added ability to queue images ([@gdbing](https://github.com/gdbing))
@@ -36,7 +36,7 @@
 - Changed ControlNet list to only show those compatible with the currently selected model ([@gdbing](https://github.com/gdbing))
 
 
-# [v4.5](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v4.5) - 08 Nov 2023
+# [v4.5](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v4.5) - 08 Nov 2023
 
 - Added time remaining info for currently generating image ([@hoseins77](https://github.com/hoseins77))
 - Changed starting image strength slider range ([@gdbing](https://github.com/gdbing))
@@ -44,21 +44,21 @@
 - Updated translations
 
 
-# [v4.4](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v4.4) - 09 Oct 2023
+# [v4.4](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v4.4) - 09 Oct 2023
 
 - Fixed problem selecting models with chunked Unets ([@vzsg](https://github.com/vzsg))
 - Fixed conflicting keyboard shortcuts between text inputs and gallery ([@hoseins77](https://github.com/hoseins77))
 - Changed gallery selection keyboard shortcuts to no longer require command key
 
 
-# [v4.3.1](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v4.3.1) - 05 Oct 2023
+# [v4.3.1](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v4.3.1) - 05 Oct 2023
 
-![roundels](https://github.com/godly-devotion/MochiDiffusion/assets/1341760/d71e28e9-2b3f-4c79-8845-9f370f457340)
+![roundels](https://github.com/MochiDiffusion/MochiDiffusion/assets/1341760/d71e28e9-2b3f-4c79-8845-9f370f457340)
 
 - Fixed the image gallery background's round things on macOS Sonoma ([@vzsg](https://github.com/vzsg))
 
 
-# [v4.3](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v4.3) - 28 Sep 2023
+# [v4.3](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v4.3) - 28 Sep 2023
 
 - Added support for Stable Diffusion XL refiner ([@ZachNagengast](https://github.com/ZachNagengast))
    - Model must have `UnetRefiner.mlmodelc` file
@@ -67,7 +67,7 @@
 - Fixed Xcode build on macOS 14 ([@ZachNagengast](https://github.com/ZachNagengast))
 
 
-# [v4.2](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v4.2) - 07 Aug 2023
+# [v4.2](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v4.2) - 07 Aug 2023
 
 - Fixed setting ControlNet image
 - Fixed restoring last gallery sort option
@@ -77,7 +77,7 @@
 - Updated link to HuggingFace Core ML Community
 
 
-# [v4.1.3](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v4.1.3) - 22 Jul 2023
+# [v4.1.3](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v4.1.3) - 22 Jul 2023
 
 - Fixed ControlNet
 - Fixed missing Dutch, Polish, & Ukrainian translations
@@ -85,7 +85,7 @@
 **Note**: To use inpainting, select an inpainting ControlNet model and provide a mask image with transparent pixels.
 
 
-# [v4.1.2](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v4.1.2) - 20 Jul 2023
+# [v4.1.2](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v4.1.2) - 20 Jul 2023
 
 - Fixed app crash when changing settings
 - Added Norwegian Bokmal translation (Espen Bye)
@@ -93,7 +93,7 @@
 **Note**: To use inpainting, select an inpainting ControlNet model and provide a mask image with transparent pixels.
 
 
-# [v4.1.1](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v4.1.1) - 20 Jul 2023
+# [v4.1.1](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v4.1.1) - 20 Jul 2023
 
 - Fixed app crash when changing settings
 - Added Norwegian Bokmal translation (Espen Bye)
@@ -101,7 +101,7 @@
 **Note**: To use inpainting, select an inpainting ControlNet model and provide a mask image with transparent pixels.
 
 
-# [v4.1](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v4.1) - 17 Jul 2023
+# [v4.1](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v4.1) - 17 Jul 2023
 
 - Added support for inpainting with ControlNet ([@vzsg](https://github.com/vzsg))
 - Added option to sort images by date ([@hoseins77](https://github.com/hoseins77))
@@ -112,16 +112,16 @@
 **Note**: To use inpainting, select an inpainting ControlNet model and provide a mask image with transparent pixels.
 
 
-# [v4.0](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v4.0) - 05 Jun 2023
+# [v4.0](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v4.0) - 05 Jun 2023
 
 - Added ControlNet ([@stuartjmoore](https://github.com/stuartjmoore))
 - Changed starting image strength value range ([@jrittvo](https://github.com/jrittvo))
 - Removed support for Intel Macs
 
-**Note:** Previous Stable Diffusion models will need to be reconverted to support ControlNet. Several Core ML ControlNet models have been converted [here](https://huggingface.co/jrrjrr/CoreML-Models-For-ControlNet/tree/main/CN) by [@jrittvo](https://github.com/jrittvo). See [the wiki](https://github.com/godly-devotion/MochiDiffusion/wiki/How-to-convert-ControlNet-models-to-Core-ML) to find out how to convert the models.
+**Note:** Previous Stable Diffusion models will need to be reconverted to support ControlNet. Several Core ML ControlNet models have been converted [here](https://huggingface.co/jrrjrr/CoreML-Models-For-ControlNet/tree/main/CN) by [@jrittvo](https://github.com/jrittvo). See [the wiki](https://github.com/MochiDiffusion/MochiDiffusion/wiki/How-to-convert-ControlNet-models-to-Core-ML) to find out how to convert the models.
 
 
-# [v3.2](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v3.2) - 30 Apr 2023
+# [v3.2](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v3.2) - 30 Apr 2023
 
 - Added animation when converting image to high resolution ([@jinhongw](https://github.com/jinhongw))
 - Changed starting image implementation to follow model image size ([@vzsg](https://github.com/vzsg))
@@ -133,7 +133,7 @@ Special thanks to the following for supporting this projectâ£ï¸
 **orange-wedge**, **RuralRob**, **vacekj**, **julien-c**, **BirdSesame**, **li775176364**, **Da-mi-en**, **monks1975**, & various translators
 
 
-# [v3.1](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v3.1) - 03 Apr 2023
+# [v3.1](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v3.1) - 03 Apr 2023
 
 - Added option to auto select ML Compute Unit ([@vzsg](https://github.com/vzsg))
 - Added support for restoring `jpeg` files ([@vzsg](https://github.com/vzsg))
@@ -145,7 +145,7 @@ Special thanks to the following for supporting me and making this app possibleâ
 **orange-wedge**, **RuralRob**, **vacekj**, **julien-c**, **BirdSesame**, **Da-mi-en**, **monks1975**, & anonymous donors
 
 
-# [Bubble Tea Mochi (v3.0)](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v3.0) - 03 Mar 2023
+# [Bubble Tea Mochi (v3.0)](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v3.0) - 03 Mar 2023
 
 ![image](https://user-images.githubusercontent.com/1341760/222038545-4b50efe9-423b-479b-afc4-6b4148694c21.png)
 - Added option to select a starting image (commonly known as Image2Image)
@@ -168,7 +168,7 @@ Special thanks to the following for supporting me and making this app possible ð
 # ðŸ§‹
 
 
-# [Never Gonna Let You Down (v2.5)](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v2.5) - 25 Feb 2023
+# [Never Gonna Let You Down (v2.5)](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v2.5) - 25 Feb 2023
 
 Don't you just hate it when you close the app and realize you forgot to save your images?
 
@@ -193,7 +193,7 @@ Special thanks to the following for supporting me and making this app possible ð
 **raisingfightingspirit**, **serovar**, **orange-wedge**, **RuralRob**, **vacekj**, **julien-c**, **Quick-Eyed-Sky**, **BirdSesame**, **Da-mi-en**, **monks1975**, & anonymous donors
 
 
-# [v2.4.1](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v2.4.1) - 23 Feb 2023
+# [v2.4.1](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v2.4.1) - 23 Feb 2023
 
 - Added Ukrainian translation (Pavlo Pavlov)
 - Added Copy to clipboard option to image context menu ([@vzsg](https://github.com/vzsg))
@@ -208,7 +208,7 @@ Special thanks to the following for supporting me and making this app possible ð
 **raisingfightingspirit**, **serovar**, **orange-wedge**, **RuralRob**, **vacekj**, **julien-c**, **Quick-Eyed-Sky**, **BirdSesame**, **Da-mi-en**, **monks1975**, **angeenes**, & anonymous donors
 
 
-# [Mochi Ice Cream (v2.4)](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v2.4) - 17 Feb 2023
+# [Mochi Ice Cream (v2.4)](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v2.4) - 17 Feb 2023
 
 Who remembers the release of Mac OS X **Snow** Leopard? ðŸ™‹
 
@@ -242,7 +242,7 @@ As usual, special thanks to the following for supporting me and making this app 
 **raisingfightingspirit**, **serovar**, **orange-wedge**, **RuralRob**, **vacekj**, **julien-c**, **Quick-Eyed-Sky**, **BirdSesame**, **Da-mi-en**, **monks1975**, **angeenes**, & anonymous donors
 
 
-# [v2.3](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v2.3) - 07 Feb 2023
+# [v2.3](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v2.3) - 07 Feb 2023
 
 - Fixed Quick Look not displaying the correct image if the first image was selected and removed ([@CarterLombardi](https://github.com/CarterLombardi))
 - Fixed Quick Look displaying the last removed image when all images were removed from the Gallery ([@CarterLombardi](https://github.com/CarterLombardi))
@@ -256,7 +256,7 @@ Special thanks to the following for supporting me and making this app possible ð
 **raisingfightingspirit**, **serovar**, **orange-wedge**, **RuralRob**, **vacekj**, **julien-c**, **Quick-Eyed-Sky**, **BirdSesame**, **Da-mi-en**, **monks1975**, **angeenes**, & anonymous donors
 
 
-# [v2.2](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v2.2) - 02 Feb 2023
+# [v2.2](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v2.2) - 02 Feb 2023
 
 - Added ability to import images to Gallery (File > Import Image...)
    - Image must be generated by Mochi Diffusion 2.2 or later
@@ -270,7 +270,7 @@ Special thanks to the following for supporting me and making this app possible ð
 **raisingfightingspirit**, **serovar**, **orange-wedge**, **RuralRob**, **vacekj**, **julien-c**, **Quick-Eyed-Sky**, **BirdSesame**, **Da-mi-en**, **monks1975**, **angeenes**, & anonymous donors
 
 
-# [v2.1.5](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v2.1.5) - 31 Jan 2023
+# [v2.1.5](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v2.1.5) - 31 Jan 2023
 
 - Added Russian translation (Regulus)
 - Added message if prompt description is too long
@@ -283,7 +283,7 @@ Special thanks to the following for supporting me and making this app possible ð
 **raisingfightingspirit**, **serovar**, **orange-wedge**, **RuralRob**, **julien-c**, **Quick-Eyed-Sky**, **BirdSesame**, **Da-mi-en**, **monks1975**, **angeenes**, & anonymous donors
 
 
-# [v2.1.4](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v2.1.4) - 26 Jan 2023
+# [v2.1.4](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v2.1.4) - 26 Jan 2023
 
 - Added Spanish translation (k-latte)
 - Changed max step setting to 40
@@ -295,7 +295,7 @@ Special thanks to the following for supporting me and making this app possible ð
 **raisingfightingspirit**, **serovar**, **orange-wedge**, **RuralRob**, **julien-c**, **Quick-Eyed-Sky**, **BirdSesame**, **Da-mi-en**, **monks1975**, **angeenes**, & anonymous donors
 
 
-# [v2.1.3](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v2.1.3) - 22 Jan 2023
+# [v2.1.3](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v2.1.3) - 22 Jan 2023
 
 - Fixed prompt file name when saving all images
 
@@ -305,7 +305,7 @@ Special thanks to the following for supporting me and making this app possible ð
 **raisingfightingspirit**, **serovar**, **orange-wedge**, **RuralRob**, **julien-c**, **Quick-Eyed-Sky**, **BirdSesame**, **Da-mi-en**, **angeenes**, & anonymous donors
 
 
-# [v2.1.2](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v2.1.2) - 21 Jan 2023
+# [v2.1.2](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v2.1.2) - 21 Jan 2023
 
 ![screenshot](https://user-images.githubusercontent.com/1341760/213897612-d62a26a0-e38e-4c29-9f1b-27bbbd46a410.png)
 - Added ability to search image by seed
@@ -326,7 +326,7 @@ Special thanks to the following for supporting me and making this app possible ð
 **raisingfightingspirit**, **serovar**, **orange-wedge**, **julien-c**, **Quick-Eyed-Sky**, **BirdSesame**, **Da-mi-en**, **eidermar**, & anonymous donors
 
 
-# [v2.1.1](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v2.1.1) - 19 Jan 2023
+# [v2.1.1](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v2.1.1) - 19 Jan 2023
 
 We've reached 10 languages!
 
@@ -341,7 +341,7 @@ Special thanks to the following for supporting me and making this app possible ð
 **raisingfightingspirit**, **serovar**, **orange-wedge**, **julien-c**, **Quick-Eyed-Sky**, **BirdSesame**, **Da-mi-en**, **eidermar**, & anonymous donors
 
 
-# [v2.1](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v2.1) - 18 Jan 2023
+# [v2.1](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v2.1) - 18 Jan 2023
 
 - Changed model folder to be any path and to no longer enforce sub folder structure
 - Added Swedish Translation (teodorzacke)
@@ -359,7 +359,7 @@ Special thanks to the following for supporting me and making this app possible ð
 **[@raisingfightingspirit](https://github.com/raisingfightingspirit)**, **serovar**, **orange-wedge**, **julien-c**, **Quick-Eyed-Sky**, **BirdSesame**, **Da-mi-en**, **eidermar**, **Draxredd**, & anonymous donors
 
 
-# [v2.0.3](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v2.0.3) - 14 Jan 2023
+# [v2.0.3](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v2.0.3) - 14 Jan 2023
 
 - Changed Batches option to Number of Images for simplicity
 - Updated Settings layout for different languages
@@ -373,7 +373,7 @@ Special thanks to the following for supporting me and making this app possible ð
 **serovar**, **orange-wedge**, **julien-c**, **Quick-Eyed-Sky**, **BirdSesame**, **Da-mi-en**, **eidermar**, **Draxredd**, & anonymous donors
 
 
-# [v2.0.2](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v2.0.2) - 13 Jan 2023
+# [v2.0.2](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v2.0.2) - 13 Jan 2023
 
 - New Translations
    - Brazilian Portuguese (thiagomsoares)
@@ -388,9 +388,9 @@ Special thanks to the following for supporting me and making this app possible ð
 **serovar**, **orange-wedge**, **julien-c**, **Quick-Eyed-Sky**, **BirdSesame**, **Da-mi-en**, **eidermar**, **Draxredd**, & anonymous donors
 
 
-# [v2.0.1](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v2.0.1) - 08 Jan 2023
+# [v2.0.1](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v2.0.1) - 08 Jan 2023
 
-**I've figured out how to convert the models to export 512x768 sized images. I will add these new models to the existing list of models I've converted [here](https://huggingface.co/godly-devotion) under the folder `original`. Note that it only supports running with `CPU & GPU` compute unit. See [the wiki](https://github.com/godly-devotion/MochiDiffusion/wiki/How-to-convert-ckpt-files-to-Core-ML) for details on the updated steps to create these new models.**
+**I've figured out how to convert the models to export 512x768 sized images. I will add these new models to the existing list of models I've converted [here](https://huggingface.co/godly-devotion) under the folder `original`. Note that it only supports running with `CPU & GPU` compute unit. See [the wiki](https://github.com/MochiDiffusion/MochiDiffusion/wiki/How-to-convert-ckpt-files-to-Core-ML) for details on the updated steps to create these new models.**
 
 - New Translations
    - Simplified Chinese ([@Jerry23011](https://github.com/Jerry23011))
@@ -411,7 +411,7 @@ Special thanks to the following for supporting me and making this app possible ð
 **serovar**, **orange-wedge**, **julien-c**, **Quick-Eyed-Sky**, **BirdSesame**, **Da-mi-en**, **eidermar**, **Draxredd**, **kayzen**
 
 
-# [v2.0](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v2.0) - 05 Jan 2023
+# [v2.0](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v2.0) - 05 Jan 2023
 
 ![image](https://user-images.githubusercontent.com/1341760/210843838-7dc90c3b-f7fc-4fb1-b30b-5386fb2b5bda.png)
 
@@ -434,7 +434,7 @@ Special thanks to the following for supporting me and making this app possible ð
 **serovar**, **orange-wedge**, **julien-c**, **Quick-Eyed-Sky**, **BirdSesame**, **Da-mi-en**, **eidermar**, **Draxredd**, **kayzen**
 
 
-# [v1.4.2](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v1.4.2) - 03 Jan 2023
+# [v1.4.2](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v1.4.2) - 03 Jan 2023
 
 **Mochi Diffusion is now properly code signed and notarized thanks to your donations. Thank You â¤ï¸**
 
@@ -452,12 +452,12 @@ Special thanks to the following for supporting me and making this app possible ð
 
 I've converted a few models for Mochi Diffusion [here](https://huggingface.co/godly-devotion).
 
-Read the explanation for [Compute Unit](https://github.com/godly-devotion/mochi-diffusion#compute-unit) and [Models](https://github.com/godly-devotion/mochi-diffusion#models) to understand the difference between `split_einsum` and `original` (_tl;dr_ download the `split_einsum` version to use Neural Engine).
+Read the explanation for [Compute Unit](https://github.com/MochiDiffusion/MochiDiffusion#compute-unit) and [Models](https://github.com/MochiDiffusion/MochiDiffusion#models) to understand the difference between `split_einsum` and `original` (_tl;dr_ download the `split_einsum` version to use Neural Engine).
 
 
-# [v1.4.1](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v1.4.1) - 31 Dec 2022
+# [v1.4.1](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v1.4.1) - 31 Dec 2022
 
-![](https://raw.githubusercontent.com/godly-devotion/MochiDiffusion/4640c01ab06efad9bab0a4c9793a6069eaa11d39/.github/images/screenshot.png)
+![](https://raw.githubusercontent.com/MochiDiffusion/MochiDiffusion/4640c01ab06efad9bab0a4c9793a6069eaa11d39/.github/images/screenshot.png)
 
 **Mochi Diffusion is now properly code signed and notarized thanks to your donations. Thank You â¤ï¸**
 
@@ -474,12 +474,12 @@ Special thanks to the following for supporting me ðŸŽ‰
 
 I've converted a few models for Mochi Diffusion [here](https://huggingface.co/godly-devotion).
 
-Read the explanation for [Compute Unit](https://github.com/godly-devotion/mochi-diffusion#compute-unit) and [Models](https://github.com/godly-devotion/mochi-diffusion#models) to understand the difference between `split_einsum` and `original` (_tl;dr_ download the `split_einsum` version to use Neural Engine).
+Read the explanation for [Compute Unit](https://github.com/MochiDiffusion/MochiDiffusion#compute-unit) and [Models](https://github.com/MochiDiffusion/MochiDiffusion#models) to understand the difference between `split_einsum` and `original` (_tl;dr_ download the `split_einsum` version to use Neural Engine).
 
 
-# [v1.4](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v1.4) - 30 Dec 2022
+# [v1.4](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v1.4) - 30 Dec 2022
 
-![](https://raw.githubusercontent.com/godly-devotion/MochiDiffusion/a59dd7dba91df20263e2ec9ebfb435b41f8299b4/.github/images/screenshot.png)
+![](https://raw.githubusercontent.com/MochiDiffusion/MochiDiffusion/a59dd7dba91df20263e2ec9ebfb435b41f8299b4/.github/images/screenshot.png)
 
 **When trying to open the app for the first time, Gatekeeper will prevent you from doing so because the app is not code signed. In order to bypass this warning, you need to right-click on the app and select "Open". You will have to do this twice in order to get the option to open the app.**
 
@@ -500,10 +500,10 @@ Special thanks to serovar, julien-c, Da-mi-en for supporting me ðŸŽ‰
 
 I've converted a few models for Mochi Diffusion [here](https://huggingface.co/godly-devotion).
 
-Read the explanation for [Compute Unit](https://github.com/godly-devotion/mochi-diffusion#compute-unit) and [Models](https://github.com/godly-devotion/mochi-diffusion#models) to understand the difference between `split_einsum` and `original` (_tl;dr_ download the `split_einsum` version to use Neural Engine).
+Read the explanation for [Compute Unit](https://github.com/MochiDiffusion/MochiDiffusion#compute-unit) and [Models](https://github.com/MochiDiffusion/MochiDiffusion#models) to understand the difference between `split_einsum` and `original` (_tl;dr_ download the `split_einsum` version to use Neural Engine).
 
 
-# [v1.3](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v1.3) - 30 Dec 2022
+# [v1.3](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v1.3) - 30 Dec 2022
 
 **When trying to open the app for the first time, Gatekeeper will prevent you from doing so because the app is not code signed. In order to bypass this warning, you need to right-click on the app and select "Open". You will have to do this twice in order to get the option to open the app.**
 
@@ -520,12 +520,12 @@ Special thanks to [@serovar](https://github.com/serovar) [@julien-c](https://git
 
 I've converted a few models for Mochi Diffusion [here](https://huggingface.co/godly-devotion).
 
-Read the explanation for [Compute Unit](https://github.com/godly-devotion/mochi-diffusion#compute-unit) and [Models](https://github.com/godly-devotion/mochi-diffusion#models) to understand the difference between `split_einsum` and `original` (_tl;dr_ download the `split_einsum` version to use Neural Engine).
+Read the explanation for [Compute Unit](https://github.com/MochiDiffusion/MochiDiffusion#compute-unit) and [Models](https://github.com/MochiDiffusion/MochiDiffusion#models) to understand the difference between `split_einsum` and `original` (_tl;dr_ download the `split_einsum` version to use Neural Engine).
 
 
-# [v1.2](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v1.2) - 26 Dec 2022
+# [v1.2](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v1.2) - 26 Dec 2022
 
-![](https://raw.githubusercontent.com/godly-devotion/MochiDiffusion/2e93b60683dde597a7b713e298af8bda7c6993f4/.github/images/screenshot.png)
+![](https://raw.githubusercontent.com/MochiDiffusion/MochiDiffusion/2e93b60683dde597a7b713e298af8bda7c6993f4/.github/images/screenshot.png)
 
 **When trying to open the app for the first time, Gatekeeper will prevent you from doing so because the app is not code signed. In order to bypass this warning, you need to right-click on the app and select "Open". You will have to do this twice in order to get the option to open the app.**
 
@@ -541,37 +541,37 @@ Note: [Number of Batches] x [Images per Batch] = [Total Number of Images Generat
 
 I've converted a few models for Mochi Diffusion [here](https://huggingface.co/godly-devotion).
 
-Read the explanation for [Compute Unit](https://github.com/godly-devotion/mochi-diffusion#compute-unit) and [Models](https://github.com/godly-devotion/mochi-diffusion#models) to understand the difference between `split_einsum` and `original` (_tl;dr_ download the `split_einsum` version to use Neural Engine).
+Read the explanation for [Compute Unit](https://github.com/MochiDiffusion/MochiDiffusion#compute-unit) and [Models](https://github.com/MochiDiffusion/MochiDiffusion#models) to understand the difference between `split_einsum` and `original` (_tl;dr_ download the `split_einsum` version to use Neural Engine).
 
 I am also looking for help to subsidize for an Apple Developer Program membership which will allow me to properly sign and notarize my apps (I'll be able to finally take down the Gatekeeper banner message).
 
 
-# [v1.1.3](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v1.1.3) - 26 Dec 2022
+# [v1.1.3](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v1.1.3) - 26 Dec 2022
 
 **When trying to open the app for the first time, Gatekeeper will prevent you from doing so because the app is not code signed. In order to bypass this warning, you need to right-click on the app and select "Open". You will have to do this twice in order to get the option to open the app.**
 
 I've converted a few models for Mochi Diffusion [here](https://huggingface.co/godly-devotion/apple-coreml-models/tree/main).
-Read the [Compute Unit](https://github.com/godly-devotion/mochi-diffusion#compute-unit) and [Models](https://github.com/godly-devotion/mochi-diffusion#models) explanation about the difference between `split_einsum` and `original` model version (_tl;dr_ download the `split_einsum` version to use Neural Engine).
+Read the [Compute Unit](https://github.com/MochiDiffusion/MochiDiffusion#compute-unit) and [Models](https://github.com/MochiDiffusion/MochiDiffusion#models) explanation about the difference between `split_einsum` and `original` model version (_tl;dr_ download the `split_einsum` version to use Neural Engine).
 
 - Added remove image option to toolbar
 - Changed toolbar item names to be consistent
 - Changed compute unit description label to recommend Neural Engine option for most cases
 
 
-# [v1.1.2](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v1.1.2) - 26 Dec 2022
+# [v1.1.2](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v1.1.2) - 26 Dec 2022
 
 **When trying to open the app for the first time, Gatekeeper will prevent you from doing so because the app is not code signed. In order to bypass this warning, you need to right-click on the app and select "Open". You will have to do this twice in order to get the option to open the app.**
 
 I've converted a few models for Mochi Diffusion [here](https://huggingface.co/godly-devotion/apple-coreml-models/tree/main).
-Read the [Compute Unit](https://github.com/godly-devotion/mochi-diffusion#compute-unit) and [Models](https://github.com/godly-devotion/mochi-diffusion#models) explanation about the difference between `split_einsum` and `original` model version (_tl;dr_ download the `split_einsum` version to use Neural Engine).
+Read the [Compute Unit](https://github.com/MochiDiffusion/MochiDiffusion#compute-unit) and [Models](https://github.com/MochiDiffusion/MochiDiffusion#models) explanation about the difference between `split_einsum` and `original` model version (_tl;dr_ download the `split_einsum` version to use Neural Engine).
 
 - Minor improvements to Gallery UI
 - Added save & remove options to gallery image right-click menu
 
 
-# [v1.1](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v1.1) - 25 Dec 2022
+# [v1.1](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v1.1) - 25 Dec 2022
 
-![](https://raw.githubusercontent.com/godly-devotion/MochiDiffusion/880cf47e79724dae8bff971e6e4f007bebba0277/.github/images/screenshot.png)
+![](https://raw.githubusercontent.com/MochiDiffusion/MochiDiffusion/880cf47e79724dae8bff971e6e4f007bebba0277/.github/images/screenshot.png)
 
 **When trying to open the app for the first time, Gatekeeper will prevent you from doing so because the app is not code signed. In order to bypass this warning, you need to right-click on the app and select "Open". You will have to do this twice in order to get the option to open the app.**
 
@@ -585,7 +585,7 @@ I've converted a few models for Mochi Diffusion [here](https://huggingface.co/go
 - Changed minimum step value to 2
 
 
-# [v1.0.6](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v1.0.6) - 23 Dec 2022
+# [v1.0.6](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v1.0.6) - 23 Dec 2022
 
 **When trying to open the app for the first time, Gatekeeper will prevent you from doing so because the app is not code signed. In order to bypass this warning, you need to right-click on the app and select "Open". You will have to do this twice in order to get the option to open the app.**
 
@@ -598,7 +598,7 @@ Use compute unit option `CPU & Neural Engine` option for Macs with 8GB of memory
 - Added Reduce Memory Pressure option under Settings
 
 
-# [v1.0.5](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v1.0.5) - 22 Dec 2022
+# [v1.0.5](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v1.0.5) - 22 Dec 2022
 
 **When trying to open the app for the first time, Gatekeeper will prevent you from doing so because the app is not code signed. In order to bypass this warning, you need to right-click on the app and select "Open". You will have to do this twice in order to get the option to open the app.**
 
@@ -608,7 +608,7 @@ I will convert and upload a few models for Mochi Diffusion [here](https://huggin
 - Changed default image filename to have seed info at the end (helps sort images by prompt first in Finder)
 
 
-# [v1.0.4](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v1.0.4) - 21 Dec 2022
+# [v1.0.4](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v1.0.4) - 21 Dec 2022
 
 **When trying to open the app for the first time, Gatekeeper will prevent you from doing so because the app is not code signed. In order to bypass this warning, you need to right-click on the app and select "Open". You will have to do this twice in order to get the option to open the app.**
 
@@ -617,7 +617,7 @@ I will convert and upload a few models for Mochi Diffusion [here](https://huggin
 - Further clarified compute unit option message under Settings
 
 
-# [v1.0.3](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v1.0.3) - 21 Dec 2022
+# [v1.0.3](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v1.0.3) - 21 Dec 2022
 
 **When trying to open the app for the first time, Gatekeeper will prevent you from doing so because the app is not code signed. In order to bypass this warning, you need to right-click on the app and select "Open". You will have to do this twice in order to get the option to open the app.**
 
@@ -629,9 +629,9 @@ I will convert and upload a few models for Mochi Diffusion [here](https://huggin
 - Adjusted accent color to use system-wide color
 
 
-# [v1.0.2](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v1.0.2) - 20 Dec 2022
+# [v1.0.2](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v1.0.2) - 20 Dec 2022
 
-![](https://raw.githubusercontent.com/godly-devotion/MochiDiffusion/77e96b1a325ced59a79cdfd981316e0b686093bf/.github/images/screenshot.png)
+![](https://raw.githubusercontent.com/MochiDiffusion/MochiDiffusion/77e96b1a325ced59a79cdfd981316e0b686093bf/.github/images/screenshot.png)
 
 **When trying to open the app for the first time, Gatekeeper will prevent you from doing so because the app is not code signed. In order to bypass this warning, you need to right-click on the app and select "Open". You will have to do this twice in order to get the option to open the app.**
 
@@ -644,7 +644,7 @@ I will convert and upload a few models for Mochi Diffusion [here](https://huggin
 - Removed Settings window tabs
 
 
-# [v1.0.1](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v1.0.1) - 20 Dec 2022
+# [v1.0.1](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v1.0.1) - 20 Dec 2022
 
 **When trying to open the app for the first time, Gatekeeper will prevent you from doing so because the app is not code signed. In order to bypass this warning, you need to right-click on the app and select "Open". You will have to do this twice in order to get the option to open the app.**
 
@@ -653,9 +653,9 @@ I will convert and upload a few models [here](https://huggingface.co/godly-devot
 - Fixed incorrect aspect ratio on preview image (saved image was fine)
 
 
-# [v1.0](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v1.0) - 20 Dec 2022
+# [v1.0](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v1.0) - 20 Dec 2022
 
-![](https://raw.githubusercontent.com/godly-devotion/MochiDiffusion/2b62cb9471becca375a6d3fbd8fad5389e247a18/.github/images/screenshot.png)
+![](https://raw.githubusercontent.com/MochiDiffusion/MochiDiffusion/2b62cb9471becca375a6d3fbd8fad5389e247a18/.github/images/screenshot.png)
 
 **When trying to open the app for the first time, Gatekeeper will prevent you from doing so because the app is not code signed. In order to bypass this warning, you need to right-click on the app and select "Open". You will have to do this twice in order to get the option to open the app.**
 
@@ -666,7 +666,7 @@ I will convert and upload a few models [here](https://huggingface.co/godly-devot
 - Minor bug fixes and enhancements
 
 
-# [v0.6.2](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v0.6.2) - 20 Dec 2022
+# [v0.6.2](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v0.6.2) - 20 Dec 2022
 
 **When trying to open the app for the first time, Gatekeeper will prevent you from doing so because the app is not code signed. In order to bypass this warning, you need to right-click on the app and select "Open". You will have to do this twice in order to get the option to open the app.**
 
@@ -675,9 +675,9 @@ If upgrading from v0.3 or older, in Finder go to `~/Library/Containers/com.joshu
 - Fixed restoring previously selected model
 
 
-# [v0.6.1](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v0.6.1) - 19 Dec 2022
+# [v0.6.1](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v0.6.1) - 19 Dec 2022
 
-![](https://raw.githubusercontent.com/godly-devotion/MochiDiffusion/08252320fcd00fb01d268a1573ae0813f62868e5/.github/images/screenshot.png)
+![](https://raw.githubusercontent.com/MochiDiffusion/MochiDiffusion/08252320fcd00fb01d268a1573ae0813f62868e5/.github/images/screenshot.png)
 
 **When trying to open the app for the first time, Gatekeeper will prevent you from doing so because the app is not code signed. In order to bypass this warning, you need to right-click on the app and select "Open". You will have to do this twice in order to get the option to open the app.**
 
@@ -690,7 +690,7 @@ If upgrading from v0.3 or older, in Finder go to `~/Library/Containers/com.joshu
 - Minor bug fixes and enhancements
 
 
-# [v0.6](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v0.6) - 19 Dec 2022
+# [v0.6](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v0.6) - 19 Dec 2022
 
 **When trying to open the app for the first time, Gatekeeper will prevent you from doing so because the app is not code signed. In order to bypass this warning, you need to right-click on the app and select "Open". You will have to do this twice in order to get the option to open the app.**
 
@@ -703,7 +703,7 @@ If upgrading from v0.3 or older, in Finder go to `~/Library/Containers/com.joshu
 - Added auto saving and restoring of prompt, negative prompt, & selected scheduler
 
 
-# [v0.5](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v0.5) - 19 Dec 2022
+# [v0.5](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v0.5) - 19 Dec 2022
 
 **When trying to open the app for the first time, Gatekeeper will prevent you from doing so because the app is not code signed. In order to bypass this warning, you need to right-click on the app and select "Open". You will have to do this twice in order to get the option to open the app.**
 
@@ -714,9 +714,9 @@ If upgrading from v0.3 or older, in Finder go to `~/Library/Containers/com.joshu
 - Added button to toggle sidebar visibility
 
 
-# [v0.4](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v0.4) - 18 Dec 2022
+# [v0.4](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v0.4) - 18 Dec 2022
 
-![](https://raw.githubusercontent.com/godly-devotion/MochiDiffusion/df9f0d3f09fdcb096f53fcb2933049d6a0d2f0de/.github/images/screenshot.png)
+![](https://raw.githubusercontent.com/MochiDiffusion/MochiDiffusion/df9f0d3f09fdcb096f53fcb2933049d6a0d2f0de/.github/images/screenshot.png)
 
 **When trying to open the app for the first time, Gatekeeper will prevent you from doing so because the app is not code signed. In order to bypass this warning, you need to right-click on the app and select "Open". You will have to do this twice in order to get the option to open the app.**
 
@@ -731,9 +731,9 @@ Known Bugs
 - Editing the Prompt & Negative Prompt causes the cursor to jump to the end. I am investigating this bug. As a workaround, edit your prompt in TextEdit then copy and paste into the prompt input
 
 
-# [v0.3](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v0.3) - 18 Dec 2022
+# [v0.3](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v0.3) - 18 Dec 2022
 
-![](https://raw.githubusercontent.com/godly-devotion/MochiDiffusion/cf8271d315a9673d5c1b9e51a01530031efe1a4b/.github/images/screenshot.png)
+![](https://raw.githubusercontent.com/MochiDiffusion/MochiDiffusion/cf8271d315a9673d5c1b9e51a01530031efe1a4b/.github/images/screenshot.png)
 
 **When trying to open the app for the first time, Gatekeeper will prevent you from doing so because the app is not code signed. In order to bypass this warning, you need to right-click on the app and select "Open". You will have to do this twice in order to get the option to open the app.**
 
@@ -741,9 +741,9 @@ Known Bugs
 - Added menu item to toggle sidebar visibility (View > Hide Sidebar)
 
 
-# [v0.2](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v0.2) - 17 Dec 2022
+# [v0.2](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v0.2) - 17 Dec 2022
 
-![](https://raw.githubusercontent.com/godly-devotion/MochiDiffusion/f526e2192b84bd553bf8c2334153b88a433c58ef/.github/images/screenshot.png)
+![](https://raw.githubusercontent.com/MochiDiffusion/MochiDiffusion/f526e2192b84bd553bf8c2334153b88a433c58ef/.github/images/screenshot.png)
 
 **When trying to open the app for the first time, Gatekeeper will prevent you from doing so because the app is not code signed. In order to bypass this warning, you need to right-click on the app and select "Open". You will have to do this twice in order to get the option to open the app.**
 
@@ -753,9 +753,9 @@ Known Bugs
 - Remember previously set Step & Scale
 
 
-# [v0.1](https://github.com/godly-devotion/MochiDiffusion/releases/tag/v0.1) - 16 Dec 2022
+# [v0.1](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v0.1) - 16 Dec 2022
 
-![](https://raw.githubusercontent.com/godly-devotion/MochiDiffusion/b75a53f8c38ca546aed3319f4c9bf045faf3314e/.github/images/screenshot.png)
+![](https://raw.githubusercontent.com/MochiDiffusion/MochiDiffusion/b75a53f8c38ca546aed3319f4c9bf045faf3314e/.github/images/screenshot.png)
 
 **When trying to open the app for the first time, Gatekeeper will prevent you from doing so because the app is not code signed. In order to bypass this warning, you need to right-click on the app and select "Open". You will have to do this twice in order to get the option to open the app.**
 

@@ -11,7 +11,7 @@ To prevent broken or inconsistent code from being checked-in, all Pull Request w
 This process will check that the code builds without errors and that it meets [swift-format](https://github.com/apple/swift-format)'s standards.
 Many swift-format warnings can be fixed by using the Format Source Code option that it provides in Xcode.
 
-![image](https://github.com/godly-devotion/MochiDiffusion/assets/1341760/d4012424-bd54-484f-a0e2-7cb2ee20fbd3)
+![image](https://github.com/MochiDiffusion/MochiDiffusion/assets/1341760/d4012424-bd54-484f-a0e2-7cb2ee20fbd3)
 
 
 ## <a name="commit"></a> Pull Request Commit Message Format

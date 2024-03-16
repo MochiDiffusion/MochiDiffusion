@@ -5,7 +5,7 @@
 	<key>SUEnableAutomaticChecks</key>
 	<true/>
 	<key>SUFeedURL</key>
-	<string>https://github.com/godly-devotion/MochiDiffusion/raw/main/.sparkle/appcast.xml</string>
+	<string>https://github.com/MochiDiffusion/MochiDiffusion/raw/main/.sparkle/appcast.xml</string>
 	<key>SUPublicEDKey</key>
 	<string>j1emFUOJ+3Pou9kvxoeZIOTIFTeg1RWsfPuOoecgk/c=</string>
 </dict>
