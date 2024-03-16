@@ -5,6 +5,29 @@
     <language>en</language>
 
     <item>
+      <title>v5.1</title>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion</link>
+      <sparkle:version>5.1</sparkle:version>
+      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+      <sparkle:fullReleaseNotesLink>https://github.com/MochiDiffusion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <pubDate>Sat, 16 Mar 2024 01:30:06 +0000</pubDate>
+      <enclosure
+        url="https://github.com/MochiDiffusion/MochiDiffusion/releases/download/v5.1/MochiDiffusion_v5.1.dmg"
+        sparkle:edSignature="YjZVbzLAT0HBeP4aEkumAhVSH07EN8VlBSb9V0tBRirYY+NLijtJVRke4D4qYlSrDlrIzHrBSpL6ZHnqaYsTCQ=="
+        length="69485081"
+        type="application/octet-stream" />
+      <description><![CDATA[
+      <ul>
+      <li>Fixed character counter to match the currently selected model (@gdbing)</li>
+      <li>Added button to view models in Finder (@alexey-detr)</li>
+      <li>Updated project website url</li>
+      </ul>
+      <p>Mochi Diffusion is looking for a new project maintainer. If you are interested in adopting, feel free to send me a DM on Discord @godly-devotion.</p>
+      ]]>
+      </description>
+    </item>
+
+    <item>
       <title>v5.0</title>
       <link>https://github.com/MochiDiffusion/MochiDiffusion</link>
       <sparkle:version>5.0</sparkle:version>
