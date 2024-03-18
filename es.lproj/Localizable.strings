@@ -89,4 +89,3 @@ El tamaño de la imagen inicial debe coincidir con el tamaño de la imagen actua
 "random" = "aleatorio";
 "CFBundleDisplayName" = "Mochi Diffusion";
 "CFBundleName" = "Mochi Diffusion";
-"NSHumanReadableCopyright" = "Por Joshua Park";
