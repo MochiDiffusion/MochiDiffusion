@@ -652,7 +652,7 @@
 				INFOPLIST_FILE = MochiDiffusionInfo.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Mochi Diffusion";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.graphics-design";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "By Joshua Park";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Graham Bing (2024-)\nJoshua Park (2022-2024)";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -685,7 +685,7 @@
 				INFOPLIST_FILE = MochiDiffusionInfo.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Mochi Diffusion";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.graphics-design";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "By Joshua Park";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Graham Bing (2024-)\nJoshua Park (2022-2024)";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
