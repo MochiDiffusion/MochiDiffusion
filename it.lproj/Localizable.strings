@@ -107,4 +107,3 @@ La dimensione dell\'immagine di partenza deve combaciare con quella che si tenta
 "random" = "casuale";
 "CFBundleDisplayName" = "Mochi Diffusion";
 "CFBundleName" = "Mochi Diffusion";
-"NSHumanReadableCopyright" = "Di Joshua Park";
