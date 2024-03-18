@@ -87,7 +87,6 @@ Use higher values to allow more creative freedom.
 The size of the starting image must match the output image size of the current model." = "Az erősség szabályozza, hogy mennyire hasonlít a generált kép a kiindulási képre. Alacsonyabb értékek használatával olyan képeket generálhat, amelyek hasonlítanak a kiindulási képre. Magasabb értékekkel több kreatív szabadságot engedhet meg.
 
 A kiindulási kép méretének meg kell egyeznie a jelenlegi modell kimeneti képméretével.";
-"Support Project" = "A projekt támogatása";
 "Toggle Info Panel" = "Infó panel megjelenítése";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Hasznája a model explicit szűrőjét. Ez nem garantálja, hogy minden képet sikeresen kiszűrne.";
 "Website" = "Weboldal";
