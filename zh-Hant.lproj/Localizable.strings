@@ -96,7 +96,6 @@ The size of the starting image must match the output image size of the current m
 較高的強度能帶來更多創作自由。
 
 原始圖像的大小必須與當前模型的輸出圖像大小匹配。";
-"Support Project" = "協助此專案";
 "Toggle Info Panel" = "切換資訊面板";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "使用模型的安全檢查模組，但其無法保證所有不適當的圖片都會被過濾。";
 "Website" = "網站";
