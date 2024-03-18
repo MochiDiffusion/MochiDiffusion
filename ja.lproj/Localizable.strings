@@ -96,7 +96,6 @@ The size of the starting image must match the output image size of the current m
 より創造的な自由を許容するには、高い値を使用してください。
 
 元画像のサイズはモデルの出力画像サイズと同じにする必要があります。";
-"Support Project" = "プロジェクトをサポート";
 "Toggle Info Panel" = "情報パネルの切り替え";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "モデルのセーフティ チェッカー モジュールを使用します。 これは、すべての不適切な画像が除外されることを保証するものではありません。";
 "Website" = "Web サイト";
