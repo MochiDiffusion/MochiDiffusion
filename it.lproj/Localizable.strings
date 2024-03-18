@@ -107,3 +107,5 @@ La dimensione dell\'immagine di partenza deve combaciare con quella che si tenta
 "random" = "casuale";
 "CFBundleDisplayName" = "Mochi Diffusion";
 "CFBundleName" = "Mochi Diffusion";
+"NSHumanReadableCopyright" = "Graham Bing (2024-)
+Joshua Park (2022-2024)";
