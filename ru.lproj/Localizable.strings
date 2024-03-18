@@ -107,4 +107,5 @@ The size of the starting image must match the output image size of the current m
 "random" = "случайное";
 "CFBundleDisplayName" = "Mochi Diffusion";
 "CFBundleName" = "Mochi Diffusion";
-"NSHumanReadableCopyright" = "Автор: Джошуа Парк";
+"NSHumanReadableCopyright" = "Грэм Бинг (2024-)
+Джошуа Парк (2022-2024)";
