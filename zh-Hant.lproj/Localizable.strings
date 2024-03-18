@@ -104,4 +104,3 @@ The size of the starting image must match the output image size of the current m
 "random" = "隨機";
 "CFBundleDisplayName" = "Mochi Diffusion";
 "CFBundleName" = "Mochi Diffusion";
-"NSHumanReadableCopyright" = "作者 Joshua Park";
