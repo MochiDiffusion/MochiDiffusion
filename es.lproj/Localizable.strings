@@ -81,7 +81,6 @@ Utilice valores inferiores para generar imágenes que se vean similares a la ima
 Usa valores más altos para permitir más libertad creativa.
 
 El tamaño de la imagen inicial debe coincidir con el tamaño de la imagen actual del modelo.";
-"Support Project" = "Apoya el proyecto";
 "Toggle Info Panel" = "Activar/Desactivar Panel de Información";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Usa el módulo de comprobación de seguridad del modelo. Esto no garantiza que todas las imágenes inapropiadas sean filtradas.";
 "Website" = "Sitio Web";
@@ -90,4 +89,3 @@ El tamaño de la imagen inicial debe coincidir con el tamaño de la imagen actua
 "random" = "aleatorio";
 "CFBundleDisplayName" = "Mochi Diffusion";
 "CFBundleName" = "Mochi Diffusion";
-"NSHumanReadableCopyright" = "Por Joshua Park";

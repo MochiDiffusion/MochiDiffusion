@@ -93,7 +93,6 @@ Utilisez des valeurs inférieures pour générer des images qui ressemblent à l
 Utilisez des valeurs plus élevées pour permettre plus de créativité.
 
 La taille de l\'image de départ doit être conforme à celles produites par le modèle.";
-"Support Project" = "Soutenir le projet";
 "Toggle Info Panel" = "Afficher / Masquer le panneau d\'informations";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Utilise le module de vérification de la sécurité du modèle. Cela ne garantit pas que toutes les images inappropriées seront filtrées.";
 "Website" = "Site Web";

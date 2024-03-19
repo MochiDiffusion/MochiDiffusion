@@ -99,7 +99,6 @@ The size of the starting image must match the output image size of the current m
 Используйте более высокие значения, для большей творческой свободы.
 
 Размер начального изображения должен совпадать с размером выводимого изображения для выбранной модели.";
-"Support Project" = "Поддержать проект";
 "Toggle Info Panel" = "Переключить отображение панели информации";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Использует модуль модели для проверки на безопасность изображений. Не гарантирует, что все неприемлемые изображения будут отфильтрованы.";
 "Website" = "Сайт";
@@ -108,4 +107,5 @@ The size of the starting image must match the output image size of the current m
 "random" = "случайное";
 "CFBundleDisplayName" = "Mochi Diffusion";
 "CFBundleName" = "Mochi Diffusion";
-"NSHumanReadableCopyright" = "Автор: Джошуа Парк";
+"NSHumanReadableCopyright" = "Грэм Бинг (2024-)
+Джошуа Парк (2022-2024)";

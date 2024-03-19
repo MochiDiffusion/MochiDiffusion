@@ -99,7 +99,6 @@ Usa valori bassi per generare immagini simili a quella originale.
 Usa valori alti per ottenere risultati più creativi.
 
 La dimensione dell\'immagine di partenza deve combaciare con quella che si tenta di generare.";
-"Support Project" = "Supporta il progetto";
 "Toggle Info Panel" = "Mostra/nascondi il pannello informazioni";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Utilizza il modulo di verifica della sicurezza del modello. Questo non garantisce che tutti i contenuti inappropriati vengano filtrati.";
 "Website" = "Sito Web";
@@ -108,4 +107,5 @@ La dimensione dell\'immagine di partenza deve combaciare con quella che si tenta
 "random" = "casuale";
 "CFBundleDisplayName" = "Mochi Diffusion";
 "CFBundleName" = "Mochi Diffusion";
-"NSHumanReadableCopyright" = "Di Joshua Park";
+"NSHumanReadableCopyright" = "Graham Bing (2024-)
+Joshua Park (2022-2024)";

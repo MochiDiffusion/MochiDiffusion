@@ -99,7 +99,6 @@ Benutze niedrigere Werte um Bilder zu erzeugen, die ähnlich, wie das Startbild 
 Benutze höhere Werte, um mehr kreative Freiheit zu ermöglichen.
 
 Die Größe des Startbildes muss mit der Bildgröße des aktuellen Modells übereinstimmen.";
-"Support Project" = "Unterstütze das Projekt";
 "Toggle Info Panel" = "Infoleiste ein-/ausschalten";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Verwendet das Safety-Checker-Modul des Modells. Dies garantiert nicht, dass alle unangemessenen Bilder gefiltert werden.";
 "Website" = "Webseite";
@@ -108,4 +107,5 @@ Die Größe des Startbildes muss mit der Bildgröße des aktuellen Modells über
 "random" = "zufällig";
 "CFBundleDisplayName" = "Mochi Diffusion";
 "CFBundleName" = "Mochi Diffusion";
-"NSHumanReadableCopyright" = "Von Joshua Park";
+"NSHumanReadableCopyright" = "Graham Bing (2024-)
+Joshua Park (2022-2024)";

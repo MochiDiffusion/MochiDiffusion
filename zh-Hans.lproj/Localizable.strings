@@ -96,7 +96,6 @@ The size of the starting image must match the output image size of the current m
 较高的强度能带来更多创作自由。
 
 原始图像的大小必须与当前模型的输出图像大小匹配。";
-"Support Project" = "支持项目";
 "Toggle Info Panel" = "显示/隐藏信息面板";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "使用模型的安全检查模块，但它不能保证能过滤所有的不良内容。";
 "Website" = "网站";
@@ -105,4 +104,5 @@ The size of the starting image must match the output image size of the current m
 "random" = "随机";
 "CFBundleDisplayName" = "Mochi Diffusion";
 "CFBundleName" = "Mochi Diffusion";
-"NSHumanReadableCopyright" = "作者 Joshua Park";
+"NSHumanReadableCopyright" = "Graham Bing (2024)
+Joshua Park (2022-2024)";

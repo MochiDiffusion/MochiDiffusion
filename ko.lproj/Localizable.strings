@@ -95,7 +95,6 @@ The size of the starting image must match the output image size of the current m
 보다 창의적인 자유를 허용하려면 더 높은 값을 사용하십시오.
 
 시작 이미지의 크기는 현재 모델의 출력 이미지 크기와 일치해야 합니다.";
-"Support Project" = "프로젝트 후원하기";
 "Toggle Info Panel" = "정보 패널 전환";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "모델의 안전 검사기 모듈을 사용합니다. 모든 노골적인 이미지가 필터링되지 않을 수도 있습니다.";
 "Website" = "웹사이트";

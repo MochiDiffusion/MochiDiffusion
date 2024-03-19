@@ -89,7 +89,6 @@ The size of the starting image must match the output image size of the current m
 Використовуйте вищі значення для більшої свободи творчості.
 
 Розмір початкового зображення має співпадати із розміром поточної моделі.";
-"Support Project" = "Підтримати проєкт";
 "Toggle Info Panel" = "Сховати/показати інформаційну панель";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Використовує модуль моделі для перевірки зображень на безпечність. Це не гарантує, що всі неприйнятні зображення будуть відфільтровані.";
 "Website" = "Вебсайт";

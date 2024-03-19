@@ -84,7 +84,6 @@ Bruk lavere verdier til å generere bilder som ser lik ut til startbildet.
 Bruk høyere verdier for å tillate kreativ frihet.
 
 Størrelsen på startbildet må samsvare med utdatabildets størrelse på den gjeldende modellen.";
-"Support Project" = "Støtt prosjektet";
 "Toggle Info Panel" = "Vis/skjul informasjonspanel";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Bruker en sikkerhetskontroll til modellen. Dette garanterer ikke at alle upassende bilder vil bli filtrert.";
 "Website" = "Nettside";

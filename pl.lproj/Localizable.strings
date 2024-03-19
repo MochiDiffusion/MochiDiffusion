@@ -84,7 +84,6 @@ Użyj niższych wartości do generowania obrazów, które wyglądają podobnie j
 Użyj wyższych wartości, aby umożliwić większą wolność twórczą.
 
 Rozmiar wyjściowego obrazu musi odpowiadać rozmiarowi obrazu wyjściowego bieżącego modelu.";
-"Support Project" = "Wesprzyj projekt";
 "Toggle Info Panel" = "Przełącz panel informacji";
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Używa modułu sprawdzania bezpieczeństwa modelu. To nie gwarantuje, że wszystkie nieodpowiednie obrazy zostaną przefiltrowane.";
 "Website" = "Strona";
