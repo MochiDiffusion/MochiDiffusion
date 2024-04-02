@@ -104,3 +104,5 @@ The size of the starting image must match the output image size of the current m
 "random" = "ランダム";
 "CFBundleDisplayName" = "Mochi Diffusion";
 "CFBundleName" = "Mochi Diffusion";
+"NSHumanReadableCopyright" = "Graham Bing (2024-)
+Joshua Park (2022-2024)";
