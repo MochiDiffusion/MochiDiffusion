@@ -16,12 +16,65 @@ func compareVersion(_ thisVersion: String, _ compareTo: String) -> ComparisonRes
     thisVersion.compare(compareTo, options: .numeric)
 }
 
+// Other emoji ideas:
+// (make sure Context Menu text matches these, in GalleryView)
+// 6 == red or    ❤️ .❌
+// 7 == orange or 🔥
+// 5 == yellow or ⭐️
+// 2 == green or  🍏 .🍀🤢✅🌲
+// 4 == blue or   💎 .💠❄️🥶💧
+// 3 == purple or 💟 🦄😈 .☂️💜☯️
+// 1 == gray or   ☑️ 🧟 .🗑️😎🥈🐘☠️🪨
+func finderTagColorNumberToString(_ tagColorNumber: Int) -> String {
+    switch tagColorNumber {
+    case 6: return "❤️"
+    case 7: return "🔥"
+    case 5: return "⭐️"
+    case 2: return "🍏"
+    case 4: return "💠"
+    case 3: return "🦄"
+    case 1: return "☑️"
+    // 0 means file system has no tag
+    default: return ""
+    }
+}
+
+// zero for clear all tags
+func setFinderTagColorNumber(_ sdi: SDImage, colorNumber: Int) {
+    var url = URL(fileURLWithPath: sdi.path)
+    var rv = URLResourceValues()
+    rv.labelNumber = colorNumber
+    do {
+        try url.setResourceValues(rv)
+    } catch {
+        print(error.localizedDescription)
+    }
+    ImageStore.shared.updateMetadata(sdi, colorNumber: colorNumber)
+}
+
+func clearFinderTags(_ sdi: SDImage) {
+    setFinderTagColorNumber(sdi, colorNumber: 0)
+}
+
+func getFinderTagColorNumber(_ url: URL) -> Int {
+    guard let md = MDItemCreateWithURL(nil, url as CFURL) else { return 0 }
+    var finderTagColorNumber: Int = 0
+    let mdItemFSLabel = MDItemCopyAttribute(md, kMDItemFSLabel)
+    if let label = mdItemFSLabel {
+        finderTagColorNumber = label as! Int
+    }
+    return finderTagColorNumber
+}
+
 func createSDImageFromURL(_ url: URL) -> SDImage? {
     guard
         let attr = try? FileManager.default.attributesOfItem(
             atPath: url.path(percentEncoded: false))
     else { return nil }
     let maybeDateModified = attr[FileAttributeKey.modificationDate] as? Date
+    
+    let finderTagColorNumber = getFinderTagColorNumber(url)
+    
     guard let dateModified = maybeDateModified else { return nil }
     guard let cgImageSource = CGImageSourceCreateWithURL(url as CFURL, nil) else { return nil }
     let imageIndex = CGImageSourceGetPrimaryImageIndex(cgImageSource)
@@ -44,6 +97,7 @@ func createSDImageFromURL(_ url: URL) -> SDImage? {
         generatedDate: dateModified,
         path: url.path(percentEncoded: false)
     )
+    sdi.finderTagColorNumber = finderTagColorNumber
     var generatedVersion = ""
     for field in infoString.split(separator: "; ") {
         guard let separatorIndex = field.firstIndex(of: ":") else { continue }
