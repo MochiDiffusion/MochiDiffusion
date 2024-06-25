@@ -13,6 +13,8 @@ enum Scheduler: String, CaseIterable {
     case pndmScheduler = "PNDM"
     /// Scheduler that uses a second order DPM-Solver++ algorithm
     case dpmSolverMultistepScheduler = "DPM-Solver++"
+    /// Scheduler for rectified flow based multimodal diffusion transformer models
+    case discreteFlowScheduler = "Flow Match Euler Discrete"
 }
 
 func convertScheduler(_ scheduler: Scheduler) -> StableDiffusionScheduler {
@@ -21,5 +23,7 @@ func convertScheduler(_ scheduler: Scheduler) -> StableDiffusionScheduler {
         return StableDiffusionScheduler.pndmScheduler
     case .dpmSolverMultistepScheduler:
         return StableDiffusionScheduler.dpmSolverMultistepScheduler
+    case .discreteFlowScheduler:
+        return StableDiffusionScheduler.discreteFlowScheduler
     }
 }
