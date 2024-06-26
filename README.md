@@ -20,12 +20,9 @@
 
 ![Screenshot](.github/images/screenshot.png)
 
-## Description
-
-This app uses [Apple's Core ML Stable Diffusion implementation](https://github.com/apple/ml-stable-diffusion) to achieve maximum performance and speed on Apple Silicon based Macs while reducing memory requirements.
-
 ## Features
 
+- [Apple's Core ML Stable Diffusion implementation](https://github.com/apple/ml-stable-diffusion) to achieve maximum performance and speed on Apple Silicon based Macs while reducing memory requirements
 - Extremely fast and memory efficient (~150MB with Neural Engine)
 - Runs well on all Apple Silicon Macs by fully utilizing Neural Engine
 - Generate images locally and completely offline
@@ -38,11 +35,15 @@ This app uses [Apple's Core ML Stable Diffusion implementation](https://github.c
 - No worries about pickled models
 - macOS native app using SwiftUI
 
-## Releases
+## Downloads
 
-Download the latest version from the [releases](https://github.com/MochiDiffusion/MochiDiffusion/releases) page.
+[Latest version](https://github.com/MochiDiffusion/MochiDiffusion/releases)
 
-## Running
+[Community models](https://huggingface.co/coreml-community#models)
+
+[ControlNet models](https://huggingface.co/coreml-community/ControlNet-Models-For-Core-ML/tree/main/CN)
+
+[Stable Diffusion 1.5 with ControlNet](https://huggingface.co/coreml-community/coreml-stable-diffusion-v1-5_cn/tree/main/split_einsum)
 
 When using a model for the very first time, it may take up to 2 minutes for the Neural Engine to compile a cached version. Afterwards, subsequent generations will be much faster.
 
@@ -56,8 +57,6 @@ Depending on the option chosen, you will need to use the correct model version (
 ## Models
 
 You will need to convert or download Core ML models in order to use Mochi Diffusion.
-
-A few models have been converted and uploaded [here](https://huggingface.co/coreml-community).
 
 1. [Convert](https://github.com/MochiDiffusion/MochiDiffusion/wiki/How-to-convert-Stable-Diffusion-models-to-Core-ML) or download Core ML models
     - `split_einsum` version is compatible with all compute unit options including Neural Engine
