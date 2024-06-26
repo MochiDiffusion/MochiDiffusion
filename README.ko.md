@@ -1,5 +1,5 @@
 <p align="center">
-<img height="256" src="https://github.com/godly-devotion/MochiDiffusion/raw/main/Mochi Diffusion/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon.png" />
+<img height="256" src="https://github.com/MochiDiffusion/MochiDiffusion/raw/main/Mochi Diffusion/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon.png" />
 </p>
 
 <h1 align="center">Mochi Diffusion (모찌)</h1>
@@ -7,15 +7,15 @@
 <p align="center">Mac을 위한 Stable Diffusion</p>
 
 <p align="center">
-<a href="https://github.com/godly-devotion/MochiDiffusion/blob/main/README.md">English</a>,
-<a href="https://github.com/godly-devotion/MochiDiffusion/blob/main/README.ko.md">한국어</a>,
-<a href="https://github.com/godly-devotion/MochiDiffusion/blob/main/README.zh-Hans.md">中文</a>
+<a href="https://github.com/MochiDiffusion/MochiDiffusion/blob/main/README.md">English</a>,
+<a href="https://github.com/MochiDiffusion/MochiDiffusion/blob/main/README.ko.md">한국어</a>,
+<a href="https://github.com/MochiDiffusion/MochiDiffusion/blob/main/README.zh-Hans.md">中文</a>
 </p>
 
 <p align="center">
 <a title="Discord" target="_blank" href="https://discord.gg/x2kartzxGv"><img src="https://img.shields.io/discord/1068185566782423092?color=blueviolet&label=discord"></a>
 <a title="Crowdin" target="_blank" href="https://crowdin.com/project/mochi-diffusion"><img src="https://badges.crowdin.net/mochi-diffusion/localized.svg"></a>
-<a title="License" target="_blank" href="https://github.com/godly-devotion/MochiDiffusion/blob/main/LICENSE"><img src="https://img.shields.io/github/license/godly-devotion/MochiDiffusion?color=blue"></a>
+<a title="License" target="_blank" href="https://github.com/MochiDiffusion/MochiDiffusion/blob/main/LICENSE"><img src="https://img.shields.io/github/license/MochiDiffusion/MochiDiffusion?color=blue"></a>
 </p>
 
 ![Screenshot](.github/images/screenshot.png)
@@ -37,7 +37,7 @@
 
 ## 설치
 
-[Releases](https://github.com/godly-devotion/MochiDiffusion/releases) 페이지에서 최신 버전을 다운로드 하실수 있습니다.
+[Releases](https://github.com/MochiDiffusion/MochiDiffusion/releases) 페이지에서 최신 버전을 다운로드 하실수 있습니다.
 
 ## 실행
 
@@ -56,7 +56,7 @@ Mochi Diffusion을 사용하려면 모델 파일을 Core ML 포맷으로 변환�
 
 몇 가지 모델을 변환하여 [여기](https://huggingface.co/coreml-community)에 업로드 해놨습니다.
 
-1. Core ML 모델로 [변환 하거나](https://github.com/godly-devotion/MochiDiffusion/wiki/How-to-convert-Stable-Diffusion-models-to-Core-ML) 다운
+1. Core ML 모델로 [변환 하거나](https://github.com/MochiDiffusion/MochiDiffusion/wiki/How-to-convert-Stable-Diffusion-models-to-Core-ML) 다운
     - `split_einsum` 버전은 Neural Engine을 포함한 모든 Compute Unit 옵션과 사용 가능
     - `original` 버전은 `CPU & GPU` 옵션과만 사용 가능
 2. 기본 앱 모델 폴더는 홈 디렉토리 아래에 생성됩니다. 이 위치는 설정에서 변경 할 수 있습니다
@@ -91,9 +91,9 @@ Mochi Diffusion을 사용하려면 모델 파일을 Core ML 포맷으로 변환�
 
 Mochi Diffusion은 버그 보고서, 코드 또는 새로운 번역을 통해서든 항상 기여를 찾고 있습니다.
 
-- 버그를 발견했거나 새로운 기능이나 개선 사항을 제안하고 싶다면 [문제를 먼저 검색](https://github.com/godly-devotion/MochiDiffusion/issues)해 보세요. 중복을 방지하는 데 도움이 됩니다. 문제를 찾을 수 없으면 [새 문제를 생성](https://github.com/godly-devotion/MochiDiffusion/issues/new/choose)하세요.
+- 버그를 발견했거나 새로운 기능이나 개선 사항을 제안하고 싶다면 [문제를 먼저 검색](https://github.com/MochiDiffusion/MochiDiffusion/issues)해 보세요. 중복을 방지하는 데 도움이 됩니다. 문제를 찾을 수 없으면 [새 문제를 생성](https://github.com/MochiDiffusion/MochiDiffusion/issues/new/choose)하세요.
 
-- 코드를 제공하고 싶다면 언제든지 새 [Pull Request를](https://github.com/godly-devotion/MochiDiffusion/pulls) 열 수 있습니다.
+- 코드를 제공하고 싶다면 언제든지 새 [Pull Request를](https://github.com/MochiDiffusion/MochiDiffusion/pulls) 열 수 있습니다.
 
 ## 크레딧
 

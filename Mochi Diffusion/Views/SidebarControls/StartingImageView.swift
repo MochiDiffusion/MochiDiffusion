@@ -19,7 +19,8 @@ struct StartingImageView: View {
         .sidebarLabelFormat()
 
         HStack(alignment: .top) {
-            ImageWellView(image: controller.startingImage, size: controller.currentModel?.inputSize) { image in
+            ImageWellView(image: controller.startingImage, size: controller.currentModel?.inputSize)
+            { image in
                 if let image {
                     ImageController.shared.setStartingImage(image: image)
                 } else {
@@ -65,13 +66,13 @@ struct StartingImageView: View {
             .buttonStyle(PlainButtonStyle())
             .popover(isPresented: self.$isInfoPopoverShown, arrowEdge: .top) {
                 Text(
-                """
-                Strength controls how closely the generated image resembles the starting image.
-                Use lower values to generate images that look similar to the starting image.
-                Use higher values to allow more creative freedom.
+                    """
+                    Strength controls how closely the generated image resembles the starting image.
+                    Use lower values to generate images that look similar to the starting image.
+                    Use higher values to allow more creative freedom.
 
-                The size of the starting image must match the output image size of the current model.
-                """
+                    The size of the starting image must match the output image size of the current model.
+                    """
                 )
                 .padding()
             }

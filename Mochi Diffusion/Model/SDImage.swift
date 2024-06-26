@@ -79,7 +79,8 @@ extension SDImage {
         panel.isExtensionHidden = false
         panel.title = String(localized: "Save Image", comment: "Header text for save image panel")
         panel.message = String(localized: "Choose a folder and a name to store the image")
-        panel.nameFieldLabel = String(localized: "Image file name:", comment: "File name field label for save image panel")
+        panel.nameFieldLabel = String(
+            localized: "Image file name:", comment: "File name field label for save image panel")
         panel.nameFieldStringValue = filenameWithoutExtension()
         let resp = await panel.beginSheetModal(for: NSApplication.shared.mainWindow!)
         if resp != .OK {
@@ -105,16 +106,18 @@ extension SDImage {
     func imageData(_ type: UTType) async -> Data? {
         guard let image else { return nil }
         guard let data = CFDataCreateMutable(nil, 0) else { return nil }
-        guard let destination = CGImageDestinationCreateWithData(
-            data,
-            type.identifier as CFString,
-            1,
-            nil
-        ) else { return nil }
+        guard
+            let destination = CGImageDestinationCreateWithData(
+                data,
+                type.identifier as CFString,
+                1,
+                nil
+            )
+        else { return nil }
         let iptc = await [
             kCGImagePropertyIPTCCaptionAbstract: metadata(),
             kCGImagePropertyIPTCOriginatingProgram: "Mochi Diffusion",
-            kCGImagePropertyIPTCProgramVersion: "\(await NSApplication.appVersion)"
+            kCGImagePropertyIPTCProgramVersion: "\(await NSApplication.appVersion)",
         ]
         let meta = [kCGImagePropertyIPTCDictionary: iptc]
         CGImageDestinationAddImage(destination, image, meta as CFDictionary)
@@ -133,47 +136,45 @@ extension SDImage {
         \(Metadata.seed.rawValue): \(seed); \
         \(Metadata.size.rawValue): \(width)x\(height);
         """
-        +
-        (!upscaler.isEmpty ? " \(Metadata.upscaler.rawValue): \(upscaler); " : " ")
-        +
-        """
-        \(Metadata.scheduler.rawValue): \(scheduler.rawValue); \
-        \(Metadata.mlComputeUnit.rawValue): \(MLComputeUnits.toString(mlComputeUnit)); \
-        \(Metadata.generator.rawValue): Mochi Diffusion \(NSApplication.appVersion)
-        """
+            + (!upscaler.isEmpty ? " \(Metadata.upscaler.rawValue): \(upscaler); " : " ")
+                + """
+                \(Metadata.scheduler.rawValue): \(scheduler.rawValue); \
+                \(Metadata.mlComputeUnit.rawValue): \(MLComputeUnits.toString(mlComputeUnit)); \
+                \(Metadata.generator.rawValue): Mochi Diffusion \(NSApplication.appVersion)
+                """
     }
 
     func getHumanReadableInfo() -> String {
-    """
-\(Metadata.date.rawValue):
-\(generatedDate.formatted(date: .long, time: .standard))
+        """
+        \(Metadata.date.rawValue):
+        \(generatedDate.formatted(date: .long, time: .standard))
 
-\(Metadata.model.rawValue):
-\(model)
+        \(Metadata.model.rawValue):
+        \(model)
 
-\(Metadata.size.rawValue):
-\(width) x \(height)\(!upscaler.isEmpty ? " (Upscaled using \(upscaler))" : "")
+        \(Metadata.size.rawValue):
+        \(width) x \(height)\(!upscaler.isEmpty ? " (Upscaled using \(upscaler))" : "")
 
-\(Metadata.includeInImage.rawValue):
-\(prompt)
+        \(Metadata.includeInImage.rawValue):
+        \(prompt)
 
-\(Metadata.excludeFromImage.rawValue):
-\(negativePrompt)
+        \(Metadata.excludeFromImage.rawValue):
+        \(negativePrompt)
 
-\(Metadata.seed.rawValue):
-\(seed)
+        \(Metadata.seed.rawValue):
+        \(seed)
 
-\(Metadata.steps.rawValue):
-\(steps)
+        \(Metadata.steps.rawValue):
+        \(steps)
 
-\(Metadata.guidanceScale.rawValue):
-\(guidanceScale)
+        \(Metadata.guidanceScale.rawValue):
+        \(guidanceScale)
 
-\(Metadata.scheduler.rawValue):
-\(scheduler.rawValue)
+        \(Metadata.scheduler.rawValue):
+        \(scheduler.rawValue)
 
-\(Metadata.mlComputeUnit.rawValue):
-\(MLComputeUnits.toString(mlComputeUnit))
-"""
+        \(Metadata.mlComputeUnit.rawValue):
+        \(MLComputeUnits.toString(mlComputeUnit))
+        """
     }
 }

@@ -31,7 +31,8 @@ class FolderMonitor {
             return
         }
 
-        folderMonitorSource = DispatchSource.makeFileSystemObjectSource(fileDescriptor: fileDescriptor, eventMask: .write, queue: DispatchQueue.main)
+        folderMonitorSource = DispatchSource.makeFileSystemObjectSource(
+            fileDescriptor: fileDescriptor, eventMask: .write, queue: DispatchQueue.main)
 
         folderMonitorSource?.setEventHandler { [weak self] in
             // imperceptible delay to group simultaneous file operations together

@@ -15,7 +15,9 @@ struct SDControlNet {
     let attention: SDModelAttentionType
 
     init?(url: URL) {
-        guard let size = identifyControlNetSize(url), let attention = identifyControlNetAttentionType(url) else {
+        guard let size = identifyControlNetSize(url),
+            let attention = identifyControlNetAttentionType(url)
+        else {
             return nil
         }
 
@@ -34,7 +36,8 @@ private func identifyControlNetSize(_ url: URL) -> CGSize? {
         return nil
     }
 
-    guard let jsonArray = (try? JSONSerialization.jsonObject(with: jsonData)) as? [[String: Any]] else {
+    guard let jsonArray = (try? JSONSerialization.jsonObject(with: jsonData)) as? [[String: Any]]
+    else {
         print("Error: Could not parse JSON data")
         return nil
     }
@@ -49,7 +52,11 @@ private func identifyControlNetSize(_ url: URL) -> CGSize? {
         return nil
     }
 
-    guard let controlnetCond = inputSchema.first(where: { ($0["name"] as? String) == "controlnet_cond" }) else {
+    guard
+        let controlnetCond = inputSchema.first(where: {
+            ($0["name"] as? String) == "controlnet_cond"
+        })
+    else {
         print("Error: 'controlnet_cond' not found in 'inputSchema'")
         return nil
     }
@@ -59,7 +66,8 @@ private func identifyControlNetSize(_ url: URL) -> CGSize? {
         return nil
     }
 
-    let shapeIntArray = shapeString
+    let shapeIntArray =
+        shapeString
         .trimmingCharacters(in: CharacterSet(charactersIn: "[]"))
         .components(separatedBy: ", ")
         .compactMap { Int($0.trimmingCharacters(in: .whitespaces)) }
@@ -90,7 +98,8 @@ private func identifyControlNetAttentionType(_ url: URL) -> SDModelAttentionType
             return nil
         }
 
-        return metadatas[0].mlProgramOperationTypeHistogram["Ios16.einsum"] != nil ? .splitEinsum : .original
+        return metadatas[0].mlProgramOperationTypeHistogram["Ios16.einsum"] != nil
+            ? .splitEinsum : .original
     } catch {
         print("Failed to parse model metadata at '\(metadataURL)': \(error)")
         return nil

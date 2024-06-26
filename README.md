@@ -1,5 +1,5 @@
 <p align="center">
-<img height="256" src="https://github.com/godly-devotion/MochiDiffusion/raw/main/Mochi Diffusion/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon.png" />
+<img height="256" src="https://github.com/MochiDiffusion/MochiDiffusion/raw/main/Mochi Diffusion/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon.png" />
 </p>
 
 <h1 align="center">Mochi Diffusion</h1>
@@ -7,15 +7,15 @@
 <p align="center">Run Stable Diffusion on Mac natively</p>
 
 <p align="center">
-<a href="https://github.com/godly-devotion/MochiDiffusion/blob/main/README.md">English</a>,
-<a href="https://github.com/godly-devotion/MochiDiffusion/blob/main/README.ko.md">한국어</a>,
-<a href="https://github.com/godly-devotion/MochiDiffusion/blob/main/README.zh-Hans.md">中文</a>
+<a href="https://github.com/MochiDiffusion/MochiDiffusion/blob/main/README.md">English</a>,
+<a href="https://github.com/MochiDiffusion/MochiDiffusion/blob/main/README.ko.md">한국어</a>,
+<a href="https://github.com/MochiDiffusion/MochiDiffusion/blob/main/README.zh-Hans.md">中文</a>
 </p>
 
 <p align="center">
 <a title="Discord" target="_blank" href="https://discord.gg/x2kartzxGv"><img src="https://img.shields.io/discord/1068185566782423092?color=blueviolet&label=discord"></a>
 <a title="Crowdin" target="_blank" href="https://crowdin.com/project/mochi-diffusion"><img src="https://badges.crowdin.net/mochi-diffusion/localized.svg"></a>
-<a title="License" target="_blank" href="https://github.com/godly-devotion/MochiDiffusion/blob/main/LICENSE"><img src="https://img.shields.io/github/license/godly-devotion/MochiDiffusion?color=blue"></a>
+<a title="License" target="_blank" href="https://github.com/MochiDiffusion/MochiDiffusion/blob/main/LICENSE"><img src="https://img.shields.io/github/license/MochiDiffusion/MochiDiffusion?color=blue"></a>
 </p>
 
 ![Screenshot](.github/images/screenshot.png)
@@ -37,7 +37,7 @@
 
 ## Downloads
 
-[Latest version](https://github.com/godly-devotion/MochiDiffusion/releases)
+[Latest version](https://github.com/MochiDiffusion/MochiDiffusion/releases)
 
 [Community models](https://huggingface.co/coreml-community#models)
 
@@ -58,7 +58,7 @@ Depending on the option chosen, you will need to use the correct model version (
 
 You will need to convert or download Core ML models in order to use Mochi Diffusion.
 
-1. [Convert](https://github.com/godly-devotion/MochiDiffusion/wiki/How-to-convert-Stable-Diffusion-models-to-Core-ML) or download Core ML models
+1. [Convert](https://github.com/MochiDiffusion/MochiDiffusion/wiki/How-to-convert-Stable-Diffusion-models-to-Core-ML) or download Core ML models
     - `split_einsum` version is compatible with all compute unit options including Neural Engine
     - `original` version is only compatible with `CPU & GPU` option
 2. By default, the app's model folder will be created under your home directory. This location can be customized under Settings
@@ -93,9 +93,9 @@ All generation happens locally and absolutely nothing is sent to the cloud.
 
 Mochi Diffusion is always looking for contributions, whether it's through bug reports, code, or new translations.
 
-- If you find a bug, or would like to suggest a new feature or enhancement, try [searching for your problem first](https://github.com/godly-devotion/MochiDiffusion/issues) as it helps avoid duplicates. If you can't find your issue, feel free to [create a new issue](https://github.com/godly-devotion/MochiDiffusion/issues/new/choose). Don't create an issue for your question as those are for bugs and feature requests only.
+- If you find a bug, or would like to suggest a new feature or enhancement, try [searching for your problem first](https://github.com/MochiDiffusion/MochiDiffusion/issues) as it helps avoid duplicates. If you can't find your issue, feel free to [create a new issue](https://github.com/MochiDiffusion/MochiDiffusion/issues/new/choose). Don't create an issue for your question as those are for bugs and feature requests only.
 
-- If you're looking to contribute code, feel free to [open a Pull Request](https://github.com/godly-devotion/MochiDiffusion/pulls). I recommend installing [SwiftLint](https://github.com/realm/SwiftLint#installation) to catch lint issues.
+- If you're looking to contribute code, feel free to [open a Pull Request](https://github.com/MochiDiffusion/MochiDiffusion/pulls). I recommend installing [swift-format](https://github.com/apple/swift-format#getting-swift-format) to catch lint issues.
 
 - If you'd like to translate Mochi Diffusion to your language, please visit the [project page on Crowdin](https://crowdin.com/project/mochi-diffusion). You can create an account for free and start translating and/or approving.
 

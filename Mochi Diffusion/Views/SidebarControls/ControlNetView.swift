@@ -16,7 +16,10 @@ struct ControlNetView: View {
             .sidebarLabelFormat()
 
         HStack(alignment: .top) {
-            ImageWellView(image: controller.currentControlNets.first?.image, size: controller.currentModel?.inputSize) { image in
+            ImageWellView(
+                image: controller.currentControlNets.first?.image,
+                size: controller.currentModel?.inputSize
+            ) { image in
                 if let image {
                     await ImageController.shared.setControlNet(image: image)
                 } else {
@@ -42,7 +45,12 @@ struct ControlNetView: View {
                     Divider()
 
                     if !controller.controlNet.isEmpty {
-                        ForEach(controller.controlNet.sorted { $0.compare($1, options: [.caseInsensitive, .diacriticInsensitive]) == .orderedAscending }, id: \.self) { name in
+                        ForEach(
+                            controller.controlNet.sorted {
+                                $0.compare($1, options: [.caseInsensitive, .diacriticInsensitive])
+                                    == .orderedAscending
+                            }, id: \.self
+                        ) { name in
                             Button {
                                 Task { await ImageController.shared.setControlNet(name: name) }
                             } label: {

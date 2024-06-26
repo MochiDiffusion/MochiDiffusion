@@ -9,7 +9,7 @@ jobs:
     runs-on: macos-14
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.1
+        uses: actions/checkout@v4.1.7
 
       - name: Setup Xcode Version
         uses: maxim-lobanov/setup-xcode@v1.6.0
@@ -27,7 +27,7 @@ jobs:
           CODE_SIGNING_ALLOWED=NO | xcpretty && exit ${PIPESTATUS[0]}
 
       - name: Upload source locale artifact
-        uses: actions/upload-artifact@v4.3.0
+        uses: actions/upload-artifact@v4.3.3
         with:
           name: en-source-locale
           path: './locale/en.xcloc/Localized Contents/en.xliff'
@@ -36,13 +36,13 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - uses: actions/download-artifact@v4.1.1
+      - uses: actions/download-artifact@v4.1.7
         with:
           name: en-source-locale
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload source to Crowdin
-        uses: crowdin/github-action@v1.16.1
+        uses: crowdin/github-action@v2.0.0
         with:
           upload_sources: true
           upload_translations: false

@@ -21,7 +21,8 @@ import SwiftUI
     var focusedSliderField: UUID?
 
     var isTextFieldFocused: Bool {
-        negativePromptFieldIsFocused || promptFieldIsFocused || seedFieldIsFocused || (focusedSliderField != nil)
+        negativePromptFieldIsFocused || promptFieldIsFocused || seedFieldIsFocused
+            || (focusedSliderField != nil)
     }
 
     /// Remove focus from all fields.

@@ -12,11 +12,12 @@ struct HelpCommands: Commands {
             Section {
                 Link(
                     "Release Notes",
-                    destination: URL(string: "https://github.com/godly-devotion/MochiDiffusion/releases")!
+                    destination: URL(
+                        string: "https://github.com/MochiDiffusion/MochiDiffusion/releases")!
                 )
                 Link(
                     "Website",
-                    destination: URL(string: "https://github.com/godly-devotion/MochiDiffusion")!
+                    destination: URL(string: "https://github.com/MochiDiffusion/MochiDiffusion")!
                 )
                 Link(
                     "Improve Translation",
@@ -27,12 +28,6 @@ struct HelpCommands: Commands {
                 Link(
                     "Download Models",
                     destination: URL(string: "https://huggingface.co/coreml-community")!
-                )
-            }
-            Section {
-                Link(
-                    "Support Project",
-                    destination: URL(string: "https://github.com/sponsors/godly-devotion")!
                 )
             }
         }

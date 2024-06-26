@@ -39,7 +39,8 @@ enum ImagesSortType: String {
         }
     }
 
-    @ObservationIgnored @AppStorage("GallerySort") private var _sortType: ImagesSortType = .oldestFirst
+    @ObservationIgnored @AppStorage("GallerySort") private var _sortType: ImagesSortType =
+        .oldestFirst
     @ObservationIgnored var sortType: ImagesSortType {
         get {
             access(keyPath: \.sortType)
@@ -101,7 +102,8 @@ enum ImagesSortType: String {
         remove(sdi.id)
         if sdi.path.isEmpty { return }
         if moveToTrash {
-            try? FileManager.default.trashItem(at: URL(fileURLWithPath: sdi.path, isDirectory: false), resultingItemURL: nil)
+            try? FileManager.default.trashItem(
+                at: URL(fileURLWithPath: sdi.path, isDirectory: false), resultingItemURL: nil)
         } else {
             try? FileManager.default.removeItem(atPath: sdi.path)
         }
@@ -160,7 +162,9 @@ enum ImagesSortType: String {
     }
 
     func imageAfter(_ id: SDImage.ID?, wrap: Bool = true) -> SDImage.ID? {
-        guard let id, let index = images.firstIndex(where: { $0.id == id }), index < images.count - 1 else {
+        guard let id, let index = images.firstIndex(where: { $0.id == id }),
+            index < images.count - 1
+        else {
             return wrap ? images.first?.id : nil
         }
         return images[index + 1].id
@@ -178,17 +182,18 @@ enum ImagesSortType: String {
         switch sortType {
         case .oldestFirst:
             images.sort(by: { $0.generatedDate < $1.generatedDate })
-        case.newestFirst:
+        case .newestFirst:
             images.sort(by: { $0.generatedDate > $1.generatedDate })
         }
     }
 }
 
-private extension Array where Element == SDImage {
-    func filter(_ text: String) -> [SDImage] {
+extension Array where Element == SDImage {
+    fileprivate func filter(_ text: String) -> [SDImage] {
         self.filter {
-            $0.prompt.range(of: text, options: [.caseInsensitive, .diacriticInsensitive, .widthInsensitive]) != nil ||
-            $0.seed == UInt32(text)
+            $0.prompt.range(
+                of: text, options: [.caseInsensitive, .diacriticInsensitive, .widthInsensitive])
+                != nil || $0.seed == UInt32(text)
         }
     }
 }

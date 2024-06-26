@@ -18,6 +18,7 @@ struct SDModel: Identifiable {
     let controlNet: [String]
     let isXL: Bool
     let inputSize: CGSize?
+    let tokenizer: Tokenizer?
 
     var id: URL { url }
 
@@ -33,16 +34,22 @@ struct SDModel: Identifiable {
         self.name = name
         self.attention = attention
         if let size = size {
-            self.controlNet = controlNet.filter { $0.size == size && $0.attention == attention }.map { $0.name }
+            self.controlNet = controlNet.filter { $0.size == size && $0.attention == attention }.map
+            { $0.name }
         } else {
             self.controlNet = []
         }
         self.isXL = isXL
         self.inputSize = size
+        self.tokenizer = Tokenizer(modelDir: url)
     }
 }
 
 extension SDModel: Hashable {
+    static func == (lhs: SDModel, rhs: SDModel) -> Bool {
+        lhs.url == rhs.url
+    }
+
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
@@ -66,7 +73,8 @@ private func identifyAttentionType(_ url: URL) -> SDModelAttentionType? {
             return nil
         }
 
-        return metadatas[0].mlProgramOperationTypeHistogram["Ios16.einsum"] != nil ? .splitEinsum : .original
+        return metadatas[0].mlProgramOperationTypeHistogram["Ios16.einsum"] != nil
+            ? .splitEinsum : .original
     } catch {
         logger.warning("Failed to parse model metadata at '\(metadataURL)': \(error)")
         return nil
@@ -104,7 +112,7 @@ private func unetMetadataURL(from url: URL) -> URL? {
     let potentialMetadataURLs = [
         url.appending(components: "Unet.mlmodelc", "metadata.json"),
         url.appending(components: "UnetChunk1.mlmodelc", "metadata.json"),
-        url.appending(components: "ControlledUnet.mlmodelc", "metadata.json")
+        url.appending(components: "ControlledUnet.mlmodelc", "metadata.json"),
     ]
 
     return potentialMetadataURLs.first {
@@ -113,13 +121,15 @@ private func unetMetadataURL(from url: URL) -> URL? {
 }
 
 private func identifyInputSize(_ url: URL) -> CGSize? {
-    let encoderMetadataURL = url.appending(path: "VAEEncoder.mlmodelc").appending(path: "metadata.json")
+    let encoderMetadataURL = url.appending(path: "VAEEncoder.mlmodelc").appending(
+        path: "metadata.json")
     if let jsonData = try? Data(contentsOf: encoderMetadataURL),
         let jsonArray = try? JSONSerialization.jsonObject(with: jsonData) as? [[String: Any]],
         let jsonItem = jsonArray.first,
         let inputSchema = jsonItem["inputSchema"] as? [[String: Any]],
         let controlnetCond = inputSchema.first,
-        let shapeString = controlnetCond["shape"] as? String {
+        let shapeString = controlnetCond["shape"] as? String
+    {
         let shapeIntArray = shapeString.trimmingCharacters(in: CharacterSet(charactersIn: "[]"))
             .components(separatedBy: ", ")
             .compactMap { Int($0.trimmingCharacters(in: .whitespaces)) }

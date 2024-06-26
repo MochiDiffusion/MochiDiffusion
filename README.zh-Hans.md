@@ -1,5 +1,5 @@
 <p align="center">
-<img height="256" src="https://github.com/godly-devotion/MochiDiffusion/raw/main/Mochi Diffusion/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon.png" />
+<img height="256" src="https://github.com/MochiDiffusion/MochiDiffusion/raw/main/Mochi Diffusion/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon.png" />
 </p>
 
 <h1 align="center">Mochi Diffusion</h1>
@@ -7,15 +7,15 @@
 <p align="center">在 Mac 上原生运行 Stable Diffusion</p>
 
 <p align="center">
-<a href="https://github.com/godly-devotion/MochiDiffusion/blob/main/README.md">English</a>,
-<a href="https://github.com/godly-devotion/MochiDiffusion/blob/main/README.ko.md">한국어</a>,
-<a href="https://github.com/godly-devotion/MochiDiffusion/blob/main/README.zh-Hans.md">中文</a>
+<a href="https://github.com/MochiDiffusion/MochiDiffusion/blob/main/README.md">English</a>,
+<a href="https://github.com/MochiDiffusion/MochiDiffusion/blob/main/README.ko.md">한국어</a>,
+<a href="https://github.com/MochiDiffusion/MochiDiffusion/blob/main/README.zh-Hans.md">中文</a>
 </p>
 
 <p align="center">
 <a title="Discord" target="_blank" href="https://discord.gg/x2kartzxGv"><img src="https://img.shields.io/discord/1068185566782423092?color=blueviolet&label=discord"></a>
 <a title="Crowdin" target="_blank" href="https://crowdin.com/project/mochi-diffusion"><img src="https://badges.crowdin.net/mochi-diffusion/localized.svg"></a>
-<a title="License" target="_blank" href="https://github.com/godly-devotion/MochiDiffusion/blob/main/LICENSE"><img src="https://img.shields.io/github/license/godly-devotion/MochiDiffusion?color=blue"></a>
+<a title="License" target="_blank" href="https://github.com/MochiDiffusion/MochiDiffusion/blob/main/LICENSE"><img src="https://img.shields.io/github/license/MochiDiffusion/MochiDiffusion?color=blue"></a>
 </p>
 
 ![Screenshot](.github/images/screenshot.png)
@@ -40,7 +40,7 @@
 
 ## 下载
 
-在 [发行](https://github.com/godly-devotion/MochiDiffusion/releases) 页面下载最新版本。
+在 [发行](https://github.com/MochiDiffusion/MochiDiffusion/releases) 页面下载最新版本。
 
 ## 运行
 
@@ -59,7 +59,7 @@
 
 [这里](https://huggingface.co/coreml-community) 上传了几个已经转换好的模型
 
-1. [转换](https://github.com/godly-devotion/MochiDiffusion/wiki/How-to-convert-Stable-Diffusion-models-to-Core-ML) 或下载 Core ML 模型
+1. [转换](https://github.com/MochiDiffusion/MochiDiffusion/wiki/How-to-convert-Stable-Diffusion-models-to-Core-ML) 或下载 Core ML 模型
     - `split_einsum` 版本适用于包括神经网络引擎在内的所有计算单元
     - `original` 版本仅适用于 `CPU 和 GPU`
 2. 默认情况下，应用程序的模型文件夹将创建在您的主目录下。 可以在“设置”下自定义此位置
@@ -94,9 +94,9 @@
 
 无论是修复 bug，新增代码，还是完善翻译，Mochi Diffusion 欢迎你的贡献。
 
-- 如果你发现了一个bug，或者有新的建议和想法，请先在这里[搜索议题](https://github.com/godly-devotion/MochiDiffusion/issues)以避免重复。在确认没有重复后，你可以[创建一个新议题](https://github.com/godly-devotion/MochiDiffusion/issues/new/choose)。
+- 如果你发现了一个bug，或者有新的建议和想法，请先在这里[搜索议题](https://github.com/MochiDiffusion/MochiDiffusion/issues)以避免重复。在确认没有重复后，你可以[创建一个新议题](https://github.com/MochiDiffusion/MochiDiffusion/issues/new/choose)。
 
-- 如果你想贡献代码，请[创建拉取请求](https://github.com/godly-devotion/MochiDiffusion/pulls)或[发起一个新的讨论](https://github.com/godly-devotion/MochiDiffusion/discussions)来探讨。我个人推荐安装 [SwiftLint](https://github.com/realm/SwiftLint#installation) 以规范代码格式。
+- 如果你想贡献代码，请[创建拉取请求](https://github.com/MochiDiffusion/MochiDiffusion/pulls)或[发起一个新的讨论](https://github.com/MochiDiffusion/MochiDiffusion/discussions)来探讨。我个人推荐安装 [swift-format](https://github.com/apple/swift-format#getting-swift-format) 以规范代码格式。
 
 - 如果你想对 Mochi Diffusion 贡献翻译，请到项目的 [Crowdin 页面](https://crowdin.com/project/mochi-diffusion)，你可以免费创建一个账户然后开始翻译。
 

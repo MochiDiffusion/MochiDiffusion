@@ -16,7 +16,10 @@ struct MochiSlider: View {
     private let fractionLength: Int
     private let strictUpperBound: Bool
 
-    init(value: Binding<Double>, bounds: ClosedRange<Double>, step: Decimal, strictUpperBound: Bool = true) {
+    init(
+        value: Binding<Double>, bounds: ClosedRange<Double>, step: Decimal,
+        strictUpperBound: Bool = true
+    ) {
         _value = value
         self.bounds = bounds
         self.step = (step as NSDecimalNumber).doubleValue
@@ -49,10 +52,12 @@ struct MochiSlider: View {
                 Text(text)
                     .padding(.leading, 4)
                     .padding(.bottom, 1)
-                    .gesture(TapGesture(count: 1).onEnded {
-                        self.isEditable = true
-                        self.focusedSlider = self.id
-                    })
+                    .gesture(
+                        TapGesture(count: 1).onEnded {
+                            self.isEditable = true
+                            self.focusedSlider = self.id
+                        }
+                    )
                     .onHover { inside in
                         if inside {
                             NSCursor.iBeam.push()
@@ -87,7 +92,8 @@ struct MochiSlider: View {
         .onChange(of: self.value) {
             guard let textDouble = stringToDouble(self.text) else { return }
 
-            let significantDifference = step / 2 // ignore insignificant differences caused by float imprecision
+            // ignore insignificant differences caused by float imprecision
+            let significantDifference = step / 2
             if max(textDouble, self.value) - min(textDouble, self.value) > significantDifference {
                 self.text = self.value.formatted(.number.precision(.fractionLength(fractionLength)))
             }

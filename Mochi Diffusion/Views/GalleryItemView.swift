@@ -37,10 +37,14 @@ private struct UpscalingAnimationView: View {
                 /// Random WandStars
                 ForEach(0..<8) { index in
                     let x = CGFloat.random(
-                        in: (index < 2 || (index >= 4 && index < 6)) ? 0...(geometry.size.width / 2) : (geometry.size.width / 2)...geometry.size.width
+                        in: (index < 2 || (index >= 4 && index < 6))
+                            ? 0...(geometry.size.width / 2)
+                            : (geometry.size.width / 2)...geometry.size.width
                     )
                     let y = CGFloat.random(
-                        in: (index < 4) ? 0...(geometry.size.height / 2) : (geometry.size.height / 2)...geometry.size.height
+                        in: (index < 4)
+                            ? 0...(geometry.size.height / 2)
+                            : (geometry.size.height / 2)...geometry.size.height
                     )
                     WandStar(size: CGFloat(Int.random(in: sizeRange)))
                         .blur(radius: isAnimated ? lowBlur : highBlur)

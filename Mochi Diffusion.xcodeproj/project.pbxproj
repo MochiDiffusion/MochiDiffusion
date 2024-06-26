@@ -16,6 +16,7 @@
 		03173C132999E2B500B03456 /* SDModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03173C122999E2B500B03456 /* SDModel.swift */; };
 		03173C152999F5C700B03456 /* ImageController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03173C142999F5C700B03456 /* ImageController.swift */; };
 		03173C18299B3C1300B03456 /* ImageStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03173C17299B3C1300B03456 /* ImageStore.swift */; };
+		0328BCE92BA11DEB004B5AE0 /* SwiftFormat in Frameworks */ = {isa = PBXBuildFile; productRef = 0328BCE82BA11DEB004B5AE0 /* SwiftFormat */; };
 		0352E2A5294E2591003FBF25 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 0352E2A4294E2591003FBF25 /* Sparkle */; };
 		0352E2A7294E3148003FBF25 /* HelpCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0352E2A6294E3148003FBF25 /* HelpCommands.swift */; };
 		0352E2AA294EA0E1003FBF25 /* AppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0352E2A9294EA0E1003FBF25 /* AppView.swift */; };
@@ -30,7 +31,7 @@
 		035EDFFC295A21D600080D18 /* SizeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035EDFFB295A21D600080D18 /* SizeView.swift */; };
 		035EDFFE295A220F00080D18 /* SeedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035EDFFD295A220F00080D18 /* SeedView.swift */; };
 		035EE000295A224900080D18 /* ModelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035EDFFF295A224900080D18 /* ModelView.swift */; };
-		036BFC22294B9F7500D8AD04 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 036BFC21294B9F7500D8AD04 /* App.swift */; };
+		036BFC22294B9F7500D8AD04 /* MochiDiffusionApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 036BFC21294B9F7500D8AD04 /* MochiDiffusionApp.swift */; };
 		036BFC26294B9F7600D8AD04 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 036BFC25294B9F7600D8AD04 /* Assets.xcassets */; };
 		036BFC29294B9F7600D8AD04 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 036BFC28294B9F7600D8AD04 /* Preview Assets.xcassets */; };
 		036BFC4E294B9FDB00D8AD04 /* Path in Frameworks */ = {isa = PBXBuildFile; productRef = 036BFC4D294B9FDB00D8AD04 /* Path */; };
@@ -81,7 +82,7 @@
 		03408EBD296B5A25001CBCC4 /* fi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fi; path = fi.lproj/Localizable.strings; sourceTree = "<group>"; };
 		0352D7BC2A69EA3C00206DE0 /* nb */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nb; path = nb.lproj/Localizable.strings; sourceTree = "<group>"; };
 		0352E2A6294E3148003FBF25 /* HelpCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpCommands.swift; sourceTree = "<group>"; };
-		0352E2A8294E414D003FBF25 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = SOURCE_ROOT; };
+		0352E2A8294E414D003FBF25 /* MochiDiffusionInfo.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = MochiDiffusionInfo.plist; sourceTree = SOURCE_ROOT; };
 		0352E2A9294EA0E1003FBF25 /* AppView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppView.swift; sourceTree = "<group>"; };
 		0352E2AD294EA2B4003FBF25 /* MessageBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageBanner.swift; sourceTree = "<group>"; };
 		0352E2B0294EA30D003FBF25 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
@@ -95,10 +96,10 @@
 		035EDFFD295A220F00080D18 /* SeedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeedView.swift; sourceTree = "<group>"; };
 		035EDFFF295A224900080D18 /* ModelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelView.swift; sourceTree = "<group>"; };
 		036BFC1E294B9F7500D8AD04 /* Mochi Diffusion.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Mochi Diffusion.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		036BFC21294B9F7500D8AD04 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
+		036BFC21294B9F7500D8AD04 /* MochiDiffusionApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MochiDiffusionApp.swift; sourceTree = "<group>"; };
 		036BFC25294B9F7600D8AD04 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		036BFC28294B9F7600D8AD04 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		036BFC2A294B9F7600D8AD04 /* App.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = App.entitlements; sourceTree = "<group>"; };
+		036BFC2A294B9F7600D8AD04 /* MochiDiffusion.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MochiDiffusion.entitlements; sourceTree = "<group>"; };
 		03732B72296948360042C8B1 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
 		0373FF5329A9165600C0180F /* AppCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCommands.swift; sourceTree = "<group>"; };
 		0377877D297892B6002E3926 /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -142,6 +143,7 @@
 				036BFC4E294B9FDB00D8AD04 /* Path in Frameworks */,
 				03ADC8B9299581AF00B2843F /* StableDiffusion in Frameworks */,
 				0352E2A5294E2591003FBF25 /* Sparkle in Frameworks */,
+				0328BCE92BA11DEB004B5AE0 /* SwiftFormat in Frameworks */,
 				0388DEB0297B00FC008B1C1C /* CompactSlider in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -215,9 +217,9 @@
 		036BFC20294B9F7500D8AD04 /* Mochi Diffusion */ = {
 			isa = PBXGroup;
 			children = (
-				036BFC2A294B9F7600D8AD04 /* App.entitlements */,
-				036BFC21294B9F7500D8AD04 /* App.swift */,
-				0352E2A8294E414D003FBF25 /* Info.plist */,
+				036BFC2A294B9F7600D8AD04 /* MochiDiffusion.entitlements */,
+				0352E2A8294E414D003FBF25 /* MochiDiffusionInfo.plist */,
+				036BFC21294B9F7500D8AD04 /* MochiDiffusionApp.swift */,
 				03F578622967CE9A003A815F /* Localizable.strings */,
 				0311C6BF2989E3EF0074BCAE /* Localizable.stringsdict */,
 				0307B0D8294D4A1D00A9BD55 /* Main Menu */,
@@ -302,6 +304,7 @@
 				0352E2A4294E2591003FBF25 /* Sparkle */,
 				0388DEAF297B00FC008B1C1C /* CompactSlider */,
 				03ADC8B8299581AF00B2843F /* StableDiffusion */,
+				0328BCE82BA11DEB004B5AE0 /* SwiftFormat */,
 			);
 			productName = "Mochi Diffusion";
 			productReference = 036BFC1E294B9F7500D8AD04 /* Mochi Diffusion.app */;
@@ -315,7 +318,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1420;
-				LastUpgradeCheck = 1430;
+				LastUpgradeCheck = 1530;
 				TargetAttributes = {
 					036BFC1D294B9F7500D8AD04 = {
 						CreatedOnToolsVersion = 14.2;
@@ -371,6 +374,7 @@
 				0352E2A3294E2591003FBF25 /* XCRemoteSwiftPackageReference "Sparkle" */,
 				0388DEAE297B00FC008B1C1C /* XCRemoteSwiftPackageReference "CompactSlider" */,
 				03ADC8B7299581AF00B2843F /* XCRemoteSwiftPackageReference "ml-stable-diffusion" */,
+				0328BCE72BA11DEA004B5AE0 /* XCRemoteSwiftPackageReference "swift-format" */,
 			);
 			productRefGroup = 036BFC1F294B9F7500D8AD04 /* Products */;
 			projectDirPath = "";
@@ -412,7 +416,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export PATH=\"$PATH:/opt/homebrew/bin\"\nif which swiftlint > /dev/null; then\n  swiftlint\nelse\n  echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
+			shellScript = "export PATH=\"$PATH:/opt/homebrew/bin\"\nif which swift-format > /dev/null; then\n  swift-format lint -s -p -r ./\nelse\n  echo \"warning: swift-format not installed, download from https://github.com/apple/swift-format\"\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -461,7 +465,7 @@
 				03FD231B295F7A81006EEEE2 /* Upscaler.swift in Sources */,
 				0380934329AD504600EDBC8E /* StartingImageView.swift in Sources */,
 				03173C152999F5C700B03456 /* ImageController.swift in Sources */,
-				036BFC22294B9F7500D8AD04 /* App.swift in Sources */,
+				036BFC22294B9F7500D8AD04 /* MochiDiffusionApp.swift in Sources */,
 				03EA52CE297B66C800CDF661 /* SidebarView.swift in Sources */,
 				9B7392C3298DEAC2006F03D5 /* Tokenizer.swift in Sources */,
 				035EDFFE295A220F00080D18 /* SeedView.swift in Sources */,
@@ -547,7 +551,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -611,7 +615,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -634,26 +638,26 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = "Mochi Diffusion/App.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "Mochi Diffusion/MochiDiffusion.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 5.0;
+				CURRENT_PROJECT_VERSION = 5.1;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Mochi Diffusion/Preview Content\"";
 				DEVELOPMENT_TEAM = TCQ6328PP6;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Info.plist;
+				INFOPLIST_FILE = MochiDiffusionInfo.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Mochi Diffusion";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.graphics-design";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "By Joshua Park";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Graham Bing (2024-)\nJoshua Park (2022-2024)";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 5.0;
+				MARKETING_VERSION = 5.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.joshua-park.Mochi-Diffusion";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -667,26 +671,26 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = "Mochi Diffusion/App.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "Mochi Diffusion/MochiDiffusion.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 5.0;
+				CURRENT_PROJECT_VERSION = 5.1;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Mochi Diffusion/Preview Content\"";
 				DEVELOPMENT_TEAM = TCQ6328PP6;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Info.plist;
+				INFOPLIST_FILE = MochiDiffusionInfo.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Mochi Diffusion";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.graphics-design";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "By Joshua Park";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Graham Bing (2024-)\nJoshua Park (2022-2024)";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 5.0;
+				MARKETING_VERSION = 5.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.joshua-park.Mochi-Diffusion";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -719,6 +723,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		0328BCE72BA11DEA004B5AE0 /* XCRemoteSwiftPackageReference "swift-format" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-format";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 510.0.1;
+			};
+		};
 		0352E2A3294E2591003FBF25 /* XCRemoteSwiftPackageReference "Sparkle" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/sparkle-project/Sparkle";
@@ -754,6 +766,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		0328BCE82BA11DEB004B5AE0 /* SwiftFormat */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0328BCE72BA11DEA004B5AE0 /* XCRemoteSwiftPackageReference "swift-format" */;
+			productName = SwiftFormat;
+		};
 		0352E2A4294E2591003FBF25 /* Sparkle */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 0352E2A3294E2591003FBF25 /* XCRemoteSwiftPackageReference "Sparkle" */;

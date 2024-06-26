@@ -13,7 +13,8 @@ import UserNotifications
 
 struct SettingsView: View {
     @EnvironmentObject private var controller: ImageController
-    @Environment(NotificationController.self) private var notificationController: NotificationController
+    @Environment(NotificationController.self) private var notificationController:
+        NotificationController
 
     var body: some View {
         VStack(spacing: 16) {
@@ -81,7 +82,8 @@ struct SettingsView: View {
                             .disabled(!$controller.autosaveImages.wrappedValue)
 
                         Button {
-                            guard let url = showOpenPanel(from: URL(string: controller.imageDir)) else { return }
+                            guard let url = showOpenPanel(from: URL(string: controller.imageDir))
+                            else { return }
                             controller.imageDir = url.path(percentEncoded: false)
                         } label: {
                             Image(systemName: "magnifyingglass.circle.fill")
@@ -124,7 +126,8 @@ struct SettingsView: View {
                             .textFieldStyle(.roundedBorder)
 
                         Button {
-                            guard let url = showOpenPanel(from: URL(string: controller.modelDir)) else { return }
+                            guard let url = showOpenPanel(from: URL(string: controller.modelDir))
+                            else { return }
                             controller.modelDir = url.path(percentEncoded: false)
                         } label: {
                             Image(systemName: "magnifyingglass.circle.fill")
@@ -147,7 +150,9 @@ struct SettingsView: View {
                             .textFieldStyle(.roundedBorder)
 
                         Button {
-                            guard let url = showOpenPanel(from: URL(string: controller.controlNetDir)) else { return }
+                            guard
+                                let url = showOpenPanel(from: URL(string: controller.controlNetDir))
+                            else { return }
                             controller.controlNetDir = url.path(percentEncoded: false)
                         } label: {
                             Image(systemName: "magnifyingglass.circle.fill")
@@ -254,14 +259,22 @@ struct SettingsView: View {
                         Spacer()
 
                         Picker("", selection: $controller.mlComputeUnitPreference) {
-                            Text("Auto (Recommended)", comment: "Option to use the CPU + Neural Engine for split-einsum models, and CPU + GPU for original models")
-                                .tag(ComputeUnitPreference.auto)
+                            Text(
+                                "Auto (Recommended)",
+                                comment:
+                                    "Option to use the CPU + Neural Engine for split-einsum models, and CPU + GPU for original models"
+                            )
+                            .tag(ComputeUnitPreference.auto)
                             Text("CPU & Neural Engine")
                                 .tag(ComputeUnitPreference.cpuAndNeuralEngine)
                             Text("CPU & GPU")
                                 .tag(ComputeUnitPreference.cpuAndGPU)
-                            Text("All", comment: "Option to use all CPU, GPU, & Neural Engine for compute unit")
-                                .tag(ComputeUnitPreference.all)
+                            Text(
+                                "All",
+                                comment:
+                                    "Option to use all CPU, GPU, & Neural Engine for compute unit"
+                            )
+                            .tag(ComputeUnitPreference.all)
                         }
                         .labelsHidden()
                         .fixedSize()
@@ -287,8 +300,10 @@ struct SettingsView: View {
 
                     Divider()
 
-                    Text("Manually selecting an incompatible ML Compute Unit may cause poor performance or crash.")
-                        .helpTextFormat()
+                    Text(
+                        "Manually selecting an incompatible ML Compute Unit may cause poor performance or crash."
+                    )
+                    .helpTextFormat()
                 }
                 .padding(4)
             }
@@ -344,12 +359,20 @@ struct SettingsView: View {
                     )
                     .helpTextFormat()
 
-                    if notificationController.sendNotification, notificationController.authStatus != .authorized {
+                    if notificationController.sendNotification,
+                        notificationController.authStatus != .authorized
+                    {
                         // on iOS there is `openNotificationSettingsURLString` but for macOS,
                         // seems like we need to manually call this here.
-                        Link(destination: URL(string: "x-apple.systempreferences:com.apple.preference.notifications")!) {
-                            Text("Allow Mochi Diffusion to send notifications under System Settings.")
-                                .multilineTextAlignment(.leading)
+                        Link(
+                            destination: URL(
+                                string:
+                                    "x-apple.systempreferences:com.apple.preference.notifications")!
+                        ) {
+                            Text(
+                                "Allow Mochi Diffusion to send notifications under System Settings."
+                            )
+                            .multilineTextAlignment(.leading)
                         }
                     }
                 }

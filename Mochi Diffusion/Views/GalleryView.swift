@@ -17,9 +17,9 @@ struct GalleryView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            if case let .error(msg) = generator.state {
+            if case .error(let msg) = generator.state {
                 MessageBanner(message: msg)
-            } else if case let .ready(msg) = generator.state, let msg = msg {
+            } else if case .ready(let msg) = generator.state, let msg = msg {
                 MessageBanner(message: msg)
             }
 
@@ -34,9 +34,9 @@ struct GalleryView: View {
                 .resizable(resizingMode: .tile)
         )
         .navigationTitle(
-            store.searchText.isEmpty ?
-                "Mochi Diffusion" :
-                String(
+            store.searchText.isEmpty
+                ? "Mochi Diffusion"
+                : String(
                     localized: "Searching: \(store.searchText)",
                     comment: "Window title bar label displaying the searched text"
                 )
@@ -50,7 +50,9 @@ struct GalleryView: View {
             ScrollView {
                 LazyVGrid(columns: gridColumns, spacing: 16) {
                     if store.sortType == .newestFirst {
-                        if let currentImage = store.currentGeneratingImage, case .running = generator.state {
+                        if let currentImage = store.currentGeneratingImage,
+                            case .running = generator.state
+                        {
                             GalleryPreviewView(image: currentImage)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 2)
@@ -77,24 +79,37 @@ struct GalleryView: View {
                             .overlay(
                                 RoundedRectangle(cornerRadius: 2)
                                     .stroke(
-                                        store.selectedId == sdi.id ? Color.accentColor : Color(nsColor: .controlBackgroundColor),
+                                        store.selectedId == sdi.id
+                                            ? Color.accentColor
+                                            : Color(nsColor: .controlBackgroundColor),
                                         lineWidth: 4
                                     )
                             )
-                            .gesture(TapGesture(count: 2).onEnded {
-                                Task { await ImageController.shared.quicklookCurrentImage() }
-                            })
-                            .simultaneousGesture(TapGesture().onEnded {
-                                Task { await ImageController.shared.select(sdi.id) }
-                            })
+                            .gesture(
+                                TapGesture(count: 2).onEnded {
+                                    Task { await ImageController.shared.quicklookCurrentImage() }
+                                }
+                            )
+                            .simultaneousGesture(
+                                TapGesture().onEnded {
+                                    Task { await ImageController.shared.select(sdi.id) }
+                                }
+                            )
                             .onDrag {
-                                if !sdi.path.isEmpty, let item = NSItemProvider(contentsOf: URL(fileURLWithPath: sdi.path)) {
+                                if !sdi.path.isEmpty,
+                                    let item = NSItemProvider(
+                                        contentsOf: URL(fileURLWithPath: sdi.path))
+                                {
                                     return item
                                 }
 
                                 if let cgImage = sdi.image {
-                                    let nsImage = NSImage(cgImage: cgImage, size: CGSize(width: sdi.width, height: sdi.height))
-                                    if let tempURL = try? nsImage.temporaryFileURL(), let item = NSItemProvider(contentsOf: tempURL) {
+                                    let nsImage = NSImage(
+                                        cgImage: cgImage,
+                                        size: CGSize(width: sdi.width, height: sdi.height))
+                                    if let tempURL = try? nsImage.temporaryFileURL(),
+                                        let item = NSItemProvider(contentsOf: tempURL)
+                                    {
                                         return item
                                     }
                                 }
@@ -107,7 +122,9 @@ struct GalleryView: View {
                     }
 
                     if store.sortType == .oldestFirst {
-                        if let currentImage = store.currentGeneratingImage, case .running = generator.state {
+                        if let currentImage = store.currentGeneratingImage,
+                            case .running = generator.state
+                        {
                             GalleryPreviewView(image: currentImage)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 2)
@@ -182,7 +199,9 @@ struct GalleryView: View {
 
                 if !sdi.path.isEmpty {
                     Button {
-                        NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: sdi.path).absoluteURL])
+                        NSWorkspace.shared.activateFileViewerSelecting([
+                            URL(fileURLWithPath: sdi.path).absoluteURL
+                        ])
                     } label: {
                         Text(
                             "Show in Finder",

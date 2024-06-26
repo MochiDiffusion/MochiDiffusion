@@ -5,14 +5,37 @@
     <language>en</language>
 
     <item>
+      <title>v5.1</title>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion</link>
+      <sparkle:version>5.1</sparkle:version>
+      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+      <sparkle:fullReleaseNotesLink>https://github.com/MochiDiffusion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <pubDate>Sat, 16 Mar 2024 01:30:06 +0000</pubDate>
+      <enclosure
+        url="https://github.com/MochiDiffusion/MochiDiffusion/releases/download/v5.1/MochiDiffusion_v5.1.dmg"
+        sparkle:edSignature="YjZVbzLAT0HBeP4aEkumAhVSH07EN8VlBSb9V0tBRirYY+NLijtJVRke4D4qYlSrDlrIzHrBSpL6ZHnqaYsTCQ=="
+        length="69485081"
+        type="application/octet-stream" />
+      <description><![CDATA[
+      <ul>
+      <li>Fixed character counter to match the currently selected model (@gdbing)</li>
+      <li>Added button to view models in Finder (@alexey-detr)</li>
+      <li>Updated project website url</li>
+      </ul>
+      <p>Mochi Diffusion is looking for a new project maintainer. If you are interested in adopting, feel free to send me a DM on Discord @godly-devotion.</p>
+      ]]>
+      </description>
+    </item>
+
+    <item>
       <title>v5.0</title>
-      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion</link>
       <sparkle:version>5.0</sparkle:version>
       <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <sparkle:fullReleaseNotesLink>https://github.com/MochiDiffusion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
       <pubDate>Thu, 25 Jan 2024 20:50:46 +0000</pubDate>
       <enclosure
-        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v5.0/MochiDiffusion_v5.0.dmg"
+        url="https://github.com/MochiDiffusion/MochiDiffusion/releases/download/v5.0/MochiDiffusion_v5.0.dmg"
         sparkle:edSignature="INLyZo3YOVi1HIYrsaCoJTD3Q168WlHU/sjS8ytWx87390ulQcJnaDWKuX/RK0xlVBghRDQ3yKqBlhG5U0BcCA=="
         length="67061540"
         type="application/octet-stream" />
@@ -36,13 +59,13 @@
 
     <item>
       <title>v4.7.1</title>
-      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion</link>
       <sparkle:version>4.7.1</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
-      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <sparkle:fullReleaseNotesLink>https://github.com/MochiDiffusion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
       <pubDate>Tue, 02 Jan 2024 14:35:52 +0000</pubDate>
       <enclosure
-        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v4.7.1/MochiDiffusion_v4.7.1.dmg"
+        url="https://github.com/MochiDiffusion/MochiDiffusion/releases/download/v4.7.1/MochiDiffusion_v4.7.1.dmg"
         sparkle:edSignature="1pOtDnU1fgFLHZIsk9zjKDzchRyjzLM+j2m9dgKFFQslnNdRqlcJmYCv7NdJmMQOpqWmw5qsPX5QBDbpJC24BA=="
         length="67067380"
         type="application/octet-stream" />
@@ -56,13 +79,13 @@
 
     <item>
       <title>v4.7</title>
-      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion</link>
       <sparkle:version>4.7</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
-      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <sparkle:fullReleaseNotesLink>https://github.com/MochiDiffusion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
       <pubDate>Sun, 24 Dec 2023 05:00:12 +0000</pubDate>
       <enclosure
-        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v4.7/MochiDiffusion_v4.7.dmg"
+        url="https://github.com/MochiDiffusion/MochiDiffusion/releases/download/v4.7/MochiDiffusion_v4.7.dmg"
         sparkle:edSignature="4iSEPl6JJRGoe0/nuKI14WTwwl39KIbXUxWfiEbhqmISBwRIfiX9PS1swwBTSjrgfIpKXwH87hLj3zCh4Zk3Ag=="
         length="67066137"
         type="application/octet-stream" />
@@ -81,13 +104,13 @@
 
     <item>
       <title>v4.6</title>
-      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion</link>
       <sparkle:version>4.6</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
-      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <sparkle:fullReleaseNotesLink>https://github.com/MochiDiffusion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
       <pubDate>Wed, 6 Dec 2023 20:00:14 +0000</pubDate>
       <enclosure
-        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v4.6/MochiDiffusion_v4.6.dmg"
+        url="https://github.com/MochiDiffusion/MochiDiffusion/releases/download/v4.6/MochiDiffusion_v4.6.dmg"
         sparkle:edSignature="60biGiBR00SPutaPSDtv/yzHaROFfT1EiJlCuu/o90+e7YmfSUB9IDE1Qh5cXpBDh2wVDq/uLKHC3dfWbi1fCw=="
         length="67106121"
         type="application/octet-stream" />
@@ -107,13 +130,13 @@
 
     <item>
       <title>v4.5</title>
-      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion</link>
       <sparkle:version>4.5</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
-      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <sparkle:fullReleaseNotesLink>https://github.com/MochiDiffusion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
       <pubDate>Wed, 8 Nov 2023 19:21:05 +0000</pubDate>
       <enclosure
-        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v4.5/MochiDiffusion_v4.5.dmg"
+        url="https://github.com/MochiDiffusion/MochiDiffusion/releases/download/v4.5/MochiDiffusion_v4.5.dmg"
         sparkle:edSignature="BSrdRU4n6gwuqX5EqJM1islKVpyRlxxj+wlXFMjoCeWHe84yfxdZq7aeM6t04AEVrqSXCRpDaqwc9ehbbZiyAA=="
         length="67128499"
         type="application/octet-stream" />
@@ -130,13 +153,13 @@
 
     <item>
       <title>v4.4</title>
-      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion</link>
       <sparkle:version>4.4</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
-      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <sparkle:fullReleaseNotesLink>https://github.com/MochiDiffusion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
       <pubDate>Mon, 9 Oct 2023 17:02:57 +0000</pubDate>
       <enclosure
-        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v4.4/MochiDiffusion_v4.4.dmg"
+        url="https://github.com/MochiDiffusion/MochiDiffusion/releases/download/v4.4/MochiDiffusion_v4.4.dmg"
         sparkle:edSignature="kRNoQ1iQJYhUyDZcPJ3KsTTEEpebxIav7Z4gHMKNwwWsVK//cdrXoeOoFdFDPknsrI4rnD64Mx2TnKuufCzZAQ=="
         length="67104325"
         type="application/octet-stream" />
@@ -152,18 +175,18 @@
 
     <item>
       <title>v4.3.1</title>
-      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion</link>
       <sparkle:version>4.3.1</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
-      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <sparkle:fullReleaseNotesLink>https://github.com/MochiDiffusion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
       <pubDate>Thu, 5 Oct 2023 03:00:35 +0000</pubDate>
       <enclosure
-        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v4.3.1/MochiDiffusion_v4.3.1.dmg"
+        url="https://github.com/MochiDiffusion/MochiDiffusion/releases/download/v4.3.1/MochiDiffusion_v4.3.1.dmg"
         sparkle:edSignature="C4aGIryQxPf8myV/k9dv77NgMFCPbsb+Allro53gzJ+kt72lvZ3xiHzD6CMgi7ScF22joPMOhzgUHMJO5u6UAg=="
         length="67104602"
         type="application/octet-stream" />
       <description><![CDATA[
-      <p><img src="https://github.com/godly-devotion/MochiDiffusion/assets/1341760/d71e28e9-2b3f-4c79-8845-9f370f457340" alt="roundels"></p>
+      <p><img src="https://github.com/MochiDiffusion/MochiDiffusion/assets/1341760/d71e28e9-2b3f-4c79-8845-9f370f457340" alt="roundels"></p>
       <ul>
       <li>Fixed the image gallery background&#39;s round things on macOS Sonoma (@vzsg)</li>
       </ul>
@@ -173,13 +196,13 @@
 
     <item>
       <title>v4.3</title>
-      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion</link>
       <sparkle:version>4.3</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
-      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <sparkle:fullReleaseNotesLink>https://github.com/MochiDiffusion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
       <pubDate>Thu, 28 Sep 2023 05:34:57 +0000</pubDate>
       <enclosure
-        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v4.3/MochiDiffusion_v4.3.dmg"
+        url="https://github.com/MochiDiffusion/MochiDiffusion/releases/download/v4.3/MochiDiffusion_v4.3.dmg"
         sparkle:edSignature="aNsBDLpgdNxWuv1coG3DJuBcE8//hXHtVakzk0ECLqa44trm5qkDKHUme9xbDrAGvms/sysP1g85M+TVh72rCQ=="
         length="67087259"
         type="application/octet-stream" />
@@ -199,13 +222,13 @@
 
     <item>
       <title>v4.2</title>
-      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion</link>
       <sparkle:version>4.2</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
-      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <sparkle:fullReleaseNotesLink>https://github.com/MochiDiffusion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
       <pubDate>Mon, 7 Aug 2023 18:49:03 +0000</pubDate>
       <enclosure
-        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v4.2/MochiDiffusion_v4.2.dmg"
+        url="https://github.com/MochiDiffusion/MochiDiffusion/releases/download/v4.2/MochiDiffusion_v4.2.dmg"
         sparkle:edSignature="g6Y7TtqdjcSPl/J2z8poHPT5L0aFj8jm5DJ164EV+nB2n9kAGo9M3yl8K4jOXfRslgnMS+vFBJFYT2OUwk1tBQ=="
         length="66548439"
         type="application/octet-stream" />
@@ -224,13 +247,13 @@
 
     <item>
       <title>v4.1.3</title>
-      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion</link>
       <sparkle:version>4.1.3</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
-      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <sparkle:fullReleaseNotesLink>https://github.com/MochiDiffusion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
       <pubDate>Sat, 22 Jul 2023 05:10:08 +0000</pubDate>
       <enclosure
-        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v4.1.3/MochiDiffusion_v4.1.3.dmg"
+        url="https://github.com/MochiDiffusion/MochiDiffusion/releases/download/v4.1.3/MochiDiffusion_v4.1.3.dmg"
         sparkle:edSignature="rhaPIGgaELAU7pH84UJXy7XzMAYTH2LEkwqXp0fu1qqUqqVFo5UALa0TzYC9V/S7L/oxOQFZbsONvOZXLCXCAQ=="
         length="66528333"
         type="application/octet-stream" />
@@ -246,13 +269,13 @@
 
     <item>
       <title>v4.1.2</title>
-      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion</link>
       <sparkle:version>4.1.2</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
-      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <sparkle:fullReleaseNotesLink>https://github.com/MochiDiffusion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
       <pubDate>Thu, 20 Jul 2023 23:50:08 +0000</pubDate>
       <enclosure
-        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v4.1.2/MochiDiffusion_v4.1.2.dmg"
+        url="https://github.com/MochiDiffusion/MochiDiffusion/releases/download/v4.1.2/MochiDiffusion_v4.1.2.dmg"
         sparkle:edSignature="sPk74Gt6sCipVTCJXXdua617jVQ2OoC0XoGg6bjPEhKePxje5b1ivMO5neHSrLIqoTno9wtOYyucM7ZVGk1QDQ=="
         length="66514301"
         type="application/octet-stream" />
@@ -268,13 +291,13 @@
 
     <item>
       <title>v4.1.1</title>
-      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion</link>
       <sparkle:version>4.1.1</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
-      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <sparkle:fullReleaseNotesLink>https://github.com/MochiDiffusion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
       <pubDate>Thu, 20 Jul 2023 19:27:11 +0000</pubDate>
       <enclosure
-        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v4.1.1/MochiDiffusion_v4.1.1.dmg"
+        url="https://github.com/MochiDiffusion/MochiDiffusion/releases/download/v4.1.1/MochiDiffusion_v4.1.1.dmg"
         sparkle:edSignature="MImrGl+2u2yYzU/6PVo2We+oJShXuhFv+ZEyadaNAW+EQSOFYoU0a6B3QZurJytPzjdX5N/BsiDUpy1DWl+XCQ=="
         length="66511281"
         type="application/octet-stream" />
@@ -290,13 +313,13 @@
 
     <item>
       <title>v4.1</title>
-      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion</link>
       <sparkle:version>4.1</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
-      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <sparkle:fullReleaseNotesLink>https://github.com/MochiDiffusion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
       <pubDate>Mon, 17 Jul 2023 02:35:09 +0000</pubDate>
       <enclosure
-        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v4.1/MochiDiffusion_v4.1.dmg"
+        url="https://github.com/MochiDiffusion/MochiDiffusion/releases/download/v4.1/MochiDiffusion_v4.1.dmg"
         sparkle:edSignature="7f1qNtNrdR5glkTnZ3F6xju8pgkkMvyvXOKTgCRnmtTQFaaMSRFxTpZAWtCDgtSsmeldw0EnZ6pT6WAm89L8Cw=="
         length="66511320"
         type="application/octet-stream" />
@@ -315,13 +338,13 @@
 
     <item>
       <title>v4.0</title>
-      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion</link>
       <sparkle:version>4.0</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
-      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <sparkle:fullReleaseNotesLink>https://github.com/MochiDiffusion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
       <pubDate>Mon, 06 Jun 2023 16:05:00 +0000</pubDate>
       <enclosure
-        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v4.0/MochiDiffusion_v4.0.dmg"
+        url="https://github.com/MochiDiffusion/MochiDiffusion/releases/download/v4.0/MochiDiffusion_v4.0.dmg"
         sparkle:edSignature="1x5kg+4sGL/pzv2b58DCNTPPaWUm4bCp0+XrVu+XJ2PQqLW235SugXzGiw6lQA/CPKD0TnpQfgZLSii//gPjDg=="
         length="66512606"
         type="application/octet-stream" />
@@ -331,20 +354,20 @@
       <li>Changed starting image strength value range (@jrittvo)</li>
       <li>Removed support for Intel Macs</li>
       </ul>
-      <p><strong>Note:</strong> Previous Stable Diffusion models will need to be reconverted to support ControlNet. Several Core ML ControlNet models have been converted <a href="https://huggingface.co/jrrjrr/CoreML-Models-For-ControlNet/tree/main/CN">here</a> by @jrittvo. See <a href="https://github.com/godly-devotion/MochiDiffusion/wiki/How-to-convert-ControlNet-models-to-Core-ML">the wiki</a> to find out how to convert the models.</p>
+      <p><strong>Note:</strong> Previous Stable Diffusion models will need to be reconverted to support ControlNet. Several Core ML ControlNet models have been converted <a href="https://huggingface.co/jrrjrr/CoreML-Models-For-ControlNet/tree/main/CN">here</a> by @jrittvo. See <a href="https://github.com/MochiDiffusion/MochiDiffusion/wiki/How-to-convert-ControlNet-models-to-Core-ML">the wiki</a> to find out how to convert the models.</p>
       ]]>
       </description>
     </item>
 
     <item>
       <title>v3.2</title>
-      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion</link>
       <sparkle:version>3.2</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
-      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <sparkle:fullReleaseNotesLink>https://github.com/MochiDiffusion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
       <pubDate>Sun, 30 Apr 2023 03:00:00 +0000</pubDate>
       <enclosure
-        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v3.2/MochiDiffusion_v3.2.dmg"
+        url="https://github.com/MochiDiffusion/MochiDiffusion/releases/download/v3.2/MochiDiffusion_v3.2.dmg"
         sparkle:edSignature="bgcg08Bkiobu0pznbJCDsXCSc1g2DJa23UVMsjANdHDrPmluIkXNhFZFQXsVLYAgNEPJDNTjyXu0D0VfqdGsAg=="
         length="66996124"
         type="application/octet-stream" />
@@ -364,13 +387,13 @@
 
     <item>
       <title>v3.1</title>
-      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion</link>
       <sparkle:version>3.1</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
-      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <sparkle:fullReleaseNotesLink>https://github.com/MochiDiffusion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
       <pubDate>Mon, 03 Apr 2023 19:10:03 +0000</pubDate>
       <enclosure
-        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v3.1/MochiDiffusion_v3.1.dmg"
+        url="https://github.com/MochiDiffusion/MochiDiffusion/releases/download/v3.1/MochiDiffusion_v3.1.dmg"
         sparkle:edSignature="l1nrMlN42RW3WfhMdXL36gjzGMShR9acB3tmbVyXlIRbX4clvSSA3elmgP09rt92foGcIvFRaL3G1SvdQJC2AA=="
         length="66961118"
         type="application/octet-stream" />
@@ -390,13 +413,13 @@
 
     <item>
       <title>Bubble Tea Mochi</title>
-      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion</link>
       <sparkle:version>3.0</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
-      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <sparkle:fullReleaseNotesLink>https://github.com/MochiDiffusion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
       <pubDate>Fri, 03 Mar 2023 02:00:13 +0000</pubDate>
       <enclosure
-        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v3.0/MochiDiffusion_v3.0.dmg"
+        url="https://github.com/MochiDiffusion/MochiDiffusion/releases/download/v3.0/MochiDiffusion_v3.0.dmg"
         sparkle:edSignature="3aBiHzOA7YWH0gTWbN0oZKtVLuRvTtVfs96/akcFNple1srq9ufKhZr1Nb6NLT8iDR7xviuLqKsIBBnHei1FDg=="
         length="67243511"
         type="application/octet-stream" />
@@ -428,13 +451,13 @@
 
     <item>
       <title>Never Gonna Let You Down</title>
-      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion</link>
       <sparkle:version>2.5</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
-      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <sparkle:fullReleaseNotesLink>https://github.com/MochiDiffusion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
       <pubDate>Sat, 25 Feb 2023 20:00:14 +0000</pubDate>
       <enclosure
-        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v2.5/MochiDiffusion_v2.5.dmg"
+        url="https://github.com/MochiDiffusion/MochiDiffusion/releases/download/v2.5/MochiDiffusion_v2.5.dmg"
         sparkle:edSignature="4PEwNf+dKCAWKtNrw3Myy+PFYzKNciGHdjmL6tqVfZYtaK2Ud25M3EU/DHzj+bpZsm3PWhMZVhqN8BNx8qShCQ=="
         length="67193632"
         type="application/octet-stream" />
@@ -462,13 +485,13 @@
 
     <item>
       <title>v2.4.1</title>
-      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion</link>
       <sparkle:version>2.4.1</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
-      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <sparkle:fullReleaseNotesLink>https://github.com/MochiDiffusion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
       <pubDate>Thu, 23 Feb 2023 15:21:05 +0000</pubDate>
       <enclosure
-        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v2.4.1/MochiDiffusion_v2.4.1.dmg"
+        url="https://github.com/MochiDiffusion/MochiDiffusion/releases/download/v2.4.1/MochiDiffusion_v2.4.1.dmg"
         sparkle:edSignature="QQAV2+pcEUeFgXvIN22c6q80wrNLAkFtbHdwKr1KRtBwD/pWsRFRu0OiuK4UVUC8CjNs5dOWVS1TGGhX5LXaCg=="
         length="67151914"
         type="application/octet-stream" />
@@ -490,13 +513,13 @@
 
     <item>
       <title>Mochi Ice Cream</title>
-      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion</link>
       <sparkle:version>2.4</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
-      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <sparkle:fullReleaseNotesLink>https://github.com/MochiDiffusion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
       <pubDate>Fri, 17 Feb 2023 20:54:31 +0000</pubDate>
       <enclosure
-        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v2.4/MochiDiffusion_v2.4.dmg"
+        url="https://github.com/MochiDiffusion/MochiDiffusion/releases/download/v2.4/MochiDiffusion_v2.4.dmg"
         sparkle:edSignature="ZiqsJwr9eSOqtEaWiMYLPpld9RnTYI550Gu8XD+xFFxw+d1vJfelgLjyvPrvIGb8IquUzCztLxvuHxSJrX8aAw=="
         length="66748430"
         type="application/octet-stream" />
@@ -523,13 +546,13 @@
 
     <item>
       <title>v2.3</title>
-      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion</link>
       <sparkle:version>2.3</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
-      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <sparkle:fullReleaseNotesLink>https://github.com/MochiDiffusion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
       <pubDate>Tue, 07 Feb 2023 22:42:10 +0000</pubDate>
       <enclosure
-        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v2.3/MochiDiffusion_v2.3.dmg"
+        url="https://github.com/MochiDiffusion/MochiDiffusion/releases/download/v2.3/MochiDiffusion_v2.3.dmg"
         sparkle:edSignature="4dIBNtE/quFOBZobWJRuaQqaeYObxUgwXhdtduIrj5to3NIEq9wH1iBwbFp1KCl2WKVmbz/8sG9vkakjfp5cAA=="
         length="66657129"
         type="application/octet-stream" />
@@ -551,13 +574,13 @@
 
     <item>
       <title>v2.2</title>
-      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion</link>
       <sparkle:version>2.2</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
-      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <sparkle:fullReleaseNotesLink>https://github.com/MochiDiffusion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
       <pubDate>Thu, 02 Feb 2023 18:38:32 +0000</pubDate>
       <enclosure
-        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v2.2/MochiDiffusion_v2.2.dmg"
+        url="https://github.com/MochiDiffusion/MochiDiffusion/releases/download/v2.2/MochiDiffusion_v2.2.dmg"
         sparkle:edSignature="7CPyhqPcqzeMhfsmFSABxZkQjqB5e1LmAn78jGtYnOMN51nb4bSaFUS4cAfzRWjGn7bFgkHKIrMdJZrxjDb3Ag=="
         length="66834649"
         type="application/octet-stream" />
@@ -580,13 +603,13 @@
 
     <item>
       <title>v2.1.5</title>
-      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion</link>
       <sparkle:version>2.1.5</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
-      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <sparkle:fullReleaseNotesLink>https://github.com/MochiDiffusion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
       <pubDate>Tue, 31 Jan 2023 00:06:42 +0000</pubDate>
       <enclosure
-        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v2.1.5/MochiDiffusion_v2.1.5.dmg"
+        url="https://github.com/MochiDiffusion/MochiDiffusion/releases/download/v2.1.5/MochiDiffusion_v2.1.5.dmg"
         sparkle:edSignature="wm8Wa9BDBCv4KLVXVjBV0P2lRhS+DiWZI+nUtc5ckDXdaj8IZGjcvIk+lPAIyQpSiT7GSmvBlqgVsIPL+sOpDg=="
         length="66814458"
         type="application/octet-stream" />
@@ -606,13 +629,13 @@
 
     <item>
       <title>v2.1.4</title>
-      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion</link>
       <sparkle:version>2.1.4</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
-      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <sparkle:fullReleaseNotesLink>https://github.com/MochiDiffusion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
       <pubDate>Thu, 26 Jan 2023 23:53:36 +0000</pubDate>
       <enclosure
-        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v2.1.4/MochiDiffusion_v2.1.4.dmg"
+        url="https://github.com/MochiDiffusion/MochiDiffusion/releases/download/v2.1.4/MochiDiffusion_v2.1.4.dmg"
         sparkle:edSignature="p6Q8gvQ99BmDNu1LflkZPMd+u3vFN2IsiPmAWeDTUZPGxa9tOzwNRpdHr/UPnJvqe9VUhNUD7Cav0oatoBKrAA=="
         length="66808448"
         type="application/octet-stream" />
@@ -631,13 +654,13 @@
 
     <item>
       <title>v2.1.3</title>
-      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion</link>
       <sparkle:version>2.1.3</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
-      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <sparkle:fullReleaseNotesLink>https://github.com/MochiDiffusion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
       <pubDate>Sun, 22 Jan 2023 13:12:52 +0000</pubDate>
       <enclosure
-        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v2.1.3/MochiDiffusion_v2.1.3.dmg"
+        url="https://github.com/MochiDiffusion/MochiDiffusion/releases/download/v2.1.3/MochiDiffusion_v2.1.3.dmg"
         sparkle:edSignature="FMUkW1sF0XYGGFGfte1TghXhEgeDJVJLic6p0Q6l2TMf0T/+ue976JTtWgbWRPmgIfvBi1n2ob4+F1if6tr+Bw=="
         length="66810301"
         type="application/octet-stream" />
@@ -655,13 +678,13 @@
 
     <item>
       <title>v2.1.2</title>
-      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion</link>
       <sparkle:version>2.1.2</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
-      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <sparkle:fullReleaseNotesLink>https://github.com/MochiDiffusion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
       <pubDate>Sat, 21 Jan 2023 23:53:41 +0000</pubDate>
       <enclosure
-        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v2.1.2/MochiDiffusion_v2.1.2.dmg"
+        url="https://github.com/MochiDiffusion/MochiDiffusion/releases/download/v2.1.2/MochiDiffusion_v2.1.2.dmg"
         sparkle:edSignature="1YruJbq5OrOBYa8OiJpcRN82gLNcZU2YrOleOGfu+ub8lcUPKFUNrO7YGbpmcuOGhvZAVyIwGZO1E6+ozuC/CQ=="
         length="66810316"
         type="application/octet-stream" />
@@ -689,13 +712,13 @@
 
     <item>
       <title>v2.1.1</title>
-      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion</link>
       <sparkle:version>2.1.1</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
-      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <sparkle:fullReleaseNotesLink>https://github.com/MochiDiffusion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
       <pubDate>Thu, 19 Jan 2023 18:10:02 +0000</pubDate>
       <enclosure
-        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v2.1.1/MochiDiffusion_v2.1.1.dmg"
+        url="https://github.com/MochiDiffusion/MochiDiffusion/releases/download/v2.1.1/MochiDiffusion_v2.1.1.dmg"
         sparkle:edSignature="4vryFvi9PiUfWeEJLWiRaDPQxlM+cbg4hW7eery8wbGz6b8kf0ah01dWs1fCa7/DrRLKlBGleoodm9394hhYCg=="
         length="66941478"
         type="application/octet-stream" />
@@ -716,13 +739,13 @@
 
     <item>
       <title>v2.1</title>
-      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion</link>
       <sparkle:version>2.1</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
-      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <sparkle:fullReleaseNotesLink>https://github.com/MochiDiffusion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
       <pubDate>Wed, 18 Jan 2023 21:10:48 +0000</pubDate>
       <enclosure
-        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v2.1/MochiDiffusion_v2.1.dmg"
+        url="https://github.com/MochiDiffusion/MochiDiffusion/releases/download/v2.1/MochiDiffusion_v2.1.dmg"
         sparkle:edSignature="sGn61CTdf27YGkWGy/fAsePSmDg6Aj68tTBuAeACTQbHQH/mHTZ3/ALzzVKKW0JVuQC+cgoxDg88YE56j6o8CQ=="
         length="66935617"
         type="application/octet-stream" />
@@ -746,13 +769,13 @@
 
     <item>
       <title>v2.0.3</title>
-      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion</link>
       <sparkle:version>2.0.3</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
-      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <sparkle:fullReleaseNotesLink>https://github.com/MochiDiffusion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
       <pubDate>Sat, 14 Jan 2023 02:34:10 +0000</pubDate>
       <enclosure
-        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v2.0.3/MochiDiffusion_v2.0.3.dmg"
+        url="https://github.com/MochiDiffusion/MochiDiffusion/releases/download/v2.0.3/MochiDiffusion_v2.0.3.dmg"
         sparkle:edSignature="p22Wt8bDy6HIIb6AK1+4X6JTh9QP0lyelDXgHzu9TkQlExLY0BK/BCCHLqVK+zdFUqobOC8qlPk7X7IOO3OCAA=="
         length="66905219"
         type="application/octet-stream" />
@@ -773,13 +796,13 @@
 
     <item>
       <title>v2.0.2</title>
-      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion</link>
       <sparkle:version>2.0.2</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
-      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <sparkle:fullReleaseNotesLink>https://github.com/MochiDiffusion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
       <pubDate>Fri, 13 Jan 2023 03:20:18 +0000</pubDate>
       <enclosure
-        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v2.0.2/MochiDiffusion_v2.0.2.dmg"
+        url="https://github.com/MochiDiffusion/MochiDiffusion/releases/download/v2.0.2/MochiDiffusion_v2.0.2.dmg"
         sparkle:edSignature="96Q4CX3LseUTlxvucjOXcbkW6FS1K/V/vMxsWcI+Bz+4UVinDPEEi1TkUuYYnZZgPifobd1VqtNWnuFDL1DBDQ=="
         length="66904952"
         type="application/octet-stream" />
@@ -803,18 +826,18 @@
 
     <item>
       <title>v2.0.1</title>
-      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion</link>
       <sparkle:version>2.0.1</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
-      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <sparkle:fullReleaseNotesLink>https://github.com/MochiDiffusion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
       <pubDate>Sun, 08 Jan 2023 21:29:24 +0000</pubDate>
       <enclosure
-        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v2.0.1/MochiDiffusion_v2.0.1.dmg"
+        url="https://github.com/MochiDiffusion/MochiDiffusion/releases/download/v2.0.1/MochiDiffusion_v2.0.1.dmg"
         sparkle:edSignature="yCOJfdGGeyOxgcT+CywRrLfefwbYYPvXbA0y9b3ZMSPOxlfSMZa/Olv6tcTyp4+4wkY7VzK+KYfN9RExlK3EAg=="
         length="66892958"
         type="application/octet-stream" />
       <description><![CDATA[
-      <p><strong>I&#39;ve figured out how to convert the models to export 512x768 sized images. I will add these new models to the existing list of models I&#39;ve converted <a href="https://huggingface.co/godly-devotion">here</a> under the folder <code>original</code>. Note that it only supports running with <code>CPU &amp; GPU</code> compute unit. See <a href="https://github.com/godly-devotion/MochiDiffusion/wiki/How-to-convert-ckpt-files-to-Core-ML">the wiki</a> for details on the updated steps to create these new models.</strong></p>
+      <p><strong>I&#39;ve figured out how to convert the models to export 512x768 sized images. I will add these new models to the existing list of models I&#39;ve converted <a href="https://huggingface.co/godly-devotion">here</a> under the folder <code>original</code>. Note that it only supports running with <code>CPU &amp; GPU</code> compute unit. See <a href="https://github.com/MochiDiffusion/MochiDiffusion/wiki/How-to-convert-ckpt-files-to-Core-ML">the wiki</a> for details on the updated steps to create these new models.</strong></p>
       <ul>
       <li>New Translations<ul>
       <li>Simplified Chinese (@Jerry23011)</li>
@@ -840,13 +863,13 @@
 
     <item>
       <title>v2.0</title>
-      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion</link>
       <sparkle:version>2.0</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
-      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <sparkle:fullReleaseNotesLink>https://github.com/MochiDiffusion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
       <pubDate>Thu, 05 Jan 2023 17:32:45 +0000</pubDate>
       <enclosure
-        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v2.0/MochiDiffusion_v2.0.dmg"
+        url="https://github.com/MochiDiffusion/MochiDiffusion/releases/download/v2.0/MochiDiffusion_v2.0.dmg"
         sparkle:edSignature="5RZfMk6l2sQrrvxIHQGKki6imBfUeeJGHFb0kMvtu+ySxyOFoV7H2B3Lz/I88BabO+wQ+baZJNsmh4cUdERnCA=="
         length="66871770"
         type="application/octet-stream" />
@@ -881,13 +904,13 @@
 
     <item>
       <title>v1.4.2</title>
-      <link>https://github.com/godly-devotion/MochiDiffusion</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion</link>
       <sparkle:version>1.4.2</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
-      <sparkle:fullReleaseNotesLink>https://github.com/godly-devotion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <sparkle:fullReleaseNotesLink>https://github.com/MochiDiffusion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
       <pubDate>Tue, 03 Jan 2023 02:50:40 +0000</pubDate>
       <enclosure
-        url="https://github.com/godly-devotion/MochiDiffusion/releases/download/v1.4.2/MochiDiffusion_v1.4.2.dmg"
+        url="https://github.com/MochiDiffusion/MochiDiffusion/releases/download/v1.4.2/MochiDiffusion_v1.4.2.dmg"
         sparkle:edSignature="Layf06bxGWzNqeZ8nu7VbdFCzc2vhg43e9kAMlVZqRdb9MQQ+YyyU8qLrxdaQB1KM9eqVRsgM0WiVnt09tLABQ=="
         length="66348530"
         type="application/octet-stream" />
@@ -911,7 +934,7 @@
       <sparkle:version>1.4.1</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
       <pubDate>Sat, 31 Dec 2022 22:29:32 +0000</pubDate>
-      <link>https://github.com/godly-devotion/MochiDiffusion/releases</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion/releases</link>
     </item>
 
     <item>
@@ -919,7 +942,7 @@
       <sparkle:version>1.4</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
       <pubDate>Fri, 30 Dec 2022 23:09:21 +0000</pubDate>
-      <link>https://github.com/godly-devotion/MochiDiffusion/releases</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion/releases</link>
     </item>
 
     <item>
@@ -927,7 +950,7 @@
       <sparkle:version>1.3</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
       <pubDate>Fri, 30 Dec 2022 02:34:49 +0000</pubDate>
-      <link>https://github.com/godly-devotion/MochiDiffusion/releases</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion/releases</link>
     </item>
 
     <item>
@@ -935,7 +958,7 @@
       <sparkle:version>1.2</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
       <pubDate>Mon, 26 Dec 2022 21:03:54 +0000</pubDate>
-      <link>https://github.com/godly-devotion/MochiDiffusion/releases</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion/releases</link>
     </item>
 
     <item>
@@ -943,7 +966,7 @@
       <sparkle:version>1.1.3</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
       <pubDate>Mon, 26 Dec 2022 17:00:30 +0000</pubDate>
-      <link>https://github.com/godly-devotion/MochiDiffusion/releases</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion/releases</link>
     </item>
 
     <item>
@@ -951,7 +974,7 @@
       <sparkle:version>1.1.2</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
       <pubDate>Mon, 26 Dec 2022 01:03:08 +0000</pubDate>
-      <link>https://github.com/godly-devotion/MochiDiffusion/releases</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion/releases</link>
     </item>
 
     <item>
@@ -959,7 +982,7 @@
       <sparkle:version>1.1.1</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
       <pubDate>Sun, 25 Dec 2022 22:44:00 +0000</pubDate>
-      <link>https://github.com/godly-devotion/MochiDiffusion/releases</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion/releases</link>
     </item>
 
     <item>
@@ -967,7 +990,7 @@
       <sparkle:version>1.1</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
       <pubDate>Sun, 25 Dec 2022 02:12:08 +0000</pubDate>
-      <link>https://github.com/godly-devotion/MochiDiffusion/releases</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion/releases</link>
     </item>
 
     <item>
@@ -975,7 +998,7 @@
       <sparkle:version>1.0.6</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
       <pubDate>Fri, 23 Dec 2022 03:41:36 +0000</pubDate>
-      <link>https://github.com/godly-devotion/MochiDiffusion/releases</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion/releases</link>
     </item>
 
     <item>
@@ -983,7 +1006,7 @@
       <sparkle:version>1.0.5</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
       <pubDate>Thu, 22 Dec 2022 03:11:51 +0000</pubDate>
-      <link>https://github.com/godly-devotion/MochiDiffusion/releases</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion/releases</link>
     </item>
 
     <item>
@@ -991,7 +1014,7 @@
       <sparkle:version>1.0.4</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
       <pubDate>Wed, 21 Dec 2022 19:33:53 +0000</pubDate>
-      <link>https://github.com/godly-devotion/MochiDiffusion/releases</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion/releases</link>
     </item>
 
     <item>
@@ -999,7 +1022,7 @@
       <sparkle:version>1.0.3</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
       <pubDate>Wed, 21 Dec 2022 17:04:55 +0000</pubDate>
-      <link>https://github.com/godly-devotion/MochiDiffusion/releases</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion/releases</link>
     </item>
 
     <item>
@@ -1007,7 +1030,7 @@
       <sparkle:version>1.0.2</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
       <pubDate>Tue, 20 Dec 2022 08:53:32 +0000</pubDate>
-      <link>https://github.com/godly-devotion/MochiDiffusion/releases</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion/releases</link>
     </item>
 
     <item>
@@ -1015,7 +1038,7 @@
       <sparkle:version>1.0.1</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
       <pubDate>Tue, 20 Dec 2022 08:13:22 +0000</pubDate>
-      <link>https://github.com/godly-devotion/MochiDiffusion/releases</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion/releases</link>
     </item>
 
     <item>
@@ -1023,7 +1046,7 @@
       <sparkle:version>1.0</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
       <pubDate>Tue, 20 Dec 2022 06:38:18 +0000</pubDate>
-      <link>https://github.com/godly-devotion/MochiDiffusion/releases</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion/releases</link>
     </item>
 
     <item>
@@ -1031,7 +1054,7 @@
       <sparkle:version>0.6.2</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
       <pubDate>Tue, 20 Dec 2022 00:33:47 +0000</pubDate>
-      <link>https://github.com/godly-devotion/MochiDiffusion/releases</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion/releases</link>
     </item>
 
     <item>
@@ -1039,7 +1062,7 @@
       <sparkle:version>0.6.1</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
       <pubDate>Mon, 19 Dec 2022 23:09:57 +0000</pubDate>
-      <link>https://github.com/godly-devotion/MochiDiffusion/releases</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion/releases</link>
     </item>
 
     <item>
@@ -1047,7 +1070,7 @@
       <sparkle:version>0.6</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
       <pubDate>Mon, 19 Dec 2022 18:12:39 +0000</pubDate>
-      <link>https://github.com/godly-devotion/MochiDiffusion/releases</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion/releases</link>
     </item>
 
     <item>
@@ -1055,7 +1078,7 @@
       <sparkle:version>0.5</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
       <pubDate>Mon, 19 Dec 2022 00:00:41 +0000</pubDate>
-      <link>https://github.com/godly-devotion/MochiDiffusion/releases</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion/releases</link>
     </item>
 
     <item>
@@ -1063,7 +1086,7 @@
       <sparkle:version>0.4</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
       <pubDate>Sun, 18 Dec 2022 06:38:58 +0000</pubDate>
-      <link>https://github.com/godly-devotion/MochiDiffusion/releases</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion/releases</link>
     </item>
 
     <item>
@@ -1071,7 +1094,7 @@
       <sparkle:version>0.3</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
       <pubDate>Sun, 18 Dec 2022 00:55:43 +0000</pubDate>
-      <link>https://github.com/godly-devotion/MochiDiffusion/releases</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion/releases</link>
     </item>
 
     <item>
@@ -1079,7 +1102,7 @@
       <sparkle:version>0.2</sparkle:version>
       <sparkle:minimumSystemVersion>13.1</sparkle:minimumSystemVersion>
       <pubDate>Sat, 17 Dec 2022 02:29:49 +0000</pubDate>
-      <link>https://github.com/godly-devotion/MochiDiffusion/releases</link>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion/releases</link>
     </item>
   </channel>
 </rss>
