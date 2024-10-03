@@ -316,6 +316,25 @@ struct GenerationConfig: Sendable, Identifiable {
 }
 
 extension URL {
+    func getJsonFileNames() -> [URL] {
+        do {
+            let contents = try FileManager.default.contentsOfDirectory(
+                at: self, includingPropertiesForKeys: nil)
+            return contents.filter { $0.pathExtension == "json" }
+        } catch {
+            print("Error: \(error.localizedDescription)")
+            return []
+        }
+    }
+    
+    func getFileName(dropExtension: Bool) -> String {
+        if dropExtension {
+            return self.lastPathComponent.components(separatedBy: ".").dropLast().joined()
+        } else {
+            return self.lastPathComponent
+        }
+    }
+
     func subDirectories() throws -> [URL] {
         guard hasDirectoryPath else { return [] }
         return try FileManager.default.contentsOfDirectory(

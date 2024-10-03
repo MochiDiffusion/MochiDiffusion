@@ -167,6 +167,32 @@ struct SettingsView: View {
 
             GroupBox {
                 VStack(alignment: .leading) {
+                    Text("Styles Folder")
+
+                    HStack {
+                        TextField("", text: $controller.styleDir)
+                            .disableAutocorrection(true)
+                            .textFieldStyle(.roundedBorder)
+
+                        Button {
+                            guard let url = showOpenPanel(from: URL(string: controller.styleDir))
+                            else {
+                                return
+                            }
+                            controller.styleDir = url.path(percentEncoded: false)
+                        } label: {
+                            Image(systemName: "magnifyingglass.circle.fill")
+                                .foregroundColor(Color.secondary)
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        .help("Open in Finder")
+                    }
+                }
+                .padding(4)
+            }
+
+            GroupBox {
+                VStack(alignment: .leading) {
                     HStack {
                         Text("Move Images to Trash")
 
