@@ -193,7 +193,7 @@ final class ImageController: ObservableObject {
     }
 
     func getSDStyle(name: String) -> [String] {
-        return (styles.first(where: { $0.styleName == name })?.SDStyleData ?? []).map { $0.name }
+        return (styles.first(where: { $0.styleName == name })?.sdStyleData ?? []).map { $0.name }
     }
 
     func loadImages() async {
@@ -222,7 +222,7 @@ final class ImageController: ObservableObject {
             fromPath: styleDir, defaultingTo: "MochiDiffusion/styles/")
         self.styleDir = stylesDirectoryURL.path(percentEncoded: false)
         let styleUrls = stylesDirectoryURL.getJsonFileNames()
-        self.styles = styleUrls.compactMap{ SDStyles(url: $0) }
+        self.styles = styleUrls.compactMap { SDStyles(url: $0) }
         logger.info("Found \(self.styles.count) styles(s)")
     }
 
@@ -289,16 +289,18 @@ final class ImageController: ObservableObject {
 
         if applyStyles,
             let styleCategory = styles.first(where: { $0.styleName == styleCategory }),
-            let styleType = styleCategory.SDStyleData.first(where: { $0.name == styleType })
+            let styleType = styleCategory.sdStyleData.first(where: { $0.name == styleType })
         {
 
             if let prompt = styleType.prompt {
                 stylisedPrompt = prompt.replacingOccurrences(of: "{prompt}", with: inputPrompt)
             }
-            if let negPrompt = styleType.negative_prompt {
+            if let negPrompt = styleType.negativePrompt {
                 stylisedNegPrompt += negPrompt
             }
-            logger.info("applied style category: \(styleCategory.styleName), type: \(styleType.name)")
+            logger.info(
+                "applied style category: \(styleCategory.styleName), type: \(styleType.name)"
+            )
         }
         return (stylisedPrompt, stylisedNegPrompt)
     }

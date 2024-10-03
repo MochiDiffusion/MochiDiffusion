@@ -326,7 +326,7 @@ extension URL {
             return []
         }
     }
-    
+
     func getFileName(dropExtension: Bool) -> String {
         if dropExtension {
             return self.lastPathComponent.components(separatedBy: ".").dropLast().joined()

@@ -9,10 +9,9 @@ import Foundation
 
 struct SDStyles {
     var styleName: String
-    var SDStyleData: [SDStyleData] = []
+    var sdStyleData: [SDStyleData] = []
 
     init?(url: URL) {
-        
         let fileName = url.getFileName(dropExtension: true)
         let cleanedVersion = fileName.components(separatedBy: "_").last
         styleName = cleanedVersion ?? fileName
@@ -27,23 +26,23 @@ struct SDStyles {
             print("Error: Could not parse JSON data")
             return nil
         }
-        SDStyleData = jsonArray.compactMap{ Mochi_Diffusion.SDStyleData($0) }
+        sdStyleData = jsonArray.compactMap { Mochi_Diffusion.SDStyleData($0) }
     }
 }
 
 struct SDStyleData {
     let name: String
     let prompt: String?
-    let negative_prompt: String?
+    let negativePrompt: String?
 
     init?(_ dict: [String: Any]) {
         guard
-            let name = dict["name"] as? String else {
+            let name = dict["name"] as? String
+        else {
             return nil
         }
         self.name = name
         prompt = dict["prompt"] as? String
-        negative_prompt = dict["negative_prompt"] as? String
+        negativePrompt = dict["negative_prompt"] as? String
     }
 }
-
