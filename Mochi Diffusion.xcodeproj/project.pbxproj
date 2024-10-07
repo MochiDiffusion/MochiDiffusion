@@ -759,8 +759,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/apple/ml-stable-diffusion";
 			requirement = {
-				kind = revision;
-				revision = d1f0604fab5345011e0b9f5b87ee0c155612565f;
+				branch = main;
+				kind = branch;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
