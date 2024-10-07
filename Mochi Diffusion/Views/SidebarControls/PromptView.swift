@@ -104,6 +104,8 @@ struct PromptView: View {
 
             Spacer().frame(height: 2)
 
+            styleSelectionView
+
             HStack {
                 Toggle(isOn: $controller.upscaleGeneratedImages) {
                     Label {
@@ -139,6 +141,43 @@ struct PromptView: View {
                 .buttonStyle(.borderedProminent)
                 .controlSize(.large)
             }
+        }
+    }
+
+    @ViewBuilder var styleSelectionView: some View {
+        VStack(alignment: .leading) {
+            Toggle(isOn: $controller.applyStyles.animation()) {
+                Text("Apply Custom Styles")
+                    .sidebarLabelFormat()
+            }.onChange(of: controller.applyStyles, initial: true) { _, newValue in
+                if !newValue {
+                    controller.styleCategory = ""
+                    controller.styleType = ""
+                }
+            }
+            if controller.applyStyles {
+                Picker("", selection: $controller.styleCategory) {
+                    let styles = controller.styles.map { $0.styleName }
+                    ForEach(styles, id: \.self) {
+                        Text($0).tag($0)
+                    }
+                }.pickerStyle(.segmented)
+
+                if !controller.styleCategory.isEmpty
+                    && controller.styleCategory != "Select Style category"
+                {
+                    Picker(
+                        "Select Style",
+                        selection: $controller.styleType
+                    ) {
+                        let sdstyles = controller.getSDStyle(name: controller.styleCategory)
+                        ForEach(sdstyles, id: \.self) {
+                            Text($0).tag($0)
+                        }
+                    }.pickerStyle(.automatic).frame(width: 300)
+                }
+            }
+            Divider()
         }
     }
 }
