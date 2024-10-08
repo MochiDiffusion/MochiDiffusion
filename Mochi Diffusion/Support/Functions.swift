@@ -72,9 +72,9 @@ func createSDImageFromURL(_ url: URL) -> SDImage? {
             atPath: url.path(percentEncoded: false))
     else { return nil }
     let maybeDateModified = attr[FileAttributeKey.modificationDate] as? Date
-    
+
     let finderTagColorNumber = getFinderTagColorNumber(url)
-    
+
     guard let dateModified = maybeDateModified else { return nil }
     guard let cgImageSource = CGImageSourceCreateWithURL(url as CFURL, nil) else { return nil }
     let imageIndex = CGImageSourceGetPrimaryImageIndex(cgImageSource)
