@@ -81,6 +81,10 @@ struct GalleryItemView: View {
                 if sdi.isUpscaling {
                     UpscalingAnimationView()
                 }
+                Text(finderTagColorNumberToString(self.sdi.finderTagColorNumber))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .frame(maxHeight: .infinity, alignment: .bottom)
+                    .padding(8)
             }
         } else {
             Color.clear
