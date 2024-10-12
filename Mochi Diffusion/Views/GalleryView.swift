@@ -34,10 +34,10 @@ struct GalleryView: View {
                 .resizable(resizingMode: .tile)
         )
         .navigationTitle(
-            store.searchText.isEmpty
+            store.filters.isEmpty
                 ? "Mochi Diffusion"
                 : String(
-                    localized: "Searching: \(store.searchText)",
+                    localized: "Filtering: \(store.filters.humanReadable())",
                     comment: "Window title bar label displaying the searched text"
                 )
         )
