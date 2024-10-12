@@ -80,7 +80,7 @@ struct FilterTagView: View {
     private var popOverView: some View {
         List {
             ForEach(FilterElement.allCases, id: \.self) { element in
-                FilterOptionItem(element.rawValue, isSelected: filter.element == element)
+                filterOptionItem(element.rawValue, isSelected: filter.element == element)
                     .onTapGesture {
                         filter.element = element
                     }
@@ -89,7 +89,7 @@ struct FilterTagView: View {
             Divider()
 
             ForEach(FilterType.allCases, id: \.self) { type in
-                FilterOptionItem(type.rawValue, isSelected: filter.type == type)
+                filterOptionItem(type.rawValue, isSelected: filter.type == type)
                     .onTapGesture {
                         filter.type = type
                     }
@@ -98,7 +98,7 @@ struct FilterTagView: View {
             Divider()
 
             ForEach(FilterCondition.allCases, id: \.self) { condition in
-                FilterOptionItem(condition.rawValue, isSelected: filter.condition == condition)
+                filterOptionItem(condition.rawValue, isSelected: filter.condition == condition)
                     .onTapGesture {
                         filter.condition = condition
                     }
@@ -106,7 +106,7 @@ struct FilterTagView: View {
         }
     }
 
-    private func FilterOptionItem(_ text: String, isSelected: Bool) -> some View {
+    private func filterOptionItem(_ text: String, isSelected: Bool) -> some View {
         HStack {
             Image(systemName: isSelected ? "checkmark" : "")
                 .frame(width: 12)
