@@ -15,6 +15,7 @@ struct GenerationConfig: Sendable, Identifiable {
     let id = UUID()
     var pipelineConfig: StableDiffusionPipeline.Configuration
     var isXL: Bool
+    var isSD3: Bool
     var autosaveImages: Bool
     var imageDir: String
     var imageType: String
@@ -192,6 +193,12 @@ struct GenerationConfig: Sendable, Identifiable {
                 configuration: config,
                 reduceMemory: reduceMemory
             )
+        } else if model.isSD3 {
+            self.pipeline = try StableDiffusion3Pipeline(
+                resourcesAt: model.url,
+                configuration: config,
+                reduceMemory: reduceMemory
+            )
         } else {
             self.pipeline = try StableDiffusionPipeline(
                 resourcesAt: model.url,
@@ -222,6 +229,13 @@ struct GenerationConfig: Sendable, Identifiable {
             config.pipelineConfig.encoderScaleFactor = 0.13025
             config.pipelineConfig.decoderScaleFactor = 0.13025
             config.pipelineConfig.schedulerTimestepSpacing = .karras
+        }
+
+        if config.isSD3 {
+            config.pipelineConfig.encoderScaleFactor = 1.5305
+            config.pipelineConfig.decoderScaleFactor = 1.5305
+            config.pipelineConfig.decoderShiftFactor = 0.0609
+            config.pipelineConfig.schedulerTimestepShift = 3.0
         }
 
         var sdi = SDImage()
