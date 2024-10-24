@@ -118,6 +118,11 @@ struct GalleryToolbarView: View {
                 Image(systemName: "sidebar.right")
             }
         }
+
+        FilterTextFieldView(filters: $store.filters)
+            .frame(minWidth: 300)
+            .frame(maxWidth: 500)
+            .frame(height: 40)
     }
 
     @ViewBuilder

@@ -32,7 +32,7 @@ enum ImagesSortType: String {
 
     private(set) var selectedId: SDImage.ID?
 
-    var searchText: String = "" {
+    var filters: [Filter] = [Filter]() {
         didSet {
             updateFilteredImages()
             updateSortForImages()
@@ -171,10 +171,10 @@ enum ImagesSortType: String {
     }
 
     private func updateFilteredImages() {
-        if searchText.isEmpty {
+        if filters.isEmpty {
             images = allImages
         } else {
-            images = allImages.filter(searchText)
+            images = allImages.filter(filters)
         }
     }
 
@@ -189,11 +189,9 @@ enum ImagesSortType: String {
 }
 
 extension Array where Element == SDImage {
-    fileprivate func filter(_ text: String) -> [SDImage] {
-        self.filter {
-            $0.prompt.range(
-                of: text, options: [.caseInsensitive, .diacriticInsensitive, .widthInsensitive])
-                != nil || $0.seed == UInt32(text)
+    fileprivate func filter(_ filters: [Filter]) -> [SDImage] {
+        self.filter { image in
+            filters.allSatisfy({ $0.validate(image) })
         }
     }
 }

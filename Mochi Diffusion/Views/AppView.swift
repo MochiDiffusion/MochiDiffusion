@@ -27,7 +27,6 @@ struct AppView: View {
         .toolbar {
             GalleryToolbarView(isShowingInspector: $isShowingInspector)
         }
-        .searchable(text: $store.searchText, prompt: "Search")
     }
 }
 
