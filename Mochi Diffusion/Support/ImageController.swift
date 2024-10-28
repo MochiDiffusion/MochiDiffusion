@@ -100,9 +100,16 @@ final class ImageController: ObservableObject {
 
     @Published
     private(set) var currentControlNets: [(name: String?, image: CGImage?)] = []
+    @Published
+    var styles = [SDStyles]()
+    @Published
+    var styleCategory: String = "Select Style category"
+    @Published
+    var styleType: String = "Select Style Type"
 
     @AppStorage("ModelDir") var modelDir = ""
     @AppStorage("ControlNetDir") var controlNetDir = ""
+    @AppStorage("StyleDir") var styleDir = ""
     @AppStorage("Model") private(set) var modelName = ""
     @AppStorage("AutosaveImages") var autosaveImages = true
     @AppStorage("ImageDir") var imageDir = ""
@@ -122,6 +129,7 @@ final class ImageController: ObservableObject {
     @AppStorage("ReduceMemory") var reduceMemory = false
     @AppStorage("SafetyChecker") var safetyChecker = false
     @AppStorage("UseTrash") var useTrash = true
+    @AppStorage("ApplyCustomStyles") var applyStyles = false
 
     private var imageFolderMonitor: FolderMonitor?
     private var modelFolderMonitor: FolderMonitor?
@@ -130,6 +138,7 @@ final class ImageController: ObservableObject {
     init() {
         Task {
             await load()
+            loadStyles()
         }
         self.imageFolderMonitor = FolderMonitor(path: imageDir) {
             if let fileList = try? FileManager.default.contentsOfDirectory(atPath: self.imageDir) {
@@ -183,6 +192,10 @@ final class ImageController: ObservableObject {
         isLoading = false
     }
 
+    func getSDStyle(name: String) -> [String] {
+        return (styles.first(where: { $0.styleName == name })?.sdStyleData ?? []).map { $0.name }
+    }
+
     func loadImages() async {
         logger.info("Started loading image autosave directory at: \"\(self.imageDir)\"")
         /// If there are unautosaved images,
@@ -202,6 +215,15 @@ final class ImageController: ObservableObject {
         } catch {
             logger.error("There was a problem loading the images: \(error.localizedDescription)")
         }
+    }
+
+    func loadStyles() {
+        let stylesDirectoryURL = directoryURL(
+            fromPath: styleDir, defaultingTo: "MochiDiffusion/styles/")
+        self.styleDir = stylesDirectoryURL.path(percentEncoded: false)
+        let styleUrls = stylesDirectoryURL.getJsonFileNames()
+        self.styles = styleUrls.compactMap { SDStyles(url: $0) }
+        logger.info("Found \(self.styles.count) styles(s)")
     }
 
     private func directoryURL(fromPath directory: String, defaultingTo string: String) -> URL {
@@ -259,13 +281,38 @@ final class ImageController: ObservableObject {
         }
     }
 
+    private func applyStyles(inputPrompt: String, inputNegativePrompt: String) -> (
+        prompt: String, negativePrompt: String
+    ) {
+        var stylisedPrompt = prompt
+        var stylisedNegPrompt = negativePrompt
+
+        if applyStyles,
+            let styleCategory = styles.first(where: { $0.styleName == styleCategory }),
+            let styleType = styleCategory.sdStyleData.first(where: { $0.name == styleType })
+        {
+
+            if let prompt = styleType.prompt {
+                stylisedPrompt = prompt.replacingOccurrences(of: "{prompt}", with: inputPrompt)
+            }
+            if let negPrompt = styleType.negativePrompt {
+                stylisedNegPrompt += negPrompt
+            }
+            logger.info(
+                "applied style category: \(styleCategory.styleName), type: \(styleType.name)"
+            )
+        }
+        return (stylisedPrompt, stylisedNegPrompt)
+    }
+
     func generate() async {
         guard let model = currentModel else {
             return
         }
 
-        var pipelineConfig = StableDiffusionPipeline.Configuration(prompt: prompt)
-        pipelineConfig.negativePrompt = negativePrompt
+        let styleConfig = applyStyles(inputPrompt: prompt, inputNegativePrompt: negativePrompt)
+        var pipelineConfig = StableDiffusionPipeline.Configuration(prompt: styleConfig.prompt)
+        pipelineConfig.negativePrompt = styleConfig.negativePrompt
         if let size = currentModel?.inputSize {
             pipelineConfig.startingImage = startingImage?.scaledAndCroppedTo(size: size)
         }
