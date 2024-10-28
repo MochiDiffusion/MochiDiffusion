@@ -16,24 +16,15 @@ func compareVersion(_ thisVersion: String, _ compareTo: String) -> ComparisonRes
     thisVersion.compare(compareTo, options: .numeric)
 }
 
-// Other emoji ideas:
-// (make sure Context Menu text matches these, in GalleryView)
-// 6 == red or    ❤️ .❌
-// 7 == orange or 🔥
-// 5 == yellow or ⭐️
-// 2 == green or  🍏 .🍀🤢✅🌲
-// 4 == blue or   💎 .💠❄️🥶💧
-// 3 == purple or 💟 🦄😈 .☂️💜☯️
-// 1 == gray or   ☑️ 🧟 .🗑️😎🥈🐘☠️🪨
 func finderTagColorNumberToString(_ tagColorNumber: Int) -> String {
     switch tagColorNumber {
-    case 6: return "❤️"
+    case 6: return "🎈"
     case 7: return "🔥"
-    case 5: return "⭐️"
-    case 2: return "🍏"
-    case 4: return "💠"
+    case 5: return "🍋"
+    case 2: return "🍀"
+    case 4: return "💎"
     case 3: return "🦄"
-    case 1: return "☑️"
+    case 1: return "🐘"
     // 0 means file system has no tag
     default: return ""
     }
