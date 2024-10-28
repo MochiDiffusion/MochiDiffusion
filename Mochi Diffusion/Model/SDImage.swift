@@ -30,6 +30,7 @@ struct SDImage: Identifiable, Hashable {
     var upscaler = ""
     var isUpscaling = false
     var path = ""
+    var finderTagColorNumber = 0
 
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
