@@ -211,94 +211,96 @@ struct GalleryView: View {
                 }
             }
             Section {
+                Menu("Tags") {
+                    Button {
+                        Task {
+                            setFinderTagColorNumber(sdi, colorNumber: 6)
+                        }
+                    } label: {
+                        Text(
+                            "🎈 Red",
+                            comment: "Mark this image Red, with Finder metadata tag"
+                        )
+                    }
+                    Button {
+                        Task {
+                            setFinderTagColorNumber(sdi, colorNumber: 7)
+                        }
+                    } label: {
+                        Text(
+                            "🔥 Orange",
+                            comment: "Mark this image Orange, with Finder metadata tag"
+                        )
+                    }
+                    Button {
+                        Task {
+                            setFinderTagColorNumber(sdi, colorNumber: 5)
+                        }
+                    } label: {
+                        Text(
+                            "🍋 Yellow",
+                            comment: "Mark this image Yellow, with Finder metadata tag"
+                        )
+                    }
+                    Button {
+                        Task {
+                            setFinderTagColorNumber(sdi, colorNumber: 2)
+                        }
+                    } label: {
+                        Text(
+                            "🍀 Green",
+                            comment: "Mark this image Green, with Finder metadata tag"
+                        )
+                    }
+                    Button {
+                        Task {
+                            setFinderTagColorNumber(sdi, colorNumber: 4)
+                        }
+                    } label: {
+                        Text(
+                            "💎 Blue",
+                            comment: "Mark this image Blue, with Finder metadata tag"
+                        )
+                    }
+                    Button {
+                        Task {
+                            setFinderTagColorNumber(sdi, colorNumber: 3)
+                        }
+                    } label: {
+                        Text(
+                            "🦄 Purple",
+                            comment: "Mark this image Purple, with Finder metadata tag"
+                        )
+                    }
+                    Button {
+                        Task {
+                            setFinderTagColorNumber(sdi, colorNumber: 1)
+                        }
+                    } label: {
+                        Text(
+                            "🐘 Gray",
+                            comment: "Mark this image Gray, with Finder metadata tag"
+                        )
+                    }
+                    Button {
+                        Task {
+                            clearFinderTags(sdi)
+                        }
+                    } label: {
+                        Text(
+                            "Clear All",
+                            comment: "Clear all Finder metadata color tags"
+                        )
+                    }
+                }
+            }
+            Section {
                 Button {
                     Task { await ImageController.shared.removeImage(sdi) }
                 } label: {
                     Text(
                         "Remove",
                         comment: "Remove image from the gallery"
-                    )
-                }
-            }
-            Section {
-                Button {
-                    Task {
-                        setFinderTagColorNumber(sdi, colorNumber: 6)
-                    }
-                } label: {
-                    Text(
-                        "❤️ Set Finder Tag to Red",
-                        comment: "Mark this image Red, with Finder metadata tag"
-                    )
-                }
-                Button {
-                    Task {
-                        setFinderTagColorNumber(sdi, colorNumber: 7)
-                    }
-                } label: {
-                    Text(
-                        "🔥 Set Finder Tag to Orange",
-                        comment: "Mark this image Orange, with Finder metadata tag"
-                    )
-                }
-                Button {
-                    Task {
-                        setFinderTagColorNumber(sdi, colorNumber: 5)
-                    }
-                } label: {
-                    Text(
-                        "⭐️ Set Finder Tag to Yellow",
-                        comment: "Mark this image Yellow, with Finder metadata tag"
-                    )
-                }
-                Button {
-                    Task {
-                        setFinderTagColorNumber(sdi, colorNumber: 2)
-                    }
-                } label: {
-                    Text(
-                        "🍏 Set Finder Tag to Green",
-                        comment: "Mark this image Green, with Finder metadata tag"
-                    )
-                }
-                Button {
-                    Task {
-                        setFinderTagColorNumber(sdi, colorNumber: 4)
-                    }
-                } label: {
-                    Text(
-                        "💠 Set Finder Tag to Blue",
-                        comment: "Mark this image Blue, with Finder metadata tag"
-                    )
-                }
-                Button {
-                    Task {
-                        setFinderTagColorNumber(sdi, colorNumber: 3)
-                    }
-                } label: {
-                    Text(
-                        "🦄 Set Finder Tag to Purple",
-                        comment: "Mark this image Purple, with Finder metadata tag"
-                    )
-                }
-                Button {
-                    Task {
-                        setFinderTagColorNumber(sdi, colorNumber: 1)
-                    }
-                } label: {
-                    Text(
-                        "☑️ Set Finder Tag to Gray",
-                        comment: "Mark this image Gray, with Finder metadata tag"
-                    )
-                }
-                Button {
-                    Task {
-                        clearFinderTags(sdi)
-                    }
-                } label: {
-                    Text(
-                        "Clear Finder Tags",
-                        comment: "Clear all Finder metadata color tags"
                     )
                 }
             }
