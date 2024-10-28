@@ -55,6 +55,9 @@
 		03FD231B295F7A81006EEEE2 /* Upscaler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03FD231A295F7A81006EEEE2 /* Upscaler.swift */; };
 		58FF218829FAE96200A70C7C /* ControlNetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FF218729FAE96200A70C7C /* ControlNetView.swift */; };
 		71D315162B2A584E007FFDEB /* NotificationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71D315152B2A584E007FFDEB /* NotificationController.swift */; };
+		9401BC6F2CB9E9E100F00DDE /* Filter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9401BC6E2CB9E9E100F00DDE /* Filter.swift */; };
+		9401BC712CB9ECA500F00DDE /* FilterTagView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9401BC702CB9ECA500F00DDE /* FilterTagView.swift */; };
+		9485F21C2CB97B53002623B7 /* FilterTextFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9485F21B2CB97B53002623B7 /* FilterTextFieldView.swift */; };
 		948853A52A543CB200B4AD86 /* GalleryPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 948853A42A543CB200B4AD86 /* GalleryPreviewView.swift */; };
 		9B7392C3298DEAC2006F03D5 /* Tokenizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B7392C2298DEAC2006F03D5 /* Tokenizer.swift */; };
 		C116D4952AFC382E00314FE3 /* MochiSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C116D4942AFC382E00314FE3 /* MochiSlider.swift */; };
@@ -126,6 +129,9 @@
 		03FD231A295F7A81006EEEE2 /* Upscaler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Upscaler.swift; sourceTree = "<group>"; };
 		58FF218729FAE96200A70C7C /* ControlNetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlNetView.swift; sourceTree = "<group>"; };
 		71D315152B2A584E007FFDEB /* NotificationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationController.swift; sourceTree = "<group>"; };
+		9401BC6E2CB9E9E100F00DDE /* Filter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Filter.swift; sourceTree = "<group>"; };
+		9401BC702CB9ECA500F00DDE /* FilterTagView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterTagView.swift; sourceTree = "<group>"; };
+		9485F21B2CB97B53002623B7 /* FilterTextFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterTextFieldView.swift; sourceTree = "<group>"; };
 		948853A42A543CB200B4AD86 /* GalleryPreviewView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GalleryPreviewView.swift; sourceTree = "<group>"; };
 		9B7392C2298DEAC2006F03D5 /* Tokenizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tokenizer.swift; sourceTree = "<group>"; };
 		C116D4942AFC382E00314FE3 /* MochiSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MochiSlider.swift; sourceTree = "<group>"; };
@@ -255,6 +261,8 @@
 				0352E2AD294EA2B4003FBF25 /* MessageBanner.swift */,
 				03B1ACA7295167B900302F54 /* SettingsView.swift */,
 				03EA52CD297B66C800CDF661 /* SidebarView.swift */,
+				9485F21B2CB97B53002623B7 /* FilterTextFieldView.swift */,
+				9401BC702CB9ECA500F00DDE /* FilterTagView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -269,6 +277,7 @@
 				03E89F3B294FE6ED0067457E /* SDImage.swift */,
 				03173C122999E2B500B03456 /* SDModel.swift */,
 				D7B03F1F29D42F9900DF89DD /* SDModelAttentionType.swift */,
+				9401BC6E2CB9E9E100F00DDE /* Filter.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -318,7 +327,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1420;
-				LastUpgradeCheck = 1530;
+				LastUpgradeCheck = 1540;
 				TargetAttributes = {
 					036BFC1D294B9F7500D8AD04 = {
 						CreatedOnToolsVersion = 14.2;
@@ -438,8 +447,10 @@
 				C116D4952AFC382E00314FE3 /* MochiSlider.swift in Sources */,
 				0386DF8B2950D29400CA4CEB /* InspectorView.swift in Sources */,
 				948853A52A543CB200B4AD86 /* GalleryPreviewView.swift in Sources */,
+				9401BC6F2CB9E9E100F00DDE /* Filter.swift in Sources */,
 				030370312A2BECDD003D2F0C /* SDControlNet.swift in Sources */,
 				0373FF5429A9165600C0180F /* AppCommands.swift in Sources */,
+				9485F21C2CB97B53002623B7 /* FilterTextFieldView.swift in Sources */,
 				03D280F2294FD60E00C7D184 /* PromptView.swift in Sources */,
 				03FD2319295F74B6006EEEE2 /* RealESRGAN.mlmodel in Sources */,
 				035EE000295A224900080D18 /* ModelView.swift in Sources */,
@@ -452,6 +463,7 @@
 				0352E2B5294EA887003FBF25 /* Functions.swift in Sources */,
 				03173C132999E2B500B03456 /* SDModel.swift in Sources */,
 				0352E2B1294EA30D003FBF25 /* Extensions.swift in Sources */,
+				9401BC712CB9ECA500F00DDE /* FilterTagView.swift in Sources */,
 				03CB9D18297399AE0041A4FA /* ImageCommands.swift in Sources */,
 				71D315162B2A584E007FFDEB /* NotificationController.swift in Sources */,
 				035E76F62970E809008DDFDE /* CVPixelBuffer+Create.swift in Sources */,
