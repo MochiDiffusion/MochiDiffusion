@@ -5,28 +5,6 @@
     <language>en</language>
 
     <item>
-      <title>v5.2</title>
-      <link>https://github.com/MochiDiffusion/MochiDiffusion</link>
-      <sparkle:version>5.2</sparkle:version>
-      <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-      <sparkle:fullReleaseNotesLink>https://github.com/MochiDiffusion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
-      <pubDate>Tue, 29 Oct 2024 21:02:47 +0000</pubDate>
-      <enclosure
-        url="https://github.com/MochiDiffusion/MochiDiffusion/releases/download/v5.2/MochiDiffusion_v5.2.dmg"
-        sparkle:edSignature="AUfW+DTnsCIacyo20dGHt8ioDjaEXlUjNPoKslnIwO8GTqjxcbXXJHpZDPy/o+2l5vQRo0XKaa+shzHB3un6Bg=="
-        length="67352063"
-        type="application/octet-stream" />
-      <description><![CDATA[
-      <ul>
-      <li>Add SD3 pipeline (@ZachNagengast)</li>
-      <li>Right-click to set image file Finder color tags, shown as emoji (@jupdike)</li>
-      <li>Advanced filter text field (@hoseins77)</li>
-      </ul>
-      ]]>
-      </description>
-    </item>
-
-    <item>
       <title>v5.1</title>
       <link>https://github.com/MochiDiffusion/MochiDiffusion</link>
       <sparkle:version>5.1</sparkle:version>
