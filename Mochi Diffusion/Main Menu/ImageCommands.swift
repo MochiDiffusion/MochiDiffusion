@@ -59,6 +59,18 @@ struct ImageCommands: Commands {
             }
             Section {
                 Button {
+                    guard let sdi = store.selected() else { return }
+                    Task { await ImageController.shared.selectStartingImage(sdi: sdi) }
+                } label: {
+                    Text(
+                        "Set as Starting Image",
+                        comment: "Set the current image as the starting image for img2img"
+                    )
+                }
+                .keyboardShortcut("2", modifiers: .command)
+                .disabled(store.selected() == nil)
+
+                Button {
                     Task { await ImageController.shared.upscaleCurrentImage() }
                 } label: {
                     Text(
