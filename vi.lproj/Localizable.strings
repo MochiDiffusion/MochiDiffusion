@@ -1,75 +1,302 @@
+/* en.lproj/Localizable.strings
+**Auto** selects the most appropriate configuration for the selected model.
+Explanation for the 'Auto' ML Compute Unit option */
 "**Auto** selects the most appropriate configuration for the selected model." = "**Tự động** chọn cấu hình phù hợp nhất với kiểu máy đã chọn.";
+/* en.lproj/Localizable.strings
+**CPU & GPU** is compatible with all models and may be faster on M1 Max, Ultra and later, but will use more memory.
+Explanation for the 'CPU &amp; GPU' ML Compute Unit option */
 "**CPU & GPU** is compatible with all models and may be faster on M1 Max, Ultra and later, but will use more memory." = "**CPU & GPU** tương thích với tất cả các kiểu máy và có thể chạy nhanh hơn trên M1 Max, Ultra trở lên, nhưng sẽ sử dụng nhiều bộ nhớ hơn.";
+/* en.lproj/Localizable.strings
+**CPU & Neural Engine** provides a good balance between speed and low memory usage, but only works with split-einsum models.
+Explanation for the 'CPU &amp; NE' ML Compute Unit option */
 "**CPU & Neural Engine** provides a good balance between speed and low memory usage, but only works with split-einsum models." = "**CPU & Neural Engine** cung cấp sự cân bằng tốt giữa tốc độ và mức sử dụng bộ nhớ thấp, nhưng chỉ hoạt động với các mô hình chia nhỏ.";
+/* en.lproj/Localizable.strings
+All
+Option to use all CPU, GPU, &amp; Neural Engine for compute unit */
 "All" = "Tất cả";
+/* en.lproj/Localizable.strings
+Auto (Recommended)
+Option to use the CPU + Neural Engine for split-einsum models, and CPU + GPU for original models */
 "Auto (Recommended)" = "Tự động (Khuyến khích)";
+/* en.lproj/Localizable.strings
+Autosave & Restore Images
+No comment provided by engineer. */
 "Autosave & Restore Images" = "Tự động lưu & Khôi phục hình ảnh";
+/* en.lproj/Localizable.strings
+CPU & Neural Engine
+No comment provided by engineer. */
 "CPU & Neural Engine" = "CPU & Neural Engine";
+/* en.lproj/Localizable.strings
+Check for Updates…
+No comment provided by engineer. */
 "Check for Updates…" = "Kiểm tra cập nhật…";
+/* en.lproj/Localizable.strings
+Choose a folder and a name to store the image
+No comment provided by engineer. */
 "Choose a folder and a name to store the image" = "Chọn thư mục và tên để lưu trữ hình ảnh";
+/* en.lproj/Localizable.strings
+Choose a folder to save all images
+No comment provided by engineer. */
 "Choose a folder to save all images" = "Chọn thư mục để lưu toàn bộ ảnh";
+/* en.lproj/Localizable.strings
+Choose generated images to import
+No comment provided by engineer. */
 "Choose generated images to import" = "Choose generated images to import";
+/* en.lproj/Localizable.strings
+Choose image
+Message text for choosing starting image or ControlNet image */
 "Choose image" = "Lựa chọn hình ảnh ";
+/* en.lproj/Localizable.strings
+ControlNet
+No comment provided by engineer. */
 "ControlNet" = "ControlNet";
+/* en.lproj/Localizable.strings
+ControlNet Folder
+No comment provided by engineer. */
 "ControlNet Folder" = "Thư mục ControlNet";
+/* en.lproj/Localizable.strings
+Convert all images to High Resolution (this will use more memory)
+No comment provided by engineer. */
 "Convert all images to High Resolution (this will use more memory)" = "Chuyển đổi tất cả hình ảnh sang Độ phân giải cao (sẽ sử dụng nhiều bộ nhớ hơn)";
+/* en.lproj/Localizable.strings
+Convert to High Resolution
+Convert image to high resolution
+Convert the current image to high resolution */
 "Convert to High Resolution" = "Chuyển đổi sang Độ phân giải cao";
+/* en.lproj/Localizable.strings
+Copy
+Copy image to the clipboard */
 "Copy" = "Sao chép ";
+/* en.lproj/Localizable.strings
+Copy Info
+Button to copy the currently selected image's generation options to the clipboard */
 "Copy Info" = "Sao chép thông tin";
+/* en.lproj/Localizable.strings
+Copy Option to Sidebar
+No comment provided by engineer. */
 "Copy Option to Sidebar" = "Sao chép tùy chọn sang Sidebar";
+/* en.lproj/Localizable.strings
+Copy Options to Sidebar
+Button to copy the currently selected image's generation options to the prompt input sidebar
+Copy image's generation options to the prompt input sidebar */
 "Copy Options to Sidebar" = "Sao chép tùy chọn sang Sidebar";
+/* en.lproj/Localizable.strings
+Description is too long
+Message warning the user that the prompt (or negative prompt) is too long and part of it may get cut off */
 "Description is too long" = "Mô tả quá dài";
+/* en.lproj/Localizable.strings
+Download Models
+No comment provided by engineer. */
 "Download Models" = "Tải xuống mô hình";
+/* en.lproj/Localizable.strings
+Exclude from Image
+No comment provided by engineer. */
 "Exclude from Image" = "Loại trừ khỏi hình ảnh";
+/* en.lproj/Localizable.strings
+Filter Inappropriate Images
+No comment provided by engineer. */
 "Filter Inappropriate Images" = "Lọc hình ảnh không phù hợp";
+/* en.lproj/Localizable.strings
+General
+Settings tab header label */
 "General" = "Tổng quan";
+/* en.lproj/Localizable.strings
+Generate
+Button to generate image */
 "Generate" = "Tạo ra";
+/* en.lproj/Localizable.strings
+Guidance Scale
+No comment provided by engineer. */
 "Guidance Scale" = "Thang hướng dẫn";
+/* en.lproj/Localizable.strings
+HD
+Label for toggle to auto convert generated images to high resolution */
 "HD" = "HD";
+/* en.lproj/Localizable.strings
+Height:
+Label for image height picker */
 "Height:" = "Chiều cao:";
+/* en.lproj/Localizable.strings
+If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images.
+Help text for Move Images to Trash setting */
 "If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images." = "Nếu tùy chọn bị tắt, hình ảnh bị xóa sẽ bị xóa vĩnh viễn. Áp dụng cho hình ảnh được nhập và lưu tự động.";
+/* en.lproj/Localizable.strings
+Image
+Settings tab header label */
 "Image" = "Hình ảnh ";
+/* en.lproj/Localizable.strings
+Image Type
+No comment provided by engineer. */
 "Image Type" = "Lọai hình ảnh";
+/* en.lproj/Localizable.strings
+Image file name:
+File name field label for save image panel */
 "Image file name:" = "Tên tập tin hình ảnh:";
+/* en.lproj/Localizable.strings
+Import
+OK button text for import image panel */
 "Import" = "Nhập vào";
+/* en.lproj/Localizable.strings
+Import Images...
+Show the import image dialog */
 "Import Images..." = "Nhập hình ảnh...";
+/* en.lproj/Localizable.strings
+Improve Translation
+No comment provided by engineer. */
 "Improve Translation" = "Cải thiện bản dịch";
+/* en.lproj/Localizable.strings
+Include in Image
+No comment provided by engineer. */
 "Include in Image" = "Đưa vào hình ảnh";
+/* en.lproj/Localizable.strings
+Loading...
+No comment provided by engineer. */
 "Loading..." = "Đang tải...";
+/* en.lproj/Localizable.strings
+ML Compute Unit
+No comment provided by engineer. */
 "ML Compute Unit" = "Đơn vị tính toán ML";
+/* en.lproj/Localizable.strings
+Manually selecting an incompatible ML Compute Unit may cause poor performance or crash.
+No comment provided by engineer. */
 "Manually selecting an incompatible ML Compute Unit may cause poor performance or crash." = "Việc chọn Đơn vị điện toán ML không tương thích theo cách thủ công có thể gây ra sự cố hoặc hiệu suất kém.";
+/* en.lproj/Localizable.strings
+Model
+No comment provided by engineer. */
 "Model" = "Mô hình";
+/* en.lproj/Localizable.strings
+Model Folder
+No comment provided by engineer. */
 "Model Folder" = "Thư mục mô hình ";
+/* en.lproj/Localizable.strings
+Move Images to Trash
+No comment provided by engineer. */
 "Move Images to Trash" = "Di chuyển hình ảnh vào thùng rác";
+/* en.lproj/Localizable.strings
+Newest First
+Picker option to sort images in the gallery from newest to oldest */
 "Newest First" = "Mới nhất Đầu tiên";
+/* en.lproj/Localizable.strings
+No Info
+Placeholder text for image inspector */
 "No Info" = "Không có thông tin";
+/* en.lproj/Localizable.strings
+None
+Option to not use ControlNet */
 "None" = "Không có";
+/* en.lproj/Localizable.strings
+Number of Images
+No comment provided by engineer. */
 "Number of Images" = "Số lượng các hình ảnh";
+/* en.lproj/Localizable.strings
+Oldest First
+Picker option to sort images in the gallery from oldest to newest */
 "Oldest First" = "Cũ nhất đầu tiên";
+/* en.lproj/Localizable.strings
+Open in Finder
+No comment provided by engineer. */
 "Open in Finder" = "Mở trong Finder";
+/* en.lproj/Localizable.strings
+Quick Look
+View current image using Quick Look */
 "Quick Look" = "Cái nhìn lướt qua";
+/* en.lproj/Localizable.strings
+Reduce Memory Usage
+No comment provided by engineer. */
 "Reduce Memory Usage" = "Giảm mức sử dụng bộ nhớ";
+/* en.lproj/Localizable.strings
+Reduce memory usage further at the cost of speed.
+Help text for Reduce Memory Usage setting */
 "Reduce memory usage further at the cost of speed." = "Giảm mức sử dụng bộ nhớ hơn nữa với chi phí tốc độ.";
+/* en.lproj/Localizable.strings
+Release Notes
+No comment provided by engineer. */
 "Release Notes" = "Ghi chú phát hành";
+/* en.lproj/Localizable.strings
+Remove
+Remove image from the gallery
+Toolbar button to remove the selected image */
 "Remove" = "Xóa";
+/* en.lproj/Localizable.strings
+Save
+No comment provided by engineer. */
 "Save" = "Lưu";
+/* en.lproj/Localizable.strings
+Save All...
+Show the save images dialog */
 "Save All..." = "Lưu Tất cả...";
+/* en.lproj/Localizable.strings
+Save As...
+Show the save image dialog
+Toolbar button to show the save image dialog */
 "Save As..." = "Lưu thành...";
+/* en.lproj/Localizable.strings
+Save Image
+Header text for save image panel */
 "Save Image" = "Lưu ảnh";
+/* en.lproj/Localizable.strings
+Scheduler
+No comment provided by engineer. */
 "Scheduler" = "Bảng lập kế hoạch";
+/* en.lproj/Localizable.strings
+Seed
+No comment provided by engineer. */
 "Seed" = "Hạt giống";
+/* en.lproj/Localizable.strings
+Select
+OK button text for choose image panel */
 "Select" = "Chọn";
+/* en.lproj/Localizable.strings
+Select Next
+Select next image in Gallery */
 "Select Next" = "Chọn Tiếp";
+/* en.lproj/Localizable.strings
+Select Previous
+Select previous image in Gallery */
 "Select Previous" = "Chọn Trước";
+/* en.lproj/Localizable.strings
+Set as Starting Image
+No comment provided by engineer. */
 "Set as Starting Image" = "Đặt làm hình ảnh bắt đầu";
+/* en.lproj/Localizable.strings
+Share...
+Toolbar button to show the system share sheet */
 "Share..." = "Chia sẻ...";
+/* en.lproj/Localizable.strings
+Show Image Preview
+No comment provided by engineer. */
 "Show Image Preview" = "Hiển thị bản xem trước hình ảnh";
+/* en.lproj/Localizable.strings
+Show in Finder
+Show image with Finder */
 "Show in Finder" = "Hiển thị trong Finder";
+/* en.lproj/Localizable.strings
+Show the image as its being generated.
+Help text for Show Image Preview setting */
 "Show the image as its being generated." = "Hiển thị hình ảnh khi nó được tạo.";
+/* en.lproj/Localizable.strings
+Sort
+No comment provided by engineer. */
 "Sort" = "Loại";
+/* en.lproj/Localizable.strings
+Starting Image
+Label for setting the starting image (commonly known as image2image) */
 "Starting Image" = "Hình ảnh bắt đầu";
+/* en.lproj/Localizable.strings
+Steps
+No comment provided by engineer. */
 "Steps" = "Bước";
+/* en.lproj/Localizable.strings
+Strength
+Label for starting image strength slider control */
 "Strength" = "Sức mạnh";
+/* en.lproj/Localizable.strings
+Strength controls how closely the generated image resembles the starting image.
+Use lower values to generate images that look similar to the starting image.
+Use higher values to allow more creative freedom.
+
+The size of the starting image must match the output image size of the current model.
+No comment provided by engineer. */
 "Strength controls how closely the generated image resembles the starting image.
 Use lower values to generate images that look similar to the starting image.
 Use higher values to allow more creative freedom.
@@ -79,8 +306,23 @@ The size of the starting image must match the output image size of the current m
  Sử dụng giá trị cao hơn để cho phép tự do sáng tạo hơn.
 
  Kích thước của hình ảnh bắt đầu phải phù hợp với kích thước hình ảnh đầu ra của mô hình hiện tại.";
+/* en.lproj/Localizable.strings
+Toggle Info Panel
+Toolbar button to hide or show the info panel */
 "Toggle Info Panel" = "Chuyển đổi bảng thông tin";
+/* en.lproj/Localizable.strings
+Uses the model's safety checker module. This does not guarantee that all inappropriate images will be filtered.
+Help text for Filter Inappropriate Images setting */
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Sử dụng mô-đun kiểm tra an toàn của mô hình.";
+/* en.lproj/Localizable.strings
+Website
+No comment provided by engineer. */
 "Website" = "Trang web";
+/* en.lproj/Localizable.strings
+Width:
+Label for image width picker */
 "Width:" = "Chiều rộng:";
+/* en.lproj/Localizable.strings
+random
+No comment provided by engineer. */
 "random" = "ngẫu nhiên";

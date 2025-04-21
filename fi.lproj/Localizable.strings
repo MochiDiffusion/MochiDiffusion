@@ -1,45 +1,184 @@
+/* en.lproj/Localizable.strings
+All
+Option to use all CPU, GPU, &amp; Neural Engine for compute unit */
 "All" = "Kaikki";
+/* en.lproj/Localizable.strings
+CPU & GPU
+No comment provided by engineer. */
 "CPU & GPU" = "CPU & GPU";
+/* en.lproj/Localizable.strings
+CPU & Neural Engine
+No comment provided by engineer. */
 "CPU & Neural Engine" = "CPU & Neural Engine";
+/* en.lproj/Localizable.strings
+Check for Updates…
+No comment provided by engineer. */
 "Check for Updates…" = "Tarkista päivitykset…";
+/* en.lproj/Localizable.strings
+Convert all images to High Resolution (this will use more memory)
+No comment provided by engineer. */
 "Convert all images to High Resolution (this will use more memory)" = "Muunna kaikki kuvat korkeaan resoluutioon (tämä käyttää enemmän muistia)";
+/* en.lproj/Localizable.strings
+Convert to High Resolution
+Convert image to high resolution
+Convert the current image to high resolution */
 "Convert to High Resolution" = "Muunna korkeaksi resoluutioksi";
+/* en.lproj/Localizable.strings
+Copy
+Copy image to the clipboard */
 "Copy" = "Kopioi";
+/* en.lproj/Localizable.strings
+Copy Option to Sidebar
+No comment provided by engineer. */
 "Copy Option to Sidebar" = "Kopioi asetus sivupalkkiin";
+/* en.lproj/Localizable.strings
+Copy Options to Sidebar
+Button to copy the currently selected image's generation options to the prompt input sidebar
+Copy image's generation options to the prompt input sidebar */
 "Copy Options to Sidebar" = "Kopioi asetukset sivupalkkiin";
+/* en.lproj/Localizable.strings
+Description is too long
+Message warning the user that the prompt (or negative prompt) is too long and part of it may get cut off */
 "Description is too long" = "Kuvaus on liian pitkä";
+/* en.lproj/Localizable.strings
+Download Models
+No comment provided by engineer. */
 "Download Models" = "Lataa Mallit";
+/* en.lproj/Localizable.strings
+Exclude from Image
+No comment provided by engineer. */
 "Exclude from Image" = "Jätä pois kuvasta";
+/* en.lproj/Localizable.strings
+Filter Inappropriate Images
+No comment provided by engineer. */
 "Filter Inappropriate Images" = "Suodata sopimattomat kuvat";
+/* en.lproj/Localizable.strings
+Generate
+Button to generate image */
 "Generate" = "Generoi";
+/* en.lproj/Localizable.strings
+Guidance Scale
+No comment provided by engineer. */
 "Guidance Scale" = "Ohjeiden Skaalaus";
+/* en.lproj/Localizable.strings
+HD
+Label for toggle to auto convert generated images to high resolution */
 "HD" = "HD";
+/* en.lproj/Localizable.strings
+Height:
+Label for image height picker */
 "Height:" = "Korkeus:";
+/* en.lproj/Localizable.strings
+Image
+Settings tab header label */
 "Image" = "Kuva";
+/* en.lproj/Localizable.strings
+Include in Image
+No comment provided by engineer. */
 "Include in Image" = "Sisällytä kuvaan";
+/* en.lproj/Localizable.strings
+ML Compute Unit
+No comment provided by engineer. */
 "ML Compute Unit" = "ML-laskentayksikkö";
+/* en.lproj/Localizable.strings
+Mochi Diffusion
+No comment provided by engineer. */
 "Mochi Diffusion" = "Mochi Diffusion";
+/* en.lproj/Localizable.strings
+Model
+No comment provided by engineer. */
 "Model" = "Malli";
+/* en.lproj/Localizable.strings
+Model Folder
+No comment provided by engineer. */
 "Model Folder" = "Malli Kansio";
+/* en.lproj/Localizable.strings
+No Info
+Placeholder text for image inspector */
 "No Info" = "Ei tietoa";
+/* en.lproj/Localizable.strings
+Number of Images
+No comment provided by engineer. */
 "Number of Images" = "Kuvien määrä";
+/* en.lproj/Localizable.strings
+Open in Finder
+No comment provided by engineer. */
 "Open in Finder" = "Avaa Finderissa";
+/* en.lproj/Localizable.strings
+Quick Look
+View current image using Quick Look */
 "Quick Look" = "Pikainen Vilkaisu";
+/* en.lproj/Localizable.strings
+Reduce Memory Usage
+No comment provided by engineer. */
 "Reduce Memory Usage" = "Vähennä muistin Käyttöä";
+/* en.lproj/Localizable.strings
+Reduce memory usage further at the cost of speed.
+Help text for Reduce Memory Usage setting */
 "Reduce memory usage further at the cost of speed." = "Vähennä muistin käyttöä entisestään nopeuden kustannuksella.";
+/* en.lproj/Localizable.strings
+Release Notes
+No comment provided by engineer. */
 "Release Notes" = "Julkaisutiedot";
+/* en.lproj/Localizable.strings
+Remove
+Remove image from the gallery
+Toolbar button to remove the selected image */
 "Remove" = "Poista";
+/* en.lproj/Localizable.strings
+Save
+No comment provided by engineer. */
 "Save" = "Tallenna";
+/* en.lproj/Localizable.strings
+Save All...
+Show the save images dialog */
 "Save All..." = "Tallenna Kaikki...";
+/* en.lproj/Localizable.strings
+Save As...
+Show the save image dialog
+Toolbar button to show the save image dialog */
 "Save As..." = "Tallenna nimellä...";
+/* en.lproj/Localizable.strings
+Save Image
+Header text for save image panel */
 "Save Image" = "Tallenna kuva";
+/* en.lproj/Localizable.strings
+Scheduler
+No comment provided by engineer. */
 "Scheduler" = "Ajastus";
+/* en.lproj/Localizable.strings
+Seed
+No comment provided by engineer. */
 "Seed" = "Seed-luku";
+/* en.lproj/Localizable.strings
+Select Next
+Select next image in Gallery */
 "Select Next" = "Valitse Seuraava";
+/* en.lproj/Localizable.strings
+Select Previous
+Select previous image in Gallery */
 "Select Previous" = "Valitse Edellinen";
+/* en.lproj/Localizable.strings
+Share...
+Toolbar button to show the system share sheet */
 "Share..." = "Jaa...";
+/* en.lproj/Localizable.strings
+Steps
+No comment provided by engineer. */
 "Steps" = "Vaiheet";
+/* en.lproj/Localizable.strings
+Uses the model's safety checker module. This does not guarantee that all inappropriate images will be filtered.
+Help text for Filter Inappropriate Images setting */
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Käyttää mallin turvatarkistusmoduulia. Tämä ei takaa, että kaikki sopimattomat kuvat suodatetaan.";
+/* en.lproj/Localizable.strings
+Website
+No comment provided by engineer. */
 "Website" = "Nettisivu";
+/* en.lproj/Localizable.strings
+Width:
+Label for image width picker */
 "Width:" = "Leveys:";
+/* en.lproj/Localizable.strings
+random
+No comment provided by engineer. */
 "random" = "satunnainen";

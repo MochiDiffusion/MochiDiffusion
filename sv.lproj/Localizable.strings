@@ -1,43 +1,176 @@
+/* en.lproj/Localizable.strings
+All
+Option to use all CPU, GPU, &amp; Neural Engine for compute unit */
 "All" = "Samtliga";
+/* en.lproj/Localizable.strings
+CPU & GPU
+No comment provided by engineer. */
 "CPU & GPU" = "CPU & GPU";
+/* en.lproj/Localizable.strings
+CPU & Neural Engine
+No comment provided by engineer. */
 "CPU & Neural Engine" = "CPU & Neural Engine";
+/* en.lproj/Localizable.strings
+Check for Updates…
+No comment provided by engineer. */
 "Check for Updates…" = "Sök efter uppdateringar…";
+/* en.lproj/Localizable.strings
+Convert all images to High Resolution (this will use more memory)
+No comment provided by engineer. */
 "Convert all images to High Resolution (this will use more memory)" = "Konvertera alla bilder till hög upplösning (detta kommer att använda mer minne)";
+/* en.lproj/Localizable.strings
+Convert to High Resolution
+Convert image to high resolution
+Convert the current image to high resolution */
 "Convert to High Resolution" = "Konvertera till högupplöst";
+/* en.lproj/Localizable.strings
+Copy
+Copy image to the clipboard */
 "Copy" = "Kopiera";
+/* en.lproj/Localizable.strings
+Copy Option to Sidebar
+No comment provided by engineer. */
 "Copy Option to Sidebar" = "Kopiera inställning till sidofält";
+/* en.lproj/Localizable.strings
+Copy Options to Sidebar
+Button to copy the currently selected image's generation options to the prompt input sidebar
+Copy image's generation options to the prompt input sidebar */
 "Copy Options to Sidebar" = "Kopiera inställningar till sidofält";
+/* en.lproj/Localizable.strings
+Description is too long
+Message warning the user that the prompt (or negative prompt) is too long and part of it may get cut off */
 "Description is too long" = "Beskrivningen är för lång";
+/* en.lproj/Localizable.strings
+Download Models
+No comment provided by engineer. */
 "Download Models" = "Ladda ned modeller";
+/* en.lproj/Localizable.strings
+Exclude from Image
+No comment provided by engineer. */
 "Exclude from Image" = "Uteslut från bilden";
+/* en.lproj/Localizable.strings
+Filter Inappropriate Images
+No comment provided by engineer. */
 "Filter Inappropriate Images" = "Filtrera olämpliga bilder";
+/* en.lproj/Localizable.strings
+Generate
+Button to generate image */
 "Generate" = "Generera";
+/* en.lproj/Localizable.strings
+Guidance Scale
+No comment provided by engineer. */
 "Guidance Scale" = "Guidningsskala";
+/* en.lproj/Localizable.strings
+HD
+Label for toggle to auto convert generated images to high resolution */
 "HD" = "HD";
+/* en.lproj/Localizable.strings
+Height:
+Label for image height picker */
 "Height:" = "Höjd:";
+/* en.lproj/Localizable.strings
+Image
+Settings tab header label */
 "Image" = "Bild";
+/* en.lproj/Localizable.strings
+Include in Image
+No comment provided by engineer. */
 "Include in Image" = "Inkludera i bilden";
+/* en.lproj/Localizable.strings
+ML Compute Unit
+No comment provided by engineer. */
 "ML Compute Unit" = "ML-beräkningsenhet";
+/* en.lproj/Localizable.strings
+Mochi Diffusion
+No comment provided by engineer. */
 "Mochi Diffusion" = "Mochi Diffusion";
+/* en.lproj/Localizable.strings
+Model
+No comment provided by engineer. */
 "Model" = "Modell";
+/* en.lproj/Localizable.strings
+Model Folder
+No comment provided by engineer. */
 "Model Folder" = "Modellmapp";
+/* en.lproj/Localizable.strings
+No Info
+Placeholder text for image inspector */
 "No Info" = "Ingen info";
+/* en.lproj/Localizable.strings
+Number of Images
+No comment provided by engineer. */
 "Number of Images" = "Antal bilder";
+/* en.lproj/Localizable.strings
+Open in Finder
+No comment provided by engineer. */
 "Open in Finder" = "Visa i Finder";
+/* en.lproj/Localizable.strings
+Quick Look
+View current image using Quick Look */
 "Quick Look" = "Snabbtitt";
+/* en.lproj/Localizable.strings
+Reduce Memory Usage
+No comment provided by engineer. */
 "Reduce Memory Usage" = "Minska minnesanvändningen";
+/* en.lproj/Localizable.strings
+Reduce memory usage further at the cost of speed.
+Help text for Reduce Memory Usage setting */
 "Reduce memory usage further at the cost of speed." = "Minska minnesanvändningen ytterligare på bekostnad av hastighet.";
+/* en.lproj/Localizable.strings
+Release Notes
+No comment provided by engineer. */
 "Release Notes" = "Ändringslogg";
+/* en.lproj/Localizable.strings
+Remove
+Remove image from the gallery
+Toolbar button to remove the selected image */
 "Remove" = "Ta bort";
+/* en.lproj/Localizable.strings
+Save All...
+Show the save images dialog */
 "Save All..." = "Spara alla...";
+/* en.lproj/Localizable.strings
+Save As...
+Show the save image dialog
+Toolbar button to show the save image dialog */
 "Save As..." = "Spara som...";
+/* en.lproj/Localizable.strings
+Scheduler
+No comment provided by engineer. */
 "Scheduler" = "Schemaläggare";
+/* en.lproj/Localizable.strings
+Seed
+No comment provided by engineer. */
 "Seed" = "Seed";
+/* en.lproj/Localizable.strings
+Select Next
+Select next image in Gallery */
 "Select Next" = "Välj Nästa";
+/* en.lproj/Localizable.strings
+Select Previous
+Select previous image in Gallery */
 "Select Previous" = "Välj föregående";
+/* en.lproj/Localizable.strings
+Share...
+Toolbar button to show the system share sheet */
 "Share..." = "Dela...";
+/* en.lproj/Localizable.strings
+Steps
+No comment provided by engineer. */
 "Steps" = "Steg";
+/* en.lproj/Localizable.strings
+Uses the model's safety checker module. This does not guarantee that all inappropriate images will be filtered.
+Help text for Filter Inappropriate Images setting */
 "Uses the model\'s safety checker module. This does not guarantee that all inappropriate images will be filtered." = "Använder modellens säkerhetskontrollmodul. Detta garanterar inte att alla olämpliga bilder kommer att filtreras.";
+/* en.lproj/Localizable.strings
+Website
+No comment provided by engineer. */
 "Website" = "Hemsida";
+/* en.lproj/Localizable.strings
+Width:
+Label for image width picker */
 "Width:" = "Bredd:";
+/* en.lproj/Localizable.strings
+random
+No comment provided by engineer. */
 "random" = "slumpa";
