@@ -27,7 +27,7 @@ jobs:
           CODE_SIGNING_ALLOWED=NO | xcpretty && exit ${PIPESTATUS[0]}
 
       - name: Upload source locale artifact
-        uses: actions/upload-artifact@v4.4.3
+        uses: actions/upload-artifact@v4.6.0
         with:
           name: en-source-locale
           path: './locale/en.xcloc/Localized Contents/en.xliff'
