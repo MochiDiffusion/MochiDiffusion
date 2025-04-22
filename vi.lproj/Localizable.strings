@@ -256,7 +256,7 @@ Select previous image in Gallery */
 "Select Previous" = "Chọn Trước";
 /* en.lproj/Localizable.strings
 Set as Starting Image
-No comment provided by engineer. */
+Set the current image as the starting image for img2img */
 "Set as Starting Image" = "Đặt làm hình ảnh bắt đầu";
 /* en.lproj/Localizable.strings
 Share...
