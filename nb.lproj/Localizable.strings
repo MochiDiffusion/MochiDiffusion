@@ -273,7 +273,7 @@ Select previous image in Gallery */
 "Select Previous" = "Velg forrige";
 /* en.lproj/Localizable.strings
 Set as Starting Image
-No comment provided by engineer. */
+Set the current image as the starting image for img2img */
 "Set as Starting Image" = "Angi som startbilde";
 /* en.lproj/Localizable.strings
 Share...
