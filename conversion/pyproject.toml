@@ -1,0 +1,20 @@
+[project]
+name = "mochi-model-conversion"
+version = "0.1"
+requires-python = ">=3.8,<3.9"
+dependencies = [
+    "torch<=2.3.0",
+    "diffusers<=0.24.0",
+    "python-coreml-stable-diffusion",
+    "scikit-learn<=1.1.2",
+    "huggingface-hub<=0.24.0",
+    "omegaconf>=2.3.0",
+]
+
+[tool.uv.sources]
+python-coreml-stable-diffusion = { git = "https://github.com/apple/ml-stable-diffusion.git", rev = "5a170d29cf38e674b80541d7ce22929c6a11cdde" }
+
+[tool.uv]
+environments = [
+    "sys_platform == 'darwin' and platform_machine == 'arm64'",
+]
