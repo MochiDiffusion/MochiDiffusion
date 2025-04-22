@@ -252,7 +252,7 @@ Help text for Send Notifications setting */
 "Send notification when images are ready." = "Enviar una notificación cuando las imágenes estén preparadas.";
 /* en.lproj/Localizable.strings
 Set as Starting Image
-No comment provided by engineer. */
+Set the current image as the starting image for img2img */
 "Set as Starting Image" = "Establecer como Imagen Inicial";
 /* en.lproj/Localizable.strings
 Share...

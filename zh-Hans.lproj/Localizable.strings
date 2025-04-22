@@ -309,7 +309,7 @@ Help text for Send Notifications setting */
 "Send notification when images are ready." = "当图像准备好时推送通知";
 /* en.lproj/Localizable.strings
 Set as Starting Image
-No comment provided by engineer. */
+Set the current image as the starting image for img2img */
 "Set as Starting Image" = "设为原始图像";
 /* en.lproj/Localizable.strings
 Share...

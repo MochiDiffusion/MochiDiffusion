@@ -309,7 +309,7 @@ Help text for Send Notifications setting */
 "Send notification when images are ready." = "이미지가 생성되면 알림을 보냅니다.";
 /* en.lproj/Localizable.strings
 Set as Starting Image
-No comment provided by engineer. */
+Set the current image as the starting image for img2img */
 "Set as Starting Image" = "시작 이미지로 선택";
 /* en.lproj/Localizable.strings
 Share...

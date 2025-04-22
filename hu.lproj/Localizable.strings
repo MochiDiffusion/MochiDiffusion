@@ -276,7 +276,7 @@ Select previous image in Gallery */
 "Select Previous" = "Előző kiválasztása";
 /* en.lproj/Localizable.strings
 Set as Starting Image
-No comment provided by engineer. */
+Set the current image as the starting image for img2img */
 "Set as Starting Image" = "Beállítás kezdő képként";
 /* en.lproj/Localizable.strings
 Share...
