@@ -67,7 +67,7 @@ struct ImageCommands: Commands {
                         comment: "Set the current image as the starting image for img2img"
                     )
                 }
-                .keyboardShortcut("2", modifiers: .command)
+                .keyboardShortcut("E", modifiers: .command)
                 .disabled(store.selected() == nil)
 
                 Button {
