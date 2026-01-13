@@ -42,7 +42,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload source to Crowdin
-        uses: crowdin/github-action@v2.12.0
+        uses: crowdin/github-action@v2.13.0
         with:
           upload_sources: true
           upload_translations: false
