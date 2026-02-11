@@ -13,6 +13,7 @@ Icon
 *.xcuserstate
 project.xcworkspace/
 xcuserdata/
+Mochi Diffusion.xcodeproj/xcshareddata/
 
 ## Obj-C/Swift specific
 *.hmap

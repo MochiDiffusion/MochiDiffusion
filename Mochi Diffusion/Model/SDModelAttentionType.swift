@@ -6,9 +6,8 @@
 //
 
 import CoreML
-import Foundation
 
-enum SDModelAttentionType: Hashable, Equatable {
+enum SDModelAttentionType: Hashable, Equatable, Sendable {
     case splitEinsum
     case original
 

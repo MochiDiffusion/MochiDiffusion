@@ -6,10 +6,7 @@
 //
 
 import AppKit
-import CoreGraphics
 import CoreML
-import Foundation
-import StableDiffusion
 import UniformTypeIdentifiers
 
 struct SDImage: Identifiable, Hashable {
@@ -27,7 +24,6 @@ struct SDImage: Identifiable, Hashable {
     var steps = 28
     var guidanceScale = 11.0
     var generatedDate = Date()
-    var upscaler = ""
     var isUpscaling = false
     var path = ""
     var finderTagColorNumber = 0
@@ -104,7 +100,10 @@ extension SDImage {
         }
     }
 
-    func imageData(_ type: UTType) async -> Data? {
+    func imageData(
+        _ type: UTType,
+        metadataFields: Set<MetadataField> = Set(MetadataField.allCases)
+    ) async -> Data? {
         guard let image else { return nil }
         guard let data = CFDataCreateMutable(nil, 0) else { return nil }
         guard
@@ -116,7 +115,7 @@ extension SDImage {
             )
         else { return nil }
         let iptc = await [
-            kCGImagePropertyIPTCCaptionAbstract: metadata(),
+            kCGImagePropertyIPTCCaptionAbstract: metadata(including: metadataFields),
             kCGImagePropertyIPTCOriginatingProgram: "Mochi Diffusion",
             kCGImagePropertyIPTCProgramVersion: "\(await NSApplication.appVersion)",
         ]
@@ -127,55 +126,86 @@ extension SDImage {
     }
 
     @MainActor
-    func metadata() -> String {
-        """
-        \(Metadata.includeInImage.rawValue): \(prompt); \
-        \(Metadata.excludeFromImage.rawValue): \(negativePrompt); \
-        \(Metadata.model.rawValue): \(model); \
-        \(Metadata.steps.rawValue): \(steps); \
-        \(Metadata.guidanceScale.rawValue): \(guidanceScale); \
-        \(Metadata.seed.rawValue): \(seed); \
-        \(Metadata.size.rawValue): \(width)x\(height);
-        """
-            + (!upscaler.isEmpty ? " \(Metadata.upscaler.rawValue): \(upscaler); " : " ")
-                + """
-                \(Metadata.scheduler.rawValue): \(scheduler.rawValue); \
-                \(Metadata.mlComputeUnit.rawValue): \(MLComputeUnits.toString(mlComputeUnit)); \
-                \(Metadata.generator.rawValue): Mochi Diffusion \(NSApplication.appVersion)
-                """
+    func metadata(including metadataFields: Set<MetadataField>) -> String {
+        var pairs: [String] = []
+
+        if metadataFields.contains(.prompt) {
+            pairs.append("\(Metadata.includeInImage.rawValue): \(prompt)")
+        }
+        if metadataFields.contains(.negativePrompt) {
+            pairs.append("\(Metadata.excludeFromImage.rawValue): \(negativePrompt)")
+        }
+        if metadataFields.contains(.model) {
+            pairs.append("\(Metadata.model.rawValue): \(model)")
+        }
+        if metadataFields.contains(.steps) {
+            pairs.append("\(Metadata.steps.rawValue): \(steps)")
+        }
+        if metadataFields.contains(.guidanceScale) {
+            pairs.append("\(Metadata.guidanceScale.rawValue): \(guidanceScale)")
+        }
+        if metadataFields.contains(.seed) {
+            pairs.append("\(Metadata.seed.rawValue): \(seed)")
+        }
+        if metadataFields.contains(.size) {
+            pairs.append("\(Metadata.size.rawValue): \(width)x\(height)")
+        }
+        if metadataFields.contains(.scheduler) {
+            pairs.append("\(Metadata.scheduler.rawValue): \(scheduler.rawValue)")
+        }
+        if metadataFields.contains(.mlComputeUnit) {
+            pairs.append(
+                "\(Metadata.mlComputeUnit.rawValue): \(MLComputeUnits.toString(mlComputeUnit))"
+            )
+        }
+
+        // Generator/version is always emitted for import compatibility checks.
+        pairs.append("\(Metadata.generator.rawValue): Mochi Diffusion \(NSApplication.appVersion)")
+        return pairs.joined(separator: "; ")
     }
 
-    func getHumanReadableInfo() -> String {
-        """
-        \(Metadata.date.rawValue):
-        \(generatedDate.formatted(date: .long, time: .standard))
+    func getHumanReadableInfo(
+        including metadataFields: Set<MetadataField> = Set(MetadataField.allCases)
+    ) -> String {
+        var lines = [
+            "\(Metadata.date.rawValue):",
+            generatedDate.formatted(date: .long, time: .standard),
+        ]
 
-        \(Metadata.model.rawValue):
-        \(model)
+        func append(_ title: Metadata, value: String) {
+            lines.append("")
+            lines.append("\(title.rawValue):")
+            lines.append(value)
+        }
 
-        \(Metadata.size.rawValue):
-        \(width) x \(height)\(!upscaler.isEmpty ? " (Upscaled using \(upscaler))" : "")
+        if metadataFields.contains(.model) {
+            append(.model, value: model)
+        }
+        if metadataFields.contains(.size) {
+            append(.size, value: "\(width) x \(height)")
+        }
+        if metadataFields.contains(.prompt) {
+            append(.includeInImage, value: prompt)
+        }
+        if metadataFields.contains(.negativePrompt) {
+            append(.excludeFromImage, value: negativePrompt)
+        }
+        if metadataFields.contains(.seed) {
+            append(.seed, value: String(seed))
+        }
+        if metadataFields.contains(.steps) {
+            append(.steps, value: String(steps))
+        }
+        if metadataFields.contains(.guidanceScale) {
+            append(.guidanceScale, value: String(guidanceScale))
+        }
+        if metadataFields.contains(.scheduler) {
+            append(.scheduler, value: scheduler.rawValue)
+        }
+        if metadataFields.contains(.mlComputeUnit) {
+            append(.mlComputeUnit, value: MLComputeUnits.toString(mlComputeUnit))
+        }
 
-        \(Metadata.includeInImage.rawValue):
-        \(prompt)
-
-        \(Metadata.excludeFromImage.rawValue):
-        \(negativePrompt)
-
-        \(Metadata.seed.rawValue):
-        \(seed)
-
-        \(Metadata.steps.rawValue):
-        \(steps)
-
-        \(Metadata.guidanceScale.rawValue):
-        \(guidanceScale)
-
-        \(Metadata.scheduler.rawValue):
-        \(scheduler.rawValue)
-
-        \(Metadata.mlComputeUnit.rawValue):
-        \(MLComputeUnits.toString(mlComputeUnit))
-        """
+        return lines.joined(separator: "\n")
     }
 }

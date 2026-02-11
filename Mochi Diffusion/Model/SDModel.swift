@@ -5,31 +5,65 @@
 //  Created by Joshua Park on 2/12/23.
 //
 
-import CoreML
 import Foundation
 import os.log
 
 private let logger = Logger()
 
-struct SDModel: Identifiable {
+struct SDModel: MochiModel {
+    enum ModelType: Sendable {
+        case sdxl
+        case sd3
+        case sd15
+    }
+    let type: ModelType
     let url: URL
     let name: String
     let attention: SDModelAttentionType
     let controlNet: [String]
-    let isXL: Bool
-    let isSD3: Bool
     let inputSize: CGSize?
-    let tokenizer: Tokenizer?
 
     var id: URL { url }
+    var promptTokenLimit: Int? { 75 }
+    var tokenizerModelDir: URL? { url }
+    var config: MochiModelConfig {
+        MochiModelConfig(
+            generationCapabilities: [
+                .negativePrompt,
+                .startingImage,
+                .strength,
+                .stepCount,
+                .guidanceScale,
+                .scheduler,
+                .controlNet,
+            ],
+            metadataFields: [
+                .prompt,
+                .negativePrompt,
+                .model,
+                .size,
+                .scheduler,
+                .mlComputeUnit,
+                .seed,
+                .steps,
+                .guidanceScale,
+            ]
+        )
+    }
 
     init?(url: URL, name: String, controlNet: [SDControlNet]) {
         guard let attention = identifyAttentionType(url) else {
             return nil
         }
 
-        let isXL = identifyIfXL(url)
-        let isSD3 = identifyIfSD3(url)
+        if identifyIfXL(url) {
+            type = .sdxl
+        } else if identifyIfSD3(url) {
+            type = .sd3
+        } else {
+            type = .sd15
+        }
+
         let size = identifyInputSize(url)
 
         self.url = url
@@ -41,10 +75,7 @@ struct SDModel: Identifiable {
         } else {
             self.controlNet = []
         }
-        self.isXL = isXL
-        self.isSD3 = isSD3
         self.inputSize = size
-        self.tokenizer = Tokenizer(modelDir: url)
     }
 }
 

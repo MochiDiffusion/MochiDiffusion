@@ -8,7 +8,7 @@
 import StableDiffusion
 
 /// Schedulers compatible with StableDiffusionPipeline
-enum Scheduler: String, CaseIterable {
+enum Scheduler: String, CaseIterable, Sendable {
     /// Scheduler that uses a pseudo-linear multi-step (PLMS) method
     case pndmScheduler = "PNDM"
     /// Scheduler that uses a second order DPM-Solver++ algorithm

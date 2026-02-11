@@ -9,7 +9,7 @@ import CoreML
 import SwiftUI
 
 struct ControlNetView: View {
-    @EnvironmentObject private var controller: ImageController
+    @Environment(GenerationController.self) private var controller: GenerationController
 
     var body: some View {
         Text("ControlNet")
@@ -18,12 +18,14 @@ struct ControlNetView: View {
         HStack(alignment: .top) {
             ImageWellView(
                 image: controller.currentControlNets.first?.image,
-                size: controller.currentModel?.inputSize
+                size: (controller.currentModel as? SDModel)?.inputSize
+                    ?? CGSize(width: 256, height: 256),
+                selectImage: controller.selectImage
             ) { image in
                 if let image {
-                    await ImageController.shared.setControlNet(image: image)
+                    await controller.setControlNet(image: image)
                 } else {
-                    await ImageController.shared.unsetControlNet()
+                    await controller.unsetControlNet()
                 }
             }
             .frame(width: 90, height: 90)
@@ -34,7 +36,7 @@ struct ControlNetView: View {
             VStack(alignment: .trailing) {
                 Menu {
                     Button {
-                        Task { await ImageController.shared.unsetControlNet() }
+                        Task { await controller.unsetControlNet() }
                     } label: {
                         Text(
                             "None",
@@ -52,7 +54,7 @@ struct ControlNetView: View {
                             }, id: \.self
                         ) { name in
                             Button {
-                                Task { await ImageController.shared.setControlNet(name: name) }
+                                Task { await controller.setControlNet(name: name) }
                             } label: {
                                 Text(verbatim: name)
                             }
@@ -69,14 +71,14 @@ struct ControlNetView: View {
 
                 HStack {
                     Button {
-                        Task { await ImageController.shared.selectControlNetImage(at: 0) }
+                        Task { await controller.selectControlNetImage(at: 0) }
                     } label: {
                         Image(systemName: "photo")
                     }
                     .disabled(controller.controlNet.isEmpty)
 
                     Button {
-                        Task { await ImageController.shared.unsetControlNetImage(at: 0) }
+                        Task { await controller.unsetControlNetImage(at: 0) }
                     } label: {
                         Image(systemName: "xmark")
                     }
@@ -89,5 +91,6 @@ struct ControlNetView: View {
 
 #Preview {
     ControlNetView()
-        .environmentObject(ImageController.shared)
+        .environment(GenerationController(configStore: ConfigStore()))
+        .environment(ConfigStore())
 }

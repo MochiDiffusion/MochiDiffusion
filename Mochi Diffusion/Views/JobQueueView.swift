@@ -9,13 +9,13 @@ import CoreML
 import SwiftUI
 
 struct JobQueueView: View {
-    @Environment(ImageGenerator.self) private var generator: ImageGenerator
-    @EnvironmentObject private var controller: ImageController
+    @Environment(GenerationState.self) private var generationState: GenerationState
+    @Environment(GenerationController.self) private var controller: GenerationController
 
     @State private var progressData: (Double, String)?
 
     private func updateProgressData() {
-        if case .running(let progress) = generator.state, let progress = progress,
+        if case .running(let progress) = generationState.state, let progress = progress,
             progress.stepCount > 0
         {
             let step = progress.step + 1
@@ -23,11 +23,11 @@ struct JobQueueView: View {
 
             let progressLabel = String(
                 localized:
-                    "About \(formatTimeRemaining(generator.lastStepGenerationElapsedTime, stepsLeft: progress.stepCount - step))",
+                    "About \(formatTimeRemaining(generationState.lastStepGenerationElapsedTime, stepsLeft: progress.stepCount - step))",
                 comment: "Text displaying the current time remaining"
             )
             progressData = (stepValue, progressLabel)
-        } else if case .loading = generator.state {
+        } else if case .loading = generationState.state {
             let progressLabel = String(
                 localized: "Loading the model for the first time may take a few minutes",
                 comment: "Text displayed when the model is being loaded"
@@ -40,20 +40,20 @@ struct JobQueueView: View {
         ScrollView {
             VStack {
                 if let currentGeneration = controller.currentGeneration {
-                    JobView(config: currentGeneration, progress: progressData) {
-                        Task { await generator.stopGenerate() }
+                    JobView(request: currentGeneration, progress: progressData) {
+                        Task { await GenerationService.shared.stopCurrentGeneration() }
                     }
                     .onAppear {
                         updateProgressData()
                     }
-                    .onChange(of: generator.state) {
+                    .onChange(of: generationState.state) {
                         updateProgressData()
                     }
                 }
                 ForEach(controller.generationQueue) { generation in
                     Divider()
-                    JobView(config: generation) {
-                        controller.generationQueue.removeAll { $0.id == generation.id }
+                    JobView(request: generation) {
+                        Task { await controller.removeQueued(generation.id) }
                     }
                 }
             }
@@ -65,12 +65,16 @@ struct JobQueueView: View {
 private struct JobView: View {
     @State private var isGetInfoPopoverShown = false
 
-    let config: GenerationConfig
+    let request: GenerationRequest
     let progress: (Double, String)?
     let stop: () -> Void
 
-    init(config: GenerationConfig, progress: (Double, String)? = nil, stop: @escaping () -> Void) {
-        self.config = config
+    init(
+        request: GenerationRequest,
+        progress: (Double, String)? = nil,
+        stop: @escaping () -> Void
+    ) {
+        self.request = request
         self.progress = progress
         self.stop = stop
     }
@@ -79,10 +83,10 @@ private struct JobView: View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
                 VStack(alignment: .leading, spacing: 0) {
-                    Text(config.pipelineConfig.prompt)
+                    Text(request.prompt)
                         .lineLimit(1)
-                        .help(config.pipelineConfig.prompt)
-                    Text(config.model.name)
+                        .help(request.prompt)
+                    Text(request.pipeline.displayName)
                         .font(.caption2)
                         .foregroundStyle(Color.secondary)
                         .lineLimit(1)
@@ -114,7 +118,7 @@ private struct JobView: View {
             .foregroundStyle(.secondary)
             .buttonStyle(.plain)
             .popover(isPresented: self.$isGetInfoPopoverShown, arrowEdge: .bottom) {
-                InfoPopoverView(config: config)
+                InfoPopoverView(request: request)
                     .frame(width: 320)
             }
 
@@ -130,31 +134,79 @@ private struct JobView: View {
 }
 
 private struct InfoPopoverView: View {
-    @EnvironmentObject private var controller: ImageController
-    let config: GenerationConfig
+    @Environment(GenerationController.self) private var controller: GenerationController
+    @Environment(ConfigStore.self) private var configStore: ConfigStore
+    let request: GenerationRequest
+
+    private func decodeImage(from data: Data?) -> CGImage? {
+        guard let data else { return nil }
+        return CGImage.fromData(data)
+    }
+
+    private var capabilities: GenerationCapabilities {
+        request.pipeline.generationCapabilities
+    }
+
+    private var metadataFields: Set<MetadataField> {
+        request.pipeline.metadataFields
+    }
+
+    private var effectiveStepCount: Int? {
+        request.pipeline.effectiveStepCount(
+            requestedStepCount: request.stepCount
+        )
+    }
+
+    private var effectiveScheduler: Scheduler? {
+        request.pipeline.effectiveScheduler(
+            requestedScheduler: request.scheduler
+        )
+    }
+
+    private var supportsStrengthControl: Bool {
+        capabilities.contains(.strength)
+    }
 
     func copyOptionsToSidebar() {
         Task {
-            var image = SDImage()
-            image.prompt = config.pipelineConfig.prompt
-            image.negativePrompt = config.pipelineConfig.negativePrompt
-            image.steps = config.pipelineConfig.stepCount
-            image.guidanceScale = Double(config.pipelineConfig.guidanceScale)
-            image.seed = config.pipelineConfig.seed
-            image.scheduler = config.scheduler
-            controller.copyToPrompt(image)
+            if metadataFields.contains(.prompt) {
+                configStore.prompt = request.prompt
+            }
+            if metadataFields.contains(.negativePrompt) {
+                configStore.negativePrompt = request.negativePrompt
+            }
+            if metadataFields.contains(.size) {
+                configStore.width = Int(request.size.width)
+                configStore.height = Int(request.size.height)
+            }
+            if let stepCount = effectiveStepCount {
+                configStore.steps = Double(stepCount)
+            }
+            if metadataFields.contains(.guidanceScale) {
+                configStore.guidanceScale = Double(request.guidanceScale)
+            }
+            if metadataFields.contains(.seed) {
+                controller.seed = request.seed
+            }
+            if let scheduler = effectiveScheduler {
+                configStore.scheduler = scheduler
+            }
 
-            controller.currentModel = config.model
+            if let model = request.pipeline.coreMLModel {
+                controller.currentModelId = model.id  // TODO: we should just store id?
+            }
 
-            if let startingImage = config.pipelineConfig.startingImage {
+            if let startingImage = decodeImage(from: request.startingImageData) {
                 controller.startingImage = startingImage
-                controller.strength = Double(config.pipelineConfig.strength)
+                if supportsStrengthControl {
+                    configStore.strength = Double(request.strength)
+                }
             } else {
                 await controller.unsetStartingImage()
             }
 
-            if let controlNetName = config.controlNets.first,
-                let controlNetImage = config.pipelineConfig.controlNetInputs.first
+            if let controlNetName = request.pipeline.controlNets.first,
+                let controlNetImage = decodeImage(from: request.controlNetInputs.first)
             {
                 await controller.setControlNet(name: controlNetName)
                 await controller.setControlNet(image: controlNetImage)
@@ -168,86 +220,117 @@ private struct InfoPopoverView: View {
         ScrollView {
             VStack(alignment: .leading) {
                 Grid(alignment: .leading, horizontalSpacing: 4) {
-                    InfoGridRow(
-                        type: LocalizedStringKey(Metadata.model.rawValue),
-                        text: config.model.name,
-                        showCopyToPromptOption: false
-                    )
-                    InfoGridRow(
-                        type: LocalizedStringKey(Metadata.includeInImage.rawValue),
-                        text: config.pipelineConfig.prompt,
-                        showCopyToPromptOption: true,
-                        callback: { controller.prompt = config.pipelineConfig.prompt }
-                    )
-                    InfoGridRow(
-                        type: LocalizedStringKey(Metadata.excludeFromImage.rawValue),
-                        text: config.pipelineConfig.negativePrompt,
-                        showCopyToPromptOption: true,
-                        callback: {
-                            controller.negativePrompt = config.pipelineConfig.negativePrompt
-                        }
-                    )
-                    if config.pipelineConfig.seed != 0 {
+                    if metadataFields.contains(.model) {
+                        InfoGridRow(
+                            type: LocalizedStringKey(Metadata.model.rawValue),
+                            text: request.pipeline.displayName,
+                            showCopyToPromptOption: false
+                        )
+                    }
+                    if metadataFields.contains(.prompt) {
+                        InfoGridRow(
+                            type: LocalizedStringKey(Metadata.includeInImage.rawValue),
+                            text: request.prompt,
+                            showCopyToPromptOption: true,
+                            callback: { configStore.prompt = request.prompt }
+                        )
+                    }
+                    if metadataFields.contains(.negativePrompt) {
+                        InfoGridRow(
+                            type: LocalizedStringKey(Metadata.excludeFromImage.rawValue),
+                            text: request.negativePrompt,
+                            showCopyToPromptOption: true,
+                            callback: {
+                                configStore.negativePrompt = request.negativePrompt
+                            }
+                        )
+                    }
+                    if metadataFields.contains(.size) {
+                        InfoGridRow(
+                            type: LocalizedStringKey(Metadata.size.rawValue),
+                            text: "\(Int(request.size.width)) x \(Int(request.size.height))",
+                            showCopyToPromptOption: true,
+                            callback: {
+                                configStore.width = Int(request.size.width)
+                                configStore.height = Int(request.size.height)
+                            }
+                        )
+                    }
+                    if metadataFields.contains(.seed), request.seed != 0 {
                         InfoGridRow(
                             type: LocalizedStringKey(Metadata.seed.rawValue),
-                            text: String(config.pipelineConfig.seed),
+                            text: String(request.seed),
                             showCopyToPromptOption: true,
-                            callback: { controller.seed = config.pipelineConfig.seed }
+                            callback: { controller.seed = request.seed }
                         )
                     }
-                    if config.numberOfImages != 1 {
+                    if request.numberOfImages != 1 {
                         InfoGridRow(
                             type: LocalizedStringKey("Number of Images"),
-                            text: String(config.numberOfImages),
+                            text: String(request.numberOfImages),
                             showCopyToPromptOption: true,
-                            callback: { controller.numberOfImages = Double(config.numberOfImages) }
+                            callback: {
+                                controller.numberOfImages = Double(request.numberOfImages)
+                            }
                         )
                     }
-                    InfoGridRow(
-                        type: LocalizedStringKey(Metadata.steps.rawValue),
-                        text: String(config.pipelineConfig.stepCount),
-                        showCopyToPromptOption: true,
-                        callback: { controller.steps = Double(config.pipelineConfig.stepCount) }
-                    )
-                    InfoGridRow(
-                        type: LocalizedStringKey(Metadata.guidanceScale.rawValue),
-                        text: String(
-                            config.pipelineConfig.guidanceScale.formatted(
-                                .number.precision(.fractionLength(2)))),
-                        showCopyToPromptOption: true,
-                        callback: {
-                            controller.guidanceScale = Double(config.pipelineConfig.guidanceScale)
-                        }
-                    )
-                    InfoGridRow(
-                        type: LocalizedStringKey(Metadata.scheduler.rawValue),
-                        text: config.scheduler.rawValue,
-                        showCopyToPromptOption: true,
-                        callback: { controller.scheduler = config.scheduler }
-                    )
-                    InfoGridRow(
-                        type: LocalizedStringKey(Metadata.mlComputeUnit.rawValue),
-                        text: MLComputeUnits.toString(config.mlComputeUnit),
-                        showCopyToPromptOption: false
-                    )
-                    if let startingImage = config.pipelineConfig.startingImage {
+                    if let stepCount = effectiveStepCount {
+                        InfoGridRow(
+                            type: LocalizedStringKey(Metadata.steps.rawValue),
+                            text: String(stepCount),
+                            showCopyToPromptOption: true,
+                            callback: { configStore.steps = Double(stepCount) }
+                        )
+                    }
+                    if metadataFields.contains(.guidanceScale) {
+                        InfoGridRow(
+                            type: LocalizedStringKey(Metadata.guidanceScale.rawValue),
+                            text: String(
+                                request.guidanceScale.formatted(
+                                    .number.precision(.fractionLength(2)))),
+                            showCopyToPromptOption: true,
+                            callback: {
+                                configStore.guidanceScale = Double(request.guidanceScale)
+                            }
+                        )
+                    }
+                    if let scheduler = effectiveScheduler {
+                        InfoGridRow(
+                            type: LocalizedStringKey(Metadata.scheduler.rawValue),
+                            text: scheduler.rawValue,
+                            showCopyToPromptOption: true,
+                            callback: { configStore.scheduler = scheduler }
+                        )
+                    }
+                    if metadataFields.contains(.mlComputeUnit),
+                        let computeUnit = request.pipeline.mlComputeUnit
+                    {
+                        InfoGridRow(
+                            type: LocalizedStringKey(Metadata.mlComputeUnit.rawValue),
+                            text: MLComputeUnits.toString(computeUnit),
+                            showCopyToPromptOption: false
+                        )
+                    }
+                    if let startingImage = decodeImage(from: request.startingImageData) {
                         InfoGridRow(
                             type: LocalizedStringKey("Starting Image"),
                             image: startingImage,
                             showCopyToPromptOption: false
                         )
-                        InfoGridRow(
-                            type: LocalizedStringKey("Strength"),
-                            text: config.pipelineConfig.strength.formatted(
-                                .number.precision(.fractionLength(2))),
-                            showCopyToPromptOption: true,
-                            callback: {
-                                controller.strength = Double(config.pipelineConfig.strength)
-                            }
-                        )
+                        if supportsStrengthControl {
+                            InfoGridRow(
+                                type: LocalizedStringKey("Strength"),
+                                text: request.strength.formatted(
+                                    .number.precision(.fractionLength(2))),
+                                showCopyToPromptOption: true,
+                                callback: {
+                                    configStore.strength = Double(request.strength)
+                                }
+                            )
+                        }
                     }
-                    if let controlNetName = config.controlNets.first,
-                        let controlNetImage = config.pipelineConfig.controlNetInputs.first
+                    if let controlNetName = request.pipeline.controlNets.first,
+                        let controlNetImage = decodeImage(from: request.controlNetInputs.first)
                     {
                         InfoGridRow(
                             type: LocalizedStringKey("ControlNet"),
@@ -270,26 +353,6 @@ private struct InfoPopoverView: View {
                 }
             }
             .padding()
-        }
-    }
-}
-
-extension ImageGenerator.State: Equatable {
-    static func == (lhs: ImageGenerator.State, rhs: ImageGenerator.State) -> Bool {
-        switch (lhs, rhs) {
-        case (.ready(let lhsValue), .ready(let rhsValue)):
-            return lhsValue == rhsValue
-        case (.error(let lhsValue), .error(let rhsValue)):
-            return lhsValue == rhsValue
-        case (.loading, .loading):
-            return true
-        case (.running(let lhsProgress), .running(let rhsProgress)):
-            // This is NOT a comprehensive comparison
-            // it is just enough to fulfill the .onChange requirements in JobQueueView
-            return lhsProgress?.step == rhsProgress?.step
-                && lhsProgress?.stepCount == rhsProgress?.stepCount
-        default:
-            return false
         }
     }
 }

@@ -6,11 +6,7 @@
 //
 
 import AppKit
-import CoreGraphics
 import CoreML
-import Foundation
-import StableDiffusion
-import UniformTypeIdentifiers
 
 func compareVersion(_ thisVersion: String, _ compareTo: String) -> ComparisonResult {
     thisVersion.compare(compareTo, options: .numeric)
@@ -40,7 +36,9 @@ func setFinderTagColorNumber(_ sdi: SDImage, colorNumber: Int) {
     } catch {
         print(error.localizedDescription)
     }
-    ImageStore.shared.updateMetadata(sdi, colorNumber: colorNumber)
+    Task { @MainActor in
+        ImageGallery.shared.updateMetadata(sdi, colorNumber: colorNumber)
+    }
 }
 
 func clearFinderTags(_ sdi: SDImage) {
@@ -57,7 +55,96 @@ func getFinderTagColorNumber(_ url: URL) -> Int {
     return finderTagColorNumber
 }
 
-func createSDImageFromURL(_ url: URL) -> SDImage? {
+private struct ParsedMetadataInfo {
+    var prompt: String?
+    var negativePrompt: String?
+    var model: String?
+    var scheduler: Scheduler?
+    var mlComputeUnit: MLComputeUnits?
+    var seed: UInt32?
+    var steps: Int?
+    var guidanceScale: Double?
+    var generatedVersion = ""
+    var presentFields: Set<MetadataField> = []
+}
+
+private func metadataField(for key: Metadata) -> MetadataField? {
+    switch key {
+    case .includeInImage:
+        return .prompt
+    case .excludeFromImage:
+        return .negativePrompt
+    case .model:
+        return .model
+    case .size:
+        return .size
+    case .scheduler:
+        return .scheduler
+    case .mlComputeUnit:
+        return .mlComputeUnit
+    case .seed:
+        return .seed
+    case .steps:
+        return .steps
+    case .guidanceScale:
+        return .guidanceScale
+    case .date, .generator:
+        return nil
+    }
+}
+
+private func parseMetadataInfo(_ infoString: String) -> ParsedMetadataInfo {
+    var parsed = ParsedMetadataInfo()
+
+    for field in infoString.split(separator: "; ") {
+        guard let separatorIndex = field.firstIndex(of: ":") else { continue }
+        guard let key = Metadata(rawValue: String(field[field.startIndex..<separatorIndex])) else {
+            continue
+        }
+
+        let valueIndex = field.index(separatorIndex, offsetBy: 2)
+        guard valueIndex <= field.endIndex else { continue }
+        let value = String(field[valueIndex...])
+
+        if let mappedField = metadataField(for: key) {
+            parsed.presentFields.insert(mappedField)
+        }
+
+        switch key {
+        case .model:
+            parsed.model = value
+        case .includeInImage:
+            parsed.prompt = value
+        case .excludeFromImage:
+            parsed.negativePrompt = value
+        case .seed:
+            parsed.seed = UInt32(value)
+        case .steps:
+            parsed.steps = Int(value)
+        case .guidanceScale:
+            parsed.guidanceScale = Double(value)
+        case .scheduler:
+            parsed.scheduler = Scheduler(rawValue: value)
+        case .mlComputeUnit:
+            parsed.mlComputeUnit = MLComputeUnits.fromString(value)
+        case .generator:
+            guard let index = value.lastIndex(of: " ") else { break }
+            let start = value.index(after: index)
+            parsed.generatedVersion = String(value[start...])
+        case .date, .size:
+            break
+        }
+    }
+
+    return parsed
+}
+
+private func isSupportedGeneratedVersion(_ generatedVersion: String) -> Bool {
+    guard !generatedVersion.isEmpty else { return false }
+    return compareVersion("2.2", generatedVersion) != .orderedDescending
+}
+
+func createImageRecordFromURL(_ url: URL) -> ImageRecord? {
     guard
         let attr = try? FileManager.default.attributesOfItem(
             atPath: url.path(percentEncoded: false))
@@ -67,67 +154,84 @@ func createSDImageFromURL(_ url: URL) -> SDImage? {
     let finderTagColorNumber = getFinderTagColorNumber(url)
 
     guard let dateModified = maybeDateModified else { return nil }
-    guard let cgImageSource = CGImageSourceCreateWithURL(url as CFURL, nil) else { return nil }
-    let imageIndex = CGImageSourceGetPrimaryImageIndex(cgImageSource)
-    guard let cgImage = CGImageSourceCreateImageAtIndex(cgImageSource, imageIndex, nil) else {
-        return nil
-    }
+    guard let data = try? Data(contentsOf: url) else { return nil }
+    guard let cgImageSource = CGImageSourceCreateWithData(data as CFData, nil) else { return nil }
     guard let properties = CGImageSourceCopyPropertiesAtIndex(cgImageSource, 0, nil) else {
         return nil
     }
     guard let propDict = properties as? [String: Any] else { return nil }
-    guard let tiffProp = propDict[kCGImagePropertyTIFFDictionary as String] as? [String: Any] else {
+    guard let iptcProp = propDict[kCGImagePropertyIPTCDictionary as String] as? [String: Any] else {
         return nil
     }
-    guard let infoString = tiffProp[kCGImagePropertyTIFFImageDescription as String] as? String
+    guard let infoString = iptcProp[kCGImagePropertyIPTCCaptionAbstract as String] as? String
     else { return nil }
-    var sdi = SDImage(
-        id: UUID(),
-        image: cgImage,
-        aspectRatio: CGFloat(Double(cgImage.width) / Double(cgImage.height)),
-        generatedDate: dateModified,
-        path: url.path(percentEncoded: false)
-    )
-    sdi.finderTagColorNumber = finderTagColorNumber
-    var generatedVersion = ""
-    for field in infoString.split(separator: "; ") {
-        guard let separatorIndex = field.firstIndex(of: ":") else { continue }
-        guard let key = Metadata(rawValue: String(field[field.startIndex..<separatorIndex])) else {
-            continue
-        }
-        let valueIndex = field.index(separatorIndex, offsetBy: 2)
-        let value = String(field[valueIndex...])
 
-        switch key {
-        case Metadata.model:
-            sdi.model = String(value)
-        case Metadata.includeInImage:
-            sdi.prompt = String(value)
-        case Metadata.excludeFromImage:
-            sdi.negativePrompt = String(value)
-        case Metadata.seed:
-            sdi.seed = UInt32(value)!
-        case Metadata.steps:
-            sdi.steps = Int(value)!
-        case Metadata.guidanceScale:
-            sdi.guidanceScale = Double(value)!
-        case Metadata.upscaler:
-            sdi.upscaler = String(value)
-        case Metadata.scheduler:
-            sdi.scheduler = Scheduler(rawValue: String(value))!
-        case Metadata.mlComputeUnit:
-            sdi.mlComputeUnit = MLComputeUnits.fromString(value)
-        case Metadata.generator:
-            guard let index = value.lastIndex(of: " ") else { break }
-            let start = value.index(after: index)
-            let end = value.endIndex
-            generatedVersion = String(value[start..<end])
-        default:
-            break
-        }
+    let width = (propDict[kCGImagePropertyPixelWidth as String] as? NSNumber)?.intValue ?? 0
+    let height = (propDict[kCGImagePropertyPixelHeight as String] as? NSNumber)?.intValue ?? 0
+
+    var record = ImageRecord(
+        id: UUID(),
+        prompt: "",
+        negativePrompt: "",
+        width: width,
+        height: height,
+        aspectRatio: height > 0 ? Double(width) / Double(height) : 0,
+        model: "",
+        scheduler: .dpmSolverMultistepScheduler,
+        mlComputeUnit: nil,
+        seed: 0,
+        steps: 28,
+        guidanceScale: 11.0,
+        metadataFields: [],
+        generatedDate: dateModified,
+        path: url.path(percentEncoded: false),
+        finderTagColorNumber: finderTagColorNumber,
+        imageData: data
+    )
+
+    let parsed = parseMetadataInfo(infoString)
+    guard isSupportedGeneratedVersion(parsed.generatedVersion) else { return nil }
+
+    record.prompt = parsed.prompt ?? ""
+    record.negativePrompt = parsed.negativePrompt ?? ""
+    record.model = parsed.model ?? ""
+    record.scheduler = parsed.scheduler ?? .dpmSolverMultistepScheduler
+    record.mlComputeUnit = parsed.mlComputeUnit
+    record.seed = parsed.seed ?? 0
+    record.steps = parsed.steps ?? 28
+    record.guidanceScale = parsed.guidanceScale ?? 11.0
+    record.metadataFields = parsed.presentFields
+
+    return record
+}
+
+@MainActor
+func createSDImage(from record: ImageRecord) -> SDImage? {
+    guard let cgImageSource = CGImageSourceCreateWithData(record.imageData as CFData, nil) else {
+        return nil
     }
-    if generatedVersion.isEmpty { return nil }
-    if compareVersion("2.2", generatedVersion) == .orderedDescending { return nil }
+    let imageIndex = CGImageSourceGetPrimaryImageIndex(cgImageSource)
+    guard let cgImage = CGImageSourceCreateImageAtIndex(cgImageSource, imageIndex, nil) else {
+        return nil
+    }
+
+    let aspectRatio = Double(cgImage.width) / Double(cgImage.height)
+    var sdi = SDImage(
+        id: record.id,
+        image: cgImage,
+        aspectRatio: CGFloat(aspectRatio),
+        generatedDate: record.generatedDate,
+        path: record.path
+    )
+    sdi.prompt = record.prompt
+    sdi.negativePrompt = record.negativePrompt
+    sdi.model = record.model
+    sdi.scheduler = record.scheduler
+    sdi.mlComputeUnit = record.mlComputeUnit
+    sdi.seed = record.seed
+    sdi.steps = record.steps
+    sdi.guidanceScale = record.guidanceScale
+    sdi.finderTagColorNumber = record.finderTagColorNumber
     return sdi
 }
 

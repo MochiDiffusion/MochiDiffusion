@@ -8,11 +8,12 @@
 import SwiftUI
 
 struct SeedView: View {
-    @EnvironmentObject private var controller: ImageController
+    @Environment(GenerationController.self) private var controller: GenerationController
     @Environment(FocusController.self) private var focusCon: FocusController
     @FocusState private var focused: Bool
 
     var body: some View {
+        @Bindable var controller = controller
         @Bindable var focusCon = focusCon
 
         Text("Seed")
@@ -23,10 +24,10 @@ struct SeedView: View {
                 .syncFocus($focusCon.seedFieldIsFocused, with: _focused)
                 .textFieldStyle(.roundedBorder)
             Button {
-                FocusController.shared.removeAllFocus()
-                /// ugly hack
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    ImageController.shared.seed = 0
+                focusCon.removeAllFocus()
+                Task { @MainActor in
+                    try? await Task.sleep(nanoseconds: 100_000_000)
+                    controller.seed = 0
                 }
             } label: {
                 Image(systemName: "shuffle")
@@ -53,5 +54,6 @@ extension Formatter {
 
 #Preview {
     SeedView()
-        .environmentObject(ImageController.shared)
+        .environment(GenerationController(configStore: ConfigStore()))
+        .environment(FocusController())
 }

@@ -8,7 +8,8 @@
 import SwiftUI
 
 struct AppView: View {
-    @Environment(ImageStore.self) var store: ImageStore
+    @Environment(ImageGallery.self) private var store: ImageGallery
+    @Environment(QuickLookState.self) private var quickLook: QuickLookState
     @State private var isShowingInspector = true
 
     var body: some View {
@@ -27,10 +28,29 @@ struct AppView: View {
         .toolbar {
             GalleryToolbarView(isShowingInspector: $isShowingInspector)
         }
+        .onChange(of: self.store.selectedId) { _, newValue in
+            guard newValue != nil else {
+                quickLook.close()
+                return
+            }
+            quickLook.updateSelection(self.store.selected())
+        }
     }
 }
 
 #Preview {
+    let focusController = FocusController()
     AppView()
-        .environment(ImageStore.shared)
+        .environment(GenerationController(configStore: ConfigStore()))
+        .environment(
+            GalleryController(
+                configStore: ConfigStore(),
+                focusController: focusController
+            )
+        )
+        .environment(ConfigStore())
+        .environment(focusController)
+        .environment(GenerationState.shared)
+        .environment(ImageGallery.shared)
+        .environment(QuickLookState())
 }

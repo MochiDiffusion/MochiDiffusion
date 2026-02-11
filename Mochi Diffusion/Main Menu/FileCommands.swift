@@ -8,7 +8,8 @@
 import SwiftUI
 
 struct FileCommands: Commands {
-    var store: ImageStore
+    var galleryController: GalleryController
+    var store: ImageGallery
 
     var body: some Commands {
         CommandGroup(replacing: .saveItem) {
@@ -28,7 +29,7 @@ struct FileCommands: Commands {
                 .disabled(store.selected() == nil)
 
                 Button {
-                    Task { await ImageController.shared.saveAll() }
+                    Task { await galleryController.saveAll() }
                 } label: {
                     Text(
                         "Save All...",
@@ -58,7 +59,7 @@ struct FileCommands: Commands {
         CommandGroup(replacing: .importExport) {
             Section {
                 Button {
-                    Task { await ImageController.shared.importImages() }
+                    Task { await galleryController.importImages() }
                 } label: {
                     Text(
                         "Import Images...",

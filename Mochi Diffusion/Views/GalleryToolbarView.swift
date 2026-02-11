@@ -8,16 +8,17 @@
 import SwiftUI
 
 struct GalleryToolbarView: View {
+    @Environment(GenerationState.self) private var generationState: GenerationState
+    @Environment(ImageGallery.self) private var store: ImageGallery
+    @Environment(GalleryController.self) private var galleryController: GalleryController
     @Binding var isShowingInspector: Bool
-    @Environment(ImageGenerator.self) private var generator: ImageGenerator
-    @Environment(ImageStore.self) private var store: ImageStore
     @State private var isStatusPopoverShown = false
 
     var body: some View {
         @Bindable var store = store
 
         ZStack {
-            if case .running(let progress) = generator.state, let progress = progress,
+            if case .running(let progress) = generationState.state, let progress = progress,
                 progress.stepCount > 0
             {
                 let step = progress.step + 1
@@ -29,7 +30,7 @@ struct GalleryToolbarView: View {
                     CircularProgressView(progress: stepValue)
                         .frame(width: 16, height: 16)
                 }
-            } else if case .loading = generator.state {
+            } else if case .loading = generationState.state {
                 Button {
                     self.isStatusPopoverShown.toggle()
                 } label: {
@@ -62,7 +63,7 @@ struct GalleryToolbarView: View {
             let imageView = Image(img, scale: 1, label: Text(verbatim: sdi.prompt))
 
             Button {
-                Task { await ImageController.shared.removeCurrentImage() }
+                Task { await galleryController.removeCurrentImage() }
             } label: {
                 Label {
                     Text(
@@ -73,16 +74,6 @@ struct GalleryToolbarView: View {
                     Image(systemName: "trash")
                 }
                 .help("Remove")
-            }
-            Button {
-                Task { await ImageController.shared.upscaleCurrentImage() }
-            } label: {
-                Label {
-                    Text("Convert to High Resolution")
-                } icon: {
-                    Image(systemName: "wand.and.stars")
-                }
-                .help("Convert to High Resolution")
             }
 
             Spacer()
@@ -141,17 +132,6 @@ struct GalleryToolbarView: View {
         }
         .disabled(true)
 
-        Button {
-            // noop
-        } label: {
-            Label {
-                Text("Convert to High Resolution")
-            } icon: {
-                Image(systemName: "wand.and.stars")
-            }
-        }
-        .disabled(true)
-
         Spacer()
 
         Button {
@@ -185,7 +165,16 @@ struct GalleryToolbarView: View {
 }
 
 #Preview {
+    let focusController = FocusController()
     GalleryToolbarView(isShowingInspector: .constant(true))
-        .environment(ImageGenerator.shared)
-        .environment(ImageStore.shared)
+        .environment(GenerationState.shared)
+        .environment(ImageGallery.shared)
+        .environment(ConfigStore())
+        .environment(GenerationController(configStore: ConfigStore()))
+        .environment(
+            GalleryController(
+                configStore: ConfigStore(),
+                focusController: focusController
+            )
+        )
 }

@@ -8,10 +8,13 @@
 import SwiftUI
 
 struct StartingImageView: View {
-    @EnvironmentObject private var controller: ImageController
+    @Environment(GenerationController.self) private var controller: GenerationController
+    @Environment(ConfigStore.self) private var configStore: ConfigStore
     @State private var isInfoPopoverShown = false
 
     var body: some View {
+        @Bindable var configStore = configStore
+
         Text(
             "Starting Image",
             comment: "Label for setting the starting image (commonly known as image2image)"
@@ -19,12 +22,16 @@ struct StartingImageView: View {
         .sidebarLabelFormat()
 
         HStack(alignment: .top) {
-            ImageWellView(image: controller.startingImage, size: controller.currentModel?.inputSize)
-            { image in
+            ImageWellView(
+                image: controller.startingImage,
+                size: (controller.currentModel as? SDModel)?.inputSize
+                    ?? CGSize(width: configStore.width, height: configStore.height),
+                selectImage: controller.selectImage
+            ) { image in
                 if let image {
-                    ImageController.shared.setStartingImage(image: image)
+                    controller.setStartingImage(image: image)
                 } else {
-                    await ImageController.shared.unsetStartingImage()
+                    await controller.unsetStartingImage()
                 }
             }
             .frame(width: 90, height: 90)
@@ -34,13 +41,13 @@ struct StartingImageView: View {
             VStack(alignment: .trailing) {
                 HStack {
                     Button {
-                        Task { await ImageController.shared.selectStartingImage() }
+                        Task { await controller.selectStartingImage() }
                     } label: {
                         Image(systemName: "photo")
                     }
 
                     Button {
-                        Task { await ImageController.shared.unsetStartingImage() }
+                        Task { await controller.unsetStartingImage() }
                     } label: {
                         Image(systemName: "xmark")
                     }
@@ -77,11 +84,12 @@ struct StartingImageView: View {
                 .padding()
             }
         }
-        MochiSlider(value: $controller.strength, bounds: 0.0...1.0, step: 0.05)
+        MochiSlider(value: $configStore.strength, bounds: 0.0...1.0, step: 0.05)
     }
 }
 
 #Preview {
     StartingImageView()
-        .environmentObject(ImageController.shared)
+        .environment(GenerationController(configStore: ConfigStore()))
+        .environment(ConfigStore())
 }

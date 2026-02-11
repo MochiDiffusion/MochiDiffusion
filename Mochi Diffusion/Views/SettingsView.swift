@@ -6,13 +6,12 @@
 //
 
 import CoreML
-import StableDiffusion
 import SwiftUI
 import UniformTypeIdentifiers
 import UserNotifications
 
 struct SettingsView: View {
-    @EnvironmentObject private var controller: ImageController
+    @Environment(ConfigStore.self) private var configStore: ConfigStore
     @Environment(NotificationController.self) private var notificationController:
         NotificationController
 
@@ -61,30 +60,23 @@ struct SettingsView: View {
 
     @ViewBuilder
     private var generalView: some View {
+        @Bindable var configStore = configStore
+
         VStack(alignment: .leading, spacing: 16) {
             GroupBox {
                 VStack(alignment: .leading) {
-                    HStack {
-                        Text("Autosave & Restore Images")
-
-                        Spacer()
-
-                        Toggle("", isOn: $controller.autosaveImages)
-                            .labelsHidden()
-                            .toggleStyle(.switch)
-                            .controlSize(.small)
-                    }
+                    Text("Images Folder")
 
                     HStack {
-                        TextField("", text: $controller.imageDir)
+                        TextField("", text: $configStore.imageDir)
                             .disableAutocorrection(true)
                             .textFieldStyle(.roundedBorder)
-                            .disabled(!$controller.autosaveImages.wrappedValue)
 
                         Button {
-                            guard let url = showOpenPanel(from: URL(string: controller.imageDir))
+                            guard
+                                let url = showOpenPanel(from: URL(string: configStore.imageDir))
                             else { return }
-                            controller.imageDir = url.path(percentEncoded: false)
+                            configStore.imageDir = url.path(percentEncoded: false)
                         } label: {
                             Image(systemName: "magnifyingglass.circle.fill")
                                 .foregroundColor(Color.secondary)
@@ -102,7 +94,7 @@ struct SettingsView: View {
 
                     Spacer()
 
-                    Picker("", selection: $controller.imageType) {
+                    Picker("", selection: $configStore.imageType) {
                         Text(verbatim: "PNG")
                             .tag(UTType.png.preferredFilenameExtension!)
                         Text(verbatim: "JPEG")
@@ -121,14 +113,15 @@ struct SettingsView: View {
                     Text("Model Folder")
 
                     HStack {
-                        TextField("", text: $controller.modelDir)
+                        TextField("", text: $configStore.modelDir)
                             .disableAutocorrection(true)
                             .textFieldStyle(.roundedBorder)
 
                         Button {
-                            guard let url = showOpenPanel(from: URL(string: controller.modelDir))
+                            guard
+                                let url = showOpenPanel(from: URL(string: configStore.modelDir))
                             else { return }
-                            controller.modelDir = url.path(percentEncoded: false)
+                            configStore.modelDir = url.path(percentEncoded: false)
                         } label: {
                             Image(systemName: "magnifyingglass.circle.fill")
                                 .foregroundColor(Color.secondary)
@@ -145,15 +138,17 @@ struct SettingsView: View {
                     Text("ControlNet Folder")
 
                     HStack {
-                        TextField("", text: $controller.controlNetDir)
+                        TextField("", text: $configStore.controlNetDir)
                             .disableAutocorrection(true)
                             .textFieldStyle(.roundedBorder)
 
                         Button {
                             guard
-                                let url = showOpenPanel(from: URL(string: controller.controlNetDir))
+                                let url = showOpenPanel(
+                                    from: URL(string: configStore.controlNetDir)
+                                )
                             else { return }
-                            controller.controlNetDir = url.path(percentEncoded: false)
+                            configStore.controlNetDir = url.path(percentEncoded: false)
                         } label: {
                             Image(systemName: "magnifyingglass.circle.fill")
                                 .foregroundColor(Color.secondary)
@@ -172,13 +167,13 @@ struct SettingsView: View {
 
                         Spacer()
 
-                        Toggle("", isOn: $controller.useTrash)
+                        Toggle("", isOn: $configStore.useTrash)
                             .labelsHidden()
                             .toggleStyle(.switch)
                             .controlSize(.small)
                     }
                     Text(
-                        "If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images.",
+                        "If option is turned off, removed images are permanently deleted. Applies to imported and generated images.",
                         comment: "Help text for Move Images to Trash setting"
                     )
                     .helpTextFormat()
@@ -193,7 +188,7 @@ struct SettingsView: View {
 
                         Spacer()
 
-                        Toggle("", isOn: $controller.reduceMemory)
+                        Toggle("", isOn: $configStore.reduceMemory)
                             .labelsHidden()
                             .toggleStyle(.switch)
                             .controlSize(.small)
@@ -211,6 +206,8 @@ struct SettingsView: View {
 
     @ViewBuilder
     private var imageView: some View {
+        @Bindable var configStore = configStore
+
         VStack(alignment: .leading, spacing: 16) {
             GroupBox {
                 VStack(alignment: .leading) {
@@ -219,7 +216,7 @@ struct SettingsView: View {
 
                         Spacer()
 
-                        Toggle("", isOn: $controller.showGenerationPreview)
+                        Toggle("", isOn: $configStore.showGenerationPreview)
                             .labelsHidden()
                             .toggleStyle(.switch)
                             .controlSize(.small)
@@ -240,7 +237,7 @@ struct SettingsView: View {
 
                     Spacer()
 
-                    Picker("", selection: $controller.scheduler) {
+                    Picker("", selection: $configStore.scheduler) {
                         ForEach(Scheduler.allCases, id: \.self) { scheduler in
                             Text(scheduler.rawValue).tag(scheduler)
                         }
@@ -258,7 +255,7 @@ struct SettingsView: View {
 
                         Spacer()
 
-                        Picker("", selection: $controller.mlComputeUnitPreference) {
+                        Picker("", selection: $configStore.mlComputeUnitPreference) {
                             Text(
                                 "Auto (Recommended)",
                                 comment:
@@ -315,7 +312,7 @@ struct SettingsView: View {
 
                         Spacer()
 
-                        Toggle("", isOn: $controller.safetyChecker)
+                        Toggle("", isOn: $configStore.safetyChecker)
                             .labelsHidden()
                             .toggleStyle(.switch)
                             .controlSize(.small)
@@ -419,5 +416,6 @@ struct SettingsView: View {
 
 #Preview {
     SettingsView()
-        .environmentObject(ImageController.shared)
+        .environment(ConfigStore())
+        .environment(NotificationController.shared)
 }

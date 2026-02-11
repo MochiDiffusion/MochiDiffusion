@@ -11,7 +11,9 @@ import StableDiffusion
 final class Tokenizer {
     private let bpeTokenizer: BPETokenizer
 
-    init?(modelDir: URL) {
+    init?(modelDir: URL?) {
+        guard let modelDir else { return nil }
+
         let mergesURL = modelDir.appendingPathComponent("merges.txt", conformingTo: .url)
         let vocabURL = modelDir.appendingPathComponent("vocab.json", conformingTo: .url)
 

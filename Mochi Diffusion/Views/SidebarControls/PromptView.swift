@@ -18,8 +18,7 @@ struct PromptTextEditor: View {
     @FocusState private var focused: Bool
 
     let tokenizer: Tokenizer?
-
-    private let tokenLimit = 75
+    let tokenLimit: Int?
 
     private var estimatedTokens: Int {
         let whitespaceCount = text.components(separatedBy: .whitespacesAndNewlines).count - 1
@@ -39,7 +38,8 @@ struct PromptTextEditor: View {
     }
 
     private var tooManyTokens: Bool {
-        tokens > tokenLimit
+        guard let tokenLimit else { return false }
+        return tokens > tokenLimit
     }
 
     var body: some View {
@@ -53,7 +53,7 @@ struct PromptTextEditor: View {
                 .cornerRadius(4)
 
             HStack(spacing: 0) {
-                if tooManyTokens {
+                if tokenLimit != nil, tooManyTokens {
                     Text(
                         "Description is too long",
                         comment:
@@ -66,10 +66,17 @@ struct PromptTextEditor: View {
                 Spacer()
 
                 if !text.isEmpty {
-                    Text(verbatim: "\(tokens) / \(tokenLimit)")
-                        .foregroundColor(tooManyTokens ? .accentColor : .secondary)
-                        .padding([.trailing, .bottom], 2)
-                        .font(.caption)
+                    Group {
+                        if let tokenLimit {
+                            Text(verbatim: "\(tokens) / \(tokenLimit)")
+                                .foregroundColor(tooManyTokens ? .accentColor : .secondary)
+                        } else {
+                            Text(verbatim: "\(tokens)")
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                    .padding([.trailing, .bottom], 2)
+                    .font(.caption)
                 }
             }
         }
@@ -77,74 +84,74 @@ struct PromptTextEditor: View {
 }
 
 struct PromptView: View {
-    @EnvironmentObject private var controller: ImageController
+    @Environment(GenerationController.self) private var controller: GenerationController
+    @Environment(ConfigStore.self) private var configStore: ConfigStore
     @Environment(FocusController.self) private var focusCon: FocusController
+    @Environment(GenerationState.self) private var generationState: GenerationState
+    @State private var tokenizer: Tokenizer?
+    @State private var tokenLimit: Int?
+
+    private func updatePromptTokenInfo(for model: (any MochiModel)?) {
+        tokenLimit = model?.promptTokenLimit
+        tokenizer = Tokenizer(modelDir: model?.tokenizerModelDir)
+    }
 
     var body: some View {
+        @Bindable var configStore = configStore
         @Bindable var focusCon = focusCon
 
         VStack(alignment: .leading, spacing: 6) {
             Text("Include in Image")
                 .sidebarLabelFormat()
             PromptTextEditor(
-                text: $controller.prompt,
+                text: $configStore.prompt,
                 height: 120,
                 focusBinding: $focusCon.promptFieldIsFocused,
-                tokenizer: controller.currentModel?.tokenizer
+                tokenizer: tokenizer,
+                tokenLimit: tokenLimit
             )
 
             Text("Exclude from Image")
                 .sidebarLabelFormat()
             PromptTextEditor(
-                text: $controller.negativePrompt,
+                text: $configStore.negativePrompt,
                 height: 70,
                 focusBinding: $focusCon.negativePromptFieldIsFocused,
-                tokenizer: controller.currentModel?.tokenizer
+                tokenizer: tokenizer,
+                tokenLimit: tokenLimit
             )
 
             Spacer().frame(height: 2)
 
-            HStack {
-                Toggle(isOn: $controller.upscaleGeneratedImages) {
-                    Label {
-                        Text(
-                            "HD",
-                            comment:
-                                "Label for toggle to auto convert generated images to high resolution"
-                        )
-                    } icon: {
-                        Image(systemName: "wand.and.stars")
-                    }
+            Button {
+                Task { await controller.generate() }
+            } label: {
+                if case .ready = generationState.state {
+                    Text(
+                        "Generate",
+                        comment: "Button to generate image"
+                    )
+                } else {
+                    Text(
+                        "Add to Queue",
+                        comment: "Button to generate image"
+                    )
                 }
-                .help("Convert all images to High Resolution (this will use more memory)")
-
-                Spacer()
-
-                Button {
-                    Task { await ImageController.shared.generate() }
-                } label: {
-                    if case .ready = ImageGenerator.shared.state {
-                        Text(
-                            "Generate",
-                            comment: "Button to generate image"
-                        )
-                    } else {
-                        Text(
-                            "Add to Queue",
-                            comment: "Button to generate image"
-                        )
-                    }
-                }
-                .disabled(controller.modelName.isEmpty)
-                .buttonStyle(.borderedProminent)
-                .controlSize(.large)
             }
+            .disabled(configStore.modelId == nil)
+            .buttonStyle(.borderedProminent)
+            .controlSize(.large)
+        }
+        .onChange(of: controller.currentModel?.id, initial: true) { _, _ in
+            updatePromptTokenInfo(for: controller.currentModel)
         }
     }
 }
 
 #Preview {
     PromptView()
-        .environmentObject(ImageController.shared)
-        .environment(FocusController.shared)
+        .environment(GenerationController(configStore: ConfigStore()))
+        .environment(ConfigStore())
+        .environment(FocusController())
+        .environment(GenerationState.shared)
 }

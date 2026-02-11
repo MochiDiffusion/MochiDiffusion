@@ -5,16 +5,18 @@
 //  Created by Jonathan Mendoza on 13/12/2023.
 //
 
-import Foundation
 import SwiftUI
 import UserNotifications
 
+@MainActor
 @Observable public final class NotificationController {
     static let shared = NotificationController()
     var authStatus: UNAuthorizationStatus = .notDetermined
 
-    @ObservationIgnored @AppStorage("SendNotification") private var _sendNotification = true
-    @ObservationIgnored var sendNotification: Bool {
+    @ObservationIgnored
+    @AppStorage("SendNotification") private var _sendNotification = true
+    @ObservationIgnored
+    var sendNotification: Bool {
         get {
             access(keyPath: \.sendNotification)
             return _sendNotification
@@ -26,9 +28,10 @@ import UserNotifications
         }
     }
 
-    @ObservationIgnored @AppStorage("PlayNotificationSound") private var _playNotificationSound =
-        true
-    @ObservationIgnored var playNotificationSound: Bool {
+    @ObservationIgnored
+    @AppStorage("PlayNotificationSound") private var _playNotificationSound = true
+    @ObservationIgnored
+    var playNotificationSound: Bool {
         get {
             access(keyPath: \.playNotificationSound)
             return _playNotificationSound
@@ -47,14 +50,19 @@ import UserNotifications
     func requestForNotificationAuthorization() {
         notificationCenter.getNotificationSettings { settings in
             if settings.authorizationStatus != .authorized {
-                self.notificationCenter.requestAuthorization(options: [.alert, .sound, .badge]) {
-                    granted, error in
+                UNUserNotificationCenter.current().requestAuthorization(
+                    options: [
+                        .alert,
+                        .sound,
+                        .badge,
+                    ]
+                ) { granted, error in
                     if let error = error {
                         print("Error requesting notification authorization: \(error)")
                         return
                     }
-                    Task {
-                        await self.fetchAuthStatus()
+                    Task { @MainActor in
+                        await NotificationController.shared.fetchAuthStatus()
                     }
                     if !granted { print("User declined authorization prompt") }
                 }
@@ -68,9 +76,7 @@ import UserNotifications
     /// class's property `authStatus`
     func fetchAuthStatus() async -> UNAuthorizationStatus {
         let settings = await self.notificationCenter.notificationSettings()
-        Task { @MainActor in
-            self.authStatus = settings.authorizationStatus
-        }
+        self.authStatus = settings.authorizationStatus
         return settings.authorizationStatus
     }
 

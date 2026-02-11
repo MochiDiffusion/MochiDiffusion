@@ -7,7 +7,6 @@
 
 import CompactSlider
 import CoreML
-import StableDiffusion
 import SwiftUI
 import UniformTypeIdentifiers
 
@@ -52,6 +51,29 @@ extension NSImage {
 }
 
 extension CGImage {
+    func pngData() -> Data? {
+        guard
+            let data = CFDataCreateMutable(nil, 0),
+            let destination = CGImageDestinationCreateWithData(
+                data,
+                UTType.png.identifier as CFString,
+                1,
+                nil
+            )
+        else {
+            return nil
+        }
+        CGImageDestinationAddImage(destination, self, nil)
+        guard CGImageDestinationFinalize(destination) else { return nil }
+        return data as Data
+    }
+
+    static func fromData(_ data: Data) -> CGImage? {
+        guard let source = CGImageSourceCreateWithData(data as CFData, nil) else { return nil }
+        let index = CGImageSourceGetPrimaryImageIndex(source)
+        return CGImageSourceCreateImageAtIndex(source, index, nil)
+    }
+
     func scaledAndCroppedTo(size: CGSize) -> CGImage? {
         let sizeRatio = size.width / size.height
         let imageSizeRatio = Double(self.width) / Double(self.height)
@@ -91,6 +113,10 @@ extension CGImage {
         let scaledCroppedImage = context.makeImage()
 
         return scaledCroppedImage
+    }
+
+    func asTransferableImage() -> TransferableImage {
+        TransferableImage(image: NSImage(cgImage: self, size: NSSize(width: width, height: height)))
     }
 }
 

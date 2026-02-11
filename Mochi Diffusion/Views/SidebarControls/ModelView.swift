@@ -10,23 +10,26 @@ import CoreML
 import SwiftUI
 
 struct ModelView: View {
-    @EnvironmentObject private var controller: ImageController
+    @Environment(GenerationController.self) private var controller: GenerationController
+    @Environment(ConfigStore.self) private var configStore: ConfigStore
 
     var body: some View {
+        @Bindable var controller = controller
+
         Text("Model")
             .sidebarLabelFormat()
         HStack {
-            Picker("", selection: $controller.currentModel) {
-                ForEach(controller.models) { model in
-                    Text(verbatim: model.name).tag(Optional(model))
+            Picker("", selection: $controller.currentModelId) {
+                ForEach(controller.models, id: \.id) { model in
+                    Text(verbatim: model.name).tag(Optional(model.id))
                 }
             }
             .labelsHidden()
 
             Button {
-                NSWorkspace.shared.open(URL(fileURLWithPath: controller.modelDir))
+                NSWorkspace.shared.open(URL(fileURLWithPath: configStore.modelDir))
             } label: {
-                Text(verbatim: "...")
+                Image(systemName: "folder")
             }
             .help("Show models in Finder")
         }
@@ -35,5 +38,6 @@ struct ModelView: View {
 
 #Preview {
     ModelView()
-        .environmentObject(ImageController.shared)
+        .environment(GenerationController(configStore: ConfigStore()))
+        .environment(ConfigStore())
 }

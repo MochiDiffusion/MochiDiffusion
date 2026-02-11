@@ -1,0 +1,3 @@
+[submodule "flux2.c"]
+	path = flux2.c
+	url = https://github.com/antirez/flux2.c.git

@@ -8,16 +8,22 @@
 import SwiftUI
 
 struct GuidanceScaleView: View {
-    @EnvironmentObject private var controller: ImageController
+    @Environment(ConfigStore.self) private var configStore: ConfigStore
 
     var body: some View {
+        @Bindable var configStore = configStore
+
         Text("Guidance Scale")
             .sidebarLabelFormat()
-        MochiSlider(value: $controller.guidanceScale, bounds: 1...20, step: 0.5)
+        MochiSlider(
+            value: $configStore.guidanceScale,
+            bounds: 1...20,
+            step: 0.5
+        )
     }
 }
 
 #Preview {
     GuidanceScaleView()
-        .environmentObject(ImageController.shared)
+        .environment(ConfigStore())
 }

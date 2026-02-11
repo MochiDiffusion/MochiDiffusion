@@ -78,6 +78,6 @@ struct FilterTextFieldView: View {
 }
 
 #Preview {
-    @State var filters = [Filter]()
+    @Previewable @State var filters = [Filter]()
     return FilterTextFieldView(filters: $filters)
 }

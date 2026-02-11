@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct GalleryPreviewView: View {
-    @Environment(ImageGenerator.self) private var generator: ImageGenerator
+    @Environment(GenerationState.self) private var generationState: GenerationState
     var image: CGImage
 
     var body: some View {
@@ -16,7 +16,7 @@ struct GalleryPreviewView: View {
             Image(image, scale: 1, label: Text(""))
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-            if case .running(let progress) = generator.state, let progress = progress,
+            if case .running(let progress) = generationState.state, let progress = progress,
                 progress.stepCount > 0
             {
                 let step = progress.step + 1
@@ -24,7 +24,7 @@ struct GalleryPreviewView: View {
 
                 let progressLabel = String(
                     localized:
-                        "About \(formatTimeRemaining(generator.lastStepGenerationElapsedTime, stepsLeft: progress.stepCount - step))",
+                        "About \(formatTimeRemaining(generationState.lastStepGenerationElapsedTime, stepsLeft: progress.stepCount - step))",
                     comment: "Text displaying the current time remaining"
                 )
 

@@ -8,18 +8,21 @@
 import SwiftUI
 
 struct ImageCommands: Commands {
-    @ObservedObject var controller: ImageController
-    var generator: ImageGenerator
-    var store: ImageStore
+    var generationController: GenerationController
+    var galleryController: GalleryController
+    var configStore: ConfigStore
+    var generationState: GenerationState
+    var store: ImageGallery
+    var quickLook: QuickLookState
     var focusController: FocusController
 
     var body: some Commands {
         CommandMenu("Image") {
             Section {
                 Button {
-                    Task { await ImageController.shared.generate() }
+                    Task { await generationController.generate() }
                 } label: {
-                    if case .ready = ImageGenerator.shared.state {
+                    if case .ready = generationState.state {
                         Text(
                             "Generate",
                             comment: "Button to generate image"
@@ -32,11 +35,11 @@ struct ImageCommands: Commands {
                     }
                 }
                 .keyboardShortcut("G", modifiers: .command)
-                .disabled(controller.modelName.isEmpty)
+                .disabled(configStore.modelId == nil)
             }
             Section {
                 Button {
-                    Task { await ImageController.shared.selectNext() }
+                    Task { await galleryController.selectNext() }
                 } label: {
                     Text(
                         "Select Next",
@@ -47,7 +50,7 @@ struct ImageCommands: Commands {
                 .disabled(store.images.isEmpty || focusController.isTextFieldFocused)
 
                 Button {
-                    Task { await ImageController.shared.selectPrevious() }
+                    Task { await galleryController.selectPrevious() }
                 } label: {
                     Text(
                         "Select Previous",
@@ -60,7 +63,7 @@ struct ImageCommands: Commands {
             Section {
                 Button {
                     guard let sdi = store.selected() else { return }
-                    Task { await ImageController.shared.selectStartingImage(sdi: sdi) }
+                    Task { await generationController.selectStartingImage(sdi: sdi) }
                 } label: {
                     Text(
                         "Set as Starting Image",
@@ -71,18 +74,7 @@ struct ImageCommands: Commands {
                 .disabled(store.selected() == nil)
 
                 Button {
-                    Task { await ImageController.shared.upscaleCurrentImage() }
-                } label: {
-                    Text(
-                        "Convert to High Resolution",
-                        comment: "Convert the current image to high resolution"
-                    )
-                }
-                .keyboardShortcut("R", modifiers: .command)
-                .disabled(store.selected() == nil)
-
-                Button {
-                    Task { await ImageController.shared.quicklookCurrentImage() }
+                    quickLook.toggle(image: store.selected())
                 } label: {
                     Text(
                         "Quick Look",
@@ -94,7 +86,7 @@ struct ImageCommands: Commands {
             }
             Section {
                 Button {
-                    Task { await ImageController.shared.removeCurrentImage() }
+                    Task { await galleryController.removeCurrentImage() }
                 } label: {
                     Text(
                         "Remove",

@@ -10,16 +10,18 @@ import SwiftUI
 struct GalleryView: View {
 
     @Environment(\.colorScheme) private var colorScheme
-    @Environment(ImageGenerator.self) private var generator: ImageGenerator
-    @Environment(ImageStore.self) private var store: ImageStore
+    @Environment(GenerationState.self) private var generationState: GenerationState
+    @Environment(ImageGallery.self) private var store: ImageGallery
+    @Environment(GalleryController.self) private var galleryController: GalleryController
+    @Environment(QuickLookState.self) private var quickLook: QuickLookState
 
     private let gridColumns = [GridItem(.adaptive(minimum: 200), spacing: 16)]
 
     var body: some View {
         VStack(spacing: 0) {
-            if case .error(let msg) = generator.state {
+            if case .error(let msg) = generationState.state {
                 MessageBanner(message: msg)
-            } else if case .ready(let msg) = generator.state, let msg = msg {
+            } else if case .ready(let msg) = generationState.state, let msg = msg {
                 MessageBanner(message: msg)
             }
 
@@ -51,7 +53,7 @@ struct GalleryView: View {
                 LazyVGrid(columns: gridColumns, spacing: 16) {
                     if store.sortType == .newestFirst {
                         if let currentImage = store.currentGeneratingImage,
-                            case .running = generator.state
+                            case .running = generationState.state
                         {
                             GalleryPreviewView(image: currentImage)
                                 .overlay(
@@ -87,30 +89,26 @@ struct GalleryView: View {
                             )
                             .gesture(
                                 TapGesture(count: 2).onEnded {
-                                    Task { await ImageController.shared.quicklookCurrentImage() }
+                                    quickLook.toggle(image: store.selected())
                                 }
                             )
                             .simultaneousGesture(
                                 TapGesture().onEnded {
-                                    Task { await ImageController.shared.select(sdi.id) }
+                                    Task { await galleryController.select(sdi.id) }
                                 }
                             )
                             .onDrag {
-                                if !sdi.path.isEmpty,
-                                    let item = NSItemProvider(
-                                        contentsOf: URL(fileURLWithPath: sdi.path))
-                                {
-                                    return item
+                                if !sdi.path.isEmpty {
+                                    return NSItemProvider(
+                                        object: URL(fileURLWithPath: sdi.path) as NSURL)
                                 }
 
                                 if let cgImage = sdi.image {
                                     let nsImage = NSImage(
                                         cgImage: cgImage,
                                         size: CGSize(width: sdi.width, height: sdi.height))
-                                    if let tempURL = try? nsImage.temporaryFileURL(),
-                                        let item = NSItemProvider(contentsOf: tempURL)
-                                    {
-                                        return item
+                                    if let tempURL = try? nsImage.temporaryFileURL() {
+                                        return NSItemProvider(object: tempURL as NSURL)
                                     }
                                 }
 
@@ -123,7 +121,7 @@ struct GalleryView: View {
 
                     if store.sortType == .oldestFirst {
                         if let currentImage = store.currentGeneratingImage,
-                            case .running = generator.state
+                            case .running = generationState.state
                         {
                             GalleryPreviewView(image: currentImage)
                                 .overlay(
@@ -147,12 +145,14 @@ struct GalleryView: View {
     }
 
     struct GalleryItemContextMenuView: View {
+        @Environment(GenerationController.self) private var controller: GenerationController
+        @Environment(GalleryController.self) private var galleryController: GalleryController
         let sdi: SDImage
 
         var body: some View {
             Section {
                 Button {
-                    Task { await ImageController.shared.copyImage(sdi) }
+                    Task { await galleryController.copyImage(sdi) }
                 } label: {
                     Text(
                         "Copy",
@@ -161,7 +161,7 @@ struct GalleryView: View {
                 }
 
                 Button {
-                    ImageController.shared.copyToPrompt(sdi)
+                    controller.copyToPrompt(sdi)
                 } label: {
                     Text(
                         "Copy Options to Sidebar",
@@ -170,21 +170,9 @@ struct GalleryView: View {
                 }
 
                 Button {
-                    Task { await ImageController.shared.selectStartingImage(sdi: sdi) }
+                    Task { await controller.selectStartingImage(sdi: sdi) }
                 } label: {
                     Text("Set as Starting Image")
-                }
-            }
-            if sdi.upscaler.isEmpty {
-                Section {
-                    Button {
-                        Task { await ImageController.shared.upscale(sdi) }
-                    } label: {
-                        Text(
-                            "Convert to High Resolution",
-                            comment: "Convert image to high resolution"
-                        )
-                    }
                 }
             }
             Section {
@@ -296,7 +284,7 @@ struct GalleryView: View {
             }
             Section {
                 Button {
-                    Task { await ImageController.shared.removeImage(sdi) }
+                    Task { await galleryController.removeImage(sdi) }
                 } label: {
                     Text(
                         "Remove",

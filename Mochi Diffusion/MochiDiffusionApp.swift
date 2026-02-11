@@ -12,19 +12,35 @@ import UserNotifications
 
 @main
 struct MochiDiffusionApp: App {
-    @StateObject private var controller: ImageController
-    @State private var generator: ImageGenerator
-    @State private var store: ImageStore
+    @State private var configStore: ConfigStore
+    @State private var generationController: GenerationController
+    @State private var galleryController: GalleryController
+    @State private var generationState: GenerationState
+    @State private var store: ImageGallery
     @State private var focusCon: FocusController
     @State private var notificationController: NotificationController
+    @State private var quickLook: QuickLookState
+    @State private var quicklookURL: URL?
     private let updaterController: SPUStandardUpdaterController
 
     init() {
-        self._controller = .init(wrappedValue: .shared)
-        self._generator = .init(wrappedValue: .shared)
+        let configStore = ConfigStore()
+        let focusController = FocusController()
+        self._configStore = State(initialValue: configStore)
+        self._generationController = State(
+            initialValue: GenerationController(configStore: configStore)
+        )
+        self._galleryController = State(
+            initialValue: GalleryController(
+                configStore: configStore,
+                focusController: focusController
+            )
+        )
+        self._generationState = .init(wrappedValue: .shared)
         self._store = .init(wrappedValue: .shared)
-        self._focusCon = .init(wrappedValue: .shared)
+        self._focusCon = .init(wrappedValue: focusController)
         self._notificationController = .init(wrappedValue: .shared)
+        self._quickLook = State(initialValue: QuickLookState())
 
         updaterController = SPUStandardUpdaterController(
             startingUpdater: true,
@@ -36,11 +52,7 @@ struct MochiDiffusionApp: App {
     var body: some Scene {
         Window("Mochi Diffusion", id: "main") {
             AppView()
-                .environmentObject(controller)
-                .environment(generator)
-                .environment(store)
-                .environment(focusCon)
-                .sheet(isPresented: $controller.isLoading) {
+                .sheet(isPresented: $galleryController.isLoading) {
                     VStack {
                         ProgressView()
                         Spacer().frame(height: 16)
@@ -49,7 +61,6 @@ struct MochiDiffusionApp: App {
                     .padding([.top, .bottom], 40)
                     .padding([.leading, .trailing], 60)
                 }
-                .quickLookPreview($controller.quicklookURL)
                 .onReceive(
                     NotificationCenter.default.publisher(
                         for: NSApplication.willTerminateNotification)
@@ -61,22 +72,42 @@ struct MochiDiffusionApp: App {
                         "com.apple.MetalPerformanceShadersGraph", isDirectory: true)
                     try? FileManager.default.removeItem(at: mpsURL)
                 }
+                .onChange(of: quickLook.url) { _, newValue in
+                    if quicklookURL != newValue { quicklookURL = newValue }
+                }
+                .onChange(of: quicklookURL) { _, newValue in
+                    if newValue == nil { quickLook.close() }
+                }
+                .quickLookPreview($quicklookURL)
         }
+        .environment(configStore)
+        .environment(generationController)
+        .environment(galleryController)
+        .environment(generationState)
+        .environment(store)
+        .environment(focusCon)
+        .environment(quickLook)
         .commands {
             AppCommands(updater: updaterController.updater)
-            FileCommands(store: store)
+            FileCommands(galleryController: galleryController, store: store)
             SidebarCommands()
             ImageCommands(
-                controller: controller, generator: generator, store: store,
-                focusController: focusCon)
+                generationController: generationController,
+                galleryController: galleryController,
+                configStore: configStore,
+                generationState: generationState,
+                store: store,
+                quickLook: quickLook,
+                focusController: focusCon
+            )
             HelpCommands()
         }
         .defaultSize(width: 1_120, height: 670)
 
         Settings {
             SettingsView()
-                .environmentObject(controller)
                 .environment(notificationController)
         }
+        .environment(configStore)
     }
 }

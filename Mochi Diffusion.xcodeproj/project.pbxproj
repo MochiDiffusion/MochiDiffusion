@@ -6,25 +6,37 @@
 	objectVersion = 56;
 	objects = {
 
+/* Begin PBXAggregateTarget section */
+		BFE66B0F2F2ED14800A8965C /* Flux2c */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = BFE66B102F2ED14800A8965C /* Build configuration list for PBXAggregateTarget "Flux2c" */;
+			buildPhases = (
+				BFE66B132F2ED15300A8965C /* ShellScript */,
+			);
+			dependencies = (
+			);
+			name = Flux2c;
+			packageProductDependencies = (
+			);
+			productName = Flux2c;
+		};
+/* End PBXAggregateTarget section */
+
 /* Begin PBXBuildFile section */
 		030370312A2BECDD003D2F0C /* SDControlNet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 030370302A2BECDD003D2F0C /* SDControlNet.swift */; };
 		03061E6229AB9C06009AA2A2 /* FocusController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03061E6129AB9C06009AA2A2 /* FocusController.swift */; };
 		0307B0DA294D4AE500A9BD55 /* FileCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0307B0D9294D4AE500A9BD55 /* FileCommands.swift */; };
 		0311C69929899A660074BCAE /* Metadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0311C69829899A660074BCAE /* Metadata.swift */; };
 		0311C6BD2989E3EF0074BCAE /* Localizable.stringsdict in Resources */ = {isa = PBXBuildFile; fileRef = 0311C6BF2989E3EF0074BCAE /* Localizable.stringsdict */; };
-		03173C112999D83600B03456 /* ImageGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03173C102999D83600B03456 /* ImageGenerator.swift */; };
-		03173C132999E2B500B03456 /* SDModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03173C122999E2B500B03456 /* SDModel.swift */; };
-		03173C152999F5C700B03456 /* ImageController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03173C142999F5C700B03456 /* ImageController.swift */; };
-		03173C18299B3C1300B03456 /* ImageStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03173C17299B3C1300B03456 /* ImageStore.swift */; };
-		0328BCE92BA11DEB004B5AE0 /* SwiftFormat in Frameworks */ = {isa = PBXBuildFile; productRef = 0328BCE82BA11DEB004B5AE0 /* SwiftFormat */; };
+		03173C112999D83600B03456 /* SDImageGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03173C102999D83600B03456 /* SDImageGenerator.swift */; };
+		03173C132999E2B500B03456 /* MochiModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03173C122999E2B500B03456 /* MochiModel.swift */; };
+		03173C18299B3C1300B03456 /* ImageGallery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03173C17299B3C1300B03456 /* ImageGallery.swift */; };
 		0352E2A5294E2591003FBF25 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 0352E2A4294E2591003FBF25 /* Sparkle */; };
 		0352E2A7294E3148003FBF25 /* HelpCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0352E2A6294E3148003FBF25 /* HelpCommands.swift */; };
 		0352E2AA294EA0E1003FBF25 /* AppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0352E2A9294EA0E1003FBF25 /* AppView.swift */; };
 		0352E2AE294EA2B4003FBF25 /* MessageBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0352E2AD294EA2B4003FBF25 /* MessageBanner.swift */; };
 		0352E2B1294EA30D003FBF25 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0352E2B0294EA30D003FBF25 /* Extensions.swift */; };
 		0352E2B5294EA887003FBF25 /* Functions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0352E2B4294EA887003FBF25 /* Functions.swift */; };
-		035E76F42970E79A008DDFDE /* CVPixelBuffer+Resize.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035E76F32970E79A008DDFDE /* CVPixelBuffer+Resize.swift */; };
-		035E76F62970E809008DDFDE /* CVPixelBuffer+Create.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035E76F52970E809008DDFDE /* CVPixelBuffer+Create.swift */; };
 		035EDFF3295A1FBF00080D18 /* NumberOfImagesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035EDFF2295A1FBF00080D18 /* NumberOfImagesView.swift */; };
 		035EDFF8295A216500080D18 /* StepsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035EDFF7295A216500080D18 /* StepsView.swift */; };
 		035EDFFA295A219200080D18 /* GuidanceScaleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 035EDFF9295A219200080D18 /* GuidanceScaleView.swift */; };
@@ -34,7 +46,6 @@
 		036BFC22294B9F7500D8AD04 /* MochiDiffusionApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 036BFC21294B9F7500D8AD04 /* MochiDiffusionApp.swift */; };
 		036BFC26294B9F7600D8AD04 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 036BFC25294B9F7600D8AD04 /* Assets.xcassets */; };
 		036BFC29294B9F7600D8AD04 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 036BFC28294B9F7600D8AD04 /* Preview Assets.xcassets */; };
-		036BFC4E294B9FDB00D8AD04 /* Path in Frameworks */ = {isa = PBXBuildFile; productRef = 036BFC4D294B9FDB00D8AD04 /* Path */; };
 		0373FF5429A9165600C0180F /* AppCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0373FF5329A9165600C0180F /* AppCommands.swift */; };
 		0380934329AD504600EDBC8E /* StartingImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0380934229AD504600EDBC8E /* StartingImageView.swift */; };
 		0386DF8B2950D29400CA4CEB /* InspectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0386DF8A2950D29400CA4CEB /* InspectorView.swift */; };
@@ -51,21 +62,46 @@
 		03E89F3C294FE6ED0067457E /* SDImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03E89F3B294FE6ED0067457E /* SDImage.swift */; };
 		03EA52CE297B66C800CDF661 /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03EA52CD297B66C800CDF661 /* SidebarView.swift */; };
 		03F578642967CE9A003A815F /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 03F578622967CE9A003A815F /* Localizable.strings */; };
-		03FD2319295F74B6006EEEE2 /* RealESRGAN.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 03FD2318295F74B6006EEEE2 /* RealESRGAN.mlmodel */; };
-		03FD231B295F7A81006EEEE2 /* Upscaler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03FD231A295F7A81006EEEE2 /* Upscaler.swift */; };
+		0EF066A162A2D255BF7624D3 /* ComputeUnitPreference.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A3DE44C5062F02AEE432860 /* ComputeUnitPreference.swift */; };
+		1FE344EEC4F48E228350F971 /* GenerationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0D7B03CB7A3829A510ECF35 /* GenerationState.swift */; };
+		F3A1C2B3D4E5F60789ABCDEF /* Flux2cImageGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3A1C2B3D4E5F60789ABCDE0 /* Flux2cImageGenerator.swift */; };
+		463715C52EA79FC4AF642B78 /* GenerationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 630682FB60575CB32EEC50D5 /* GenerationController.swift */; };
+		50457B16071A70822F5C04B2 /* ImageRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52F2A312D80E8D81A88D7636 /* ImageRepository.swift */; };
 		58FF218829FAE96200A70C7C /* ControlNetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FF218729FAE96200A70C7C /* ControlNetView.swift */; };
 		71D315162B2A584E007FFDEB /* NotificationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71D315152B2A584E007FFDEB /* NotificationController.swift */; };
+		73F2FE036E51455A99DBC80B /* GenerationRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E790ECE28024A119CB77474 /* GenerationRequest.swift */; };
+		7E03F8C1B8854C42AC38394D /* GenerationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46DE7C4CA7924A59BF1B996B /* GenerationService.swift */; };
+		838911B22B48DCAE79DE50BC /* ModelRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85000FDB1434F7A339AD45B1 /* ModelRepository.swift */; };
 		9401BC6F2CB9E9E100F00DDE /* Filter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9401BC6E2CB9E9E100F00DDE /* Filter.swift */; };
 		9401BC712CB9ECA500F00DDE /* FilterTagView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9401BC702CB9ECA500F00DDE /* FilterTagView.swift */; };
 		9485F21C2CB97B53002623B7 /* FilterTextFieldView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9485F21B2CB97B53002623B7 /* FilterTextFieldView.swift */; };
 		948853A52A543CB200B4AD86 /* GalleryPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 948853A42A543CB200B4AD86 /* GalleryPreviewView.swift */; };
 		9B7392C3298DEAC2006F03D5 /* Tokenizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B7392C2298DEAC2006F03D5 /* Tokenizer.swift */; };
+		AD83C9D690826D2A57A43EA8 /* GalleryController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 540CFF7CA65203E6AD7C64B1 /* GalleryController.swift */; };
+		AE29AC66B78444DABC2B464F /* QuickLookState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 742263CBCAFF48E997B3B810 /* QuickLookState.swift */; };
+		BF3689622F2F4329006501CE /* MetalPerformanceShadersGraph.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BF36895E2F2F3BDA006501CE /* MetalPerformanceShadersGraph.framework */; };
+		BF3689632F2F4337006501CE /* MetalPerformanceShaders.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BF36895D2F2F3BDA006501CE /* MetalPerformanceShaders.framework */; };
+		BF3689652F308607006501CE /* SDModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF3689642F308607006501CE /* SDModel.swift */; };
+		BF3689672F3086B2006501CE /* Flux2cModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF3689662F3086B2006501CE /* Flux2cModel.swift */; };
+		BFE156D72F2F37B10060DEBF /* Flux2c-BridgingHeader.h in Sources */ = {isa = PBXBuildFile; fileRef = BFE156D62F2F37B10060DEBF /* Flux2c-BridgingHeader.h */; };
+		BFE66B0E2F2AFD3700A8965C /* ConfigStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFE66B0D2F2AFD3700A8965C /* ConfigStore.swift */; };
 		C116D4952AFC382E00314FE3 /* MochiSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C116D4942AFC382E00314FE3 /* MochiSlider.swift */; };
 		C11A03882B099D9600540F7F /* JobQueueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C11A03872B099D9600540F7F /* JobQueueView.swift */; };
 		C1220FC02AFB122F007E5055 /* ImageWellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1220FBF2AFB122F007E5055 /* ImageWellView.swift */; };
 		C1ADEC2C2B16957800E142CA /* FolderMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1ADEC2B2B16957800E142CA /* FolderMonitor.swift */; };
+		C1F0A1A42D0E6B6A00C0BEEF /* FileSystemStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F0A1A32D0E6B6A00C0BEEF /* FileSystemStore.swift */; };
 		D7B03F2029D42F9900DF89DD /* SDModelAttentionType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7B03F1F29D42F9900DF89DD /* SDModelAttentionType.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		BFE66B142F2EDB3900A8965C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 036BFC16294B9F7500D8AD04 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = BFE66B0F2F2ED14800A8965C;
+			remoteInfo = Flux2c;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		030370302A2BECDD003D2F0C /* SDControlNet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDControlNet.swift; sourceTree = "<group>"; };
@@ -74,10 +110,9 @@
 		0311C69829899A660074BCAE /* Metadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Metadata.swift; sourceTree = "<group>"; };
 		0311C6BE2989E3EF0074BCAE /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = en; path = en.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		0316D7D52983468600340F0C /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
-		03173C102999D83600B03456 /* ImageGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageGenerator.swift; sourceTree = "<group>"; };
-		03173C122999E2B500B03456 /* SDModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDModel.swift; sourceTree = "<group>"; };
-		03173C142999F5C700B03456 /* ImageController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageController.swift; sourceTree = "<group>"; };
-		03173C17299B3C1300B03456 /* ImageStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageStore.swift; sourceTree = "<group>"; };
+		03173C102999D83600B03456 /* SDImageGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDImageGenerator.swift; sourceTree = "<group>"; };
+		03173C122999E2B500B03456 /* MochiModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MochiModel.swift; sourceTree = "<group>"; };
+		03173C17299B3C1300B03456 /* ImageGallery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageGallery.swift; sourceTree = "<group>"; };
 		031AC9D3296881F500F95E4B /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
 		032535D72A6B905B00DF76A4 /* nl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nl; path = nl.lproj/Localizable.strings; sourceTree = "<group>"; };
 		032535D82A6B907B00DF76A4 /* pl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pl; path = pl.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -90,8 +125,6 @@
 		0352E2AD294EA2B4003FBF25 /* MessageBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageBanner.swift; sourceTree = "<group>"; };
 		0352E2B0294EA30D003FBF25 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		0352E2B4294EA887003FBF25 /* Functions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Functions.swift; sourceTree = "<group>"; };
-		035E76F32970E79A008DDFDE /* CVPixelBuffer+Resize.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "CVPixelBuffer+Resize.swift"; sourceTree = "<group>"; };
-		035E76F52970E809008DDFDE /* CVPixelBuffer+Create.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "CVPixelBuffer+Create.swift"; sourceTree = "<group>"; };
 		035EDFF2295A1FBF00080D18 /* NumberOfImagesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberOfImagesView.swift; sourceTree = "<group>"; };
 		035EDFF7295A216500080D18 /* StepsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepsView.swift; sourceTree = "<group>"; };
 		035EDFF9295A219200080D18 /* GuidanceScaleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuidanceScaleView.swift; sourceTree = "<group>"; };
@@ -125,20 +158,36 @@
 		03F578632967CE9A003A815F /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/Localizable.strings; sourceTree = "<group>"; };
 		03F578682967DAE6003A815F /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		03F75CEC2979B3910071CD1C /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/Localizable.strings"; sourceTree = "<group>"; };
-		03FD2318295F74B6006EEEE2 /* RealESRGAN.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = RealESRGAN.mlmodel; sourceTree = "<group>"; };
-		03FD231A295F7A81006EEEE2 /* Upscaler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Upscaler.swift; sourceTree = "<group>"; };
+		0E790ECE28024A119CB77474 /* GenerationRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationRequest.swift; sourceTree = "<group>"; };
+		3A3DE44C5062F02AEE432860 /* ComputeUnitPreference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComputeUnitPreference.swift; sourceTree = "<group>"; };
+		46DE7C4CA7924A59BF1B996B /* GenerationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationService.swift; sourceTree = "<group>"; };
+		F3A1C2B3D4E5F60789ABCDE0 /* Flux2cImageGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Flux2cImageGenerator.swift; sourceTree = "<group>"; };
+		52F2A312D80E8D81A88D7636 /* ImageRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageRepository.swift; sourceTree = "<group>"; };
+		540CFF7CA65203E6AD7C64B1 /* GalleryController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryController.swift; sourceTree = "<group>"; };
 		58FF218729FAE96200A70C7C /* ControlNetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlNetView.swift; sourceTree = "<group>"; };
+		630682FB60575CB32EEC50D5 /* GenerationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationController.swift; sourceTree = "<group>"; };
 		71D315152B2A584E007FFDEB /* NotificationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationController.swift; sourceTree = "<group>"; };
+		742263CBCAFF48E997B3B810 /* QuickLookState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickLookState.swift; sourceTree = "<group>"; };
+		85000FDB1434F7A339AD45B1 /* ModelRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelRepository.swift; sourceTree = "<group>"; };
 		9401BC6E2CB9E9E100F00DDE /* Filter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Filter.swift; sourceTree = "<group>"; };
 		9401BC702CB9ECA500F00DDE /* FilterTagView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterTagView.swift; sourceTree = "<group>"; };
 		9485F21B2CB97B53002623B7 /* FilterTextFieldView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterTextFieldView.swift; sourceTree = "<group>"; };
 		948853A42A543CB200B4AD86 /* GalleryPreviewView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GalleryPreviewView.swift; sourceTree = "<group>"; };
 		9B7392C2298DEAC2006F03D5 /* Tokenizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tokenizer.swift; sourceTree = "<group>"; };
+		BF36895C2F2F3BDA006501CE /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
+		BF36895D2F2F3BDA006501CE /* MetalPerformanceShaders.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalPerformanceShaders.framework; path = System/Library/Frameworks/MetalPerformanceShaders.framework; sourceTree = SDKROOT; };
+		BF36895E2F2F3BDA006501CE /* MetalPerformanceShadersGraph.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalPerformanceShadersGraph.framework; path = System/Library/Frameworks/MetalPerformanceShadersGraph.framework; sourceTree = SDKROOT; };
+		BF3689642F308607006501CE /* SDModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDModel.swift; sourceTree = "<group>"; };
+		BF3689662F3086B2006501CE /* Flux2cModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Flux2cModel.swift; sourceTree = "<group>"; };
+		BFE156D62F2F37B10060DEBF /* Flux2c-BridgingHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Flux2c-BridgingHeader.h"; sourceTree = "<group>"; };
+		BFE66B0D2F2AFD3700A8965C /* ConfigStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigStore.swift; sourceTree = "<group>"; };
 		C116D4942AFC382E00314FE3 /* MochiSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MochiSlider.swift; sourceTree = "<group>"; };
 		C11A03872B099D9600540F7F /* JobQueueView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JobQueueView.swift; sourceTree = "<group>"; };
 		C1220FBF2AFB122F007E5055 /* ImageWellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageWellView.swift; sourceTree = "<group>"; };
 		C1ADEC2B2B16957800E142CA /* FolderMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FolderMonitor.swift; sourceTree = "<group>"; };
+		C1F0A1A32D0E6B6A00C0BEEF /* FileSystemStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileSystemStore.swift; sourceTree = "<group>"; };
 		D7B03F1F29D42F9900DF89DD /* SDModelAttentionType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDModelAttentionType.swift; sourceTree = "<group>"; };
+		E0D7B03CB7A3829A510ECF35 /* GenerationState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationState.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -146,10 +195,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				036BFC4E294B9FDB00D8AD04 /* Path in Frameworks */,
+				BF3689632F2F4337006501CE /* MetalPerformanceShaders.framework in Frameworks */,
+				BF3689622F2F4329006501CE /* MetalPerformanceShadersGraph.framework in Frameworks */,
 				03ADC8B9299581AF00B2843F /* StableDiffusion in Frameworks */,
 				0352E2A5294E2591003FBF25 /* Sparkle in Frameworks */,
-				0328BCE92BA11DEB004B5AE0 /* SwiftFormat in Frameworks */,
 				0388DEB0297B00FC008B1C1C /* CompactSlider in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -171,16 +220,24 @@
 		0352E2AF294EA2F3003FBF25 /* Support */ = {
 			isa = PBXGroup;
 			children = (
-				035E76F52970E809008DDFDE /* CVPixelBuffer+Create.swift */,
-				035E76F32970E79A008DDFDE /* CVPixelBuffer+Resize.swift */,
 				0352E2B0294EA30D003FBF25 /* Extensions.swift */,
+				C1F0A1A32D0E6B6A00C0BEEF /* FileSystemStore.swift */,
+				BFE66B0D2F2AFD3700A8965C /* ConfigStore.swift */,
+				3A3DE44C5062F02AEE432860 /* ComputeUnitPreference.swift */,
 				03061E6129AB9C06009AA2A2 /* FocusController.swift */,
 				C1ADEC2B2B16957800E142CA /* FolderMonitor.swift */,
 				0352E2B4294EA887003FBF25 /* Functions.swift */,
-				03173C142999F5C700B03456 /* ImageController.swift */,
-				03173C102999D83600B03456 /* ImageGenerator.swift */,
+				630682FB60575CB32EEC50D5 /* GenerationController.swift */,
+				0E790ECE28024A119CB77474 /* GenerationRequest.swift */,
+				46DE7C4CA7924A59BF1B996B /* GenerationService.swift */,
+				F3A1C2B3D4E5F60789ABCDE0 /* Flux2cImageGenerator.swift */,
+				E0D7B03CB7A3829A510ECF35 /* GenerationState.swift */,
+				540CFF7CA65203E6AD7C64B1 /* GalleryController.swift */,
+				742263CBCAFF48E997B3B810 /* QuickLookState.swift */,
+				03173C102999D83600B03456 /* SDImageGenerator.swift */,
+				52F2A312D80E8D81A88D7636 /* ImageRepository.swift */,
+				85000FDB1434F7A339AD45B1 /* ModelRepository.swift */,
 				9B7392C2298DEAC2006F03D5 /* Tokenizer.swift */,
-				03FD231A295F7A81006EEEE2 /* Upscaler.swift */,
 				71D315152B2A584E007FFDEB /* NotificationController.swift */,
 			);
 			path = Support;
@@ -208,6 +265,7 @@
 			isa = PBXGroup;
 			children = (
 				036BFC20294B9F7500D8AD04 /* Mochi Diffusion */,
+				BFE66B162F2EDC8100A8965C /* Frameworks */,
 				036BFC1F294B9F7500D8AD04 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -234,6 +292,7 @@
 				03F578492967B85D003A815F /* Resources */,
 				0352E2AF294EA2F3003FBF25 /* Support */,
 				036BFC5C294BA20A00D8AD04 /* Views */,
+				BFE156D62F2F37B10060DEBF /* Flux2c-BridgingHeader.h */,
 			);
 			path = "Mochi Diffusion";
 			sourceTree = "<group>";
@@ -270,13 +329,15 @@
 		0386DF8E29510D8700CA4CEB /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				03173C17299B3C1300B03456 /* ImageStore.swift */,
+				03173C17299B3C1300B03456 /* ImageGallery.swift */,
 				0311C69829899A660074BCAE /* Metadata.swift */,
 				0395B3102995C70400465B73 /* Scheduler.swift */,
 				030370302A2BECDD003D2F0C /* SDControlNet.swift */,
 				03E89F3B294FE6ED0067457E /* SDImage.swift */,
-				03173C122999E2B500B03456 /* SDModel.swift */,
+				03173C122999E2B500B03456 /* MochiModel.swift */,
+				BF3689662F3086B2006501CE /* Flux2cModel.swift */,
 				D7B03F1F29D42F9900DF89DD /* SDModelAttentionType.swift */,
+				BF3689642F308607006501CE /* SDModel.swift */,
 				9401BC6E2CB9E9E100F00DDE /* Filter.swift */,
 			);
 			path = Model;
@@ -286,9 +347,18 @@
 			isa = PBXGroup;
 			children = (
 				036BFC25294B9F7600D8AD04 /* Assets.xcassets */,
-				03FD2318295F74B6006EEEE2 /* RealESRGAN.mlmodel */,
 			);
 			path = Resources;
+			sourceTree = "<group>";
+		};
+		BFE66B162F2EDC8100A8965C /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				BF36895C2F2F3BDA006501CE /* Metal.framework */,
+				BF36895D2F2F3BDA006501CE /* MetalPerformanceShaders.framework */,
+				BF36895E2F2F3BDA006501CE /* MetalPerformanceShadersGraph.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -306,14 +376,13 @@
 			buildRules = (
 			);
 			dependencies = (
+				BFE66B152F2EDB3900A8965C /* PBXTargetDependency */,
 			);
 			name = "Mochi Diffusion";
 			packageProductDependencies = (
-				036BFC4D294B9FDB00D8AD04 /* Path */,
 				0352E2A4294E2591003FBF25 /* Sparkle */,
 				0388DEAF297B00FC008B1C1C /* CompactSlider */,
 				03ADC8B8299581AF00B2843F /* StableDiffusion */,
-				0328BCE82BA11DEB004B5AE0 /* SwiftFormat */,
 			);
 			productName = "Mochi Diffusion";
 			productReference = 036BFC1E294B9F7500D8AD04 /* Mochi Diffusion.app */;
@@ -331,6 +400,9 @@
 				TargetAttributes = {
 					036BFC1D294B9F7500D8AD04 = {
 						CreatedOnToolsVersion = 14.2;
+					};
+					BFE66B0F2F2ED14800A8965C = {
+						CreatedOnToolsVersion = 26.2;
 					};
 				};
 			};
@@ -379,17 +451,16 @@
 			);
 			mainGroup = 036BFC15294B9F7500D8AD04;
 			packageReferences = (
-				036BFC4C294B9FDB00D8AD04 /* XCRemoteSwiftPackageReference "Path.swift" */,
 				0352E2A3294E2591003FBF25 /* XCRemoteSwiftPackageReference "Sparkle" */,
 				0388DEAE297B00FC008B1C1C /* XCRemoteSwiftPackageReference "CompactSlider" */,
 				03ADC8B7299581AF00B2843F /* XCRemoteSwiftPackageReference "ml-stable-diffusion" */,
-				0328BCE72BA11DEA004B5AE0 /* XCRemoteSwiftPackageReference "swift-format" */,
 			);
 			productRefGroup = 036BFC1F294B9F7500D8AD04 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
 				036BFC1D294B9F7500D8AD04 /* Mochi Diffusion */,
+				BFE66B0F2F2ED14800A8965C /* Flux2c */,
 			);
 		};
 /* End PBXProject section */
@@ -427,6 +498,24 @@
 			shellPath = /bin/sh;
 			shellScript = "export PATH=\"$PATH:/opt/homebrew/bin\"\nif which swift-format > /dev/null; then\n  swift-format lint -p -r ./ | sed 's/: error: /: warning: /'\nelse\n  echo \"warning: swift-format not installed, download from https://github.com/apple/swift-format\"\nfi\n";
 		};
+		BFE66B132F2ED15300A8965C /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(BUILD_DIR)/vendor/flux2c/$(CONFIGURATION)/libflux_mps.a",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -euo pipefail\n\"${SRCROOT}/scripts/build_flux2c_lib.sh\"\n";
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -437,10 +526,10 @@
 				03E89F3C294FE6ED0067457E /* SDImage.swift in Sources */,
 				035EDFF3295A1FBF00080D18 /* NumberOfImagesView.swift in Sources */,
 				0386DF8D2950F25500CA4CEB /* GalleryToolbarView.swift in Sources */,
-				035E76F42970E79A008DDFDE /* CVPixelBuffer+Resize.swift in Sources */,
 				0352E2A7294E3148003FBF25 /* HelpCommands.swift in Sources */,
 				03B1ACA8295167B900302F54 /* SettingsView.swift in Sources */,
-				03173C18299B3C1300B03456 /* ImageStore.swift in Sources */,
+				03173C18299B3C1300B03456 /* ImageGallery.swift in Sources */,
+				BFE156D72F2F37B10060DEBF /* Flux2c-BridgingHeader.h in Sources */,
 				035EDFFC295A21D600080D18 /* SizeView.swift in Sources */,
 				0395B3112995C70400465B73 /* Scheduler.swift in Sources */,
 				0352E2AE294EA2B4003FBF25 /* MessageBanner.swift in Sources */,
@@ -452,31 +541,41 @@
 				0373FF5429A9165600C0180F /* AppCommands.swift in Sources */,
 				9485F21C2CB97B53002623B7 /* FilterTextFieldView.swift in Sources */,
 				03D280F2294FD60E00C7D184 /* PromptView.swift in Sources */,
-				03FD2319295F74B6006EEEE2 /* RealESRGAN.mlmodel in Sources */,
 				035EE000295A224900080D18 /* ModelView.swift in Sources */,
 				03E075792968A153003488F9 /* CircularProgressView.swift in Sources */,
+				BFE66B0E2F2AFD3700A8965C /* ConfigStore.swift in Sources */,
 				58FF218829FAE96200A70C7C /* ControlNetView.swift in Sources */,
 				C11A03882B099D9600540F7F /* JobQueueView.swift in Sources */,
 				C1ADEC2C2B16957800E142CA /* FolderMonitor.swift in Sources */,
 				0352E2AA294EA0E1003FBF25 /* AppView.swift in Sources */,
 				D7B03F2029D42F9900DF89DD /* SDModelAttentionType.swift in Sources */,
 				0352E2B5294EA887003FBF25 /* Functions.swift in Sources */,
-				03173C132999E2B500B03456 /* SDModel.swift in Sources */,
+				03173C132999E2B500B03456 /* MochiModel.swift in Sources */,
 				0352E2B1294EA30D003FBF25 /* Extensions.swift in Sources */,
+				C1F0A1A42D0E6B6A00C0BEEF /* FileSystemStore.swift in Sources */,
 				9401BC712CB9ECA500F00DDE /* FilterTagView.swift in Sources */,
+				50457B16071A70822F5C04B2 /* ImageRepository.swift in Sources */,
+				1FE344EEC4F48E228350F971 /* GenerationState.swift in Sources */,
 				03CB9D18297399AE0041A4FA /* ImageCommands.swift in Sources */,
 				71D315162B2A584E007FFDEB /* NotificationController.swift in Sources */,
-				035E76F62970E809008DDFDE /* CVPixelBuffer+Create.swift in Sources */,
-				03173C112999D83600B03456 /* ImageGenerator.swift in Sources */,
+				03173C112999D83600B03456 /* SDImageGenerator.swift in Sources */,
+				F3A1C2B3D4E5F60789ABCDEF /* Flux2cImageGenerator.swift in Sources */,
+				838911B22B48DCAE79DE50BC /* ModelRepository.swift in Sources */,
+				BF3689652F308607006501CE /* SDModel.swift in Sources */,
 				0311C69929899A660074BCAE /* Metadata.swift in Sources */,
 				03D43B7829660A1300604911 /* GalleryView.swift in Sources */,
 				03D43B7A29660A2600604911 /* GalleryItemView.swift in Sources */,
 				035EDFF8295A216500080D18 /* StepsView.swift in Sources */,
 				03061E6229AB9C06009AA2A2 /* FocusController.swift in Sources */,
 				C1220FC02AFB122F007E5055 /* ImageWellView.swift in Sources */,
-				03FD231B295F7A81006EEEE2 /* Upscaler.swift in Sources */,
 				0380934329AD504600EDBC8E /* StartingImageView.swift in Sources */,
-				03173C152999F5C700B03456 /* ImageController.swift in Sources */,
+				0EF066A162A2D255BF7624D3 /* ComputeUnitPreference.swift in Sources */,
+				463715C52EA79FC4AF642B78 /* GenerationController.swift in Sources */,
+				73F2FE036E51455A99DBC80B /* GenerationRequest.swift in Sources */,
+				7E03F8C1B8854C42AC38394D /* GenerationService.swift in Sources */,
+				AD83C9D690826D2A57A43EA8 /* GalleryController.swift in Sources */,
+				AE29AC66B78444DABC2B464F /* QuickLookState.swift in Sources */,
+				BF3689672F3086B2006501CE /* Flux2cModel.swift in Sources */,
 				036BFC22294B9F7500D8AD04 /* MochiDiffusionApp.swift in Sources */,
 				03EA52CE297B66C800CDF661 /* SidebarView.swift in Sources */,
 				9B7392C3298DEAC2006F03D5 /* Tokenizer.swift in Sources */,
@@ -487,6 +586,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		BFE66B152F2EDB3900A8965C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = BFE66B0F2F2ED14800A8965C /* Flux2c */;
+			targetProxy = BFE66B142F2EDB3900A8965C /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		0311C6BF2989E3EF0074BCAE /* Localizable.stringsdict */ = {
@@ -577,7 +684,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -635,7 +742,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = macosx;
@@ -654,13 +761,14 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 5.2;
+				CURRENT_PROJECT_VERSION = 6.0;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Mochi Diffusion/Preview Content\"";
 				DEVELOPMENT_TEAM = 9VV558X8J3;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/flux2.c";
 				INFOPLIST_FILE = MochiDiffusionInfo.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Mochi Diffusion";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.graphics-design";
@@ -669,12 +777,16 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 5.2;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 6.0;
+				OTHER_LDFLAGS = "$(BUILD_DIR)/vendor/flux2c/$(CONFIGURATION)/libflux_mps.a";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.joshua-park.Mochi-Diffusion";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/Mochi Diffusion/Flux2c-BridgingHeader.h";
 				SWIFT_VERSION = 5.0;
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/flux2.c";
 			};
 			name = Debug;
 		};
@@ -687,13 +799,14 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 5.2;
+				CURRENT_PROJECT_VERSION = 6.0;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Mochi Diffusion/Preview Content\"";
 				DEVELOPMENT_TEAM = 9VV558X8J3;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/flux2.c";
 				INFOPLIST_FILE = MochiDiffusionInfo.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Mochi Diffusion";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.graphics-design";
@@ -702,12 +815,34 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 5.2;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 6.0;
+				OTHER_LDFLAGS = "$(BUILD_DIR)/vendor/flux2c/$(CONFIGURATION)/libflux_mps.a";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.joshua-park.Mochi-Diffusion";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/Mochi Diffusion/Flux2c-BridgingHeader.h";
 				SWIFT_VERSION = 5.0;
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/flux2.c";
+			};
+			name = Release;
+		};
+		BFE66B112F2ED14800A8965C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 9VV558X8J3;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		BFE66B122F2ED14800A8965C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 9VV558X8J3;
+				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
 		};
@@ -732,31 +867,24 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		BFE66B102F2ED14800A8965C /* Build configuration list for PBXAggregateTarget "Flux2c" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BFE66B112F2ED14800A8965C /* Debug */,
+				BFE66B122F2ED14800A8965C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		0328BCE72BA11DEA004B5AE0 /* XCRemoteSwiftPackageReference "swift-format" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/apple/swift-format";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 510.0.1;
-			};
-		};
 		0352E2A3294E2591003FBF25 /* XCRemoteSwiftPackageReference "Sparkle" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/sparkle-project/Sparkle";
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 2.0.0;
-			};
-		};
-		036BFC4C294B9FDB00D8AD04 /* XCRemoteSwiftPackageReference "Path.swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/mxcl/Path.swift.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.0;
 			};
 		};
 		0388DEAE297B00FC008B1C1C /* XCRemoteSwiftPackageReference "CompactSlider" */ = {
@@ -778,20 +906,10 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		0328BCE82BA11DEB004B5AE0 /* SwiftFormat */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 0328BCE72BA11DEA004B5AE0 /* XCRemoteSwiftPackageReference "swift-format" */;
-			productName = SwiftFormat;
-		};
 		0352E2A4294E2591003FBF25 /* Sparkle */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 0352E2A3294E2591003FBF25 /* XCRemoteSwiftPackageReference "Sparkle" */;
 			productName = Sparkle;
-		};
-		036BFC4D294B9FDB00D8AD04 /* Path */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 036BFC4C294B9FDB00D8AD04 /* XCRemoteSwiftPackageReference "Path.swift" */;
-			productName = Path;
 		};
 		0388DEAF297B00FC008B1C1C /* CompactSlider */ = {
 			isa = XCSwiftPackageProductDependency;

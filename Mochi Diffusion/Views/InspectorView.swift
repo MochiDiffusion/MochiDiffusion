@@ -6,7 +6,6 @@
 //
 
 import CoreML
-import StableDiffusion
 import SwiftUI
 
 struct InfoGridRow: View {
@@ -57,11 +56,13 @@ struct InfoGridRow: View {
 }
 
 struct InspectorView: View {
-    @Environment(ImageStore.self) private var store: ImageStore
+    @Environment(ImageGallery.self) private var store: ImageGallery
+    @Environment(GenerationController.self) private var controller: GenerationController
 
     var body: some View {
         VStack(spacing: 0) {
             if let sdi = store.selected(), let img = sdi.image {
+                let metadataFields = store.metadataFields(for: sdi.id)
                 Image(img, scale: 1, label: Text(verbatim: String(sdi.prompt)))
                     .resizable()
                     .aspectRatio(contentMode: .fit)
@@ -76,58 +77,76 @@ struct InspectorView: View {
                             text: sdi.generatedDate.formatted(date: .long, time: .standard),
                             showCopyToPromptOption: false
                         )
-                        InfoGridRow(
-                            type: LocalizedStringKey(Metadata.model.rawValue),
-                            text: sdi.model,
-                            showCopyToPromptOption: false
-                        )
-                        InfoGridRow(
-                            type: LocalizedStringKey(Metadata.size.rawValue),
-                            text:
-                                "\(sdi.width) x \(sdi.height)\(!sdi.upscaler.isEmpty ? " (Upscaled using \(sdi.upscaler))" : "")",
-                            showCopyToPromptOption: false
-                        )
-                        InfoGridRow(
-                            type: LocalizedStringKey(Metadata.includeInImage.rawValue),
-                            text: sdi.prompt,
-                            showCopyToPromptOption: true,
-                            callback: ImageController.shared.copyPromptToPrompt
-                        )
-                        InfoGridRow(
-                            type: LocalizedStringKey(Metadata.excludeFromImage.rawValue),
-                            text: sdi.negativePrompt,
-                            showCopyToPromptOption: true,
-                            callback: ImageController.shared.copyNegativePromptToPrompt
-                        )
-                        InfoGridRow(
-                            type: LocalizedStringKey(Metadata.seed.rawValue),
-                            text: String(sdi.seed),
-                            showCopyToPromptOption: true,
-                            callback: ImageController.shared.copySeedToPrompt
-                        )
-                        InfoGridRow(
-                            type: LocalizedStringKey(Metadata.steps.rawValue),
-                            text: String(sdi.steps),
-                            showCopyToPromptOption: true,
-                            callback: ImageController.shared.copyStepsToPrompt
-                        )
-                        InfoGridRow(
-                            type: LocalizedStringKey(Metadata.guidanceScale.rawValue),
-                            text: String(sdi.guidanceScale),
-                            showCopyToPromptOption: true,
-                            callback: ImageController.shared.copyGuidanceScaleToPrompt
-                        )
-                        InfoGridRow(
-                            type: LocalizedStringKey(Metadata.scheduler.rawValue),
-                            text: sdi.scheduler.rawValue,
-                            showCopyToPromptOption: true,
-                            callback: ImageController.shared.copySchedulerToPrompt
-                        )
-                        InfoGridRow(
-                            type: LocalizedStringKey(Metadata.mlComputeUnit.rawValue),
-                            text: MLComputeUnits.toString(sdi.mlComputeUnit),
-                            showCopyToPromptOption: false
-                        )
+                        if metadataFields.contains(.model) {
+                            InfoGridRow(
+                                type: LocalizedStringKey(Metadata.model.rawValue),
+                                text: sdi.model,
+                                showCopyToPromptOption: false
+                            )
+                        }
+                        if metadataFields.contains(.size) {
+                            InfoGridRow(
+                                type: LocalizedStringKey(Metadata.size.rawValue),
+                                text:
+                                    "\(sdi.width) x \(sdi.height)",
+                                showCopyToPromptOption: false
+                            )
+                        }
+                        if metadataFields.contains(.prompt) {
+                            InfoGridRow(
+                                type: LocalizedStringKey(Metadata.includeInImage.rawValue),
+                                text: sdi.prompt,
+                                showCopyToPromptOption: true,
+                                callback: controller.copyPromptToPrompt
+                            )
+                        }
+                        if metadataFields.contains(.negativePrompt) {
+                            InfoGridRow(
+                                type: LocalizedStringKey(Metadata.excludeFromImage.rawValue),
+                                text: sdi.negativePrompt,
+                                showCopyToPromptOption: true,
+                                callback: controller.copyNegativePromptToPrompt
+                            )
+                        }
+                        if metadataFields.contains(.seed) {
+                            InfoGridRow(
+                                type: LocalizedStringKey(Metadata.seed.rawValue),
+                                text: String(sdi.seed),
+                                showCopyToPromptOption: true,
+                                callback: controller.copySeedToPrompt
+                            )
+                        }
+                        if metadataFields.contains(.steps) {
+                            InfoGridRow(
+                                type: LocalizedStringKey(Metadata.steps.rawValue),
+                                text: String(sdi.steps),
+                                showCopyToPromptOption: true,
+                                callback: controller.copyStepsToPrompt
+                            )
+                        }
+                        if metadataFields.contains(.guidanceScale) {
+                            InfoGridRow(
+                                type: LocalizedStringKey(Metadata.guidanceScale.rawValue),
+                                text: String(sdi.guidanceScale),
+                                showCopyToPromptOption: true,
+                                callback: controller.copyGuidanceScaleToPrompt
+                            )
+                        }
+                        if metadataFields.contains(.scheduler) {
+                            InfoGridRow(
+                                type: LocalizedStringKey(Metadata.scheduler.rawValue),
+                                text: sdi.scheduler.rawValue,
+                                showCopyToPromptOption: true,
+                                callback: controller.copySchedulerToPrompt
+                            )
+                        }
+                        if metadataFields.contains(.mlComputeUnit) {
+                            InfoGridRow(
+                                type: LocalizedStringKey(Metadata.mlComputeUnit.rawValue),
+                                text: MLComputeUnits.toString(sdi.mlComputeUnit),
+                                showCopyToPromptOption: false
+                            )
+                        }
                     }
                 }
                 .padding([.horizontal])
@@ -136,7 +155,7 @@ struct InspectorView: View {
 
                 HStack {
                     Button {
-                        ImageController.shared.copyToPrompt()
+                        controller.copyToPrompt()
                     } label: {
                         Text(
                             "Copy Options to Sidebar",
@@ -145,7 +164,7 @@ struct InspectorView: View {
                         )
                     }
                     Button {
-                        let info = sdi.getHumanReadableInfo()
+                        let info = sdi.getHumanReadableInfo(including: metadataFields)
                         let pasteboard = NSPasteboard.general
                         pasteboard.declareTypes([.string], owner: nil)
                         pasteboard.setString(info, forType: .string)
@@ -263,5 +282,5 @@ extension CGImage {
 
 #Preview {
     InspectorView()
-        .environment(ImageStore.shared)
+        .environment(ImageGallery.shared)
 }
