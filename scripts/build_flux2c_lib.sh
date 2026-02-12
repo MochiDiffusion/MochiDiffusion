@@ -11,6 +11,30 @@ SHIM_OBJ="${OUT_DIR}/flux_img2img_with_embeddings.mps.o"
 
 mkdir -p "${OUT_DIR}"
 
+# ---- SUBMODULE GUARD ----
+if [ ! -f "${VENDOR_DIR}/Makefile" ]; then
+  echo "flux2.c submodule appears missing; attempting to initialize/update..."
+
+  if ! command -v git >/dev/null 2>&1; then
+    echo "error: git is required to fetch the flux2.c submodule"
+    exit 1
+  fi
+
+  if ! git -C "${SRCROOT}" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    echo "error: ${SRCROOT} is not a git worktree; cannot fetch flux2.c automatically"
+    exit 1
+  fi
+
+  git -C "${SRCROOT}" submodule sync -- flux2.c
+  GIT_TERMINAL_PROMPT=0 git -C "${SRCROOT}" submodule update --init --recursive flux2.c
+
+  if [ ! -f "${VENDOR_DIR}/Makefile" ]; then
+    echo "error: flux2.c submodule is still unavailable after update"
+    echo "error: Run: git submodule update --init --recursive flux2.c"
+    exit 1
+  fi
+fi
+
 # ---- PLATFORM GUARD ----
 UNAME_S="$(uname -s)"
 UNAME_M="$(uname -m)"
