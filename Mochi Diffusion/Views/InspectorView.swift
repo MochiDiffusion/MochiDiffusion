@@ -81,7 +81,8 @@ struct InspectorView: View {
                             InfoGridRow(
                                 type: LocalizedStringKey(Metadata.model.rawValue),
                                 text: sdi.model,
-                                showCopyToPromptOption: false
+                                showCopyToPromptOption: true,
+                                callback: controller.copyModelToPrompt
                             )
                         }
                         if metadataFields.contains(.size) {
@@ -89,7 +90,8 @@ struct InspectorView: View {
                                 type: LocalizedStringKey(Metadata.size.rawValue),
                                 text:
                                     "\(sdi.width) x \(sdi.height)",
-                                showCopyToPromptOption: false
+                                showCopyToPromptOption: true,
+                                callback: controller.copySizeToPrompt
                             )
                         }
                         if metadataFields.contains(.prompt) {

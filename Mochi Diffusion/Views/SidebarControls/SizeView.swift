@@ -56,26 +56,43 @@ struct NumericTextField: View {
 }
 
 struct SizeView: View {
+    @Environment(GenerationController.self) private var controller: GenerationController
     @Environment(ConfigStore.self) private var configStore: ConfigStore
     let minSize = 64, maxSize = 1792, step = 16
 
     var body: some View {
         @Bindable var configStore = configStore
-
+        
         HStack(spacing: 12) {
             VStack(alignment: .leading) {
                 Text(
                     "Width:",
                     comment: "Label for image width picker"
                 )
-                NumericTextField(value: $configStore.width, bounds: minSize...maxSize, step: step)
+                if let sdModel = controller.currentModel as? SDModel,
+                   let w = sdModel.inputSize?.width {
+                    TextField("", text: .constant(String(Int(w))))
+                        .frame(width: 60)
+                        .disabled(true)
+                        .opacity(0.6)
+                } else {
+                    NumericTextField(
+                        value: $configStore.width, bounds: minSize...maxSize, step: step)
+                }
             }
 
             Button {
                 withAnimation(.easeInOut(duration: 0.15)) {
-                    let w = configStore.width
-                    configStore.width = configStore.height
-                    configStore.height = w
+                    if let sdModel = controller.currentModel as? SDModel,
+                       let w = sdModel.inputSize?.width,
+                       let h = sdModel.inputSize?.height
+                    {
+                        controller.setSize(width: Int(h), height: Int(w))
+                    } else {
+                        let w = configStore.width
+                        configStore.width = configStore.height
+                        configStore.height = w
+                    }
                 }
             } label: {
                 Image(systemName: "arrow.left.arrow.right")
@@ -92,7 +109,15 @@ struct SizeView: View {
                     "Height:",
                     comment: "Label for image height picker"
                 )
-                NumericTextField(value: $configStore.height, bounds: minSize...maxSize, step: step)
+                if let sdModel = controller.currentModel as? SDModel, let h = sdModel.inputSize?.height {
+                    TextField("", text: .constant(String(Int(h))))
+                        .frame(width: 60)
+                        .disabled(true)
+                        .opacity(0.6)
+                } else {
+                    NumericTextField(
+                        value: $configStore.height, bounds: minSize...maxSize, step: step)
+                }
             }
         }
     }
@@ -100,5 +125,6 @@ struct SizeView: View {
 
 #Preview {
     SizeView()
+        .environment(GenerationController(configStore: ConfigStore()))
         .environment(ConfigStore())
 }

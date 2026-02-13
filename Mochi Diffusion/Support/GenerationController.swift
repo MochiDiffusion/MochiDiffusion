@@ -250,6 +250,60 @@ final class GenerationController {
         configStore.prompt = sdi.prompt
     }
 
+    func copyModelToPrompt() {
+        guard let sdi = ImageGallery.shared.selected() else { return }
+        setModel(sdi.model)
+    }
+
+    func setModel(_ modelName: String) {
+        if let matchingModel = models.first(where: { $0.name == modelName }) {
+            currentModelId = matchingModel.id
+            return
+        }
+    }
+
+    func copySizeToPrompt() {
+        guard let sdi = ImageGallery.shared.selected() else { return }
+        setSize(width: sdi.width, height: sdi.height)
+    }
+
+    func setSize(width: Int, height: Int) {
+        func orientationCategory(width: Int, height: Int) -> Int {
+            if width > height {
+                return 1
+            }
+            if width < height {
+                return -1
+            }
+            return 0
+        }
+
+        if let currentSDModel = currentModel as? SDModel {
+            // Match model name prefix and orientation (portrait, landscape, square)
+            // hacky special treatment for models with names like <model-name>_
+            let currentOrientation = orientationCategory(width: width, height: height)
+            if let matchingModel = models.first(where: {
+                guard
+                    let model = $0 as? SDModel,
+                    model.name.split(separator: "_").first == currentSDModel.name.split(separator: "_").first,
+                    let size = model.inputSize
+                else { return false }
+
+                let modelOrientation = orientationCategory(
+                    width: Int(size.width),
+                    height: Int(size.height)
+                )
+                return currentOrientation == modelOrientation
+            }) {
+                currentModelId = matchingModel.id
+                return
+            }
+        } else {
+            configStore.width = width
+            configStore.height = height
+        }
+    }
+
     func copyNegativePromptToPrompt() {
         guard let sdi = ImageGallery.shared.selected() else { return }
         configStore.negativePrompt = sdi.negativePrompt
