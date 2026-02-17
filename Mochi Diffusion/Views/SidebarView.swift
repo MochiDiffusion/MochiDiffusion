@@ -16,12 +16,12 @@ struct SidebarView: View {
                     Divider().frame(height: 16)
                 }
                 Group {
-                    StartingImageView()
-                    Divider().frame(height: 16)
-                }
-                Group {
                     ModelView()
                     Spacer().frame(height: 6)
+                }
+                Group {
+                    StartingImageView()
+                    Divider().frame(height: 16)
                 }
                 Group {
                     SizeView()
