@@ -1,5 +1,5 @@
 //
-//  Flux2cModel.swift
+//  IrisFluxKleinModel.swift
 //  Mochi Diffusion
 //
 

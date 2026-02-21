@@ -2,9 +2,9 @@
 set -euo pipefail
 
 # ---- CONFIG ----
-VENDOR_DIR="${SRCROOT}/flux2.c"
-SHIM_DIR="${SRCROOT}/flux2c_shims"
-OUT_DIR="${BUILD_DIR}/vendor/flux2c/${CONFIGURATION}"
+VENDOR_DIR="${SRCROOT}/iris.c"
+SHIM_DIR="${SRCROOT}/iris_shims"
+OUT_DIR="${BUILD_DIR}/vendor/iris/${CONFIGURATION}"
 OUT_LIB="${OUT_DIR}/libflux_mps.a"
 COMPAT_SRC="${SHIM_DIR}/flux_compat.c"
 COMPAT_OBJ="${OUT_DIR}/flux_compat.mps.o"
@@ -13,24 +13,24 @@ mkdir -p "${OUT_DIR}"
 
 # ---- SUBMODULE GUARD ----
 if [ ! -f "${VENDOR_DIR}/Makefile" ]; then
-  echo "flux2.c submodule appears missing; attempting to initialize/update..."
+  echo "iris.c submodule appears missing; attempting to initialize/update..."
 
   if ! command -v git >/dev/null 2>&1; then
-    echo "error: git is required to fetch the flux2.c submodule"
+    echo "error: git is required to fetch the iris.c submodule"
     exit 1
   fi
 
   if ! git -C "${SRCROOT}" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-    echo "error: ${SRCROOT} is not a git worktree; cannot fetch flux2.c automatically"
+    echo "error: ${SRCROOT} is not a git worktree; cannot fetch iris.c automatically"
     exit 1
   fi
 
-  git -C "${SRCROOT}" submodule sync -- flux2.c
-  GIT_TERMINAL_PROMPT=0 git -C "${SRCROOT}" submodule update --init --recursive flux2.c
+  git -C "${SRCROOT}" submodule sync -- iris.c
+  GIT_TERMINAL_PROMPT=0 git -C "${SRCROOT}" submodule update --init --recursive iris.c
 
   if [ ! -f "${VENDOR_DIR}/Makefile" ]; then
-    echo "error: flux2.c submodule is still unavailable after update"
-    echo "error: Run: git submodule update --init --recursive flux2.c"
+    echo "error: iris.c submodule is still unavailable after update"
+    echo "error: Run: git submodule update --init --recursive iris.c"
     exit 1
   fi
 fi

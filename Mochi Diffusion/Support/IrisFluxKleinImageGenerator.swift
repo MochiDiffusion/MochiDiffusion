@@ -1,5 +1,5 @@
 //
-//  Flux2cImageGenerator.swift
+//  IrisFluxKleinImageGenerator.swift
 //  Mochi Diffusion
 //
 
