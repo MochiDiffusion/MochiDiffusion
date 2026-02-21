@@ -20,18 +20,15 @@ struct JobQueueView: View {
         {
             let step = progress.step + 1
             let stepValue = Double(step) / Double(progress.stepCount)
-
-            let progressLabel = String(
-                localized:
-                    "About \(formatTimeRemaining(generationState.lastStepGenerationElapsedTime, stepsLeft: progress.stepCount - step))",
-                comment: "Text displaying the current time remaining"
-            )
+            let progressLabel = "Step \(step)/\(progress.stepCount)"
             progressData = (stepValue, progressLabel)
-        } else if case .loading = generationState.state {
-            let progressLabel = String(
-                localized: "Loading the model for the first time may take a few minutes",
-                comment: "Text displayed when the model is being loaded"
-            )
+        } else if case .loading(let stage) = generationState.state {
+            let progressLabel =
+                stage
+                ?? String(
+                    localized: "Loading the model for the first time may take a few minutes",
+                    comment: "Text displayed when the model is being loaded"
+                )
             progressData = (-1, progressLabel)
         }
     }

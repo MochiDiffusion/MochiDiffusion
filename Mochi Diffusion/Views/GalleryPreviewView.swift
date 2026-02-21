@@ -21,12 +21,7 @@ struct GalleryPreviewView: View {
             {
                 let step = progress.step + 1
                 let stepValue = Double(step) / Double(progress.stepCount)
-
-                let progressLabel = String(
-                    localized:
-                        "About \(formatTimeRemaining(generationState.lastStepGenerationElapsedTime, stepsLeft: progress.stepCount - step))",
-                    comment: "Text displaying the current time remaining"
-                )
+                let progressLabel = "Step \(step)/\(progress.stepCount)"
 
                 VStack(alignment: .leading) {
                     HStack {

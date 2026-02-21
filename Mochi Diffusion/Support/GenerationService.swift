@@ -142,8 +142,8 @@ actor GenerationService {
                     onState: { [weak self] status in
                         await self?.updateGenerationState(status)
                     },
-                    onProgress: { [weak self] progress, elapsed in
-                        await self?.updateGenerationProgress(progress, elapsedTime: elapsed)
+                    onProgress: { [weak self] progress, _ in
+                        await self?.updateGenerationProgress(progress)
                     },
                     onPreview: { image in
                         await MainActor.run {
@@ -212,20 +212,14 @@ actor GenerationService {
     private func updateGenerationState(_ status: GenerationState.Status) async {
         await MainActor.run {
             GenerationState.shared.state = status
-            if case .running = status {
-                return
-            }
-            GenerationState.shared.lastStepGenerationElapsedTime = nil
         }
     }
 
     private func updateGenerationProgress(
-        _ progress: GenerationState.Progress,
-        elapsedTime: Double?
+        _ progress: GenerationState.Progress
     ) async {
         await MainActor.run {
             GenerationState.shared.state = .running(progress)
-            GenerationState.shared.lastStepGenerationElapsedTime = elapsedTime
         }
     }
 

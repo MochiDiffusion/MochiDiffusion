@@ -17,12 +17,11 @@ final class GenerationState {
     enum Status: Sendable, Equatable {
         case ready(String?)
         case error(String)
-        case loading
+        case loading(String?)
         case running(Progress?)
     }
 
     static let shared = GenerationState()
 
     var state: Status = .ready(nil)
-    var lastStepGenerationElapsedTime: Double?
 }

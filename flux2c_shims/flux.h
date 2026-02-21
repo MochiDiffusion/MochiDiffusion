@@ -31,6 +31,8 @@ typedef struct flux_params flux_params;
 #define FLUX_PARAMS_DEFAULT { FLUX_DEFAULT_WIDTH, FLUX_DEFAULT_HEIGHT, 0, -1, 0.0f, 0, 0, 2.0f }
 
 typedef void (*flux_step_image_cb_t)(int step, int total, const flux_image *img);
+typedef void (*flux_step_cb_t)(int step, int total);
+typedef void (*flux_phase_cb_t)(const char *phase, int done);
 
 flux_ctx *flux_load_dir(const char *model_dir);
 void flux_free(flux_ctx *ctx);
@@ -67,6 +69,8 @@ void flux_image_free(flux_image *img);
 
 const char *flux_get_error(void);
 void flux_set_step_image_callback(flux_ctx *ctx, flux_step_image_cb_t callback);
+void flux_set_step_callback(flux_step_cb_t callback);
+void flux_set_phase_callback(flux_phase_cb_t callback);
 void flux_request_cancel(void);
 void flux_clear_cancel(void);
 

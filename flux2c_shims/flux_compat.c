@@ -1,5 +1,8 @@
 #include "flux.h"
 
+extern void (*iris_step_callback)(int, int);
+extern void (*iris_phase_callback)(const char *, int);
+
 static iris_params to_iris_params(const flux_params *params) {
     if (params == NULL) {
         return (iris_params)IRIS_PARAMS_DEFAULT;
@@ -102,6 +105,14 @@ const char *flux_get_error(void) {
 
 void flux_set_step_image_callback(flux_ctx *ctx, flux_step_image_cb_t callback) {
     iris_set_step_image_callback(ctx, callback);
+}
+
+void flux_set_step_callback(flux_step_cb_t callback) {
+    iris_step_callback = callback;
+}
+
+void flux_set_phase_callback(flux_phase_cb_t callback) {
+    iris_phase_callback = callback;
 }
 
 void flux_request_cancel(void) {

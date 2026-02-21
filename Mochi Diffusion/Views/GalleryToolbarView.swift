@@ -30,7 +30,7 @@ struct GalleryToolbarView: View {
                     CircularProgressView(progress: stepValue)
                         .frame(width: 16, height: 16)
                 }
-            } else if case .loading = generationState.state {
+            } else if case .loading(_) = generationState.state {
                 Button {
                     self.isStatusPopoverShown.toggle()
                 } label: {

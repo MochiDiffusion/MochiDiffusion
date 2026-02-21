@@ -23,10 +23,11 @@ final class IrisFluxKleinImageGenerator: ImageGenerator {
             throw IrisFluxKleinImageGeneratorError.invalidPipeline
         }
 
-        await onState(.loading)
+        await onState(.loading("Loading model..."))
         generationStopped = false
         flux_clear_cancel()
         FluxStepImageBridge.configure(
+            onState: onState,
             onProgress: onProgress,
             onPreview: onPreview,
             usePreview: request.useDenoisedIntermediates
@@ -43,6 +44,13 @@ final class IrisFluxKleinImageGenerator: ImageGenerator {
         }
 
         flux_set_mmap(ctx, 1)
+        flux_set_phase_callback(fluxPhaseCallback)
+        flux_set_step_callback(fluxStepCallback)
+        if request.useDenoisedIntermediates {
+            flux_set_step_image_callback(ctx, fluxStepImageCallback)
+        } else {
+            flux_set_step_image_callback(ctx, nil)
+        }
         let isDistilled = flux_is_distilled(ctx) != 0
 
         var embeddingLength: Int32 = 0
@@ -100,9 +108,10 @@ final class IrisFluxKleinImageGenerator: ImageGenerator {
             flux_release_text_encoder(ctx)
         }
 
-        //flux_set_step_image_callback(ctx, fluxStepImageCallback)
         defer {
-            //flux_set_step_image_callback(ctx, nil)
+            flux_set_step_image_callback(ctx, nil)
+            flux_set_step_callback(nil)
+            flux_set_phase_callback(nil)
             flux_free(ctx)
             if let startingFluxImage {
                 flux_image_free(startingFluxImage)
@@ -116,7 +125,6 @@ final class IrisFluxKleinImageGenerator: ImageGenerator {
                 break
             }
 
-            FluxStepImageBridge.startStepTiming()
             var params = flux_params.defaultParams
             params.width = Int32(request.size.width)
             params.height = Int32(request.size.height)
@@ -540,60 +548,107 @@ extension flux_params {
 }
 
 private enum FluxStepImageBridge {
+    static var onState: (@Sendable (GenerationState.Status) async -> Void)?
     static var onProgress: (@Sendable (GenerationState.Progress, Double?) async -> Void)?
     static var onPreview: (@Sendable (CGImage?) async -> Void)?
     static var usePreview = false
-    static var lastStepTime: DispatchTime?
 
     static func configure(
+        onState: @escaping @Sendable (GenerationState.Status) async -> Void,
         onProgress: @escaping @Sendable (GenerationState.Progress, Double?) async -> Void,
         onPreview: @escaping @Sendable (CGImage?) async -> Void,
         usePreview: Bool
     ) {
+        self.onState = onState
         self.onProgress = onProgress
         self.onPreview = onPreview
         self.usePreview = usePreview
-        lastStepTime = nil
-    }
-
-    static func startStepTiming() {
-        lastStepTime = DispatchTime.now()
     }
 
     static func reset() {
+        onState = nil
         onProgress = nil
         onPreview = nil
         usePreview = false
-        lastStepTime = nil
+    }
+
+    static func handleStep(step: Int32, total: Int32) {
+        guard
+            let onProgress,
+            total > 0
+        else {
+            return
+        }
+
+        let totalSteps = Int(total)
+        let zeroBasedStep = max(0, min(Int(step) - 1, totalSteps - 1))
+        Task {
+            await onProgress(
+                GenerationState.Progress(step: zeroBasedStep, stepCount: totalSteps),
+                nil
+            )
+        }
+    }
+
+    static func handlePhase(_ phaseName: String?, done: Int32) {
+        guard done == 0, let onState else { return }
+        guard let label = phaseLabel(for: phaseName) else { return }
+        Task {
+            await onState(.loading(label))
+        }
+    }
+
+    static func handlePreview(_ image: UnsafePointer<flux_image>?) {
+        guard
+            usePreview,
+            let onPreview,
+            let image
+        else {
+            return
+        }
+
+        let cgImage = IrisFluxKleinImageGenerator.makeCGImage(from: image)
+        Task {
+            await onPreview(cgImage)
+        }
+    }
+
+    private static func phaseLabel(for phaseName: String?) -> String? {
+        guard let phaseName else { return nil }
+        let normalized = phaseName.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+
+        switch normalized {
+        case "loading qwen3 encoder":
+            return "Loading text encoder..."
+        case "loading flux.2 transformer", "loading z-image transformer":
+            return "Loading transformer..."
+        case "encoding text":
+            return "Encoding prompt..."
+        case "encoding reference image":
+            return "Encoding input image..."
+        case "decoding image":
+            return "Decoding image..."
+        default:
+            return phaseName
+        }
     }
 }
 
-//private let fluxStepImageCallback: @convention(c) (Int32, Int32, UnsafePointer<flux_image>?) -> Void = {
-//    step, total, image in
-//    guard let onProgress = FluxStepImageBridge.onProgress else { return }
-//
-//    let now = DispatchTime.now()
-//    let elapsed = FluxStepImageBridge.lastStepTime.map {
-//        Double(now.uptimeNanoseconds - $0.uptimeNanoseconds) / 1_000_000_000
-//    }
-//    FluxStepImageBridge.lastStepTime = now
-//
-//    Task {
-//        await onProgress(
-//            GenerationState.Progress(step: Int(step), stepCount: Int(total)),
-//            elapsed
-//        )
-//    }
-//
-//    guard FluxStepImageBridge.usePreview,
-//          let onPreview = FluxStepImageBridge.onPreview,
-//          let image
-//    else {
-//        return
-//    }
-//
-//    let cgImage = IrisFluxKleinImageGenerator.makeCGImage(from: image)
-//    Task {
-//        await onPreview(cgImage)
-//    }
-//}
+private let fluxStepCallback: @convention(c) (Int32, Int32) -> Void = { step, total in
+    FluxStepImageBridge.handleStep(step: step, total: total)
+}
+
+private let fluxPhaseCallback: @convention(c) (UnsafePointer<CChar>?, Int32) -> Void = {
+    phase, done in
+    let phaseName = phase.map { String(cString: $0) }
+    FluxStepImageBridge.handlePhase(phaseName, done: done)
+}
+
+private let fluxStepImageCallback:
+    @convention(c) (
+        Int32,
+        Int32,
+        UnsafePointer<flux_image>?
+    ) -> Void = { _, _, image in
+        FluxStepImageBridge.handlePreview(image)
+    }

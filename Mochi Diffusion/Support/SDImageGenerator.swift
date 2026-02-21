@@ -48,8 +48,6 @@ public final class SDImageGenerator: ImageGenerator {
 
     private var generationStopped = false
 
-    private var generationStartTime: DispatchTime?
-
     private var currentPipelineHash: Int?
 
     func loadPipeline(
@@ -67,7 +65,7 @@ public final class SDImageGenerator: ImageGenerator {
         let hash = hasher.finalize()
         guard hash != self.currentPipelineHash else { return }
 
-        await onState(.loading)
+        await onState(.loading(nil))
         let config = MLModelConfiguration()
         config.computeUnits = computeUnit
 
@@ -153,7 +151,7 @@ public final class SDImageGenerator: ImageGenerator {
             await onState(.error("Pipeline is not loaded."))
             throw GeneratorError.pipelineNotAvailable
         }
-        await onState(.loading)
+        await onState(.loading(nil))
         generationStopped = false
         defer {
             Task {
@@ -194,22 +192,17 @@ public final class SDImageGenerator: ImageGenerator {
         sdi.guidanceScale = Double(pipelineConfig.guidanceScale)
 
         for _ in 0..<config.numberOfImages {
-            generationStartTime = DispatchTime.now()
             let images = try pipeline.generateImages(configuration: pipelineConfig) {
                 progress in
 
                 Task {
-                    let endTime = DispatchTime.now()
-                    let elapsed = Double(
-                        endTime.uptimeNanoseconds - (generationStartTime?.uptimeNanoseconds ?? 0))
                     await onProgress(
                         GenerationState.Progress(
                             step: progress.step,
                             stepCount: progress.stepCount
                         ),
-                        elapsed
+                        nil
                     )
-                    generationStartTime = endTime
                 }
 
                 Task {

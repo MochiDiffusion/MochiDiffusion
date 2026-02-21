@@ -273,16 +273,3 @@ func createSDImage(from record: ImageRecord) -> SDImage? {
     sdi.finderTagColorNumber = record.finderTagColorNumber
     return sdi
 }
-
-func formatTimeRemaining(_ interval: Double?, stepsLeft: Int) -> String {
-    guard let interval else { return "-" }
-
-    let formatter = DateComponentsFormatter()
-    formatter.allowedUnits = [.hour, .minute, .second]
-    formatter.unitsStyle = .short
-
-    let formattedString = formatter.string(
-        from: TimeInterval((interval / 1_000_000_000) * Double(stepsLeft)))
-
-    return formattedString ?? "-"
-}
