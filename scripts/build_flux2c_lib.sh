@@ -6,8 +6,8 @@ VENDOR_DIR="${SRCROOT}/flux2.c"
 SHIM_DIR="${SRCROOT}/flux2c_shims"
 OUT_DIR="${BUILD_DIR}/vendor/flux2c/${CONFIGURATION}"
 OUT_LIB="${OUT_DIR}/libflux_mps.a"
-SHIM_SRC="${SHIM_DIR}/flux_img2img_with_embeddings.c"
-SHIM_OBJ="${OUT_DIR}/flux_img2img_with_embeddings.mps.o"
+COMPAT_SRC="${SHIM_DIR}/flux_compat.c"
+COMPAT_OBJ="${OUT_DIR}/flux_compat.mps.o"
 
 mkdir -p "${OUT_DIR}"
 
@@ -57,27 +57,37 @@ for cfile in ${SRCS_LINE}; do
   MPS_TARGETS="${MPS_TARGETS} ${base}.mps.o"
 done
 
-# We also need the Objective-C Metal bridge object
-MPS_TARGETS="${MPS_TARGETS} flux_metal.o"
+# We also need the Objective-C Metal bridge object.
+# Upstream renamed flux_* to iris_*.
+if [ -f "${VENDOR_DIR}/iris_metal.m" ]; then
+  METAL_OBJ="iris_metal.o"
+elif [ -f "${VENDOR_DIR}/flux_metal.m" ]; then
+  METAL_OBJ="flux_metal.o"
+else
+  echo "error: Could not find Metal bridge source (expected iris_metal.m or flux_metal.m)"
+  exit 1
+fi
+
+MPS_TARGETS="${MPS_TARGETS} ${METAL_OBJ}"
 
 # ---- BUILD ONLY THE VENDOR OBJECTS (NO LINK STEP) ----
 make -C "${VENDOR_DIR}" clean
 make -C "${VENDOR_DIR}" ${MPS_TARGETS}
 
-# ---- BUILD SHIM OBJECT ----
-if [ ! -f "${SHIM_SRC}" ]; then
-  echo "error: Missing shim source ${SHIM_SRC}"
+# ---- BUILD COMPAT OBJECT ----
+if [ ! -f "${COMPAT_SRC}" ]; then
+  echo "error: Missing compatibility source ${COMPAT_SRC}"
   exit 1
 fi
 
 MPS_CFLAGS="-Wall -Wextra -O3 -march=native -ffast-math -DUSE_BLAS -DUSE_METAL -DACCELERATE_NEW_LAPACK"
-/usr/bin/cc ${MPS_CFLAGS} -I"${VENDOR_DIR}" -I"${SHIM_DIR}" -c -o "${SHIM_OBJ}" "${SHIM_SRC}"
+/usr/bin/cc ${MPS_CFLAGS} -I"${VENDOR_DIR}" -I"${SHIM_DIR}" -c -o "${COMPAT_OBJ}" "${COMPAT_SRC}"
 
 # ---- ARCHIVE INTO A STATIC LIB ----
 rm -f "${OUT_LIB}"
 /usr/bin/ar rcs "${OUT_LIB}" \
   $(for cfile in ${SRCS_LINE}; do printf "%s/%s.mps.o " "${VENDOR_DIR}" "${cfile%.c}"; done) \
-  "${VENDOR_DIR}/flux_metal.o" \
-  "${SHIM_OBJ}"
+  "${VENDOR_DIR}/${METAL_OBJ}" \
+  "${COMPAT_OBJ}"
 
 echo "Built: ${OUT_LIB}"
