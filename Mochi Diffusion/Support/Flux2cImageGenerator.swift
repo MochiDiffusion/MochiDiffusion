@@ -25,6 +25,7 @@ final class Flux2cImageGenerator: ImageGenerator {
 
         await onState(.loading)
         generationStopped = false
+        flux_clear_cancel()
         FluxStepImageBridge.configure(
             onProgress: onProgress,
             onPreview: onPreview,
@@ -32,6 +33,7 @@ final class Flux2cImageGenerator: ImageGenerator {
         )
         defer {
             FluxStepImageBridge.reset()
+            flux_clear_cancel()
             Task {
                 await onPreview(nil)
             }
@@ -148,6 +150,9 @@ final class Flux2cImageGenerator: ImageGenerator {
             }
 
             guard let image else {
+                if generationStopped {
+                    break
+                }
                 throw Flux2cImageGeneratorError.generateFailed(fluxErrorMessage())
             }
             defer { flux_image_free(image) }
@@ -222,6 +227,7 @@ final class Flux2cImageGenerator: ImageGenerator {
 
     func stopGenerate() async {
         generationStopped = true
+        flux_request_cancel()
     }
 
     private func makeImageData(

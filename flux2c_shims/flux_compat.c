@@ -103,3 +103,11 @@ const char *flux_get_error(void) {
 void flux_set_step_image_callback(flux_ctx *ctx, flux_step_image_cb_t callback) {
     iris_set_step_image_callback(ctx, callback);
 }
+
+void flux_request_cancel(void) {
+    iris_request_cancel();
+}
+
+void flux_clear_cancel(void) {
+    iris_clear_cancel();
+}

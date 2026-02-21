@@ -67,6 +67,8 @@ void flux_image_free(flux_image *img);
 
 const char *flux_get_error(void);
 void flux_set_step_image_callback(flux_ctx *ctx, flux_step_image_cb_t callback);
+void flux_request_cancel(void);
+void flux_clear_cancel(void);
 
 #ifdef __cplusplus
 }
