@@ -112,7 +112,10 @@ struct GenerationRequest: Sendable, Identifiable {
     let size: CGSize
 
     let startingImageData: Data?
+    let startingImageName: String?
     let controlNetInputs: [Data]
+    let controlNetImageNames: [String]
+    let inputImageNames: [String]
 
     let strength: Float
     let stepCount: Int
@@ -132,7 +135,10 @@ struct GenerationRequest: Sendable, Identifiable {
         negativePrompt: String,
         size: CGSize,
         startingImageData: Data?,
+        startingImageName: String?,
         controlNetInputs: [Data],
+        controlNetImageNames: [String],
+        inputImageNames: [String],
         strength: Float,
         stepCount: Int,
         guidanceScale: Float,
@@ -150,7 +156,10 @@ struct GenerationRequest: Sendable, Identifiable {
         self.negativePrompt = negativePrompt
         self.size = size
         self.startingImageData = startingImageData
+        self.startingImageName = startingImageName
         self.controlNetInputs = controlNetInputs
+        self.controlNetImageNames = controlNetImageNames
+        self.inputImageNames = inputImageNames
         self.strength = strength
         self.stepCount = stepCount
         self.guidanceScale = guidanceScale
@@ -190,6 +199,10 @@ struct GenerationMetadata: Sendable {
     let height: Int
     let pipeline: GenerationPipeline
     let model: String
+    let quality: String
+    let startingImage: String
+    let controlNetImage: String
+    let inputImages: [String]
     let scheduler: Scheduler
     let seed: UInt32
     let steps: Int

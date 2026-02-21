@@ -159,6 +159,10 @@ final class Flux2cImageGenerator: ImageGenerator {
                 height: Int(image.pointee.height),
                 pipeline: request.pipeline,
                 model: request.pipeline.displayName,
+                quality: "",
+                startingImage: "",
+                controlNetImage: "",
+                inputImages: request.inputImageNames,
                 scheduler: .discreteFlowScheduler,
                 seed: seed,
                 steps: 4,
@@ -234,6 +238,10 @@ final class Flux2cImageGenerator: ImageGenerator {
         sdi.prompt = metadata.prompt
         sdi.negativePrompt = metadata.negativePrompt
         sdi.model = metadata.model
+        sdi.quality = metadata.quality
+        sdi.startingImage = metadata.startingImage
+        sdi.controlNetImage = metadata.controlNetImage
+        sdi.inputImages = metadata.inputImages
         sdi.scheduler = metadata.scheduler
         sdi.seed = metadata.seed
         sdi.steps = metadata.steps

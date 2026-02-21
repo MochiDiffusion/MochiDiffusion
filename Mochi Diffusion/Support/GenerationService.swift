@@ -186,11 +186,6 @@ actor GenerationService {
                 logger.error("Pipeline is not available.")
                 await updateStatus(
                     .ready("There was a problem loading pipeline."))
-            } catch SDImageGenerator.GeneratorError.startingImageProvidedWithoutEncoder {
-                logger.error("The selected model does not support setting a starting image.")
-                await updateStatus(
-                    .ready(
-                        "The selected model does not support setting a starting image."))
             } catch {
                 logger.error("There was a problem generating images: \(error)")
                 await updateStatus(

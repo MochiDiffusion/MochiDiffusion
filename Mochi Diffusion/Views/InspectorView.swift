@@ -59,10 +59,27 @@ struct InspectorView: View {
     @Environment(ImageGallery.self) private var store: ImageGallery
     @Environment(GenerationController.self) private var controller: GenerationController
 
+    private func imageFromGallery(named filename: String) -> CGImage? {
+        let trimmed = filename.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return nil }
+
+        return store.allImages.first {
+            let galleryFilename = URL(fileURLWithPath: $0.path).lastPathComponent
+            return galleryFilename.compare(
+                trimmed,
+                options: [.caseInsensitive, .diacriticInsensitive]
+            )
+                == .orderedSame
+        }?.image
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             if let sdi = store.selected(), let img = sdi.image {
                 let metadataFields = store.metadataFields(for: sdi.id)
+                let inputImageNames = sdi.inputImages.filter {
+                    !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                }
                 Image(img, scale: 1, label: Text(verbatim: String(sdi.prompt)))
                     .resizable()
                     .aspectRatio(contentMode: .fit)
@@ -93,6 +110,49 @@ struct InspectorView: View {
                                 showCopyToPromptOption: true,
                                 callback: controller.copySizeToPrompt
                             )
+                        }
+                        if metadataFields.contains(.quality), !sdi.quality.isEmpty {
+                            InfoGridRow(
+                                type: LocalizedStringKey(Metadata.quality.rawValue),
+                                text: sdi.quality,
+                                showCopyToPromptOption: false
+                            )
+                        }
+                        if metadataFields.contains(.startingImage), !sdi.startingImage.isEmpty {
+                            let image = imageFromGallery(named: sdi.startingImage)
+                            InfoGridRow(
+                                type: LocalizedStringKey(Metadata.startingImage.rawValue),
+                                text: image == nil ? sdi.startingImage : nil,
+                                image: image,
+                                showCopyToPromptOption: false
+                            )
+                        }
+                        if metadataFields.contains(.controlNetImage), !sdi.controlNetImage.isEmpty {
+                            let image = imageFromGallery(named: sdi.controlNetImage)
+                            InfoGridRow(
+                                type: LocalizedStringKey(Metadata.controlNetImage.rawValue),
+                                text: image == nil ? sdi.controlNetImage : nil,
+                                image: image,
+                                showCopyToPromptOption: false
+                            )
+                        }
+                        if metadataFields.contains(.inputImages), !inputImageNames.isEmpty {
+                            ForEach(
+                                Array(inputImageNames.enumerated()),
+                                id: \.offset
+                            ) { index, name in
+                                let image = imageFromGallery(named: name)
+                                let label =
+                                    inputImageNames.count == 1
+                                    ? Metadata.inputImages.rawValue
+                                    : "\(Metadata.inputImages.rawValue) \(index + 1)"
+                                InfoGridRow(
+                                    type: LocalizedStringKey(label),
+                                    text: image == nil ? name : nil,
+                                    image: image,
+                                    showCopyToPromptOption: false
+                                )
+                            }
                         }
                         if metadataFields.contains(.prompt) {
                             InfoGridRow(

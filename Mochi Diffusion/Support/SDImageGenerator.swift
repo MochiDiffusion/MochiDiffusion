@@ -15,6 +15,9 @@ struct SDGenerationConfig: Identifiable {
     let prompt: String
     let negativePrompt: String
     let startingImage: CGImage?
+    let startingImageName: String
+    let controlNetImageName: String
+    let inputImageNames: [String]
     let controlNetInputs: [CGImage]
     let model: SDModel
     var mlComputeUnit: MLComputeUnits
@@ -27,7 +30,6 @@ struct SDGenerationConfig: Identifiable {
     let useDenoisedIntermediates: Bool
     let seed: UInt32
     var numberOfImages: Int
-    var imageDir: String
     var imageType: String
 }
 
@@ -40,7 +42,6 @@ public final class SDImageGenerator: ImageGenerator {
         case noModelsFound
         case pipelineNotAvailable
         case requestedModelNotFound
-        case startingImageProvidedWithoutEncoder
     }
 
     private var pipeline: (any StableDiffusionPipelineProtocol)?
@@ -234,6 +235,9 @@ public final class SDImageGenerator: ImageGenerator {
                 sdi.seed = pipelineConfig.seed
                 sdi.generatedDate = Date.now
                 sdi.path = ""
+                sdi.startingImage = config.startingImageName
+                sdi.controlNetImage = config.controlNetImageName
+                sdi.inputImages = config.inputImageNames
 
                 let type = UTType.fromString(config.imageType)
                 guard
@@ -249,6 +253,10 @@ public final class SDImageGenerator: ImageGenerator {
                     height: image.height,
                     pipeline: generationPipeline,
                     model: sdi.model,
+                    quality: sdi.quality,
+                    startingImage: config.startingImageName,
+                    controlNetImage: config.controlNetImageName,
+                    inputImages: config.inputImageNames,
                     scheduler: sdi.scheduler,
                     seed: sdi.seed,
                     steps: sdi.steps,
@@ -298,6 +306,9 @@ extension SDImageGenerator {
             prompt: request.prompt,
             negativePrompt: request.negativePrompt,
             startingImage: startingImage,
+            startingImageName: request.startingImageName ?? "",
+            controlNetImageName: request.controlNetImageNames.first ?? "",
+            inputImageNames: request.inputImageNames,
             controlNetInputs: controlNetInputs,
             model: model,
             mlComputeUnit: computeUnit,
@@ -310,7 +321,6 @@ extension SDImageGenerator {
             useDenoisedIntermediates: request.useDenoisedIntermediates,
             seed: request.seed,
             numberOfImages: request.numberOfImages,
-            imageDir: request.imageDir,
             imageType: request.imageType
         )
     }

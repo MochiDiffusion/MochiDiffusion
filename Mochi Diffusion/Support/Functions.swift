@@ -59,6 +59,10 @@ private struct ParsedMetadataInfo {
     var prompt: String?
     var negativePrompt: String?
     var model: String?
+    var quality: String?
+    var startingImage: String?
+    var controlNetImage: String?
+    var inputImages: [String] = []
     var scheduler: Scheduler?
     var mlComputeUnit: MLComputeUnits?
     var seed: UInt32?
@@ -78,6 +82,14 @@ private func metadataField(for key: Metadata) -> MetadataField? {
         return .model
     case .size:
         return .size
+    case .quality:
+        return .quality
+    case .startingImage:
+        return .startingImage
+    case .controlNetImage:
+        return .controlNetImage
+    case .inputImages:
+        return .inputImages
     case .scheduler:
         return .scheduler
     case .mlComputeUnit:
@@ -95,6 +107,13 @@ private func metadataField(for key: Metadata) -> MetadataField? {
 
 private func parseMetadataInfo(_ infoString: String) -> ParsedMetadataInfo {
     var parsed = ParsedMetadataInfo()
+
+    func parseInputImages(_ value: String) -> [String] {
+        value
+            .split(separator: ",")
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+    }
 
     for field in infoString.split(separator: "; ") {
         guard let separatorIndex = field.firstIndex(of: ":") else { continue }
@@ -117,6 +136,14 @@ private func parseMetadataInfo(_ infoString: String) -> ParsedMetadataInfo {
             parsed.prompt = value
         case .excludeFromImage:
             parsed.negativePrompt = value
+        case .quality:
+            parsed.quality = value
+        case .startingImage:
+            parsed.startingImage = value
+        case .controlNetImage:
+            parsed.controlNetImage = value
+        case .inputImages:
+            parsed.inputImages = parseInputImages(value)
         case .seed:
             parsed.seed = UInt32(value)
         case .steps:
@@ -177,6 +204,10 @@ func createImageRecordFromURL(_ url: URL) -> ImageRecord? {
         height: height,
         aspectRatio: height > 0 ? Double(width) / Double(height) : 0,
         model: "",
+        quality: "",
+        startingImage: "",
+        controlNetImage: "",
+        inputImages: [],
         scheduler: .dpmSolverMultistepScheduler,
         mlComputeUnit: nil,
         seed: 0,
@@ -195,6 +226,10 @@ func createImageRecordFromURL(_ url: URL) -> ImageRecord? {
     record.prompt = parsed.prompt ?? ""
     record.negativePrompt = parsed.negativePrompt ?? ""
     record.model = parsed.model ?? ""
+    record.quality = parsed.quality ?? ""
+    record.startingImage = parsed.startingImage ?? ""
+    record.controlNetImage = parsed.controlNetImage ?? ""
+    record.inputImages = parsed.inputImages
     record.scheduler = parsed.scheduler ?? .dpmSolverMultistepScheduler
     record.mlComputeUnit = parsed.mlComputeUnit
     record.seed = parsed.seed ?? 0
@@ -226,6 +261,10 @@ func createSDImage(from record: ImageRecord) -> SDImage? {
     sdi.prompt = record.prompt
     sdi.negativePrompt = record.negativePrompt
     sdi.model = record.model
+    sdi.quality = record.quality
+    sdi.startingImage = record.startingImage
+    sdi.controlNetImage = record.controlNetImage
+    sdi.inputImages = record.inputImages
     sdi.scheduler = record.scheduler
     sdi.mlComputeUnit = record.mlComputeUnit
     sdi.seed = record.seed

@@ -197,7 +197,10 @@ private struct InfoPopoverView: View {
             }
 
             if let startingImage = decodeImage(from: request.startingImageData) {
-                controller.startingImage = startingImage
+                controller.setStartingImage(
+                    image: startingImage,
+                    filename: request.startingImageName
+                )
                 if supportsStrengthControl {
                     configStore.strength = Double(request.strength)
                 }
@@ -209,7 +212,10 @@ private struct InfoPopoverView: View {
                 let controlNetImage = decodeImage(from: request.controlNetInputs.first)
             {
                 await controller.setControlNet(name: controlNetName)
-                await controller.setControlNet(image: controlNetImage)
+                await controller.setControlNet(
+                    image: controlNetImage,
+                    filename: request.controlNetImageNames.first
+                )
             } else {
                 await controller.unsetControlNet()
             }

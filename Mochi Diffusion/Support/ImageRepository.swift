@@ -15,6 +15,10 @@ struct ImageRecord: Sendable, Identifiable {
     var height: Int
     var aspectRatio: Double
     var model: String
+    var quality: String
+    var startingImage: String
+    var controlNetImage: String
+    var inputImages: [String]
     var scheduler: Scheduler
     var mlComputeUnit: MLComputeUnits?
     var seed: UInt32

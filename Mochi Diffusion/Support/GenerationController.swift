@@ -12,6 +12,12 @@ import os
 @MainActor
 @Observable
 final class GenerationController {
+    struct ControlNetInput {
+        var name: String?
+        var image: CGImage?
+        var imageFilename: String?
+    }
+
     private var logger = Logger()
     private(set) var configStore: ConfigStore
     private let modelRepository: ModelRepository
@@ -21,6 +27,7 @@ final class GenerationController {
     private(set) var models = [any MochiModel]()
     private(set) var controlNet: [String] = []
     var startingImage: CGImage?
+    var startingImageFilename: String?
     var numberOfImages = 1.0
     var seed: UInt32 = 0
 
@@ -42,7 +49,8 @@ final class GenerationController {
         models.first(where: { $0.id == self.currentModelId })
     }
 
-    private(set) var currentControlNets: [(name: String?, image: CGImage?)] = []
+    private(set) var currentControlNets: [ControlNetInput] = []
+    private var pendingSelectedImageFilename: String?
 
     private var modelFolderMonitorTask: Task<Void, Never>?
     private var controlNetFolderMonitorTask: Task<Void, Never>?
@@ -136,36 +144,45 @@ final class GenerationController {
         await GenerationService.shared.enqueue(request)
     }
 
-    func setStartingImage(image: CGImage) {
+    func setStartingImage(image: CGImage, filename: String? = nil) {
         startingImage = image
+        startingImageFilename =
+            normalizedFilename(filename) ?? consumePendingSelectedImageFilename()
     }
 
     func selectStartingImage() async {
-        startingImage = await selectImage()
+        guard let image = await selectImage() else { return }
+        setStartingImage(image: image)
     }
 
     func selectStartingImage(sdi: SDImage) async {
         guard let image = sdi.image else { return }
-        startingImage = image
+        let filename = URL(fileURLWithPath: sdi.path).lastPathComponent
+        setStartingImage(image: image, filename: filename)
     }
 
     func unsetStartingImage() async {
         startingImage = nil
+        startingImageFilename = nil
     }
 
     func setControlNet(name: String) async {
         if self.currentControlNets.isEmpty {
-            self.currentControlNets = [(name: name, image: nil)]
+            self.currentControlNets = [ControlNetInput(name: name, image: nil, imageFilename: nil)]
         } else {
             self.currentControlNets[0].name = name
         }
     }
 
-    func setControlNet(image: CGImage) async {
+    func setControlNet(image: CGImage, filename: String? = nil) async {
+        let imageFilename = normalizedFilename(filename) ?? consumePendingSelectedImageFilename()
         if self.currentControlNets.isEmpty {
-            self.currentControlNets = [(name: nil, image: image)]
+            self.currentControlNets = [
+                ControlNetInput(name: nil, image: image, imageFilename: imageFilename)
+            ]
         } else {
             self.currentControlNets[0].image = image
+            self.currentControlNets[0].imageFilename = imageFilename
         }
     }
 
@@ -174,20 +191,27 @@ final class GenerationController {
     }
 
     func selectControlNetImage(at index: Int) async {
-        await selectImage().map { image in
-            if currentControlNets.isEmpty {
-                currentControlNets = [(name: nil, image: image)]
-            } else if index >= currentControlNets.count {
-                currentControlNets.append((name: nil, image: image))
-            } else {
-                currentControlNets[index].image = image
-            }
+        guard let image = await selectImage() else { return }
+        let imageFilename = consumePendingSelectedImageFilename()
+
+        if currentControlNets.isEmpty {
+            currentControlNets = [
+                ControlNetInput(name: nil, image: image, imageFilename: imageFilename)
+            ]
+        } else if index >= currentControlNets.count {
+            currentControlNets.append(
+                ControlNetInput(name: nil, image: image, imageFilename: imageFilename)
+            )
+        } else {
+            currentControlNets[index].image = image
+            currentControlNets[index].imageFilename = imageFilename
         }
     }
 
     func unsetControlNetImage(at index: Int) async {
         guard index < currentControlNets.count else { return }
         currentControlNets[index].image = nil
+        currentControlNets[index].imageFilename = nil
     }
 
     func selectImage() async -> CGImage? {
@@ -209,8 +233,20 @@ final class GenerationController {
         guard let url = panel.url else { return nil }
         guard let cgImageSource = CGImageSourceCreateWithURL(url as CFURL, nil) else { return nil }
         let imageIndex = CGImageSourceGetPrimaryImageIndex(cgImageSource)
+        pendingSelectedImageFilename = url.lastPathComponent
 
         return CGImageSourceCreateImageAtIndex(cgImageSource, imageIndex, nil)
+    }
+
+    private func consumePendingSelectedImageFilename() -> String? {
+        defer { pendingSelectedImageFilename = nil }
+        return normalizedFilename(pendingSelectedImageFilename)
+    }
+
+    private func normalizedFilename(_ filename: String?) -> String? {
+        guard let filename else { return nil }
+        let trimmed = filename.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.isEmpty ? nil : trimmed
     }
 
     func copyToPrompt() {
@@ -282,10 +318,11 @@ final class GenerationController {
             // Match model name prefix and orientation (portrait, landscape, square)
             // hacky special treatment for models with names like <model-name>_
             let currentOrientation = orientationCategory(width: width, height: height)
+            let currentModelPrefix = currentSDModel.name.split(separator: "_").first
             if let matchingModel = models.first(where: {
                 guard
                     let model = $0 as? SDModel,
-                    model.name.split(separator: "_").first == currentSDModel.name.split(separator: "_").first,
+                    model.name.split(separator: "_").first == currentModelPrefix,
                     let size = model.inputSize
                 else { return false }
 
@@ -335,42 +372,51 @@ final class GenerationController {
         }
 
         let size = CGSize(width: configStore.width, height: configStore.height)
-        var startingImageData: Data?
-        if let inputSize = (model as? SDModel)?.inputSize {
-            startingImageData = self.startingImage?.scaledAndCroppedTo(size: inputSize)?.pngData()
-        } else {
-            startingImageData = self.startingImage?.scaledAndCroppedTo(size: size)?.pngData()
-        }
+        let sdModel = model as? SDModel
+        let targetImageSize = sdModel?.inputSize ?? size
+        let startingImageData = startingImage?.scaledAndCroppedTo(size: targetImageSize)?.pngData()
 
         var controlNetInputs: [Data] = []
         var controlNets: [String] = []
-        for controlNet in currentControlNets {
-            guard
-                let name = controlNet.name,
-                let image = controlNet.image,
-                let inputSize = (model as? SDModel)?.inputSize,
-                let data = image.scaledAndCroppedTo(size: inputSize)?.pngData()
-            else { continue }
-            controlNetInputs.append(data)
-            controlNets.append(name)
+        var controlNetImageNames: [String] = []
+        if let inputSize = sdModel?.inputSize {
+            for input in currentControlNets {
+                guard
+                    let name = input.name,
+                    let image = input.image,
+                    let data = image.scaledAndCroppedTo(size: inputSize)?.pngData()
+                else { continue }
+
+                controlNetInputs.append(data)
+                controlNets.append(name)
+                if let imageFilename = normalizedFilename(input.imageFilename) {
+                    controlNetImageNames.append(imageFilename)
+                }
+            }
         }
 
         let pipeline: GenerationPipeline
-        switch type(of: model) {
-        case is SDModel.Type:
-            let model = model as! SDModel
+        let startingImageName: String?
+        let requestControlNetImageNames: [String]
+        let inputImageNames: [String]
+        if let model = sdModel {
             pipeline = GenerationPipeline.sd(
                 model: model,
                 computeUnit: configStore.mlComputeUnitPreference.computeUnits(forModel: model),
                 controlNets: controlNets,
                 reduceMemory: configStore.reduceMemory
             )
-        case is Flux2cModel.Type:
+            startingImageName = normalizedFilename(startingImageFilename)
+            requestControlNetImageNames = controlNetImageNames
+            inputImageNames = []
+        } else if model is Flux2cModel {
             pipeline = GenerationPipeline.flux2c(
                 modelDir: model.url.path(percentEncoded: false)
             )
-
-        default:
+            startingImageName = nil
+            requestControlNetImageNames = []
+            inputImageNames = normalizedFilename(startingImageFilename).map { [$0] } ?? []
+        } else {
             logger.error("unknown model type")
             return nil
         }
@@ -381,7 +427,10 @@ final class GenerationController {
             negativePrompt: configStore.negativePrompt,
             size: size,
             startingImageData: startingImageData,
+            startingImageName: startingImageName,
             controlNetInputs: controlNetInputs,
+            controlNetImageNames: requestControlNetImageNames,
+            inputImageNames: inputImageNames,
             strength: Float(configStore.strength),
             stepCount: Int(configStore.steps),
             guidanceScale: Float(configStore.guidanceScale),
@@ -434,6 +483,10 @@ final class GenerationController {
             height: height,
             aspectRatio: aspectRatio,
             model: metadata.model,
+            quality: metadata.quality,
+            startingImage: metadata.startingImage,
+            controlNetImage: metadata.controlNetImage,
+            inputImages: metadata.inputImages,
             scheduler: metadata.scheduler,
             mlComputeUnit: metadata.pipeline.mlComputeUnit,
             seed: metadata.seed,

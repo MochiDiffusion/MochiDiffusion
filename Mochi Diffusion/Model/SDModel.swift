@@ -44,6 +44,8 @@ struct SDModel: MochiModel {
                 .size,
                 .scheduler,
                 .mlComputeUnit,
+                .startingImage,
+                .controlNetImage,
                 .seed,
                 .steps,
                 .guidanceScale,

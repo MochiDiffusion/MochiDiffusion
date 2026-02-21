@@ -11,6 +11,7 @@ struct Flux2cModel: MochiModel {
         .prompt,
         .model,
         .size,
+        .inputImages,
         .scheduler,
         .seed,
         .steps,

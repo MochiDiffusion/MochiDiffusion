@@ -26,6 +26,10 @@ enum MetadataField: String, CaseIterable, Sendable {
     case negativePrompt
     case model
     case size
+    case quality
+    case startingImage
+    case controlNetImage
+    case inputImages
     case scheduler
     case mlComputeUnit
     case seed

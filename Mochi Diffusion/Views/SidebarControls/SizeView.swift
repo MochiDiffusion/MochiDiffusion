@@ -62,7 +62,7 @@ struct SizeView: View {
 
     var body: some View {
         @Bindable var configStore = configStore
-        
+
         HStack(spacing: 12) {
             VStack(alignment: .leading) {
                 Text(
@@ -70,22 +70,26 @@ struct SizeView: View {
                     comment: "Label for image width picker"
                 )
                 if let sdModel = controller.currentModel as? SDModel,
-                   let w = sdModel.inputSize?.width {
+                    let w = sdModel.inputSize?.width
+                {
                     TextField("", text: .constant(String(Int(w))))
                         .frame(width: 60)
                         .disabled(true)
                         .opacity(0.6)
                 } else {
                     NumericTextField(
-                        value: $configStore.width, bounds: minSize...maxSize, step: step)
+                        value: $configStore.width,
+                        bounds: minSize...maxSize,
+                        step: step
+                    )
                 }
             }
 
             Button {
                 withAnimation(.easeInOut(duration: 0.15)) {
                     if let sdModel = controller.currentModel as? SDModel,
-                       let w = sdModel.inputSize?.width,
-                       let h = sdModel.inputSize?.height
+                        let w = sdModel.inputSize?.width,
+                        let h = sdModel.inputSize?.height
                     {
                         controller.setSize(width: Int(h), height: Int(w))
                     } else {
@@ -109,14 +113,19 @@ struct SizeView: View {
                     "Height:",
                     comment: "Label for image height picker"
                 )
-                if let sdModel = controller.currentModel as? SDModel, let h = sdModel.inputSize?.height {
+                if let sdModel = controller.currentModel as? SDModel,
+                    let h = sdModel.inputSize?.height
+                {
                     TextField("", text: .constant(String(Int(h))))
                         .frame(width: 60)
                         .disabled(true)
                         .opacity(0.6)
                 } else {
                     NumericTextField(
-                        value: $configStore.height, bounds: minSize...maxSize, step: step)
+                        value: $configStore.height,
+                        bounds: minSize...maxSize,
+                        step: step
+                    )
                 }
             }
         }

@@ -18,6 +18,10 @@ struct SDImage: Identifiable, Hashable {
     var height: Int { self.image?.height ?? 0 }
     var aspectRatio: CGFloat = 0.0
     var model = ""
+    var quality = ""
+    var startingImage = ""
+    var controlNetImage = ""
+    var inputImages: [String] = []
     var scheduler = Scheduler.dpmSolverMultistepScheduler
     var mlComputeUnit: MLComputeUnits?
     var seed: UInt32 = 0
@@ -150,6 +154,18 @@ extension SDImage {
         if metadataFields.contains(.size) {
             pairs.append("\(Metadata.size.rawValue): \(width)x\(height)")
         }
+        if metadataFields.contains(.quality), !quality.isEmpty {
+            pairs.append("\(Metadata.quality.rawValue): \(quality)")
+        }
+        if metadataFields.contains(.startingImage), !startingImage.isEmpty {
+            pairs.append("\(Metadata.startingImage.rawValue): \(startingImage)")
+        }
+        if metadataFields.contains(.controlNetImage), !controlNetImage.isEmpty {
+            pairs.append("\(Metadata.controlNetImage.rawValue): \(controlNetImage)")
+        }
+        if metadataFields.contains(.inputImages), !inputImages.isEmpty {
+            pairs.append("\(Metadata.inputImages.rawValue): \(inputImages.joined(separator: ", "))")
+        }
         if metadataFields.contains(.scheduler) {
             pairs.append("\(Metadata.scheduler.rawValue): \(scheduler.rawValue)")
         }
@@ -183,6 +199,18 @@ extension SDImage {
         }
         if metadataFields.contains(.size) {
             append(.size, value: "\(width) x \(height)")
+        }
+        if metadataFields.contains(.quality), !quality.isEmpty {
+            append(.quality, value: quality)
+        }
+        if metadataFields.contains(.startingImage), !startingImage.isEmpty {
+            append(.startingImage, value: startingImage)
+        }
+        if metadataFields.contains(.controlNetImage), !controlNetImage.isEmpty {
+            append(.controlNetImage, value: controlNetImage)
+        }
+        if metadataFields.contains(.inputImages), !inputImages.isEmpty {
+            append(.inputImages, value: inputImages.joined(separator: ", "))
         }
         if metadataFields.contains(.prompt) {
             append(.includeInImage, value: prompt)
