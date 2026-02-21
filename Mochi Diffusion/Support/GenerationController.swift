@@ -409,9 +409,10 @@ final class GenerationController {
             startingImageName = normalizedFilename(startingImageFilename)
             requestControlNetImageNames = controlNetImageNames
             inputImageNames = []
-        } else if model is Flux2cModel {
-            pipeline = GenerationPipeline.flux2c(
-                modelDir: model.url.path(percentEncoded: false)
+        } else if model is IrisFluxKleinModel {
+            pipeline = GenerationPipeline.iris(
+                modelDir: model.url.path(percentEncoded: false),
+                family: .fluxKlein
             )
             startingImageName = nil
             requestControlNetImageNames = []

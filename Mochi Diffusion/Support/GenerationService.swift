@@ -36,7 +36,7 @@ actor GenerationService {
     private var continuations: [UUID: AsyncStream<Snapshot>.Continuation] = [:]
     private var resultContinuations: [UUID: AsyncStream<GenerationResult>.Continuation] = [:]
     private let sdGenerator = SDImageGenerator()
-    private let fluxGenerator = Flux2cImageGenerator()
+    private let irisFluxKleinGenerator = IrisFluxKleinImageGenerator()
     private var nextImageIndex = 1
     private let imageRepository: ImageRepository
     private let modelRepository: ModelRepository
@@ -118,8 +118,16 @@ actor GenerationService {
                     continue
                 }
                 generator = sdGenerator
-            case .flux2c:
-                generator = fluxGenerator
+            case .iris(_, let family):
+                switch family {
+                case .fluxKlein:
+                    generator = irisFluxKleinGenerator
+                case .zImageTurbo:
+                    await updateStatus(
+                        .ready("Iris Z-Image-Turbo generation is not supported yet.")
+                    )
+                    continue
+                }
             }
 
             currentGenerator = generator

@@ -6,6 +6,56 @@
 import CoreML
 import Foundation
 
+enum IrisModelFamily: Sendable {
+    case fluxKlein
+    case zImageTurbo
+
+    var fallbackDisplayName: String {
+        switch self {
+        case .fluxKlein:
+            return "Iris FLUX.2"
+        case .zImageTurbo:
+            return "Iris Z-Image-Turbo"
+        }
+    }
+
+    var generationCapabilities: GenerationCapabilities {
+        switch self {
+        case .fluxKlein:
+            return IrisFluxKleinModel.generationCapabilities
+        case .zImageTurbo:
+            return []
+        }
+    }
+
+    var metadataFields: Set<MetadataField> {
+        switch self {
+        case .fluxKlein:
+            return IrisFluxKleinModel.metadataFields
+        case .zImageTurbo:
+            return []
+        }
+    }
+
+    func effectiveStepCount(requestedStepCount: Int) -> Int? {
+        switch self {
+        case .fluxKlein:
+            return 4
+        case .zImageTurbo:
+            return requestedStepCount
+        }
+    }
+
+    func effectiveScheduler(requestedScheduler: Scheduler) -> Scheduler? {
+        switch self {
+        case .fluxKlein:
+            return .discreteFlowScheduler
+        case .zImageTurbo:
+            return requestedScheduler
+        }
+    }
+}
+
 enum GenerationPipeline: Sendable {
     case sd(
         model: SDModel,
@@ -13,15 +63,17 @@ enum GenerationPipeline: Sendable {
         controlNets: [String],
         reduceMemory: Bool
     )
-    case flux2c(modelDir: String)
+    case iris(modelDir: String, family: IrisModelFamily)
 
     var displayName: String {
         switch self {
         case .sd(let model, _, _, _):
             return model.name
-        case .flux2c(let modelDir):
+        case .iris(let modelDir, let family):
             let url = URL(fileURLWithPath: modelDir)
-            return url.lastPathComponent.isEmpty ? "FLUX.2" : url.lastPathComponent
+            return url.lastPathComponent.isEmpty
+                ? family.fallbackDisplayName
+                : url.lastPathComponent
         }
     }
 
@@ -29,7 +81,7 @@ enum GenerationPipeline: Sendable {
         switch self {
         case .sd(let model, _, _, _):
             return model
-        case .flux2c:
+        case .iris:
             return nil
         }
     }
@@ -38,7 +90,7 @@ enum GenerationPipeline: Sendable {
         switch self {
         case .sd(_, let computeUnit, _, _):
             return computeUnit
-        case .flux2c:
+        case .iris:
             return nil
         }
     }
@@ -47,7 +99,7 @@ enum GenerationPipeline: Sendable {
         switch self {
         case .sd(_, _, let controlNets, _):
             return controlNets
-        case .flux2c:
+        case .iris:
             return []
         }
     }
@@ -56,7 +108,7 @@ enum GenerationPipeline: Sendable {
         switch self {
         case .sd(_, _, _, let reduceMemory):
             return reduceMemory
-        case .flux2c:
+        case .iris:
             return false
         }
     }
@@ -65,8 +117,8 @@ enum GenerationPipeline: Sendable {
         switch self {
         case .sd(let model, _, _, _):
             return model.config.generationCapabilities
-        case .flux2c:
-            return Flux2cModel.generationCapabilities
+        case .iris(_, let family):
+            return family.generationCapabilities
         }
     }
 
@@ -75,8 +127,8 @@ enum GenerationPipeline: Sendable {
         switch self {
         case .sd(let model, _, _, _):
             return model.config.metadataFields
-        case .flux2c:
-            return Flux2cModel.metadataFields
+        case .iris(_, let family):
+            return family.metadataFields
         }
     }
 
@@ -86,8 +138,8 @@ enum GenerationPipeline: Sendable {
         switch self {
         case .sd:
             return requestedStepCount
-        case .flux2c:
-            return 4
+        case .iris(_, let family):
+            return family.effectiveStepCount(requestedStepCount: requestedStepCount)
         }
     }
 
@@ -97,8 +149,8 @@ enum GenerationPipeline: Sendable {
         switch self {
         case .sd:
             return requestedScheduler
-        case .flux2c:
-            return .discreteFlowScheduler
+        case .iris(_, let family):
+            return family.effectiveScheduler(requestedScheduler: requestedScheduler)
         }
     }
 }

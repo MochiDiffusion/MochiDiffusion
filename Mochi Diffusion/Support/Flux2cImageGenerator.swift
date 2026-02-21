@@ -7,7 +7,7 @@ import CoreGraphics
 import Foundation
 import UniformTypeIdentifiers
 
-final class Flux2cImageGenerator: ImageGenerator {
+final class IrisFluxKleinImageGenerator: ImageGenerator {
     private var generationStopped = false
     private static let embeddingCache = FluxPromptEmbeddingCache(maxEntries: 16)
 
@@ -18,9 +18,9 @@ final class Flux2cImageGenerator: ImageGenerator {
         onPreview: @escaping @Sendable (CGImage?) async -> Void,
         onResult: @escaping @Sendable (GenerationResult) async throws -> Void
     ) async throws {
-        guard case .flux2c(let modelDir) = request.pipeline else {
+        guard case .iris(let modelDir, let family) = request.pipeline, family == .fluxKlein else {
             await onState(.error("Pipeline is not loaded."))
-            throw Flux2cImageGeneratorError.invalidPipeline
+            throw IrisFluxKleinImageGeneratorError.invalidPipeline
         }
 
         await onState(.loading)
@@ -39,7 +39,7 @@ final class Flux2cImageGenerator: ImageGenerator {
             }
         }
         guard let ctx = flux_load_dir(modelDir) else {
-            throw Flux2cImageGeneratorError.loadFailed(fluxErrorMessage())
+            throw IrisFluxKleinImageGeneratorError.loadFailed(fluxErrorMessage())
         }
 
         flux_set_mmap(ctx, 1)
@@ -52,7 +52,7 @@ final class Flux2cImageGenerator: ImageGenerator {
         if let startingImageData = request.startingImageData {
             startingFluxImage = Self.makeFluxImage(from: startingImageData)
             if startingFluxImage == nil {
-                throw Flux2cImageGeneratorError.decodeStartingImageFailed
+                throw IrisFluxKleinImageGeneratorError.decodeStartingImageFailed
             }
         }
 
@@ -65,12 +65,12 @@ final class Flux2cImageGenerator: ImageGenerator {
                 embeddings = cached.values
             } else {
                 guard let encoded = flux_encode_text(ctx, request.prompt, &embeddingLength) else {
-                    throw Flux2cImageGeneratorError.generateFailed(fluxErrorMessage())
+                    throw IrisFluxKleinImageGeneratorError.generateFailed(fluxErrorMessage())
                 }
                 let textDim = Int(flux_text_dim(ctx))
                 guard textDim > 0 else {
                     free(encoded)
-                    throw Flux2cImageGeneratorError.generateFailed(
+                    throw IrisFluxKleinImageGeneratorError.generateFailed(
                         "Invalid text embedding dimension."
                     )
                 }
@@ -153,7 +153,7 @@ final class Flux2cImageGenerator: ImageGenerator {
                 if generationStopped {
                     break
                 }
-                throw Flux2cImageGeneratorError.generateFailed(fluxErrorMessage())
+                throw IrisFluxKleinImageGeneratorError.generateFailed(fluxErrorMessage())
             }
             defer { flux_image_free(image) }
 
@@ -183,7 +183,7 @@ final class Flux2cImageGenerator: ImageGenerator {
                     imageType: request.imageType
                 )
             else {
-                throw Flux2cImageGeneratorError.encodeFailed
+                throw IrisFluxKleinImageGeneratorError.encodeFailed
             }
 
             let result = GenerationResult(metadata: metadata, imageData: imageData)
@@ -357,7 +357,7 @@ final class Flux2cImageGenerator: ImageGenerator {
     }
 }
 
-private enum Flux2cImageGeneratorError: Error, CustomStringConvertible {
+private enum IrisFluxKleinImageGeneratorError: Error, CustomStringConvertible {
     case invalidPipeline
     case loadFailed(String)
     case generateFailed(String)
@@ -367,7 +367,7 @@ private enum Flux2cImageGeneratorError: Error, CustomStringConvertible {
     var description: String {
         switch self {
         case .invalidPipeline:
-            return "Flux2cImageGenerator called with non-flux pipeline."
+            return "IrisFluxKleinImageGenerator called with non-Iris FLUX.2 pipeline."
         case .loadFailed(let message):
             return "Failed to load model: \(message)"
         case .generateFailed(let message):
@@ -592,7 +592,7 @@ private enum FluxStepImageBridge {
 //        return
 //    }
 //
-//    let cgImage = Flux2cImageGenerator.makeCGImage(from: image)
+//    let cgImage = IrisFluxKleinImageGenerator.makeCGImage(from: image)
 //    Task {
 //        await onPreview(cgImage)
 //    }

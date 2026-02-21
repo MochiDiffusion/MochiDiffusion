@@ -42,8 +42,11 @@ actor ModelRepository {
                         == .orderedAscending
                 }
                 .compactMap { url in
-                    if let flux2cModel = Flux2cModel(url: url, name: url.lastPathComponent) {
-                        return flux2cModel
+                    if let irisFluxKleinModel = IrisFluxKleinModel(
+                        url: url,
+                        name: url.lastPathComponent
+                    ) {
+                        return irisFluxKleinModel
                     }
 
                     let controlledUnetMetadataPath = url.appending(

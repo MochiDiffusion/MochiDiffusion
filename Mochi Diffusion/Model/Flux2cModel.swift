@@ -5,7 +5,7 @@
 
 import Foundation
 
-struct Flux2cModel: MochiModel {
+struct IrisFluxKleinModel: MochiModel {
     static let generationCapabilities: GenerationCapabilities = [.startingImage]
     static let metadataFields: Set<MetadataField> = [
         .prompt,
@@ -31,13 +31,13 @@ struct Flux2cModel: MochiModel {
     }
 
     init?(url: URL, name: String) {
-        guard isFlux2cModelDirectory(url) else { return nil }
+        guard isIrisFluxKleinModelDirectory(url) else { return nil }
         self.url = url
         self.name = name
     }
 }
 
-private func isFlux2cModelDirectory(_ url: URL) -> Bool {
+private func isIrisFluxKleinModelDirectory(_ url: URL) -> Bool {
     let fm = FileManager.default
 
     for url in [
