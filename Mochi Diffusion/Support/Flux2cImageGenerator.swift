@@ -123,7 +123,17 @@ final class Flux2cImageGenerator: ImageGenerator {
 
             let image: UnsafeMutablePointer<flux_image>?
             if let startingFluxImage {
-                image = flux_img2img(ctx, request.prompt, startingFluxImage, &params)
+                if isDistilled, let embeddings {
+                    image = Self.generateImg2ImgWithEmbeddings(
+                        ctx: ctx,
+                        embeddings: embeddings,
+                        embeddingLength: embeddingLength,
+                        startingFluxImage: startingFluxImage,
+                        params: &params
+                    )
+                } else {
+                    image = flux_img2img(ctx, request.prompt, startingFluxImage, &params)
+                }
             } else {
                 if isDistilled, let embeddings {
                     image = Self.generateWithEmbeddings(
@@ -188,6 +198,25 @@ final class Flux2cImageGenerator: ImageGenerator {
         embeddings.withUnsafeBufferPointer { buffer in
             guard let pointer = buffer.baseAddress else { return nil }
             return flux_generate_with_embeddings(ctx, pointer, embeddingLength, &params)
+        }
+    }
+
+    private static func generateImg2ImgWithEmbeddings(
+        ctx: OpaquePointer,
+        embeddings: [Float],
+        embeddingLength: Int32,
+        startingFluxImage: UnsafeMutablePointer<flux_image>,
+        params: inout flux_params
+    ) -> UnsafeMutablePointer<flux_image>? {
+        embeddings.withUnsafeBufferPointer { buffer in
+            guard let pointer = buffer.baseAddress else { return nil }
+            return flux_img2img_with_embeddings(
+                ctx,
+                pointer,
+                embeddingLength,
+                startingFluxImage,
+                &params
+            )
         }
     }
 

@@ -45,6 +45,13 @@ flux_image *flux_img2img(
     const flux_image *input,
     const flux_params *params
 );
+flux_image *flux_img2img_with_embeddings(
+    flux_ctx *ctx,
+    const float *text_emb,
+    int text_seq,
+    const flux_image *input,
+    const flux_params *params
+);
 flux_image *flux_generate_with_embeddings(
     flux_ctx *ctx,
     const float *text_emb,
