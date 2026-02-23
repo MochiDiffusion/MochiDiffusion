@@ -520,7 +520,6 @@
 				"$(SRCROOT)/scripts/build_iris_lib.sh",
 				"$(SRCROOT)/.gitmodules",
 				"$(SRCROOT)/iris.c/Makefile",
-				"$(SRCROOT)/iris_shims/iris_compat.c",
 			);
 			outputFileListPaths = (
 			);

@@ -3,11 +3,8 @@ set -euo pipefail
 
 # ---- CONFIG ----
 VENDOR_DIR="${SRCROOT}/iris.c"
-SHIM_DIR="${SRCROOT}/iris_shims"
 OUT_DIR="${BUILD_DIR}/vendor/iris/${CONFIGURATION}"
 OUT_LIB="${OUT_DIR}/libiris_mps.a"
-COMPAT_SRC="${SHIM_DIR}/iris_compat.c"
-COMPAT_OBJ="${OUT_DIR}/iris_compat.mps.o"
 
 mkdir -p "${OUT_DIR}"
 # Prevent stale archives from masking a skipped or failed vendor build.
@@ -76,21 +73,11 @@ MPS_TARGETS="${MPS_TARGETS} ${METAL_OBJ}"
 make -C "${VENDOR_DIR}" clean
 make -C "${VENDOR_DIR}" ${MPS_TARGETS}
 
-# ---- BUILD COMPAT OBJECT ----
-if [ ! -f "${COMPAT_SRC}" ]; then
-  echo "error: Missing compatibility source ${COMPAT_SRC}"
-  exit 1
-fi
-
-MPS_CFLAGS="-Wall -Wextra -O3 -march=native -ffast-math -DUSE_BLAS -DUSE_METAL -DACCELERATE_NEW_LAPACK"
-/usr/bin/cc ${MPS_CFLAGS} -I"${VENDOR_DIR}" -I"${SHIM_DIR}" -c -o "${COMPAT_OBJ}" "${COMPAT_SRC}"
-
 # ---- ARCHIVE INTO A STATIC LIB ----
 rm -f "${OUT_LIB}"
 /usr/bin/ar rcs "${OUT_LIB}" \
   $(for cfile in ${SRCS_LINE}; do printf "%s/%s.mps.o " "${VENDOR_DIR}" "${cfile%.c}"; done) \
-  "${VENDOR_DIR}/${METAL_OBJ}" \
-  "${COMPAT_OBJ}"
+  "${VENDOR_DIR}/${METAL_OBJ}"
 
 if [ ! -s "${OUT_LIB}" ]; then
   echo "error: Expected static library was not created: ${OUT_LIB}"

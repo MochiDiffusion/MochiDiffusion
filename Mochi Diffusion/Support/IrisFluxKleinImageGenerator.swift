@@ -25,7 +25,7 @@ final class IrisFluxKleinImageGenerator: ImageGenerator {
 
         await onState(.loading("Loading model..."))
         generationStopped = false
-        flux_clear_cancel()
+        iris_clear_cancel()
         FluxStepImageBridge.configure(
             onState: onState,
             onProgress: onProgress,
@@ -34,29 +34,29 @@ final class IrisFluxKleinImageGenerator: ImageGenerator {
         )
         defer {
             FluxStepImageBridge.reset()
-            flux_clear_cancel()
+            iris_clear_cancel()
             Task {
                 await onPreview(nil)
             }
         }
-        guard let ctx = flux_load_dir(modelDir) else {
+        guard let ctx = iris_load_dir(modelDir) else {
             throw IrisFluxKleinImageGeneratorError.loadFailed(fluxErrorMessage())
         }
 
-        flux_set_mmap(ctx, 1)
-        flux_set_phase_callback(fluxPhaseCallback)
-        flux_set_step_callback(fluxStepCallback)
+        iris_set_mmap(ctx, 1)
+        iris_set_phase_callback(fluxPhaseCallback)
+        iris_set_step_callback(fluxStepCallback)
         if request.useDenoisedIntermediates {
-            flux_set_step_image_callback(ctx, fluxStepImageCallback)
+            iris_set_step_image_callback(ctx, fluxStepImageCallback)
         } else {
-            flux_set_step_image_callback(ctx, nil)
+            iris_set_step_image_callback(ctx, nil)
         }
-        let isDistilled = flux_is_distilled(ctx) != 0
+        let isDistilled = iris_is_distilled(ctx) != 0
 
         var embeddingLength: Int32 = 0
         var embeddings: [Float]?
 
-        var startingFluxImage: UnsafeMutablePointer<flux_image>?
+        var startingFluxImage: UnsafeMutablePointer<iris_image>?
         if let startingImageData = request.startingImageData {
             startingFluxImage = Self.makeFluxImage(from: startingImageData)
             if startingFluxImage == nil {
@@ -72,10 +72,10 @@ final class IrisFluxKleinImageGenerator: ImageGenerator {
                 embeddingLength = cached.seqLen
                 embeddings = cached.values
             } else {
-                guard let encoded = flux_encode_text(ctx, request.prompt, &embeddingLength) else {
+                guard let encoded = iris_encode_text(ctx, request.prompt, &embeddingLength) else {
                     throw IrisFluxKleinImageGeneratorError.generateFailed(fluxErrorMessage())
                 }
-                let textDim = Int(flux_text_dim(ctx))
+                let textDim = Int(iris_text_dim(ctx))
                 guard textDim > 0 else {
                     free(encoded)
                     throw IrisFluxKleinImageGeneratorError.generateFailed(
@@ -105,16 +105,16 @@ final class IrisFluxKleinImageGenerator: ImageGenerator {
                 }
             }
             // Keep peak memory lower before transformer work, even on cache hits.
-            flux_release_text_encoder(ctx)
+            iris_release_text_encoder(ctx)
         }
 
         defer {
-            flux_set_step_image_callback(ctx, nil)
-            flux_set_step_callback(nil)
-            flux_set_phase_callback(nil)
-            flux_free(ctx)
+            iris_set_step_image_callback(ctx, nil)
+            iris_set_step_callback(nil)
+            iris_set_phase_callback(nil)
+            iris_free(ctx)
             if let startingFluxImage {
-                flux_image_free(startingFluxImage)
+                iris_image_free(startingFluxImage)
             }
         }
 
@@ -125,13 +125,13 @@ final class IrisFluxKleinImageGenerator: ImageGenerator {
                 break
             }
 
-            var params = flux_params.defaultParams
+            var params = iris_params.defaultParams
             params.width = Int32(request.size.width)
             params.height = Int32(request.size.height)
             params.num_steps = 4
             params.seed = Int64(seed)
 
-            let image: UnsafeMutablePointer<flux_image>?
+            let image: UnsafeMutablePointer<iris_image>?
             if let startingFluxImage {
                 if isDistilled, let embeddings {
                     image = Self.generateImg2ImgWithEmbeddings(
@@ -142,7 +142,7 @@ final class IrisFluxKleinImageGenerator: ImageGenerator {
                         params: &params
                     )
                 } else {
-                    image = flux_img2img(ctx, request.prompt, startingFluxImage, &params)
+                    image = iris_img2img(ctx, request.prompt, startingFluxImage, &params)
                 }
             } else {
                 if isDistilled, let embeddings {
@@ -153,7 +153,7 @@ final class IrisFluxKleinImageGenerator: ImageGenerator {
                         params: &params
                     )
                 } else {
-                    image = flux_generate(ctx, request.prompt, &params)
+                    image = iris_generate(ctx, request.prompt, &params)
                 }
             }
 
@@ -163,7 +163,7 @@ final class IrisFluxKleinImageGenerator: ImageGenerator {
                 }
                 throw IrisFluxKleinImageGeneratorError.generateFailed(fluxErrorMessage())
             }
-            defer { flux_image_free(image) }
+            defer { iris_image_free(image) }
 
             let metadata = GenerationMetadata(
                 prompt: request.prompt,
@@ -206,11 +206,11 @@ final class IrisFluxKleinImageGenerator: ImageGenerator {
         ctx: OpaquePointer,
         embeddings: [Float],
         embeddingLength: Int32,
-        params: inout flux_params
-    ) -> UnsafeMutablePointer<flux_image>? {
+        params: inout iris_params
+    ) -> UnsafeMutablePointer<iris_image>? {
         embeddings.withUnsafeBufferPointer { buffer in
             guard let pointer = buffer.baseAddress else { return nil }
-            return flux_generate_with_embeddings(ctx, pointer, embeddingLength, &params)
+            return iris_generate_with_embeddings(ctx, pointer, embeddingLength, &params)
         }
     }
 
@@ -218,12 +218,12 @@ final class IrisFluxKleinImageGenerator: ImageGenerator {
         ctx: OpaquePointer,
         embeddings: [Float],
         embeddingLength: Int32,
-        startingFluxImage: UnsafeMutablePointer<flux_image>,
-        params: inout flux_params
-    ) -> UnsafeMutablePointer<flux_image>? {
+        startingFluxImage: UnsafeMutablePointer<iris_image>,
+        params: inout iris_params
+    ) -> UnsafeMutablePointer<iris_image>? {
         embeddings.withUnsafeBufferPointer { buffer in
             guard let pointer = buffer.baseAddress else { return nil }
-            return flux_img2img_with_embeddings(
+            return iris_img2img_with_embeddings(
                 ctx,
                 pointer,
                 embeddingLength,
@@ -235,11 +235,11 @@ final class IrisFluxKleinImageGenerator: ImageGenerator {
 
     func stopGenerate() async {
         generationStopped = true
-        flux_request_cancel()
+        iris_request_cancel()
     }
 
     private func makeImageData(
-        from image: UnsafePointer<flux_image>,
+        from image: UnsafePointer<iris_image>,
         metadata: GenerationMetadata,
         imageType: String
     ) async -> Data? {
@@ -267,7 +267,7 @@ final class IrisFluxKleinImageGenerator: ImageGenerator {
         return await sdi.imageData(type, metadataFields: metadata.metadataFields)
     }
 
-    fileprivate static func makeCGImage(from image: UnsafePointer<flux_image>) -> CGImage? {
+    fileprivate static func makeCGImage(from image: UnsafePointer<iris_image>) -> CGImage? {
         let width = Int(image.pointee.width)
         let height = Int(image.pointee.height)
         let channels = Int(image.pointee.channels)
@@ -305,7 +305,7 @@ final class IrisFluxKleinImageGenerator: ImageGenerator {
         )
     }
 
-    fileprivate static func makeFluxImage(from data: Data) -> UnsafeMutablePointer<flux_image>? {
+    fileprivate static func makeFluxImage(from data: Data) -> UnsafeMutablePointer<iris_image>? {
         guard let cgImage = CGImage.fromData(data) else {
             return nil
         }
@@ -347,11 +347,11 @@ final class IrisFluxKleinImageGenerator: ImageGenerator {
             return nil
         }
 
-        guard let fluxImage = flux_image_create(Int32(width), Int32(height), Int32(channels)) else {
+        guard let fluxImage = iris_image_create(Int32(width), Int32(height), Int32(channels)) else {
             return nil
         }
         guard let dataPtr = fluxImage.pointee.data else {
-            flux_image_free(fluxImage)
+            iris_image_free(fluxImage)
             return nil
         }
 
@@ -389,7 +389,7 @@ private enum IrisFluxKleinImageGeneratorError: Error, CustomStringConvertible {
 }
 
 private func fluxErrorMessage() -> String {
-    guard let cString = flux_get_error() else {
+    guard let cString = iris_get_error() else {
         return "Unknown error."
     }
     return String(cString: cString)
@@ -538,11 +538,11 @@ private final class FluxPromptEmbeddingCache {
     }
 }
 
-extension flux_params {
-    fileprivate static var defaultParams: flux_params {
-        flux_params(
+extension iris_params {
+    fileprivate static var defaultParams: iris_params {
+        iris_params(
             width: 256, height: 256, num_steps: 4, seed: -1,
-            guidance: 0.0, linear_schedule: 0, power_schedule: 0, power_alpha: 2.0
+            guidance: 0.0, schedule: Int32(IRIS_SCHEDULE_DEFAULT), power_alpha: 2.0
         )
     }
 }
@@ -598,7 +598,7 @@ private enum FluxStepImageBridge {
         }
     }
 
-    static func handlePreview(_ image: UnsafePointer<flux_image>?) {
+    static func handlePreview(_ image: UnsafePointer<iris_image>?) {
         guard
             usePreview,
             let onPreview,
@@ -648,7 +648,7 @@ private let fluxStepImageCallback:
     @convention(c) (
         Int32,
         Int32,
-        UnsafePointer<flux_image>?
+        UnsafePointer<iris_image>?
     ) -> Void = { _, _, image in
         FluxStepImageBridge.handlePreview(image)
     }

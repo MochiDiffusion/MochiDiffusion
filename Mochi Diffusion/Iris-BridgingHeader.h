@@ -1,2 +1,2 @@
 // Iris-BridgingHeader.h
-#import "../iris_shims/flux.h"
+#import "../iris.c/iris.h"
