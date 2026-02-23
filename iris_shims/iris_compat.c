@@ -3,7 +3,7 @@
 extern void (*iris_step_callback)(int, int);
 extern void (*iris_phase_callback)(const char *, int);
 
-static iris_params to_iris_params(const flux_params *params) {
+static iris_params convert_flux_params_to_iris_params(const flux_params *params) {
     if (params == NULL) {
         return (iris_params)IRIS_PARAMS_DEFAULT;
     }
@@ -48,7 +48,7 @@ int flux_is_distilled(flux_ctx *ctx) {
 }
 
 flux_image *flux_generate(flux_ctx *ctx, const char *prompt, const flux_params *params) {
-    iris_params converted = to_iris_params(params);
+    iris_params converted = convert_flux_params_to_iris_params(params);
     return iris_generate(ctx, prompt, &converted);
 }
 
@@ -58,7 +58,7 @@ flux_image *flux_img2img(
     const flux_image *input,
     const flux_params *params
 ) {
-    iris_params converted = to_iris_params(params);
+    iris_params converted = convert_flux_params_to_iris_params(params);
     return iris_img2img(ctx, prompt, input, &converted);
 }
 
@@ -69,7 +69,7 @@ flux_image *flux_img2img_with_embeddings(
     const flux_image *input,
     const flux_params *params
 ) {
-    iris_params converted = to_iris_params(params);
+    iris_params converted = convert_flux_params_to_iris_params(params);
     return iris_img2img_with_embeddings(ctx, text_emb, text_seq, input, &converted);
 }
 
@@ -79,7 +79,7 @@ flux_image *flux_generate_with_embeddings(
     int text_seq,
     const flux_params *params
 ) {
-    iris_params converted = to_iris_params(params);
+    iris_params converted = convert_flux_params_to_iris_params(params);
     return iris_generate_with_embeddings(ctx, text_emb, text_seq, &converted);
 }
 

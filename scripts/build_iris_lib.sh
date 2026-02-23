@@ -5,11 +5,13 @@ set -euo pipefail
 VENDOR_DIR="${SRCROOT}/iris.c"
 SHIM_DIR="${SRCROOT}/iris_shims"
 OUT_DIR="${BUILD_DIR}/vendor/iris/${CONFIGURATION}"
-OUT_LIB="${OUT_DIR}/libflux_mps.a"
-COMPAT_SRC="${SHIM_DIR}/flux_compat.c"
-COMPAT_OBJ="${OUT_DIR}/flux_compat.mps.o"
+OUT_LIB="${OUT_DIR}/libiris_mps.a"
+COMPAT_SRC="${SHIM_DIR}/iris_compat.c"
+COMPAT_OBJ="${OUT_DIR}/iris_compat.mps.o"
 
 mkdir -p "${OUT_DIR}"
+# Prevent stale archives from masking a skipped or failed vendor build.
+rm -f "${OUT_LIB}"
 
 # ---- SUBMODULE GUARD ----
 if [ ! -f "${VENDOR_DIR}/Makefile" ]; then
@@ -89,5 +91,10 @@ rm -f "${OUT_LIB}"
   $(for cfile in ${SRCS_LINE}; do printf "%s/%s.mps.o " "${VENDOR_DIR}" "${cfile%.c}"; done) \
   "${VENDOR_DIR}/${METAL_OBJ}" \
   "${COMPAT_OBJ}"
+
+if [ ! -s "${OUT_LIB}" ]; then
+  echo "error: Expected static library was not created: ${OUT_LIB}"
+  exit 1
+fi
 
 echo "Built: ${OUT_LIB}"

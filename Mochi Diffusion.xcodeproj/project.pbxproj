@@ -188,6 +188,7 @@
 		C1F0A1A32D0E6B6A00C0BEEF /* FileSystemStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileSystemStore.swift; sourceTree = "<group>"; };
 		D7B03F1F29D42F9900DF89DD /* SDModelAttentionType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDModelAttentionType.swift; sourceTree = "<group>"; };
 		E0D7B03CB7A3829A510ECF35 /* GenerationState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationState.swift; sourceTree = "<group>"; };
+		F1A2B3C4D5E6F70809101112 /* build_iris_lib.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = build_iris_lib.sh; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -265,6 +266,7 @@
 			isa = PBXGroup;
 			children = (
 				036BFC20294B9F7500D8AD04 /* Mochi Diffusion */,
+				F1A2B3C4D5E6F70809101113 /* scripts */,
 				BFE66B162F2EDC8100A8965C /* Frameworks */,
 				036BFC1F294B9F7500D8AD04 /* Products */,
 			);
@@ -360,6 +362,14 @@
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
+		};
+		F1A2B3C4D5E6F70809101113 /* scripts */ = {
+			isa = PBXGroup;
+			children = (
+				F1A2B3C4D5E6F70809101112 /* build_iris_lib.sh */,
+			);
+			path = scripts;
+			sourceTree = SOURCE_ROOT;
 		};
 /* End PBXGroup section */
 
@@ -500,17 +510,22 @@
 		};
 		BFE66B132F2ED15300A8965C /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputFileListPaths = (
 			);
 			inputPaths = (
+				"$(SRCROOT)/scripts/build_iris_lib.sh",
+				"$(SRCROOT)/.gitmodules",
+				"$(SRCROOT)/iris.c/Makefile",
+				"$(SRCROOT)/iris_shims/iris_compat.c",
 			);
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(BUILD_DIR)/vendor/iris/$(CONFIGURATION)/libflux_mps.a",
+				"$(BUILD_DIR)/vendor/iris/$(CONFIGURATION)/libiris_mps.a",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -779,7 +794,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 6.0;
-				OTHER_LDFLAGS = "$(BUILD_DIR)/vendor/iris/$(CONFIGURATION)/libflux_mps.a";
+				OTHER_LDFLAGS = "$(BUILD_DIR)/vendor/iris/$(CONFIGURATION)/libiris_mps.a";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.joshua-park.Mochi-Diffusion";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -817,7 +832,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 6.0;
-				OTHER_LDFLAGS = "$(BUILD_DIR)/vendor/iris/$(CONFIGURATION)/libflux_mps.a";
+				OTHER_LDFLAGS = "$(BUILD_DIR)/vendor/iris/$(CONFIGURATION)/libiris_mps.a";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.joshua-park.Mochi-Diffusion";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
