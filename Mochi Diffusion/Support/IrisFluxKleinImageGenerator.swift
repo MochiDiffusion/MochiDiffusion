@@ -26,6 +26,8 @@ final class IrisFluxKleinImageGenerator: ImageGenerator {
         await onState(.loading("Loading model..."))
         generationStopped = false
         iris_clear_cancel()
+        // Match the CLI startup order so transformer load sees Metal availability.
+        _ = iris_metal_init()
         FluxStepImageBridge.configure(
             onState: onState,
             onProgress: onProgress,
