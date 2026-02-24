@@ -30,6 +30,16 @@ struct JobQueueView: View {
                     comment: "Text displayed when the model is being loaded"
                 )
             progressData = (-1, progressLabel)
+        } else if case .canceling(let stage) = generationState.state {
+            let progressLabel =
+                stage
+                ?? String(
+                    localized: "Canceling...",
+                    comment: "Text displayed while waiting for generation cancellation cleanup"
+                )
+            progressData = (-1, progressLabel)
+        } else {
+            progressData = nil
         }
     }
 
@@ -46,6 +56,15 @@ struct JobQueueView: View {
                     .onChange(of: generationState.state) {
                         updateProgressData()
                     }
+                } else if case .canceling(let stage) = generationState.state {
+                    CancelingJobView(
+                        label: stage
+                            ?? String(
+                                localized: "Canceling...",
+                                comment:
+                                    "Text displayed while waiting for generation cancellation cleanup"
+                            )
+                    )
                 }
                 ForEach(controller.generationQueue) { generation in
                     Divider()
@@ -55,6 +74,35 @@ struct JobQueueView: View {
                 }
             }
             .padding()
+        }
+    }
+}
+
+private struct CancelingJobView: View {
+    let label: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                VStack(alignment: .leading, spacing: 0) {
+                    Text(
+                        String(
+                            localized: "Canceling",
+                            comment: "Job queue row title while canceling the current generation"
+                        )
+                    )
+                    .lineLimit(1)
+                    Text(label)
+                        .font(.caption2)
+                        .foregroundStyle(Color.secondary)
+                        .lineLimit(2)
+                }
+                Spacer()
+                ProgressView()
+                    .controlSize(.small)
+            }
+            ProgressView()
+                .progressViewStyle(.linear)
         }
     }
 }

@@ -18,6 +18,7 @@ final class GenerationState {
         case ready(String?)
         case error(String)
         case loading(String?)
+        case canceling(String?)
         case running(Progress?)
     }
 

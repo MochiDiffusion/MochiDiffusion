@@ -31,6 +31,7 @@ actor GenerationService {
     private var logger = Logger()
     private var queue: [GenerationRequest] = []
     private var current: GenerationRequest?
+    private var cancelingCurrentID: GenerationRequest.ID?
     private var currentGenerator: ImageGenerator?
     private var processingTask: Task<Void, Never>?
     private var continuations: [UUID: AsyncStream<Snapshot>.Continuation] = [:]
@@ -85,6 +86,12 @@ actor GenerationService {
     }
 
     func stopCurrentGeneration() async {
+        guard let current else { return }
+        guard cancelingCurrentID != current.id else { return }
+
+        cancelingCurrentID = current.id
+        broadcastSnapshot()
+        await updateGenerationState(.canceling(nil))
         await currentGenerator?.stopGenerate()
     }
 
@@ -105,6 +112,7 @@ actor GenerationService {
         while !queue.isEmpty {
             let request = queue.removeFirst()
             current = request
+            currentGenerator = nil
             broadcastSnapshot()
 
             let generator: ImageGenerator
@@ -115,6 +123,7 @@ actor GenerationService {
                     await updateStatus(
                         .ready("Couldn't load \(model.name) because it doesn't exist.")
                     )
+                    await finishCurrentRequest(request.id, restoreReadyAfterCancel: false)
                     continue
                 }
                 generator = sdGenerator
@@ -126,29 +135,38 @@ actor GenerationService {
                     await updateStatus(
                         .ready("Iris Z-Image-Turbo generation is not supported yet.")
                     )
+                    await finishCurrentRequest(request.id, restoreReadyAfterCancel: false)
                     continue
                 }
             }
 
             currentGenerator = generator
+            var restoreReadyAfterCancel = false
             do {
                 let outputDirectory = try await imageRepository.ensureOutputDirectory(
                     imageDir: request.imageDir
                 )
                 nextImageIndex = await MainActor.run { ImageGallery.shared.images.endIndex + 1 }
 
+                if isCancelRequested(for: request.id) {
+                    restoreReadyAfterCancel = true
+                    await finishCurrentRequest(
+                        request.id,
+                        restoreReadyAfterCancel: restoreReadyAfterCancel
+                    )
+                    continue
+                }
+
                 try await generator.generate(
                     request: request,
                     onState: { [weak self] status in
-                        await self?.updateGenerationState(status)
+                        await self?.handleGeneratorStateUpdate(status, for: request.id)
                     },
                     onProgress: { [weak self] progress, _ in
-                        await self?.updateGenerationProgress(progress)
+                        await self?.handleGeneratorProgressUpdate(progress, for: request.id)
                     },
-                    onPreview: { image in
-                        await MainActor.run {
-                            ImageGallery.shared.setCurrentGenerating(image: image)
-                        }
+                    onPreview: { [weak self] image in
+                        await self?.handleGeneratorPreviewUpdate(image, for: request.id)
                     },
                     onResult: { [weak self] result in
                         guard let self else { return }
@@ -174,6 +192,7 @@ actor GenerationService {
                         await self.emitResult(savedResult)
                     }
                 )
+                restoreReadyAfterCancel = true
             } catch SDImageGenerator.GeneratorError.requestedModelNotFound {
                 if case .sd(let model, _, _, _) = request.pipeline {
                     logger.error("Couldn't load \(model.name) because it doesn't exist.")
@@ -199,9 +218,15 @@ actor GenerationService {
                 await updateStatus(
                     .error("There was a problem generating images: \(error)"))
             }
+
+            await finishCurrentRequest(
+                request.id,
+                restoreReadyAfterCancel: restoreReadyAfterCancel
+            )
         }
 
         current = nil
+        cancelingCurrentID = nil
         currentGenerator = nil
         broadcastSnapshot()
         Task {
@@ -215,11 +240,51 @@ actor GenerationService {
         }
     }
 
+    private func handleGeneratorStateUpdate(
+        _ status: GenerationState.Status,
+        for requestID: GenerationRequest.ID
+    ) async {
+        guard current?.id == requestID else { return }
+        guard !isCancelRequested(for: requestID) else { return }
+        await updateGenerationState(status)
+    }
+
     private func updateGenerationProgress(
         _ progress: GenerationState.Progress
     ) async {
         await MainActor.run {
             GenerationState.shared.state = .running(progress)
+        }
+    }
+
+    private func handleGeneratorProgressUpdate(
+        _ progress: GenerationState.Progress,
+        for requestID: GenerationRequest.ID
+    ) async {
+        guard current?.id == requestID else { return }
+        guard !isCancelRequested(for: requestID) else { return }
+        await updateGenerationProgress(progress)
+    }
+
+    private func handleGeneratorPreviewUpdate(
+        _ image: CGImage?,
+        for requestID: GenerationRequest.ID
+    ) async {
+        if image == nil {
+            guard current?.id == requestID || current == nil else { return }
+            await MainActor.run {
+                ImageGallery.shared.setCurrentGenerating(image: nil)
+            }
+            return
+        }
+
+        guard current?.id == requestID else { return }
+        if isCancelRequested(for: requestID), image != nil {
+            return
+        }
+
+        await MainActor.run {
+            ImageGallery.shared.setCurrentGenerating(image: image)
         }
     }
 
@@ -238,7 +303,13 @@ actor GenerationService {
     }
 
     private func snapshot() -> Snapshot {
-        Snapshot(queue: queue, current: current)
+        let visibleCurrent: GenerationRequest?
+        if let current, isCancelRequested(for: current.id) {
+            visibleCurrent = nil
+        } else {
+            visibleCurrent = current
+        }
+        return Snapshot(queue: queue, current: visibleCurrent)
     }
 
     private func broadcastSnapshot() {
@@ -255,6 +326,26 @@ actor GenerationService {
     private func emitResult(_ result: GenerationResult) {
         for continuation in resultContinuations.values {
             continuation.yield(result)
+        }
+    }
+
+    private func isCancelRequested(for requestID: GenerationRequest.ID) -> Bool {
+        cancelingCurrentID == requestID
+    }
+
+    private func finishCurrentRequest(
+        _ requestID: GenerationRequest.ID,
+        restoreReadyAfterCancel: Bool
+    ) async {
+        if isCancelRequested(for: requestID) {
+            cancelingCurrentID = nil
+            if restoreReadyAfterCancel && queue.isEmpty {
+                await updateGenerationState(.ready(nil))
+            }
+        }
+
+        if current?.id == requestID {
+            currentGenerator = nil
         }
     }
 

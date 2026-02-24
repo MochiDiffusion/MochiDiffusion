@@ -39,6 +39,15 @@ struct GalleryToolbarView: View {
                         .controlSize(.small)
                         .frame(width: 16, height: 16)
                 }
+            } else if case .canceling(_) = generationState.state {
+                Button {
+                    self.isStatusPopoverShown.toggle()
+                } label: {
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                        .controlSize(.small)
+                        .frame(width: 16, height: 16)
+                }
             }
         }
         .popover(isPresented: self.$isStatusPopoverShown, arrowEdge: .bottom) {
