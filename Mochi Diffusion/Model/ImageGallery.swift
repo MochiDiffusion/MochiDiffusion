@@ -71,7 +71,6 @@ enum ImagesSortType: String {
         withAnimation {
             allImages.append(sdi)
             metadataFieldsByImageID[sdi.id] = metadataFields
-            currentGeneratingImage = nil
             return sdi.id
         }
     }
@@ -112,7 +111,6 @@ enum ImagesSortType: String {
             if let selectedId, !allImages.contains(where: { $0.id == selectedId }) {
                 self.selectedId = nil
             }
-            currentGeneratingImage = nil
         }
     }
 

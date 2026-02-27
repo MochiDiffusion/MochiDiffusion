@@ -35,7 +35,12 @@ struct GalleryPreviewView: View {
                         .padding(8)
                         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 8))
                 }
-                .aspectRatio(CGFloat(image.width / image.height), contentMode: .fit)
+                .aspectRatio(
+                    image.height > 0
+                        ? CGFloat(image.width) / CGFloat(image.height)
+                        : nil,
+                    contentMode: .fit
+                )
                 .padding(8)
             }
         }

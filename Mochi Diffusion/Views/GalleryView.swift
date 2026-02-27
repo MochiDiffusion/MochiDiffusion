@@ -56,6 +56,7 @@ struct GalleryView: View {
                             case .running = generationState.state
                         {
                             GalleryPreviewView(image: currentImage)
+                                .id("generation-preview")
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 2)
                                         .stroke(
@@ -118,6 +119,7 @@ struct GalleryView: View {
                             case .running = generationState.state
                         {
                             GalleryPreviewView(image: currentImage)
+                                .id("generation-preview")
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 2)
                                         .stroke(
