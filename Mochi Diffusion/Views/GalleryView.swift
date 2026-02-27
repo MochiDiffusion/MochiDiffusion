@@ -70,13 +70,7 @@ struct GalleryView: View {
                         GalleryItemView(sdi: sdi)
                             .accessibilityAddTraits(.isButton)
                             .transition(.galleryItemTransition)
-                            .onChange(of: store.selected()) {
-                                if let sdi = store.selected() {
-                                    withAnimation {
-                                        proxy.scrollTo(sdi.id)
-                                    }
-                                }
-                            }
+                            .id(sdi.id)
                             .aspectRatio(sdi.aspectRatio, contentMode: .fit)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 2)
@@ -135,6 +129,11 @@ struct GalleryView: View {
                     }
                 }
                 .padding()
+            }
+            .onChange(of: store.selectedId) { _, selectedId in
+                guard let selectedId else { return }
+                guard store.images.contains(where: { $0.id == selectedId }) else { return }
+                proxy.scrollTo(selectedId)
             }
         }
     }
