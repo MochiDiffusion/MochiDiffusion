@@ -12,6 +12,48 @@ import os
 @MainActor
 @Observable
 final class GenerationController {
+    private enum PipelineModelAdapter {
+        case sd(SDModel)
+        case irisFluxKlein(IrisFluxKleinModel)
+
+        static func from(_ model: any MochiModel) -> PipelineModelAdapter? {
+            switch model {
+            case let model as SDModel:
+                return .sd(model)
+            case let model as IrisFluxKleinModel:
+                return .irisFluxKlein(model)
+            default:
+                return nil
+            }
+        }
+
+        var inputSize: CGSize? {
+            switch self {
+            case .sd(let model):
+                return model.inputSize
+            case .irisFluxKlein:
+                return nil
+            }
+        }
+
+        func makePipeline(configStore: ConfigStore, controlNets: [String]) -> GenerationPipeline {
+            switch self {
+            case .sd(let model):
+                return .sd(
+                    model: model,
+                    computeUnit: configStore.mlComputeUnitPreference.computeUnits(forModel: model),
+                    controlNets: controlNets,
+                    reduceMemory: configStore.reduceMemory
+                )
+            case .irisFluxKlein(let model):
+                return .iris(
+                    modelDir: model.url.path(percentEncoded: false),
+                    family: .fluxKlein
+                )
+            }
+        }
+    }
+
     struct ControlNetInput {
         var name: String?
         var image: CGImage?
@@ -370,16 +412,19 @@ final class GenerationController {
         guard let model = currentModel else {
             return nil
         }
+        guard let adapter = PipelineModelAdapter.from(model) else {
+            logger.error("unknown model type")
+            return nil
+        }
 
         let size = CGSize(width: configStore.width, height: configStore.height)
-        let sdModel = model as? SDModel
-        let targetImageSize = sdModel?.inputSize ?? size
+        let targetImageSize = adapter.inputSize ?? size
         let startingImageData = startingImage?.scaledAndCroppedTo(size: targetImageSize)?.pngData()
 
         var controlNetInputs: [Data] = []
         var controlNets: [String] = []
         var controlNetImageNames: [String] = []
-        if let inputSize = sdModel?.inputSize {
+        if let inputSize = adapter.inputSize {
             for input in currentControlNets {
                 guard
                     let name = input.name,
@@ -399,27 +444,17 @@ final class GenerationController {
         let startingImageName: String?
         let requestControlNetImageNames: [String]
         let inputImageNames: [String]
-        if let model = sdModel {
-            pipeline = GenerationPipeline.sd(
-                model: model,
-                computeUnit: configStore.mlComputeUnitPreference.computeUnits(forModel: model),
-                controlNets: controlNets,
-                reduceMemory: configStore.reduceMemory
-            )
+        switch adapter {
+        case .sd:
+            pipeline = adapter.makePipeline(configStore: configStore, controlNets: controlNets)
             startingImageName = normalizedFilename(startingImageFilename)
             requestControlNetImageNames = controlNetImageNames
             inputImageNames = []
-        } else if model is IrisFluxKleinModel {
-            pipeline = GenerationPipeline.iris(
-                modelDir: model.url.path(percentEncoded: false),
-                family: .fluxKlein
-            )
+        case .irisFluxKlein:
+            pipeline = adapter.makePipeline(configStore: configStore, controlNets: [])
             startingImageName = nil
             requestControlNetImageNames = []
             inputImageNames = normalizedFilename(startingImageFilename).map { [$0] } ?? []
-        } else {
-            logger.error("unknown model type")
-            return nil
         }
 
         return GenerationRequest(

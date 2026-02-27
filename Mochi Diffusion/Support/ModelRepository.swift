@@ -26,7 +26,7 @@ actor ModelRepository {
         )
     }
 
-    func load(modelDir: URL, controlNetDir: URL) async throws -> [any MochiModel] {
+    func load(modelDir: URL, controlNetDir: URL) throws -> [any MochiModel] {
         var models: [any MochiModel] = []
         let fm = FileManager.default
 
@@ -79,7 +79,7 @@ actor ModelRepository {
         return models
     }
 
-    func modelExists(_ model: any MochiModel) async -> Bool {
+    func modelExists(_ model: any MochiModel) -> Bool {
         fileSystem.fileExists(model.url)
     }
 

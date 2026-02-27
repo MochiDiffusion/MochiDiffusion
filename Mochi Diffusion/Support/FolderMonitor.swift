@@ -20,9 +20,7 @@ actor FolderMonitorService {
     func updates(for path: String) -> AsyncStream<Void> {
         AsyncStream { continuation in
             let token = UUID()
-            Task {
-                self.startMonitoring(path: path, token: token, continuation: continuation)
-            }
+            startMonitoring(path: path, token: token, continuation: continuation)
             continuation.onTermination = { @Sendable _ in
                 Task {
                     await self.stopMonitoring(token: token)

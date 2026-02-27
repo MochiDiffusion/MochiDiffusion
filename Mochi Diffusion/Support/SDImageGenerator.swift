@@ -166,7 +166,6 @@ nonisolated final class SDImageGenerator: ImageGenerator {
         pipelineConfig.startingImage = config.startingImage
         pipelineConfig.strength = config.strength
         pipelineConfig.stepCount = config.stepCount
-        pipelineConfig.seed = config.seed
         pipelineConfig.guidanceScale = config.guidanceScale
         pipelineConfig.disableSafety = config.disableSafety
         pipelineConfig.schedulerType = convertScheduler(config.scheduler)
@@ -205,8 +204,8 @@ nonisolated final class SDImageGenerator: ImageGenerator {
                     await onProgress(progressUpdate, nil)
                 }
 
-                let previewImage: CGImage? =
-                    useDenoisedIntermediates ? (progress.currentImages.last ?? nil) : nil
+                let previewImage =
+                    useDenoisedIntermediates ? progress.currentImages.last.flatMap { $0 } : nil
                 Task {
                     await onPreview(previewImage)
                 }

@@ -229,9 +229,7 @@ actor GenerationService {
         cancelingCurrentID = nil
         currentGenerator = nil
         broadcastSnapshot()
-        Task {
-            await NotificationController.shared.sendQueueEmptyNotification()
-        }
+        await NotificationController.shared.sendQueueEmptyNotification()
     }
 
     private func updateGenerationState(_ status: GenerationState.Status) async {

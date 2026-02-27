@@ -59,7 +59,7 @@ actor ImageRepository {
         )
     }
 
-    func load(imageDir: String) async throws -> [ImageRecord] {
+    func load(imageDir: String) throws -> [ImageRecord] {
         let directoryURL = Self.imageDirectoryURL(fromPath: imageDir)
         do {
             try fileSystem.ensureDirectoryExists(directoryURL)
@@ -84,7 +84,7 @@ actor ImageRepository {
         return records
     }
 
-    func importImages(from urls: [URL], imageDir: String) async -> ([ImageRecord], Int) {
+    func importImages(from urls: [URL], imageDir: String) -> ([ImageRecord], Int) {
         var records: [ImageRecord] = []
         var failed = 0
 
@@ -107,7 +107,7 @@ actor ImageRepository {
         return (records, failed)
     }
 
-    func delete(path: String, moveToTrash: Bool) async {
+    func delete(path: String, moveToTrash: Bool) {
         guard !path.isEmpty else { return }
 
         let url = URL(fileURLWithPath: path, isDirectory: false)
@@ -118,7 +118,7 @@ actor ImageRepository {
         }
     }
 
-    func saveUpdatedImage(path: String, data: Data) async -> URL? {
+    func saveUpdatedImage(path: String, data: Data) -> URL? {
         let url = URL(fileURLWithPath: path, isDirectory: false)
         let pathWithoutExtension = url.deletingPathExtension()
         let type = UTType.fromString(url.pathExtension.lowercased())
@@ -130,7 +130,7 @@ actor ImageRepository {
         imageData: Data,
         imageDir: String,
         imageType: String,
-    ) async -> URL? {
+    ) -> URL? {
         var pathURL = URL(fileURLWithPath: imageDir, isDirectory: true)
         pathURL.append(path: filenameWithoutExtension)
 
@@ -157,14 +157,14 @@ actor ImageRepository {
         return directoryURL
     }
 
-    func exportAllImages(_ images: [ImageExportRequest], to directory: URL, type: UTType) async {
+    func exportAllImages(_ images: [ImageExportRequest], to directory: URL, type: UTType) {
         for request in images {
             let url = directory.appending(path: request.filenameWithoutExtension)
             _ = saveImageData(request.imageData, pathWithoutExtension: url, type: type)
         }
     }
 
-    func syncImages(imageDir: String, existingPaths: [String]) async -> ImageSyncResult {
+    func syncImages(imageDir: String, existingPaths: [String]) -> ImageSyncResult {
         let directoryURL = URL(fileURLWithPath: imageDir, isDirectory: true)
         guard
             let fileList = try? fileSystem.contentsOfDirectory(at: directoryURL).map({
