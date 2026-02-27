@@ -8,7 +8,7 @@
 import StableDiffusion
 
 /// Schedulers compatible with StableDiffusionPipeline
-enum Scheduler: String, CaseIterable, Sendable {
+nonisolated enum Scheduler: String, CaseIterable, Sendable {
     /// Scheduler that uses a pseudo-linear multi-step (PLMS) method
     case pndmScheduler = "PNDM"
     /// Scheduler that uses a second order DPM-Solver++ algorithm
@@ -17,7 +17,7 @@ enum Scheduler: String, CaseIterable, Sendable {
     case discreteFlowScheduler = "Flow Match Euler Discrete"
 }
 
-func convertScheduler(_ scheduler: Scheduler) -> StableDiffusionScheduler {
+nonisolated func convertScheduler(_ scheduler: Scheduler) -> StableDiffusionScheduler {
     switch scheduler {
     case .pndmScheduler:
         return StableDiffusionScheduler.pndmScheduler

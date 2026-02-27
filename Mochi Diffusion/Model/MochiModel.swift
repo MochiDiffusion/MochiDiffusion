@@ -9,7 +9,7 @@ import Foundation
 ///
 /// The UI can use these to enable or disable controls, and generation paths can
 /// use them to decide which request values are relevant for a given model.
-struct GenerationCapabilities: OptionSet, Sendable {
+nonisolated struct GenerationCapabilities: OptionSet, Sendable {
     let rawValue: UInt64
 
     static let negativePrompt = GenerationCapabilities(rawValue: 1 << 0)
@@ -21,7 +21,7 @@ struct GenerationCapabilities: OptionSet, Sendable {
     static let controlNet = GenerationCapabilities(rawValue: 1 << 6)
 }
 
-enum MetadataField: String, CaseIterable, Sendable {
+nonisolated enum MetadataField: String, CaseIterable, Sendable {
     case prompt
     case negativePrompt
     case model
@@ -37,7 +37,7 @@ enum MetadataField: String, CaseIterable, Sendable {
     case guidanceScale
 }
 
-struct MochiModelConfig: Sendable {
+nonisolated struct MochiModelConfig: Sendable {
     let generationCapabilities: GenerationCapabilities
     /// Metadata keys this model should embed in generated image metadata.
     let metadataFields: Set<MetadataField>
@@ -47,7 +47,7 @@ struct MochiModelConfig: Sendable {
     }
 }
 
-protocol MochiModel: Identifiable, Sendable {
+nonisolated protocol MochiModel: Identifiable, Sendable {
     var url: URL { get }
     var name: String { get }
     var id: URL { get }

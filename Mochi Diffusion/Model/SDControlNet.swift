@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct SDControlNet {
+nonisolated struct SDControlNet {
     let name: String
     let url: URL
     let size: CGSize
@@ -27,7 +27,7 @@ struct SDControlNet {
     }
 }
 
-private func identifyControlNetSize(_ url: URL) -> CGSize? {
+nonisolated private func identifyControlNetSize(_ url: URL) -> CGSize? {
     let metadataURL = url.appendingPathComponent("metadata.json")
 
     guard let jsonData = try? Data(contentsOf: metadataURL) else {
@@ -82,7 +82,7 @@ private func identifyControlNetSize(_ url: URL) -> CGSize? {
     return CGSize(width: width, height: height)
 }
 
-private func identifyControlNetAttentionType(_ url: URL) -> SDModelAttentionType? {
+nonisolated private func identifyControlNetAttentionType(_ url: URL) -> SDModelAttentionType? {
     let metadataURL = url.appendingPathComponent("metadata.json")
 
     struct ModelMetadata: Decodable {

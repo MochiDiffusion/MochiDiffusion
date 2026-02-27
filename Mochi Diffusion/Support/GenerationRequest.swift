@@ -6,7 +6,7 @@
 import CoreML
 import Foundation
 
-enum IrisModelFamily: Sendable {
+nonisolated enum IrisModelFamily: Sendable {
     case fluxKlein
     case zImageTurbo
 
@@ -56,7 +56,7 @@ enum IrisModelFamily: Sendable {
     }
 }
 
-enum GenerationPipeline: Sendable {
+nonisolated enum GenerationPipeline: Sendable {
     case sd(
         model: SDModel,
         computeUnit: MLComputeUnits,
@@ -155,7 +155,7 @@ enum GenerationPipeline: Sendable {
     }
 }
 
-struct GenerationRequest: Sendable, Identifiable {
+nonisolated struct GenerationRequest: Sendable, Identifiable {
     let id: UUID
     let pipeline: GenerationPipeline
 
@@ -225,7 +225,7 @@ struct GenerationRequest: Sendable, Identifiable {
     }
 }
 
-struct GenerationResult: Sendable, Identifiable {
+nonisolated struct GenerationResult: Sendable, Identifiable {
     let id: UUID
     let metadata: GenerationMetadata
     let imageData: Data
@@ -244,7 +244,7 @@ struct GenerationResult: Sendable, Identifiable {
     }
 }
 
-struct GenerationMetadata: Sendable {
+nonisolated struct GenerationMetadata: Sendable {
     let prompt: String
     let negativePrompt: String
     let width: Int

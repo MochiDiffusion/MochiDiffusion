@@ -40,18 +40,18 @@ extension View {
 }
 
 extension NSImage {
-    func getImageHash() -> Int {
+    nonisolated func getImageHash() -> Int {
         self.tiffRepresentation!.hashValue
     }
 
-    func toPngData() -> Data {
+    nonisolated func toPngData() -> Data {
         let imageRepresentation = NSBitmapImageRep(data: self.tiffRepresentation!)
         return (imageRepresentation?.representation(using: .png, properties: [:])!)!
     }
 }
 
 extension CGImage {
-    func pngData() -> Data? {
+    nonisolated func pngData() -> Data? {
         guard
             let data = CFDataCreateMutable(nil, 0),
             let destination = CGImageDestinationCreateWithData(
@@ -68,13 +68,13 @@ extension CGImage {
         return data as Data
     }
 
-    static func fromData(_ data: Data) -> CGImage? {
+    nonisolated static func fromData(_ data: Data) -> CGImage? {
         guard let source = CGImageSourceCreateWithData(data as CFData, nil) else { return nil }
         let index = CGImageSourceGetPrimaryImageIndex(source)
         return CGImageSourceCreateImageAtIndex(source, index, nil)
     }
 
-    func scaledAndCroppedTo(size: CGSize) -> CGImage? {
+    nonisolated func scaledAndCroppedTo(size: CGSize) -> CGImage? {
         let sizeRatio = size.width / size.height
         let imageSizeRatio = Double(self.width) / Double(self.height)
         let scaleFactor =
@@ -125,7 +125,7 @@ public struct TransferableImage {
 }
 
 extension TransferableImage: Transferable {
-    public static var transferRepresentation: some TransferRepresentation {
+    nonisolated public static var transferRepresentation: some TransferRepresentation {
         ProxyRepresentation<TransferableImage, URL> { transferableImage in
             try transferableImage.image.temporaryFileURL()
         }
@@ -133,9 +133,9 @@ extension TransferableImage: Transferable {
 }
 
 extension NSImage {
-    private static let temporaryFilePrefix = "MochiDiffusionTransferImage-"
+    nonisolated private static let temporaryFilePrefix = "MochiDiffusionTransferImage-"
 
-    public static func cleanupTempFiles() {
+    nonisolated public static func cleanupTempFiles() {
         let tempDirectory = FileManager.default.temporaryDirectory
         guard
             let urls = try? FileManager.default.contentsOfDirectory(
@@ -151,7 +151,7 @@ extension NSImage {
         }
     }
 
-    func temporaryFileURL() throws -> URL {
+    nonisolated func temporaryFileURL() throws -> URL {
         let imageHash = self.getImageHash()
         let filename = "\(Self.temporaryFilePrefix)\(imageHash).png"
         let url = FileManager.default.temporaryDirectory.appending(path: filename)
@@ -224,7 +224,7 @@ extension CompactSliderStyle where Self == MochiCompactSliderStyle {
 }
 
 extension UTType {
-    static func fromString(_ fileExtension: String) -> UTType {
+    nonisolated static func fromString(_ fileExtension: String) -> UTType {
         switch fileExtension {
         case UTType.jpeg.preferredFilenameExtension!:
             return UTType.jpeg
@@ -237,7 +237,7 @@ extension UTType {
 }
 
 extension MLComputeUnits {
-    static func toString(_ computeUnit: MLComputeUnits?) -> String {
+    nonisolated static func toString(_ computeUnit: MLComputeUnits?) -> String {
         guard let computeUnit = computeUnit else {
             return ""
         }
@@ -255,7 +255,7 @@ extension MLComputeUnits {
         }
     }
 
-    static func fromString(_ value: String) -> MLComputeUnits {
+    nonisolated static func fromString(_ value: String) -> MLComputeUnits {
         switch value {
         case "CPU Only":
             return .cpuOnly

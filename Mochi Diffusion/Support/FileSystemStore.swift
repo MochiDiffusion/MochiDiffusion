@@ -6,11 +6,13 @@
 import Foundation
 
 final class FileSystemStore {
-    private let fileManager = FileManager.default
+    nonisolated init() {}
 
-    init() {}
-
-    func directoryURL(fromPath directory: String, defaultingTo defaultPath: String) -> URL {
+    nonisolated func directoryURL(
+        fromPath directory: String,
+        defaultingTo defaultPath: String
+    ) -> URL {
+        let fileManager = FileManager.default
         if directory.isEmpty {
             var url = fileManager.homeDirectoryForCurrentUser
             url.append(path: defaultPath, directoryHint: .isDirectory)
@@ -19,43 +21,50 @@ final class FileSystemStore {
         return URL(fileURLWithPath: directory, isDirectory: true)
     }
 
-    func ensureDirectoryExists(_ url: URL) throws {
+    nonisolated func ensureDirectoryExists(_ url: URL) throws {
+        let fileManager = FileManager.default
         if !fileManager.fileExists(atPath: url.path(percentEncoded: false)) {
             try fileManager.createDirectory(at: url, withIntermediateDirectories: true)
         }
     }
 
-    func contentsOfDirectory(at url: URL) throws -> [URL] {
-        try fileManager.contentsOfDirectory(
+    nonisolated func contentsOfDirectory(at url: URL) throws -> [URL] {
+        let fileManager = FileManager.default
+        return try fileManager.contentsOfDirectory(
             at: url,
             includingPropertiesForKeys: nil,
             options: [.skipsHiddenFiles]
         )
     }
 
-    func subDirectories(in url: URL) throws -> [URL] {
+    nonisolated func subDirectories(in url: URL) throws -> [URL] {
         guard url.hasDirectoryPath else { return [] }
         return try contentsOfDirectory(at: url)
             .filter { $0.resolvingSymlinksInPath().hasDirectoryPath }
     }
 
-    func fileExists(_ url: URL) -> Bool {
-        fileManager.fileExists(atPath: url.path(percentEncoded: false))
+    nonisolated func fileExists(_ url: URL) -> Bool {
+        let fileManager = FileManager.default
+        return fileManager.fileExists(atPath: url.path(percentEncoded: false))
     }
 
-    func isWritableDirectory(_ url: URL) -> Bool {
-        fileManager.isWritableFile(atPath: url.path(percentEncoded: false))
+    nonisolated func isWritableDirectory(_ url: URL) -> Bool {
+        let fileManager = FileManager.default
+        return fileManager.isWritableFile(atPath: url.path(percentEncoded: false))
     }
 
-    func copyItem(at sourceURL: URL, to destinationURL: URL) throws {
+    nonisolated func copyItem(at sourceURL: URL, to destinationURL: URL) throws {
+        let fileManager = FileManager.default
         try fileManager.copyItem(at: sourceURL, to: destinationURL)
     }
 
-    func removeItem(at url: URL) throws {
+    nonisolated func removeItem(at url: URL) throws {
+        let fileManager = FileManager.default
         try fileManager.removeItem(at: url)
     }
 
-    func trashItem(at url: URL) throws {
+    nonisolated func trashItem(at url: URL) throws {
+        let fileManager = FileManager.default
         try fileManager.trashItem(at: url, resultingItemURL: nil)
     }
 }

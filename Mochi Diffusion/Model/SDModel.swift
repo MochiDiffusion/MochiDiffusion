@@ -8,9 +8,9 @@
 import Foundation
 import os.log
 
-private let logger = Logger()
+nonisolated private let logger = Logger()
 
-struct SDModel: MochiModel {
+nonisolated struct SDModel: MochiModel {
     enum ModelType: Sendable {
         case sdxl
         case sd3
@@ -81,7 +81,7 @@ struct SDModel: MochiModel {
     }
 }
 
-extension SDModel: Hashable {
+nonisolated extension SDModel: Hashable {
     static func == (lhs: SDModel, rhs: SDModel) -> Bool {
         lhs.url == rhs.url
     }
@@ -91,7 +91,7 @@ extension SDModel: Hashable {
     }
 }
 
-private func identifyAttentionType(_ url: URL) -> SDModelAttentionType? {
+nonisolated private func identifyAttentionType(_ url: URL) -> SDModelAttentionType? {
     guard let metadataURL = unetMetadataURL(from: url) else {
         logger.warning("No model metadata found at '\(url)'")
         return nil
@@ -117,7 +117,7 @@ private func identifyAttentionType(_ url: URL) -> SDModelAttentionType? {
     }
 }
 
-private func identifyIfXL(_ url: URL) -> Bool {
+nonisolated private func identifyIfXL(_ url: URL) -> Bool {
     guard let metadataURL = unetMetadataURL(from: url) else {
         logger.warning("No model metadata found at '\(url)'")
         return false
@@ -144,7 +144,7 @@ private func identifyIfXL(_ url: URL) -> Bool {
     }
 }
 
-private func identifyIfSD3(_ url: URL) -> Bool {
+nonisolated private func identifyIfSD3(_ url: URL) -> Bool {
     guard let metadataURL = unetMetadataURL(from: url) else {
         logger.warning("No model metadata found at '\(url)'")
         return false
@@ -171,7 +171,7 @@ private func identifyIfSD3(_ url: URL) -> Bool {
     }
 }
 
-private func unetMetadataURL(from url: URL) -> URL? {
+nonisolated private func unetMetadataURL(from url: URL) -> URL? {
     let potentialMetadataURLs = [
         url.appending(components: "Unet.mlmodelc", "metadata.json"),
         url.appending(components: "UnetChunk1.mlmodelc", "metadata.json"),
@@ -184,7 +184,7 @@ private func unetMetadataURL(from url: URL) -> URL? {
     }
 }
 
-private func identifyInputSize(_ url: URL) -> CGSize? {
+nonisolated private func identifyInputSize(_ url: URL) -> CGSize? {
     let encoderMetadataURL = url.appending(path: "VAEEncoder.mlmodelc").appending(
         path: "metadata.json")
     if let jsonData = try? Data(contentsOf: encoderMetadataURL),

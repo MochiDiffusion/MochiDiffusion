@@ -48,7 +48,7 @@ actor FolderMonitorService {
     }
 }
 
-private final class FolderMonitor {
+nonisolated private final class FolderMonitor {
     private let folderDidChange: () -> Void
     private let queue = DispatchQueue(label: "MochiDiffusion.FolderMonitor", qos: .utility)
 

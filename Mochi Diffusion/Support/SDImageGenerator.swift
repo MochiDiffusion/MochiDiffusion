@@ -33,7 +33,7 @@ struct SDGenerationConfig: Identifiable {
     var imageType: String
 }
 
-final class SDImageGenerator: ImageGenerator {
+nonisolated final class SDImageGenerator: ImageGenerator {
 
     enum GeneratorError: Error {
         case imageDirectoryNoAccess

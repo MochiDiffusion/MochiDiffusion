@@ -7,7 +7,7 @@ import CoreGraphics
 import Foundation
 import UniformTypeIdentifiers
 
-final class IrisFluxKleinImageGenerator: ImageGenerator {
+nonisolated final class IrisFluxKleinImageGenerator: ImageGenerator {
     private let generationStopLock = NSLock()
     private var generationStopped = false
     private static let embeddingCache = FluxPromptEmbeddingCache(maxEntries: 16)
@@ -187,9 +187,13 @@ final class IrisFluxKleinImageGenerator: ImageGenerator {
                 metadataFields: request.pipeline.metadataFields
             )
 
+            guard let cgImage = Self.makeCGImage(from: UnsafePointer(image)) else {
+                throw IrisFluxKleinImageGeneratorError.encodeFailed
+            }
+
             guard
                 let imageData = await makeImageData(
-                    from: image,
+                    from: cgImage,
                     metadata: metadata,
                     imageType: request.imageType
                 )
@@ -255,14 +259,10 @@ final class IrisFluxKleinImageGenerator: ImageGenerator {
     }
 
     private func makeImageData(
-        from image: UnsafePointer<iris_image>,
+        from cgImage: CGImage,
         metadata: GenerationMetadata,
         imageType: String
     ) async -> Data? {
-        guard let cgImage = Self.makeCGImage(from: image) else {
-            return nil
-        }
-
         var sdi = SDImage()
         sdi.image = cgImage
         sdi.prompt = metadata.prompt

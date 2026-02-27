@@ -5,7 +5,7 @@
 
 import Foundation
 
-struct IrisFluxKleinModel: MochiModel {
+nonisolated struct IrisFluxKleinModel: MochiModel {
     static let generationCapabilities: GenerationCapabilities = [.startingImage]
     static let metadataFields: Set<MetadataField> = [
         .prompt,
@@ -37,7 +37,7 @@ struct IrisFluxKleinModel: MochiModel {
     }
 }
 
-private func isIrisFluxKleinModelDirectory(_ url: URL) -> Bool {
+nonisolated private func isIrisFluxKleinModelDirectory(_ url: URL) -> Bool {
     let fm = FileManager.default
 
     for url in [
@@ -79,7 +79,7 @@ private func isIrisFluxKleinModelDirectory(_ url: URL) -> Bool {
     return true
 }
 
-private func hasSafetensorWeights(
+nonisolated private func hasSafetensorWeights(
     in directory: URL,
     baseName: String,
     fileManager: FileManager

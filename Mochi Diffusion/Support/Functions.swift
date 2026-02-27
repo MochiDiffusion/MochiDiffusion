@@ -8,11 +8,11 @@
 import AppKit
 import CoreML
 
-func compareVersion(_ thisVersion: String, _ compareTo: String) -> ComparisonResult {
+nonisolated func compareVersion(_ thisVersion: String, _ compareTo: String) -> ComparisonResult {
     thisVersion.compare(compareTo, options: .numeric)
 }
 
-func finderTagColorNumberToString(_ tagColorNumber: Int) -> String {
+nonisolated func finderTagColorNumberToString(_ tagColorNumber: Int) -> String {
     switch tagColorNumber {
     case 6: return "🎈"
     case 7: return "🔥"
@@ -45,7 +45,7 @@ func clearFinderTags(_ sdi: SDImage) {
     setFinderTagColorNumber(sdi, colorNumber: 0)
 }
 
-func getFinderTagColorNumber(_ url: URL) -> Int {
+nonisolated func getFinderTagColorNumber(_ url: URL) -> Int {
     guard let md = MDItemCreateWithURL(nil, url as CFURL) else { return 0 }
     var finderTagColorNumber: Int = 0
     let mdItemFSLabel = MDItemCopyAttribute(md, kMDItemFSLabel)
@@ -72,7 +72,7 @@ private struct ParsedMetadataInfo {
     var presentFields: Set<MetadataField> = []
 }
 
-private func metadataField(for key: Metadata) -> MetadataField? {
+nonisolated private func metadataField(for key: Metadata) -> MetadataField? {
     switch key {
     case .includeInImage:
         return .prompt
@@ -105,7 +105,7 @@ private func metadataField(for key: Metadata) -> MetadataField? {
     }
 }
 
-private func parseMetadataInfo(_ infoString: String) -> ParsedMetadataInfo {
+nonisolated private func parseMetadataInfo(_ infoString: String) -> ParsedMetadataInfo {
     var parsed = ParsedMetadataInfo()
 
     func parseInputImages(_ value: String) -> [String] {
@@ -166,12 +166,12 @@ private func parseMetadataInfo(_ infoString: String) -> ParsedMetadataInfo {
     return parsed
 }
 
-private func isSupportedGeneratedVersion(_ generatedVersion: String) -> Bool {
+nonisolated private func isSupportedGeneratedVersion(_ generatedVersion: String) -> Bool {
     guard !generatedVersion.isEmpty else { return false }
     return compareVersion("2.2", generatedVersion) != .orderedDescending
 }
 
-func createImageRecordFromURL(_ url: URL) -> ImageRecord? {
+nonisolated func createImageRecordFromURL(_ url: URL) -> ImageRecord? {
     guard
         let attr = try? FileManager.default.attributesOfItem(
             atPath: url.path(percentEncoded: false))
