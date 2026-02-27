@@ -12,7 +12,7 @@ nonisolated final class IrisFluxKleinImageGenerator: ImageGenerator {
     private var generationStopped = false
     private static let embeddingCache = FluxPromptEmbeddingCache(maxEntries: 16)
 
-    func generate(
+    @concurrent func generate(
         request: GenerationRequest,
         onState: @escaping @Sendable (GenerationState.Status) async -> Void,
         onProgress: @escaping @Sendable (GenerationState.Progress, Double?) async -> Void,
@@ -409,7 +409,7 @@ private enum IrisFluxKleinImageGeneratorError: Error, CustomStringConvertible {
     }
 }
 
-private func fluxErrorMessage() -> String {
+nonisolated private func fluxErrorMessage() -> String {
     guard let cString = iris_get_error() else {
         return "Unknown error."
     }
@@ -551,7 +551,7 @@ private actor FluxPromptEmbeddingCache {
 }
 
 extension iris_params {
-    fileprivate static var defaultParams: iris_params {
+    nonisolated fileprivate static var defaultParams: iris_params {
         iris_params(
             width: 256, height: 256, num_steps: 4, seed: -1,
             guidance: 0.0, schedule: Int32(IRIS_SCHEDULE_DEFAULT), power_alpha: 2.0
@@ -639,13 +639,13 @@ private actor FluxStepImageBridge {
     }
 }
 
-private let fluxStepCallback: @convention(c) (Int32, Int32) -> Void = { step, total in
+nonisolated private let fluxStepCallback: @convention(c) (Int32, Int32) -> Void = { step, total in
     Task {
         await FluxStepImageBridge.shared.handleStep(step: step, total: total)
     }
 }
 
-private let fluxPhaseCallback: @convention(c) (UnsafePointer<CChar>?, Int32) -> Void = {
+nonisolated private let fluxPhaseCallback: @convention(c) (UnsafePointer<CChar>?, Int32) -> Void = {
     phase, done in
     let phaseName = phase.map { String(cString: $0) }
     Task {
@@ -653,7 +653,7 @@ private let fluxPhaseCallback: @convention(c) (UnsafePointer<CChar>?, Int32) -> 
     }
 }
 
-private let fluxStepImageCallback:
+nonisolated private let fluxStepImageCallback:
     @convention(c) (
         Int32,
         Int32,

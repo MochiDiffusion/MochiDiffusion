@@ -21,7 +21,7 @@ struct MochiCompactSliderStyle: CompactSliderStyle {
 }
 
 extension NSApplication {
-    static var appVersion: String {
+    nonisolated static var appVersion: String {
         Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as! String
     }
 }

@@ -14,8 +14,8 @@ struct SDImage: Identifiable, Hashable {
     var image: CGImage?
     var prompt = ""
     var negativePrompt = ""
-    var width: Int { self.image?.width ?? 0 }
-    var height: Int { self.image?.height ?? 0 }
+    nonisolated var width: Int { self.image?.width ?? 0 }
+    nonisolated var height: Int { self.image?.height ?? 0 }
     var aspectRatio: CGFloat = 0.0
     var model = ""
     var quality = ""
@@ -104,7 +104,7 @@ extension SDImage {
         }
     }
 
-    func imageData(
+    nonisolated func imageData(
         _ type: UTType,
         metadataFields: Set<MetadataField> = Set(MetadataField.allCases)
     ) async -> Data? {
@@ -129,8 +129,7 @@ extension SDImage {
         return data as Data
     }
 
-    @MainActor
-    func metadata(including metadataFields: Set<MetadataField>) -> String {
+    nonisolated func metadata(including metadataFields: Set<MetadataField>) -> String {
         var pairs: [String] = []
 
         if metadataFields.contains(.prompt) {

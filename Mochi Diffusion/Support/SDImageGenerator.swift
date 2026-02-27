@@ -51,7 +51,7 @@ nonisolated final class SDImageGenerator: ImageGenerator {
 
     private var currentPipelineHash: Int?
 
-    func loadPipeline(
+    @concurrent func loadPipeline(
         model: SDModel,
         controlNet: [String] = [],
         computeUnit: MLComputeUnits,
@@ -96,7 +96,7 @@ nonisolated final class SDImageGenerator: ImageGenerator {
         await onState(.ready(nil))
     }
 
-    func generate(
+    @concurrent func generate(
         request: GenerationRequest,
         onState: @escaping @Sendable (GenerationState.Status) async -> Void,
         onProgress: @escaping @Sendable (GenerationState.Progress, Double?) async -> Void,
@@ -140,7 +140,7 @@ nonisolated final class SDImageGenerator: ImageGenerator {
         )
     }
 
-    func generate(
+    @concurrent func generate(
         _ config: SDGenerationConfig,
         generationPipeline: GenerationPipeline,
         onState: @escaping @Sendable (GenerationState.Status) async -> Void,
