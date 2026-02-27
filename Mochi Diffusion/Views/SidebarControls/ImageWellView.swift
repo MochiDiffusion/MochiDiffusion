@@ -13,13 +13,13 @@ struct ImageWellView: View {
     let widthModifier: Double
     let heightModifier: Double
     let selectImage: () async -> CGImage?
-    let setImage: (CGImage?) async -> Void
+    let setImage: @Sendable (CGImage?) async -> Void
 
     init(
         image: CGImage? = nil,
         size: CGSize?,
         selectImage: @escaping () async -> CGImage?,
-        setImage: @escaping (CGImage?) async -> Void
+        setImage: @escaping @Sendable (CGImage?) async -> Void
     ) {
         self.image = image
         if let width = size?.width, let height = size?.height {

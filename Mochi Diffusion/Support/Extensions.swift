@@ -133,27 +133,34 @@ extension TransferableImage: Transferable {
 }
 
 extension NSImage {
-    private static var urlCache = [Int: URL]()
+    private static let temporaryFilePrefix = "MochiDiffusionTransferImage-"
 
     public static func cleanupTempFiles() {
-        for url in self.urlCache {
-            try? FileManager.default.removeItem(at: url.value)
+        let tempDirectory = FileManager.default.temporaryDirectory
+        guard
+            let urls = try? FileManager.default.contentsOfDirectory(
+                at: tempDirectory,
+                includingPropertiesForKeys: nil
+            )
+        else {
+            return
+        }
+
+        for url in urls where url.lastPathComponent.hasPrefix(Self.temporaryFilePrefix) {
+            try? FileManager.default.removeItem(at: url)
         }
     }
 
     func temporaryFileURL() throws -> URL {
         let imageHash = self.getImageHash()
-        if let cachedURL = Self.urlCache[imageHash],
-            FileManager.default.fileExists(atPath: cachedURL.path(percentEncoded: false))
-        {
-            return cachedURL
+        let filename = "\(Self.temporaryFilePrefix)\(imageHash).png"
+        let url = FileManager.default.temporaryDirectory.appending(path: filename)
+        if FileManager.default.fileExists(atPath: url.path(percentEncoded: false)) {
+            return url
         }
-        let name = String(imageHash)
-        let url = FileManager.default.temporaryDirectory.appendingPathComponent(
-            name, conformingTo: .png)
+
         let fileWrapper = FileWrapper(regularFileWithContents: self.toPngData())
         try fileWrapper.write(to: url, originalContentsURL: nil)
-        Self.urlCache[imageHash] = url
         return url
     }
 }
@@ -200,7 +207,8 @@ extension Text {
 }
 
 extension Binding {
-    func onChange(_ handler: @escaping (Value) -> Void) -> Binding<Value> {
+    @MainActor
+    func onChange(_ handler: @escaping @Sendable (Value) -> Void) -> Binding<Value> {
         Binding(
             get: { self.wrappedValue },
             set: { newValue in

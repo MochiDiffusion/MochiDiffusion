@@ -8,7 +8,7 @@ import CoreML
 import Foundation
 import os
 
-protocol ImageGenerator {
+protocol ImageGenerator: Sendable {
     func generate(
         request: GenerationRequest,
         onState: @escaping @Sendable (GenerationState.Status) async -> Void,

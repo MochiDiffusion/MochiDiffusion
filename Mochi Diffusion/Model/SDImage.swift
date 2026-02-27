@@ -118,10 +118,10 @@ extension SDImage {
                 nil
             )
         else { return nil }
-        let iptc = await [
+        let iptc = [
             kCGImagePropertyIPTCCaptionAbstract: metadata(including: metadataFields),
             kCGImagePropertyIPTCOriginatingProgram: "Mochi Diffusion",
-            kCGImagePropertyIPTCProgramVersion: "\(await NSApplication.appVersion)",
+            kCGImagePropertyIPTCProgramVersion: "\(NSApplication.appVersion)",
         ]
         let meta = [kCGImagePropertyIPTCDictionary: iptc]
         CGImageDestinationAddImage(destination, image, meta as CFDictionary)

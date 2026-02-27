@@ -29,7 +29,7 @@ struct StartingImageView: View {
                 selectImage: controller.selectImage
             ) { image in
                 if let image {
-                    controller.setStartingImage(image: image)
+                    await controller.setStartingImage(image: image)
                 } else {
                     await controller.unsetStartingImage()
                 }

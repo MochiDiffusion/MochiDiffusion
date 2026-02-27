@@ -8,6 +8,7 @@ import Foundation
 import UniformTypeIdentifiers
 
 final class IrisFluxKleinImageGenerator: ImageGenerator {
+    private let generationStopLock = NSLock()
     private var generationStopped = false
     private static let embeddingCache = FluxPromptEmbeddingCache(maxEntries: 16)
 
@@ -24,20 +25,20 @@ final class IrisFluxKleinImageGenerator: ImageGenerator {
         }
 
         await onState(.loading("Loading model..."))
-        generationStopped = false
+        setGenerationStopped(false)
         iris_clear_cancel()
         // Match the CLI startup order so transformer load sees Metal availability.
         _ = iris_metal_init()
-        FluxStepImageBridge.configure(
+        await FluxStepImageBridge.shared.configure(
             onState: onState,
             onProgress: onProgress,
             onPreview: onPreview,
             usePreview: request.useDenoisedIntermediates
         )
         defer {
-            FluxStepImageBridge.reset()
             iris_clear_cancel()
             Task {
+                await FluxStepImageBridge.shared.reset()
                 await onPreview(nil)
             }
         }
@@ -67,7 +68,7 @@ final class IrisFluxKleinImageGenerator: ImageGenerator {
         }
 
         if isDistilled {
-            if let cached = Self.embeddingCache.lookup(
+            if let cached = await Self.embeddingCache.lookup(
                 modelDir: modelDir,
                 prompt: request.prompt
             ) {
@@ -88,14 +89,14 @@ final class IrisFluxKleinImageGenerator: ImageGenerator {
                 let rawEmbeddings = Array(UnsafeBufferPointer(start: encoded, count: elementCount))
                 free(encoded)
 
-                Self.embeddingCache.store(
+                await Self.embeddingCache.store(
                     modelDir: modelDir,
                     prompt: request.prompt,
                     seqLen: embeddingLength,
                     values: rawEmbeddings
                 )
 
-                if let canonical = Self.embeddingCache.lookup(
+                if let canonical = await Self.embeddingCache.lookup(
                     modelDir: modelDir,
                     prompt: request.prompt
                 ) {
@@ -123,7 +124,7 @@ final class IrisFluxKleinImageGenerator: ImageGenerator {
         var seed = request.seed
 
         for _ in 0..<request.numberOfImages {
-            if generationStopped {
+            if isGenerationStopped() {
                 break
             }
 
@@ -160,7 +161,7 @@ final class IrisFluxKleinImageGenerator: ImageGenerator {
             }
 
             guard let image else {
-                if generationStopped {
+                if isGenerationStopped() {
                     break
                 }
                 throw IrisFluxKleinImageGeneratorError.generateFailed(fluxErrorMessage())
@@ -236,8 +237,21 @@ final class IrisFluxKleinImageGenerator: ImageGenerator {
     }
 
     func stopGenerate() async {
-        generationStopped = true
+        setGenerationStopped(true)
         iris_request_cancel()
+    }
+
+    private func setGenerationStopped(_ value: Bool) {
+        generationStopLock.lock()
+        generationStopped = value
+        generationStopLock.unlock()
+    }
+
+    private func isGenerationStopped() -> Bool {
+        generationStopLock.lock()
+        let value = generationStopped
+        generationStopLock.unlock()
+        return value
     }
 
     private func makeImageData(
@@ -367,6 +381,11 @@ final class IrisFluxKleinImageGenerator: ImageGenerator {
     }
 }
 
+// Safety invariant: GenerationService serializes generation calls, and cancellation state
+// mutation is synchronized with generationStopLock while migration away from class-based
+// generators is in progress.
+extension IrisFluxKleinImageGenerator: @unchecked Sendable {}
+
 private enum IrisFluxKleinImageGeneratorError: Error, CustomStringConvertible {
     case invalidPipeline
     case loadFailed(String)
@@ -397,7 +416,7 @@ private func fluxErrorMessage() -> String {
     return String(cString: cString)
 }
 
-private final class FluxPromptEmbeddingCache {
+private actor FluxPromptEmbeddingCache {
     struct Entry {
         let seqLen: Int32
         let values: [Float]
@@ -486,7 +505,6 @@ private final class FluxPromptEmbeddingCache {
     }
 
     private let maxEntries: Int
-    private let lock = NSLock()
     private var entries: [Key: StoredEntry] = [:]
     private var lru: [Key] = []
 
@@ -496,13 +514,8 @@ private final class FluxPromptEmbeddingCache {
 
     func lookup(modelDir: String, prompt: String) -> Entry? {
         let key = Key(modelDir: modelDir, prompt: prompt)
-        lock.lock()
-        guard let stored = entries[key] else {
-            lock.unlock()
-            return nil
-        }
+        guard let stored = entries[key] else { return nil }
         touch(key)
-        lock.unlock()
 
         return Entry(
             seqLen: stored.seqLen,
@@ -513,9 +526,6 @@ private final class FluxPromptEmbeddingCache {
     func store(modelDir: String, prompt: String, seqLen: Int32, values: [Float]) {
         let key = Key(modelDir: modelDir, prompt: prompt)
         let quantized = QuantizedEmbedding(values: values)
-
-        lock.lock()
-        defer { lock.unlock() }
 
         entries[key] = StoredEntry(
             seqLen: seqLen,
@@ -549,13 +559,15 @@ extension iris_params {
     }
 }
 
-private enum FluxStepImageBridge {
-    static var onState: (@Sendable (GenerationState.Status) async -> Void)?
-    static var onProgress: (@Sendable (GenerationState.Progress, Double?) async -> Void)?
-    static var onPreview: (@Sendable (CGImage?) async -> Void)?
-    static var usePreview = false
+private actor FluxStepImageBridge {
+    static let shared = FluxStepImageBridge()
 
-    static func configure(
+    private var onState: (@Sendable (GenerationState.Status) async -> Void)?
+    private var onProgress: (@Sendable (GenerationState.Progress, Double?) async -> Void)?
+    private var onPreview: (@Sendable (CGImage?) async -> Void)?
+    private var usePreview = false
+
+    func configure(
         onState: @escaping @Sendable (GenerationState.Status) async -> Void,
         onProgress: @escaping @Sendable (GenerationState.Progress, Double?) async -> Void,
         onPreview: @escaping @Sendable (CGImage?) async -> Void,
@@ -567,14 +579,14 @@ private enum FluxStepImageBridge {
         self.usePreview = usePreview
     }
 
-    static func reset() {
+    func reset() {
         onState = nil
         onProgress = nil
         onPreview = nil
         usePreview = false
     }
 
-    static func handleStep(step: Int32, total: Int32) {
+    func handleStep(step: Int32, total: Int32) async {
         guard
             let onProgress,
             total > 0
@@ -584,38 +596,29 @@ private enum FluxStepImageBridge {
 
         let totalSteps = Int(total)
         let zeroBasedStep = max(0, min(Int(step) - 1, totalSteps - 1))
-        Task {
-            await onProgress(
-                GenerationState.Progress(step: zeroBasedStep, stepCount: totalSteps),
-                nil
-            )
-        }
+        await onProgress(
+            GenerationState.Progress(step: zeroBasedStep, stepCount: totalSteps),
+            nil
+        )
     }
 
-    static func handlePhase(_ phaseName: String?, done: Int32) {
+    func handlePhase(_ phaseName: String?, done: Int32) async {
         guard done == 0, let onState else { return }
         guard let label = phaseLabel(for: phaseName) else { return }
-        Task {
-            await onState(.loading(label))
-        }
+        await onState(.loading(label))
     }
 
-    static func handlePreview(_ image: UnsafePointer<iris_image>?) {
+    func handlePreview(_ image: CGImage?) async {
         guard
             usePreview,
-            let onPreview,
-            let image
+            let onPreview
         else {
             return
         }
-
-        let cgImage = IrisFluxKleinImageGenerator.makeCGImage(from: image)
-        Task {
-            await onPreview(cgImage)
-        }
+        await onPreview(image)
     }
 
-    private static func phaseLabel(for phaseName: String?) -> String? {
+    private func phaseLabel(for phaseName: String?) -> String? {
         guard let phaseName else { return nil }
         let normalized = phaseName.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
 
@@ -637,13 +640,17 @@ private enum FluxStepImageBridge {
 }
 
 private let fluxStepCallback: @convention(c) (Int32, Int32) -> Void = { step, total in
-    FluxStepImageBridge.handleStep(step: step, total: total)
+    Task {
+        await FluxStepImageBridge.shared.handleStep(step: step, total: total)
+    }
 }
 
 private let fluxPhaseCallback: @convention(c) (UnsafePointer<CChar>?, Int32) -> Void = {
     phase, done in
     let phaseName = phase.map { String(cString: $0) }
-    FluxStepImageBridge.handlePhase(phaseName, done: done)
+    Task {
+        await FluxStepImageBridge.shared.handlePhase(phaseName, done: done)
+    }
 }
 
 private let fluxStepImageCallback:
@@ -652,5 +659,10 @@ private let fluxStepImageCallback:
         Int32,
         UnsafePointer<iris_image>?
     ) -> Void = { _, _, image in
-        FluxStepImageBridge.handlePreview(image)
+        let previewImage = image.flatMap {
+            IrisFluxKleinImageGenerator.makeCGImage(from: $0)
+        }
+        Task {
+            await FluxStepImageBridge.shared.handlePreview(previewImage)
+        }
     }

@@ -33,7 +33,7 @@ struct SDGenerationConfig: Identifiable {
     var imageType: String
 }
 
-public final class SDImageGenerator: ImageGenerator {
+final class SDImageGenerator: ImageGenerator {
 
     enum GeneratorError: Error {
         case imageDirectoryNoAccess
@@ -46,6 +46,7 @@ public final class SDImageGenerator: ImageGenerator {
 
     private var pipeline: (any StableDiffusionPipelineProtocol)?
 
+    private let generationStopLock = NSLock()
     private var generationStopped = false
 
     private var currentPipelineHash: Int?
@@ -152,7 +153,7 @@ public final class SDImageGenerator: ImageGenerator {
             throw GeneratorError.pipelineNotAvailable
         }
         await onState(.loading(nil))
-        generationStopped = false
+        setGenerationStopped(false)
         defer {
             Task {
                 await onPreview(nil)
@@ -191,33 +192,28 @@ public final class SDImageGenerator: ImageGenerator {
         sdi.steps = pipelineConfig.stepCount
         sdi.guidanceScale = Double(pipelineConfig.guidanceScale)
 
+        let useDenoisedIntermediates = pipelineConfig.useDenoisedIntermediates
         for _ in 0..<config.numberOfImages {
             let images = try pipeline.generateImages(configuration: pipelineConfig) {
                 progress in
 
+                let progressUpdate = GenerationState.Progress(
+                    step: progress.step,
+                    stepCount: progress.stepCount
+                )
                 Task {
-                    await onProgress(
-                        GenerationState.Progress(
-                            step: progress.step,
-                            stepCount: progress.stepCount
-                        ),
-                        nil
-                    )
+                    await onProgress(progressUpdate, nil)
                 }
 
+                let previewImage: CGImage? =
+                    useDenoisedIntermediates ? (progress.currentImages.last ?? nil) : nil
                 Task {
-                    if pipelineConfig.useDenoisedIntermediates,
-                        let currentImage = progress.currentImages.last
-                    {
-                        await onPreview(currentImage)
-                    } else {
-                        await onPreview(nil)
-                    }
+                    await onPreview(previewImage)
                 }
 
-                return !generationStopped
+                return !isGenerationStopped()
             }
-            if generationStopped {
+            if isGenerationStopped() {
                 break
             }
             for image in images {
@@ -266,9 +262,27 @@ public final class SDImageGenerator: ImageGenerator {
     }
 
     func stopGenerate() async {
-        generationStopped = true
+        setGenerationStopped(true)
+    }
+
+    private func setGenerationStopped(_ value: Bool) {
+        generationStopLock.lock()
+        generationStopped = value
+        generationStopLock.unlock()
+    }
+
+    private func isGenerationStopped() -> Bool {
+        generationStopLock.lock()
+        let value = generationStopped
+        generationStopLock.unlock()
+        return value
     }
 }
+
+// Safety invariant: GenerationService serializes generation calls, and cancellation state
+// mutation is synchronized with generationStopLock while migration away from class-based
+// generators is in progress.
+extension SDImageGenerator: @unchecked Sendable {}
 
 extension SDImageGenerator {
     fileprivate func makeGenerationConfig(

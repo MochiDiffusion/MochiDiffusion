@@ -36,16 +36,10 @@ actor FolderMonitorService {
         token: UUID,
         continuation: AsyncStream<Void>.Continuation
     ) {
-        let monitor = FolderMonitor(path: path) { [weak self] in
-            Task {
-                await self?.emit(token: token)
-            }
+        let monitor = FolderMonitor(path: path) {
+            continuation.yield(())
         }
         monitors[token] = Monitor(monitor: monitor, continuation: continuation)
-    }
-
-    private func emit(token: UUID) {
-        monitors[token]?.continuation.yield(())
     }
 
     private func stopMonitoring(token: UUID) {
