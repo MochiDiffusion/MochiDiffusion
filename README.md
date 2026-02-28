@@ -4,7 +4,7 @@
 
 <h1 align="center">Mochi Diffusion</h1>
 
-<p align="center">Run Stable Diffusion on Mac natively</p>
+<p align="center">Run Stable Diffusion and FLUX.2 Klein on Mac natively</p>
 
 <p align="center">
 <a href="https://github.com/MochiDiffusion/MochiDiffusion/blob/main/README.md">English</a>,
@@ -29,11 +29,11 @@
 - Generate images based on an existing image (commonly known as Image2Image)
 - Generate images using ControlNet
 - Generated images are saved with prompt info inside EXIF metadata (view in Finder's Get Info window)
-- Convert generated images to high resolution (using RealESRGAN)
-- Autosave & restore images
+- Built-in gallery with import/save/sync support
 - Use custom Stable Diffusion Core ML models
 - No worries about pickled models
 - macOS native app using SwiftUI
+- [Iris](https://github.com/antirez/iris.c) FLUX.2 (Klein) pipeline support
 
 ## Downloads
 
@@ -44,6 +44,10 @@
 [ControlNet models](https://huggingface.co/coreml-community/ControlNet-Models-For-Core-ML/tree/main/CN)
 
 [Stable Diffusion 1.5 with ControlNet](https://huggingface.co/coreml-community/coreml-stable-diffusion-v1-5_cn/tree/main/split_einsum)
+
+[FLUX.2-klein-4B (distilled)](https://huggingface.co/black-forest-labs/FLUX.2-klein-4B)
+
+[FLUX.2-klein-9B (distilled)](https://huggingface.co/black-forest-labs/FLUX.2-klein-9B)
 
 When using a model for the very first time, it may take up to 2 minutes for the Neural Engine to compile a cached version. Afterwards, subsequent generations will be much faster.
 
@@ -56,7 +60,9 @@ Depending on the option chosen, you will need to use the correct model version (
 
 ## Models
 
-You will need to convert or download Core ML models in order to use Mochi Diffusion.
+You will need Core ML Stable Diffusion or FLUX.2 Klein models in order to use Mochi Diffusion.
+
+### Core ML Stable Diffusion
 
 1. [Convert](https://github.com/MochiDiffusion/MochiDiffusion/wiki/How-to-convert-Stable-Diffusion-models-to-Core-ML) or download Core ML models
     - `split_einsum` version is compatible with all compute unit options including Neural Engine
@@ -79,11 +85,32 @@ You will need to convert or download Core ML models in order to use Mochi Diffus
         └── ...
 ```
 
+### FLUX.2 Klein
+
+No conversion is required for FLUX.2 Klein models.
+
+1. Download the text_encode, tokenizer, transformer, and vae for a FLUX.2 Klein model from the [Downloads](#downloads) links above (or use [`download_model.sh`](https://github.com/antirez/iris.c/blob/main/download_model.sh))
+2. Place in MochiDiffusion's model folder
+3. Your directory structure should look like this:
+```
+<Home Directory>/
+└── MochiDiffusion/
+    └── models/
+        ├── flux-klein-4b/
+        │   ├── text_encoder/
+        │   ├── tokenizer/
+        │   ├── transformer/
+        │   └── vae/
+        ├── ...
+        └── ...        
+```
+(see [iris.c issue #12](https://github.com/antirez/iris.c/issues/12)) for specific guidance for flux-klein-4b)
+
 ## Compatibility
 
 - Apple Silicon (M1 and later)
-- macOS Sonoma 14.0 and later
-- Xcode 15.2 (to build)
+- macOS 15.6 and later
+- Xcode 26.0 or later (to build)
 
 ## Privacy
 
@@ -102,5 +129,6 @@ Mochi Diffusion is always looking for contributions, whether it's through bug re
 ## Credits
 
 - [Apple's Core ML Stable Diffusion implementation](https://github.com/apple/ml-stable-diffusion)
+- [iris.c](https://github.com/antirez/iris.c)
 - [Hugging Face's Swift UI sample implementation](https://github.com/huggingface/swift-coreml-diffusers)
 - App Icon by [Zabriskije](https://github.com/Zabriskije)
