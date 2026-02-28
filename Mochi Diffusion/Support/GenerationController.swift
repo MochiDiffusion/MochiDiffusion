@@ -506,6 +506,10 @@ final class GenerationController {
     }
 
     private func apply(_ result: GenerationResult) {
+        let shouldAnimateInsert = ImageGallery.shared.currentGeneratingImage == nil
+        defer {
+            ImageGallery.shared.setCurrentGenerating(image: nil)
+        }
         guard let url = result.imageURL else { return }
         let metadata = result.metadata
         let width = metadata.width
@@ -535,7 +539,11 @@ final class GenerationController {
             imageData: result.imageData
         )
         guard let sdi = createSDImage(from: record) else { return }
-        ImageGallery.shared.add(sdi, metadataFields: metadata.metadataFields)
+        ImageGallery.shared.add(
+            sdi,
+            metadataFields: metadata.metadataFields,
+            animate: shouldAnimateInsert
+        )
     }
 
     func removeQueued(_ id: GenerationRequest.ID) async {

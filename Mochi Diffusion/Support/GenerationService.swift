@@ -39,6 +39,7 @@ actor GenerationService {
     private let sdGenerator = SDImageGenerator()
     private let irisFluxKleinGenerator = IrisFluxKleinImageGenerator()
     private var nextImageIndex = 1
+    private var didEmitResultForCurrentRequest = false
     private let imageRepository: ImageRepository
     private let modelRepository: ModelRepository
 
@@ -113,6 +114,7 @@ actor GenerationService {
             let request = queue.removeFirst()
             current = request
             currentGenerator = nil
+            didEmitResultForCurrentRequest = false
             broadcastSnapshot()
 
             let generator: ImageGenerator
@@ -189,7 +191,7 @@ actor GenerationService {
                             imageData: result.imageData,
                             imageURL: path
                         )
-                        await self.emitResult(savedResult)
+                        await self.emitResultForCurrentRequest(savedResult)
                     }
                 )
                 restoreReadyAfterCancel = true
@@ -269,10 +271,12 @@ actor GenerationService {
         for requestID: GenerationRequest.ID
     ) async {
         if image == nil {
-            guard current?.id == requestID || current == nil else { return }
-            await MainActor.run {
-                ImageGallery.shared.setCurrentGenerating(image: nil)
+            // Keep the last preview frame visible until result insertion/teardown.
+            if current?.id == requestID, !isCancelRequested(for: requestID) {
+                return
             }
+            guard current?.id == requestID || current == nil else { return }
+            await setCurrentGeneratingImage(nil)
             return
         }
 
@@ -281,9 +285,7 @@ actor GenerationService {
             return
         }
 
-        await MainActor.run {
-            ImageGallery.shared.setCurrentGenerating(image: image)
-        }
+        await setCurrentGeneratingImage(image)
     }
 
     private func nextFilename(for metadata: GenerationMetadata) async -> String {
@@ -321,9 +323,16 @@ actor GenerationService {
         continuations[id] = nil
     }
 
-    private func emitResult(_ result: GenerationResult) {
+    private func emitResultForCurrentRequest(_ result: GenerationResult) {
+        didEmitResultForCurrentRequest = true
         for continuation in resultContinuations.values {
             continuation.yield(result)
+        }
+    }
+
+    private func setCurrentGeneratingImage(_ image: CGImage?) async {
+        await MainActor.run {
+            ImageGallery.shared.setCurrentGenerating(image: image)
         }
     }
 
@@ -335,7 +344,12 @@ actor GenerationService {
         _ requestID: GenerationRequest.ID,
         restoreReadyAfterCancel: Bool
     ) async {
-        if isCancelRequested(for: requestID) {
+        let cancelRequested = isCancelRequested(for: requestID)
+        if cancelRequested || !didEmitResultForCurrentRequest {
+            await setCurrentGeneratingImage(nil)
+        }
+
+        if cancelRequested {
             cancelingCurrentID = nil
             if restoreReadyAfterCancel && queue.isEmpty {
                 await updateGenerationState(.ready(nil))
@@ -345,6 +359,7 @@ actor GenerationService {
         if current?.id == requestID {
             currentGenerator = nil
         }
+        didEmitResultForCurrentRequest = false
     }
 
     private func removeResultContinuation(_ id: UUID) {

@@ -66,9 +66,10 @@ enum ImagesSortType: String {
     @discardableResult
     func add(
         _ sdi: SDImage,
-        metadataFields: Set<MetadataField> = Set(MetadataField.allCases)
+        metadataFields: Set<MetadataField> = Set(MetadataField.allCases),
+        animate: Bool = true
     ) -> SDImage.ID {
-        withAnimation {
+        runWithOptionalAnimation(animate: animate) {
             allImages.append(sdi)
             metadataFieldsByImageID[sdi.id] = metadataFields
             return sdi.id
@@ -76,10 +77,13 @@ enum ImagesSortType: String {
     }
 
     @discardableResult
-    func add(_ imagesAndMetadata: [(image: SDImage, metadataFields: Set<MetadataField>)])
+    func add(
+        _ imagesAndMetadata: [(image: SDImage, metadataFields: Set<MetadataField>)],
+        animate: Bool = true
+    )
         -> [SDImage.ID]
     {
-        withAnimation {
+        runWithOptionalAnimation(animate: animate) {
             let images = imagesAndMetadata.map(\.image)
             allImages.append(contentsOf: images)
             for item in imagesAndMetadata {
@@ -90,11 +94,12 @@ enum ImagesSortType: String {
     }
 
     @discardableResult
-    func add(_ sdis: [SDImage]) -> [SDImage.ID] {
+    func add(_ sdis: [SDImage], animate: Bool = true) -> [SDImage.ID] {
         add(
             sdis.map { image in
                 (image: image, metadataFields: Set(MetadataField.allCases))
-            }
+            },
+            animate: animate
         )
     }
 
@@ -115,7 +120,11 @@ enum ImagesSortType: String {
     }
 
     func setCurrentGenerating(image: CGImage?) {
-        currentGeneratingImage = image
+        let hadImage = currentGeneratingImage != nil
+        let hasImage = image != nil
+        runWithOptionalAnimation(animate: !hadImage && hasImage) {
+            currentGeneratingImage = image
+        }
     }
 
     func remove(_ sdi: SDImage) {
@@ -226,6 +235,15 @@ enum ImagesSortType: String {
         case .newestFirst:
             images.sort(by: { $0.generatedDate > $1.generatedDate })
         }
+    }
+
+    private func runWithOptionalAnimation<T>(animate: Bool, _ action: () -> T) -> T {
+        if animate {
+            return withAnimation {
+                action()
+            }
+        }
+        return action()
     }
 }
 

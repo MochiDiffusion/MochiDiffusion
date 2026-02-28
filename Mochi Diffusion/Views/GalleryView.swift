@@ -9,13 +9,13 @@ import SwiftUI
 
 struct GalleryView: View {
 
-    @Environment(\.colorScheme) private var colorScheme
     @Environment(GenerationState.self) private var generationState: GenerationState
     @Environment(ImageGallery.self) private var store: ImageGallery
     @Environment(GalleryController.self) private var galleryController: GalleryController
     @Environment(QuickLookState.self) private var quickLook: QuickLookState
 
     private let gridColumns = [GridItem(.adaptive(minimum: 200), spacing: 16)]
+    private var previewLeadsGrid: Bool { store.sortType == .newestFirst }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -51,20 +51,8 @@ struct GalleryView: View {
         ScrollViewReader { proxy in
             ScrollView {
                 LazyVGrid(columns: gridColumns, spacing: 16) {
-                    if store.sortType == .newestFirst {
-                        if let currentImage = store.currentGeneratingImage,
-                            case .running = generationState.state
-                        {
-                            GalleryPreviewView(image: currentImage)
-                                .id("generation-preview")
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 2)
-                                        .stroke(
-                                            Color(nsColor: .controlBackgroundColor),
-                                            lineWidth: 4
-                                        )
-                                )
-                        }
+                    if previewLeadsGrid {
+                        previewTile
                     }
 
                     ForEach(store.images) { sdi in
@@ -114,20 +102,8 @@ struct GalleryView: View {
                             }
                     }
 
-                    if store.sortType == .oldestFirst {
-                        if let currentImage = store.currentGeneratingImage,
-                            case .running = generationState.state
-                        {
-                            GalleryPreviewView(image: currentImage)
-                                .id("generation-preview")
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 2)
-                                        .stroke(
-                                            Color(nsColor: .controlBackgroundColor),
-                                            lineWidth: 4
-                                        )
-                                )
-                        }
+                    if !previewLeadsGrid {
+                        previewTile
                     }
                 }
                 .padding()
@@ -143,6 +119,22 @@ struct GalleryView: View {
     @ViewBuilder
     private var emptyGalleryView: some View {
         Color.clear
+    }
+
+    @ViewBuilder
+    private var previewTile: some View {
+        if let currentImage = store.currentGeneratingImage {
+            GalleryPreviewView(image: currentImage)
+                .id("generation-preview")
+                .transition(.opacity)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 2)
+                        .stroke(
+                            Color(nsColor: .controlBackgroundColor),
+                            lineWidth: 4
+                        )
+                )
+        }
     }
 
     struct GalleryItemContextMenuView: View {
