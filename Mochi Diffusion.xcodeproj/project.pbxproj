@@ -188,6 +188,7 @@
 		D7B03F1F29D42F9900DF89DD /* SDModelAttentionType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDModelAttentionType.swift; sourceTree = "<group>"; };
 		E0D7B03CB7A3829A510ECF35 /* GenerationState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationState.swift; sourceTree = "<group>"; };
 		F1A2B3C4D5E6F70809101112 /* build_iris_lib.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = build_iris_lib.sh; sourceTree = "<group>"; };
+		F1A2B3C4D5E6F70809101115 /* set_build_version.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = set_build_version.sh; sourceTree = "<group>"; };
 		F3A1C2B3D4E5F60789ABCDE0 /* IrisFluxKleinImageGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IrisFluxKleinImageGenerator.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -367,6 +368,7 @@
 			isa = PBXGroup;
 			children = (
 				F1A2B3C4D5E6F70809101112 /* build_iris_lib.sh */,
+				F1A2B3C4D5E6F70809101115 /* set_build_version.sh */,
 			);
 			path = scripts;
 			sourceTree = SOURCE_ROOT;
@@ -382,6 +384,7 @@
 				036BFC1A294B9F7500D8AD04 /* Sources */,
 				036BFC1B294B9F7500D8AD04 /* Frameworks */,
 				036BFC1C294B9F7500D8AD04 /* Resources */,
+				F1A2B3C4D5E6F70809101114 /* Set Build Version */,
 			);
 			buildRules = (
 			);
@@ -507,6 +510,26 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "export PATH=\"$PATH:/opt/homebrew/bin\"\nif which swift-format > /dev/null; then\n  swift-format lint -p -r ./ | sed 's/: error: /: warning: /'\nelse\n  echo \"warning: swift-format not installed, download from https://github.com/apple/swift-format\"\nfi\n";
+		};
+		F1A2B3C4D5E6F70809101114 /* Set Build Version */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/scripts/set_build_version.sh",
+				"$(TARGET_BUILD_DIR)/$(INFOPLIST_PATH)",
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -euo pipefail\n\"${SRCROOT}/scripts/set_build_version.sh\"\n";
 		};
 		BFE66B132F2ED15300A8965C /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -780,7 +803,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 6.1;
+				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Mochi Diffusion/Preview Content\"";
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -818,7 +841,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 6.1;
+				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Mochi Diffusion/Preview Content\"";
 				ENABLE_HARDENED_RUNTIME = YES;
