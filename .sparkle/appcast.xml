@@ -5,6 +5,27 @@
     <language>en</language>
 
     <item>
+      <title>v6.0</title>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion</link>
+      <sparkle:version>6.0</sparkle:version>
+      <sparkle:minimumSystemVersion>15.6</sparkle:minimumSystemVersion>
+      <sparkle:fullReleaseNotesLink>https://github.com/MochiDiffusion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <pubDate>Sat, 28 Feb 2026 18:28:27 +0000</pubDate>
+      <enclosure
+        url="https://github.com/MochiDiffusion/MochiDiffusion/releases/download/v6.0/MochiDiffusion_6.0.dmg"
+        sparkle:edSignature="asRcyKFOIpeYGmCaTVZrnKDYUxW3Mp3DVptSBpAo5drZQ166TLulQoUcjPacs4zjy1rvpeEJ6fhbsXDGlgtBBA=="
+        length="4042194"
+        type="application/octet-stream" />
+      <description><![CDATA[
+      <ul>
+      <li>Add FLUX.2 Klein 4b and 9b pipeline</li>
+      <li>Removed ESRGAN upscaling</li>
+      </ul>
+      ]]>
+      </description>
+    </item>
+
+    <item>
       <title>v5.2</title>
       <link>https://github.com/MochiDiffusion/MochiDiffusion</link>
       <sparkle:version>5.2</sparkle:version>
