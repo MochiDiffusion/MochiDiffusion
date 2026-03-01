@@ -902,7 +902,7 @@
 			repositoryURL = "https://github.com/sparkle-project/Sparkle";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 2.0.0;
+				minimumVersion = 2.9.0;
 			};
 		};
 		0388DEAE297B00FC008B1C1C /* XCRemoteSwiftPackageReference "CompactSlider" */ = {
