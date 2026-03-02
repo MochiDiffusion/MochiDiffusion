@@ -204,6 +204,27 @@ final class GalleryController {
         pasteboard.writeObjects([image])
     }
 
+    func setFinderTagColorNumber(_ sdi: SDImage, colorNumber: Int) {
+        guard !sdi.path.isEmpty else { return }
+
+        var url = URL(fileURLWithPath: sdi.path)
+        var resourceValues = URLResourceValues()
+        resourceValues.labelNumber = colorNumber
+
+        do {
+            try url.setResourceValues(resourceValues)
+            imageGallery.updateMetadata(sdi, colorNumber: colorNumber)
+        } catch {
+            logger.error(
+                "Couldn't set Finder tag color \(colorNumber) for image at path: \(sdi.path)"
+            )
+        }
+    }
+
+    func clearFinderTags(_ sdi: SDImage) {
+        setFinderTagColorNumber(sdi, colorNumber: 0)
+    }
+
     private func observeImageDir() {
         withObservationTracking {
             _ = configStore.imageDir
