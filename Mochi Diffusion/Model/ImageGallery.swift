@@ -19,8 +19,6 @@ enum ImagesSortType: String {
 @MainActor
 @Observable public final class ImageGallery {
 
-    static let shared = ImageGallery()
-
     private let imageRepository: ImageRepository
 
     init(imageRepository: ImageRepository = ImageRepository()) {

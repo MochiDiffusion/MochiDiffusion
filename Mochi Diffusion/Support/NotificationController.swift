@@ -10,7 +10,6 @@ import UserNotifications
 
 @MainActor
 @Observable public final class NotificationController {
-    static let shared = NotificationController()
     var authStatus: UNAuthorizationStatus = .notDetermined
 
     @ObservationIgnored

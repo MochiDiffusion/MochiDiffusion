@@ -22,7 +22,5 @@ final class GenerationState {
         case running(Progress?)
     }
 
-    static let shared = GenerationState()
-
     var state: Status = .ready(nil)
 }

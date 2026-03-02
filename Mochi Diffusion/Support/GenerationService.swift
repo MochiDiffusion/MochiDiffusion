@@ -26,13 +26,6 @@ actor GenerationService {
         var current: GenerationRequest?
     }
 
-    @MainActor
-    static let shared = GenerationService(
-        generationState: .shared,
-        imageGallery: .shared,
-        notificationController: .shared
-    )
-
     private var logger = Logger()
     private var queue: [GenerationRequest] = []
     private var current: GenerationRequest?

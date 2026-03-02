@@ -8,8 +8,6 @@
 import Foundation
 
 actor FolderMonitorService {
-    static let shared = FolderMonitorService()
-
     private struct Monitor {
         let monitor: FolderMonitor
         let continuation: AsyncStream<Void>.Continuation
