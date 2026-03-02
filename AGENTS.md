@@ -14,6 +14,7 @@
 
 ## High-Level Design Flow
 - Runtime ownership boundaries:
+  - `MochiDiffusionApp` composes runtime dependencies once (state, services, controllers) and injects them through initializers/environment. Avoid direct `.shared` singleton access for app-owned services.
   - `ConfigStore` (`@MainActor`) owns persisted user inputs (`modelDir`, `imageDir`, `prompt`, `steps`, etc.) via `@AppStorage`.
   - `GenerationController` (`@MainActor`) translates UI/config state into `GenerationRequest` values and submits work to `GenerationService`.
   - `GalleryController` (`@MainActor`) handles gallery I/O orchestration (load/import/save/remove/sync) through `ImageRepository`.
