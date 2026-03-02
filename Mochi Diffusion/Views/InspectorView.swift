@@ -344,5 +344,5 @@ extension CGImage {
 
 #Preview {
     InspectorView()
-        .environment(ImageGallery.shared)
+        .environment(ImageGallery())
 }

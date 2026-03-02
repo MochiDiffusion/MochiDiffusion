@@ -27,7 +27,11 @@ nonisolated func finderTagColorNumberToString(_ tagColorNumber: Int) -> String {
 }
 
 // zero for clear all tags
-func setFinderTagColorNumber(_ sdi: SDImage, colorNumber: Int) {
+func setFinderTagColorNumber(
+    _ sdi: SDImage,
+    colorNumber: Int,
+    imageGallery: ImageGallery
+) {
     var url = URL(fileURLWithPath: sdi.path)
     var rv = URLResourceValues()
     rv.labelNumber = colorNumber
@@ -37,12 +41,12 @@ func setFinderTagColorNumber(_ sdi: SDImage, colorNumber: Int) {
         print(error.localizedDescription)
     }
     Task { @MainActor in
-        ImageGallery.shared.updateMetadata(sdi, colorNumber: colorNumber)
+        imageGallery.updateMetadata(sdi, colorNumber: colorNumber)
     }
 }
 
-func clearFinderTags(_ sdi: SDImage) {
-    setFinderTagColorNumber(sdi, colorNumber: 0)
+func clearFinderTags(_ sdi: SDImage, imageGallery: ImageGallery) {
+    setFinderTagColorNumber(sdi, colorNumber: 0, imageGallery: imageGallery)
 }
 
 nonisolated func getFinderTagColorNumber(_ url: URL) -> Int {

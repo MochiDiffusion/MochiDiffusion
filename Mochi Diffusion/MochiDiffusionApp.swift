@@ -26,20 +26,36 @@ struct MochiDiffusionApp: App {
     init() {
         let configStore = ConfigStore()
         let focusController = FocusController()
+        let generationState = GenerationState()
+        let imageGallery = ImageGallery()
+        let notificationController = NotificationController()
+        let folderMonitorService = FolderMonitorService()
+        let generationService = GenerationService(
+            generationState: generationState,
+            imageGallery: imageGallery,
+            notificationController: notificationController
+        )
         self._configStore = State(initialValue: configStore)
         self._generationController = State(
-            initialValue: GenerationController(configStore: configStore)
+            initialValue: GenerationController(
+                configStore: configStore,
+                generationService: generationService,
+                imageGallery: imageGallery,
+                folderMonitorService: folderMonitorService
+            )
         )
         self._galleryController = State(
             initialValue: GalleryController(
                 configStore: configStore,
+                imageGallery: imageGallery,
+                folderMonitorService: folderMonitorService,
                 focusController: focusController
             )
         )
-        self._generationState = .init(wrappedValue: .shared)
-        self._store = .init(wrappedValue: .shared)
+        self._generationState = .init(wrappedValue: generationState)
+        self._store = .init(wrappedValue: imageGallery)
         self._focusCon = .init(wrappedValue: focusController)
-        self._notificationController = .init(wrappedValue: .shared)
+        self._notificationController = .init(wrappedValue: notificationController)
         self._quickLook = State(initialValue: QuickLookState())
 
         updaterController = SPUStandardUpdaterController(

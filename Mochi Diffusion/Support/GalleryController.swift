@@ -17,16 +17,22 @@ final class GalleryController {
     var isLoading = true
     private let imageRepository: ImageRepository
     private let focusController: FocusController
+    private let imageGallery: ImageGallery
+    private let folderMonitorService: FolderMonitorService
 
     private var imageFolderMonitorTask: Task<Void, Never>?
     private var imageDirDebounceTask: Task<Void, Never>?
 
     init(
         configStore: ConfigStore,
+        imageGallery: ImageGallery,
+        folderMonitorService: FolderMonitorService,
         imageRepository: ImageRepository = ImageRepository(),
         focusController: FocusController
     ) {
         self.configStore = configStore
+        self.imageGallery = imageGallery
+        self.folderMonitorService = folderMonitorService
         self.imageRepository = imageRepository
         self.focusController = focusController
         Task {
@@ -34,6 +40,20 @@ final class GalleryController {
         }
         startImageFolderMonitor()
         observeImageDir()
+    }
+
+    convenience init(
+        configStore: ConfigStore,
+        imageRepository: ImageRepository = ImageRepository(),
+        focusController: FocusController
+    ) {
+        self.init(
+            configStore: configStore,
+            imageGallery: ImageGallery(),
+            folderMonitorService: FolderMonitorService(),
+            imageRepository: imageRepository,
+            focusController: focusController
+        )
     }
 
     func load() async {
@@ -57,7 +77,7 @@ final class GalleryController {
 
             logger.info("Found \(count) image(s)")
 
-            ImageGallery.shared.replaceAll(imagesAndMetadata)
+            imageGallery.replaceAll(imagesAndMetadata)
         } catch ImageRepositoryError.imageDirectoryNoAccess(let path) {
             logger.error("Couldn't access images directory at: \"\(path)\"")
         } catch {
@@ -66,41 +86,41 @@ final class GalleryController {
     }
 
     func select(_ id: SDImage.ID) async {
-        ImageGallery.shared.select(id)
+        imageGallery.select(id)
         focusController.removeAllFocus()
     }
 
     func selectPrevious() async {
-        guard let previous = ImageGallery.shared.imageBefore(ImageGallery.shared.selectedId) else {
+        guard let previous = imageGallery.imageBefore(imageGallery.selectedId) else {
             return
         }
         await select(previous)
     }
 
     func selectNext() async {
-        guard let next = ImageGallery.shared.imageAfter(ImageGallery.shared.selectedId) else {
+        guard let next = imageGallery.imageAfter(imageGallery.selectedId) else {
             return
         }
         await select(next)
     }
 
     func removeImage(_ sdi: SDImage) async {
-        if sdi.id == ImageGallery.shared.selectedId {
-            if let previous = ImageGallery.shared.imageBefore(sdi.id, wrap: false) {
+        if sdi.id == imageGallery.selectedId {
+            if let previous = imageGallery.imageBefore(sdi.id, wrap: false) {
                 /// Move selection to the left, if possible.
                 await select(previous)
-            } else if let next = ImageGallery.shared.imageAfter(sdi.id, wrap: false) {
+            } else if let next = imageGallery.imageAfter(sdi.id, wrap: false) {
                 /// When deleting the first image, move selection to the right.
                 await select(next)
             }
         }
 
-        ImageGallery.shared.remove(sdi)
+        imageGallery.remove(sdi)
         await imageRepository.delete(path: sdi.path, moveToTrash: configStore.useTrash)
     }
 
     func removeCurrentImage() async {
-        guard let sdi = ImageGallery.shared.selected() else { return }
+        guard let sdi = imageGallery.selected() else { return }
         await removeImage(sdi)
     }
 
@@ -130,7 +150,7 @@ final class GalleryController {
             }
         }
         let succeeded = imagesAndMetadata.count
-        ImageGallery.shared.add(imagesAndMetadata)
+        imageGallery.add(imagesAndMetadata)
         isLoading = false
 
         let alert = NSAlert()
@@ -147,7 +167,7 @@ final class GalleryController {
     }
 
     func saveAll() async {
-        if ImageGallery.shared.images.isEmpty { return }
+        if imageGallery.images.isEmpty { return }
         let panel = NSOpenPanel()
         panel.allowedContentTypes = [.image]
         panel.canCreateDirectories = true
@@ -163,7 +183,7 @@ final class GalleryController {
         guard let selectedURL = panel.url else { return }
         let type = UTType.fromString(configStore.imageType)
 
-        let images = ImageGallery.shared.images
+        let images = imageGallery.images
         var exportRequests: [ImageExportRequest] = []
         exportRequests.reserveCapacity(images.count)
         for (index, sdi) in images.enumerated() {
@@ -221,7 +241,7 @@ final class GalleryController {
         let path = imageDirectoryPath()
         imageFolderMonitorTask = Task { [weak self] in
             guard let self else { return }
-            let stream = await FolderMonitorService.shared.updates(for: path)
+            let stream = await folderMonitorService.updates(for: path)
             for await _ in stream {
                 await self.syncImages()
             }
@@ -235,7 +255,7 @@ final class GalleryController {
 
     private func syncImages() async {
         let imageDir = imageDirectoryPath()
-        let existingPaths = ImageGallery.shared.allImages.compactMap { sdi in
+        let existingPaths = imageGallery.allImages.compactMap { sdi in
             sdi.path.isEmpty ? nil : sdi.path
         }
 
@@ -250,14 +270,14 @@ final class GalleryController {
                     (image: image, metadataFields: record.metadataFields)
                 }
             }
-            ImageGallery.shared.add(additions)
+            imageGallery.add(additions)
         }
 
         if !result.removals.isEmpty {
-            let removals = ImageGallery.shared.allImages.filter {
+            let removals = imageGallery.allImages.filter {
                 result.removals.contains($0.path)
             }
-            ImageGallery.shared.remove(removals)
+            imageGallery.remove(removals)
         }
     }
 }

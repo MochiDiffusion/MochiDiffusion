@@ -39,18 +39,19 @@ struct AppView: View {
 }
 
 #Preview {
+    let configStore = ConfigStore()
     let focusController = FocusController()
     AppView()
-        .environment(GenerationController(configStore: ConfigStore()))
+        .environment(GenerationController(configStore: configStore))
         .environment(
             GalleryController(
-                configStore: ConfigStore(),
+                configStore: configStore,
                 focusController: focusController
             )
         )
-        .environment(ConfigStore())
+        .environment(configStore)
         .environment(focusController)
-        .environment(GenerationState.shared)
-        .environment(ImageGallery.shared)
+        .environment(GenerationState())
+        .environment(ImageGallery())
         .environment(QuickLookState())
 }

@@ -140,6 +140,7 @@ struct GalleryView: View {
     struct GalleryItemContextMenuView: View {
         @Environment(GenerationController.self) private var controller: GenerationController
         @Environment(GalleryController.self) private var galleryController: GalleryController
+        @Environment(ImageGallery.self) private var imageGallery: ImageGallery
         let sdi: SDImage
 
         var body: some View {
@@ -195,7 +196,11 @@ struct GalleryView: View {
                 Menu("Tags") {
                     Button {
                         Task {
-                            setFinderTagColorNumber(sdi, colorNumber: 6)
+                            setFinderTagColorNumber(
+                                sdi,
+                                colorNumber: 6,
+                                imageGallery: imageGallery
+                            )
                         }
                     } label: {
                         Text(
@@ -205,7 +210,11 @@ struct GalleryView: View {
                     }
                     Button {
                         Task {
-                            setFinderTagColorNumber(sdi, colorNumber: 7)
+                            setFinderTagColorNumber(
+                                sdi,
+                                colorNumber: 7,
+                                imageGallery: imageGallery
+                            )
                         }
                     } label: {
                         Text(
@@ -215,7 +224,11 @@ struct GalleryView: View {
                     }
                     Button {
                         Task {
-                            setFinderTagColorNumber(sdi, colorNumber: 5)
+                            setFinderTagColorNumber(
+                                sdi,
+                                colorNumber: 5,
+                                imageGallery: imageGallery
+                            )
                         }
                     } label: {
                         Text(
@@ -225,7 +238,11 @@ struct GalleryView: View {
                     }
                     Button {
                         Task {
-                            setFinderTagColorNumber(sdi, colorNumber: 2)
+                            setFinderTagColorNumber(
+                                sdi,
+                                colorNumber: 2,
+                                imageGallery: imageGallery
+                            )
                         }
                     } label: {
                         Text(
@@ -235,7 +252,11 @@ struct GalleryView: View {
                     }
                     Button {
                         Task {
-                            setFinderTagColorNumber(sdi, colorNumber: 4)
+                            setFinderTagColorNumber(
+                                sdi,
+                                colorNumber: 4,
+                                imageGallery: imageGallery
+                            )
                         }
                     } label: {
                         Text(
@@ -245,7 +266,11 @@ struct GalleryView: View {
                     }
                     Button {
                         Task {
-                            setFinderTagColorNumber(sdi, colorNumber: 3)
+                            setFinderTagColorNumber(
+                                sdi,
+                                colorNumber: 3,
+                                imageGallery: imageGallery
+                            )
                         }
                     } label: {
                         Text(
@@ -255,7 +280,11 @@ struct GalleryView: View {
                     }
                     Button {
                         Task {
-                            setFinderTagColorNumber(sdi, colorNumber: 1)
+                            setFinderTagColorNumber(
+                                sdi,
+                                colorNumber: 1,
+                                imageGallery: imageGallery
+                            )
                         }
                     } label: {
                         Text(
@@ -265,7 +294,7 @@ struct GalleryView: View {
                     }
                     Button {
                         Task {
-                            clearFinderTags(sdi)
+                            clearFinderTags(sdi, imageGallery: imageGallery)
                         }
                     } label: {
                         Text(

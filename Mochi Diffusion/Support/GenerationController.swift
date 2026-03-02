@@ -64,6 +64,9 @@ final class GenerationController {
     private(set) var configStore: ConfigStore
     private let modelRepository: ModelRepository
     private let imageRepository: ImageRepository
+    private let generationService: GenerationService
+    private let imageGallery: ImageGallery
+    private let folderMonitorService: FolderMonitorService
     private(set) var generationQueue = [GenerationRequest]()
     private(set) var currentGeneration: GenerationRequest?
     private(set) var models = [any MochiModel]()
@@ -103,10 +106,16 @@ final class GenerationController {
 
     init(
         configStore: ConfigStore,
+        generationService: GenerationService,
+        imageGallery: ImageGallery,
+        folderMonitorService: FolderMonitorService,
         modelRepository: ModelRepository = ModelRepository(),
         imageRepository: ImageRepository = ImageRepository()
     ) {
         self.configStore = configStore
+        self.generationService = generationService
+        self.imageGallery = imageGallery
+        self.folderMonitorService = folderMonitorService
         self.modelRepository = modelRepository
         self.imageRepository = imageRepository
         Task {
@@ -118,6 +127,29 @@ final class GenerationController {
         observeControlNetDir()
         observeGenerationService()
         observeGenerationResults()
+    }
+
+    convenience init(
+        configStore: ConfigStore,
+        modelRepository: ModelRepository = ModelRepository(),
+        imageRepository: ImageRepository = ImageRepository()
+    ) {
+        let generationState = GenerationState()
+        let imageGallery = ImageGallery()
+        let notificationController = NotificationController()
+        let generationService = GenerationService(
+            generationState: generationState,
+            imageGallery: imageGallery,
+            notificationController: notificationController
+        )
+        self.init(
+            configStore: configStore,
+            generationService: generationService,
+            imageGallery: imageGallery,
+            folderMonitorService: FolderMonitorService(),
+            modelRepository: modelRepository,
+            imageRepository: imageRepository
+        )
     }
 
     func loadModels() async {
@@ -148,13 +180,13 @@ final class GenerationController {
             configStore.modelId = nil
         } catch SDImageGenerator.GeneratorError.modelSubDirectoriesNoAccess {
             logger.error("Could not get model subdirectories.")
-            await GenerationService.shared.updateStatus(
+            await generationService.updateStatus(
                 .error("Could not get model subdirectories.")
             )
             configStore.modelId = nil
         } catch SDImageGenerator.GeneratorError.noModelsFound {
             logger.error("No models found.")
-            await GenerationService.shared.updateStatus(
+            await generationService.updateStatus(
                 .error("No models found under: \(configStore.modelDir)")
             )
             configStore.modelId = nil
@@ -171,19 +203,19 @@ final class GenerationController {
                     imageDir: request.imageDir
                 )
             } catch ImageRepositoryError.imageDirectoryNoAccess(let path) {
-                await GenerationService.shared.updateStatus(
+                await generationService.updateStatus(
                     .error("Couldn't access images folder at: \(path)")
                 )
                 return
             } catch {
-                await GenerationService.shared.updateStatus(
+                await generationService.updateStatus(
                     .error("Couldn't access images folder.")
                 )
                 return
             }
         }
 
-        await GenerationService.shared.enqueue(request)
+        await generationService.enqueue(request)
     }
 
     func setStartingImage(image: CGImage, filename: String? = nil) {
@@ -292,12 +324,12 @@ final class GenerationController {
     }
 
     func copyToPrompt() {
-        guard let sdi = ImageGallery.shared.selected() else { return }
+        guard let sdi = imageGallery.selected() else { return }
         copyToPrompt(sdi)
     }
 
     func copyToPrompt(_ sdi: SDImage) {
-        let metadataFields = ImageGallery.shared.metadataFields(for: sdi.id)
+        let metadataFields = imageGallery.metadataFields(for: sdi.id)
 
         if metadataFields.contains(.prompt) {
             configStore.prompt = sdi.prompt
@@ -324,12 +356,12 @@ final class GenerationController {
     }
 
     func copyPromptToPrompt() {
-        guard let sdi = ImageGallery.shared.selected() else { return }
+        guard let sdi = imageGallery.selected() else { return }
         configStore.prompt = sdi.prompt
     }
 
     func copyModelToPrompt() {
-        guard let sdi = ImageGallery.shared.selected() else { return }
+        guard let sdi = imageGallery.selected() else { return }
         setModel(sdi.model)
     }
 
@@ -341,7 +373,7 @@ final class GenerationController {
     }
 
     func copySizeToPrompt() {
-        guard let sdi = ImageGallery.shared.selected() else { return }
+        guard let sdi = imageGallery.selected() else { return }
         setSize(width: sdi.width, height: sdi.height)
     }
 
@@ -384,27 +416,27 @@ final class GenerationController {
     }
 
     func copyNegativePromptToPrompt() {
-        guard let sdi = ImageGallery.shared.selected() else { return }
+        guard let sdi = imageGallery.selected() else { return }
         configStore.negativePrompt = sdi.negativePrompt
     }
 
     func copySchedulerToPrompt() {
-        guard let sdi = ImageGallery.shared.selected() else { return }
+        guard let sdi = imageGallery.selected() else { return }
         configStore.scheduler = sdi.scheduler
     }
 
     func copySeedToPrompt() {
-        guard let sdi = ImageGallery.shared.selected() else { return }
+        guard let sdi = imageGallery.selected() else { return }
         seed = sdi.seed
     }
 
     func copyStepsToPrompt() {
-        guard let sdi = ImageGallery.shared.selected() else { return }
+        guard let sdi = imageGallery.selected() else { return }
         configStore.steps = Double(sdi.steps)
     }
 
     func copyGuidanceScaleToPrompt() {
-        guard let sdi = ImageGallery.shared.selected() else { return }
+        guard let sdi = imageGallery.selected() else { return }
         configStore.guidanceScale = sdi.guidanceScale
     }
 
@@ -483,9 +515,10 @@ final class GenerationController {
     private func observeGenerationService() {
         generationUpdatesTask?.cancel()
         generationUpdatesTask = Task { [weak self] in
-            let stream = await GenerationService.shared.updates()
+            guard let self else { return }
+            let stream = await self.generationService.updates()
             for await snapshot in stream {
-                self?.apply(snapshot)
+                self.apply(snapshot)
             }
         }
     }
@@ -493,9 +526,10 @@ final class GenerationController {
     private func observeGenerationResults() {
         generationResultsTask?.cancel()
         generationResultsTask = Task { [weak self] in
-            let stream = await GenerationService.shared.results()
+            guard let self else { return }
+            let stream = await self.generationService.results()
             for await result in stream {
-                self?.apply(result)
+                self.apply(result)
             }
         }
     }
@@ -506,9 +540,9 @@ final class GenerationController {
     }
 
     private func apply(_ result: GenerationResult) {
-        let shouldAnimateInsert = ImageGallery.shared.currentGeneratingImage == nil
+        let shouldAnimateInsert = imageGallery.currentGeneratingImage == nil
         defer {
-            ImageGallery.shared.setCurrentGenerating(image: nil)
+            imageGallery.setCurrentGenerating(image: nil)
         }
         guard let url = result.imageURL else { return }
         let metadata = result.metadata
@@ -539,7 +573,7 @@ final class GenerationController {
             imageData: result.imageData
         )
         guard let sdi = createSDImage(from: record) else { return }
-        ImageGallery.shared.add(
+        imageGallery.add(
             sdi,
             metadataFields: metadata.metadataFields,
             animate: shouldAnimateInsert
@@ -547,7 +581,11 @@ final class GenerationController {
     }
 
     func removeQueued(_ id: GenerationRequest.ID) async {
-        await GenerationService.shared.removeQueued(id: id)
+        await generationService.removeQueued(id: id)
+    }
+
+    func stopCurrentGeneration() async {
+        await generationService.stopCurrentGeneration()
     }
 
     private func observeModelDir() {
@@ -611,7 +649,7 @@ final class GenerationController {
         let path = modelDirectoryPath()
         modelFolderMonitorTask = Task { [weak self] in
             guard let self else { return }
-            let stream = await FolderMonitorService.shared.updates(for: path)
+            let stream = await folderMonitorService.updates(for: path)
             for await _ in stream {
                 await self.loadModels()
             }
@@ -623,7 +661,7 @@ final class GenerationController {
         let path = controlNetDirectoryPath()
         controlNetFolderMonitorTask = Task { [weak self] in
             guard let self else { return }
-            let stream = await FolderMonitorService.shared.updates(for: path)
+            let stream = await folderMonitorService.updates(for: path)
             for await _ in stream {
                 await self.loadModels()
             }

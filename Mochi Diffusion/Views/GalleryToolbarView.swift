@@ -174,15 +174,16 @@ struct GalleryToolbarView: View {
 }
 
 #Preview {
+    let configStore = ConfigStore()
     let focusController = FocusController()
     GalleryToolbarView(isShowingInspector: .constant(true))
-        .environment(GenerationState.shared)
-        .environment(ImageGallery.shared)
-        .environment(ConfigStore())
-        .environment(GenerationController(configStore: ConfigStore()))
+        .environment(GenerationState())
+        .environment(ImageGallery())
+        .environment(configStore)
+        .environment(GenerationController(configStore: configStore))
         .environment(
             GalleryController(
-                configStore: ConfigStore(),
+                configStore: configStore,
                 focusController: focusController
             )
         )

@@ -149,9 +149,10 @@ struct PromptView: View {
 }
 
 #Preview {
+    let configStore = ConfigStore()
     PromptView()
-        .environment(GenerationController(configStore: ConfigStore()))
-        .environment(ConfigStore())
+        .environment(GenerationController(configStore: configStore))
+        .environment(configStore)
         .environment(FocusController())
-        .environment(GenerationState.shared)
+        .environment(GenerationState())
 }

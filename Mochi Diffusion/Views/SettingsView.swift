@@ -417,5 +417,5 @@ struct SettingsView: View {
 #Preview {
     SettingsView()
         .environment(ConfigStore())
-        .environment(NotificationController.shared)
+        .environment(NotificationController())
 }
