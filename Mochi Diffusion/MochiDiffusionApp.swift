@@ -29,7 +29,6 @@ struct MochiDiffusionApp: App {
         let generationState = GenerationState()
         let imageGallery = ImageGallery()
         let notificationController = NotificationController()
-        let folderMonitorService = FolderMonitorService()
         let generationService = GenerationService(
             generationState: generationState,
             imageGallery: imageGallery,
@@ -40,15 +39,13 @@ struct MochiDiffusionApp: App {
             initialValue: GenerationController(
                 configStore: configStore,
                 generationService: generationService,
-                imageGallery: imageGallery,
-                folderMonitorService: folderMonitorService
+                imageGallery: imageGallery
             )
         )
         self._galleryController = State(
             initialValue: GalleryController(
                 configStore: configStore,
                 imageGallery: imageGallery,
-                folderMonitorService: folderMonitorService,
                 focusController: focusController
             )
         )

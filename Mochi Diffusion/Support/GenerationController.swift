@@ -66,7 +66,6 @@ final class GenerationController {
     private let imageRepository: ImageRepository
     private let generationService: GenerationService
     private let imageGallery: ImageGallery
-    private let folderMonitorService: FolderMonitorService
     private(set) var generationQueue = [GenerationRequest]()
     private(set) var currentGeneration: GenerationRequest?
     private(set) var models = [any MochiModel]()
@@ -97,8 +96,8 @@ final class GenerationController {
     private(set) var currentControlNets: [ControlNetInput] = []
     private var pendingSelectedImageFilename: String?
 
-    private var modelFolderMonitorTask: Task<Void, Never>?
-    private var controlNetFolderMonitorTask: Task<Void, Never>?
+    private var modelFolderMonitor: FolderMonitor?
+    private var controlNetFolderMonitor: FolderMonitor?
     private var modelDirDebounceTask: Task<Void, Never>?
     private var controlNetDirDebounceTask: Task<Void, Never>?
     private var generationUpdatesTask: Task<Void, Never>?
@@ -108,14 +107,12 @@ final class GenerationController {
         configStore: ConfigStore,
         generationService: GenerationService,
         imageGallery: ImageGallery,
-        folderMonitorService: FolderMonitorService,
         modelRepository: ModelRepository = ModelRepository(),
         imageRepository: ImageRepository = ImageRepository()
     ) {
         self.configStore = configStore
         self.generationService = generationService
         self.imageGallery = imageGallery
-        self.folderMonitorService = folderMonitorService
         self.modelRepository = modelRepository
         self.imageRepository = imageRepository
         Task {
@@ -146,7 +143,6 @@ final class GenerationController {
             configStore: configStore,
             generationService: generationService,
             imageGallery: imageGallery,
-            folderMonitorService: FolderMonitorService(),
             modelRepository: modelRepository,
             imageRepository: imageRepository
         )
@@ -645,25 +641,21 @@ final class GenerationController {
     }
 
     private func startModelFolderMonitor() {
-        modelFolderMonitorTask?.cancel()
+        modelFolderMonitor = nil
         let path = modelDirectoryPath()
-        modelFolderMonitorTask = Task { [weak self] in
-            guard let self else { return }
-            let stream = await folderMonitorService.updates(for: path)
-            for await _ in stream {
-                await self.loadModels()
+        modelFolderMonitor = FolderMonitor(path: path) { [weak self] in
+            Task { @MainActor in
+                await self?.loadModels()
             }
         }
     }
 
     private func startControlNetFolderMonitor() {
-        controlNetFolderMonitorTask?.cancel()
+        controlNetFolderMonitor = nil
         let path = controlNetDirectoryPath()
-        controlNetFolderMonitorTask = Task { [weak self] in
-            guard let self else { return }
-            let stream = await folderMonitorService.updates(for: path)
-            for await _ in stream {
-                await self.loadModels()
+        controlNetFolderMonitor = FolderMonitor(path: path) { [weak self] in
+            Task { @MainActor in
+                await self?.loadModels()
             }
         }
     }

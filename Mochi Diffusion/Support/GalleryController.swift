@@ -18,21 +18,18 @@ final class GalleryController {
     private let imageRepository: ImageRepository
     private let focusController: FocusController
     private let imageGallery: ImageGallery
-    private let folderMonitorService: FolderMonitorService
 
-    private var imageFolderMonitorTask: Task<Void, Never>?
+    private var imageFolderMonitor: FolderMonitor?
     private var imageDirDebounceTask: Task<Void, Never>?
 
     init(
         configStore: ConfigStore,
         imageGallery: ImageGallery,
-        folderMonitorService: FolderMonitorService,
         imageRepository: ImageRepository = ImageRepository(),
         focusController: FocusController
     ) {
         self.configStore = configStore
         self.imageGallery = imageGallery
-        self.folderMonitorService = folderMonitorService
         self.imageRepository = imageRepository
         self.focusController = focusController
         Task {
@@ -50,7 +47,6 @@ final class GalleryController {
         self.init(
             configStore: configStore,
             imageGallery: ImageGallery(),
-            folderMonitorService: FolderMonitorService(),
             imageRepository: imageRepository,
             focusController: focusController
         )
@@ -237,13 +233,11 @@ final class GalleryController {
     }
 
     private func startImageFolderMonitor() {
-        imageFolderMonitorTask?.cancel()
+        imageFolderMonitor = nil
         let path = imageDirectoryPath()
-        imageFolderMonitorTask = Task { [weak self] in
-            guard let self else { return }
-            let stream = await folderMonitorService.updates(for: path)
-            for await _ in stream {
-                await self.syncImages()
+        imageFolderMonitor = FolderMonitor(path: path) { [weak self] in
+            Task { @MainActor in
+                await self?.syncImages()
             }
         }
     }

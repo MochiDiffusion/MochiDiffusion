@@ -49,8 +49,8 @@
   - Imported files use the same parse path (`createImageRecordFromURL`) so generated and imported images share one metadata interpretation path.
 
 - Filesystem observation flow:
-  - `FolderMonitorService` (`actor`) exposes `AsyncStream<Void>` update streams keyed by monitored path.
-  - Controllers subscribe with task-based loops and trigger targeted refresh/sync operations (`loadModels`, `syncImages`, etc.).
+  - `FolderMonitor` is owned directly by controllers; each controller instantiates monitors for its watched path(s).
+  - Monitor callbacks schedule targeted refresh/sync operations (`loadModels`, `syncImages`, etc.) on `@MainActor`.
 
 ### Potential improvements
 - Align sidebar controls to `generationCapabilities` so unsupported options (for example, `negativePrompt`, `guidanceScale`, `controlNet`) are hidden/disabled by model instead of silently ignored downstream.
