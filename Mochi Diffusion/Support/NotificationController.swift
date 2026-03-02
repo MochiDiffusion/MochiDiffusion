@@ -62,7 +62,7 @@ import UserNotifications
                         return
                     }
                     Task { @MainActor in
-                        await NotificationController.shared.fetchAuthStatus()
+                        await self.fetchAuthStatus()
                     }
                     if !granted { print("User declined authorization prompt") }
                 }

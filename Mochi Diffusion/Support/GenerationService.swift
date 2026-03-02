@@ -26,7 +26,12 @@ actor GenerationService {
         var current: GenerationRequest?
     }
 
-    static let shared = GenerationService()
+    @MainActor
+    static let shared = GenerationService(
+        generationState: .shared,
+        imageGallery: .shared,
+        notificationController: .shared
+    )
 
     private var logger = Logger()
     private var queue: [GenerationRequest] = []
@@ -42,11 +47,20 @@ actor GenerationService {
     private var didEmitResultForCurrentRequest = false
     private let imageRepository: ImageRepository
     private let modelRepository: ModelRepository
+    private let generationState: GenerationState
+    private let imageGallery: ImageGallery
+    private let notificationController: NotificationController
 
     init(
+        generationState: GenerationState,
+        imageGallery: ImageGallery,
+        notificationController: NotificationController,
         imageRepository: ImageRepository = ImageRepository(),
         modelRepository: ModelRepository = ModelRepository()
     ) {
+        self.generationState = generationState
+        self.imageGallery = imageGallery
+        self.notificationController = notificationController
         self.imageRepository = imageRepository
         self.modelRepository = modelRepository
     }
@@ -107,7 +121,7 @@ actor GenerationService {
 
     private func processQueue() async {
         defer { processingTask = nil }
-        let currentState = await MainActor.run { GenerationState.shared.state }
+        let currentState = await MainActor.run { generationState.state }
         guard case .ready = currentState else { return }
 
         while !queue.isEmpty {
@@ -148,7 +162,7 @@ actor GenerationService {
                 let outputDirectory = try await imageRepository.ensureOutputDirectory(
                     imageDir: request.imageDir
                 )
-                nextImageIndex = await MainActor.run { ImageGallery.shared.images.endIndex + 1 }
+                nextImageIndex = await MainActor.run { imageGallery.images.endIndex + 1 }
 
                 if isCancelRequested(for: request.id) {
                     restoreReadyAfterCancel = true
@@ -231,12 +245,12 @@ actor GenerationService {
         cancelingCurrentID = nil
         currentGenerator = nil
         broadcastSnapshot()
-        await NotificationController.shared.sendQueueEmptyNotification()
+        await notificationController.sendQueueEmptyNotification()
     }
 
     private func updateGenerationState(_ status: GenerationState.Status) async {
         await MainActor.run {
-            GenerationState.shared.state = status
+            generationState.state = status
         }
     }
 
@@ -253,7 +267,7 @@ actor GenerationService {
         _ progress: GenerationState.Progress
     ) async {
         await MainActor.run {
-            GenerationState.shared.state = .running(progress)
+            generationState.state = .running(progress)
         }
     }
 
@@ -332,7 +346,7 @@ actor GenerationService {
 
     private func setCurrentGeneratingImage(_ image: CGImage?) async {
         await MainActor.run {
-            ImageGallery.shared.setCurrentGenerating(image: image)
+            imageGallery.setCurrentGenerating(image: image)
         }
     }
 
