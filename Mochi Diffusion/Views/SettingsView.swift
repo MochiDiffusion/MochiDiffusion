@@ -12,8 +12,9 @@ import UserNotifications
 
 struct SettingsView: View {
     @Environment(ConfigStore.self) private var configStore: ConfigStore
-    @Environment(NotificationController.self) private var notificationController:
-        NotificationController
+    @AppStorage("SendNotification") private var sendNotification = true
+    @AppStorage("PlayNotificationSound") private var playNotificationSound = true
+    @State private var notificationAuthStatus: UNAuthorizationStatus = .notDetermined
 
     var body: some View {
         VStack(spacing: 16) {
@@ -330,8 +331,6 @@ struct SettingsView: View {
 
     @ViewBuilder
     private var notificationsView: some View {
-        @Bindable var notificationController = notificationController
-
         VStack(alignment: .leading, spacing: 16) {
             GroupBox {
                 VStack(alignment: .leading) {
@@ -340,13 +339,17 @@ struct SettingsView: View {
 
                         Spacer()
 
-                        Toggle("", isOn: $notificationController.sendNotification)
+                        Toggle("", isOn: $sendNotification)
                             .labelsHidden()
                             .toggleStyle(.switch)
                             .controlSize(.small)
-                            .onChange(of: notificationController.sendNotification) {
-                                if notificationController.sendNotification {
-                                    notificationController.requestForNotificationAuthorization()
+                            .onChange(of: sendNotification) { _, isEnabled in
+                                if isEnabled {
+                                    Task {
+                                        await NotificationService.requestAuthorizationIfNeeded()
+                                        notificationAuthStatus =
+                                            await NotificationService.currentAuthorizationStatus()
+                                    }
                                 }
                             }
                     }
@@ -356,8 +359,8 @@ struct SettingsView: View {
                     )
                     .helpTextFormat()
 
-                    if notificationController.sendNotification,
-                        notificationController.authStatus != .authorized
+                    if sendNotification,
+                        notificationAuthStatus != .authorized
                     {
                         // on iOS there is `openNotificationSettingsURLString` but for macOS,
                         // seems like we need to manually call this here.
@@ -383,8 +386,8 @@ struct SettingsView: View {
 
                         Spacer()
 
-                        Toggle("", isOn: $notificationController.playNotificationSound)
-                            .disabled(!notificationController.sendNotification)
+                        Toggle("", isOn: $playNotificationSound)
+                            .disabled(!sendNotification)
                             .labelsHidden()
                             .toggleStyle(.switch)
                             .controlSize(.small)
@@ -392,7 +395,7 @@ struct SettingsView: View {
                 }
                 .padding(4)
             }.task {
-                _ = await notificationController.fetchAuthStatus()
+                notificationAuthStatus = await NotificationService.currentAuthorizationStatus()
             }
         }
     }
@@ -417,5 +420,4 @@ struct SettingsView: View {
 #Preview {
     SettingsView()
         .environment(ConfigStore())
-        .environment(NotificationController())
 }

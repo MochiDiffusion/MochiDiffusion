@@ -133,11 +133,9 @@ final class GenerationController {
     ) {
         let generationState = GenerationState()
         let imageGallery = ImageGallery()
-        let notificationController = NotificationController()
         let generationService = GenerationService(
             generationState: generationState,
-            imageGallery: imageGallery,
-            notificationController: notificationController
+            imageGallery: imageGallery
         )
         self.init(
             configStore: configStore,

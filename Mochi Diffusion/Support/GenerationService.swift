@@ -42,18 +42,15 @@ actor GenerationService {
     private let modelRepository: ModelRepository
     private let generationState: GenerationState
     private let imageGallery: ImageGallery
-    private let notificationController: NotificationController
 
     init(
         generationState: GenerationState,
         imageGallery: ImageGallery,
-        notificationController: NotificationController,
         imageRepository: ImageRepository = ImageRepository(),
         modelRepository: ModelRepository = ModelRepository()
     ) {
         self.generationState = generationState
         self.imageGallery = imageGallery
-        self.notificationController = notificationController
         self.imageRepository = imageRepository
         self.modelRepository = modelRepository
     }
@@ -238,7 +235,7 @@ actor GenerationService {
         cancelingCurrentID = nil
         currentGenerator = nil
         broadcastSnapshot()
-        await notificationController.sendQueueEmptyNotification()
+        await NotificationService.sendQueueEmptyNotification()
     }
 
     private func updateGenerationState(_ status: GenerationState.Status) async {

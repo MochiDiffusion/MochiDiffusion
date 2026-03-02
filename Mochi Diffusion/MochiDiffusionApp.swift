@@ -18,7 +18,6 @@ struct MochiDiffusionApp: App {
     @State private var generationState: GenerationState
     @State private var store: ImageGallery
     @State private var focusCon: FocusController
-    @State private var notificationController: NotificationController
     @State private var quickLook: QuickLookState
     @State private var quicklookURL: URL?
     private let updaterController: SPUStandardUpdaterController
@@ -28,11 +27,9 @@ struct MochiDiffusionApp: App {
         let focusController = FocusController()
         let generationState = GenerationState()
         let imageGallery = ImageGallery()
-        let notificationController = NotificationController()
         let generationService = GenerationService(
             generationState: generationState,
-            imageGallery: imageGallery,
-            notificationController: notificationController
+            imageGallery: imageGallery
         )
         self._configStore = State(initialValue: configStore)
         self._generationController = State(
@@ -52,7 +49,6 @@ struct MochiDiffusionApp: App {
         self._generationState = .init(wrappedValue: generationState)
         self._store = .init(wrappedValue: imageGallery)
         self._focusCon = .init(wrappedValue: focusController)
-        self._notificationController = .init(wrappedValue: notificationController)
         self._quickLook = State(initialValue: QuickLookState())
 
         updaterController = SPUStandardUpdaterController(
@@ -119,7 +115,6 @@ struct MochiDiffusionApp: App {
 
         Settings {
             SettingsView()
-                .environment(notificationController)
         }
         .environment(configStore)
     }
