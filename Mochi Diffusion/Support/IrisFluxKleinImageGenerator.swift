@@ -450,90 +450,14 @@ private actor FluxPromptEmbeddingCache {
         let values: [Float]
     }
 
-    private struct QuantizedEmbedding {
-        static let blockSize = 32
-
-        let elementCount: Int
-        let packed: [UInt8]
-        let scales: [Float]
-        let offsets: [Float]
-
-        init(values: [Float]) {
-            elementCount = values.count
-            let blockCount = (values.count + Self.blockSize - 1) / Self.blockSize
-
-            var packed = [UInt8](repeating: 0, count: (values.count + 1) / 2)
-            var scales = [Float](repeating: 0, count: blockCount)
-            var offsets = [Float](repeating: 0, count: blockCount)
-
-            for block in 0..<blockCount {
-                let start = block * Self.blockSize
-                let end = min(start + Self.blockSize, values.count)
-                let slice = values[start..<end]
-                guard let minVal = slice.min(), let maxVal = slice.max() else {
-                    continue
-                }
-                let range = max(maxVal - minVal, 1e-10)
-                offsets[block] = minVal
-                scales[block] = range
-
-                let invScale = 15.0 / range
-                for idx in start..<end {
-                    let normalized = (values[idx] - minVal) * invScale
-                    let quantized = max(0, min(15, Int(normalized.rounded())))
-                    let byteIdx = idx / 2
-                    if idx.isMultiple(of: 2) {
-                        packed[byteIdx] = (packed[byteIdx] & 0xF0) | UInt8(quantized & 0x0F)
-                    } else {
-                        packed[byteIdx] = (packed[byteIdx] & 0x0F) | UInt8((quantized & 0x0F) << 4)
-                    }
-                }
-            }
-
-            self.packed = packed
-            self.scales = scales
-            self.offsets = offsets
-        }
-
-        func dequantized() -> [Float] {
-            var values = [Float](repeating: 0, count: elementCount)
-            let blockCount = scales.count
-
-            for block in 0..<blockCount {
-                let start = block * Self.blockSize
-                let end = min(start + Self.blockSize, elementCount)
-
-                let scale = scales[block] / 15.0
-                let offset = offsets[block]
-
-                for idx in start..<end {
-                    let byteIdx = idx / 2
-                    let quantized: UInt8
-                    if idx.isMultiple(of: 2) {
-                        quantized = packed[byteIdx] & 0x0F
-                    } else {
-                        quantized = (packed[byteIdx] >> 4) & 0x0F
-                    }
-                    values[idx] = Float(quantized) * scale + offset
-                }
-            }
-
-            return values
-        }
-    }
-
-    private struct StoredEntry {
-        let seqLen: Int32
-        let quantized: QuantizedEmbedding
-    }
-
     private struct Key: Hashable {
         let modelDir: String
         let prompt: String
     }
 
     private let maxEntries: Int
-    private var entries: [Key: StoredEntry] = [:]
+    private let lock = NSLock()
+    private var entries: [Key: Entry] = [:]
     private var lru: [Key] = []
 
     init(maxEntries: Int) {
@@ -542,23 +466,22 @@ private actor FluxPromptEmbeddingCache {
 
     func lookup(modelDir: String, prompt: String) -> Entry? {
         let key = Key(modelDir: modelDir, prompt: prompt)
-        guard let stored = entries[key] else { return nil }
-        touch(key)
+        lock.lock()
+        defer { lock.unlock() }
 
-        return Entry(
-            seqLen: stored.seqLen,
-            values: stored.quantized.dequantized()
-        )
+        guard let entry = entries[key] else {
+            return nil
+        }
+        touch(key)
+        return entry
     }
 
     func store(modelDir: String, prompt: String, seqLen: Int32, values: [Float]) {
         let key = Key(modelDir: modelDir, prompt: prompt)
-        let quantized = QuantizedEmbedding(values: values)
+        lock.lock()
+        defer { lock.unlock() }
 
-        entries[key] = StoredEntry(
-            seqLen: seqLen,
-            quantized: quantized
-        )
+        entries[key] = Entry(seqLen: seqLen, values: values)
         touch(key)
         trimIfNeeded()
     }
