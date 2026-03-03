@@ -188,6 +188,10 @@ private struct InfoPopoverView: View {
         return CGImage.fromData(data)
     }
 
+    private func decodeImages(from datas: [Data]) -> [CGImage] {
+        datas.compactMap(CGImage.fromData)
+    }
+
     private var capabilities: GenerationCapabilities {
         request.pipeline.generationCapabilities
     }
@@ -251,6 +255,15 @@ private struct InfoPopoverView: View {
                 }
             } else {
                 await controller.unsetStartingImage()
+            }
+
+            if let firstInputImage = decodeImages(from: request.inputImageDatas).first {
+                controller.setInputImage(
+                    image: firstInputImage,
+                    filename: request.inputImageNames.first
+                )
+            } else {
+                await controller.unsetInputImages()
             }
 
             if let controlNetName = request.pipeline.controlNets.first,
@@ -377,6 +390,20 @@ private struct InfoPopoverView: View {
                                 callback: {
                                     configStore.strength = Double(request.strength)
                                 }
+                            )
+                        }
+                    }
+                    let inputImages = decodeImages(from: request.inputImageDatas)
+                    if !inputImages.isEmpty {
+                        ForEach(Array(inputImages.enumerated()), id: \.offset) { index, image in
+                            let label =
+                                inputImages.count == 1
+                                ? "Input Image"
+                                : "Input Image \(index + 1)"
+                            InfoGridRow(
+                                type: LocalizedStringKey(label),
+                                image: image,
+                                showCopyToPromptOption: false
                             )
                         }
                     }

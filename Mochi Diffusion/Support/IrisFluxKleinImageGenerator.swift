@@ -59,12 +59,12 @@ nonisolated final class IrisFluxKleinImageGenerator: ImageGenerator {
         var embeddingLength: Int32 = 0
         var embeddings: [Float]?
 
-        var startingFluxImage: UnsafeMutablePointer<iris_image>?
-        if let startingImageData = request.startingImageData {
-            startingFluxImage = Self.makeFluxImage(from: startingImageData)
-            if startingFluxImage == nil {
-                throw IrisFluxKleinImageGeneratorError.decodeStartingImageFailed
+        let inputFluxImages = request.inputImageDatas.compactMap(Self.makeFluxImage(from:))
+        if inputFluxImages.count != request.inputImageDatas.count {
+            for inputFluxImage in inputFluxImages {
+                iris_image_free(inputFluxImage)
             }
+            throw IrisFluxKleinImageGeneratorError.decodeInputImageFailed
         }
 
         if isDistilled {
@@ -116,8 +116,8 @@ nonisolated final class IrisFluxKleinImageGenerator: ImageGenerator {
             iris_set_step_callback(nil)
             iris_set_phase_callback(nil)
             iris_free(ctx)
-            if let startingFluxImage {
-                iris_image_free(startingFluxImage)
+            for inputFluxImage in inputFluxImages {
+                iris_image_free(inputFluxImage)
             }
         }
 
@@ -135,17 +135,22 @@ nonisolated final class IrisFluxKleinImageGenerator: ImageGenerator {
             params.seed = Int64(seed)
 
             let image: UnsafeMutablePointer<iris_image>?
-            if let startingFluxImage {
+            if !inputFluxImages.isEmpty {
                 if isDistilled, let embeddings {
-                    image = Self.generateImg2ImgWithEmbeddings(
+                    image = Self.generateMultiRefWithEmbeddings(
                         ctx: ctx,
                         embeddings: embeddings,
                         embeddingLength: embeddingLength,
-                        startingFluxImage: startingFluxImage,
+                        inputFluxImages: inputFluxImages,
                         params: &params
                     )
                 } else {
-                    image = iris_img2img(ctx, request.prompt, startingFluxImage, &params)
+                    image = Self.generateMultiRef(
+                        ctx: ctx,
+                        prompt: request.prompt,
+                        inputFluxImages: inputFluxImages,
+                        params: &params
+                    )
                 }
             } else {
                 if isDistilled, let embeddings {
@@ -221,23 +226,49 @@ nonisolated final class IrisFluxKleinImageGenerator: ImageGenerator {
         }
     }
 
-    private static func generateImg2ImgWithEmbeddings(
+    private static func generateMultiRefWithEmbeddings(
         ctx: OpaquePointer,
         embeddings: [Float],
         embeddingLength: Int32,
-        startingFluxImage: UnsafeMutablePointer<iris_image>,
+        inputFluxImages: [UnsafeMutablePointer<iris_image>],
         params: inout iris_params
     ) -> UnsafeMutablePointer<iris_image>? {
-        embeddings.withUnsafeBufferPointer { buffer in
+        let refs = UnsafeMutablePointer<UnsafePointer<iris_image>?>.allocate(
+            capacity: inputFluxImages.count
+        )
+        defer { refs.deallocate() }
+        for (index, inputFluxImage) in inputFluxImages.enumerated() {
+            refs[index] = UnsafePointer(inputFluxImage)
+        }
+
+        return embeddings.withUnsafeBufferPointer { buffer -> UnsafeMutablePointer<iris_image>? in
             guard let pointer = buffer.baseAddress else { return nil }
-            return iris_img2img_with_embeddings(
+            return iris_multiref_with_embeddings(
                 ctx,
                 pointer,
                 embeddingLength,
-                startingFluxImage,
+                refs,
+                Int32(inputFluxImages.count),
                 &params
             )
         }
+    }
+
+    private static func generateMultiRef(
+        ctx: OpaquePointer,
+        prompt: String,
+        inputFluxImages: [UnsafeMutablePointer<iris_image>],
+        params: inout iris_params
+    ) -> UnsafeMutablePointer<iris_image>? {
+        let refs = UnsafeMutablePointer<UnsafePointer<iris_image>?>.allocate(
+            capacity: inputFluxImages.count
+        )
+        defer { refs.deallocate() }
+        for (index, inputFluxImage) in inputFluxImages.enumerated() {
+            refs[index] = UnsafePointer(inputFluxImage)
+        }
+
+        return iris_multiref(ctx, prompt, refs, Int32(inputFluxImages.count), &params)
     }
 
     func stopGenerate() async {
@@ -391,7 +422,7 @@ private enum IrisFluxKleinImageGeneratorError: Error, CustomStringConvertible {
     case loadFailed(String)
     case generateFailed(String)
     case encodeFailed
-    case decodeStartingImageFailed
+    case decodeInputImageFailed
 
     var description: String {
         switch self {
@@ -403,8 +434,8 @@ private enum IrisFluxKleinImageGeneratorError: Error, CustomStringConvertible {
             return "Failed to generate image: \(message)"
         case .encodeFailed:
             return "Failed to encode generated image."
-        case .decodeStartingImageFailed:
-            return "Failed to decode starting image for img2img."
+        case .decodeInputImageFailed:
+            return "Failed to decode input image for image-conditioned generation."
         }
     }
 }

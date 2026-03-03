@@ -8,6 +8,12 @@
 import SwiftUI
 
 struct SidebarView: View {
+    @Environment(GenerationController.self) private var controller: GenerationController
+
+    private var generationCapabilities: GenerationCapabilities {
+        controller.currentModel?.config.generationCapabilities ?? []
+    }
+
     var body: some View {
         ScrollView(.vertical) {
             VStack(alignment: .leading, spacing: 6) {
@@ -20,8 +26,13 @@ struct SidebarView: View {
                     Spacer().frame(height: 6)
                 }
                 Group {
-                    StartingImageView()
-                    Divider().frame(height: 16)
+                    if generationCapabilities.contains(.inputImages) {
+                        InputImagesView()
+                        Divider().frame(height: 16)
+                    } else if generationCapabilities.contains(.startingImage) {
+                        StartingImageView()
+                        Divider().frame(height: 16)
+                    }
                 }
                 Group {
                     SizeView()

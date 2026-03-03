@@ -60,6 +60,11 @@ final class GenerationController {
         var imageFilename: String?
     }
 
+    struct InputImageInput {
+        var image: CGImage?
+        var imageFilename: String?
+    }
+
     private var logger = Logger()
     private(set) var configStore: ConfigStore
     private let modelRepository: ModelRepository
@@ -73,6 +78,7 @@ final class GenerationController {
     private(set) var controlNet: [String] = []
     var startingImage: CGImage?
     var startingImageFilename: String?
+    private(set) var currentInputImages: [InputImageInput] = []
     var numberOfImages = 1.0
     var seed: UInt32 = 0
 
@@ -237,6 +243,42 @@ final class GenerationController {
     func unsetStartingImage() async {
         startingImage = nil
         startingImageFilename = nil
+    }
+
+    func setInputImage(image: CGImage, at index: Int = 0, filename: String? = nil) {
+        let imageFilename = normalizedFilename(filename) ?? consumePendingSelectedImageFilename()
+        let value = InputImageInput(image: image, imageFilename: imageFilename)
+
+        if currentInputImages.isEmpty {
+            currentInputImages = [value]
+        } else if index >= currentInputImages.count {
+            currentInputImages.append(value)
+        } else {
+            currentInputImages[index] = value
+        }
+    }
+
+    func selectInputImage(at index: Int = 0) async {
+        guard let image = await selectImage() else { return }
+        let imageFilename = consumePendingSelectedImageFilename()
+
+        if currentInputImages.isEmpty {
+            currentInputImages = [InputImageInput(image: image, imageFilename: imageFilename)]
+        } else if index >= currentInputImages.count {
+            currentInputImages.append(InputImageInput(image: image, imageFilename: imageFilename))
+        } else {
+            currentInputImages[index].image = image
+            currentInputImages[index].imageFilename = imageFilename
+        }
+    }
+
+    func unsetInputImage(at index: Int = 0) async {
+        guard index < currentInputImages.count else { return }
+        currentInputImages.remove(at: index)
+    }
+
+    func unsetInputImages() async {
+        currentInputImages = []
     }
 
     func setControlNet(name: String) async {
@@ -449,8 +491,6 @@ final class GenerationController {
         }
 
         let size = CGSize(width: configStore.width, height: configStore.height)
-        let targetImageSize = adapter.inputSize ?? size
-        let startingImageData = startingImage?.scaledAndCroppedTo(size: targetImageSize)?.pngData()
 
         var controlNetInputs: [Data] = []
         var controlNets: [String] = []
@@ -472,20 +512,33 @@ final class GenerationController {
         }
 
         let pipeline: GenerationPipeline
+        let startingImageData: Data?
         let startingImageName: String?
+        let inputImageDatas: [Data]
         let requestControlNetImageNames: [String]
         let inputImageNames: [String]
         switch adapter {
         case .sd:
+            let targetImageSize = adapter.inputSize ?? size
             pipeline = adapter.makePipeline(configStore: configStore, controlNets: controlNets)
+            startingImageData = startingImage?.scaledAndCroppedTo(size: targetImageSize)?.pngData()
             startingImageName = normalizedFilename(startingImageFilename)
+            inputImageDatas = []
             requestControlNetImageNames = controlNetImageNames
             inputImageNames = []
         case .irisFluxKlein:
+            let inputs = currentInputImages.compactMap { input -> (Data, String?)? in
+                guard let image = input.image, let data = image.pngData() else {
+                    return nil
+                }
+                return (data, normalizedFilename(input.imageFilename))
+            }
             pipeline = adapter.makePipeline(configStore: configStore, controlNets: [])
+            startingImageData = nil
             startingImageName = nil
+            inputImageDatas = inputs.map(\.0)
             requestControlNetImageNames = []
-            inputImageNames = normalizedFilename(startingImageFilename).map { [$0] } ?? []
+            inputImageNames = inputs.compactMap(\.1)
         }
 
         return GenerationRequest(
@@ -495,6 +548,7 @@ final class GenerationController {
             size: size,
             startingImageData: startingImageData,
             startingImageName: startingImageName,
+            inputImageDatas: inputImageDatas,
             controlNetInputs: controlNetInputs,
             controlNetImageNames: requestControlNetImageNames,
             inputImageNames: inputImageNames,

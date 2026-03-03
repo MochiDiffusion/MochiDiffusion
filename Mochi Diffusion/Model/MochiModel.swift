@@ -19,6 +19,7 @@ nonisolated struct GenerationCapabilities: OptionSet, Sendable {
     static let guidanceScale = GenerationCapabilities(rawValue: 1 << 4)
     static let scheduler = GenerationCapabilities(rawValue: 1 << 5)
     static let controlNet = GenerationCapabilities(rawValue: 1 << 6)
+    static let inputImages = GenerationCapabilities(rawValue: 1 << 7)
 }
 
 nonisolated enum MetadataField: String, CaseIterable, Sendable {

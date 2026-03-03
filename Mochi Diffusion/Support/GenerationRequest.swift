@@ -165,6 +165,7 @@ nonisolated struct GenerationRequest: Sendable, Identifiable {
 
     let startingImageData: Data?
     let startingImageName: String?
+    let inputImageDatas: [Data]
     let controlNetInputs: [Data]
     let controlNetImageNames: [String]
     let inputImageNames: [String]
@@ -188,6 +189,7 @@ nonisolated struct GenerationRequest: Sendable, Identifiable {
         size: CGSize,
         startingImageData: Data?,
         startingImageName: String?,
+        inputImageDatas: [Data],
         controlNetInputs: [Data],
         controlNetImageNames: [String],
         inputImageNames: [String],
@@ -209,6 +211,7 @@ nonisolated struct GenerationRequest: Sendable, Identifiable {
         self.size = size
         self.startingImageData = startingImageData
         self.startingImageName = startingImageName
+        self.inputImageDatas = inputImageDatas
         self.controlNetInputs = controlNetInputs
         self.controlNetImageNames = controlNetImageNames
         self.inputImageNames = inputImageNames

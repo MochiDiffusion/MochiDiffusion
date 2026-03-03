@@ -6,7 +6,7 @@
 import Foundation
 
 nonisolated struct IrisFluxKleinModel: MochiModel {
-    static let generationCapabilities: GenerationCapabilities = [.startingImage]
+    static let generationCapabilities: GenerationCapabilities = [.inputImages]
     static let metadataFields: Set<MetadataField> = [
         .prompt,
         .model,
