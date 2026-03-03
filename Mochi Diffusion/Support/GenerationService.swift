@@ -111,8 +111,6 @@ actor GenerationService {
 
     private func processQueue() async {
         defer { processingTask = nil }
-        let currentState = await MainActor.run { generationState.state }
-        guard case .ready = currentState else { return }
 
         while !queue.isEmpty {
             let request = queue.removeFirst()
