@@ -51,12 +51,3 @@ struct SidebarView: View {
         }
     }
 }
-
-#Preview {
-    let configStore = ConfigStore()
-    SidebarView()
-        .environment(GenerationController(configStore: configStore))
-        .environment(configStore)
-        .environment(FocusController())
-        .environment(GenerationState())
-}

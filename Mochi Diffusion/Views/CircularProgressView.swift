@@ -33,7 +33,3 @@ struct CircularProgressView: View {
         }
     }
 }
-
-#Preview {
-    CircularProgressView(progress: 0.4)
-}

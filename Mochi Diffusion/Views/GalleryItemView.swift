@@ -91,12 +91,3 @@ struct GalleryItemView: View {
         }
     }
 }
-
-#Preview {
-    VStack {
-        UpscalingAnimationView()
-            .frame(width: 300, height: 300)
-            .border(.selection, width: 5)
-    }
-    .frame(width: 350, height: 350)
-}

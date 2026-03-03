@@ -131,9 +131,3 @@ struct SizeView: View {
         }
     }
 }
-
-#Preview {
-    SizeView()
-        .environment(GenerationController(configStore: ConfigStore()))
-        .environment(ConfigStore())
-}

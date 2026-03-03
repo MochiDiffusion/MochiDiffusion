@@ -172,19 +172,3 @@ struct GalleryToolbarView: View {
         .disabled(true)
     }
 }
-
-#Preview {
-    let configStore = ConfigStore()
-    let focusController = FocusController()
-    GalleryToolbarView(isShowingInspector: .constant(true))
-        .environment(GenerationState())
-        .environment(ImageGallery())
-        .environment(configStore)
-        .environment(GenerationController(configStore: configStore))
-        .environment(
-            GalleryController(
-                configStore: configStore,
-                focusController: focusController
-            )
-        )
-}

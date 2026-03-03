@@ -20,8 +20,3 @@ struct NumberOfImagesView: View {
             strictUpperBound: false)
     }
 }
-
-#Preview {
-    NumberOfImagesView()
-        .environment(GenerationController(configStore: ConfigStore()))
-}

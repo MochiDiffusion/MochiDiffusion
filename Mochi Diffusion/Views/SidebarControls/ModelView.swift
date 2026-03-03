@@ -35,9 +35,3 @@ struct ModelView: View {
         }
     }
 }
-
-#Preview {
-    ModelView()
-        .environment(GenerationController(configStore: ConfigStore()))
-        .environment(ConfigStore())
-}

@@ -341,8 +341,3 @@ extension CGImage {
         UInt8((pixelData >> 0) & 255)
     }
 }
-
-#Preview {
-    InspectorView()
-        .environment(ImageGallery())
-}

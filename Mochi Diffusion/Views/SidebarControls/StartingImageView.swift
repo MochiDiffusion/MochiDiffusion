@@ -87,9 +87,3 @@ struct StartingImageView: View {
         MochiSlider(value: $configStore.strength, bounds: 0.0...1.0, step: 0.05)
     }
 }
-
-#Preview {
-    StartingImageView()
-        .environment(GenerationController(configStore: ConfigStore()))
-        .environment(ConfigStore())
-}

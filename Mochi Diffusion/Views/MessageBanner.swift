@@ -18,7 +18,3 @@ struct MessageBanner: View {
             .background(Color.accentColor)
     }
 }
-
-#Preview {
-    MessageBanner(message: "Hello world!")
-}

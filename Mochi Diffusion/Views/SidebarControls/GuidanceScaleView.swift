@@ -22,8 +22,3 @@ struct GuidanceScaleView: View {
         )
     }
 }
-
-#Preview {
-    GuidanceScaleView()
-        .environment(ConfigStore())
-}

@@ -23,8 +23,3 @@ struct StepsView: View {
         )
     }
 }
-
-#Preview {
-    StepsView()
-        .environment(ConfigStore())
-}

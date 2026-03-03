@@ -416,8 +416,3 @@ struct SettingsView: View {
         return url
     }
 }
-
-#Preview {
-    SettingsView()
-        .environment(ConfigStore())
-}
