@@ -188,8 +188,15 @@ private struct InfoPopoverView: View {
         return CGImage.fromData(data)
     }
 
-    private func decodeImages(from datas: [Data]) -> [CGImage] {
-        datas.compactMap(CGImage.fromData)
+    private func decodeInputImages(
+        from datas: [Data],
+        filenames: [String]
+    ) -> [(image: CGImage, filename: String?)] {
+        datas.enumerated().compactMap { index, data in
+            guard let image = CGImage.fromData(data) else { return nil }
+            let filename = index < filenames.count ? filenames[index] : nil
+            return (image, filename)
+        }
     }
 
     private var capabilities: GenerationCapabilities {
@@ -257,13 +264,23 @@ private struct InfoPopoverView: View {
                 await controller.unsetStartingImage()
             }
 
-            if let firstInputImage = decodeImages(from: request.inputImageDatas).first {
-                controller.setInputImage(
-                    image: firstInputImage,
-                    filename: request.inputImageNames.first
-                )
+            let decodedInputImages = decodeInputImages(
+                from: request.inputImageDatas,
+                filenames: request.inputImageNames
+            )
+            if decodedInputImages.isEmpty {
+                await controller.unsetInputImages()
             } else {
                 await controller.unsetInputImages()
+                for (index, inputImage) in decodedInputImages.prefix(controller.maxInputImageCount)
+                    .enumerated()
+                {
+                    controller.setInputImage(
+                        image: inputImage.image,
+                        at: index,
+                        filename: inputImage.filename
+                    )
+                }
             }
 
             if let controlNetName = request.pipeline.controlNets.first,
@@ -393,16 +410,21 @@ private struct InfoPopoverView: View {
                             )
                         }
                     }
-                    let inputImages = decodeImages(from: request.inputImageDatas)
+                    let inputImages = decodeInputImages(
+                        from: request.inputImageDatas,
+                        filenames: request.inputImageNames
+                    )
                     if !inputImages.isEmpty {
-                        ForEach(Array(inputImages.enumerated()), id: \.offset) { index, image in
+                        ForEach(Array(inputImages.enumerated()), id: \.offset) {
+                            index,
+                            inputImage in
                             let label =
                                 inputImages.count == 1
                                 ? "Input Image"
                                 : "Input Image \(index + 1)"
                             InfoGridRow(
                                 type: LocalizedStringKey(label),
-                                image: image,
+                                image: inputImage.image,
                                 showCopyToPromptOption: false
                             )
                         }

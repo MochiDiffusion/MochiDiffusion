@@ -8,34 +8,35 @@ import SwiftUI
 struct InputImagesView: View {
     @Environment(GenerationController.self) private var controller: GenerationController
 
-    private let maxWellSide: CGFloat = 90
+    private let columnCount = 3
+    private let gridSpacing: CGFloat = 6
 
-    private var inputImage: CGImage? {
-        controller.currentInputImages.first?.image
+    private var columns: [GridItem] {
+        Array(
+            repeating: GridItem(.flexible(minimum: 50, maximum: .infinity), spacing: gridSpacing),
+            count: columnCount
+        )
     }
 
-    private var imageWellSize: CGSize {
-        guard let inputImage else {
-            return CGSize(width: maxWellSide, height: maxWellSide)
-        }
+    private var visibleWellCount: Int {
+        let filledCount = min(controller.currentInputImages.count, controller.maxInputImageCount)
+        let progressiveCount = max(1, filledCount + 1)
+        return min(progressiveCount, controller.maxInputImageCount)
+    }
 
-        let imageWidth = CGFloat(inputImage.width)
-        let imageHeight = CGFloat(inputImage.height)
-        guard imageWidth > 0, imageHeight > 0 else {
-            return CGSize(width: maxWellSide, height: maxWellSide)
-        }
+    private func image(at index: Int) -> CGImage? {
+        guard index < controller.currentInputImages.count else { return nil }
+        return controller.currentInputImages[index].image
+    }
 
-        let aspectRatio = imageWidth / imageHeight
-        if aspectRatio >= 1 {
-            return CGSize(
-                width: maxWellSide,
-                height: maxWellSide / aspectRatio
-            )
+    private func imageAspectRatio(at index: Int) -> CGFloat {
+        guard
+            let image = image(at: index),
+            image.height > 0
+        else {
+            return 1.0
         }
-        return CGSize(
-            width: maxWellSide * aspectRatio,
-            height: maxWellSide
-        )
+        return CGFloat(image.width) / CGFloat(image.height)
     }
 
     var body: some View {
@@ -45,34 +46,38 @@ struct InputImagesView: View {
         )
         .sidebarLabelFormat()
 
-        HStack(alignment: .top) {
-            ImageWellView(
-                image: inputImage,
-                size: nil,
-                selectImage: controller.selectImage
-            ) { image in
-                if let image {
-                    await controller.setInputImage(image: image)
-                } else {
-                    await controller.unsetInputImage(at: 0)
-                }
-            }
-            .frame(width: imageWellSize.width, height: imageWellSize.height)
-
-            Spacer()
-
-            VStack(alignment: .trailing) {
-                HStack {
-                    Button {
-                        Task { await controller.selectInputImage(at: 0) }
-                    } label: {
-                        Image(systemName: "photo")
+        LazyVGrid(columns: columns, alignment: .leading, spacing: gridSpacing) {
+            ForEach(0..<visibleWellCount, id: \.self) { index in
+                let image = image(at: index)
+                ImageWellView(
+                    image: image,
+                    size: nil,
+                    selectImage: controller.selectImage
+                ) { image in
+                    if let image {
+                        await controller.setInputImage(image: image, at: index)
+                    } else {
+                        await controller.unsetInputImage(at: index)
                     }
-
-                    Button {
-                        Task { await controller.unsetInputImage(at: 0) }
-                    } label: {
-                        Image(systemName: "xmark")
+                }
+                .aspectRatio(imageAspectRatio(at: index), contentMode: .fit)
+                .overlay(alignment: .topTrailing) {
+                    if image != nil {
+                        Button {
+                            Task { await controller.unsetInputImage(at: index) }
+                        } label: {
+                            Image(systemName: "xmark")
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundStyle(.primary)
+                                .padding(5)
+                                .background(.ultraThinMaterial, in: Circle())
+                                .overlay(
+                                    Circle()
+                                        .stroke(Color.black.opacity(0.35), lineWidth: 0.5)
+                                )
+                        }
+                        .buttonStyle(.plain)
+                        .padding(4)
                     }
                 }
             }

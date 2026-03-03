@@ -68,10 +68,13 @@ nonisolated final class IrisFluxKleinImageGenerator: ImageGenerator {
         }
 
         if isDistilled {
-            if let cached = await Self.embeddingCache.lookup(
-                modelDir: modelDir,
-                prompt: request.prompt
-            ) {
+            let shouldUseEmbeddingCache = inputFluxImages.count <= 1
+            if shouldUseEmbeddingCache,
+                let cached = await Self.embeddingCache.lookup(
+                    modelDir: modelDir,
+                    prompt: request.prompt
+                )
+            {
                 embeddingLength = cached.seqLen
                 embeddings = cached.values
             } else {
@@ -89,21 +92,25 @@ nonisolated final class IrisFluxKleinImageGenerator: ImageGenerator {
                 let rawEmbeddings = Array(UnsafeBufferPointer(start: encoded, count: elementCount))
                 free(encoded)
 
-                await Self.embeddingCache.store(
-                    modelDir: modelDir,
-                    prompt: request.prompt,
-                    seqLen: embeddingLength,
-                    values: rawEmbeddings
-                )
+                if shouldUseEmbeddingCache {
+                    await Self.embeddingCache.store(
+                        modelDir: modelDir,
+                        prompt: request.prompt,
+                        seqLen: embeddingLength,
+                        values: rawEmbeddings
+                    )
 
-                if let canonical = await Self.embeddingCache.lookup(
-                    modelDir: modelDir,
-                    prompt: request.prompt
-                ) {
-                    embeddingLength = canonical.seqLen
-                    embeddings = canonical.values
+                    if let canonical = await Self.embeddingCache.lookup(
+                        modelDir: modelDir,
+                        prompt: request.prompt
+                    ) {
+                        embeddingLength = canonical.seqLen
+                        embeddings = canonical.values
+                    } else {
+                        // Fallback preserves forward progress if cache write/read fails.
+                        embeddings = rawEmbeddings
+                    }
                 } else {
-                    // Fallback preserves forward progress if cache write/read fails.
                     embeddings = rawEmbeddings
                 }
             }
@@ -136,22 +143,12 @@ nonisolated final class IrisFluxKleinImageGenerator: ImageGenerator {
 
             let image: UnsafeMutablePointer<iris_image>?
             if !inputFluxImages.isEmpty {
-                if isDistilled, let embeddings {
-                    image = Self.generateMultiRefWithEmbeddings(
-                        ctx: ctx,
-                        embeddings: embeddings,
-                        embeddingLength: embeddingLength,
-                        inputFluxImages: inputFluxImages,
-                        params: &params
-                    )
-                } else {
-                    image = Self.generateMultiRef(
-                        ctx: ctx,
-                        prompt: request.prompt,
-                        inputFluxImages: inputFluxImages,
-                        params: &params
-                    )
-                }
+                image = Self.generateMultiRef(
+                    ctx: ctx,
+                    prompt: request.prompt,
+                    inputFluxImages: inputFluxImages,
+                    params: &params
+                )
             } else {
                 if isDistilled, let embeddings {
                     image = Self.generateWithEmbeddings(

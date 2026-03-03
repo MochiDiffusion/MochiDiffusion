@@ -78,6 +78,7 @@ final class GenerationController {
     private(set) var controlNet: [String] = []
     var startingImage: CGImage?
     var startingImageFilename: String?
+    let maxInputImageCount = 5
     private(set) var currentInputImages: [InputImageInput] = []
     var numberOfImages = 1.0
     var seed: UInt32 = 0
@@ -246,12 +247,13 @@ final class GenerationController {
     }
 
     func setInputImage(image: CGImage, at index: Int = 0, filename: String? = nil) {
+        guard index >= 0, index < maxInputImageCount else { return }
+        guard index <= currentInputImages.count else { return }
+
         let imageFilename = normalizedFilename(filename) ?? consumePendingSelectedImageFilename()
         let value = InputImageInput(image: image, imageFilename: imageFilename)
 
-        if currentInputImages.isEmpty {
-            currentInputImages = [value]
-        } else if index >= currentInputImages.count {
+        if index == currentInputImages.count {
             currentInputImages.append(value)
         } else {
             currentInputImages[index] = value
@@ -260,16 +262,7 @@ final class GenerationController {
 
     func selectInputImage(at index: Int = 0) async {
         guard let image = await selectImage() else { return }
-        let imageFilename = consumePendingSelectedImageFilename()
-
-        if currentInputImages.isEmpty {
-            currentInputImages = [InputImageInput(image: image, imageFilename: imageFilename)]
-        } else if index >= currentInputImages.count {
-            currentInputImages.append(InputImageInput(image: image, imageFilename: imageFilename))
-        } else {
-            currentInputImages[index].image = image
-            currentInputImages[index].imageFilename = imageFilename
-        }
+        setInputImage(image: image, at: index, filename: consumePendingSelectedImageFilename())
     }
 
     func unsetInputImage(at index: Int = 0) async {
@@ -527,7 +520,8 @@ final class GenerationController {
             requestControlNetImageNames = controlNetImageNames
             inputImageNames = []
         case .irisFluxKlein:
-            let inputs = currentInputImages.compactMap { input -> (Data, String?)? in
+            let inputs = currentInputImages.prefix(maxInputImageCount).compactMap {
+                input -> (Data, String?)? in
                 guard let image = input.image, let data = image.pngData() else {
                     return nil
                 }
