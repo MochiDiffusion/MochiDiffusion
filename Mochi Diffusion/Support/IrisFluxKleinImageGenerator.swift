@@ -10,7 +10,6 @@ import UniformTypeIdentifiers
 nonisolated final class IrisFluxKleinImageGenerator: ImageGenerator {
     private let generationStopLock = NSLock()
     private var generationStopped = false
-    private static let embeddingCache = FluxPromptEmbeddingCache(maxEntries: 16)
 
     @concurrent func generate(
         request: GenerationRequest,
@@ -68,53 +67,20 @@ nonisolated final class IrisFluxKleinImageGenerator: ImageGenerator {
         }
 
         if isDistilled {
-            let shouldUseEmbeddingCache = inputFluxImages.count <= 1
-            if shouldUseEmbeddingCache,
-                let cached = await Self.embeddingCache.lookup(
-                    modelDir: modelDir,
-                    prompt: request.prompt
-                )
-            {
-                embeddingLength = cached.seqLen
-                embeddings = cached.values
-            } else {
-                guard let encoded = iris_encode_text(ctx, request.prompt, &embeddingLength) else {
-                    throw IrisFluxKleinImageGeneratorError.generateFailed(fluxErrorMessage())
-                }
-                let textDim = Int(iris_text_dim(ctx))
-                guard textDim > 0 else {
-                    free(encoded)
-                    throw IrisFluxKleinImageGeneratorError.generateFailed(
-                        "Invalid text embedding dimension."
-                    )
-                }
-                let elementCount = Int(embeddingLength) * textDim
-                let rawEmbeddings = Array(UnsafeBufferPointer(start: encoded, count: elementCount))
-                free(encoded)
-
-                if shouldUseEmbeddingCache {
-                    await Self.embeddingCache.store(
-                        modelDir: modelDir,
-                        prompt: request.prompt,
-                        seqLen: embeddingLength,
-                        values: rawEmbeddings
-                    )
-
-                    if let canonical = await Self.embeddingCache.lookup(
-                        modelDir: modelDir,
-                        prompt: request.prompt
-                    ) {
-                        embeddingLength = canonical.seqLen
-                        embeddings = canonical.values
-                    } else {
-                        // Fallback preserves forward progress if cache write/read fails.
-                        embeddings = rawEmbeddings
-                    }
-                } else {
-                    embeddings = rawEmbeddings
-                }
+            guard let encoded = iris_encode_text(ctx, request.prompt, &embeddingLength) else {
+                throw IrisFluxKleinImageGeneratorError.generateFailed(fluxErrorMessage())
             }
-            // Keep peak memory lower before transformer work, even on cache hits.
+            let textDim = Int(iris_text_dim(ctx))
+            guard textDim > 0 else {
+                free(encoded)
+                throw IrisFluxKleinImageGeneratorError.generateFailed(
+                    "Invalid text embedding dimension."
+                )
+            }
+            let elementCount = Int(embeddingLength) * textDim
+            embeddings = Array(UnsafeBufferPointer(start: encoded, count: elementCount))
+            free(encoded)
+            // Keep peak memory lower before transformer work.
             iris_release_text_encoder(ctx)
         }
 
@@ -220,34 +186,6 @@ nonisolated final class IrisFluxKleinImageGenerator: ImageGenerator {
         embeddings.withUnsafeBufferPointer { buffer in
             guard let pointer = buffer.baseAddress else { return nil }
             return iris_generate_with_embeddings(ctx, pointer, embeddingLength, &params)
-        }
-    }
-
-    private static func generateMultiRefWithEmbeddings(
-        ctx: OpaquePointer,
-        embeddings: [Float],
-        embeddingLength: Int32,
-        inputFluxImages: [UnsafeMutablePointer<iris_image>],
-        params: inout iris_params
-    ) -> UnsafeMutablePointer<iris_image>? {
-        let refs = UnsafeMutablePointer<UnsafePointer<iris_image>?>.allocate(
-            capacity: inputFluxImages.count
-        )
-        defer { refs.deallocate() }
-        for (index, inputFluxImage) in inputFluxImages.enumerated() {
-            refs[index] = UnsafePointer(inputFluxImage)
-        }
-
-        return embeddings.withUnsafeBufferPointer { buffer -> UnsafeMutablePointer<iris_image>? in
-            guard let pointer = buffer.baseAddress else { return nil }
-            return iris_multiref_with_embeddings(
-                ctx,
-                pointer,
-                embeddingLength,
-                refs,
-                Int32(inputFluxImages.count),
-                &params
-            )
         }
     }
 
@@ -442,63 +380,6 @@ nonisolated private func fluxErrorMessage() -> String {
         return "Unknown error."
     }
     return String(cString: cString)
-}
-
-private actor FluxPromptEmbeddingCache {
-    struct Entry {
-        let seqLen: Int32
-        let values: [Float]
-    }
-
-    private struct Key: Hashable {
-        let modelDir: String
-        let prompt: String
-    }
-
-    private let maxEntries: Int
-    private let lock = NSLock()
-    private var entries: [Key: Entry] = [:]
-    private var lru: [Key] = []
-
-    init(maxEntries: Int) {
-        self.maxEntries = maxEntries
-    }
-
-    func lookup(modelDir: String, prompt: String) -> Entry? {
-        let key = Key(modelDir: modelDir, prompt: prompt)
-        lock.lock()
-        defer { lock.unlock() }
-
-        guard let entry = entries[key] else {
-            return nil
-        }
-        touch(key)
-        return entry
-    }
-
-    func store(modelDir: String, prompt: String, seqLen: Int32, values: [Float]) {
-        let key = Key(modelDir: modelDir, prompt: prompt)
-        lock.lock()
-        defer { lock.unlock() }
-
-        entries[key] = Entry(seqLen: seqLen, values: values)
-        touch(key)
-        trimIfNeeded()
-    }
-
-    private func touch(_ key: Key) {
-        if let idx = lru.firstIndex(of: key) {
-            lru.remove(at: idx)
-        }
-        lru.append(key)
-    }
-
-    private func trimIfNeeded() {
-        while lru.count > maxEntries {
-            let key = lru.removeFirst()
-            entries.removeValue(forKey: key)
-        }
-    }
 }
 
 extension iris_params {
