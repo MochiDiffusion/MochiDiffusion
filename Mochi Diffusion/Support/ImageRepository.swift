@@ -88,6 +88,23 @@ actor ImageRepository {
         return records
     }
 
+    func imageCount(imageDir: String) -> Int {
+        let directoryURL = Self.normalizedImageDirectoryURL(fromPath: imageDir)
+        guard
+            let items = try? fileSystem.contentsOfDirectory(at: directoryURL)
+        else {
+            return 0
+        }
+
+        return
+            items
+            .filter { $0.isFileURL }
+            .filter {
+                ["png", "jpg", "jpeg", "heic"].contains($0.pathExtension.lowercased())
+            }
+            .count
+    }
+
     func importImages(from urls: [URL], imageDir: String) -> ([ImageRecord], Int) {
         var records: [ImageRecord] = []
         var failed = 0

@@ -34,23 +34,21 @@ actor GenerationService {
     private var processingTask: Task<Void, Never>?
     private var continuations: [UUID: AsyncStream<Snapshot>.Continuation] = [:]
     private var resultContinuations: [UUID: AsyncStream<GenerationResult>.Continuation] = [:]
+    private var statusContinuations: [UUID: AsyncStream<GenerationState.Status>.Continuation] = [:]
+    private var previewContinuations: [UUID: AsyncStream<CGImage?>.Continuation] = [:]
     private let sdGenerator = SDImageGenerator()
     private let irisFluxKleinGenerator = IrisFluxKleinImageGenerator()
     private var nextImageIndex = 1
     private var didEmitResultForCurrentRequest = false
+    private var currentStatus: GenerationState.Status = .ready(nil)
+    private var currentPreview: CGImage?
     private let imageRepository: ImageRepository
     private let modelRepository: ModelRepository
-    private let generationState: GenerationState
-    private let imageGallery: ImageGallery
 
     init(
-        generationState: GenerationState,
-        imageGallery: ImageGallery,
         imageRepository: ImageRepository = ImageRepository(),
         modelRepository: ModelRepository = ModelRepository()
     ) {
-        self.generationState = generationState
-        self.imageGallery = imageGallery
         self.imageRepository = imageRepository
         self.modelRepository = modelRepository
     }
@@ -76,6 +74,28 @@ actor GenerationService {
         }
     }
 
+    func statusUpdates() -> AsyncStream<GenerationState.Status> {
+        AsyncStream { continuation in
+            let id = UUID()
+            statusContinuations[id] = continuation
+            continuation.yield(currentStatus)
+            continuation.onTermination = { @Sendable _ in
+                Task { await self.removeStatusContinuation(id) }
+            }
+        }
+    }
+
+    func previewUpdates() -> AsyncStream<CGImage?> {
+        AsyncStream { continuation in
+            let id = UUID()
+            previewContinuations[id] = continuation
+            continuation.yield(currentPreview)
+            continuation.onTermination = { @Sendable _ in
+                Task { await self.removePreviewContinuation(id) }
+            }
+        }
+    }
+
     func enqueue(_ request: GenerationRequest) {
         queue.append(request)
         broadcastSnapshot()
@@ -96,12 +116,12 @@ actor GenerationService {
 
         cancelingCurrentID = current.id
         broadcastSnapshot()
-        await updateGenerationState(.canceling(nil))
+        emitStatus(.canceling(nil))
         await currentGenerator?.stopGenerate()
     }
 
     func updateStatus(_ status: GenerationState.Status) async {
-        await updateGenerationState(status)
+        emitStatus(status)
     }
 
     private func startProcessingIfNeeded() {
@@ -150,7 +170,7 @@ actor GenerationService {
                 let outputDirectory = try await imageRepository.ensureOutputDirectory(
                     imageDir: request.imageDir
                 )
-                nextImageIndex = await MainActor.run { imageGallery.images.endIndex + 1 }
+                nextImageIndex = await imageRepository.imageCount(imageDir: request.imageDir) + 1
 
                 if isCancelRequested(for: request.id) {
                     restoreReadyAfterCancel = true
@@ -236,27 +256,13 @@ actor GenerationService {
         await NotificationService.sendQueueEmptyNotification()
     }
 
-    private func updateGenerationState(_ status: GenerationState.Status) async {
-        await MainActor.run {
-            generationState.state = status
-        }
-    }
-
     private func handleGeneratorStateUpdate(
         _ status: GenerationState.Status,
         for requestID: GenerationRequest.ID
     ) async {
         guard current?.id == requestID else { return }
         guard !isCancelRequested(for: requestID) else { return }
-        await updateGenerationState(status)
-    }
-
-    private func updateGenerationProgress(
-        _ progress: GenerationState.Progress
-    ) async {
-        await MainActor.run {
-            generationState.state = .running(progress)
-        }
+        emitStatus(status)
     }
 
     private func handleGeneratorProgressUpdate(
@@ -265,7 +271,7 @@ actor GenerationService {
     ) async {
         guard current?.id == requestID else { return }
         guard !isCancelRequested(for: requestID) else { return }
-        await updateGenerationProgress(progress)
+        emitStatus(.running(progress))
     }
 
     private func handleGeneratorPreviewUpdate(
@@ -278,7 +284,7 @@ actor GenerationService {
                 return
             }
             guard current?.id == requestID || current == nil else { return }
-            await setCurrentGeneratingImage(nil)
+            emitPreview(nil)
             return
         }
 
@@ -287,7 +293,7 @@ actor GenerationService {
             return
         }
 
-        await setCurrentGeneratingImage(image)
+        emitPreview(image)
     }
 
     private func nextFilename(for metadata: GenerationMetadata) async -> String {
@@ -332,12 +338,6 @@ actor GenerationService {
         }
     }
 
-    private func setCurrentGeneratingImage(_ image: CGImage?) async {
-        await MainActor.run {
-            imageGallery.setCurrentGenerating(image: image)
-        }
-    }
-
     private func isCancelRequested(for requestID: GenerationRequest.ID) -> Bool {
         cancelingCurrentID == requestID
     }
@@ -348,13 +348,13 @@ actor GenerationService {
     ) async {
         let cancelRequested = isCancelRequested(for: requestID)
         if cancelRequested || !didEmitResultForCurrentRequest {
-            await setCurrentGeneratingImage(nil)
+            emitPreview(nil)
         }
 
         if cancelRequested {
             cancelingCurrentID = nil
             if restoreReadyAfterCancel && queue.isEmpty {
-                await updateGenerationState(.ready(nil))
+                emitStatus(.ready(nil))
             }
         }
 
@@ -366,6 +366,28 @@ actor GenerationService {
 
     private func removeResultContinuation(_ id: UUID) {
         resultContinuations[id] = nil
+    }
+
+    private func removeStatusContinuation(_ id: UUID) {
+        statusContinuations[id] = nil
+    }
+
+    private func removePreviewContinuation(_ id: UUID) {
+        previewContinuations[id] = nil
+    }
+
+    private func emitStatus(_ status: GenerationState.Status) {
+        currentStatus = status
+        for continuation in statusContinuations.values {
+            continuation.yield(status)
+        }
+    }
+
+    private func emitPreview(_ image: CGImage?) {
+        currentPreview = image
+        for continuation in previewContinuations.values {
+            continuation.yield(image)
+        }
     }
 
 }

@@ -65,6 +65,7 @@ final class GenerationController {
     private let modelRepository: ModelRepository
     private let imageRepository: ImageRepository
     private let generationService: GenerationService
+    private let generationState: GenerationState
     private let imageGallery: ImageGallery
     private(set) var generationQueue = [GenerationRequest]()
     private(set) var currentGeneration: GenerationRequest?
@@ -102,16 +103,20 @@ final class GenerationController {
     private var controlNetDirDebounceTask: Task<Void, Never>?
     private var generationUpdatesTask: Task<Void, Never>?
     private var generationResultsTask: Task<Void, Never>?
+    private var generationStatusTask: Task<Void, Never>?
+    private var generationPreviewTask: Task<Void, Never>?
 
     init(
         configStore: ConfigStore,
         generationService: GenerationService,
+        generationState: GenerationState,
         imageGallery: ImageGallery,
         modelRepository: ModelRepository = ModelRepository(),
         imageRepository: ImageRepository = ImageRepository()
     ) {
         self.configStore = configStore
         self.generationService = generationService
+        self.generationState = generationState
         self.imageGallery = imageGallery
         self.modelRepository = modelRepository
         self.imageRepository = imageRepository
@@ -124,6 +129,8 @@ final class GenerationController {
         observeControlNetDir()
         observeGenerationService()
         observeGenerationResults()
+        observeGenerationStatus()
+        observeGenerationPreview()
     }
 
     convenience init(
@@ -133,13 +140,11 @@ final class GenerationController {
     ) {
         let generationState = GenerationState()
         let imageGallery = ImageGallery()
-        let generationService = GenerationService(
-            generationState: generationState,
-            imageGallery: imageGallery
-        )
+        let generationService = GenerationService()
         self.init(
             configStore: configStore,
             generationService: generationService,
+            generationState: generationState,
             imageGallery: imageGallery,
             modelRepository: modelRepository,
             imageRepository: imageRepository
@@ -528,6 +533,28 @@ final class GenerationController {
         }
     }
 
+    private func observeGenerationStatus() {
+        generationStatusTask?.cancel()
+        generationStatusTask = Task { [weak self] in
+            guard let self else { return }
+            let stream = await self.generationService.statusUpdates()
+            for await status in stream {
+                self.apply(status)
+            }
+        }
+    }
+
+    private func observeGenerationPreview() {
+        generationPreviewTask?.cancel()
+        generationPreviewTask = Task { [weak self] in
+            guard let self else { return }
+            let stream = await self.generationService.previewUpdates()
+            for await image in stream {
+                self.applyCurrentGeneratingImage(image)
+            }
+        }
+    }
+
     private func apply(_ snapshot: GenerationService.Snapshot) {
         generationQueue = snapshot.queue
         currentGeneration = snapshot.current
@@ -572,6 +599,14 @@ final class GenerationController {
             metadataFields: metadata.metadataFields,
             animate: shouldAnimateInsert
         )
+    }
+
+    private func apply(_ status: GenerationState.Status) {
+        generationState.state = status
+    }
+
+    private func applyCurrentGeneratingImage(_ image: CGImage?) {
+        imageGallery.setCurrentGenerating(image: image)
     }
 
     func removeQueued(_ id: GenerationRequest.ID) async {
