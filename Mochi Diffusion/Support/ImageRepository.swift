@@ -59,8 +59,12 @@ actor ImageRepository {
         )
     }
 
+    nonisolated private static func normalizedImageDirectoryURL(fromPath imageDir: String) -> URL {
+        imageDirectoryURL(fromPath: imageDir)
+    }
+
     func load(imageDir: String) throws -> [ImageRecord] {
-        let directoryURL = Self.imageDirectoryURL(fromPath: imageDir)
+        let directoryURL = Self.normalizedImageDirectoryURL(fromPath: imageDir)
         do {
             try fileSystem.ensureDirectoryExists(directoryURL)
         } catch {
@@ -87,10 +91,16 @@ actor ImageRepository {
     func importImages(from urls: [URL], imageDir: String) -> ([ImageRecord], Int) {
         var records: [ImageRecord] = []
         var failed = 0
+        let destinationDirectory: URL
+
+        do {
+            destinationDirectory = try ensureOutputDirectory(imageDir: imageDir)
+        } catch {
+            return (records, urls.count)
+        }
 
         for url in urls {
-            var importedURL = URL(fileURLWithPath: imageDir, isDirectory: true)
-            importedURL.append(path: url.lastPathComponent)
+            let importedURL = destinationDirectory.appending(path: url.lastPathComponent)
             do {
                 try fileSystem.copyItem(at: url, to: importedURL)
             } catch {
@@ -131,7 +141,7 @@ actor ImageRepository {
         imageDir: String,
         imageType: String,
     ) -> URL? {
-        var pathURL = URL(fileURLWithPath: imageDir, isDirectory: true)
+        var pathURL = Self.normalizedImageDirectoryURL(fromPath: imageDir)
         pathURL.append(path: filenameWithoutExtension)
 
         let type = UTType.fromString(imageType)
@@ -139,7 +149,7 @@ actor ImageRepository {
     }
 
     func ensureOutputDirectory(imageDir: String) throws -> URL {
-        let directoryURL = Self.imageDirectoryURL(fromPath: imageDir)
+        let directoryURL = Self.normalizedImageDirectoryURL(fromPath: imageDir)
         do {
             try fileSystem.ensureDirectoryExists(directoryURL)
         } catch {
@@ -165,7 +175,7 @@ actor ImageRepository {
     }
 
     func syncImages(imageDir: String, existingPaths: [String]) -> ImageSyncResult {
-        let directoryURL = URL(fileURLWithPath: imageDir, isDirectory: true)
+        let directoryURL = Self.normalizedImageDirectoryURL(fromPath: imageDir)
         guard
             let fileList = try? fileSystem.contentsOfDirectory(at: directoryURL).map({
                 $0.lastPathComponent
@@ -180,7 +190,7 @@ actor ImageRepository {
 
         for filePath in fileList {
             if !existingSet.contains(where: { URL(filePath: $0).lastPathComponent == filePath }) {
-                let fileURL = URL(filePath: imageDir).appending(component: filePath)
+                let fileURL = directoryURL.appending(component: filePath)
                 if let record = createImageRecordFromURL(fileURL) {
                     additions.append(record)
                 }
