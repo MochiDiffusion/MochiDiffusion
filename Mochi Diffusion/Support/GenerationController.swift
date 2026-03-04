@@ -61,7 +61,7 @@ final class GenerationController {
     }
 
     struct InputImageInput {
-        var image: CGImage?
+        var image: CGImage
         var imageFilename: String?
     }
 
@@ -247,22 +247,36 @@ final class GenerationController {
     }
 
     func setInputImage(image: CGImage, at index: Int = 0, filename: String? = nil) {
+        setInputImages([(image: image, filename: filename)], startingAt: index)
+    }
+
+    func setInputImages(
+        _ images: [(image: CGImage, filename: String?)],
+        startingAt index: Int = 0
+    ) {
         guard index >= 0, index < maxInputImageCount else { return }
         guard index <= currentInputImages.count else { return }
+        guard !images.isEmpty else { return }
 
-        let imageFilename = normalizedFilename(filename) ?? consumePendingSelectedImageFilename()
-        let value = InputImageInput(image: image, imageFilename: imageFilename)
+        let assignableCount = min(images.count, maxInputImageCount - index)
+        for offset in 0..<assignableCount {
+            let targetIndex = index + offset
+            let entry = images[offset]
+            let imageFilename =
+                normalizedFilename(entry.filename) ?? consumePendingSelectedImageFilename()
+            let value = InputImageInput(image: entry.image, imageFilename: imageFilename)
 
-        if index == currentInputImages.count {
-            currentInputImages.append(value)
-        } else {
-            currentInputImages[index] = value
+            if targetIndex == currentInputImages.count {
+                currentInputImages.append(value)
+            } else {
+                currentInputImages[targetIndex] = value
+            }
         }
     }
 
     func selectInputImage(at index: Int = 0) async {
         guard let image = await selectImage() else { return }
-        setInputImage(image: image, at: index, filename: consumePendingSelectedImageFilename())
+        setInputImage(image: image, at: index)
     }
 
     func unsetInputImage(at index: Int = 0) async {

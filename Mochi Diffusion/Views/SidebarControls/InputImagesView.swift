@@ -10,6 +10,8 @@ struct InputImagesView: View {
 
     private let columnCount = 3
     private let gridSpacing: CGFloat = 6
+    private let minAspectRatio: CGFloat = 0.75
+    private let maxAspectRatio: CGFloat = 1.5
 
     private var columns: [GridItem] {
         Array(
@@ -36,7 +38,8 @@ struct InputImagesView: View {
         else {
             return 1.0
         }
-        return CGFloat(image.width) / CGFloat(image.height)
+        let aspect = CGFloat(image.width) / CGFloat(image.height)
+        return min(max(aspect, minAspectRatio), maxAspectRatio)
     }
 
     var body: some View {
@@ -52,7 +55,10 @@ struct InputImagesView: View {
                 ImageWellView(
                     image: image,
                     size: nil,
-                    selectImage: controller.selectImage
+                    selectImage: controller.selectImage,
+                    setImages: { dropped in
+                        await controller.setInputImages(dropped, startingAt: index)
+                    }
                 ) { image in
                     if let image {
                         await controller.setInputImage(image: image, at: index)

@@ -9,16 +9,20 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct ImageWellView: View {
+    typealias DroppedImage = (image: CGImage, filename: String?)
+
     var image: CGImage?
     let widthModifier: Double
     let heightModifier: Double
     let selectImage: () async -> CGImage?
+    let setImages: (@Sendable ([DroppedImage]) async -> Void)?
     let setImage: @Sendable (CGImage?) async -> Void
 
     init(
         image: CGImage? = nil,
         size: CGSize?,
         selectImage: @escaping () async -> CGImage?,
+        setImages: (@Sendable ([DroppedImage]) async -> Void)? = nil,
         setImage: @escaping @Sendable (CGImage?) async -> Void
     ) {
         self.image = image
@@ -31,12 +35,16 @@ struct ImageWellView: View {
             self.heightModifier = 1.0
         }
         self.selectImage = selectImage
+        self.setImages = setImages
         self.setImage = setImage
     }
 
     var body: some View {
         Button {
-            Task { await setImage(await selectImage()) }
+            Task {
+                guard let selectedImage = await selectImage() else { return }
+                await setImage(selectedImage)
+            }
         } label: {
             GeometryReader { proxy in
                 ZStack {
@@ -71,47 +79,78 @@ struct ImageWellView: View {
         }
         .buttonStyle(.plain)
         .onDrop(of: [.fileURL, .image], isTargeted: nil) { providers in
-            guard let provider = providers.first else {
+            guard !providers.isEmpty else {
                 return false
             }
 
-            if provider.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) {
-                _ = provider.loadObject(ofClass: URL.self) { url, _ in
-                    guard let url else {
-                        return
-                    }
+            Task {
+                let dropped = await loadDroppedImages(from: providers)
+                guard !dropped.isEmpty else { return }
 
-                    guard let cgImageSource = CGImageSourceCreateWithURL(url as CFURL, nil) else {
-                        return
-                    }
-
-                    let imageIndex = CGImageSourceGetPrimaryImageIndex(cgImageSource)
-
-                    guard
-                        let cgImage = CGImageSourceCreateImageAtIndex(
-                            cgImageSource,
-                            imageIndex,
-                            nil
-                        )
-                    else {
-                        return
-                    }
-
-                    Task { await self.setImage(cgImage) }
-                }
-            } else if provider.hasItemConformingToTypeIdentifier(UTType.image.identifier) {
-                _ = provider.loadDataRepresentation(for: .image) { data, _ in
-                    guard let data, let image = NSImage(data: data) else {
-                        return
-                    }
-
-                    if let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) {
-                        Task { await self.setImage(cgImage) }
-                    }
+                if let setImages {
+                    await setImages(dropped)
+                } else {
+                    guard let first = dropped.first else { return }
+                    await self.setImage(first.image)
                 }
             }
 
             return true
+        }
+    }
+
+    private func loadDroppedImages(from providers: [NSItemProvider]) async -> [DroppedImage] {
+        var droppedImages: [DroppedImage] = []
+        droppedImages.reserveCapacity(providers.count)
+
+        for provider in providers {
+            if let dropped = await loadDroppedImage(from: provider) {
+                droppedImages.append(dropped)
+            }
+        }
+        return droppedImages
+    }
+
+    private func loadDroppedImage(from provider: NSItemProvider) async -> DroppedImage? {
+        if provider.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier),
+            let url = await loadURL(from: provider)
+        {
+            guard let imageSource = CGImageSourceCreateWithURL(url as CFURL, nil) else {
+                return nil
+            }
+            let imageIndex = CGImageSourceGetPrimaryImageIndex(imageSource)
+            guard let cgImage = CGImageSourceCreateImageAtIndex(imageSource, imageIndex, nil) else {
+                return nil
+            }
+            return (image: cgImage, filename: url.lastPathComponent)
+        }
+
+        if provider.hasItemConformingToTypeIdentifier(UTType.image.identifier),
+            let data = await loadData(from: provider),
+            let image = NSImage(data: data),
+            let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil)
+        {
+            return (image: cgImage, filename: nil)
+        }
+
+        return nil
+    }
+
+    private func loadURL(from provider: NSItemProvider) async -> URL? {
+        await withCheckedContinuation { continuation in
+            _ = provider.loadObject(ofClass: URL.self) { url, _ in
+                continuation.resume(returning: url)
+            }
+        }
+    }
+
+    private func loadData(from provider: NSItemProvider) async -> Data? {
+        await withCheckedContinuation { continuation in
+            _ = provider.loadDataRepresentation(forTypeIdentifier: UTType.image.identifier) {
+                data,
+                _ in
+                continuation.resume(returning: data)
+            }
         }
     }
 }
