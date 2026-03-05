@@ -136,6 +136,31 @@ struct SettingsView: View {
 
             GroupBox {
                 VStack(alignment: .leading) {
+                    Text("LoRA Folder")
+
+                    HStack {
+                        TextField("", text: $configStore.loraDir)
+                            .disableAutocorrection(true)
+                            .textFieldStyle(.roundedBorder)
+
+                        Button {
+                            guard
+                                let url = showOpenPanel(from: URL(string: configStore.loraDir))
+                            else { return }
+                            configStore.loraDir = url.path(percentEncoded: false)
+                        } label: {
+                            Image(systemName: "magnifyingglass.circle.fill")
+                                .foregroundColor(Color.secondary)
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        .help("Open in Finder")
+                    }
+                }
+                .padding(4)
+            }
+
+            GroupBox {
+                VStack(alignment: .leading) {
                     Text("ControlNet Folder")
 
                     HStack {

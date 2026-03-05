@@ -12,8 +12,10 @@ import UniformTypeIdentifiers
     @ObservationIgnored @AppStorage("ImageType") private var _imageType =
         UTType.png.preferredFilenameExtension!
     @ObservationIgnored @AppStorage("ModelDir") private var _modelDir = ""
+    @ObservationIgnored @AppStorage("LoraDir") private var _loraDir = ""
     @ObservationIgnored @AppStorage("ControlNetDir") private var _controlNetDir = ""
     @ObservationIgnored @AppStorage("Model") private var _modelId: URL?
+    @ObservationIgnored @AppStorage("LoraName") private var _loraName = ""
     @ObservationIgnored @AppStorage("Prompt") private var _prompt = ""
     @ObservationIgnored @AppStorage("NegativePrompt") private var _negativePrompt = ""
     @ObservationIgnored @AppStorage("ImageStrength") private var _strength = 0.75
@@ -78,6 +80,18 @@ import UniformTypeIdentifiers
         }
     }
 
+    var loraDir: String {
+        get {
+            access(keyPath: \.loraDir)
+            return _loraDir
+        }
+        set {
+            withMutation(keyPath: \.loraDir) {
+                _loraDir = newValue
+            }
+        }
+    }
+
     var modelId: URL? {
         get {
             access(keyPath: \.modelId)
@@ -86,6 +100,18 @@ import UniformTypeIdentifiers
         set {
             withMutation(keyPath: \.modelId) {
                 _modelId = newValue
+            }
+        }
+    }
+
+    var loraName: String {
+        get {
+            access(keyPath: \.loraName)
+            return _loraName
+        }
+        set {
+            withMutation(keyPath: \.loraName) {
+                _loraName = newValue
             }
         }
     }

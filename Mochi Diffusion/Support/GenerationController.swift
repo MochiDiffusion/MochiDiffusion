@@ -69,17 +69,20 @@ final class GenerationController {
     private(set) var configStore: ConfigStore
     private let modelRepository: ModelRepository
     private let imageRepository: ImageRepository
+    private let loraNotesStore: LoraNotesStore
     private let generationService: GenerationService
     private let generationState: GenerationState
     private let imageGallery: ImageGallery
     private(set) var generationQueue = [GenerationRequest]()
     private(set) var currentGeneration: GenerationRequest?
     private(set) var models = [any MochiModel]()
+    private(set) var loras: [String] = []
     private(set) var controlNet: [String] = []
     var startingImage: CGImage?
     var startingImageFilename: String?
     let maxInputImageCount = 5
     private(set) var currentInputImages: [InputImageInput] = []
+    private(set) var loraNotes: [String: String] = [:]
     var numberOfImages = 1.0
     var seed: UInt32 = 0
 
@@ -101,12 +104,29 @@ final class GenerationController {
         models.first(where: { $0.id == self.currentModelId })
     }
 
+    var currentLora: String? {
+        didSet {
+            configStore.loraName = normalizedLoraName(currentLora) ?? ""
+        }
+    }
+
+    var currentLoraNote: String {
+        guard let currentLora else { return "" }
+        return loraNotes[currentLora, default: ""]
+    }
+
+    var currentLoraHasNote: Bool {
+        !currentLoraNote.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
     private(set) var currentControlNets: [ControlNetInput] = []
     private var pendingSelectedImageFilename: String?
 
     private var modelFolderMonitor: FolderMonitor?
+    private var loraFolderMonitor: FolderMonitor?
     private var controlNetFolderMonitor: FolderMonitor?
     private var modelDirDebounceTask: Task<Void, Never>?
+    private var loraDirDebounceTask: Task<Void, Never>?
     private var controlNetDirDebounceTask: Task<Void, Never>?
     private var generationUpdatesTask: Task<Void, Never>?
     private var generationResultsTask: Task<Void, Never>?
@@ -119,7 +139,8 @@ final class GenerationController {
         generationState: GenerationState,
         imageGallery: ImageGallery,
         modelRepository: ModelRepository = ModelRepository(),
-        imageRepository: ImageRepository = ImageRepository()
+        imageRepository: ImageRepository = ImageRepository(),
+        loraNotesStore: LoraNotesStore = LoraNotesStore()
     ) {
         self.configStore = configStore
         self.generationService = generationService
@@ -127,12 +148,16 @@ final class GenerationController {
         self.imageGallery = imageGallery
         self.modelRepository = modelRepository
         self.imageRepository = imageRepository
+        self.loraNotesStore = loraNotesStore
         Task {
             await loadModels()
+            loadLoras()
         }
         startModelFolderMonitor()
+        startLoraFolderMonitor()
         startControlNetFolderMonitor()
         observeModelDir()
+        observeLoraDir()
         observeControlNetDir()
         observeGenerationService()
         observeGenerationResults()
@@ -143,7 +168,8 @@ final class GenerationController {
     convenience init(
         configStore: ConfigStore,
         modelRepository: ModelRepository = ModelRepository(),
-        imageRepository: ImageRepository = ImageRepository()
+        imageRepository: ImageRepository = ImageRepository(),
+        loraNotesStore: LoraNotesStore = LoraNotesStore()
     ) {
         let generationState = GenerationState()
         let imageGallery = ImageGallery()
@@ -154,7 +180,8 @@ final class GenerationController {
             generationState: generationState,
             imageGallery: imageGallery,
             modelRepository: modelRepository,
-            imageRepository: imageRepository
+            imageRepository: imageRepository,
+            loraNotesStore: loraNotesStore
         )
     }
 
@@ -199,6 +226,35 @@ final class GenerationController {
         } catch {
             configStore.modelId = nil
         }
+    }
+
+    func loadLoras() {
+        let directoryURL = ModelRepository.loraDirectoryURL(fromPath: configStore.loraDir)
+        logger.info(
+            "Started loading LoRA directory at: \"\(directoryURL.path(percentEncoded: false))\""
+        )
+
+        let loadedLoras = loadLoraFiles(from: directoryURL)
+        loraNotes = loraNotesStore.load()
+        loras = loadedLoras
+
+        if let savedLoraName = normalizedLoraName(configStore.loraName),
+            loras.contains(savedLoraName)
+        {
+            currentLora = savedLoraName
+        } else {
+            currentLora = nil
+        }
+    }
+
+    func setCurrentLoraNote(_ note: String) {
+        guard let currentLora else { return }
+        if note.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            loraNotes.removeValue(forKey: currentLora)
+        } else {
+            loraNotes[currentLora] = note
+        }
+        persistLoraNotes()
     }
 
     func generate() async {
@@ -371,6 +427,42 @@ final class GenerationController {
         return trimmed.isEmpty ? nil : trimmed
     }
 
+    private func normalizedLoraName(_ loraName: String?) -> String? {
+        guard let loraName else { return nil }
+        let trimmed = loraName.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.isEmpty ? nil : trimmed
+    }
+
+    private func loadLoraFiles(from directoryURL: URL) -> [String] {
+        do {
+            let contents = try FileManager.default.contentsOfDirectory(
+                at: directoryURL,
+                includingPropertiesForKeys: nil,
+                options: [.skipsHiddenFiles]
+            )
+            return
+                contents
+                .filter { !$0.hasDirectoryPath }
+                .map(\.lastPathComponent)
+                .sorted {
+                    $0.compare($1, options: [.caseInsensitive, .diacriticInsensitive])
+                        == .orderedAscending
+                }
+        } catch {
+            return []
+        }
+    }
+
+    private func persistLoraNotes() {
+        let normalizedNotes =
+            loraNotes
+            .compactMapValues { $0 }
+            .filter { !$0.value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+        loraNotes = normalizedNotes
+
+        loraNotesStore.save(normalizedNotes)
+    }
+
     func copyToPrompt() {
         guard let sdi = imageGallery.selected() else { return }
         copyToPrompt(sdi)
@@ -536,7 +628,7 @@ final class GenerationController {
         case .irisFluxKlein:
             let inputs = currentInputImages.prefix(maxInputImageCount).compactMap {
                 input -> (Data, String?)? in
-                guard let image = input.image, let data = image.pngData() else {
+                guard let data = input.image.pngData() else {
                     return nil
                 }
                 return (data, normalizedFilename(input.imageFilename))
@@ -690,6 +782,17 @@ final class GenerationController {
         }
     }
 
+    private func observeLoraDir() {
+        withObservationTracking {
+            _ = configStore.loraDir
+        } onChange: { [weak self] in
+            Task { @MainActor in
+                self?.scheduleLoraDirUpdate()
+                self?.observeLoraDir()
+            }
+        }
+    }
+
     private func observeControlNetDir() {
         withObservationTracking {
             _ = configStore.controlNetDir
@@ -713,6 +816,18 @@ final class GenerationController {
         }
     }
 
+    private func scheduleLoraDirUpdate() {
+        loraDirDebounceTask?.cancel()
+        loraDirDebounceTask = Task { @MainActor in
+            do {
+                try await Task.sleep(nanoseconds: 500_000_000)
+            } catch {
+                return
+            }
+            await updateLoraFolderMonitor()
+        }
+    }
+
     private func scheduleControlNetDirUpdate() {
         controlNetDirDebounceTask?.cancel()
         controlNetDirDebounceTask = Task { @MainActor in
@@ -730,6 +845,11 @@ final class GenerationController {
         await loadModels()
     }
 
+    private func updateLoraFolderMonitor() async {
+        startLoraFolderMonitor()
+        loadLoras()
+    }
+
     private func updateControlNetFolderMonitor() async {
         startControlNetFolderMonitor()
         await loadModels()
@@ -741,6 +861,16 @@ final class GenerationController {
         modelFolderMonitor = FolderMonitor(path: path) { [weak self] in
             Task { @MainActor in
                 await self?.loadModels()
+            }
+        }
+    }
+
+    private func startLoraFolderMonitor() {
+        loraFolderMonitor = nil
+        let path = loraDirectoryPath()
+        loraFolderMonitor = FolderMonitor(path: path) { [weak self] in
+            Task { @MainActor in
+                self?.loadLoras()
             }
         }
     }
@@ -757,6 +887,11 @@ final class GenerationController {
 
     private func modelDirectoryPath() -> String {
         ModelRepository.modelDirectoryURL(fromPath: configStore.modelDir)
+            .path(percentEncoded: false)
+    }
+
+    private func loraDirectoryPath() -> String {
+        ModelRepository.loraDirectoryURL(fromPath: configStore.loraDir)
             .path(percentEncoded: false)
     }
 

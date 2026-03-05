@@ -26,6 +26,13 @@ actor ModelRepository {
         )
     }
 
+    nonisolated static func loraDirectoryURL(fromPath directory: String) -> URL {
+        FileSystemStore().directoryURL(
+            fromPath: directory,
+            defaultingTo: "MochiDiffusion/lora"
+        )
+    }
+
     func load(modelDir: URL, controlNetDir: URL) throws -> [any MochiModel] {
         var models: [any MochiModel] = []
         let fm = FileManager.default

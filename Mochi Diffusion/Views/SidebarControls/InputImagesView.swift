@@ -10,6 +10,7 @@ struct InputImagesView: View {
 
     private let columnCount = 3
     private let gridSpacing: CGFloat = 6
+    private let wellHeight: CGFloat = 90
     private let minAspectRatio: CGFloat = 0.75
     private let maxAspectRatio: CGFloat = 1.5
 
@@ -67,6 +68,7 @@ struct InputImagesView: View {
                     }
                 }
                 .aspectRatio(imageAspectRatio(at: index), contentMode: .fit)
+                .frame(maxWidth: .infinity, minHeight: wellHeight, maxHeight: wellHeight)
                 .overlay(alignment: .topTrailing) {
                     if image != nil {
                         Button {

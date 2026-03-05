@@ -24,6 +24,8 @@ struct SidebarView: View {
                 Group {
                     ModelView()
                     Spacer().frame(height: 6)
+                    LoraView()
+                    Spacer().frame(height: 6)
                 }
                 Group {
                     if generationCapabilities.contains(.inputImages) {
