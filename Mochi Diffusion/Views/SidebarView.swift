@@ -28,6 +28,10 @@ struct SidebarView: View {
                     Spacer().frame(height: 6)
                 }
                 Group {
+                    SizeView()
+                    Spacer().frame(height: 6)
+                }
+                Group {
                     if generationCapabilities.contains(.inputImages) {
                         InputImagesView()
                         Divider().frame(height: 16)
@@ -35,10 +39,6 @@ struct SidebarView: View {
                         StartingImageView()
                         Divider().frame(height: 16)
                     }
-                }
-                Group {
-                    SizeView()
-                    Spacer().frame(height: 6)
                 }
                 Group {
                     NumberOfImagesView()
