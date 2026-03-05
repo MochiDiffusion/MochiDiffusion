@@ -68,6 +68,37 @@ extension CGImage {
         return data as Data
     }
 
+    /// Re-rasterize into 8-bit sRGB RGBA so Image I/O can reliably encode PNG.
+    nonisolated func normalizedRGBA8Image() -> CGImage? {
+        let width = self.width
+        let height = self.height
+        guard width > 0, height > 0 else { return nil }
+
+        let colorSpace = CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB()
+        let bitmapInfo = CGBitmapInfo(
+            rawValue: CGImageAlphaInfo.premultipliedLast.rawValue
+                | CGBitmapInfo.byteOrder32Big.rawValue
+        )
+
+        guard
+            let context = CGContext(
+                data: nil,
+                width: width,
+                height: height,
+                bitsPerComponent: 8,
+                bytesPerRow: width * 4,
+                space: colorSpace,
+                bitmapInfo: bitmapInfo.rawValue
+            )
+        else {
+            return nil
+        }
+
+        context.interpolationQuality = .high
+        context.draw(self, in: CGRect(x: 0, y: 0, width: width, height: height))
+        return context.makeImage()
+    }
+
     nonisolated static func fromData(_ data: Data) -> CGImage? {
         guard let source = CGImageSourceCreateWithData(data as CFData, nil) else { return nil }
         let index = CGImageSourceGetPrimaryImageIndex(source)

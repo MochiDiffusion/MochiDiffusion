@@ -6,6 +6,7 @@
 import Foundation
 
 nonisolated struct IrisFluxKleinModel: MochiModel {
+    static let defaultAttentionHeadCount = 24
     static let generationCapabilities: GenerationCapabilities = [.inputImages]
     static let metadataFields: Set<MetadataField> = [
         .prompt,
@@ -19,6 +20,7 @@ nonisolated struct IrisFluxKleinModel: MochiModel {
 
     let url: URL
     let name: String
+    let attentionHeadCount: Int
 
     var id: URL { url }
     var promptTokenLimit: Int? { 512 }
@@ -34,6 +36,7 @@ nonisolated struct IrisFluxKleinModel: MochiModel {
         guard isIrisFluxKleinModelDirectory(url) else { return nil }
         self.url = url
         self.name = name
+        self.attentionHeadCount = readAttentionHeadCount(from: url)
     }
 }
 
@@ -106,4 +109,26 @@ nonisolated private func hasSafetensorWeights(
     return contents.contains { name in
         name.hasPrefix(shardPrefix) && name.hasSuffix(".safetensors")
     }
+}
+
+nonisolated private func readAttentionHeadCount(from modelURL: URL) -> Int {
+    let configURL = modelURL.appending(components: "transformer", "config.json")
+    guard
+        let data = try? Data(contentsOf: configURL),
+        let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+    else {
+        return IrisFluxKleinModel.defaultAttentionHeadCount
+    }
+
+    if let value = json["num_attention_heads"] as? Int, value > 0 {
+        return value
+    }
+
+    if let value = json["num_attention_heads"] as? NSNumber,
+        value.intValue > 0
+    {
+        return value.intValue
+    }
+
+    return IrisFluxKleinModel.defaultAttentionHeadCount
 }

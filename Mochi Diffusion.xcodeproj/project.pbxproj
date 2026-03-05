@@ -93,6 +93,7 @@
 		C1ADEC2C2B16957800E142CA /* FolderMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1ADEC2B2B16957800E142CA /* FolderMonitor.swift */; };
 		C1F0A1A42D0E6B6A00C0BEEF /* FileSystemStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F0A1A32D0E6B6A00C0BEEF /* FileSystemStore.swift */; };
 		D7B03F2029D42F9900DF89DD /* SDModelAttentionType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7B03F1F29D42F9900DF89DD /* SDModelAttentionType.swift */; };
+		F4B2C3D4E5F60718293A4B6C /* IrisReferenceImageSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B2C3D4E5F60718293A4B6B /* IrisReferenceImageSupport.swift */; };
 		F3A1C2B3D4E5F60789ABCDEF /* IrisFluxKleinImageGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3A1C2B3D4E5F60789ABCDE0 /* IrisFluxKleinImageGenerator.swift */; };
 /* End PBXBuildFile section */
 
@@ -196,6 +197,7 @@
 		F1A2B3C4D5E6F70809101112 /* build_iris_lib.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = build_iris_lib.sh; sourceTree = "<group>"; };
 		F1A2B3C4D5E6F70809101115 /* set_build_version.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = set_build_version.sh; sourceTree = "<group>"; };
 		F3A1C2B3D4E5F60789ABCDE0 /* IrisFluxKleinImageGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IrisFluxKleinImageGenerator.swift; sourceTree = "<group>"; };
+		F4B2C3D4E5F60718293A4B6B /* IrisReferenceImageSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IrisReferenceImageSupport.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -239,6 +241,7 @@
 				0E790ECE28024A119CB77474 /* GenerationRequest.swift */,
 				46DE7C4CA7924A59BF1B996B /* GenerationService.swift */,
 				F3A1C2B3D4E5F60789ABCDE0 /* IrisFluxKleinImageGenerator.swift */,
+				F4B2C3D4E5F60718293A4B6B /* IrisReferenceImageSupport.swift */,
 				E0D7B03CB7A3829A510ECF35 /* GenerationState.swift */,
 				540CFF7CA65203E6AD7C64B1 /* GalleryController.swift */,
 				742263CBCAFF48E997B3B810 /* QuickLookState.swift */,
@@ -607,6 +610,7 @@
 				71D315162B2A584E007FFDEB /* NotificationController.swift in Sources */,
 				03173C112999D83600B03456 /* SDImageGenerator.swift in Sources */,
 				F3A1C2B3D4E5F60789ABCDEF /* IrisFluxKleinImageGenerator.swift in Sources */,
+				F4B2C3D4E5F60718293A4B6C /* IrisReferenceImageSupport.swift in Sources */,
 				838911B22B48DCAE79DE50BC /* ModelRepository.swift in Sources */,
 				A2B3C4D5E6F708192A3B4C5E /* LoraNotesStore.swift in Sources */,
 				BF3689652F308607006501CE /* SDModel.swift in Sources */,

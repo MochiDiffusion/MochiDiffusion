@@ -63,6 +63,7 @@ final class GenerationController {
     struct InputImageInput {
         var image: CGImage
         var imageFilename: String?
+        var edit: IrisReferenceImageEdit = .identity
     }
 
     private var logger = Logger()
@@ -102,6 +103,25 @@ final class GenerationController {
     }
     var currentModel: (any MochiModel)? {
         models.first(where: { $0.id == self.currentModelId })
+    }
+
+    var irisReferenceBudgetReport: IrisReferenceBudgetReport? {
+        guard let model = currentModel as? IrisFluxKleinModel else { return nil }
+
+        let references = currentInputImages.prefix(maxInputImageCount).map { input in
+            return IrisReferenceImageProcessor.editedPixelSize(
+                for: input.image,
+                edit: input.edit
+            )
+        }
+
+        guard !references.isEmpty else { return nil }
+        let outputSize = CGSize(width: configStore.width, height: configStore.height)
+        return IrisReferenceBudgetEstimator.estimate(
+            numHeads: model.attentionHeadCount,
+            outputSize: outputSize,
+            referenceSizes: references
+        )
     }
 
     var currentLora: String? {
@@ -320,7 +340,11 @@ final class GenerationController {
             let entry = images[offset]
             let imageFilename =
                 normalizedFilename(entry.filename) ?? consumePendingSelectedImageFilename()
-            let value = InputImageInput(image: entry.image, imageFilename: imageFilename)
+            let value = InputImageInput(
+                image: entry.image,
+                imageFilename: imageFilename,
+                edit: .identity
+            )
 
             if targetIndex == currentInputImages.count {
                 currentInputImages.append(value)
@@ -342,6 +366,52 @@ final class GenerationController {
 
     func unsetInputImages() async {
         currentInputImages = []
+    }
+
+    func inputImageEdit(at index: Int) -> IrisReferenceImageEdit? {
+        guard index >= 0, index < currentInputImages.count else { return nil }
+        return currentInputImages[index].edit
+    }
+
+    func setInputImageEdit(_ edit: IrisReferenceImageEdit, at index: Int) {
+        guard index >= 0, index < currentInputImages.count else { return }
+        currentInputImages[index].edit = edit.clamped()
+    }
+
+    func resetInputImageEdit(at index: Int) {
+        guard index >= 0, index < currentInputImages.count else { return }
+        currentInputImages[index].edit = .identity
+    }
+
+    func editedInputImage(at index: Int) -> CGImage? {
+        guard index >= 0, index < currentInputImages.count else { return nil }
+        let input = currentInputImages[index]
+        return IrisReferenceImageProcessor.applyEdits(
+            to: input.image,
+            edit: input.edit
+        ) ?? input.image
+    }
+
+    func editedInputImageSize(at index: Int) -> CGSize? {
+        guard index >= 0, index < currentInputImages.count else { return nil }
+        let input = currentInputImages[index]
+        return IrisReferenceImageProcessor.editedPixelSize(
+            for: input.image,
+            edit: input.edit
+        )
+    }
+
+    func predictedInputImageSize(at index: Int) -> CGSize? {
+        predictedIrisReferenceSize(at: index, in: irisReferenceBudgetReport)
+    }
+
+    func preprocessedInputImage(at index: Int) -> CGImage? {
+        guard index >= 0, index < currentInputImages.count else { return nil }
+        let input = currentInputImages[index]
+        return preprocessedIrisInputImage(
+            input,
+            targetSize: predictedIrisReferenceSize(at: index, in: irisReferenceBudgetReport)
+        )
     }
 
     func setControlNet(name: String) async {
@@ -431,6 +501,56 @@ final class GenerationController {
         guard let loraName else { return nil }
         let trimmed = loraName.trimmingCharacters(in: .whitespacesAndNewlines)
         return trimmed.isEmpty ? nil : trimmed
+    }
+
+    private func irisInputImageData(from image: CGImage) -> Data? {
+        if let data = image.pngData() {
+            return data
+        }
+        return image.normalizedRGBA8Image()?.pngData()
+    }
+
+    private func buildIrisInputImages() -> [(Data, String?)] {
+        let activeInputs = Array(currentInputImages.prefix(maxInputImageCount))
+        guard !activeInputs.isEmpty else { return [] }
+
+        let budgetReport = irisReferenceBudgetReport
+        return activeInputs.enumerated().compactMap { index, input in
+            let preprocessed = preprocessedIrisInputImage(
+                input,
+                targetSize: predictedIrisReferenceSize(at: index, in: budgetReport)
+            )
+
+            guard let data = irisInputImageData(from: preprocessed) else { return nil }
+            return (data, normalizedFilename(input.imageFilename))
+        }
+    }
+
+    private func predictedIrisReferenceSize(
+        at index: Int,
+        in report: IrisReferenceBudgetReport?
+    ) -> CGSize? {
+        guard let report else { return nil }
+        guard index >= 0, index < report.predictedReferenceSizes.count else { return nil }
+        return report.predictedReferenceSizes[index]
+    }
+
+    private func preprocessedIrisInputImage(
+        _ input: InputImageInput,
+        targetSize: CGSize?
+    ) -> CGImage {
+        let edited =
+            IrisReferenceImageProcessor.applyEdits(
+                to: input.image,
+                edit: input.edit
+            ) ?? input.image
+
+        guard let targetSize else { return edited }
+        return
+            IrisReferenceImageProcessor.resizedAndCroppedToTokenGrid(
+                edited,
+                to: targetSize
+            ) ?? edited
     }
 
     private func loadLoraFiles(from directoryURL: URL) -> [String] {
@@ -626,12 +746,12 @@ final class GenerationController {
             requestControlNetImageNames = controlNetImageNames
             inputImageNames = []
         case .irisFluxKlein:
-            let inputs = currentInputImages.prefix(maxInputImageCount).compactMap {
-                input -> (Data, String?)? in
-                guard let data = input.image.pngData() else {
-                    return nil
-                }
-                return (data, normalizedFilename(input.imageFilename))
+            let inputs = buildIrisInputImages()
+            if !currentInputImages.isEmpty, inputs.isEmpty {
+                generationState.state = .error(
+                    "Couldn't read input image. Convert it to a standard RGB PNG or JPEG and try again."
+                )
+                return nil
             }
             pipeline = adapter.makePipeline(configStore: configStore, controlNets: [])
             startingImageData = nil
