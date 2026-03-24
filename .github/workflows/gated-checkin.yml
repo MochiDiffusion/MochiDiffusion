@@ -6,6 +6,8 @@ on:
 
 jobs:
   build:
+    permissions:
+      contents: read
     runs-on: macos-latest
     steps:
       - name: Checkout

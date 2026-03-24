@@ -6,6 +6,8 @@ on:
 
 jobs:
   build:
+    permissions:
+      contents: read
     runs-on: macos-latest
     steps:
       - name: Checkout
@@ -35,6 +37,8 @@ jobs:
           path: './locale/en.xcloc/Localized Contents/en.xliff'
 
   crowdin:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     needs: build
     steps:
