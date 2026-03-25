@@ -20,10 +20,6 @@ Explanation for the 'CPU &amp; GPU' ML Compute Unit option */
 Explanation for the 'CPU &amp; NE' ML Compute Unit option */
 "**CPU & Neural Engine** provides a good balance between speed and low memory usage, but only works with split-einsum models." = "**CPU & Neural Engine**는 빠른 속도와 낮은 메모리 사용량 간의 적절한 균형을 제공.";
 /* en.lproj/Localizable.strings
-About %@
-Text displaying the current time remaining */
-"About %@" = "약 %@";
-/* en.lproj/Localizable.strings
 Add to Queue
 Button to generate image */
 "Add to Queue" = "목록에 추가";
@@ -39,10 +35,6 @@ No comment provided by engineer. */
 Auto (Recommended)
 Option to use the CPU + Neural Engine for split-einsum models, and CPU + GPU for original models */
 "Auto (Recommended)" = "자동 (권장)";
-/* en.lproj/Localizable.strings
-Autosave & Restore Images
-No comment provided by engineer. */
-"Autosave & Restore Images" = "이미지 자동 저장 및 복원";
 /* en.lproj/Localizable.strings
 CPU & GPU
 No comment provided by engineer. */
@@ -83,15 +75,6 @@ No comment provided by engineer. */
 ControlNet Image
 No comment provided by engineer. */
 "ControlNet Image" = "ControlNet 이미지";
-/* en.lproj/Localizable.strings
-Convert all images to High Resolution (this will use more memory)
-No comment provided by engineer. */
-"Convert all images to High Resolution (this will use more memory)" = "모든 이미지를 자동으로 고화질로 변경 (더 많은 메모리를 사용)";
-/* en.lproj/Localizable.strings
-Convert to High Resolution
-Convert image to high resolution
-Convert the current image to high resolution */
-"Convert to High Resolution" = "고화질로 변경";
 /* en.lproj/Localizable.strings
 Copy
 Copy image to the clipboard */
@@ -138,17 +121,9 @@ Guidance Scale
 No comment provided by engineer. */
 "Guidance Scale" = "스케일";
 /* en.lproj/Localizable.strings
-HD
-Label for toggle to auto convert generated images to high resolution */
-"HD" = "고화질";
-/* en.lproj/Localizable.strings
 Height:
 Label for image height picker */
 "Height:" = "세로길이:";
-/* en.lproj/Localizable.strings
-If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images.
-Help text for Move Images to Trash setting */
-"If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images." = "옵션을 끄면 삭제된 이미지는 영구적으로 없어집니다. 가져온 이미지와 자동으로 저장된 이미지에 적용됩니다.";
 /* en.lproj/Localizable.strings
 Image
 Settings tab header label */
