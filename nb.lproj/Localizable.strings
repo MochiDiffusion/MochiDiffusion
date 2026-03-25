@@ -28,10 +28,6 @@ Auto (Recommended)
 Option to use the CPU + Neural Engine for split-einsum models, and CPU + GPU for original models */
 "Auto (Recommended)" = "Automatisk (Anbefalt)";
 /* en.lproj/Localizable.strings
-Autosave & Restore Images
-No comment provided by engineer. */
-"Autosave & Restore Images" = "Lagre og gjenopprette bilder automatisk";
-/* en.lproj/Localizable.strings
 CPU & GPU
 No comment provided by engineer. */
 "CPU & GPU" = "Prosessor & GPU";
@@ -67,15 +63,6 @@ No comment provided by engineer. */
 ControlNet Folder
 No comment provided by engineer. */
 "ControlNet Folder" = "ControlNet-mappe";
-/* en.lproj/Localizable.strings
-Convert all images to High Resolution (this will use more memory)
-No comment provided by engineer. */
-"Convert all images to High Resolution (this will use more memory)" = "Konverter alle bilder til høy oppløsning (dette vil bruke mer minne)";
-/* en.lproj/Localizable.strings
-Convert to High Resolution
-Convert image to high resolution
-Convert the current image to high resolution */
-"Convert to High Resolution" = "Konverter til høy oppløsning";
 /* en.lproj/Localizable.strings
 Copy
 Copy image to the clipboard */
@@ -122,17 +109,9 @@ Guidance Scale
 No comment provided by engineer. */
 "Guidance Scale" = "Veiledningsskala";
 /* en.lproj/Localizable.strings
-HD
-Label for toggle to auto convert generated images to high resolution */
-"HD" = "HD";
-/* en.lproj/Localizable.strings
 Height:
 Label for image height picker */
 "Height:" = "Høyde:";
-/* en.lproj/Localizable.strings
-If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images.
-Help text for Move Images to Trash setting */
-"If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images." = "Hvis alternativet er slått av, blir fjernet bilder slettet permanent. Gjelder for importerte og autolagrede bilder.";
 /* en.lproj/Localizable.strings
 Image
 Settings tab header label */
