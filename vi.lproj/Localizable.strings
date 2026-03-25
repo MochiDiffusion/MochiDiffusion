@@ -19,10 +19,6 @@ Auto (Recommended)
 Option to use the CPU + Neural Engine for split-einsum models, and CPU + GPU for original models */
 "Auto (Recommended)" = "Tự động (Khuyến khích)";
 /* en.lproj/Localizable.strings
-Autosave & Restore Images
-No comment provided by engineer. */
-"Autosave & Restore Images" = "Tự động lưu & Khôi phục hình ảnh";
-/* en.lproj/Localizable.strings
 CPU & Neural Engine
 No comment provided by engineer. */
 "CPU & Neural Engine" = "CPU & Neural Engine";
@@ -54,15 +50,6 @@ No comment provided by engineer. */
 ControlNet Folder
 No comment provided by engineer. */
 "ControlNet Folder" = "Thư mục ControlNet";
-/* en.lproj/Localizable.strings
-Convert all images to High Resolution (this will use more memory)
-No comment provided by engineer. */
-"Convert all images to High Resolution (this will use more memory)" = "Chuyển đổi tất cả hình ảnh sang Độ phân giải cao (sẽ sử dụng nhiều bộ nhớ hơn)";
-/* en.lproj/Localizable.strings
-Convert to High Resolution
-Convert image to high resolution
-Convert the current image to high resolution */
-"Convert to High Resolution" = "Chuyển đổi sang Độ phân giải cao";
 /* en.lproj/Localizable.strings
 Copy
 Copy image to the clipboard */
@@ -109,17 +96,9 @@ Guidance Scale
 No comment provided by engineer. */
 "Guidance Scale" = "Thang hướng dẫn";
 /* en.lproj/Localizable.strings
-HD
-Label for toggle to auto convert generated images to high resolution */
-"HD" = "HD";
-/* en.lproj/Localizable.strings
 Height:
 Label for image height picker */
 "Height:" = "Chiều cao:";
-/* en.lproj/Localizable.strings
-If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images.
-Help text for Move Images to Trash setting */
-"If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images." = "Nếu tùy chọn bị tắt, hình ảnh bị xóa sẽ bị xóa vĩnh viễn. Áp dụng cho hình ảnh được nhập và lưu tự động.";
 /* en.lproj/Localizable.strings
 Image
 Settings tab header label */

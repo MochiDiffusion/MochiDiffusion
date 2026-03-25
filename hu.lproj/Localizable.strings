@@ -31,10 +31,6 @@ Auto (Recommended)
 Option to use the CPU + Neural Engine for split-einsum models, and CPU + GPU for original models */
 "Auto (Recommended)" = "Automatikus (Javasolt)";
 /* en.lproj/Localizable.strings
-Autosave & Restore Images
-No comment provided by engineer. */
-"Autosave & Restore Images" = "Automatikus mentés & Képek visszatöltése";
-/* en.lproj/Localizable.strings
 CPU & GPU
 No comment provided by engineer. */
 "CPU & GPU" = "CPU & GPU";
@@ -70,15 +66,6 @@ No comment provided by engineer. */
 ControlNet Folder
 No comment provided by engineer. */
 "ControlNet Folder" = "ControlNet könyvtár";
-/* en.lproj/Localizable.strings
-Convert all images to High Resolution (this will use more memory)
-No comment provided by engineer. */
-"Convert all images to High Resolution (this will use more memory)" = "Mindegyik kép nagy felbontásúra (ez több memóriát fog használni)";
-/* en.lproj/Localizable.strings
-Convert to High Resolution
-Convert image to high resolution
-Convert the current image to high resolution */
-"Convert to High Resolution" = "Nagy felbontásúra konvertálás";
 /* en.lproj/Localizable.strings
 Copy
 Copy image to the clipboard */
@@ -125,17 +112,9 @@ Guidance Scale
 No comment provided by engineer. */
 "Guidance Scale" = "Irányítási Skála";
 /* en.lproj/Localizable.strings
-HD
-Label for toggle to auto convert generated images to high resolution */
-"HD" = "HD";
-/* en.lproj/Localizable.strings
 Height:
 Label for image height picker */
 "Height:" = "Magasság:";
-/* en.lproj/Localizable.strings
-If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images.
-Help text for Move Images to Trash setting */
-"If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images." = "Ha ki van kapcsolva a képek végérvényesen törlődnek. Ez a importált és az automatikusan mentett képekre is igaz.";
 /* en.lproj/Localizable.strings
 Image
 Settings tab header label */

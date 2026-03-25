@@ -19,10 +19,6 @@ Allow Mochi Diffusion to send notifications under System Settings.
 No comment provided by engineer. */
 "Allow Mochi Diffusion to send notifications under System Settings." = "Permitir a Mochi Diffusion enviar notificaciones en Configuración del sistema.";
 /* en.lproj/Localizable.strings
-Autosave & Restore Images
-No comment provided by engineer. */
-"Autosave & Restore Images" = "Autoguardar y Recuperar Imágenes";
-/* en.lproj/Localizable.strings
 CPU & GPU
 No comment provided by engineer. */
 "CPU & GPU" = "CPU & GPU";
@@ -46,15 +42,6 @@ No comment provided by engineer. */
 Choose generated images to import
 No comment provided by engineer. */
 "Choose generated images to import" = "Elige imágenes generadas para importar";
-/* en.lproj/Localizable.strings
-Convert all images to High Resolution (this will use more memory)
-No comment provided by engineer. */
-"Convert all images to High Resolution (this will use more memory)" = "Convertir todas las imágenes a Alta Resolución (esto usará más memoria)";
-/* en.lproj/Localizable.strings
-Convert to High Resolution
-Convert image to high resolution
-Convert the current image to high resolution */
-"Convert to High Resolution" = "Convertir a Alta Resolución";
 /* en.lproj/Localizable.strings
 Copy
 Copy image to the clipboard */
@@ -97,17 +84,9 @@ Guidance Scale
 No comment provided by engineer. */
 "Guidance Scale" = "Escala de Guía";
 /* en.lproj/Localizable.strings
-HD
-Label for toggle to auto convert generated images to high resolution */
-"HD" = "HD";
-/* en.lproj/Localizable.strings
 Height:
 Label for image height picker */
 "Height:" = "Altura:";
-/* en.lproj/Localizable.strings
-If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images.
-Help text for Move Images to Trash setting */
-"If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images." = "Si la opción está desactivada, las imágenes eliminadas se eliminan permanentemente. Se aplica a las imágenes importadas y autoguardadas.";
 /* en.lproj/Localizable.strings
 Image
 Settings tab header label */
