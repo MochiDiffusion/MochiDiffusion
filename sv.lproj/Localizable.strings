@@ -15,15 +15,6 @@ Check for Updates…
 No comment provided by engineer. */
 "Check for Updates…" = "Sök efter uppdateringar…";
 /* en.lproj/Localizable.strings
-Convert all images to High Resolution (this will use more memory)
-No comment provided by engineer. */
-"Convert all images to High Resolution (this will use more memory)" = "Konvertera alla bilder till hög upplösning (detta kommer att använda mer minne)";
-/* en.lproj/Localizable.strings
-Convert to High Resolution
-Convert image to high resolution
-Convert the current image to high resolution */
-"Convert to High Resolution" = "Konvertera till högupplöst";
-/* en.lproj/Localizable.strings
 Copy
 Copy image to the clipboard */
 "Copy" = "Kopiera";
@@ -60,10 +51,6 @@ Button to generate image */
 Guidance Scale
 No comment provided by engineer. */
 "Guidance Scale" = "Guidningsskala";
-/* en.lproj/Localizable.strings
-HD
-Label for toggle to auto convert generated images to high resolution */
-"HD" = "HD";
 /* en.lproj/Localizable.strings
 Height:
 Label for image height picker */
