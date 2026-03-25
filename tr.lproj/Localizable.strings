@@ -27,10 +27,6 @@ Explanation for the 'CPU &amp; GPU' ML Compute Unit option */
 Explanation for the 'CPU &amp; NE' ML Compute Unit option */
 "**CPU & Neural Engine** provides a good balance between speed and low memory usage, but only works with split-einsum models." = "**CPU & Neural Engine** hız ve düşük bellek kullanımı arasında iyi bir denge sağlar, ancak yalnızca \"split-einsum\" modelleriyle çalışır.";
 /* en.lproj/Localizable.strings
-About %@
-Text displaying the current time remaining */
-"About %@" = "%@ Hakkında";
-/* en.lproj/Localizable.strings
 Add to Queue
 Button to generate image */
 "Add to Queue" = "Kuyruğa Ekle";
@@ -46,10 +42,6 @@ No comment provided by engineer. */
 Auto (Recommended)
 Option to use the CPU + Neural Engine for split-einsum models, and CPU + GPU for original models */
 "Auto (Recommended)" = "Otomatik (Önerilen)";
-/* en.lproj/Localizable.strings
-Autosave & Restore Images
-No comment provided by engineer. */
-"Autosave & Restore Images" = "Otomatik Olarak Kaydedilip Geri Yüklenen Görüntüler Klasörü";
 /* en.lproj/Localizable.strings
 CPU & GPU
 No comment provided by engineer. */
@@ -94,15 +86,6 @@ No comment provided by engineer. */
 ControlNet Image
 No comment provided by engineer. */
 "ControlNet Image" = "ControlNet Görüntüsü";
-/* en.lproj/Localizable.strings
-Convert all images to High Resolution (this will use more memory)
-No comment provided by engineer. */
-"Convert all images to High Resolution (this will use more memory)" = "Tüm görüntüleri Yüksek Çözünürlüğe dönüştürün (bu daha fazla bellek kullanacaktır)";
-/* en.lproj/Localizable.strings
-Convert to High Resolution
-Convert image to high resolution
-Convert the current image to high resolution */
-"Convert to High Resolution" = "Yüksek Çözünürlüğe Dönüştürme";
 /* en.lproj/Localizable.strings
 Copy
 Copy image to the clipboard */
@@ -157,17 +140,9 @@ Guidance Scale
 No comment provided by engineer. */
 "Guidance Scale" = "Yapay Zeka Yoğunluğu";
 /* en.lproj/Localizable.strings
-HD
-Label for toggle to auto convert generated images to high resolution */
-"HD" = "HD";
-/* en.lproj/Localizable.strings
 Height:
 Label for image height picker */
 "Height:" = "Yükseklik:";
-/* en.lproj/Localizable.strings
-If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images.
-Help text for Move Images to Trash setting */
-"If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images." = "Seçenek kapatılırsa, kaldırılan görüntüler kalıcı olarak silinir. İçe aktarılan ve otomatik kaydedilen görüntüler için geçerlidir.";
 /* en.lproj/Localizable.strings
 Image
 Settings tab header label */
