@@ -6,9 +6,9 @@
 version: 2
 updates:
   - package-ecosystem: "swift"
-    directory: "/Mochi Diffusion.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved"
+    directory: "/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
 
   - package-ecosystem: "github-actions"
     directory: "/"
