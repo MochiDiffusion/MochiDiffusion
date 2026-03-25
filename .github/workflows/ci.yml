@@ -20,13 +20,15 @@ jobs:
 
       - name: Build and Analyze
         run: >
-          xcodebuild
-          -project "Mochi Diffusion.xcodeproj"
-          -target "Iris"
-          -configuration Debug
-          CODE_SIGNING_ALLOWED=NO &&
           xcodebuild clean build analyze
-          -exportLocalizations
+          -project "Mochi Diffusion.xcodeproj"
+          -scheme "Mochi Diffusion"
+          -configuration Debug
+          CODE_SIGNING_ALLOWED=NO | xcpretty && exit ${PIPESTATUS[0]}
+
+      - name: Export Localizations
+        run: >
+          xcodebuild -exportLocalizations
           -project "Mochi Diffusion.xcodeproj"
           -scheme "Mochi Diffusion"
           -configuration Debug
