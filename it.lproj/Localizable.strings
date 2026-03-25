@@ -51,6 +51,14 @@ CPU & Neural Engine
 No comment provided by engineer. */
 "CPU & Neural Engine" = "CPU & Neural Engine";
 /* en.lproj/Localizable.strings
+Canceling
+Job queue row title while canceling the current generation */
+"Canceling" = "Annullamento";
+/* en.lproj/Localizable.strings
+Canceling...
+Text displayed while waiting for generation cancellation cleanup */
+"Canceling..." = "Annullamento...";
+/* en.lproj/Localizable.strings
 Check for Updates…
 No comment provided by engineer. */
 "Check for Updates…" = "Ricerca aggiornamenti…";
@@ -144,6 +152,10 @@ Height:
 Label for image height picker */
 "Height:" = "Altezza:";
 /* en.lproj/Localizable.strings
+If option is turned off, removed images are permanently deleted. Applies to imported and generated images.
+Help text for Move Images to Trash setting */
+"If option is turned off, removed images are permanently deleted. Applies to imported and generated images." = "Se l\'opzione è disattivata, le immagini rimosse vengono eliminate definitivamente. Si applica sia alle immagini importate che a quelle generate.";
+/* en.lproj/Localizable.strings
 Image
 Settings tab header label */
 "Image" = "Immagine";
@@ -155,6 +167,10 @@ No comment provided by engineer. */
 Image file name:
 File name field label for save image panel */
 "Image file name:" = "Nome file immagine:";
+/* en.lproj/Localizable.strings
+Images Folder
+No comment provided by engineer. */
+"Images Folder" = "Cartella immagini";
 /* en.lproj/Localizable.strings
 Import
 OK button text for import image panel */
@@ -357,6 +373,10 @@ Usa valori bassi per generare immagini simili a quella originale.
 Usa valori alti per ottenere risultati più creativi.
 
 La dimensione dell\'immagine di partenza deve combaciare con quella che si tenta di generare.";
+/* en.lproj/Localizable.strings
+Swap width and height
+No comment provided by engineer. */
+"Swap width and height" = "Inverti larghezza e altezza";
 /* en.lproj/Localizable.strings
 Tags
 No comment provided by engineer. */
