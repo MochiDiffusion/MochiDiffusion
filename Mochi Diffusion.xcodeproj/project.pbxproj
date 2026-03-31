@@ -275,6 +275,7 @@
 		BF3689662F3086B2006501CE /* IrisFluxKleinModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IrisFluxKleinModel.swift; sourceTree = "<group>"; };
 		BFE156D62F2F37B10060DEBF /* Iris-BridgingHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Iris-BridgingHeader.h"; sourceTree = "<group>"; };
 		BFE66B0D2F2AFD3700A8965C /* ConfigStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigStore.swift; sourceTree = "<group>"; };
+		C0D1F1A02F4C100000000001 /* MochiDiffusion.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = MochiDiffusion.xcconfig; sourceTree = "<group>"; };
 		C116D4942AFC382E00314FE3 /* MochiSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MochiSlider.swift; sourceTree = "<group>"; };
 		C11A03872B099D9600540F7F /* JobQueueView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JobQueueView.swift; sourceTree = "<group>"; };
 		C1220FBF2AFB122F007E5055 /* ImageWellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageWellView.swift; sourceTree = "<group>"; };
@@ -433,6 +434,7 @@
 			children = (
 				036BFC20294B9F7500D8AD04 /* Mochi Diffusion */,
 				AA000000000000000000000B /* Mochi DiffusionTests */,
+				C0D1F1A12F4C100000000001 /* xcconfig */,
 				F1A2B3C4D5E6F70809101113 /* scripts */,
 				BFE66B162F2EDC8100A8965C /* Frameworks */,
 				036BFC1F294B9F7500D8AD04 /* Products */,
@@ -535,6 +537,14 @@
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
+		};
+		C0D1F1A12F4C100000000001 /* xcconfig */ = {
+			isa = PBXGroup;
+			children = (
+				C0D1F1A02F4C100000000001 /* MochiDiffusion.xcconfig */,
+			);
+			path = xcconfig;
+			sourceTree = SOURCE_ROOT;
 		};
 		F1A2B3C4D5E6F70809101113 /* scripts */ = {
 			isa = PBXGroup;
@@ -1088,17 +1098,15 @@
 		};
 		036BFC44294B9F7600D8AD04 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = C0D1F1A02F4C100000000001 /* MochiDiffusion.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "Mochi Diffusion/MochiDiffusion.entitlements";
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 6.0;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Mochi Diffusion/Preview Content\"";
-				DEVELOPMENT_TEAM = 9VV558X8J3;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1114,9 +1122,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 15.6;
 				MARKETING_VERSION = 6.0;
 				OTHER_LDFLAGS = "$(BUILD_DIR)/vendor/iris/$(CONFIGURATION)/libiris_mps.a";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.joshua-park.Mochi-Diffusion";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/Mochi Diffusion/Iris-BridgingHeader.h";
@@ -1128,17 +1134,15 @@
 		};
 		036BFC45294B9F7600D8AD04 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = C0D1F1A02F4C100000000001 /* MochiDiffusion.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "Mochi Diffusion/MochiDiffusion.entitlements";
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 6.0;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Mochi Diffusion/Preview Content\"";
-				DEVELOPMENT_TEAM = 9VV558X8J3;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1154,9 +1158,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 15.6;
 				MARKETING_VERSION = 6.0;
 				OTHER_LDFLAGS = "$(BUILD_DIR)/vendor/iris/$(CONFIGURATION)/libiris_mps.a";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.joshua-park.Mochi-Diffusion";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/Mochi Diffusion/Iris-BridgingHeader.h";
@@ -1169,8 +1171,6 @@
 		BFE66B112F2ED14800A8965C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 9VV558X8J3;
 				MACOSX_DEPLOYMENT_TARGET = 15.6;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -1179,8 +1179,6 @@
 		BFE66B122F2ED14800A8965C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 9VV558X8J3;
 				MACOSX_DEPLOYMENT_TARGET = 15.6;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -1188,11 +1186,10 @@
 		};
 		AA0000000000000000000004 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = C0D1F1A02F4C100000000001 /* MochiDiffusion.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 9VV558X8J3;
 				GENERATE_INFOPLIST_FILE = YES;
 				HEADER_SEARCH_PATHS = "$(SRCROOT)/iris.c";
 				MACOSX_DEPLOYMENT_TARGET = 15.6;
@@ -1211,11 +1208,10 @@
 		};
 		AA0000000000000000000005 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = C0D1F1A02F4C100000000001 /* MochiDiffusion.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 9VV558X8J3;
 				GENERATE_INFOPLIST_FILE = YES;
 				HEADER_SEARCH_PATHS = "$(SRCROOT)/iris.c";
 				MACOSX_DEPLOYMENT_TARGET = 15.6;

@@ -112,6 +112,30 @@ No conversion is required for FLUX.2 Klein models.
 - macOS 15.6 and later
 - Xcode 26.0 or later (to build)
 
+## Building From Source
+
+The project now supports `SharedXcodeSettings` for local overrides to keep per-developer signing state out of the project file.
+
+Create a sibling `SharedXcodeSettings/DeveloperSettings.xcconfig` next to this repository:
+
+```text
+directory/
+  SharedXcodeSettings/
+    DeveloperSettings.xcconfig
+  MochiDiffusion/
+    Mochi Diffusion.xcodeproj
+```
+
+Example `SharedXcodeSettings/DeveloperSettings.xcconfig`:
+
+```xcconfig
+CODE_SIGN_IDENTITY = Apple Development
+DEVELOPMENT_TEAM = <Your Team ID>
+CODE_SIGN_STYLE = Automatic
+PROVISIONING_PROFILE_SPECIFIER =
+PRODUCT_BUNDLE_IDENTIFIER = com.example.Mochi-Diffusion
+```
+
 ## Privacy
 
 All generation happens locally and absolutely nothing is sent to the cloud.
