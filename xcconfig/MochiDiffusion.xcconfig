@@ -1,0 +1,9 @@
+CODE_SIGN_IDENTITY = Apple Development
+CODE_SIGN_STYLE = Automatic
+DEVELOPMENT_TEAM = 
+PRODUCT_BUNDLE_IDENTIFIER = com.joshua-park.Mochi-Diffusion
+PROVISIONING_PROFILE_SPECIFIER =
+
+// Developers can locally override signing and bundle settings without editing
+// the project by creating ../../SharedXcodeSettings/DeveloperSettings.xcconfig.
+#include? "../../SharedXcodeSettings/DeveloperSettings.xcconfig"
