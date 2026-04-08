@@ -20,10 +20,6 @@ Explanation for the 'CPU &amp; GPU' ML Compute Unit option */
 Explanation for the 'CPU &amp; NE' ML Compute Unit option */
 "**CPU & Neural Engine** provides a good balance between speed and low memory usage, but only works with split-einsum models." = "**CPU & 神经网络引擎**在性能和内存占用之间提供了良好的平衡，但仅适用于 split-einsum 模型。";
 /* en.lproj/Localizable.strings
-About %@
-Text displaying the current time remaining */
-"About %@" = "约 %@";
-/* en.lproj/Localizable.strings
 Add to Queue
 Button to generate image */
 "Add to Queue" = "添加到队列";
@@ -39,10 +35,6 @@ No comment provided by engineer. */
 Auto (Recommended)
 Option to use the CPU + Neural Engine for split-einsum models, and CPU + GPU for original models */
 "Auto (Recommended)" = "自动 (推荐)";
-/* en.lproj/Localizable.strings
-Autosave & Restore Images
-No comment provided by engineer. */
-"Autosave & Restore Images" = "自动保存 & 恢复图像";
 /* en.lproj/Localizable.strings
 CPU & GPU
 No comment provided by engineer. */
@@ -83,15 +75,6 @@ No comment provided by engineer. */
 ControlNet Image
 No comment provided by engineer. */
 "ControlNet Image" = "ControlNet 图像";
-/* en.lproj/Localizable.strings
-Convert all images to High Resolution (this will use more memory)
-No comment provided by engineer. */
-"Convert all images to High Resolution (this will use more memory)" = "全部转换为高分辨率图像(将占用更多内存)";
-/* en.lproj/Localizable.strings
-Convert to High Resolution
-Convert image to high resolution
-Convert the current image to high resolution */
-"Convert to High Resolution" = "转换为高分辨率图像";
 /* en.lproj/Localizable.strings
 Copy
 Copy image to the clipboard */
@@ -138,17 +121,9 @@ Guidance Scale
 No comment provided by engineer. */
 "Guidance Scale" = "关键词权重";
 /* en.lproj/Localizable.strings
-HD
-Label for toggle to auto convert generated images to high resolution */
-"HD" = "HD";
-/* en.lproj/Localizable.strings
 Height:
 Label for image height picker */
 "Height:" = "高度:";
-/* en.lproj/Localizable.strings
-If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images.
-Help text for Move Images to Trash setting */
-"If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images." = "如关闭选项，移除的图像将被永久删除。该选项适用于导入的图像和自动保存的图像。";
 /* en.lproj/Localizable.strings
 Image
 Settings tab header label */

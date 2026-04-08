@@ -31,10 +31,6 @@ Auto (Recommended)
 Option to use the CPU + Neural Engine for split-einsum models, and CPU + GPU for original models */
 "Auto (Recommended)" = "Авто (рекомендується)";
 /* en.lproj/Localizable.strings
-Autosave & Restore Images
-No comment provided by engineer. */
-"Autosave & Restore Images" = "Автоматично зберігати та відновлювати зображення";
-/* en.lproj/Localizable.strings
 CPU & GPU
 No comment provided by engineer. */
 "CPU & GPU" = "CPU та GPU";
@@ -70,15 +66,6 @@ No comment provided by engineer. */
 ControlNet Folder
 No comment provided by engineer. */
 "ControlNet Folder" = "Тека ControlNet";
-/* en.lproj/Localizable.strings
-Convert all images to High Resolution (this will use more memory)
-No comment provided by engineer. */
-"Convert all images to High Resolution (this will use more memory)" = "Перетворити всі зображення у високу роздільну здатність (буде використано більше пам\'яті)";
-/* en.lproj/Localizable.strings
-Convert to High Resolution
-Convert image to high resolution
-Convert the current image to high resolution */
-"Convert to High Resolution" = "Перетворити у високу роздільну здатність";
 /* en.lproj/Localizable.strings
 Copy
 Copy image to the clipboard */
@@ -125,17 +112,9 @@ Guidance Scale
 No comment provided by engineer. */
 "Guidance Scale" = "Рівень відповідності запиту";
 /* en.lproj/Localizable.strings
-HD
-Label for toggle to auto convert generated images to high resolution */
-"HD" = "HD";
-/* en.lproj/Localizable.strings
 Height:
 Label for image height picker */
 "Height:" = "Висота:";
-/* en.lproj/Localizable.strings
-If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images.
-Help text for Move Images to Trash setting */
-"If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images." = "Якщо параметр вимкнуто, вилучені зображення будуть видалені назавжди. Застосовується лише для імпортованих та автоматично збережених зображень.";
 /* en.lproj/Localizable.strings
 Image
 Settings tab header label */

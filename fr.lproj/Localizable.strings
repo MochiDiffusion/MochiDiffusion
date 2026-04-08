@@ -23,10 +23,6 @@ Explanation for the 'CPU &amp; GPU' ML Compute Unit option */
 Explanation for the 'CPU &amp; NE' ML Compute Unit option */
 "**CPU & Neural Engine** provides a good balance between speed and low memory usage, but only works with split-einsum models." = "**Processeur & Moteur neuronal** fournit un bon équilibre entre vitesse et faible utilisation de la mémoire, mais ne fonctionne qu\'avec les modèles split-einsum.";
 /* en.lproj/Localizable.strings
-About %@
-Text displaying the current time remaining */
-"About %@" = "Environ %@";
-/* en.lproj/Localizable.strings
 Add to Queue
 Button to generate image */
 "Add to Queue" = "Ajouter à la file d\'attente";
@@ -38,10 +34,6 @@ Option to use all CPU, GPU, &amp; Neural Engine for compute unit */
 Auto (Recommended)
 Option to use the CPU + Neural Engine for split-einsum models, and CPU + GPU for original models */
 "Auto (Recommended)" = "Auto (recommandé)";
-/* en.lproj/Localizable.strings
-Autosave & Restore Images
-No comment provided by engineer. */
-"Autosave & Restore Images" = "Enregistrement automatique & récupération d\'images";
 /* en.lproj/Localizable.strings
 CPU & GPU
 No comment provided by engineer. */
@@ -82,15 +74,6 @@ No comment provided by engineer. */
 ControlNet Image
 No comment provided by engineer. */
 "ControlNet Image" = "Image du ControlNet";
-/* en.lproj/Localizable.strings
-Convert all images to High Resolution (this will use more memory)
-No comment provided by engineer. */
-"Convert all images to High Resolution (this will use more memory)" = "Convertir toutes les images en haute résolution (cela utilisera plus de mémoire)";
-/* en.lproj/Localizable.strings
-Convert to High Resolution
-Convert image to high resolution
-Convert the current image to high resolution */
-"Convert to High Resolution" = "Convertir en haute résolution";
 /* en.lproj/Localizable.strings
 Copy
 Copy image to the clipboard */
@@ -137,17 +120,9 @@ Guidance Scale
 No comment provided by engineer. */
 "Guidance Scale" = "Echelle de guidage";
 /* en.lproj/Localizable.strings
-HD
-Label for toggle to auto convert generated images to high resolution */
-"HD" = "HD";
-/* en.lproj/Localizable.strings
 Height:
 Label for image height picker */
 "Height:" = "Hauteur:";
-/* en.lproj/Localizable.strings
-If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images.
-Help text for Move Images to Trash setting */
-"If option is turned off, removed images are permanently deleted. Applies to imported and autosaved images." = "Si l\'option est désactivée, les images sont définitivement supprimées. S\'applique aux images importées et enregistrées automatiquement.";
 /* en.lproj/Localizable.strings
 Image
 Settings tab header label */
