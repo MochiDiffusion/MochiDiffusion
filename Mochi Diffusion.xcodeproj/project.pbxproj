@@ -91,6 +91,10 @@
 		C1F0A1A42D0E6B6A00C0BEEF /* FileSystemStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1F0A1A32D0E6B6A00C0BEEF /* FileSystemStore.swift */; };
 		D7B03F2029D42F9900DF89DD /* SDModelAttentionType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7B03F1F29D42F9900DF89DD /* SDModelAttentionType.swift */; };
 		F3A1C2B3D4E5F60789ABCDEF /* IrisFluxKleinImageGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3A1C2B3D4E5F60789ABCDE0 /* IrisFluxKleinImageGenerator.swift */; };
+		AA2000000000000000000001 /* TestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000001 /* TestSupport.swift */; };
+		AA2000000000000000000002 /* MetadataRoundTripTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000002 /* MetadataRoundTripTests.swift */; };
+		AA2000000000000000000003 /* ModelDiscoveryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000003 /* ModelDiscoveryTests.swift */; };
+		AA2000000000000000000004 /* PipelineBehaviorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000004 /* PipelineBehaviorTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -100,6 +104,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = BFE66B0F2F2ED14800A8965C;
 			remoteInfo = Iris;
+		};
+		AA000000000000000000000A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 036BFC16294B9F7500D8AD04 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 036BFC1D294B9F7500D8AD04;
+			remoteInfo = "Mochi Diffusion";
 		};
 /* End PBXContainerItemProxy section */
 
@@ -189,6 +200,11 @@
 		E0D7B03CB7A3829A510ECF35 /* GenerationState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationState.swift; sourceTree = "<group>"; };
 		F1A2B3C4D5E6F70809101112 /* build_iris_lib.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = build_iris_lib.sh; sourceTree = "<group>"; };
 		F3A1C2B3D4E5F60789ABCDE0 /* IrisFluxKleinImageGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IrisFluxKleinImageGenerator.swift; sourceTree = "<group>"; };
+		AA1000000000000000000001 /* TestSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestSupport.swift; sourceTree = "<group>"; };
+		AA1000000000000000000002 /* MetadataRoundTripTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetadataRoundTripTests.swift; sourceTree = "<group>"; };
+		AA1000000000000000000003 /* ModelDiscoveryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelDiscoveryTests.swift; sourceTree = "<group>"; };
+		AA1000000000000000000004 /* PipelineBehaviorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PipelineBehaviorTests.swift; sourceTree = "<group>"; };
+		AA0000000000000000000002 /* Mochi DiffusionTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Mochi DiffusionTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -201,6 +217,13 @@
 				03ADC8B9299581AF00B2843F /* StableDiffusion in Frameworks */,
 				0352E2A5294E2591003FBF25 /* Sparkle in Frameworks */,
 				0388DEB0297B00FC008B1C1C /* CompactSlider in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AA0000000000000000000007 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -266,6 +289,7 @@
 			isa = PBXGroup;
 			children = (
 				036BFC20294B9F7500D8AD04 /* Mochi Diffusion */,
+				AA000000000000000000000B /* Mochi DiffusionTests */,
 				F1A2B3C4D5E6F70809101113 /* scripts */,
 				BFE66B162F2EDC8100A8965C /* Frameworks */,
 				036BFC1F294B9F7500D8AD04 /* Products */,
@@ -276,6 +300,7 @@
 			isa = PBXGroup;
 			children = (
 				036BFC1E294B9F7500D8AD04 /* Mochi Diffusion.app */,
+				AA0000000000000000000002 /* Mochi DiffusionTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -371,6 +396,17 @@
 			path = scripts;
 			sourceTree = SOURCE_ROOT;
 		};
+		AA000000000000000000000B /* Mochi DiffusionTests */ = {
+			isa = PBXGroup;
+			children = (
+				AA1000000000000000000001 /* TestSupport.swift */,
+				AA1000000000000000000002 /* MetadataRoundTripTests.swift */,
+				AA1000000000000000000003 /* ModelDiscoveryTests.swift */,
+				AA1000000000000000000004 /* PipelineBehaviorTests.swift */,
+			);
+			path = "Mochi DiffusionTests";
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -398,6 +434,26 @@
 			productReference = 036BFC1E294B9F7500D8AD04 /* Mochi Diffusion.app */;
 			productType = "com.apple.product-type.application";
 		};
+		AA0000000000000000000001 /* Mochi DiffusionTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AA0000000000000000000003 /* Build configuration list for PBXNativeTarget "Mochi DiffusionTests" */;
+			buildPhases = (
+				AA0000000000000000000006 /* Sources */,
+				AA0000000000000000000007 /* Frameworks */,
+				AA0000000000000000000008 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				AA0000000000000000000009 /* PBXTargetDependency */,
+			);
+			name = "Mochi DiffusionTests";
+			packageProductDependencies = (
+			);
+			productName = "Mochi DiffusionTests";
+			productReference = AA0000000000000000000002 /* Mochi DiffusionTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -410,6 +466,10 @@
 				TargetAttributes = {
 					036BFC1D294B9F7500D8AD04 = {
 						CreatedOnToolsVersion = 14.2;
+					};
+					AA0000000000000000000001 = {
+						CreatedOnToolsVersion = 26.6;
+						TestTargetID = 036BFC1D294B9F7500D8AD04;
 					};
 					BFE66B0F2F2ED14800A8965C = {
 						CreatedOnToolsVersion = 26.2;
@@ -470,6 +530,7 @@
 			projectRoot = "";
 			targets = (
 				036BFC1D294B9F7500D8AD04 /* Mochi Diffusion */,
+				AA0000000000000000000001 /* Mochi DiffusionTests */,
 				BFE66B0F2F2ED14800A8965C /* Iris */,
 			);
 		};
@@ -484,6 +545,13 @@
 				03F578642967CE9A003A815F /* Localizable.strings in Resources */,
 				0311C6BD2989E3EF0074BCAE /* Localizable.stringsdict in Resources */,
 				036BFC26294B9F7600D8AD04 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AA0000000000000000000008 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -599,6 +667,17 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		AA0000000000000000000006 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA2000000000000000000001 /* TestSupport.swift in Sources */,
+				AA2000000000000000000002 /* MetadataRoundTripTests.swift in Sources */,
+				AA2000000000000000000003 /* ModelDiscoveryTests.swift in Sources */,
+				AA2000000000000000000004 /* PipelineBehaviorTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -606,6 +685,11 @@
 			isa = PBXTargetDependency;
 			target = BFE66B0F2F2ED14800A8965C /* Iris */;
 			targetProxy = BFE66B142F2EDB3900A8965C /* PBXContainerItemProxy */;
+		};
+		AA0000000000000000000009 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 036BFC1D294B9F7500D8AD04 /* Mochi Diffusion */;
+			targetProxy = AA000000000000000000000A /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -864,6 +948,52 @@
 			};
 			name = Release;
 		};
+		AA0000000000000000000004 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 9VV558X8J3;
+				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/iris.c";
+				MACOSX_DEPLOYMENT_TARGET = 15.6;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.joshua-park.Mochi-Diffusion.tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/Mochi Diffusion/Iris-BridgingHeader.h";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Mochi Diffusion.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Mochi Diffusion";
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/iris.c";
+			};
+			name = Debug;
+		};
+		AA0000000000000000000005 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 9VV558X8J3;
+				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/iris.c";
+				MACOSX_DEPLOYMENT_TARGET = 15.6;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.joshua-park.Mochi-Diffusion.tests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/Mochi Diffusion/Iris-BridgingHeader.h";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Mochi Diffusion.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Mochi Diffusion";
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/iris.c";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -890,6 +1020,15 @@
 			buildConfigurations = (
 				BFE66B112F2ED14800A8965C /* Debug */,
 				BFE66B122F2ED14800A8965C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AA0000000000000000000003 /* Build configuration list for PBXNativeTarget "Mochi DiffusionTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA0000000000000000000004 /* Debug */,
+				AA0000000000000000000005 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

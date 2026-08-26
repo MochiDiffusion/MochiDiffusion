@@ -2,6 +2,7 @@
 
 ## Build, Test, and Development Commands
 - CLI build (Debug): `xcodebuild -project "Mochi Diffusion.xcodeproj" -scheme "Mochi Diffusion" -destination "platform=macOS" -configuration Debug`
+- Run tests: `xcodebuild test -project "Mochi Diffusion.xcodeproj" -scheme "Mochi Diffusion" -destination "platform=macOS" -configuration Debug`
 - Lint/format: `swift format lint -p -r ./`  
 - Always ensure the project builds cleanly after any change. Resolve any lint warnings before committing any changes.
 
@@ -50,6 +51,19 @@
 - Filesystem observation flow:
   - `FolderMonitorService` (`actor`) exposes `AsyncStream<Void>` update streams keyed by monitored path.
   - Controllers subscribe with task-based loops and trigger targeted refresh/sync operations (`loadModels`, `syncImages`, etc.).
+
+- Test coverage (`Mochi DiffusionTests`, Swift Testing):
+  - `MetadataRoundTripTests` pins the export/import metadata contract, including
+    the per-model `metadataFields` set and the import version gate.
+  - `ModelDiscoveryTests` pins directory sniffing for `SDModel` and
+    `IrisFluxKleinModel`, plus `ModelRepository` ordering and precedence.
+  - `PipelineBehaviorTests` pins how each pipeline resolves requested values into
+    effective ones (for example, Klein pinning steps to 4).
+  - Fixtures are synthetic directories containing only the files the production
+    sniffing code inspects, so no real model weights are required.
+  - Two tests use `withKnownIssue` to document current defects: prompts
+    containing `"; "` are truncated on import, and `IrisModelFamily.fallbackDisplayName`
+    is unreachable. They will start failing when those bugs are fixed.
 
 ### Potential improvements
 - Align sidebar controls to `generationCapabilities` so unsupported options (for example, `negativePrompt`, `guidanceScale`, `controlNet`) are hidden/disabled by model instead of silently ignored downstream.
