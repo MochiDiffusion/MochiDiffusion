@@ -485,6 +485,51 @@ a declarative `[OptionSpec]` bag. We deliberately do *not* start there: a fully
 declarative sidebar would cost us `SizeView`'s swap button, the ControlNet image wells,
 and straightforward localization.
 
+### `stepCount` and `scheduler` are non-optional; a hosted engine must invent both (fixed)
+
+**Done.** `GenerationPlan` and `GenerationRequest` now carry `stepCount: Int?` and
+`scheduler: Scheduler?`, and `plan` no longer falls back to the raw draft value when a
+constraint reports `.unsupported`. The resolved values moved into `CoreMLGenerationPayload`
+and `IrisGenerationPayload`, which is where `strength` and `guidanceScale` already lived —
+so a runtime that uses an option reads it from its own payload, and one that does not is
+never asked to invent it.
+
+Two copies of each value now exist, request and payload, which is the arrangement Phase 4
+existed to remove. `GenerationRequestBuilderTests.payloadAgreesWithRequest` pins them equal
+for both engines, so a plan that resolved one and forgot the other cannot pass.
+
+Also corrected while there: `JobQueueView`'s step-count and scheduler rows gated on
+`metadataFields` — "does the image record this" — where `strength` and `guidanceScale`
+already gated on the plan optional — "does the model use this". The queue should say what
+the job is about to do, so all four now use the optional. No behaviour change today, since
+both local engines declare all four.
+
+The `nil` path has no production model to exercise yet, which is expected: no engine
+declares these unsupported until a hosted one does.
+
+The original finding follows.
+
+
+Phase 5 made `strength` and `guidanceScale` optional in both `GenerationPlan` and
+`GenerationRequest`, with the right reasoning: `nil` means "the model does not use this at
+all," so the queue omits the row rather than printing a number that had no effect.
+
+`stepCount: Int` and `scheduler: Scheduler` did not get the same treatment, and both are
+options a hosted engine has no concept of. `IntConstraint.unsupported` exists and
+`resolved(_:)` returns `nil` for it, but the plan has nowhere to put that `nil`, so an
+engine without steps has to coerce a number. `metadataFields` keeps the invented value off
+screen, which means the coercion is invisible rather than harmless — exactly the shape of
+the bug Phase 4 existed to remove, just moved down a layer.
+
+`scheduler` is the worse of the two and is already analysed at length in §6's "Learned
+while building it": it is a Core ML type serving as cross-engine vocabulary, and it needs
+an engine-scoped identifier rather than an optional. `stepCount` needs only the same
+`Optional` treatment `strength` and `guidanceScale` already got.
+
+Both are small mechanical changes and both are cheaper before Phase 6 than during it.
+Doing them inside Phase 6 means a vocabulary change, a new option kind, a new transport
+and a new error taxonomy landing in one reviewable unit.
+
 ### The vocabulary is narrower than a hosted engine needs
 
 Phase 4 implemented only the constraint kinds the two local engines need, which was the
@@ -496,6 +541,15 @@ API client.** Two specific gaps:
   needed it, so nothing was built. If the hosted API expresses geometry as ratios rather
   than pixel dimensions, that case has to be added, and `SizeView` has to grow a third
   presentation beyond "fixed field" and "editable field".
+- **`EngineModel.url` is non-optional, and `tokenizerModelDir` is on the protocol.** Both
+  exist because every model is a local directory today; a hosted model has neither. §5.2
+  specified `url: URL?` and it was implemented non-optional — the protocol's own doc comment
+  and a test comment in `EngineDiscoveryTests.FolderIgnoringEngine` both already record this
+  as a Phase 6 prerequisite. The change looks small: the only generic use of `url` is
+  `ModelRepository.modelExists(_ model: any EngineModel)`, and its one caller passes a
+  concrete `SDModel` from a payload, so the parameter could take a `URL` and `url` could
+  leave the protocol entirely. `tokenizerModelDir` is the harder half, since the sidebar's
+  prompt token counter reads it generically.
 - **There is no `quality` constraint at all.** `MetadataField.quality` exists and
   round-trips — it is pre-engine vocabulary — but no model declares it, no constraint
   describes it, no sidebar control edits it, and neither `GenerationDraft` nor
@@ -1374,7 +1428,20 @@ New behavioral tests to add before the old pipeline switches are deleted:
 Use `confirmation` for callback-style events, or consume event streams with bounded test
 helpers. No timing-based sleeps.
 
-### `AGENTS.md` is now wrong
+### `AGENTS.md` is now wrong (rewritten)
+
+**Done.** The design-flow, test-coverage and potential-improvements sections were rewritten
+against the current code, and every symbol named in them was checked to exist. The build,
+test and commit sections were left alone; they were accurate.
+
+The "Potential improvements" list is now the real one — engine-scoped scheduler identifiers
+and the scheduler import defect, `EngineModel.url`/`tokenizerModelDir`, the missing quality
+and aspect-ratio vocabulary, discovery messages sharing the generation banner, the absent
+request timeout, and per-runtime queue capacity. It points at this document as the source of
+truth for the in-flight work rather than restating it.
+
+The original finding follows.
+
 
 Not a test, but it belongs with the things that silently rot. `AGENTS.md` is the
 orientation file a new contributor or agent reads first, and its "High-Level Design Flow"
@@ -1408,6 +1475,14 @@ entitlement is required. Everything else needs work:
 - **Distinct error classes**: content-policy refusal, authentication failure, rate limit,
   transient service error. `GeneratorError` is currently a small filesystem-shaped enum.
   A refusal must read as a message, not as a crash.
+- **A request timeout, which nothing in this design has yet.** Every failure mode
+  considered so far is one the local engines can hit, and a local generation always either
+  finishes or is cancelled. A network call can hang indefinitely, and §11.7 commits Phase 6
+  to the globally serial queue — so one stuck hosted request blocks every local job behind
+  it until the user notices and cancels. Cancellation is the user-initiated path; a timeout
+  is the automatic backstop, and the serial queue is what makes it mandatory rather than
+  merely polite. Decide the value per engine, surface an expiry as a distinct error from a
+  refusal, and make sure it releases the drain the same way a completed request does.
 - **LAN discovery** needs `NSLocalNetworkUsageDescription` and Bonjour service types on
   macOS 15+, even unsandboxed. For Draw Things the values are already known: browse
   `_dt-grpc._tcp.` in domain `local.` (`GRPCServiceBrowser` uses `NetServiceBrowser`), and
@@ -1415,8 +1490,12 @@ entitlement is required. Everything else needs work:
 
 ### 13.2 OpenAI
 
-Do not hard-code an assumption about aspect ratios versus concrete sizes; the constraint
-vocabulary in §6 covers both, and model capabilities change independently of our release
+Do not hard-code an assumption about aspect ratios versus concrete sizes. **Correction:
+the constraint vocabulary does *not* currently cover both** — an earlier revision of this
+section said it did, which was true of §6's original sketch and false of what Phase 4
+built. `SizeConstraint` is `.pinned([CGSize])` or `.freeform(range:step:)` only, and there
+is no `quality` constraint at all. See "The vocabulary is narrower than a hosted engine
+needs" in §6. Model capabilities also change independently of our release
 schedule. Treat model IDs and model-specific options as API-derived engine data where
 practical, and revalidate allowed models, sizes, quality levels, output formats and edit
 inputs against current official documentation at implementation time.
