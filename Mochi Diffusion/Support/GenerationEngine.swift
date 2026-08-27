@@ -108,10 +108,18 @@ nonisolated struct GenerationPlan<Payload: Sendable>: Sendable {
     var controlNetImageData: [Data]
     var controlNetNames: [String]
     var controlNetImageNames: [String]
-    var stepCount: Int
-    var scheduler: Scheduler
     /// `nil` where the model does not use the option at all, which is what lets
     /// the queue hide a row rather than print a number that had no effect.
+    ///
+    /// `stepCount` and `scheduler` are among them because a hosted engine has no
+    /// concept of either. They were non-optional through Phase 5, so an engine
+    /// without them had to coerce a value that `metadataFields` then kept off
+    /// screen — invisible rather than harmless, which is the shape of the bug
+    /// Phase 4 removed one layer up. A runtime that does use these reads the
+    /// resolved value from its own payload, as it already does for `strength` and
+    /// `guidanceScale`.
+    var stepCount: Int?
+    var scheduler: Scheduler?
     var strength: Float?
     var guidanceScale: Float?
     var numberOfImages: Int

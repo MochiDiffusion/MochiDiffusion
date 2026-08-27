@@ -193,18 +193,21 @@ private struct InfoPopoverView: View {
     }
 
     /// The request's own values, because `plan` already resolved them. Recomputing
-    /// them here would let the row and the request disagree. The `Optional` is only
-    /// whether the model records the field.
+    /// them here would let the row and the request disagree.
+    ///
+    /// All four are `nil` when the model does not use the option, so a row is
+    /// absent rather than showing a value that had no effect on the image. Note
+    /// this is *not* the same test as `metadataFields`, which is what the image
+    /// will record: a model could use an option without recording it, and the
+    /// queue should still say what the job is about to do.
     private var effectiveStepCount: Int? {
-        metadataFields.contains(.steps) ? request.stepCount : nil
+        request.stepCount
     }
 
     private var effectiveScheduler: Scheduler? {
-        metadataFields.contains(.scheduler) ? request.scheduler : nil
+        request.scheduler
     }
 
-    /// `plan` leaves these `nil` when the model does not use the option, so a row
-    /// is absent rather than showing a value that had no effect on the image.
     private var effectiveStrength: Float? {
         request.strength
     }

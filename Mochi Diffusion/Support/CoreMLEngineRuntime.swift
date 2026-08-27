@@ -301,10 +301,10 @@ actor CoreMLEngineRuntime: GenerationEngineRuntime {
             // optionals so the queue can hide a row the model does not use, while
             // the runtime wants the value it will pass to the pipeline.
             strength: payload.strength,
-            stepCount: request.stepCount,
+            stepCount: payload.stepCount,
             guidanceScale: payload.guidanceScale,
             disableSafety: payload.disableSafety,
-            scheduler: request.scheduler,
+            scheduler: payload.scheduler,
             useDenoisedIntermediates: request.useDenoisedIntermediates,
             seed: request.seed,
             numberOfImages: request.numberOfImages,

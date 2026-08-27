@@ -413,6 +413,51 @@ struct GenerationRequestBuilderTests {
         #expect(request.scheduler == .pndmScheduler)
     }
 
+    /// `stepCount` and `scheduler` are optional on the request, because a hosted
+    /// engine has no concept of either — so the runtime takes its values from the
+    /// payload instead, as it already did for `strength` and `guidanceScale`.
+    ///
+    /// That leaves two copies of each value, which is the arrangement Phase 4
+    /// existed to remove. These pin them equal: the number the queue row shows is
+    /// the number the pipeline is handed. A plan that resolved one and forgot the
+    /// other would otherwise pass every existing test.
+    @Test(
+        "The payload's step count and scheduler are the ones the request reports",
+        arguments: [
+            ("sd-model", 23, Scheduler.pndmScheduler),
+            ("klein-model", 4, Scheduler.discreteFlowScheduler),
+        ]
+    )
+    func payloadAgreesWithRequest(
+        name: String, expectedSteps: Int, expectedScheduler: Scheduler
+    ) async throws {
+        if name == "sd-model" {
+            try makeSDModelFixture(at: modelDir.appending(path: name))
+        } else {
+            try makeKleinModelFixture(at: modelDir.appending(path: name))
+        }
+        applyDistinctiveConfig()  // steps 23, scheduler .pndmScheduler
+        let controller = try await makeControllerSelecting(name)
+
+        let request = try #require(controller.buildGenerationRequest())
+
+        #expect(request.stepCount == expectedSteps)
+        #expect(request.scheduler == expectedScheduler)
+
+        let payloadSteps: Int
+        let payloadScheduler: Scheduler
+        if let payload = request.payload as? CoreMLGenerationPayload {
+            payloadSteps = payload.stepCount
+            payloadScheduler = payload.scheduler
+        } else {
+            let payload = try #require(request.payload as? IrisGenerationPayload)
+            payloadSteps = payload.stepCount
+            payloadScheduler = payload.scheduler
+        }
+        #expect(payloadSteps == expectedSteps)
+        #expect(payloadScheduler == expectedScheduler)
+    }
+
     // MARK: - Seed
 
     @Test("A non-zero seed is used verbatim")

@@ -53,11 +53,18 @@ nonisolated struct GenerationRequest: Sendable, Identifiable {
     /// Resolved by `plan`; `nil` when the model does not use it at all, so the
     /// queue can leave the row out rather than print a number that had no effect.
     let strength: Float?
-    let stepCount: Int
+    /// Resolved by `plan`; `nil` when the model does not use it at all.
+    ///
+    /// Optional for the same reason `strength` is, and specifically so a hosted
+    /// engine is not forced to invent a step count or a sampler it has no concept
+    /// of. Runtimes that use these take them from their own payload.
+    let stepCount: Int?
     /// Resolved by `plan`; `nil` when the model does not use it at all, so the
     /// queue can leave the row out rather than print a number that had no effect.
     let guidanceScale: Float?
-    let scheduler: Scheduler
+    /// Resolved by `plan`; `nil` when the model does not use it at all. See
+    /// `stepCount`.
+    let scheduler: Scheduler?
     /// Core ML only, but the queue displays it when the model records it, so it
     /// stays a plain field rather than something the queue has to unwrap a
     /// payload for. Becomes an engine-provided display detail once engines

@@ -53,8 +53,8 @@ nonisolated struct CoreMLStableDiffusionEngine: GenerationEngineDescriptor {
         // guidance scale from another model is clamped rather than rejected.
         let constraints = model.constraints
         let size = constraints.size.resolved(draft.configuredSize)
-        let stepCount = constraints.steps.resolved(draft.stepCount) ?? draft.stepCount
-        let scheduler = constraints.scheduler.resolved(draft.scheduler) ?? draft.scheduler
+        let stepCount = constraints.steps.resolved(draft.stepCount)
+        let scheduler = constraints.scheduler.resolved(draft.scheduler)
         let strength = constraints.startingImage.strength
             .resolved(Double(draft.strength))
             .map(Float.init)
@@ -95,7 +95,9 @@ nonisolated struct CoreMLStableDiffusionEngine: GenerationEngineDescriptor {
                 disableSafety: !draft.safetyChecker,
                 controlNetDirectory: draft.controlNetDirectory,
                 strength: strength ?? draft.strength,
-                guidanceScale: guidanceScale ?? draft.guidanceScale
+                guidanceScale: guidanceScale ?? draft.guidanceScale,
+                stepCount: stepCount ?? draft.stepCount,
+                scheduler: scheduler ?? draft.scheduler
             ),
             size: size,
             startingImageData: draft.startingImage?.scaledAndCroppedTo(size: size)?.pngData(),
@@ -195,14 +197,16 @@ nonisolated struct IrisEngine: GenerationEngineDescriptor {
         // disagree.
         let constraints = model.constraints
         let size = constraints.size.resolved(draft.configuredSize)
-        let stepCount = constraints.steps.resolved(draft.stepCount) ?? draft.stepCount
-        let scheduler = constraints.scheduler.resolved(draft.scheduler) ?? draft.scheduler
+        let stepCount = constraints.steps.resolved(draft.stepCount)
+        let scheduler = constraints.scheduler.resolved(draft.scheduler)
         let numberOfImages =
             constraints.numberOfImages.resolved(draft.numberOfImages) ?? draft.numberOfImages
 
         return GenerationPlan<IrisGenerationPayload>(
             payload: IrisGenerationPayload(
-                modelDirectory: model.url.path(percentEncoded: false)
+                modelDirectory: model.url.path(percentEncoded: false),
+                stepCount: stepCount ?? draft.stepCount,
+                scheduler: scheduler ?? draft.scheduler
             ),
             size: size,
             startingImageData: draft.startingImage?.scaledAndCroppedTo(size: size)?.pngData(),
@@ -242,14 +246,21 @@ nonisolated struct CoreMLGenerationPayload: Sendable {
     /// it is about to load a ControlNet pipeline, rather than discovery doing it
     /// for every model on every folder-change event.
     let controlNetDirectory: URL
-    /// Resolved, and non-optional, because Core ML always uses both. The request
-    /// carries them as optionals for the queue's benefit; the runtime wants the
-    /// values it will actually pass to the pipeline.
+    /// Resolved, and non-optional, because Core ML always uses all four. The
+    /// request carries them as optionals for the queue's benefit; the runtime
+    /// wants the values it will actually pass to the pipeline.
     let strength: Float
     let guidanceScale: Float
+    let stepCount: Int
+    let scheduler: Scheduler
 }
 
 /// Iris loads from a directory rather than a typed model handle.
 nonisolated struct IrisGenerationPayload: Sendable {
     let modelDirectory: String
+    /// Resolved, and non-optional, for the same reason Core ML's are. Iris uses
+    /// the step count directly as `params.num_steps`; the scheduler it only
+    /// records, since flow matching is fixed inside the C library.
+    let stepCount: Int
+    let scheduler: Scheduler
 }

@@ -197,7 +197,11 @@ struct EnginePayloadOwnershipTests {
     func engineAcceptsOnlyItsOwnPayload() {
         let coreML = AnyGenerationEngine(CoreMLStableDiffusionEngine())
         let iris = AnyGenerationEngine(IrisEngine())
-        let irisPayload = IrisGenerationPayload(modelDirectory: "/models/klein")
+        let irisPayload = IrisGenerationPayload(
+            modelDirectory: "/models/klein",
+            stepCount: 4,
+            scheduler: .discreteFlowScheduler
+        )
 
         #expect(iris.accepts(payload: irisPayload))
         // The check that stops a request reaching a generator that cannot run it.

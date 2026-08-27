@@ -97,7 +97,11 @@ struct IrisCancelledWaiterTests {
             modelID: ModelID(engine: .iris, key: "klein"),
             displayName: "klein",
             metadataFields: [.prompt],
-            payload: IrisGenerationPayload(modelDirectory: "/nonexistent"),
+            payload: IrisGenerationPayload(
+                modelDirectory: "/nonexistent",
+                stepCount: 4,
+                scheduler: .discreteFlowScheduler
+            ),
             prompt: "a cat",
             negativePrompt: "",
             size: CGSize(width: 64, height: 64),

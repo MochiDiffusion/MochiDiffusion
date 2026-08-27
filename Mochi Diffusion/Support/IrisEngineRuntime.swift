@@ -175,7 +175,7 @@ actor IrisEngineRuntime: GenerationEngineRuntime {
             params.height = Int32(request.size.height)
             // Resolved by IrisEngine.plan, so the queue, the generator and the
             // saved metadata cannot disagree about how many steps ran.
-            params.num_steps = Int32(request.stepCount)
+            params.num_steps = Int32(payload.stepCount)
             params.seed = Int64(seed)
 
             let image: UnsafeMutablePointer<iris_image>?
@@ -224,10 +224,10 @@ actor IrisEngineRuntime: GenerationEngineRuntime {
                 startingImage: "",
                 controlNetImage: "",
                 inputImages: request.inputImageNames,
-                scheduler: request.scheduler,
+                scheduler: payload.scheduler,
                 mlComputeUnit: request.mlComputeUnit,
                 seed: seed,
-                steps: request.stepCount,
+                steps: payload.stepCount,
                 guidanceScale: isDistilled ? 1.0 : 4.0,
                 generatedDate: Date.now,
                 metadataFields: request.metadataFields
