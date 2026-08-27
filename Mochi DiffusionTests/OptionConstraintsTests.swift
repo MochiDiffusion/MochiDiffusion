@@ -53,6 +53,38 @@ struct OptionConstraintsTests {
         #expect(IntConstraint.range(64...1_792, step: 16).resolved(requested) == expected)
     }
 
+    /// The released step and image-count sliders pass `strictUpperBound: false`,
+    /// so a typed value above the span is kept. A constraint that clamped to the
+    /// span would show 75 steps and generate 50.
+    @Test(
+        "A value above the span is kept when the control allows it",
+        arguments: [(51, 51), (75, 75), (1_000, 1_000), (0, 1)]
+    )
+    func softUpperBoundIsHonoured(requested: Int, expected: Int) {
+        let soft = IntConstraint.range(1...50, step: 1, acceptsBeyondUpperBound: true)
+
+        #expect(soft.resolved(requested) == expected)
+        #expect(soft.allowsValuesAboveBounds)
+        // The control still spans the suggested range.
+        #expect(soft.bounds == 1...50)
+    }
+
+    @Test("A value above the span is clamped when the control does not allow it")
+    func hardUpperBoundClamps() {
+        let hard = IntConstraint.range(1...50, step: 1)
+
+        #expect(hard.resolved(75) == 50)
+        #expect(!hard.allowsValuesAboveBounds)
+    }
+
+    @Test("Snapping respects a soft upper bound")
+    func snappingRespectsSoftBound() {
+        let soft = IntConstraint.range(64...128, step: 16, acceptsBeyondUpperBound: true)
+
+        #expect(soft.resolved(200) == 208)
+        #expect(soft.resolved(10) == 64)
+    }
+
     @Test("Snapping never leaves the range")
     func snappingStaysInRange() {
         // A step that does not divide the span evenly must not snap past the top.
@@ -250,9 +282,36 @@ struct ModelVisibilityTests {
 
         #expect(constraints.supportsNegativePrompt)
         #expect(constraints.steps.bounds == 1...50)
+        // Both released sliders let a typed value past their maximum.
+        #expect(constraints.steps.allowsValuesAboveBounds)
+        #expect(constraints.numberOfImages.allowsValuesAboveBounds)
+        #expect(constraints.steps.resolved(75) == 75)
         #expect(constraints.guidanceScale.bounds == 1...20)
         #expect(constraints.startingImage.strength.bounds == 0...1)
         #expect(constraints.numberOfImages.bounds == 1...100)
         #expect(constraints.scheduler.options == Scheduler.allCases)
+    }
+}
+
+/// A scheduler's raw value is persisted in `UserDefaults` and written into image
+/// metadata, so it is an identifier. Its label is not.
+struct SchedulerIdentityTests {
+    @Test("Every scheduler keeps its stable identifier", arguments: Scheduler.allCases)
+    func identifiersAreStable(scheduler: Scheduler) {
+        // Pinned deliberately: changing one of these orphans a stored preference
+        // and stops existing images from parsing their metadata.
+        let expected: [Scheduler: String] = [
+            .pndmScheduler: "PNDM",
+            .dpmSolverMultistepScheduler: "DPM-Solver++",
+            .discreteFlowScheduler: "Flow Match Euler Discrete",
+        ]
+
+        #expect(scheduler.rawValue == expected[scheduler])
+        #expect(Scheduler(rawValue: scheduler.rawValue) == scheduler)
+    }
+
+    @Test("Every scheduler has a label", arguments: Scheduler.allCases)
+    func displayNamesExist(scheduler: Scheduler) {
+        #expect(!scheduler.displayName.isEmpty)
     }
 }

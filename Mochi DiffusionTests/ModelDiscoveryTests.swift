@@ -183,5 +183,7 @@ struct IrisFluxKleinDiscoveryTests {
         #expect(constraints.startingImage.isSupported)
         #expect(constraints.startingImage.strength == .unsupported)
         #expect(constraints.size.isEditable)
+        // Klein's image count is a plain loop, so it takes what it is given.
+        #expect(constraints.numberOfImages.allowsValuesAboveBounds)
     }
 }

@@ -431,10 +431,38 @@ The general rule: **a constraint says what the model accepts; granularity is a U
 affordance.** Worth keeping in mind for the hosted engines, where quality levels and
 aspect ratios *are* genuinely enumerated by the API.
 
-**Bounds must match the released controls.** The same first cut invented `0.05...0.95` for
-strength where the shipped slider is `0.0...1.0`, which would have clamped persisted values
-at both ends. Constraints for an existing engine are a description of what already works,
-not an opportunity to tidy the numbers.
+**Bounds must match the released controls — including the ones that are not really
+bounds.** Two separate versions of this mistake, found on two separate passes.
+
+The first invented `0.05...0.95` for strength where the shipped slider is `0.0...1.0`, which
+would have clamped persisted values at both ends.
+
+The second was subtler and worse: `steps` and `numberOfImages` were given `1...50` and
+`1...100`, which are what the sliders span — but both sliders pass
+`strictUpperBound: false`, so a *typed* value above the maximum is deliberately kept. The
+constraint clamped it, so the sidebar could show 75 steps while the request generated 50.
+That is the exact failure mode the phase exists to remove, reintroduced in the fix for it.
+`IntConstraint.range` now carries `acceptsBeyondUpperBound`, which maps straight onto
+`strictUpperBound`, and the views read it rather than hardcoding it.
+
+Constraints for an existing engine are a description of what already works, not an
+opportunity to tidy the numbers. The generalisation: **read the control, not just its
+declared range** — a range plus a flag that widens it is still the contract.
+
+**A raw value used as display text is an identifier in disguise.** `Scheduler`'s raw values
+were shown in Settings, the Inspector and the queue while also being persisted in
+`UserDefaults` and written into image metadata. §6 requires stable ids separately from
+labels, and this was in breach the whole time: the first attempt to reword or localise a
+scheduler would have orphaned stored preferences and stopped existing images parsing.
+`displayName` now carries the label and `rawValue` stays the identifier, so nothing had to
+migrate. A test pins the identifiers precisely because they must not drift.
+
+**A per-model option in a model-agnostic window will disagree with the model.** The
+scheduler picker lives in Settings, which never saw a model, so a distilled model pinned
+Flow Match in `plan` while Settings still offered PNDM. Settings now reads
+`currentConstraints` and shows a pinned scheduler disabled, the same way the sidebar shows
+pinned steps. Phase 5 should decide whether the control belongs in the sidebar instead —
+this fix makes it correct, not well-placed.
 
 **`OptionConstraints.unconstrained`** is what the sidebar shows with no model selected —
 every control visible with its pre-constraint bounds. Hiding controls in that state would

@@ -350,7 +350,7 @@ private struct InfoPopoverView: View {
                     if let scheduler = effectiveScheduler {
                         InfoGridRow(
                             type: LocalizedStringKey(Metadata.scheduler.rawValue),
-                            text: scheduler.rawValue,
+                            text: scheduler.displayName,
                             showCopyToPromptOption: true,
                             callback: { configStore.scheduler = scheduler }
                         )

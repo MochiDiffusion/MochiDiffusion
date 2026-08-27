@@ -197,7 +197,7 @@ struct InspectorView: View {
                         if metadataFields.contains(.scheduler) {
                             InfoGridRow(
                                 type: LocalizedStringKey(Metadata.scheduler.rawValue),
-                                text: sdi.scheduler.rawValue,
+                                text: sdi.scheduler.displayName,
                                 showCopyToPromptOption: true,
                                 callback: controller.copySchedulerToPrompt
                             )

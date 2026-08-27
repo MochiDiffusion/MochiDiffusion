@@ -109,5 +109,6 @@ struct MochiDiffusionApp: App {
                 .environment(notificationController)
         }
         .environment(configStore)
+        .environment(generationController)
     }
 }

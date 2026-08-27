@@ -21,7 +21,7 @@ struct NumberOfImagesView: View {
                 value: $controller.numberOfImages,
                 bounds: Double(bounds.lowerBound)...Double(bounds.upperBound),
                 step: 1,
-                strictUpperBound: false
+                strictUpperBound: !numberOfImages.allowsValuesAboveBounds
             )
         }
     }

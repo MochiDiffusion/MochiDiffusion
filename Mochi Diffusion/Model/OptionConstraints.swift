@@ -17,7 +17,17 @@ nonisolated enum IntConstraint: Sendable, Equatable {
     /// The model always uses this value, whatever the sidebar says. FLUX.2 Klein
     /// is distilled to four steps.
     case pinned(Int)
-    case range(ClosedRange<Int>, step: Int)
+    /// `bounds` is what a control spans. `acceptsBeyondUpperBound` says the model
+    /// will take more than that, which is not a detail — the released step and
+    /// image-count sliders pass `strictUpperBound: false`, so typing 75 steps into
+    /// a slider that spans to 50 keeps 75. Clamping to `bounds` would show 75 and
+    /// generate 50.
+    case range(ClosedRange<Int>, step: Int, acceptsBeyondUpperBound: Bool)
+
+    /// The common case, where the control's span is also the limit.
+    static func range(_ bounds: ClosedRange<Int>, step: Int) -> IntConstraint {
+        .range(bounds, step: step, acceptsBeyondUpperBound: false)
+    }
 
     var isSupported: Bool {
         if case .unsupported = self { return false }
@@ -29,14 +39,23 @@ nonisolated enum IntConstraint: Sendable, Equatable {
         return false
     }
 
+    /// What a control should span. Not necessarily what the model will accept —
+    /// see ``allowsValuesAboveBounds``.
     var bounds: ClosedRange<Int>? {
-        if case .range(let bounds, _) = self { return bounds }
+        if case .range(let bounds, _, _) = self { return bounds }
         return nil
     }
 
     var step: Int? {
-        if case .range(_, let step) = self { return step }
+        if case .range(_, let step, _) = self { return step }
         return nil
+    }
+
+    /// Whether a value typed above ``bounds`` is honoured rather than clamped.
+    /// Maps straight onto `MochiSlider`'s `strictUpperBound`.
+    var allowsValuesAboveBounds: Bool {
+        if case .range(_, _, let allows) = self { return allows }
+        return false
     }
 
     /// Normalizes `requested` to something this model will accept, or `nil` when
@@ -52,13 +71,17 @@ nonisolated enum IntConstraint: Sendable, Equatable {
             return nil
         case .pinned(let value):
             return value
-        case .range(let bounds, let step):
-            let clamped = min(max(requested, bounds.lowerBound), bounds.upperBound)
+        case .range(let bounds, let step, let acceptsBeyondUpperBound):
+            // The lower bound is always enforced; the upper only when the control
+            // does not let the user past it.
+            let lowered = max(requested, bounds.lowerBound)
+            let clamped = acceptsBeyondUpperBound ? lowered : min(lowered, bounds.upperBound)
             guard step > 1 else { return clamped }
             let snapped =
                 bounds.lowerBound
                 + Int((Double(clamped - bounds.lowerBound) / Double(step)).rounded()) * step
-            return min(max(snapped, bounds.lowerBound), bounds.upperBound)
+            let floored = max(snapped, bounds.lowerBound)
+            return acceptsBeyondUpperBound ? floored : min(floored, bounds.upperBound)
         }
     }
 }
@@ -223,6 +246,13 @@ nonisolated enum ChoiceConstraint<Option: Hashable & Sendable>: Sendable, Equata
         }
     }
 
+    /// The one option the model insists on, if it insists. A control shows this
+    /// disabled rather than offering a choice it will override.
+    var pinnedOption: Option? {
+        if case .pinned(let option) = self { return option }
+        return nil
+    }
+
     func resolved(_ requested: Option) -> Option? {
         switch self {
         case .unsupported:
@@ -266,12 +296,12 @@ nonisolated struct OptionConstraints: Sendable {
     static let unconstrained = OptionConstraints(
         supportsNegativePrompt: true,
         size: .freeform(range: 64...1_792, step: 16),
-        steps: .range(1...50, step: 1),
+        steps: .range(1...50, step: 1, acceptsBeyondUpperBound: true),
         guidanceScale: .range(1...20, step: nil),
         scheduler: .oneOf(Scheduler.allCases),
         startingImage: .supported(strength: .range(0...1, step: nil)),
         controlNet: .unsupported,
-        numberOfImages: .range(1...100, step: 1),
+        numberOfImages: .range(1...100, step: 1, acceptsBeyondUpperBound: true),
         promptTokenLimit: nil
     )
 }

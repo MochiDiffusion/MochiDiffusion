@@ -12,6 +12,10 @@ import UserNotifications
 
 struct SettingsView: View {
     @Environment(ConfigStore.self) private var configStore: ConfigStore
+    /// Needed because the scheduler is a per-model option living in a
+    /// model-agnostic window. Phase 5 should decide whether it belongs in the
+    /// constraint-driven sidebar instead of here.
+    @Environment(GenerationController.self) private var controller: GenerationController
     @Environment(NotificationController.self) private var notificationController:
         NotificationController
 
@@ -237,13 +241,31 @@ struct SettingsView: View {
 
                     Spacer()
 
-                    Picker("", selection: $configStore.scheduler) {
-                        ForEach(Scheduler.allCases, id: \.self) { scheduler in
-                            Text(scheduler.rawValue).tag(scheduler)
+                    // A distilled model pins its scheduler, so offering a picker
+                    // here let Settings display PNDM while every generation ran
+                    // Flow Match. Pinned is shown disabled at the value that will
+                    // actually be used, matching how the sidebar treats steps.
+                    let scheduler = controller.currentConstraints.scheduler
+                    if let pinned = scheduler.pinnedOption {
+                        Text(pinned.displayName)
+                            .foregroundStyle(.secondary)
+                            .help(
+                                String(
+                                    localized:
+                                        "The selected model always uses this scheduler.",
+                                    comment:
+                                        "Explains why the scheduler cannot be changed"
+                                )
+                            )
+                    } else {
+                        Picker("", selection: $configStore.scheduler) {
+                            ForEach(scheduler.options, id: \.self) { option in
+                                Text(option.displayName).tag(option)
+                            }
                         }
+                        .labelsHidden()
+                        .fixedSize()
                     }
-                    .labelsHidden()
-                    .fixedSize()
                 }
                 .padding(4)
 
@@ -417,5 +439,6 @@ struct SettingsView: View {
 #Preview {
     SettingsView()
         .environment(ConfigStore())
+        .environment(GenerationController(configStore: ConfigStore()))
         .environment(NotificationController.shared)
 }

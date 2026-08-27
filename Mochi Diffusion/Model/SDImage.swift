@@ -239,7 +239,7 @@ extension SDImage {
             append(.guidanceScale, value: String(guidanceScale))
         }
         if metadataFields.contains(.scheduler) {
-            append(.scheduler, value: scheduler.rawValue)
+            append(.scheduler, value: scheduler.displayName)
         }
         if metadataFields.contains(.mlComputeUnit) {
             append(.mlComputeUnit, value: MLComputeUnits.toString(mlComputeUnit))

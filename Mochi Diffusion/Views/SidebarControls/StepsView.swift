@@ -23,7 +23,7 @@ struct StepsView: View {
                     value: $configStore.steps,
                     bounds: Double(bounds.lowerBound)...Double(bounds.upperBound),
                     step: 1,
-                    strictUpperBound: false
+                    strictUpperBound: !steps.allowsValuesAboveBounds
                 )
             } else if let pinned = steps.resolved(Int(configStore.steps)) {
                 // Shown disabled rather than hidden: a distilled model always
