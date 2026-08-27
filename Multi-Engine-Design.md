@@ -650,7 +650,23 @@ migration, in Phase 2.
   a hypothetical future key, so it failed the moment `Engine` became real. Exactly the
   intended signal. Its placeholders are now `Revised Prompt` and `Refiner`.
 
-**Phase 2 is complete.** 132 test cases, no known issues.
+**Phase 2 is complete.** 136 test cases, no known issues.
+
+Three review findings landed after the phase was first called done:
+
+- **The engine/model/payload triple is now checked.** `GenerationPlan` is generic over the
+  payload and `plan` returns the engine's own type, so an engine returning the wrong
+  payload is a compile error. `AnyGenerationEngine.accepts(payload:)` covers the reverse
+  direction, and `GenerationService.enqueue` calls it *before* taking the request, since a
+  generator unwrapping the payload discovers a mismatch only after the request has been
+  dequeued and published as current. This is what §5.4 asked for and the first cut did not
+  do; the owed "a payload can only be executed by its originating engine" test exists now.
+- **An unreadable models folder no longer reports as an empty one.** Collapsing every
+  engine failing into `noModelsFound` made the access-error branch unreachable and sent
+  users looking for missing models when the problem was the folder. Phase 5's picker
+  replaces the single global message with per-engine availability reasons.
+- **The changelog entries this phase owed** — the engine metadata row, and the
+  fixed-size-model queue fix from before it — per the Release notes rule above.
 
 Adopting identity closed the `withKnownIssue` from the entry gate: a persisted selection
 now survives the models directory being spelled differently, because a key is the

@@ -10,6 +10,7 @@ import Foundation
 /// each a directory of `.mlmodelc` bundles.
 nonisolated struct CoreMLStableDiffusionEngine: GenerationEngineDescriptor {
     typealias Model = SDModel
+    typealias Payload = CoreMLGenerationPayload
 
     static let id = EngineID.coreMLStableDiffusion
     var displayName: String { "Core ML Stable Diffusion" }
@@ -46,7 +47,9 @@ nonisolated struct CoreMLStableDiffusionEngine: GenerationEngineDescriptor {
             }
     }
 
-    func plan(draft: GenerationDraft, model: SDModel) throws -> GenerationPlan {
+    func plan(draft: GenerationDraft, model: SDModel) throws
+        -> GenerationPlan<CoreMLGenerationPayload>
+    {
         // A fixed-size model produces its own size whatever the sidebar says, and
         // every image handed to it has to match.
         let size = model.inputSize ?? draft.configuredSize
@@ -73,7 +76,7 @@ nonisolated struct CoreMLStableDiffusionEngine: GenerationEngineDescriptor {
             }
         }
 
-        return GenerationPlan(
+        return GenerationPlan<CoreMLGenerationPayload>(
             payload: CoreMLGenerationPayload(
                 model: model,
                 computeUnit: draft.computeUnitPreference.computeUnits(forModel: model),
@@ -128,6 +131,7 @@ nonisolated struct CoreMLStableDiffusionEngine: GenerationEngineDescriptor {
 /// Iris library.
 nonisolated struct IrisEngine: GenerationEngineDescriptor {
     typealias Model = IrisFluxKleinModel
+    typealias Payload = IrisGenerationPayload
 
     static let id = EngineID.iris
     var displayName: String { "Iris" }
@@ -155,7 +159,9 @@ nonisolated struct IrisEngine: GenerationEngineDescriptor {
             .compactMap { IrisFluxKleinModel(url: $0, name: ModelID.localKey(for: $0)) }
     }
 
-    func plan(draft: GenerationDraft, model: IrisFluxKleinModel) throws -> GenerationPlan {
+    func plan(draft: GenerationDraft, model: IrisFluxKleinModel) throws
+        -> GenerationPlan<IrisGenerationPayload>
+    {
         // FLUX.2 Klein is a distilled model: four steps on the flow-match
         // scheduler, whatever the sidebar offers. This used to live in
         // IrisModelFamily.effectiveStepCount, consulted by the queue for display
@@ -166,7 +172,7 @@ nonisolated struct IrisEngine: GenerationEngineDescriptor {
         // an editable field in the first place.
         let size = draft.configuredSize
 
-        return GenerationPlan(
+        return GenerationPlan<IrisGenerationPayload>(
             payload: IrisGenerationPayload(
                 modelDirectory: model.url.path(percentEncoded: false)
             ),

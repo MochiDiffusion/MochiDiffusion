@@ -56,9 +56,17 @@ nonisolated struct ControlNetDraft: Sendable {
 }
 
 /// What an engine resolved a draft into: the values that will be used and
-/// recorded, plus its own opaque payload.
-nonisolated struct GenerationPlan: Sendable {
-    var payload: any Sendable
+/// recorded, plus its own payload.
+///
+/// Generic over the payload so the compiler enforces that an engine's `plan`
+/// returns *that engine's* payload type. An earlier version had the payload
+/// already erased to `any Sendable` here, which meant an engine could return the
+/// wrong one with no diagnostic and the mismatch surfaced only when a generator
+/// unwrapped it — after `GenerationService` had dequeued the request and
+/// published it as current. ``erased()`` widens it once, at the boundary where
+/// the heterogeneous queue genuinely needs it.
+nonisolated struct GenerationPlan<Payload: Sendable>: Sendable {
+    var payload: Payload
     /// The size that will actually be produced.
     var size: CGSize
     var startingImageData: Data?
@@ -72,6 +80,25 @@ nonisolated struct GenerationPlan: Sendable {
     /// state, different field, so the engine decides which one it fills.
     var startingImageName: String?
     var inputImageNames: [String]
+}
+
+nonisolated extension GenerationPlan {
+    /// Widens the payload for the queue, keeping every resolved value.
+    func erased() -> GenerationPlan<any Sendable> {
+        GenerationPlan<any Sendable>(
+            payload: payload,
+            size: size,
+            startingImageData: startingImageData,
+            controlNetImageData: controlNetImageData,
+            controlNetNames: controlNetNames,
+            controlNetImageNames: controlNetImageNames,
+            stepCount: stepCount,
+            scheduler: scheduler,
+            mlComputeUnit: mlComputeUnit,
+            startingImageName: startingImageName,
+            inputImageNames: inputImageNames
+        )
+    }
 }
 
 /// Whether an engine can be used, and if not, why — in words a picker can show.
@@ -99,6 +126,10 @@ nonisolated enum EngineAvailability: Sendable, Equatable {
 /// There is no ownership arbitration anywhere.
 nonisolated protocol GenerationEngineDescriptor: Sendable {
     associatedtype Model: EngineModel
+    /// What this engine's generation needs beyond the values every engine
+    /// reports. Associated so the engine, its models and its payload stay a
+    /// checked triple rather than three things that happen to line up.
+    associatedtype Payload: Sendable
 
     static var id: EngineID { get }
     var displayName: String { get }
@@ -119,7 +150,7 @@ nonisolated protocol GenerationEngineDescriptor: Sendable {
     /// per-engine enums used to do between them. Phase 4 makes it the single
     /// place a draft is resolved against a model's constraints, at which point it
     /// starts rejecting unsupported values instead of quietly dropping them.
-    func plan(draft: GenerationDraft, model: Model) throws -> GenerationPlan
+    func plan(draft: GenerationDraft, model: Model) throws -> GenerationPlan<Payload>
 }
 
 /// Type-erased engine, so a heterogeneous registry can hold them.
@@ -134,7 +165,9 @@ nonisolated struct AnyGenerationEngine: Sendable, Identifiable {
 
     private let _availability: @Sendable (EngineSettings) async -> EngineAvailability
     private let _discoverModels: @Sendable (EngineSettings) async throws -> [any EngineModel]
-    private let _plan: @Sendable (GenerationDraft, any EngineModel) throws -> GenerationPlan
+    private let _plan:
+        @Sendable (GenerationDraft, any EngineModel) throws -> GenerationPlan<any Sendable>
+    private let _accepts: @Sendable (any Sendable) -> Bool
 
     init<Engine: GenerationEngineDescriptor>(_ engine: Engine) {
         id = Engine.id
@@ -149,8 +182,9 @@ nonisolated struct AnyGenerationEngine: Sendable, Identifiable {
                 throw EngineError.modelDoesNotBelongToEngine(
                     model: model.id, engine: Engine.id)
             }
-            return try engine.plan(draft: draft, model: typed)
+            return try engine.plan(draft: draft, model: typed).erased()
         }
+        _accepts = { $0 is Engine.Payload }
     }
 
     func availability(_ settings: EngineSettings) async -> EngineAvailability {
@@ -161,8 +195,19 @@ nonisolated struct AnyGenerationEngine: Sendable, Identifiable {
         try await _discoverModels(settings)
     }
 
-    func plan(draft: GenerationDraft, model: any EngineModel) throws -> GenerationPlan {
+    func plan(draft: GenerationDraft, model: any EngineModel) throws
+        -> GenerationPlan<any Sendable>
+    {
         try _plan(draft, model)
+    }
+
+    /// Whether `payload` is the kind this engine produces.
+    ///
+    /// Checked where a request enters the queue, not where a generator finally
+    /// unwraps it: by then the request has been dequeued and published as
+    /// current, and the queue cannot un-publish it.
+    func accepts(payload: any Sendable) -> Bool {
+        _accepts(payload)
     }
 }
 

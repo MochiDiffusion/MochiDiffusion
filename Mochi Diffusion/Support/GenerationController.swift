@@ -112,10 +112,16 @@ final class GenerationController {
 
             let discoveredModels = discoveries.allModels
             guard !discoveredModels.isEmpty else {
-                // Every engine came back empty. Reported the way a single failed
-                // load used to be, since from the user's side nothing is
-                // selectable either way.
-                throw SDImageGenerator.GeneratorError.noModelsFound
+                // "Nothing was found" and "nothing could be read" need different
+                // messages. Reporting an unreadable models folder as an empty one
+                // sends the user looking for missing models when the problem is
+                // the folder, and it made the access-error branch below
+                // unreachable. Phase 5's picker replaces this single global
+                // message with per-engine availability reasons.
+                if discoveries.failures.isEmpty {
+                    throw SDImageGenerator.GeneratorError.noModelsFound
+                }
+                throw SDImageGenerator.GeneratorError.modelSubDirectoriesNoAccess
             }
             self.models = discoveredModels
 
@@ -459,7 +465,7 @@ final class GenerationController {
             imageType: configStore.imageType
         )
 
-        let plan: GenerationPlan
+        let plan: GenerationPlan<any Sendable>
         do {
             plan = try engine.plan(draft: draft, model: model)
         } catch {

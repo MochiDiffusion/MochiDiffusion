@@ -1,5 +1,8 @@
 # Unreleased
 
+- Added the generating engine to image metadata and the Info panel
+  - Images also record which engine's model made them, so copying a model from an image selects that exact model even when two engines offer the same name
+- Fixed the job queue showing the sidebar's image size instead of the size a fixed-size Core ML model will actually produce
 - Fixed a crash when importing an image whose metadata ended with an empty field
 - Fixed prompts and filenames containing semicolons being cut short when importing an image
 - Fixed input image filenames containing commas being split into separate filenames

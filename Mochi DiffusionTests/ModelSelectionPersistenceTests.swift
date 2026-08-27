@@ -23,6 +23,7 @@ import Testing
 /// initialiser only schedules it, and awaiting an unowned background task would
 /// make these assertions racy for no added coverage.
 @MainActor
+@Suite(.serialized)
 struct ModelSelectionPersistenceTests {
     let temp: TempDirectory
     let tempDefaults: TempDefaults
@@ -47,6 +48,13 @@ struct ModelSelectionPersistenceTests {
             imageRepository: ImageRepository(),
             startsObserving: false
         )
+    }
+
+    /// The message the app is showing, or `nil` if it is not in an error state.
+    /// `GenerationState` is a singleton, hence `.serialized` on this suite.
+    private func statusMessage() -> String? {
+        if case .error(let message) = GenerationState.shared.state { return message }
+        return nil
     }
 
     /// Two Core ML models whose names sort `a-model` before `b-model`
@@ -172,6 +180,22 @@ struct ModelSelectionPersistenceTests {
         #expect(controller.models.isEmpty)
         #expect(controller.currentModel == nil)
         #expect(configStore.selectedModel == nil)
+        #expect(statusMessage()?.contains("No models found") == true)
+    }
+
+    /// A readable-but-empty folder and an unreadable one need different messages.
+    /// Reporting the second as the first sends the user looking for missing models
+    /// when the problem is the folder itself.
+    @Test("An unreadable models directory reports an access error, not an empty folder")
+    func unreadableDirectoryReportsAccessError() async throws {
+        configStore.modelDir = temp.appending("does-not-exist").path(percentEncoded: false)
+
+        let controller = makeController()
+        await controller.loadModels()
+
+        let message = try #require(statusMessage())
+        #expect(message.contains("subdirectories"))
+        #expect(!message.contains("No models found"))
     }
 
     @Test("An unreadable model directory clears the persisted selection")

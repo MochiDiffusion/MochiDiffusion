@@ -139,6 +139,90 @@ struct EngineDiscoveryTests {
     }
 }
 
+/// The engine, its models and its payload are one checked triple. §5.4 of
+/// `Multi-Engine-Design.md` asks for a payload that "can only be executed by its
+/// originating engine"; these are that.
+struct EnginePayloadOwnershipTests {
+    let temp: TempDirectory
+    let modelDir: URL
+    let controlNetDir: URL
+
+    init() throws {
+        temp = try TempDirectory()
+        modelDir = try temp.subdirectory("models")
+        controlNetDir = try temp.subdirectory("controlnet")
+    }
+
+    private var settings: EngineSettings {
+        EngineSettings(modelDirectory: modelDir, controlNetDirectory: controlNetDir)
+    }
+
+    private var draft: GenerationDraft {
+        GenerationDraft(
+            prompt: "a cat",
+            negativePrompt: "",
+            configuredSize: CGSize(width: 512, height: 512),
+            startingImage: nil,
+            startingImageName: nil,
+            controlNets: [],
+            strength: 0.5,
+            stepCount: 12,
+            guidanceScale: 11,
+            scheduler: .dpmSolverMultistepScheduler,
+            seed: 1,
+            numberOfImages: 1,
+            computeUnitPreference: .auto,
+            reduceMemory: false,
+            safetyChecker: false,
+            showGenerationPreview: false,
+            imageDir: "",
+            imageType: "png"
+        )
+    }
+
+    @Test("An engine accepts only the payload type it produces")
+    func engineAcceptsOnlyItsOwnPayload() {
+        let coreML = AnyGenerationEngine(CoreMLStableDiffusionEngine())
+        let iris = AnyGenerationEngine(IrisEngine())
+        let irisPayload = IrisGenerationPayload(modelDirectory: "/models/klein")
+
+        #expect(iris.accepts(payload: irisPayload))
+        // The check that stops a request reaching a generator that cannot run it.
+        #expect(!coreML.accepts(payload: irisPayload))
+    }
+
+    @Test("A payload produced by planning is accepted by its own engine only")
+    func plannedPayloadBelongsToItsEngine() async throws {
+        try makeSDModelFixture(at: modelDir.appending(path: "sd-model"))
+        try makeKleinModelFixture(at: modelDir.appending(path: "klein-model"))
+        let coreML = AnyGenerationEngine(CoreMLStableDiffusionEngine())
+        let iris = AnyGenerationEngine(IrisEngine())
+        let sdModel = try #require(
+            try await CoreMLStableDiffusionEngine().discoverModels(settings).first)
+        let kleinModel = try #require(try await IrisEngine().discoverModels(settings).first)
+
+        let coreMLPlan = try coreML.plan(draft: draft, model: sdModel)
+        let irisPlan = try iris.plan(draft: draft, model: kleinModel)
+
+        #expect(coreML.accepts(payload: coreMLPlan.payload))
+        #expect(iris.accepts(payload: irisPlan.payload))
+        #expect(!coreML.accepts(payload: irisPlan.payload))
+        #expect(!iris.accepts(payload: coreMLPlan.payload))
+    }
+
+    @Test("An engine refuses to plan for another engine's model")
+    func engineRefusesForeignModel() async throws {
+        try makeSDModelFixture(at: modelDir.appending(path: "sd-model"))
+        let sdModel = try #require(
+            try await CoreMLStableDiffusionEngine().discoverModels(settings).first)
+        let iris = AnyGenerationEngine(IrisEngine())
+
+        #expect(throws: EngineError.modelDoesNotBelongToEngine(model: sdModel.id, engine: .iris)) {
+            _ = try iris.plan(draft: draft, model: sdModel)
+        }
+    }
+}
+
 /// The registry aggregates without arbitrating, and keeps one engine's failure
 /// from looking like everyone's.
 struct EngineRegistryTests {
@@ -160,6 +244,7 @@ struct EngineRegistryTests {
     /// depending on how a real engine happens to fail.
     private struct FailingEngine: GenerationEngineDescriptor {
         typealias Model = SDModel
+        typealias Payload = CoreMLGenerationPayload
         struct Failure: Error {}
         static let id = EngineID(rawValue: "failing")
         var displayName: String { "Failing" }
@@ -169,7 +254,9 @@ struct EngineRegistryTests {
         func discoverModels(_ settings: EngineSettings) async throws -> [SDModel] {
             throw Failure()
         }
-        func plan(draft: GenerationDraft, model: SDModel) throws -> GenerationPlan {
+        func plan(draft: GenerationDraft, model: SDModel) throws
+            -> GenerationPlan<CoreMLGenerationPayload>
+        {
             throw Failure()
         }
     }

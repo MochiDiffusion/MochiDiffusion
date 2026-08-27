@@ -42,13 +42,16 @@ actor GenerationService {
     private var didEmitResultForCurrentRequest = false
     private let imageRepository: ImageRepository
     private let modelRepository: ModelRepository
+    private let engineRegistry: EngineRegistry
 
     init(
         imageRepository: ImageRepository = ImageRepository(),
-        modelRepository: ModelRepository = ModelRepository()
+        modelRepository: ModelRepository = ModelRepository(),
+        engineRegistry: EngineRegistry = EngineRegistry()
     ) {
         self.imageRepository = imageRepository
         self.modelRepository = modelRepository
+        self.engineRegistry = engineRegistry
     }
 
     func updates() -> AsyncStream<Snapshot> {
@@ -72,7 +75,27 @@ actor GenerationService {
         }
     }
 
-    func enqueue(_ request: GenerationRequest) {
+    func enqueue(_ request: GenerationRequest) async {
+        // Checked here rather than where a generator unwraps the payload: by then
+        // the request has been dequeued and published as current, and the queue
+        // cannot take that back. A mismatch is a wiring bug, so it is reported as
+        // an internal failure naming the engine, not as something to reconfigure.
+        guard let engine = engineRegistry.engine(request.modelID.engine) else {
+            logger.error("no engine registered for \(request.modelID.description)")
+            await updateStatus(.error("There is no engine for \(request.displayName)."))
+            return
+        }
+        guard engine.accepts(payload: request.payload) else {
+            logger.error(
+                """
+                \(request.modelID.engine.rawValue) was handed a payload it does not own \
+                for \(request.modelID.description)
+                """
+            )
+            await updateStatus(.error("There was a problem preparing \(request.displayName)."))
+            return
+        }
+
         queue.append(request)
         broadcastSnapshot()
         startProcessingIfNeeded()
