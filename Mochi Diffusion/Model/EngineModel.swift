@@ -25,6 +25,14 @@ nonisolated enum MetadataField: String, CaseIterable, Sendable {
     case prompt
     case negativePrompt
     case model
+    /// Which engine generated the image, and its own key for the model.
+    ///
+    /// Recorded from Phase 2 rather than deferred, because engine identity exists
+    /// now: every image generated before these keys land is unqualified legacy
+    /// data forever, and the name-matching fallback would then have to cover our
+    /// own recent output rather than only pre-engine history.
+    case engine
+    case modelKey
     case size
     case quality
     case startingImage

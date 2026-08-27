@@ -15,6 +15,8 @@ struct ImageRecord: Sendable, Identifiable {
     var height: Int
     var aspectRatio: Double
     var model: String
+    var engine: String
+    var modelKey: String
     var quality: String
     var startingImage: String
     var controlNetImage: String

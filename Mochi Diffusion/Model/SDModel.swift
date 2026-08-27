@@ -41,6 +41,8 @@ nonisolated struct SDModel: EngineModel {
                 .prompt,
                 .negativePrompt,
                 .model,
+                .engine,
+                .modelKey,
                 .size,
                 .scheduler,
                 .mlComputeUnit,

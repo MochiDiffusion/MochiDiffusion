@@ -36,6 +36,8 @@ struct MetadataRoundTripTests {
         sdi.prompt = "a cat wearing a hat"
         sdi.negativePrompt = "blurry, low quality"
         sdi.model = "sd-1.5_512x512"
+        sdi.engine = "coreml-sd"
+        sdi.modelKey = "sd-1.5_512x512"
         sdi.quality = "high"
         sdi.startingImage = "starting.png"
         sdi.controlNetImage = "control.png"
@@ -99,6 +101,8 @@ struct MetadataRoundTripTests {
         #expect(record.prompt == sdi.prompt)
         #expect(record.negativePrompt == sdi.negativePrompt)
         #expect(record.model == sdi.model)
+        #expect(record.engine == sdi.engine)
+        #expect(record.modelKey == sdi.modelKey)
         #expect(record.quality == sdi.quality)
         #expect(record.startingImage == sdi.startingImage)
         #expect(record.controlNetImage == sdi.controlNetImage)

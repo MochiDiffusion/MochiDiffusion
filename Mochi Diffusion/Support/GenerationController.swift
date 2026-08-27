@@ -315,13 +315,45 @@ final class GenerationController {
 
     func copyModelToPrompt() {
         guard let sdi = ImageGallery.shared.selected() else { return }
-        setModel(sdi.model)
+        selectModel(named: sdi.model, engine: sdi.engine, key: sdi.modelKey)
     }
 
+    /// Selects the model a gallery image was generated with.
+    ///
+    /// An image written since engines exist records its engine and key, so it can
+    /// be resolved exactly. Older images carry only a display name, which is the
+    /// ambiguity §9.4 of `Multi-Engine-Design.md` is about.
+    func selectModel(named name: String, engine: String, key: String) {
+        if !engine.isEmpty, !key.isEmpty {
+            let id = ModelID(engine: EngineID(rawValue: engine), key: key)
+            if models.contains(where: { $0.id == id }) {
+                currentModelId = id
+                return
+            }
+        }
+        setModel(name)
+    }
+
+    /// Selects a model by display name, which is all a pre-engine image recorded.
+    ///
+    /// Prefers the engine already selected, so a name two engines both offer does
+    /// not move the user off the engine they are working in. Failing that, a
+    /// single unambiguous match elsewhere is taken — refusing would leave the
+    /// menu command appearing to do nothing, which is worse than switching. If
+    /// several engines offer the name, the selection is left alone rather than
+    /// guessed at.
     func setModel(_ modelName: String) {
-        if let matchingModel = models.first(where: { $0.name == modelName }) {
-            currentModelId = matchingModel.id
+        let matches = models.filter { $0.name == modelName }
+        guard !matches.isEmpty else { return }
+
+        if let currentEngine = currentModelId?.engine,
+            let sameEngine = matches.first(where: { $0.id.engine == currentEngine })
+        {
+            currentModelId = sameEngine.id
             return
+        }
+        if matches.count == 1 {
+            currentModelId = matches[0].id
         }
     }
 
@@ -506,6 +538,8 @@ final class GenerationController {
             height: height,
             aspectRatio: aspectRatio,
             model: metadata.model,
+            engine: metadata.engine,
+            modelKey: metadata.modelKey,
             quality: metadata.quality,
             startingImage: metadata.startingImage,
             controlNetImage: metadata.controlNetImage,

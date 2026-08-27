@@ -179,6 +179,8 @@ nonisolated final class IrisFluxKleinImageGenerator: ImageGenerator {
                 width: Int(image.pointee.width),
                 height: Int(image.pointee.height),
                 model: request.displayName,
+                engine: request.modelID.engine.rawValue,
+                modelKey: request.modelID.key,
                 quality: "",
                 startingImage: "",
                 controlNetImage: "",
@@ -273,6 +275,8 @@ nonisolated final class IrisFluxKleinImageGenerator: ImageGenerator {
         sdi.prompt = metadata.prompt
         sdi.negativePrompt = metadata.negativePrompt
         sdi.model = metadata.model
+        sdi.engine = metadata.engine
+        sdi.modelKey = metadata.modelKey
         sdi.quality = metadata.quality
         sdi.startingImage = metadata.startingImage
         sdi.controlNetImage = metadata.controlNetImage

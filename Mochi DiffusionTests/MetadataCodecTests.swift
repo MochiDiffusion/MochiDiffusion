@@ -214,10 +214,13 @@ struct MetadataCodecTests {
 
     @Test("Unknown keys are skipped without discarding known ones")
     func unknownKeysAreSkipped() {
+        // `Engine` used to stand in for a hypothetical future key here, until it
+        // became a real one. `Revised Prompt` and `Refiner` are the placeholders
+        // now; when one of them ships, this test will say so.
         let parsed = MetadataCodec.decode(
             """
             Metadata Version: 2
-            Engine: some-future-engine
+            Refiner: some-future-refiner
             Include in Image: a cat
             Revised Prompt: a very fine cat
             Generator: Mochi Diffusion 6.0
@@ -226,6 +229,40 @@ struct MetadataCodecTests {
 
         #expect(parsed.prompt == "a cat")
         #expect(parsed.presentFields == [.prompt])
+    }
+
+    @Test("Engine identity is parsed as its own fields")
+    func engineIdentityIsParsed() {
+        let parsed = MetadataCodec.decode(
+            """
+            Metadata Version: 2
+            Model: sd-1.5_512x512
+            Engine: coreml-sd
+            Model Key: sd-1.5_512x512
+            Generator: Mochi Diffusion 6.0
+            """
+        )
+
+        // Recorded separately from the display name, so an imported image names a
+        // model exactly rather than by a name two engines might share.
+        #expect(parsed.model == "sd-1.5_512x512")
+        #expect(parsed.engine == "coreml-sd")
+        #expect(parsed.modelKey == "sd-1.5_512x512")
+        #expect(parsed.presentFields == [.model, .engine, .modelKey])
+    }
+
+    @Test("A pre-engine caption parses with no engine identity")
+    func legacyCaptionHasNoEngineIdentity() {
+        let parsed = MetadataCodec.decode(
+            "Include in Image: a cat; Model: sd15; Generator: Mochi Diffusion 4.2"
+        )
+
+        // Absence means "legacy, infer from the other fields", never "corrupt" —
+        // so name matching stays the fallback for images written before engines.
+        #expect(parsed.engine == nil)
+        #expect(parsed.modelKey == nil)
+        #expect(!parsed.presentFields.contains(.engine))
+        #expect(parsed.model == "sd15")
     }
 
     @Test("A future format version is read with the newest rules we have")

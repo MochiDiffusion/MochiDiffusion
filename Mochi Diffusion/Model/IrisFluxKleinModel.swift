@@ -10,6 +10,8 @@ nonisolated struct IrisFluxKleinModel: EngineModel {
     static let metadataFields: Set<MetadataField> = [
         .prompt,
         .model,
+        .engine,
+        .modelKey,
         .size,
         .inputImages,
         .scheduler,

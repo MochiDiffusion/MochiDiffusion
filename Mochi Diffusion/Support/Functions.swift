@@ -88,6 +88,8 @@ nonisolated func createImageRecordFromURL(_ url: URL) -> ImageRecord? {
         height: height,
         aspectRatio: height > 0 ? Double(width) / Double(height) : 0,
         model: "",
+        engine: "",
+        modelKey: "",
         quality: "",
         startingImage: "",
         controlNetImage: "",
@@ -110,6 +112,8 @@ nonisolated func createImageRecordFromURL(_ url: URL) -> ImageRecord? {
     record.prompt = parsed.prompt ?? ""
     record.negativePrompt = parsed.negativePrompt ?? ""
     record.model = parsed.model ?? ""
+    record.engine = parsed.engine ?? ""
+    record.modelKey = parsed.modelKey ?? ""
     record.quality = parsed.quality ?? ""
     record.startingImage = parsed.startingImage ?? ""
     record.controlNetImage = parsed.controlNetImage ?? ""
@@ -145,6 +149,8 @@ func createSDImage(from record: ImageRecord) -> SDImage? {
     sdi.prompt = record.prompt
     sdi.negativePrompt = record.negativePrompt
     sdi.model = record.model
+    sdi.engine = record.engine
+    sdi.modelKey = record.modelKey
     sdi.quality = record.quality
     sdi.startingImage = record.startingImage
     sdi.controlNetImage = record.controlNetImage

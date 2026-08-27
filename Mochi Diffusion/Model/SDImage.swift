@@ -18,6 +18,10 @@ struct SDImage: Identifiable, Hashable {
     nonisolated var height: Int { self.image?.height ?? 0 }
     var aspectRatio: CGFloat = 0.0
     var model = ""
+    /// The engine's stable id and its own key for the model, as strings, so an
+    /// imported image can name a model exactly rather than by display name alone.
+    var engine = ""
+    var modelKey = ""
     var quality = ""
     var startingImage = ""
     var controlNetImage = ""
@@ -141,6 +145,12 @@ extension SDImage {
         if metadataFields.contains(.model) {
             pairs.append((.model, model))
         }
+        if metadataFields.contains(.engine), !engine.isEmpty {
+            pairs.append((.engine, engine))
+        }
+        if metadataFields.contains(.modelKey), !modelKey.isEmpty {
+            pairs.append((.modelKey, modelKey))
+        }
         if metadataFields.contains(.steps) {
             pairs.append((.steps, "\(steps)"))
         }
@@ -194,6 +204,9 @@ extension SDImage {
 
         if metadataFields.contains(.model) {
             append(.model, value: model)
+        }
+        if metadataFields.contains(.engine), !engine.isEmpty {
+            append(.engine, value: engine)
         }
         if metadataFields.contains(.size) {
             append(.size, value: "\(width) x \(height)")

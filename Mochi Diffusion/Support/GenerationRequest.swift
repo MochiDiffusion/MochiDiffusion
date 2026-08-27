@@ -94,6 +94,8 @@ nonisolated struct GenerationMetadata: Sendable {
     let width: Int
     let height: Int
     let model: String
+    let engine: String
+    let modelKey: String
     let quality: String
     let startingImage: String
     let controlNetImage: String

@@ -182,6 +182,8 @@ nonisolated final class SDImageGenerator: ImageGenerator {
         sdi.prompt = pipelineConfig.prompt
         sdi.negativePrompt = pipelineConfig.negativePrompt
         sdi.model = config.model.name
+        sdi.engine = config.model.id.engine.rawValue
+        sdi.modelKey = config.model.id.key
         sdi.scheduler = config.scheduler
         sdi.mlComputeUnit = config.mlComputeUnit
         sdi.steps = pipelineConfig.stepCount
@@ -236,6 +238,8 @@ nonisolated final class SDImageGenerator: ImageGenerator {
                     width: image.width,
                     height: image.height,
                     model: sdi.model,
+                    engine: sdi.engine,
+                    modelKey: sdi.modelKey,
                     quality: sdi.quality,
                     startingImage: config.startingImageName,
                     controlNetImage: config.controlNetImageName,

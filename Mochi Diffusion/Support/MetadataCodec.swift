@@ -38,6 +38,8 @@ nonisolated enum MetadataCodec {
         var prompt: String?
         var negativePrompt: String?
         var model: String?
+        var engine: String?
+        var modelKey: String?
         var quality: String?
         var startingImage: String?
         var controlNetImage: String?
@@ -183,6 +185,10 @@ nonisolated enum MetadataCodec {
         switch key {
         case .model:
             parsed.model = value
+        case .engine:
+            parsed.engine = value
+        case .modelKey:
+            parsed.modelKey = value
         case .includeInImage:
             parsed.prompt = value
         case .excludeFromImage:
@@ -232,6 +238,8 @@ nonisolated enum MetadataCodec {
         case .includeInImage: return .prompt
         case .excludeFromImage: return .negativePrompt
         case .model: return .model
+        case .engine: return .engine
+        case .modelKey: return .modelKey
         case .size: return .size
         case .quality: return .quality
         case .startingImage: return .startingImage

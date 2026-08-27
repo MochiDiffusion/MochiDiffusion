@@ -1,6 +1,6 @@
 # Multi-Engine Design
 
-**Status:** draft — Phases 1–2 settled, Phase 3 onward expected to shift
+**Status:** draft — Phases 1–2 complete, Phase 3 onward expected to shift
 **Last updated:** 2026-08-26 (Phase 1 complete; phase staging clarified in §5.2/§5.3;
 §13.1/§13.3 rewritten against the Draw Things sources)
 
@@ -556,7 +556,7 @@ Confidence labels are honest signals about how much these should be trusted.
 |---|---|---|---|
 | 0 | Test target (see §12) | none | done |
 | 1 | `MetadataCodec`: fix the import crash and the separator defect; versioned encoding | crash fix | **done** |
-| 2 | Engine descriptor/registry, `EngineID`/`ModelID`, independent discovery, migration, `.engine`/`.modelKey` metadata keys | none | settled |
+| 2 | Engine descriptor/registry, `EngineID`/`ModelID`, independent discovery, migration, `.engine`/`.modelKey` metadata keys | none | **done** |
 | 3 | Engine runtime and session boundaries; request-scoped cancellation; remove serialization-assumption `@unchecked Sendable` | more reliable cancel | settled |
 | 4 | Constraints model; `plan` as the sole resolution point; sidebar driven from constraints | unsupported controls hide; step count stops lying | settled |
 | 5 | Engine picker, per-engine settings store, Settings restructure | the feature as described | likely |
@@ -635,7 +635,22 @@ migration, in Phase 2.
   Also cleared on the way through: `ComputeUnitPreference` became `nonisolated`, exactly as
   §12.1 predicted it would when compute-unit selection moved into the Core ML engine, and
   the `@MainActor` annotation on its tests went with it.
-- **`.engine`/`.modelKey` metadata keys** — last.
+- **`.engine`/`.modelKey` metadata keys** — done. Both engines declare them, so every
+  image generated from now on names its model exactly rather than by a display name two
+  engines might share. `getHumanReadableInfo` shows the engine; `modelKey` stays out of the
+  inspector, being an identifier for matching rather than a row worth reading.
+
+  This also settles §9.4. `selectModel(named:engine:key:)` resolves an engine-qualified id
+  exactly when the image recorded one. Falling back to a bare name, `setModel` prefers the
+  engine already selected — a name collision should not move the user out of the engine
+  they are working in — then takes a single unambiguous match elsewhere, and leaves the
+  selection alone when several engines offer the name.
+
+  One test earned its keep here: `unknownKeysAreSkipped` used `Engine` as its stand-in for
+  a hypothetical future key, so it failed the moment `Engine` became real. Exactly the
+  intended signal. Its placeholders are now `Revised Prompt` and `Refiner`.
+
+**Phase 2 is complete.** 132 test cases, no known issues.
 
 Adopting identity closed the `withKnownIssue` from the entry gate: a persisted selection
 now survives the models directory being spelled differently, because a key is the
