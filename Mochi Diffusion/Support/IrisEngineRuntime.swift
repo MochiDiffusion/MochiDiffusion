@@ -9,17 +9,13 @@ import UniformTypeIdentifiers
 
 /// Runs Iris FLUX.2 requests.
 ///
-/// An `actor`, replacing a `@unchecked Sendable` class whose safety comment
-/// asserted that `GenerationService` serialized generation — something the
-/// compiler could not check and §11.7's per-engine lanes would have broken.
+/// The Iris C calls block inside the actor for the length of a generation, the
+/// same trade ``CoreMLEngineRuntime`` documents.
 ///
-/// The Iris C calls block inside the actor for the length of a generation. That is
-/// the same trade `CoreMLEngineRuntime` documents.
-///
-/// Single-flight is enforced by ``IrisSingleFlight``, *not* by this being an actor.
-/// Actors are reentrant at every suspension point and `run` suspends four times,
-/// so a second call could otherwise interleave and reset the C library's
-/// process-global callback route and cancel flag under the first one.
+/// Single-flight is enforced by ``IrisSingleFlight``, *not* by this being an
+/// actor. Actors are reentrant at every suspension point and `run` suspends four
+/// times, so a second call would otherwise interleave and reset the C library's
+/// process-global callback route and cancel flag under the first.
 actor IrisEngineRuntime: GenerationEngineRuntime {
     private static let embeddingCache = FluxPromptEmbeddingCache(maxEntries: 16)
 
@@ -572,23 +568,21 @@ extension iris_params {
 /// The Iris C API takes bare function pointers with no context parameter, so a
 /// callback cannot be told which request it belongs to. Two things follow.
 ///
-/// First, delivery is **synchronous**. Each callback used to spawn
-/// `Task { await bridge.handle… }`, which meant a scheduling delay between the
-/// callback firing and the event being applied, no ordering guarantee between two
-/// such tasks, and a task that could outlive the request that created it and land
-/// on the next one. Emitting straight into the session's stream removes all three.
+/// First, delivery is **synchronous**, straight into the session's stream. Hopping
+/// through a `Task` per callback would add a scheduling delay, give no ordering
+/// guarantee between two updates, and let a task outlive the request that created
+/// it and land on the next one.
 ///
 /// Second, the router holds the active session and clears it on teardown, so a
-/// callback arriving after generation finished has nowhere to go. What that cannot
-/// defend against is a callback arriving after the *next* session has begun: with
-/// no context pointer, such a callback is indistinguishable from a current one.
-/// That is safe only because Iris calls back from inside `iris_generate` and
-/// friends, so no callback outlives the call that produced it. This is an
-/// assumption about the C library, stated rather than enforced — which is the only
-/// honest option at this boundary.
+/// callback arriving after generation finished has nowhere to go. It cannot defend
+/// against one arriving after the *next* session has begun: with no context
+/// pointer, such a callback is indistinguishable from a current one. That is safe
+/// only because Iris calls back from inside `iris_generate` and friends, so no
+/// callback outlives the call that produced it — an assumption about the C library
+/// that cannot be enforced from this side.
 ///
-/// `@unchecked Sendable` is guarded by this type's own lock, not by an assumption
-/// about another type's behaviour (§11.3).
+/// `@unchecked Sendable` is sound because every mutable field is guarded by this
+/// type's own lock.
 nonisolated final class IrisCallbackRouter: @unchecked Sendable {
     static let shared = IrisCallbackRouter()
 

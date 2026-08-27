@@ -22,11 +22,10 @@ nonisolated extension EngineID {
 
 /// Identifies a model *within* an engine.
 ///
-/// Engine-qualifying identity is what lets two engines expose the same directory
-/// without arbitration, and lets hosted engines name models that have no URL at
-/// all. It replaces the bare `URL` that used to identify a model, which compared
-/// by exact equality and so silently failed to match any other spelling of the
-/// same path.
+/// Qualifying identity by engine is what lets two engines expose the same
+/// directory without arbitration, and lets a hosted engine name models that have
+/// no URL at all. Identifying a model by bare `URL` instead compares by exact
+/// equality, so any other spelling of the same path silently fails to match.
 nonisolated struct ModelID: Hashable, Codable, Sendable {
     let engine: EngineID
     /// For a local engine, the name of a direct child of the engine's model
@@ -44,14 +43,13 @@ nonisolated extension ModelID {
     /// The persisted form: engine and key in one value.
     ///
     /// One value rather than two so a selection is stored with a single
-    /// `UserDefaults` write. Two writes go to `cfprefsd` as two messages, so a
-    /// process killed between them could leave a new engine beside an old key —
-    /// a pair that looks valid, names nothing, and silently resets the user's
+    /// `UserDefaults` write. Two writes reach `cfprefsd` as two messages, so a
+    /// process killed between them could leave a new engine beside an old key: a
+    /// pair that looks valid, names nothing, and silently resets the user's
     /// selection on the next launch.
     ///
-    /// Deliberately not `description`: how an id reads in a log should be free to
-    /// change without changing what is on disk. `ModelIDKeyTests` pins this
-    /// format.
+    /// Deliberately not ``description``, so how an id reads in a log can change
+    /// without changing what is on disk.
     var persistedValue: String { "\(engine.rawValue):\(key)" }
 
     /// Parses ``persistedValue``.
@@ -72,36 +70,35 @@ nonisolated extension ModelID {
 nonisolated extension ModelID {
     /// The key for a model directory that discovery returned.
     ///
-    /// Deliberately just the last path component, rather than a relative path
-    /// computed against the models root. Two measured behaviours make the
-    /// arithmetic version wrong:
+    /// The last path component, deliberately, rather than a relative path
+    /// computed against the models root. Two behaviours make the arithmetic
+    /// version wrong:
     ///
     /// - `FileManager.contentsOfDirectory(at:)` returns children prefixed
-    ///   `/private/var` even when handed a `/var` URL, and
-    ///   `resolvingSymlinksInPath()` normalises back the other way, so the child
-    ///   and the root can disagree about the same prefix.
-    /// - A model directory that is a symlink into the models folder — which
-    ///   `FileSystemStore.subDirectories` accepts, since it filters on the
-    ///   *resolved* path being a directory — resolves to a location outside the
-    ///   root entirely. Stripping a resolved root off a resolved child would
-    ///   reject exactly those models.
+    ///   `/private/var` even when handed a `/var` URL, while
+    ///   `resolvingSymlinksInPath()` normalises the other way, so a child and its
+    ///   root can disagree about the same prefix.
+    /// - A model directory that is a symlink into the models folder resolves
+    ///   outside the root entirely, and `FileSystemStore.subDirectories` accepts
+    ///   such a directory because it filters on the *resolved* path. Stripping a
+    ///   resolved root off a resolved child would reject exactly those models.
     ///
-    /// Discovery only ever enumerates direct children, so the last component is
-    /// the whole relative path. It also drops the inconsistent trailing slash:
-    /// enumeration returns one for a real directory and none for a symlink.
+    /// Discovery only enumerates direct children, so the last component is the
+    /// whole relative path. It also drops the trailing slash enumeration adds for
+    /// a real directory but not for a symlink.
     ///
-    /// If a nested layout is ever needed, the key becomes a relative path — and
-    /// whatever computes it must not resolve symlinks in the child.
+    /// Supporting a nested layout would make the key a relative path, and whatever
+    /// computed it would still have to leave symlinks in the child unresolved.
     static func localKey(for url: URL) -> String {
         url.lastPathComponent
     }
 
     /// Whether `key` could have come from ``localKey(for:)``.
     ///
-    /// This is the escape check. A key is a single path component, so it cannot
-    /// traverse out of the models directory. Enforcing it here rather than at
-    /// derivation time is what matters, because the dangerous direction is a
-    /// persisted or imported key being turned back into a path to read.
+    /// This is the escape check: a key is a single path component, so it cannot
+    /// traverse out of the models directory. It belongs here rather than at
+    /// derivation, because the dangerous direction is a persisted or imported key
+    /// being turned back into a path to read.
     static func isValidLocalKey(_ key: String) -> Bool {
         if key.isEmpty { return false }
         if key == "." || key == ".." { return false }

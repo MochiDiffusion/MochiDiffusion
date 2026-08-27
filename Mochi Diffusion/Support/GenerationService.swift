@@ -29,21 +29,19 @@ actor GenerationService {
     private var resultContinuations: [UUID: AsyncStream<GenerationResult>.Continuation] = [:]
     /// One runtime per engine, made on first use and kept.
     ///
-    /// Keeping them is what preserves the old behaviour of a warm Core ML
-    /// pipeline between requests: the generators used to be stored properties
-    /// here, so the pipeline cache outlived a single request. Making them lazily
-    /// means an engine nobody generates with never allocates its runtime.
+    /// Kept, so a loaded Core ML pipeline stays warm between requests. Made lazily,
+    /// so an engine nobody generates with never allocates one.
     private var runtimes: [EngineID: any GenerationEngineRuntime] = [:]
     private var nextImageIndex = 1
     private var didEmitResultForCurrentRequest = false
     /// Whether a preview frame has been applied since the last result was emitted.
     ///
-    /// Results and events travel on separate channels — deliberately, since
-    /// results need back-pressure and previews do not — so a buffered preview can
-    /// be applied *after* the controller has already replaced the preview with the
-    /// finished image. Teardown skips clearing when a result was emitted, on the
-    /// assumption that the insert did it, so that late frame would survive and be
-    /// inherited by the next request. This is how teardown tells the two apart.
+    /// Results and events travel on separate channels, since results need
+    /// back-pressure and previews do not, so a buffered preview can be applied
+    /// *after* the gallery has replaced the preview with the finished image.
+    /// Teardown skips clearing when a result was emitted, on the assumption that
+    /// the insert did it, and this is how it tells that case from a late frame that
+    /// would otherwise survive into the next request.
     private var didApplyPreviewSinceResult = false
     private let imageRepository: ImageRepository
     private let modelRepository: ModelRepository
@@ -124,9 +122,8 @@ actor GenerationService {
         cancelingCurrentID = current.id
         broadcastSnapshot()
         await updateGenerationState(.canceling(nil))
-        // Synchronous, and it does not touch the runtime. A runtime blocked
-        // inside `generateImages` or `iris_generate` could not have accepted a
-        // call, which is why cancellation lives on the session (§11.2).
+        // Synchronous, and it does not touch the runtime: one blocked inside
+        // `generateImages` or `iris_generate` could not accept a call.
         currentSession?.cancel()
     }
 
@@ -150,10 +147,9 @@ actor GenerationService {
             didEmitResultForCurrentRequest = false
             broadcastSnapshot()
 
-            // No switch over engines, and no `default:` arm that turned a missing
-            // engine into a runtime error. The registry answers which engine owns
-            // the request, and the engine makes its own runtime, so adding an
-            // engine no longer means editing the queue.
+            // The registry answers which engine owns the request and the engine
+            // makes its own runtime, so adding an engine does not mean editing the
+            // queue.
             guard let engine = engineRegistry.engine(request.modelID.engine) else {
                 logger.error("no engine registered for \(request.modelID.description)")
                 await updateStatus(.error("There is no engine for \(request.displayName)."))
@@ -233,7 +229,7 @@ actor GenerationService {
                 session.close()
                 await forwarding.value
                 try outcome.get()
-                // The runtime no longer reports its own terminal state, so a
+                // The terminal state belongs here rather than to the runtime, so a
                 // dropped event cannot leave the UI stuck mid-generation.
                 if !isCancelRequested(for: request.id) {
                     await updateStatus(.ready(nil))

@@ -8,9 +8,8 @@ import Testing
 
 @testable import Mochi_Diffusion
 
-/// §7 of `Multi-Engine-Design.md` calls the selected-model migration the
-/// highest-risk detail in the plan: get it wrong and every existing user loses
-/// the model they had selected, or worse, their configured folders.
+/// Getting the selected-model migration wrong loses the model a user had selected,
+/// or worse their configured folders, on the launch after an upgrade.
 ///
 /// The decision is a pure function of the legacy URL, the existing selection and
 /// what discovery found, so it needs neither `UserDefaults` nor a filesystem.

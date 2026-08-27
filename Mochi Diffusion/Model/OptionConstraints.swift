@@ -6,22 +6,20 @@
 import CoreGraphics
 import Foundation
 
-/// What a model can do with one whole-number option.
-///
-/// Three states rather than a Boolean, because "supported" and "has one fixed
-/// value" are different things and the sidebar has to tell them apart: an
-/// unsupported control is hidden, a pinned one is shown disabled so the effective
-/// value is visible, and an editable one is shown with its bounds.
+/// What a model can do with one whole-number option — a step count, an image
+/// count.
 nonisolated enum IntConstraint: Sendable, Equatable {
     case unsupported
     /// The model always uses this value, whatever the sidebar says. FLUX.2 Klein
     /// is distilled to four steps.
     case pinned(Int)
-    /// `bounds` is what a control spans. `acceptsBeyondUpperBound` says the model
-    /// will take more than that, which is not a detail — the released step and
-    /// image-count sliders pass `strictUpperBound: false`, so typing 75 steps into
-    /// a slider that spans to 50 keeps 75. Clamping to `bounds` would show 75 and
-    /// generate 50.
+    /// `bounds` is what a control spans; `acceptsBeyondUpperBound` says the model
+    /// will take more than that.
+    ///
+    /// The distinction matters because the step and image-count sliders pass
+    /// `strictUpperBound: false`, which keeps a typed value above the maximum. A
+    /// constraint that clamped to `bounds` would let the sidebar show 75 steps
+    /// while the request generated 50.
     case range(ClosedRange<Int>, step: Int, acceptsBeyondUpperBound: Bool)
 
     /// The common case, where the control's span is also the limit.
@@ -61,10 +59,9 @@ nonisolated enum IntConstraint: Sendable, Equatable {
     /// Normalizes `requested` to something this model will accept, or `nil` when
     /// the option does not apply.
     ///
-    /// Clamps and snaps rather than rejecting. The sidebar's persisted value
-    /// routinely will not fit a newly selected model, and overriding it is
-    /// correct behaviour rather than an error — see §6 of
-    /// `Multi-Engine-Design.md`.
+    /// Clamps and snaps rather than rejecting: a value persisted from a previously
+    /// selected model routinely will not fit the current one, and overriding it is
+    /// correct behaviour rather than an error.
     func resolved(_ requested: Int) -> Int? {
         switch self {
         case .unsupported:
@@ -86,15 +83,15 @@ nonisolated enum IntConstraint: Sendable, Equatable {
     }
 }
 
-/// The same three states for a fractional option — guidance scale, strength.
+/// What a model can do with one fractional option — a guidance scale, a strength.
 ///
-/// `step` is optional, and both current uses pass `nil`. A constraint says what a
-/// model will *accept*; nothing in Core ML requires a guidance scale to land on a
-/// half or a strength on a twentieth. Those are slider granularity, which
-/// `MochiSlider` already applies when it writes the value. Snapping here as well
-/// would silently move a number the user typed — 0.42 became 0.40 — for no
-/// reason the model cares about. Size is the opposite case and does snap: latent
-/// dimensions genuinely have to be multiples of 16.
+/// `step` is optional, and both current uses pass `nil`: a constraint says what
+/// the model will *accept*, and nothing in Core ML requires a guidance scale to
+/// land on a half or a strength on a twentieth. Granularity belongs to the
+/// control, and `MochiSlider` already applies its own when it writes the value, so
+/// snapping here would move a number the user typed for no reason the model cares
+/// about. ``SizeConstraint`` is the case that genuinely does snap, since latent
+/// dimensions have to be multiples of 16.
 nonisolated enum DoubleConstraint: Sendable, Equatable {
     case unsupported
     case pinned(Double)
@@ -265,12 +262,17 @@ nonisolated enum ChoiceConstraint<Option: Hashable & Sendable>: Sendable, Equata
     }
 }
 
-/// Everything a model will and will not honour, resolved per model rather than
-/// per engine.
+/// Everything a model will and will not honour.
 ///
-/// Replaces `GenerationCapabilities`, whose Booleans could say "supports steps"
-/// but not "always uses four", so the sidebar offered an editable step count that
-/// the generator silently overrode and the saved metadata then disagreed with.
+/// Per model rather than per engine, because a Core ML model's size and available
+/// ControlNets are fixed by how it was converted.
+///
+/// Each option distinguishes three states rather than carrying a Boolean, because
+/// "supported" and "has one fixed value" lead to different controls: an
+/// unsupported option is hidden, a pinned one is shown disabled so its effective
+/// value is visible, and an editable one is shown with its bounds. A Boolean can
+/// say "supports a step count" but not "always uses four", which is the case that
+/// otherwise leaves the sidebar offering a value the engine overrides.
 nonisolated struct OptionConstraints: Sendable {
     /// A plain `Bool` because there is nothing to constrain here but presence —
     /// a negative prompt is free text or it is not accepted at all.
@@ -287,12 +289,12 @@ nonisolated struct OptionConstraints: Sendable {
     /// the model, and warning is more useful than refusing to type.
     var promptTokenLimit: Int?
 
-    /// What the sidebar shows when no model is selected.
+    /// What the sidebar shows when no model is selected: every control visible,
+    /// with permissive bounds.
     ///
-    /// Every control visible with its pre-constraint bounds. There is nothing to
-    /// generate with in that state, so hiding controls would just make the
-    /// sidebar flicker as models are discovered — and an empty model list is
-    /// already reported by its own message.
+    /// There is nothing to generate with in that state, so hiding controls would
+    /// only make the sidebar flicker as discovery finishes. An empty model list is
+    /// reported by its own message.
     static let unconstrained = OptionConstraints(
         supportsNegativePrompt: true,
         size: .freeform(range: 64...1_792, step: 16),

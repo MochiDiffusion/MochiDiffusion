@@ -115,10 +115,10 @@ nonisolated struct CoreMLStableDiffusionEngine: GenerationEngineDescriptor {
 
     /// Matches on the model name's prefix before the first underscore and on
     /// orientation, which is how converted sets are named in practice —
-    /// `foo_512x768` beside `foo_768x512`. A heuristic, and it was a heuristic
-    /// when it lived in `GenerationController`; what changed is that it is now
-    /// the Core ML engine's business rather than something the sidebar knew about
-    /// its models.
+    /// `foo_512x768` beside `foo_768x512`.
+    ///
+    /// A naming heuristic, deliberately kept inside the engine: how one engine's
+    /// model files are named is not something the sidebar should know.
     func model(forSize size: CGSize, among candidates: [SDModel], current: SDModel) -> SDModel? {
         func orientation(width: Double, height: Double) -> Int {
             if width > height { return 1 }
@@ -190,11 +190,9 @@ nonisolated struct IrisEngine: GenerationEngineDescriptor {
     func plan(draft: GenerationDraft, model: IrisFluxKleinModel) throws
         -> GenerationPlan<IrisGenerationPayload>
     {
-        // Klein's four steps and flow-match scheduler are pinned constraints now,
-        // so the sidebar shows them disabled rather than offering fields it will
-        // override, and this reads the same declaration the sidebar reads. They
-        // were previously restated here as literals — a third place to disagree
-        // with, after the queue and the generator.
+        // Read from the model's constraints, which is the same declaration the
+        // sidebar reads, so the field it shows and the value used here cannot
+        // disagree.
         let constraints = model.constraints
         let size = constraints.size.resolved(draft.configuredSize)
         let stepCount = constraints.steps.resolved(draft.stepCount) ?? draft.stepCount

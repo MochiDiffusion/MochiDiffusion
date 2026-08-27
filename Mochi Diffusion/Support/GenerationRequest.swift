@@ -8,15 +8,13 @@ import Foundation
 
 /// A queued generation, resolved.
 ///
-/// Replaces the `GenerationPipeline` enum, which had a case per engine and about
-/// ten switch-based accessors — every one a question a hosted engine has no
-/// answer to. Engine-specific values now live in ``payload``, produced by that
-/// engine's `plan`, and everything the queue and gallery need is a plain field.
+/// Engine-specific values live in ``payload``, produced by that engine's
+/// `plan`; everything the queue and gallery need is a plain field, so neither has
+/// to know which engine produced the request.
 ///
-/// After `plan`, nothing is renegotiated: the values here are the ones that will
-/// be used and recorded. A generator that quietly substituted its own would put
-/// the queue and the saved image out of step, which is what
-/// `IrisModelFamily.effectiveStepCount` used to arrange.
+/// Nothing is renegotiated after `plan`: the values here are the ones that will be
+/// used and recorded. A runtime that substituted its own would put the queue and
+/// the saved image out of step with each other.
 nonisolated struct GenerationRequest: Sendable, Identifiable {
     let id = UUID()
 

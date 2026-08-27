@@ -9,11 +9,9 @@ import Foundation
 
 /// What a local engine needs to find its models.
 ///
-/// Both local engines share one models directory today, which is why this is a
-/// single struct rather than per-engine settings. Phase 5 of
-/// `Multi-Engine-Design.md` replaces it with an engine-scoped store, at which
-/// point `controlNetDirectory` — meaningful only to Core ML Stable Diffusion —
-/// stops being a field every engine has to be handed and ignore.
+/// Both local engines share one models directory, which is why this is a single
+/// struct rather than per-engine settings. `controlNetDirectory` is meaningful
+/// only to Core ML Stable Diffusion; other engines are handed it and ignore it.
 nonisolated struct EngineSettings: Sendable {
     var modelDirectory: URL
     var controlNetDirectory: URL
@@ -48,8 +46,7 @@ nonisolated struct GenerationDraft: Sendable {
     var imageDir: String
     var imageType: String
     /// Where the shared ControlNet bundles live. Only Core ML Stable Diffusion
-    /// reads it — the same wart as `EngineSettings.controlNetDirectory`, and it
-    /// goes away with the per-engine settings store in Phase 5.
+    /// reads it.
     var controlNetDirectory: URL
 }
 
@@ -63,12 +60,11 @@ nonisolated struct ControlNetDraft: Sendable {
 /// recorded, plus its own payload.
 ///
 /// Generic over the payload so the compiler enforces that an engine's `plan`
-/// returns *that engine's* payload type. An earlier version had the payload
-/// already erased to `any Sendable` here, which meant an engine could return the
-/// wrong one with no diagnostic and the mismatch surfaced only when a generator
-/// unwrapped it — after `GenerationService` had dequeued the request and
-/// published it as current. ``erased()`` widens it once, at the boundary where
-/// the heterogeneous queue genuinely needs it.
+/// returns *that engine's* payload type. Erasing it here instead would let an
+/// engine return the wrong payload with no diagnostic, surfacing only when a
+/// runtime unwrapped it — by which point the queue has dequeued the request and
+/// published it as current. ``erased()`` widens it once, at the boundary where the
+/// heterogeneous queue needs it.
 nonisolated struct GenerationPlan<Payload: Sendable>: Sendable {
     var payload: Payload
     /// The size that will actually be produced.
@@ -115,8 +111,9 @@ nonisolated extension GenerationPlan {
 
 /// Whether an engine can be used, and if not, why — in words a picker can show.
 ///
-/// Phase 5 shows unconfigured engines rather than hiding them, because a backend
-/// that only appears once it is already configured is one nobody discovers.
+/// Carries a user-facing reason so an unconfigured engine can be listed with an
+/// explanation rather than hidden: a backend that only appears once it is already
+/// configured is one nobody discovers.
 nonisolated enum EngineAvailability: Sendable, Equatable {
     case ready
     /// Reachable, but the user has to do something first.
@@ -129,11 +126,10 @@ nonisolated enum EngineAvailability: Sendable, Equatable {
 /// whatever that costs — a loaded multi-gigabyte pipeline, a C context, a network
 /// session.
 ///
-/// Deliberately does **not** have a `cancel` method. Cancellation lives on the
+/// Deliberately has no `cancel` method. Cancellation lives on the
 /// ``GenerationSession`` the caller already holds, because a runtime that blocks
-/// its executor inside a synchronous `generateImages` could not accept a call
-/// until generation returned — cancellation would compile, and silently never
-/// arrive. See §11.2 of `Multi-Engine-Design.md`.
+/// its executor inside a synchronous generation call cannot accept one until that
+/// call returns — an actor-isolated `cancel` would compile and never arrive.
 ///
 /// Results are an awaited throwing callback rather than an event, because the
 /// caller writes each image to disk before the engine produces the next one, and
@@ -154,9 +150,9 @@ nonisolated protocol GenerationEngineRuntime: Sendable {
 /// The immutable half of an engine: what it is, what models it has, and — from
 /// the next step — how it turns the UI's draft into a request payload.
 ///
-/// Separate from the stateful runtime that owns loaded pipelines and the active
-/// generation session (§5.3, §11.2), so the UI can read engine and model facts
-/// without an actor hop to something that also holds a multi-gigabyte pipeline.
+/// Separate from ``GenerationEngineRuntime``, which owns loaded pipelines and the
+/// active generation, so the UI can read engine and model facts without an actor
+/// hop to something holding a multi-gigabyte pipeline.
 ///
 /// Engines never consult each other. Each applies only its own recognition rules
 /// to its own configured source, and identity is engine-qualified, so two engines
@@ -184,10 +180,10 @@ nonisolated protocol GenerationEngineDescriptor: Sendable {
     /// loading, no cache mutation. Those belong to `availability`,
     /// `discoverModels`, or the runtime.
     ///
-    /// Today this is a relocation of what `GenerationController` and the
-    /// per-engine enums used to do between them. Phase 4 makes it the single
-    /// place a draft is resolved against a model's constraints, at which point it
-    /// starts rejecting unsupported values instead of quietly dropping them.
+    /// This is the only place a draft is resolved against a model's constraints.
+    /// Values out of range are normalized rather than rejected — a size persisted
+    /// from another model is not an error — so it throws only for a combination no
+    /// normalization can rescue.
     func plan(draft: GenerationDraft, model: Model) throws -> GenerationPlan<Payload>
 
     /// The model this engine would use to produce `size`, when its models are
@@ -195,9 +191,9 @@ nonisolated protocol GenerationEngineDescriptor: Sendable {
     ///
     /// Core ML models are converted at a fixed resolution and usually ship as a
     /// set — `foo_512x768` beside `foo_768x512` — so asking for a different size
-    /// means selecting a different model. Nothing in `OptionConstraints` can
-    /// express that relationship, and it is released behaviour: it drives the
-    /// sidebar's width/height swap and the Info panel's copy-size button.
+    /// means selecting a different model. ``OptionConstraints`` cannot express
+    /// that relationship, and it drives both the sidebar's width/height swap and
+    /// the Info panel's copy-size button.
     ///
     /// Returns `nil` when there is no such model, which is the default and what
     /// every engine with freeform sizes answers.

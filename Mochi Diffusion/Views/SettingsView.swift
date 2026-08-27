@@ -12,9 +12,9 @@ import UserNotifications
 
 struct SettingsView: View {
     @Environment(ConfigStore.self) private var configStore: ConfigStore
-    /// Needed because the scheduler is a per-model option living in a
-    /// model-agnostic window. Phase 5 should decide whether it belongs in the
-    /// constraint-driven sidebar instead of here.
+    /// Needed because the scheduler is a per-model option shown in a
+    /// model-agnostic window: without the selected model's constraints, this could
+    /// offer a scheduler the model overrides.
     @Environment(GenerationController.self) private var controller: GenerationController
     @Environment(NotificationController.self) private var notificationController:
         NotificationController
@@ -241,10 +241,10 @@ struct SettingsView: View {
 
                     Spacer()
 
-                    // A distilled model pins its scheduler, so offering a picker
-                    // here let Settings display PNDM while every generation ran
-                    // Flow Match. Pinned is shown disabled at the value that will
-                    // actually be used, matching how the sidebar treats steps.
+                    // A distilled model pins its scheduler, so a picker here would
+                    // display one value while every generation used another. Pinned
+                    // is shown disabled at the value that will be used, matching
+                    // how the sidebar treats a pinned step count.
                     let scheduler = controller.currentConstraints.scheduler
                     if let pinned = scheduler.pinnedOption {
                         Text(pinned.displayName)

@@ -13,15 +13,12 @@ import Foundation
 /// other way.
 ///
 /// It is recovered by matching against the models **discovery actually found**,
-/// rather than by re-running recognition. An earlier version called
-/// `IrisFluxKleinModel.init?` and `SDModel.init?` directly and called itself
-/// frozen, which it was not: those initialisers are live production sniffers that
-/// Phases 3 onward rewrite. Relaxing Klein's required-file list, say, would have
-/// silently changed which engine a legacy URL migrated to — and since users
-/// upgrade at different times, two users with identical preferences would migrate
-/// differently depending on which version they happened to land on. Matching
-/// discovered models instead means the migration agrees with the list the user is
-/// about to see, whatever recognition has become.
+/// rather than by re-running recognition. Calling the model initialisers directly
+/// would tie the outcome to live recognition rules: relaxing Klein's required-file
+/// list would silently change which engine a legacy URL migrated to, and since
+/// users upgrade at different times, two identical preferences would migrate
+/// differently depending on which version each user landed on. Matching discovered
+/// models means the migration agrees with the list the user is about to see.
 ///
 /// Deciding and persisting are separate so the decision can be tested as a pure
 /// function. ``ConfigStore/migrateSelectedModelIfNeeded(discovered:)`` applies it.

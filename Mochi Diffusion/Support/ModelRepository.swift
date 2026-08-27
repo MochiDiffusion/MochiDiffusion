@@ -6,13 +6,13 @@
 import Foundation
 
 /// Filesystem paths and existence checks that are not any single engine's
-/// business. Discovery itself moved into the engines: each applies its own
+/// business. Discovery itself belongs to the engines: each applies its own
 /// recognition rules to its own source, and nothing arbitrates between them.
 ///
-/// `modelExists` is still here because `GenerationService` checks it before
-/// generating. That is really an engine-runtime question — only the engine knows
-/// what "present" means for its models, and a hosted model is never on disk at
-/// all — so it moves in Phase 3.
+/// ``modelExists(_:)`` serves engines whose models are local directories. What
+/// "present" means is ultimately an engine's own question — a hosted model is
+/// never on disk at all — so a hosted engine would answer it for itself rather
+/// than come here.
 actor ModelRepository {
     private let fileSystem: FileSystemStore
 

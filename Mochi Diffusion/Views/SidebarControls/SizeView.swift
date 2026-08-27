@@ -69,8 +69,7 @@ struct SizeView: View {
 
     /// Swapping is only offered when it would do something: either the size is
     /// freeform, or the engine has a model for the flipped orientation. A
-    /// fixed-size model with no sibling used to show the button and silently do
-    /// nothing.
+    /// fixed-size model with no sibling has nothing to swap to.
     private var canSwap: Bool {
         controller.canSetSize(width: Int(resolvedSize.height), height: Int(resolvedSize.width))
     }

@@ -116,7 +116,7 @@ nonisolated enum KleinWeightLayout {
     /// stays shallow on purpose, since parsing every index for every model on
     /// every folder-change event would put real I/O on that path.
     case sharded
-    /// Nothing — used to assert the model is rejected.
+    /// Nothing, for asserting that the model is rejected.
     case missing
 }
 

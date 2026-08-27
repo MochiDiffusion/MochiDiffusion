@@ -10,18 +10,12 @@ import Testing
 
 @testable import Mochi_Diffusion
 
-/// Pins the request `GenerationController.buildGenerationRequest()` builds today,
-/// field by field.
+/// Pins the request `GenerationController.buildGenerationRequest()` builds, field
+/// by field.
 ///
-/// Phase 2 of `Multi-Engine-Design.md` moves this function's per-engine branches
-/// into per-engine `plan` implementations. That is a behaviour-preserving
-/// refactor, so "the request is unchanged" is the only meaningful definition of
-/// success — and until now nothing asserted what the request even is.
-///
-/// These tests describe current behaviour, including the parts that are odd. Where
-/// something looks wrong rather than merely surprising it is called out in a
-/// comment, so the Phase 4 constraint work has a list to fix rather than a
-/// contract to preserve.
+/// The request is the contract between the sidebar and the engines: every value an
+/// engine will use and every value the queue displays. Asserting it whole is what
+/// makes a change to how a draft is resolved provably behaviour-preserving.
 @MainActor
 struct GenerationRequestBuilderTests {
     let temp: TempDirectory
@@ -299,10 +293,9 @@ struct GenerationRequestBuilderTests {
 
         let request = try #require(controller.buildGenerationRequest())
 
-        // The whole ControlNet loop is gated on the model having a fixed input
-        // size, so a fully configured ControlNet is silently discarded here.
-        // Phase 4 should express this as an unsupported constraint that hides the
-        // control instead.
+        // ControlNet needs a fixed input size to scale its guide images to, so a
+        // freeform model reports it unsupported and the sidebar hides the control.
+        // A configured ControlNet reaching here anyway is dropped.
         #expect(request.controlNetImageData.isEmpty)
         #expect(request.controlNetNames.isEmpty)
     }
@@ -358,8 +351,8 @@ struct GenerationRequestBuilderTests {
 
         let request = try #require(controller.buildGenerationRequest())
 
-        // The same UI state lands in a different field per engine. This is the
-        // divergence Phase 2's per-engine `plan` has to preserve exactly.
+        // The same sidebar state lands in a different field per engine: Core ML
+        // records a starting image, Iris an input image.
         #expect(request.startingImageName == nil)
         #expect(request.inputImageNames == ["in.png"])
         let data = try #require(request.startingImageData)
@@ -393,18 +386,15 @@ struct GenerationRequestBuilderTests {
 
         let request = try #require(controller.buildGenerationRequest())
 
-        // Klein is distilled: four steps on flow-match, whatever the sidebar
-        // says. The request used to carry the sidebar's 23 while the queue
-        // displayed 4 through a pipeline helper and the generator hardcoded its
-        // own 4 -- three places to disagree. `plan` resolves it once, so all
-        // three now read the same value. The queue shows the same 4 it did
-        // before; only where the number comes from changed.
+        // Klein is distilled: four steps on flow-match, whatever the sidebar says.
+        // Resolved once by `plan`, so the request, the queue row and the saved
+        // metadata cannot disagree about how many steps ran.
         #expect(request.stepCount == 4)
         #expect(request.scheduler == .discreteFlowScheduler)
 
         // Klein declares no guidance scale, so `plan` resolves it to nothing and
         // the queue leaves the row out rather than printing a number that had no
-        // effect. It used to carry the sidebar's 6.5 and ignore it.
+        // effect on the image.
         #expect(request.guidanceScale == nil)
         // The negative prompt is still carried. Klein ignores it, and 4b stops
         // the sidebar offering it, but nothing resolves free text away.

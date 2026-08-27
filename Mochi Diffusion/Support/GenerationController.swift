@@ -63,25 +63,25 @@ final class GenerationController {
     private var controlNetDirDebounceTask: Task<Void, Never>?
     private var generationUpdatesTask: Task<Void, Never>?
     private var generationResultsTask: Task<Void, Never>?
-    /// Stored, and weak inside, so `shutdown()` can reach it. It used to be a
-    /// bare `Task { await loadModels() }`, which captured `self` strongly and was
-    /// held by nothing — so it kept the controller alive until the load finished
-    /// and `shutdown()` had no handle to cancel.
+    /// Stored, and capturing weakly, so ``shutdown()`` can reach it. An
+    /// unreferenced `Task` capturing `self` strongly would keep the controller
+    /// alive until the load finished, with no handle to cancel.
     private var initialLoadTask: Task<Void, Never>?
-    /// `withObservationTracking` callbacks stay armed until they fire, and firing
-    /// is what re-registers them. Cancelling tasks therefore does not stop a
-    /// configuration change after `shutdown()` from scheduling fresh debounce work
-    /// and arming observation all over again, so shutdown was not terminal.
+    /// Checked before arming observation, scheduling a debounce or starting a
+    /// monitor.
+    ///
+    /// A `withObservationTracking` callback stays armed until it fires, and firing
+    /// is what re-registers it, so cancelling tasks alone does not stop a
+    /// configuration change after ``shutdown()`` from scheduling fresh work.
     private var isShutDown = false
 
     /// - Parameter startsObserving: whether to begin the eager work — the initial
     ///   model load, the folder monitors, and the generation-service observation.
     ///   The app always wants it. Tests opt out so the controller owns no
     ///   background task that can reload models, and therefore reassign
-    ///   `currentModelId`, in the middle of their assertions; `currentModelId`'s
-    ///   `didSet` clears `currentControlNets`, so a stray reload silently empties
-    ///   state a test just set up. §11.5 of `Multi-Engine-Design.md` wants this
-    ///   seam to grow into an explicit lifecycle with a matching shutdown path.
+    ///   ``currentModelId``, in the middle of their assertions: its `didSet` clears
+    ///   ``currentControlNets``, so a stray reload silently empties state a test
+    ///   just set up.
     init(
         configStore: ConfigStore,
         modelRepository: ModelRepository = ModelRepository(),
@@ -127,11 +127,10 @@ final class GenerationController {
             let discoveredModels = discoveries.allModels
             guard !discoveredModels.isEmpty else {
                 // "Nothing was found" and "nothing could be read" need different
-                // messages. Reporting an unreadable models folder as an empty one
-                // sends the user looking for missing models when the problem is
-                // the folder, and it made the access-error branch below
-                // unreachable. Phase 5's picker replaces this single global
-                // message with per-engine availability reasons.
+                // messages: reporting an unreadable models folder as an empty one
+                // sends the user looking for missing models when the problem is the
+                // folder. Engines report their own reasons, which this single
+                // message flattens.
                 if discoveries.failures.isEmpty {
                     throw GenerationError.noModelsFound
                 }
@@ -175,9 +174,8 @@ final class GenerationController {
 
     func generate() async {
         guard let request = buildGenerationRequest() else { return }
-        // Core ML writes through ImageRepository, so a bad images folder should
-        // surface before the job is queued rather than after it runs. Iris takes
-        // the same path, so the check is no longer conditional.
+        // Both engines write through ImageRepository, so an unwritable images
+        // folder should surface before the job is queued rather than after it runs.
         do {
             _ = try await imageRepository.ensureOutputDirectory(
                 imageDir: request.imageDir
@@ -340,9 +338,9 @@ final class GenerationController {
 
     /// Selects the model a gallery image was generated with.
     ///
-    /// An image written since engines exist records its engine and key, so it can
-    /// be resolved exactly. Older images carry only a display name, which is the
-    /// ambiguity §9.4 of `Multi-Engine-Design.md` is about.
+    /// An image whose metadata records an engine and key resolves exactly. Older
+    /// images carry only a display name, which two engines may both offer — see
+    /// ``setModel(_:)`` for how that ambiguity is settled.
     func selectModel(named name: String, engine: String, key: String) {
         if !engine.isEmpty, !key.isEmpty {
             let id = ModelID(engine: EngineID(rawValue: engine), key: key)
@@ -386,9 +384,8 @@ final class GenerationController {
     ///
     /// Core ML models are converted at a fixed resolution and usually ship as a
     /// per-orientation set, so a size the current model cannot produce may be
-    /// another model's. The engine answers whether such a model exists — the
-    /// name-prefix search used to live here, which meant the controller knew how
-    /// one engine names its files.
+    /// another model's. The engine answers whether such a model exists, so this
+    /// does not have to know how any engine names its files.
     func setSize(width: Int, height: Int) {
         guard let model = currentModel else { return }
         let size = CGSize(width: width, height: height)
@@ -449,10 +446,12 @@ final class GenerationController {
         configStore.guidanceScale = sdi.guidanceScale
     }
 
-    /// Internal rather than private so the regression suite can assert the exact
-    /// request the app builds. The per-engine branches this used to hold now live
-    /// in each engine's `plan`; what is left is gathering the sidebar into a draft
-    /// and copying the resolved plan into the request.
+    /// Gathers the sidebar into a ``GenerationDraft``, hands it to the selected
+    /// model's engine to resolve, and copies the resulting plan into a request.
+    /// Every per-engine decision belongs to that engine's `plan`.
+    ///
+    /// Internal rather than private so tests can assert the exact request the app
+    /// builds.
     func buildGenerationRequest() -> GenerationRequest? {
         guard let model = currentModel else { return nil }
         guard let engine = engineRegistry.engine(model.id.engine) else {
@@ -521,13 +520,12 @@ final class GenerationController {
         )
     }
 
-    /// Cancels every task this controller owns.
+    /// Cancels every task this controller owns and stops it starting new ones.
     ///
-    /// The observation loops iterate streams that never end on their own, so
+    /// The observation loops iterate streams that never end by themselves, so
     /// without this they keep consuming after the controller is finished with.
-    /// The folder monitors were worse: they promoted `self` to a strong reference
-    /// before entering the loop, so task and controller kept each other alive
-    /// until something cancelled — which nothing did. See §11.6.
+    /// Call before releasing a controller that was constructed with
+    /// `startsObserving: true`.
     func shutdown() {
         isShutDown = true
         initialLoadTask?.cancel()

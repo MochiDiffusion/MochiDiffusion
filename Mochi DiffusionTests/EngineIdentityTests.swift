@@ -8,10 +8,9 @@ import Testing
 
 @testable import Mochi_Diffusion
 
-/// `ModelID.key` is persisted data, so its rules are pinned here rather than left
-/// to whatever `URL` happens to do. §5.1 of `Multi-Engine-Design.md` asks for
-/// traversal, symlink and case-sensitivity policy to be decided explicitly; these
-/// tests are that decision.
+/// `ModelID.key` is persisted data, so its derivation, traversal, symlink and
+/// case-sensitivity rules are pinned here rather than left to whatever `URL`
+/// happens to do.
 struct ModelIDKeyTests {
 
     // MARK: - Derivation
@@ -31,10 +30,10 @@ struct ModelIDKeyTests {
         #expect(ModelID.localKey(for: url) == "sd-model")
     }
 
-    /// The bug this design replaces: identity used to be the exact `URL`
-    /// enumeration returned, and enumeration spells the prefix differently from
-    /// the root it was handed. Derived through real discovery rather than
-    /// hand-built URLs, because the discrepancy only appears there.
+    /// Enumeration spells a path's prefix differently from the root it was handed,
+    /// so a key derived from one cannot be compared against the other. Derived
+    /// through real discovery rather than hand-built URLs, because the discrepancy
+    /// only appears there.
     @Test("Discovery yields the same keys as the names on disk")
     func discoveredKeysMatchDiskNames() throws {
         let temp = try TempDirectory()
@@ -50,7 +49,8 @@ struct ModelIDKeyTests {
         let keys = discovered.map { ModelID.localKey(for: $0) }.sorted()
 
         #expect(keys == ["Casing-Preserved", "a-model", "b-model"])
-        // The prefix genuinely differs, which is what used to break matching.
+        // The prefix genuinely differs from the root that was passed in, which is
+        // what breaks matching on full paths.
         #expect(discovered.allSatisfy { $0.path(percentEncoded: false).contains("/models/") })
     }
 

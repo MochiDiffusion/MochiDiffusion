@@ -14,12 +14,9 @@ import StableDiffusion
 /// user's preference and stops their existing images from parsing. Read
 /// ``displayName`` for anything shown on screen.
 ///
-/// The two happen to read the same today, which is exactly how a display string
-/// ends up load-bearing: §6 of `Multi-Engine-Design.md` requires choice
-/// constraints to carry stable ids separately from labels, and using `rawValue`
-/// for both meant the first attempt to localise or rename a scheduler would have
-/// silently broken stored data. Splitting them now costs nothing and no
-/// migration, because the identifiers do not change.
+/// The two read the same today, which is how a display string ends up
+/// load-bearing. Keeping them separate means a label can be reworded or localised
+/// without touching stored data.
 nonisolated enum Scheduler: String, CaseIterable, Sendable {
     /// Scheduler that uses a pseudo-linear multi-step (PLMS) method
     case pndmScheduler = "PNDM"

@@ -192,10 +192,9 @@ private struct InfoPopoverView: View {
         request.metadataFields
     }
 
-    /// The request's own values, because `plan` already resolved them. These used
-    /// to be recomputed here through the pipeline, so a distilled model's queue
-    /// row showed four steps while the request carried whatever the sidebar said.
-    /// The remaining `Optional` is only "does this model record the field".
+    /// The request's own values, because `plan` already resolved them. Recomputing
+    /// them here would let the row and the request disagree. The `Optional` is only
+    /// whether the model records the field.
     private var effectiveStepCount: Int? {
         metadataFields.contains(.steps) ? request.stepCount : nil
     }
@@ -205,9 +204,7 @@ private struct InfoPopoverView: View {
     }
 
     /// `plan` leaves these `nil` when the model does not use the option, so a row
-    /// is absent rather than showing a value that had no effect. They used to be
-    /// gated on a capability flag and on `metadataFields`, neither of which says
-    /// anything about the value itself.
+    /// is absent rather than showing a value that had no effect on the image.
     private var effectiveStrength: Float? {
         request.strength
     }

@@ -12,10 +12,9 @@ import Testing
 /// Engines discover independently: each applies only its own recognition rules to
 /// its own configured source, and nothing arbitrates between them.
 ///
-/// This replaces the sniffing chain in `ModelRepository.load`, where the first
-/// matching kind won and a single thrown error emptied the whole model list. The
-/// test that pinned that precedence — `kleinTakesPrecedenceOverCoreML` — is gone
-/// with it, since exclusivity was the behaviour being removed.
+/// Two consequences worth pinning: a directory both engines recognise is offered
+/// twice under distinct ids rather than claimed by one, and one engine failing
+/// leaves every other engine's models intact.
 struct EngineDiscoveryTests {
     let temp: TempDirectory
     let modelDir: URL
@@ -145,9 +144,8 @@ struct EngineDiscoveryTests {
     }
 }
 
-/// The engine, its models and its payload are one checked triple. §5.4 of
-/// `Multi-Engine-Design.md` asks for a payload that "can only be executed by its
-/// originating engine"; these are that.
+/// An engine, its model type and its payload type are one checked triple, so a
+/// payload can only be executed by the engine that produced it.
 struct EnginePayloadOwnershipTests {
     let temp: TempDirectory
     let modelDir: URL
@@ -346,8 +344,7 @@ struct EngineRegistryTests {
 
         let models = await EngineRegistry().discoverAll(settings: settings).allModels
 
-        // Preserved from the pre-engine loader: one flat list ordered by name,
-        // regardless of which engine found what. Phase 5 groups by engine.
+        // One flat list ordered by name, regardless of which engine found what.
         #expect(models.map(\.name) == ["a-klein-model", "B-coreml-model"])
     }
 

@@ -132,8 +132,8 @@ nonisolated enum MetadataCodec {
 
     /// Version 2 writes the version first, so detection never has to guess from
     /// the shape of the rest of the caption. That matters because a version 2
-    /// value may legitimately contain `"; "`, which version 1 used to separate
-    /// fields.
+    /// value may legitimately contain `"; "`, which is version 1's field
+    /// separator.
     private static func detectVersion(_ caption: String) -> Int {
         guard
             let firstLine = caption.components(separatedBy: fieldSeparator).first,

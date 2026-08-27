@@ -32,11 +32,11 @@ private actor LeaseLog {
 
 /// Pins the guarantee an actor does *not* provide.
 ///
-/// `IrisEngineRuntime` is an actor, which was mistakenly taken to mean only one
-/// `run` could be in flight. Actors are reentrant at every suspension point, and
-/// `run` suspends on the embedding cache, on encoding, and on delivering results —
-/// so a second call could interleave and reset the C library's process-global
-/// callback route and cancel flag under a request that still owned a context.
+/// Actors are reentrant at every suspension point, and `IrisEngineRuntime.run`
+/// suspends on the embedding cache, on encoding, and on delivering results. Making
+/// it an actor therefore does not stop a second call interleaving and resetting the
+/// C library's process-global callback route and cancel flag under a request that
+/// still owns a context.
 struct IrisSingleFlightTests {
 
     @Test("An uncontended lease is taken immediately")

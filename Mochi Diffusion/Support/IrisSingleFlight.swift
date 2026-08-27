@@ -8,24 +8,20 @@ import Foundation
 /// Process-wide gate around the Iris C library, which allows one generation at a
 /// time whatever the queue above it does.
 ///
-/// **An actor is not enough for this, which is what makes the type necessary.**
-/// `IrisEngineRuntime` is an actor, and Phase 3's commit message claimed that made
-/// single-flight structural. It does not: actors are reentrant at every
-/// suspension point, and `run` suspends four times — twice on the embedding
-/// cache, once encoding image data, once delivering a result. A second `run` can
-/// enter during any of them and call `iris_clear_cancel()`, install its own
-/// callback route and load a second context while the first request still owns
-/// one. Two separate runtime instances can overlap for the same reason, since the
-/// C state is per process rather than per instance.
+/// **Making the runtime an actor does not achieve this.** Actors are reentrant at
+/// every suspension point, and ``IrisEngineRuntime/run(request:session:onResult:)``
+/// suspends four times — twice on the embedding cache, once encoding image data,
+/// once delivering a result. A second call can enter during any of them and call
+/// `iris_clear_cancel()`, install its own callback route and load a second context
+/// while the first still owns one. Two runtime instances can overlap for the same
+/// reason: the C library's callback slots and cancel flag are per process, not per
+/// instance.
 ///
-/// Nothing hits that today only because `GenerationService` runs one request at a
-/// time — the external serialization assumption §11.3 says must not be what an
-/// invariant rests on. This makes the guarantee local: whoever holds the lease
-/// owns the C library until they give it back.
+/// Whoever holds the lease owns the C library until they give it back, so the
+/// guarantee does not depend on how many requests the queue above chooses to run.
 ///
-/// Deliberately not a lock. Waiting on a lock would block a cooperative-pool
-/// thread for the length of another generation, and the whole point of a lease is
-/// that waiting for it is a suspension rather than a stall.
+/// Deliberately not a lock: waiting on one would block a cooperative-pool thread
+/// for the length of another generation, where waiting for a lease suspends.
 actor IrisSingleFlight {
     static let shared = IrisSingleFlight()
 

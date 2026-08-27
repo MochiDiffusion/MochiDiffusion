@@ -9,8 +9,7 @@ import Testing
 
 @testable import Mochi_Diffusion
 
-/// Pins normalization, which is where §6's "normalize, throw only if impossible"
-/// decision actually lives.
+/// Pins normalization: values out of range are clamped and snapped, not rejected.
 ///
 /// The sidebar's persisted values routinely will not fit a newly selected model —
 /// a width from a freeform model, a guidance scale from a Core ML one — and
@@ -206,10 +205,9 @@ struct OptionConstraintsTests {
 
 /// Pins what the sidebar will actually show for the two real models.
 ///
-/// The views ask the constraints these same questions, so asserting them here is
-/// what the "no view tests, testable decisions instead" call in §6 buys: a
-/// regression shows up as a failing expectation rather than as a control quietly
-/// reappearing.
+/// The views ask the constraints these same questions, so a regression shows up as
+/// a failing expectation here rather than as a control quietly reappearing in the
+/// sidebar.
 struct ModelVisibilityTests {
     let temp: TempDirectory
 
@@ -259,8 +257,8 @@ struct ModelVisibilityTests {
     }
 
     /// ControlNet needs a fixed size to scale guide images to, and `SDModel`
-    /// reports no matching nets for a freeform model — so the section is hidden
-    /// rather than shown and then ignored, which is what used to happen.
+    /// reports no matching nets for a freeform model, so the section is hidden
+    /// rather than shown and then ignored.
     @Test("ControlNet is unsupported without a fixed size")
     func controlNetNeedsFixedSize() throws {
         let controlNetDir = try temp.subdirectory("controlnet")

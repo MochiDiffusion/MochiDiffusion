@@ -12,18 +12,18 @@ import Foundation
 /// needs them reachable from inside its own folder. Mochi keeps one shared folder
 /// and links it in.
 ///
-/// Used to be done during discovery, for every capable model, on every
-/// folder-change event — a write on a read path. Now the runtime does it for the
-/// one model it is about to load.
+/// Called by the runtime for the one model it is about to load, rather than during
+/// discovery: linking every capable model on every folder-change event would mean
+/// writing to the user's models folder from a read path.
 nonisolated enum ControlNetLink {
     private static let componentName = "controlnet"
 
     /// Points `<modelURL>/controlnet` at `configured` if it does not already, and
     /// returns the location ControlNet bundles will actually be loaded from.
     ///
-    /// The returned value belongs in the pipeline cache key. Without it, changing
-    /// the configured folder produced an identical key, so a pipeline loaded from
-    /// the old folder was reused for as long as the app ran.
+    /// The returned value belongs in the pipeline cache key. A key that omits it
+    /// cannot tell two folders holding same-named bundles apart, so a pipeline
+    /// loaded from the previous folder would be reused for as long as the app ran.
     ///
     /// **A real directory is never replaced.** `ml-stable-diffusion` loads from
     /// `<model>/controlnet` whether or not that is a link, so someone who does not

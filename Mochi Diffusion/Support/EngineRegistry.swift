@@ -31,9 +31,8 @@ actor EngineRegistry {
     }
 
     /// `nonisolated` because the engines are immutable `Sendable` values and the
-    /// sidebar reads them on every request it builds. This is the descriptor half
-    /// of the split in §5.3: engine facts without an actor hop. Discovery stays
-    /// isolated — it does I/O.
+    /// sidebar reads them on every request it builds, so engine facts need no actor
+    /// hop. Discovery stays isolated, because it does I/O.
     nonisolated private let engines: [AnyGenerationEngine]
     private let logger = Logger()
 
@@ -86,14 +85,12 @@ nonisolated extension EngineRegistry.Discovery {
 /// predicate synchronously on whatever thread it is running on — so the sort
 /// below trapped in `dispatch_assert_queue` rather than failing to compile.
 nonisolated extension [EngineRegistry.Discovery] {
-    /// Every discovered model, ordered for the single flat picker the sidebar
-    /// still shows.
+    /// Every discovered model, ordered for one flat picker.
     ///
-    /// Sorted by name the way the pre-engine loader sorted it — case- and
-    /// diacritic-insensitively — then by engine id, because independent discovery
-    /// means two engines can expose the same directory and therefore the same
-    /// name. Without the second key that pair's order would depend on dictionary
-    /// iteration. Phase 5 groups by engine instead.
+    /// Sorted by name, case- and diacritic-insensitively, then by engine id.
+    /// The second key matters because engines discover independently, so two of
+    /// them can expose the same directory and therefore the same name — without it,
+    /// that pair's order would depend on dictionary iteration.
     var allModels: [any EngineModel] {
         flatMap(\.models)
             .sorted { lhs, rhs in

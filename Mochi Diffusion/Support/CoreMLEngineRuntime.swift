@@ -36,20 +36,16 @@ nonisolated struct CoreMLGenerationConfig {
 /// Runs Core ML Stable Diffusion requests and owns the loaded pipeline between
 /// them.
 ///
-/// An `actor`, which is what let the previous `@unchecked Sendable` conformance go
-/// away. That conformance was justified by a comment asserting `GenerationService`
-/// serialized generation — an invariant the compiler could not see and the
-/// per-engine-lane work in §11.7 would have silently broken. The pipeline and its
-/// cache key are now ordinary isolated state.
+/// An `actor`, so the loaded pipeline and its cache key are ordinary isolated
+/// state rather than something guarded by an external serialization assumption.
 ///
-/// The blocking `generateImages` call runs *inside* the actor, so it occupies the
-/// actor's executor for the length of a generation. That is deliberate and it is a
-/// trade: moving it out would mean sending the non-`Sendable` pipeline across an
-/// isolation boundary and back, which Swift's region analysis cannot prove safe
-/// for a value read out of actor storage. Nothing deadlocks on it, because the
-/// only two things that would want in during a generation do not come here —
-/// cancellation goes to the ``GenerationSession``, and the queue admits one
-/// request at a time.
+/// The blocking `generateImages` call runs *inside* the actor and occupies its
+/// executor for the length of a generation. That is a deliberate trade: moving it
+/// out would mean sending the non-`Sendable` pipeline across an isolation boundary
+/// and back, which Swift's region analysis cannot prove safe for a value read out
+/// of actor storage. Nothing deadlocks on it, because the two things that would
+/// want in during a generation do not come here — cancellation goes to the
+/// ``GenerationSession``, and the queue admits one request at a time.
 actor CoreMLEngineRuntime: GenerationEngineRuntime {
     private var pipeline: (any StableDiffusionPipelineProtocol)?
     private var currentPipelineHash: Int?
@@ -73,9 +69,8 @@ actor CoreMLEngineRuntime: GenerationEngineRuntime {
             throw EngineError.payloadDoesNotBelongToEngine(engine: .coreMLStableDiffusion)
         }
 
-        // Moved out of the queue, which used to downcast this payload itself to
-        // ask the question. Whether a model is still on disk is knowledge about
-        // this engine's models, so it belongs to this engine.
+        // Whether a model is still on disk is knowledge about this engine's
+        // models, so the queue does not have to inspect the payload to ask.
         guard await modelRepository.modelExists(payload.model) else {
             throw GenerationError.requestedModelNotFound
         }

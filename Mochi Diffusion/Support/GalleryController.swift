@@ -20,10 +20,10 @@ final class GalleryController {
 
     private var imageFolderMonitorTask: Task<Void, Never>?
     private var imageDirDebounceTask: Task<Void, Never>?
-    /// See `GenerationController.initialLoadTask`: stored and weak so
-    /// `shutdown()` can cancel it and it cannot outlive its owner.
+    /// Stored, and capturing weakly, so ``shutdown()`` can cancel it and it cannot
+    /// outlive its owner.
     private var initialLoadTask: Task<Void, Never>?
-    /// See `GenerationController.isShutDown`: cancelling tasks does not disarm a
+    /// See ``GenerationController/isShutDown``: cancelling tasks does not disarm a
     /// `withObservationTracking` callback, and firing is what re-arms it.
     private var isShutDown = false
 
@@ -230,8 +230,8 @@ final class GalleryController {
         let path = imageDirectoryPath()
         imageFolderMonitorTask = Task { [weak self] in
             // Weak inside the loop rather than hoisted before it: the loop never
-            // ends on its own, so a strong `self` here meant the task and the
-            // controller kept each other alive indefinitely (§11.6).
+            // ends on its own, so a strong `self` here would keep the task and the
+            // controller alive indefinitely.
             let stream = await FolderMonitorService.shared.updates(for: path)
             for await _ in stream {
                 guard let self else { return }
@@ -240,8 +240,8 @@ final class GalleryController {
         }
     }
 
-    /// Cancels every task this controller owns. See
-    /// `GenerationController.shutdown()`.
+    /// Cancels every task this controller owns and stops it starting new ones.
+    /// See ``GenerationController/shutdown()``.
     func shutdown() {
         isShutDown = true
         initialLoadTask?.cancel()

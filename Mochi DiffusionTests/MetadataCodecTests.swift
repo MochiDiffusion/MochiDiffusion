@@ -172,10 +172,9 @@ struct MetadataCodecTests {
 
     // MARK: - Malformed input
 
-    /// `parseMetadataInfo` used to offset two characters past the colon and
-    /// bounds-check afterwards, so a recognised key with a bare trailing colon
-    /// trapped with "String index is out of bounds" instead of parsing. The
-    /// caption comes from arbitrary imported files, so this was reachable.
+    /// A caption comes from an arbitrary imported file, so decoding must not trap
+    /// on one. Offsetting past the key separator before bounds-checking traps on a
+    /// recognised key with a bare trailing colon.
     @Test(
         "A recognised key with no value parses instead of trapping",
         arguments: [
@@ -214,9 +213,8 @@ struct MetadataCodecTests {
 
     @Test("Unknown keys are skipped without discarding known ones")
     func unknownKeysAreSkipped() {
-        // `Engine` used to stand in for a hypothetical future key here, until it
-        // became a real one. `Revised Prompt` and `Refiner` are the placeholders
-        // now; when one of them ships, this test will say so.
+        // `Revised Prompt` and `Refiner` stand in for keys a future version might
+        // write. If either becomes real, this test fails and says so.
         let parsed = MetadataCodec.decode(
             """
             Metadata Version: 2

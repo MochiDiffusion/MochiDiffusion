@@ -12,12 +12,9 @@ import Testing
 /// Pins how the selected model is restored across launches, and what happens when
 /// it cannot be.
 ///
-/// §7 of `Multi-Engine-Design.md` calls the preference migration the highest-risk
-/// detail in the plan: the legacy `Model` key holds a bare `URL`, and Phase 2
-/// replaces it with an engine-qualified `ModelID` while both local engines still
-/// share one directory. The migration cannot be tested before it exists, so what
-/// is pinned here is the contract it has to preserve — which model a user ends up
-/// with, given what is on disk and what was persisted.
+/// What is pinned is the user-visible contract: which model they end up with,
+/// given what is on disk and what was persisted. Getting this wrong silently
+/// switches someone's model on launch, which is worse than failing loudly.
 ///
 /// `loadModels()` is exercised directly rather than through `init`. The
 /// initialiser only schedules it, and awaiting an unowned background task would
@@ -90,12 +87,11 @@ struct ModelSelectionPersistenceTests {
         #expect(controller.currentModel?.name == "b-model")
     }
 
-    /// Identity used to be the exact `URL` `contentsOfDirectory` returned —
-    /// symlinks resolved, trailing slash — matched by plain equality, so a path
-    /// naming the same directory in any other spelling missed and the user
-    /// silently got the first model instead of theirs. This was a `withKnownIssue`
-    /// until `ModelID` replaced URL identity: a key is the directory's own name,
-    /// so there is only one spelling left to get wrong.
+    /// A key is the model directory's own name, so there is only one spelling of it
+    /// to get wrong. Identifying a model by the exact `URL` that
+    /// `contentsOfDirectory` returned — symlinks resolved, trailing slash — matched
+    /// by plain equality instead means any other spelling of the same directory
+    /// misses, and the user silently gets the first model rather than theirs.
     @Test("A selection is restored however the models directory is spelled")
     func selectionIsIndependentOfPathSpelling() async throws {
         try makeTwoModels()
@@ -161,9 +157,8 @@ struct ModelSelectionPersistenceTests {
         let second = makeController()
         await second.loadModels()
 
-        // Today both engines' models live in one directory and are told apart by
-        // sniff order, so a restored URL is unqualified. Phase 2 makes the
-        // persisted identity engine-qualified; this must keep working.
+        // Both engines' models live in one directory, so a persisted identity has
+        // to name the engine as well as the model to restore this unambiguously.
         #expect(second.currentModel?.name == "b-klein")
         #expect(second.currentModel is IrisFluxKleinModel)
     }
@@ -292,14 +287,8 @@ struct ModelSelectionPersistenceTests {
 
     // MARK: - Selection by name
 
-    /// `copyModelToPrompt` resolves a model by its display name, which §9.4 says
-    /// has to grow engine awareness in Phase 2. Pinned as the baseline that change
-    /// is measured against.
-    ///
-    /// `setSize(width:height:)` is deliberately not pinned: its model-name-prefix
-    /// orientation matching is slated for deletion in Phase 4, and pinning
-    /// behaviour we intend to remove is what made `kleinTakesPrecedenceOverCoreML`
-    /// a liability.
+    /// A display name is all a pre-engine image's metadata recorded, so selecting
+    /// by name has to keep working even though two engines may offer the same one.
     @Test("A model is selectable by display name")
     func setModelByName() async throws {
         try makeTwoModels()
@@ -336,8 +325,10 @@ struct ModelSelectionPersistenceTests {
         #expect(controller.currentModel is IrisFluxKleinModel)
     }
 
-    /// §9.4: independent discovery means one directory can be offered by two
-    /// engines under the same display name, so a name alone stopped being enough.
+    /// Engines discover independently, so one directory can be offered by two of
+    /// them under the same display name. Preferring the engine already selected
+    /// keeps a name collision from moving the user off the engine they are working
+    /// in.
     @Test("A name both engines offer keeps the engine already selected")
     func setModelPrefersTheCurrentEngine() async throws {
         let ambiguous = modelDir.appending(path: "ambiguous")

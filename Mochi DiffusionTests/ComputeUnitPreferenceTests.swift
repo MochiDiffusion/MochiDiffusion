@@ -9,12 +9,9 @@ import Testing
 
 @testable import Mochi_Diffusion
 
-/// Compute unit selection is Core ML specific and now happens inside
-/// `CoreMLStableDiffusionEngine.plan`; the auto behaviour is the part users
-/// notice.
-///
-/// No longer `@MainActor`: `ComputeUnitPreference` became `nonisolated` when the
-/// engine started resolving it, exactly as §12.1 of the design document expected.
+/// Compute unit selection is Core ML specific and happens inside
+/// `CoreMLStableDiffusionEngine.plan`. The `auto` behaviour is the part users
+/// notice, since it follows the model's attention type rather than a setting.
 struct ComputeUnitPreferenceTests {
     let temp: TempDirectory
 

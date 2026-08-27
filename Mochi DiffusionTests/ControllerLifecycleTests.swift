@@ -10,16 +10,15 @@ import Testing
 
 /// Pins that a controller can actually be released.
 ///
-/// Phase 3 fixed loops that hoisted a strong `self` before entering a stream that
-/// never ends, so task and controller kept each other alive. Nothing catches a
-/// regression of that except a test like this one: re-hoisting a `guard let self`
-/// out of a loop compiles, reads as a simplification, and silently restores the
-/// cycle.
+/// A monitor loop iterates a stream that never ends, so hoisting a strong `self`
+/// out of the loop makes the task and the controller keep each other alive. That
+/// change compiles, reads as a simplification, and is invisible without a test
+/// like this one.
 @MainActor
 struct ControllerLifecycleTests {
     @Test("A generation controller is released after shutdown")
-    func generationControllerIsReleased() async throws {
-        let defaults = try TempDefaults()
+    func generationControllerIsReleased() async {
+        let defaults = TempDefaults()
         weak var weakController: GenerationController?
 
         do {
@@ -38,8 +37,8 @@ struct ControllerLifecycleTests {
     }
 
     @Test("A gallery controller is released after shutdown")
-    func galleryControllerIsReleased() async throws {
-        let defaults = try TempDefaults()
+    func galleryControllerIsReleased() async {
+        let defaults = TempDefaults()
         weak var weakController: GalleryController?
 
         do {
@@ -62,8 +61,8 @@ struct ControllerLifecycleTests {
     /// work all over again. If it still did, the new task would hold the
     /// controller and this would not deallocate.
     @Test("A settings change after shutdown does not revive the controller")
-    func settingsChangeAfterShutdownDoesNothing() async throws {
-        let defaults = try TempDefaults()
+    func settingsChangeAfterShutdownDoesNothing() async {
+        let defaults = TempDefaults()
         let configStore = ConfigStore(store: defaults.defaults)
         weak var weakController: GenerationController?
 
@@ -80,8 +79,8 @@ struct ControllerLifecycleTests {
     }
 
     @Test("A settings change after gallery shutdown does not revive it")
-    func gallerySettingsChangeAfterShutdownDoesNothing() async throws {
-        let defaults = try TempDefaults()
+    func gallerySettingsChangeAfterShutdownDoesNothing() async {
+        let defaults = TempDefaults()
         let configStore = ConfigStore(store: defaults.defaults)
         weak var weakController: GalleryController?
 
@@ -100,8 +99,8 @@ struct ControllerLifecycleTests {
     }
 
     @Test("Shutting down twice is harmless")
-    func shutdownIsIdempotent() throws {
-        let defaults = try TempDefaults()
+    func shutdownIsIdempotent() {
+        let defaults = TempDefaults()
         let controller = GenerationController(
             configStore: ConfigStore(store: defaults.defaults),
             startsObserving: true

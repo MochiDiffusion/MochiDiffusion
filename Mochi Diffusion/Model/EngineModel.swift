@@ -9,12 +9,9 @@ nonisolated enum MetadataField: String, CaseIterable, Sendable {
     case prompt
     case negativePrompt
     case model
-    /// Which engine generated the image, and its own key for the model.
-    ///
-    /// Recorded from Phase 2 rather than deferred, because engine identity exists
-    /// now: every image generated before these keys land is unqualified legacy
-    /// data forever, and the name-matching fallback would then have to cover our
-    /// own recent output rather than only pre-engine history.
+    /// Which engine generated the image, and that engine's own key for the model,
+    /// so an imported image can name a model exactly rather than by display name
+    /// alone.
     case engine
     case modelKey
     case size
@@ -34,14 +31,9 @@ nonisolated enum MetadataField: String, CaseIterable, Sendable {
 /// Identity is engine-qualified (``ModelID``), so two engines may expose the same
 /// directory without discovery having to arbitrate which one owns it.
 ///
-/// Phase staging, per `Multi-Engine-Design.md`:
-///
-/// - `url` is non-optional and `tokenizerModelDir` is still here because every
-///   model today is a local directory. A hosted model has neither: `url` should
-///   leave this protocol entirely once engines own their own path handling, and
-///   prompt token counting needs to become something an engine provides rather
-///   than a directory the UI tokenizes itself. Phase 6, when there will be two
-///   implementations to design against instead of one.
+/// `url` is non-optional and `tokenizerModelDir` exists because every model is
+/// currently a local directory. A hosted model would have neither, and both would
+/// need to move behind the engine before one could be added.
 nonisolated protocol EngineModel: Identifiable, Sendable {
     var id: ModelID { get }
     var url: URL { get }

@@ -22,8 +22,8 @@ struct SidebarView: View {
                     Spacer().frame(height: 6)
                 }
                 // Sections whose whole subject a model may not support are gated
-                // here rather than inside, so the divider and spacing go with
-                // them instead of leaving a gap where a control used to be.
+                // here rather than inside each view, so the divider and spacing go
+                // with them instead of leaving a gap.
                 if controller.currentConstraints.startingImage.isSupported {
                     Group {
                         StartingImageView()
