@@ -5,6 +5,14 @@
 
 import Foundation
 
+/// Filesystem paths and existence checks that are not any single engine's
+/// business. Discovery itself moved into the engines: each applies its own
+/// recognition rules to its own source, and nothing arbitrates between them.
+///
+/// `modelExists` is still here because `GenerationService` checks it before
+/// generating. That is really an engine-runtime question — only the engine knows
+/// what "present" means for its models, and a hosted model is never on disk at
+/// all — so it moves in Phase 3.
 actor ModelRepository {
     private let fileSystem: FileSystemStore
 
@@ -26,71 +34,8 @@ actor ModelRepository {
         )
     }
 
-    func load(modelDir: URL, controlNetDir: URL) throws -> [any EngineModel] {
-        var models: [any EngineModel] = []
-        let fm = FileManager.default
-
-        do {
-            let controlNet = controlNets(in: controlNetDir)
-            let subDirs = try fileSystem.subDirectories(in: modelDir)
-
-            models =
-                subDirs
-                .sorted {
-                    $0.lastPathComponent.compare(
-                        $1.lastPathComponent, options: [.caseInsensitive, .diacriticInsensitive])
-                        == .orderedAscending
-                }
-                .compactMap { url in
-                    if let irisFluxKleinModel = IrisFluxKleinModel(
-                        url: url,
-                        name: url.lastPathComponent
-                    ) {
-                        return irisFluxKleinModel
-                    }
-
-                    let controlledUnetMetadataPath = url.appending(
-                        components: "ControlledUnet.mlmodelc", "metadata.json"
-                    ).path(percentEncoded: false)
-                    let hasControlNet = fm.fileExists(atPath: controlledUnetMetadataPath)
-
-                    if hasControlNet {
-                        let controlNetSymLinkPath = url.appending(component: "controlnet").path(
-                            percentEncoded: false)
-
-                        if !fm.fileExists(atPath: controlNetSymLinkPath) {
-                            try? fm.createSymbolicLink(
-                                atPath: controlNetSymLinkPath,
-                                withDestinationPath: controlNetDir.path(
-                                    percentEncoded: false))
-                        }
-                    }
-
-                    return SDModel(
-                        url: url, name: url.lastPathComponent,
-                        controlNet: hasControlNet ? controlNet : [])
-                }
-        } catch {
-            throw SDImageGenerator.GeneratorError.modelSubDirectoriesNoAccess
-        }
-        if models.isEmpty {
-            throw SDImageGenerator.GeneratorError.noModelsFound
-        }
-        return models
-    }
-
     func modelExists(_ model: any EngineModel) -> Bool {
         fileSystem.fileExists(model.url)
     }
 
-    private func controlNets(in controlNetDirectoryURL: URL) -> [SDControlNet] {
-        guard fileSystem.fileExists(controlNetDirectoryURL),
-            let contentsOfControlNet = try? fileSystem.contentsOfDirectory(
-                at: controlNetDirectoryURL)
-        else {
-            return []
-        }
-
-        return contentsOfControlNet.compactMap { SDControlNet(url: $0) }
-    }
 }

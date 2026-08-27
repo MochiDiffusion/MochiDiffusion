@@ -63,6 +63,7 @@ final class GenerationController {
     private var logger = Logger()
     private(set) var configStore: ConfigStore
     private let modelRepository: ModelRepository
+    private let engineRegistry: EngineRegistry
     private let imageRepository: ImageRepository
     private(set) var generationQueue = [GenerationRequest]()
     private(set) var currentGeneration: GenerationRequest?
@@ -113,10 +114,12 @@ final class GenerationController {
         configStore: ConfigStore,
         modelRepository: ModelRepository = ModelRepository(),
         imageRepository: ImageRepository = ImageRepository(),
+        engineRegistry: EngineRegistry = EngineRegistry(),
         startsObserving: Bool = true
     ) {
         self.configStore = configStore
         self.modelRepository = modelRepository
+        self.engineRegistry = engineRegistry
         self.imageRepository = imageRepository
         guard startsObserving else { return }
         Task {
@@ -139,10 +142,24 @@ final class GenerationController {
             let controlNetDirectoryURL = ModelRepository.controlNetDirectoryURL(
                 fromPath: configStore.controlNetDir)
 
-            self.models = try await modelRepository.load(
-                modelDir: modelDirectoryURL,
-                controlNetDir: controlNetDirectoryURL
+            let discoveries = await engineRegistry.discoverAll(
+                settings: EngineSettings(
+                    modelDirectory: modelDirectoryURL,
+                    controlNetDirectory: controlNetDirectoryURL
+                )
             )
+            for (engine, error) in discoveries.failures {
+                logger.error("\(engine.rawValue) found no models: \(error)")
+            }
+
+            let discoveredModels = discoveries.allModels
+            guard !discoveredModels.isEmpty else {
+                // Every engine came back empty. Reported the way a single failed
+                // load used to be, since from the user's side nothing is
+                // selectable either way.
+                throw SDImageGenerator.GeneratorError.noModelsFound
+            }
+            self.models = discoveredModels
 
             // After discovery and before the selection is read: recovering the
             // engine for a legacy URL means matching what discovery found, so a

@@ -11,10 +11,9 @@ import Testing
 
 /// Pins how a directory on disk is recognised as a particular kind of model.
 ///
-/// This logic is currently split between `SDModel.init?`, `IrisFluxKleinModel.init?`
-/// and the sniffing chain in `ModelRepository.load`. It is the part most likely to
-/// move behind a per-provider `claims(url:)` hook, so the observable outcomes are
-/// captured here first.
+/// Recognition lives in `SDModel.init?` and `IrisFluxKleinModel.init?`. Each
+/// engine applies only its own rules — see `EngineDiscoveryTests` for the
+/// discovery those feed.
 struct SDModelDiscoveryTests {
     let temp: TempDirectory
 
@@ -173,85 +172,5 @@ struct IrisFluxKleinDiscoveryTests {
         #expect(!capabilities.contains(.controlNet))
         #expect(!capabilities.contains(.negativePrompt))
         #expect(!capabilities.contains(.guidanceScale))
-    }
-}
-
-struct ModelRepositoryTests {
-    let temp: TempDirectory
-    let modelDir: URL
-    let controlNetDir: URL
-    let repository = ModelRepository()
-
-    init() throws {
-        temp = try TempDirectory()
-        modelDir = try temp.subdirectory("models")
-        controlNetDir = try temp.subdirectory("controlnet")
-    }
-
-    @Test("Discovery returns both model kinds, sorted case-insensitively by name")
-    func loadsMixedModelDirectory() async throws {
-        try makeSDModelFixture(at: modelDir.appending(path: "B-coreml-model"))
-        try makeKleinModelFixture(at: modelDir.appending(path: "a-klein-model"))
-
-        let models = try await repository.load(modelDir: modelDir, controlNetDir: controlNetDir)
-
-        #expect(models.map(\.name) == ["a-klein-model", "B-coreml-model"])
-        #expect(models[0] is IrisFluxKleinModel)
-        #expect(models[1] is SDModel)
-    }
-
-    @Test("Directories that match no known model kind are skipped")
-    func ignoresUnrecognisedDirectories() async throws {
-        try makeSDModelFixture(at: modelDir.appending(path: "real-model"))
-        try writeFile("{}", to: modelDir.appending(components: "not-a-model", "readme.txt"))
-
-        let models = try await repository.load(modelDir: modelDir, controlNetDir: controlNetDir)
-
-        #expect(models.map(\.name) == ["real-model"])
-    }
-
-    @Test("An empty model directory reports that no models were found")
-    func emptyDirectoryThrows() async throws {
-        await #expect(throws: SDImageGenerator.GeneratorError.noModelsFound) {
-            _ = try await repository.load(modelDir: modelDir, controlNetDir: controlNetDir)
-        }
-    }
-
-    @Test("A directory satisfying both sniffers is claimed by Klein first")
-    func kleinTakesPrecedenceOverCoreML() async throws {
-        let ambiguous = modelDir.appending(path: "ambiguous")
-        try makeKleinModelFixture(at: ambiguous)
-        try makeSDModelFixture(at: ambiguous)
-
-        let models = try await repository.load(modelDir: modelDir, controlNetDir: controlNetDir)
-
-        #expect(models.count == 1)
-        #expect(models[0] is IrisFluxKleinModel)
-    }
-
-    @Test("A ControlNet-capable model gets a controlnet symlink into the shared folder")
-    func createsControlNetSymlink() async throws {
-        let modelURL = modelDir.appending(path: "controlled-model")
-        try makeSDModelFixture(at: modelURL, unetName: "ControlledUnet.mlmodelc")
-
-        _ = try await repository.load(modelDir: modelDir, controlNetDir: controlNetDir)
-
-        let symlink = modelURL.appending(path: "controlnet")
-        let destination = try FileManager.default.destinationOfSymbolicLink(
-            atPath: symlink.path(percentEncoded: false)
-        )
-        #expect(destination == controlNetDir.path(percentEncoded: false))
-    }
-
-    @Test("Models that no longer exist on disk are reported as missing")
-    func detectsRemovedModel() async throws {
-        let modelURL = modelDir.appending(path: "model")
-        try makeSDModelFixture(at: modelURL)
-        let model = try #require(SDModel(url: modelURL, name: "model", controlNet: []))
-
-        #expect(await repository.modelExists(model))
-
-        try FileManager.default.removeItem(at: modelURL)
-        #expect(await repository.modelExists(model) == false)
     }
 }

@@ -594,7 +594,21 @@ migration, in Phase 2.
     them could leave a new engine beside an old key — a pair that looks valid, names
     nothing, and resets the selection. One value cannot tear. Parsing splits on the first
     colon, since engine ids never contain one but a model key legally may.
-- **Engine descriptors, registry, independent discovery** — next.
+- **Engine descriptors, registry, independent discovery** — done.
+  `GenerationEngineDescriptor` with `AnyGenerationEngine` erasure, `EngineRegistry` running
+  per-engine failure-isolated discovery, and `CoreMLStableDiffusionEngine`/`IrisEngine`
+  each applying only their own recognition rules. The sniff chain and
+  `kleinTakesPrecedenceOverCoreML` are gone; a directory both engines recognise is now
+  offered twice under distinct ids. `ModelRepository` keeps only path helpers and
+  `modelExists`, which is really an engine-runtime question and moves in Phase 3.
+
+  One concurrency trap worth recording: with `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor`,
+  an **unannotated extension's closures are inferred main-actor-isolated**, and
+  `sorted(by:)` calls its predicate synchronously on whatever thread it is on — so the
+  model-ordering sort trapped in `dispatch_assert_queue` at runtime instead of failing to
+  compile. Extensions holding closures that cross threads need explicit `nonisolated`.
+  Note that the nonisolated test target is what surfaced this: a main-actor-defaulted test
+  target would have run the sort on the main queue and let it pass (§12.1).
 - **`plan` as a pure move, request reshape, deleting `GenerationPipeline` and
   `PipelineModelAdapter`** — after that.
 - **`.engine`/`.modelKey` metadata keys** — last.

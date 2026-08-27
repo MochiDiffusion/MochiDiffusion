@@ -72,6 +72,9 @@
 		73F2FE036E51455A99DBC80B /* GenerationRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E790ECE28024A119CB77474 /* GenerationRequest.swift */; };
 		C0DEC0DEC0DEC0DEC0DE0002 /* MetadataCodec.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DEC0DEC0DEC0DEC0DE0001 /* MetadataCodec.swift */; };
 		AA4000000000000000000002 /* PreferenceMigration.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA4000000000000000000001 /* PreferenceMigration.swift */; };
+		AA50000000000000000001102 /* GenerationEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA50000000000000000001101 /* GenerationEngine.swift */; };
+		AA50000000000000000001202 /* LocalEngines.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA50000000000000000001201 /* LocalEngines.swift */; };
+		AA50000000000000000001302 /* EngineRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA50000000000000000001301 /* EngineRegistry.swift */; };
 		7E03F8C1B8854C42AC38394D /* GenerationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46DE7C4CA7924A59BF1B996B /* GenerationService.swift */; };
 		838911B22B48DCAE79DE50BC /* ModelRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85000FDB1434F7A339AD45B1 /* ModelRepository.swift */; };
 		9401BC6F2CB9E9E100F00DDE /* Filter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9401BC6E2CB9E9E100F00DDE /* Filter.swift */; };
@@ -101,6 +104,7 @@
 		AA2000000000000000000007 /* ModelSelectionPersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000007 /* ModelSelectionPersistenceTests.swift */; };
 		AA2000000000000000000008 /* EngineIdentityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000008 /* EngineIdentityTests.swift */; };
 		AA2000000000000000000009 /* PreferenceMigrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000009 /* PreferenceMigrationTests.swift */; };
+		AA2000000000000000000010 /* EngineDiscoveryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000010 /* EngineDiscoveryTests.swift */; };
 		AA2000000000000000000003 /* ModelDiscoveryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000003 /* ModelDiscoveryTests.swift */; };
 		AA2000000000000000000004 /* PipelineBehaviorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000004 /* PipelineBehaviorTests.swift */; };
 /* End PBXBuildFile section */
@@ -181,6 +185,9 @@
 		0E790ECE28024A119CB77474 /* GenerationRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationRequest.swift; sourceTree = "<group>"; };
 		C0DEC0DEC0DEC0DEC0DE0001 /* MetadataCodec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetadataCodec.swift; sourceTree = "<group>"; };
 		AA4000000000000000000001 /* PreferenceMigration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferenceMigration.swift; sourceTree = "<group>"; };
+		AA50000000000000000001101 /* GenerationEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationEngine.swift; sourceTree = "<group>"; };
+		AA50000000000000000001201 /* LocalEngines.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalEngines.swift; sourceTree = "<group>"; };
+		AA50000000000000000001301 /* EngineRegistry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngineRegistry.swift; sourceTree = "<group>"; };
 		3A3DE44C5062F02AEE432860 /* ComputeUnitPreference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComputeUnitPreference.swift; sourceTree = "<group>"; };
 		46DE7C4CA7924A59BF1B996B /* GenerationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationService.swift; sourceTree = "<group>"; };
 		52F2A312D80E8D81A88D7636 /* ImageRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageRepository.swift; sourceTree = "<group>"; };
@@ -218,6 +225,7 @@
 		AA1000000000000000000007 /* ModelSelectionPersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelSelectionPersistenceTests.swift; sourceTree = "<group>"; };
 		AA1000000000000000000008 /* EngineIdentityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngineIdentityTests.swift; sourceTree = "<group>"; };
 		AA1000000000000000000009 /* PreferenceMigrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferenceMigrationTests.swift; sourceTree = "<group>"; };
+		AA1000000000000000000010 /* EngineDiscoveryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngineDiscoveryTests.swift; sourceTree = "<group>"; };
 		AA1000000000000000000003 /* ModelDiscoveryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelDiscoveryTests.swift; sourceTree = "<group>"; };
 		AA1000000000000000000004 /* PipelineBehaviorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PipelineBehaviorTests.swift; sourceTree = "<group>"; };
 		AA0000000000000000000002 /* Mochi DiffusionTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Mochi DiffusionTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -278,6 +286,9 @@
 				52F2A312D80E8D81A88D7636 /* ImageRepository.swift */,
 				C0DEC0DEC0DEC0DEC0DE0001 /* MetadataCodec.swift */,
 				AA4000000000000000000001 /* PreferenceMigration.swift */,
+				AA50000000000000000001101 /* GenerationEngine.swift */,
+				AA50000000000000000001201 /* LocalEngines.swift */,
+				AA50000000000000000001301 /* EngineRegistry.swift */,
 				85000FDB1434F7A339AD45B1 /* ModelRepository.swift */,
 				9B7392C2298DEAC2006F03D5 /* Tokenizer.swift */,
 				71D315152B2A584E007FFDEB /* NotificationController.swift */,
@@ -424,6 +435,7 @@
 				AA1000000000000000000007 /* ModelSelectionPersistenceTests.swift */,
 				AA1000000000000000000008 /* EngineIdentityTests.swift */,
 				AA1000000000000000000009 /* PreferenceMigrationTests.swift */,
+				AA1000000000000000000010 /* EngineDiscoveryTests.swift */,
 				AA1000000000000000000002 /* MetadataRoundTripTests.swift */,
 				AA1000000000000000000003 /* ModelDiscoveryTests.swift */,
 				AA1000000000000000000004 /* PipelineBehaviorTests.swift */,
@@ -681,6 +693,9 @@
 				73F2FE036E51455A99DBC80B /* GenerationRequest.swift in Sources */,
 				C0DEC0DEC0DEC0DEC0DE0002 /* MetadataCodec.swift in Sources */,
 				AA4000000000000000000002 /* PreferenceMigration.swift in Sources */,
+				AA50000000000000000001102 /* GenerationEngine.swift in Sources */,
+				AA50000000000000000001202 /* LocalEngines.swift in Sources */,
+				AA50000000000000000001302 /* EngineRegistry.swift in Sources */,
 				7E03F8C1B8854C42AC38394D /* GenerationService.swift in Sources */,
 				AD83C9D690826D2A57A43EA8 /* GalleryController.swift in Sources */,
 				AE29AC66B78444DABC2B464F /* QuickLookState.swift in Sources */,
@@ -704,6 +719,7 @@
 				AA2000000000000000000007 /* ModelSelectionPersistenceTests.swift in Sources */,
 				AA2000000000000000000008 /* EngineIdentityTests.swift in Sources */,
 				AA2000000000000000000009 /* PreferenceMigrationTests.swift in Sources */,
+				AA2000000000000000000010 /* EngineDiscoveryTests.swift in Sources */,
 				AA2000000000000000000002 /* MetadataRoundTripTests.swift in Sources */,
 				AA2000000000000000000003 /* ModelDiscoveryTests.swift in Sources */,
 				AA2000000000000000000004 /* PipelineBehaviorTests.swift in Sources */,
