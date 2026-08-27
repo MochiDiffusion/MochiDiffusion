@@ -33,9 +33,9 @@ nonisolated struct CoreMLStableDiffusionEngine: GenerationEngineDescriptor {
         return .ready
     }
 
-    func discoverModels(_ settings: EngineSettings) async throws -> [SDModel] {
-        let controlNets = controlNets(in: settings.controlNetDirectory)
-        return try fileSystem.subDirectories(in: settings.modelDirectory)
+    func discoverModels(_ context: ModelDiscoveryContext) async throws -> [SDModel] {
+        let controlNets = controlNets(in: context.settings.controlNetDirectory)
+        return try context.localModelDirectories()
             .compactMap { url in
                 SDModel(
                     url: url,
@@ -182,8 +182,8 @@ nonisolated struct IrisEngine: GenerationEngineDescriptor {
         return .ready
     }
 
-    func discoverModels(_ settings: EngineSettings) async throws -> [IrisFluxKleinModel] {
-        try fileSystem.subDirectories(in: settings.modelDirectory)
+    func discoverModels(_ context: ModelDiscoveryContext) async throws -> [IrisFluxKleinModel] {
+        try context.localModelDirectories()
             .compactMap { IrisFluxKleinModel(url: $0, name: ModelID.localKey(for: $0)) }
     }
 

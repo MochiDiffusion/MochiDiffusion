@@ -30,6 +30,10 @@ struct EngineDiscoveryTests {
         EngineSettings(modelDirectory: modelDir, controlNetDirectory: controlNetDir)
     }
 
+    private var context: ModelDiscoveryContext {
+        ModelDiscoveryContext(settings: settings)
+    }
+
     // MARK: - Each engine sees only its own models
 
     @Test("Each engine discovers only the models it recognises")
@@ -38,8 +42,8 @@ struct EngineDiscoveryTests {
         try makeKleinModelFixture(at: modelDir.appending(path: "klein-model"))
         try writeFile("{}", to: modelDir.appending(components: "not-a-model", "readme.txt"))
 
-        let coreML = try await CoreMLStableDiffusionEngine().discoverModels(settings)
-        let iris = try await IrisEngine().discoverModels(settings)
+        let coreML = try await CoreMLStableDiffusionEngine().discoverModels(context)
+        let iris = try await IrisEngine().discoverModels(context)
 
         #expect(coreML.map(\.name) == ["coreml-model"])
         #expect(iris.map(\.name) == ["klein-model"])
@@ -53,8 +57,8 @@ struct EngineDiscoveryTests {
         try makeKleinModelFixture(at: ambiguous)
         try makeSDModelFixture(at: ambiguous)
 
-        let coreML = try await CoreMLStableDiffusionEngine().discoverModels(settings)
-        let iris = try await IrisEngine().discoverModels(settings)
+        let coreML = try await CoreMLStableDiffusionEngine().discoverModels(context)
+        let iris = try await IrisEngine().discoverModels(context)
 
         #expect(coreML.map(\.id) == [ModelID(engine: .coreMLStableDiffusion, key: "ambiguous")])
         #expect(iris.map(\.id) == [ModelID(engine: .iris, key: "ambiguous")])
@@ -66,8 +70,8 @@ struct EngineDiscoveryTests {
 
     @Test("An empty models directory yields no models and no error")
     func emptyDirectoryIsNotAnError() async throws {
-        #expect(try await CoreMLStableDiffusionEngine().discoverModels(settings).isEmpty)
-        #expect(try await IrisEngine().discoverModels(settings).isEmpty)
+        #expect(try await CoreMLStableDiffusionEngine().discoverModels(context).isEmpty)
+        #expect(try await IrisEngine().discoverModels(context).isEmpty)
     }
 
     @Test("A missing models directory reports the engine as unreachable")
@@ -106,7 +110,7 @@ struct EngineDiscoveryTests {
         let modelURL = modelDir.appending(path: "controlled-model")
         try makeSDModelFixture(at: modelURL, unetName: "ControlledUnet.mlmodelc")
 
-        _ = try await CoreMLStableDiffusionEngine().discoverModels(settings)
+        _ = try await CoreMLStableDiffusionEngine().discoverModels(context)
 
         #expect(
             !FileManager.default.fileExists(
@@ -128,7 +132,7 @@ struct EngineDiscoveryTests {
             size: CGSize(width: 768, height: 768)
         )
 
-        let models = try await CoreMLStableDiffusionEngine().discoverModels(settings)
+        let models = try await CoreMLStableDiffusionEngine().discoverModels(context)
 
         #expect(try #require(models.first).controlNet == ["canny"])
     }
@@ -138,7 +142,7 @@ struct EngineDiscoveryTests {
         try makeSDModelFixture(at: modelDir.appending(path: "plain-model"))
         try makeControlNetFixture(at: controlNetDir.appending(path: "canny.mlmodelc"))
 
-        let models = try await CoreMLStableDiffusionEngine().discoverModels(settings)
+        let models = try await CoreMLStableDiffusionEngine().discoverModels(context)
 
         #expect(try #require(models.first).controlNet.isEmpty)
     }
@@ -159,6 +163,10 @@ struct EnginePayloadOwnershipTests {
 
     private var settings: EngineSettings {
         EngineSettings(modelDirectory: modelDir, controlNetDirectory: controlNetDir)
+    }
+
+    private var context: ModelDiscoveryContext {
+        ModelDiscoveryContext(settings: settings)
     }
 
     private var draft: GenerationDraft {
@@ -203,8 +211,8 @@ struct EnginePayloadOwnershipTests {
         let coreML = AnyGenerationEngine(CoreMLStableDiffusionEngine())
         let iris = AnyGenerationEngine(IrisEngine())
         let sdModel = try #require(
-            try await CoreMLStableDiffusionEngine().discoverModels(settings).first)
-        let kleinModel = try #require(try await IrisEngine().discoverModels(settings).first)
+            try await CoreMLStableDiffusionEngine().discoverModels(context).first)
+        let kleinModel = try #require(try await IrisEngine().discoverModels(context).first)
 
         let coreMLPlan = try coreML.plan(draft: draft, model: sdModel)
         let irisPlan = try iris.plan(draft: draft, model: kleinModel)
@@ -219,7 +227,7 @@ struct EnginePayloadOwnershipTests {
     func engineRefusesForeignModel() async throws {
         try makeSDModelFixture(at: modelDir.appending(path: "sd-model"))
         let sdModel = try #require(
-            try await CoreMLStableDiffusionEngine().discoverModels(settings).first)
+            try await CoreMLStableDiffusionEngine().discoverModels(context).first)
         let iris = AnyGenerationEngine(IrisEngine())
 
         #expect(throws: EngineError.modelDoesNotBelongToEngine(model: sdModel.id, engine: .iris)) {
@@ -245,6 +253,10 @@ struct EngineRegistryTests {
         EngineSettings(modelDirectory: modelDir, controlNetDirectory: controlNetDir)
     }
 
+    private var context: ModelDiscoveryContext {
+        ModelDiscoveryContext(settings: settings)
+    }
+
     /// An engine whose discovery always fails, to prove failure isolation without
     /// depending on how a real engine happens to fail.
     private struct FailingEngine: GenerationEngineDescriptor {
@@ -256,7 +268,7 @@ struct EngineRegistryTests {
         func availability(_ settings: EngineSettings) async -> EngineAvailability {
             .needsConfiguration("always")
         }
-        func discoverModels(_ settings: EngineSettings) async throws -> [SDModel] {
+        func discoverModels(_ context: ModelDiscoveryContext) async throws -> [SDModel] {
             throw Failure()
         }
         func plan(draft: GenerationDraft, model: SDModel) throws
@@ -278,6 +290,98 @@ struct EngineRegistryTests {
         ) async throws {
             throw FailingEngine.Failure()
         }
+    }
+
+    /// Stands in for a hosted engine: it has models, and it never looks at the
+    /// models folder. Its `url` is a placeholder because `EngineModel.url` is not
+    /// optional yet — which is itself a Phase 6 prerequisite.
+    private struct FolderIgnoringEngine: GenerationEngineDescriptor {
+        struct Model: EngineModel {
+            let id: ModelID
+            let url: URL
+            let name: String
+            var constraints: OptionConstraints { .unconstrained }
+            var metadataFields: Set<MetadataField> { [.prompt] }
+            var tokenizerModelDir: URL? { nil }
+        }
+        struct Payload: Sendable {}
+        struct NotRun: Error {}
+
+        static let id = EngineID(rawValue: "folder-ignoring")
+        var displayName: String { "Folder Ignoring" }
+
+        func availability(_ settings: EngineSettings) async -> EngineAvailability { .ready }
+
+        /// Never calls `context.localModelDirectories()`, so an unreadable models
+        /// folder cannot fail it.
+        func discoverModels(_ context: ModelDiscoveryContext) async throws -> [Model] {
+            [
+                Model(
+                    id: ModelID(engine: Self.id, key: "hosted-model"),
+                    url: URL(fileURLWithPath: "/dev/null"),
+                    name: "hosted-model"
+                )
+            ]
+        }
+
+        func plan(draft: GenerationDraft, model: Model) throws -> GenerationPlan<Payload> {
+            throw NotRun()
+        }
+
+        func makeRuntime() -> any GenerationEngineRuntime { NeverRunsRuntime() }
+    }
+
+    // MARK: - Shared enumeration
+
+    /// The mechanism behind sharing: a context enumerates when it is built, so
+    /// handing one context to every engine in a pass costs one enumeration. If it
+    /// re-read the folder per call, the directory added below would show up.
+    @Test("A context enumerates once, not once per engine that asks")
+    func contextEnumeratesOnce() throws {
+        try makeSDModelFixture(at: modelDir.appending(path: "first"))
+        let context = self.context
+
+        try makeKleinModelFixture(at: modelDir.appending(path: "second"))
+
+        let names = try context.localModelDirectories().map(ModelID.localKey(for:))
+        #expect(names == ["first"])
+    }
+
+    @Test("Every engine in one pass sees the same candidate directories")
+    func onePassSharesOneEnumeration() async throws {
+        try makeSDModelFixture(at: modelDir.appending(path: "coreml-model"))
+        try makeKleinModelFixture(at: modelDir.appending(path: "klein-model"))
+
+        let discoveries = await EngineRegistry().discoverAll(settings: settings)
+
+        // Both engines saw both directories and each recognised its own, which is
+        // only possible if the shared enumeration reached both.
+        #expect(discoveries.allModels.map(\.name) == ["coreml-model", "klein-model"])
+        #expect(discoveries.failures.isEmpty)
+    }
+
+    /// Failure isolation one level lower than `failureIsIsolated`: there the
+    /// engine itself failed, here the *shared* enumeration failed, and it must
+    /// still only fail the engines that depended on it.
+    @Test("An unreadable models folder spares an engine that never reads it")
+    func unreadableFolderSparesEnginesThatIgnoreIt() async throws {
+        // Built the way `ModelRepository.modelDirectoryURL` builds it: with a
+        // directory path, so enumeration reaches the filesystem and throws.
+        // A URL without the hint makes `subDirectories` return empty instead,
+        // which is "no models" rather than "could not read".
+        let missing = EngineSettings(
+            modelDirectory: temp.url.appending(path: "nope", directoryHint: .isDirectory),
+            controlNetDirectory: controlNetDir
+        )
+        let registry = EngineRegistry(engines: [
+            AnyGenerationEngine(CoreMLStableDiffusionEngine()),
+            AnyGenerationEngine(FolderIgnoringEngine()),
+        ])
+
+        let discoveries = await registry.discoverAll(settings: missing)
+
+        #expect(discoveries.allModels.map(\.name) == ["hosted-model"])
+        #expect(discoveries.failures.map(\.engine) == [.coreMLStableDiffusion])
     }
 
     @Test("Discovery covers every registered engine")

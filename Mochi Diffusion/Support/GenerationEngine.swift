@@ -17,6 +17,41 @@ nonisolated struct EngineSettings: Sendable {
     var controlNetDirectory: URL
 }
 
+/// One discovery pass, with the work that does not vary by engine done once.
+///
+/// Every local engine scans the same models folder — a single shared `ModelDir` is
+/// a settled decision, not a transitional state (§7 of `Multi-Engine-Design.md`) —
+/// so enumerating it per engine meant one full `contentsOfDirectory` plus a
+/// symlink-resolving filter per engine, on every folder-change event. The
+/// enumeration is shared here instead.
+///
+/// Recognition is *not* shared, and cannot be: each engine decides what a
+/// directory is by its own rules. Sniffing therefore still costs one pass per
+/// engine over the same children. Only the enumeration is deduplicated.
+nonisolated struct ModelDiscoveryContext: Sendable {
+    let settings: EngineSettings
+
+    /// Deliberately a `Result` rather than an array: an unreadable models folder
+    /// must fail only the engines that looked at it. A hosted engine never calls
+    /// ``localModelDirectories()``, so a missing local folder cannot take its
+    /// models down with it — which is the failure isolation §5.5 is about, applied
+    /// one level lower.
+    private let localDirectories: Result<[URL], any Error>
+
+    init(settings: EngineSettings, fileSystem: FileSystemStore = FileSystemStore()) {
+        self.settings = settings
+        localDirectories = Result { try fileSystem.subDirectories(in: settings.modelDirectory) }
+    }
+
+    /// The direct children of the models folder, filtered to directories.
+    ///
+    /// Throws whatever enumeration threw, so an engine reports an unreadable
+    /// folder exactly as it did when it enumerated for itself.
+    func localModelDirectories() throws -> [URL] {
+        try localDirectories.get()
+    }
+}
+
 /// Everything the sidebar currently holds, handed to an engine so it can decide
 /// what its own generation needs.
 ///
@@ -172,7 +207,11 @@ nonisolated protocol GenerationEngineDescriptor: Sendable {
 
     /// Every model this engine can generate with, in whatever order it finds
     /// them. Callers order the combined list.
-    func discoverModels(_ settings: EngineSettings) async throws -> [Model]
+    ///
+    /// A local engine should take its candidate directories from
+    /// `context.localModelDirectories()` rather than enumerating for itself, so
+    /// one pass costs one enumeration however many engines are registered.
+    func discoverModels(_ context: ModelDiscoveryContext) async throws -> [Model]
 
     /// Resolves the sidebar's draft into the values this engine will actually use.
     ///
@@ -219,7 +258,7 @@ nonisolated struct AnyGenerationEngine: Sendable, Identifiable {
     let displayName: String
 
     private let _availability: @Sendable (EngineSettings) async -> EngineAvailability
-    private let _discoverModels: @Sendable (EngineSettings) async throws -> [any EngineModel]
+    private let _discoverModels: @Sendable (ModelDiscoveryContext) async throws -> [any EngineModel]
     private let _plan:
         @Sendable (GenerationDraft, any EngineModel) throws -> GenerationPlan<any Sendable>
     private let _accepts: @Sendable (any Sendable) -> Bool
@@ -258,8 +297,8 @@ nonisolated struct AnyGenerationEngine: Sendable, Identifiable {
         await _availability(settings)
     }
 
-    func discoverModels(_ settings: EngineSettings) async throws -> [any EngineModel] {
-        try await _discoverModels(settings)
+    func discoverModels(_ context: ModelDiscoveryContext) async throws -> [any EngineModel] {
+        try await _discoverModels(context)
     }
 
     func plan(draft: GenerationDraft, model: any EngineModel) throws

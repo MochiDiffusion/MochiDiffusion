@@ -34,10 +34,15 @@ actor EngineRegistry {
     /// sidebar reads them on every request it builds, so engine facts need no actor
     /// hop. Discovery stays isolated, because it does I/O.
     nonisolated private let engines: [AnyGenerationEngine]
+    private let fileSystem: FileSystemStore
     private let logger = Logger()
 
-    init(engines: [AnyGenerationEngine] = EngineRegistry.defaultEngines) {
+    init(
+        engines: [AnyGenerationEngine] = EngineRegistry.defaultEngines,
+        fileSystem: FileSystemStore = FileSystemStore()
+    ) {
         self.engines = engines
+        self.fileSystem = fileSystem
     }
 
     nonisolated var engineIDs: [EngineID] {
@@ -61,10 +66,12 @@ actor EngineRegistry {
     /// Never throws. An engine that fails contributes its error and no models,
     /// which is what keeps one engine's problem from looking like a global one.
     func discoverAll(settings: EngineSettings) async -> [Discovery] {
+        // Enumerated once for the whole pass; see `ModelDiscoveryContext`.
+        let context = ModelDiscoveryContext(settings: settings, fileSystem: fileSystem)
         var results: [Discovery] = []
         for engine in engines {
             do {
-                let models = try await engine.discoverModels(settings)
+                let models = try await engine.discoverModels(context)
                 results.append(Discovery(engine: engine.id, models: models, failure: nil))
             } catch {
                 logger.error("\(engine.id.rawValue) discovery failed: \(error)")
