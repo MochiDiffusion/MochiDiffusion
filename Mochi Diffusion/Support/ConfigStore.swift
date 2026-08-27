@@ -9,13 +9,18 @@ import UniformTypeIdentifiers
 @MainActor
 @Observable final class ConfigStore {
     /// Storage keys, named once so ``init(store:)`` and tests cannot drift from
-    /// the property wrappers.
-    enum Key {
+    /// the property wrappers. `nonisolated` so `PreferenceMigration` can name them
+    /// without hopping to the main actor.
+    nonisolated enum Key {
         static let imageDir = "ImageDir"
         static let imageType = "ImageType"
         static let modelDir = "ModelDir"
         static let controlNetDir = "ControlNetDir"
-        static let modelId = "Model"
+        /// Superseded by `selectedModelEngine`/`selectedModelKey`. Still read, by
+        /// `PreferenceMigration`, and still written by nothing.
+        static let legacyModelId = "Model"
+        static let selectedModelEngine = "SelectedModelEngine"
+        static let selectedModelKey = "SelectedModelKey"
         static let prompt = "Prompt"
         static let negativePrompt = "NegativePrompt"
         static let strength = "ImageStrength"
@@ -60,7 +65,10 @@ import UniformTypeIdentifiers
     @ObservationIgnored @AppStorage(Key.modelDir) private var _modelDir = Default.modelDir
     @ObservationIgnored @AppStorage(Key.controlNetDir) private var _controlNetDir =
         Default.controlNetDir
-    @ObservationIgnored @AppStorage(Key.modelId) private var _modelId: URL?
+    @ObservationIgnored @AppStorage(Key.legacyModelId) private var _legacyModelId: URL?
+    @ObservationIgnored @AppStorage(Key.selectedModelEngine) private var _selectedModelEngine:
+        String?
+    @ObservationIgnored @AppStorage(Key.selectedModelKey) private var _selectedModelKey: String?
     @ObservationIgnored @AppStorage(Key.prompt) private var _prompt = Default.prompt
     @ObservationIgnored @AppStorage(Key.negativePrompt) private var _negativePrompt =
         Default.negativePrompt
@@ -94,7 +102,9 @@ import UniformTypeIdentifiers
         __modelDir = AppStorage(wrappedValue: Default.modelDir, Key.modelDir, store: store)
         __controlNetDir = AppStorage(
             wrappedValue: Default.controlNetDir, Key.controlNetDir, store: store)
-        __modelId = AppStorage(Key.modelId, store: store)
+        __legacyModelId = AppStorage(Key.legacyModelId, store: store)
+        __selectedModelEngine = AppStorage(Key.selectedModelEngine, store: store)
+        __selectedModelKey = AppStorage(Key.selectedModelKey, store: store)
         __prompt = AppStorage(wrappedValue: Default.prompt, Key.prompt, store: store)
         __negativePrompt = AppStorage(
             wrappedValue: Default.negativePrompt, Key.negativePrompt, store: store)
@@ -167,16 +177,51 @@ import UniformTypeIdentifiers
         }
     }
 
-    var modelId: URL? {
+    /// The engine-qualified selected model, or `nil` when nothing is selected.
+    ///
+    /// Stored as two plain strings rather than an encoded `ModelID` so the values
+    /// stay legible in `defaults read` and a half-written pair degrades to "no
+    /// selection" instead of a decode failure.
+    var selectedModel: ModelID? {
         get {
-            access(keyPath: \.modelId)
-            return _modelId
+            access(keyPath: \.selectedModel)
+            guard let engine = _selectedModelEngine, let key = _selectedModelKey else {
+                return nil
+            }
+            return ModelID(engine: EngineID(rawValue: engine), key: key)
         }
         set {
-            withMutation(keyPath: \.modelId) {
-                _modelId = newValue
+            withMutation(keyPath: \.selectedModel) {
+                _selectedModelEngine = newValue?.engine.rawValue
+                _selectedModelKey = newValue?.key
             }
         }
+    }
+
+    /// The pre-multi-engine selection: an absolute `URL` for the model directory.
+    /// Only the migration reads this, and nothing writes it.
+    var legacyModelId: URL? {
+        access(keyPath: \.legacyModelId)
+        return _legacyModelId
+    }
+
+    /// Converts a pre-multi-engine selection into an engine-qualified one.
+    ///
+    /// Idempotent, and cheap enough to call on every model load: once a
+    /// selection exists it returns immediately. The result is written through
+    /// `selectedModel` rather than straight to `UserDefaults` so observers see
+    /// the change.
+    @discardableResult
+    func migrateSelectedModelIfNeeded(modelDirectory: URL) -> PreferenceMigration.Outcome {
+        let outcome = PreferenceMigration.selectedModel(
+            legacyURL: legacyModelId,
+            existing: selectedModel,
+            modelDirectory: modelDirectory
+        )
+        if case .migrated(let id) = outcome {
+            selectedModel = id
+        }
+        return outcome
     }
 
     var prompt: String {

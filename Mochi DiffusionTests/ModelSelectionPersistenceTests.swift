@@ -68,18 +68,13 @@ struct ModelSelectionPersistenceTests {
         #expect(controller.currentModel?.name == "a-model")
         // Persisted as a side effect of currentModelId's didSet, so the next
         // launch restores rather than re-picks.
-        #expect(configStore.modelId == controller.currentModelId)
+        #expect(configStore.selectedModel == controller.currentModelId)
     }
 
     @Test("A persisted selection is restored in preference to the first model")
     func persistedSelectionIsRestored() async throws {
         try makeTwoModels()
-        // Persist an id the way the app does: one that discovery itself produced.
-        // See `unresolvedPersistedPathIsNotMatched` for why a hand-built URL for
-        // the same directory does not work.
-        let discovery = makeController()
-        await discovery.loadModels()
-        configStore.modelId = try #require(discovery.models.first { $0.name == "b-model" }).id
+        configStore.selectedModel = ModelID(engine: .coreMLStableDiffusion, key: "b-model")
 
         let controller = makeController()
         await controller.loadModels()
@@ -87,43 +82,49 @@ struct ModelSelectionPersistenceTests {
         #expect(controller.currentModel?.name == "b-model")
     }
 
-    /// A model's identity is the exact `URL` that `contentsOfDirectory` handed
-    /// back: symlinks already resolved (`/private/var/…`, not `/var/…`) and a
-    /// trailing slash because it is a directory. Matching is plain `URL`
-    /// equality, so a path naming the same directory in any other form misses,
-    /// and the user silently gets the first model instead of theirs.
-    ///
-    /// Nothing in the app writes such a value today — `currentModelId.didSet` only
-    /// ever persists a discovered id — so this is latent rather than live. It stops
-    /// being latent as soon as anything else computes a model path: an importer, a
-    /// URL scheme, a restored window state, or a moved models folder. §5.1 of
-    /// `Multi-Engine-Design.md` calls for `ModelID.key` to be a relative path with
-    /// pinned normalisation rules; when Phase 2 lands that, this known issue should
-    /// start failing and be deleted.
-    @Test("An unresolved persisted path does not match the discovered model")
-    func unresolvedPersistedPathIsNotMatched() async throws {
+    /// Identity used to be the exact `URL` `contentsOfDirectory` returned —
+    /// symlinks resolved, trailing slash — matched by plain equality, so a path
+    /// naming the same directory in any other spelling missed and the user
+    /// silently got the first model instead of theirs. This was a `withKnownIssue`
+    /// until `ModelID` replaced URL identity: a key is the directory's own name,
+    /// so there is only one spelling left to get wrong.
+    @Test("A selection is restored however the models directory is spelled")
+    func selectionIsIndependentOfPathSpelling() async throws {
         try makeTwoModels()
-        configStore.modelId = modelDir.appending(path: "b-model")
+        configStore.selectedModel = ModelID(engine: .coreMLStableDiffusion, key: "b-model")
+        // /private/var and /var name the same directory: enumeration returns the
+        // first, settings hold the second.
+        configStore.modelDir = "/private" + modelDir.path(percentEncoded: false)
 
         let controller = makeController()
         await controller.loadModels()
 
-        withKnownIssue("Model identity is an exact URL match, so an equivalent path misses") {
-            #expect(controller.currentModel?.name == "b-model")
-        }
+        #expect(controller.currentModel?.name == "b-model")
     }
 
-    @Test("A selection that no longer exists falls back to the first model")
-    func missingSelectionFallsBackToFirst() async throws {
+    @Test("A selection naming another engine's model is not restored")
+    func selectionIsEngineQualified() async throws {
         try makeTwoModels()
-        configStore.modelId = modelDir.appending(path: "deleted-model")
+        // Same key, wrong engine: these are Core ML directories, not Iris ones.
+        configStore.selectedModel = ModelID(engine: .iris, key: "b-model")
 
         let controller = makeController()
         await controller.loadModels()
 
         #expect(controller.currentModel?.name == "a-model")
-        // The stale URL is replaced rather than left to fail again next launch.
-        #expect(configStore.modelId == controller.currentModelId)
+    }
+
+    @Test("A selection that no longer exists falls back to the first model")
+    func missingSelectionFallsBackToFirst() async throws {
+        try makeTwoModels()
+        configStore.selectedModel = ModelID(engine: .coreMLStableDiffusion, key: "deleted-model")
+
+        let controller = makeController()
+        await controller.loadModels()
+
+        #expect(controller.currentModel?.name == "a-model")
+        // The stale key is replaced rather than left to fail again next launch.
+        #expect(configStore.selectedModel == controller.currentModelId)
     }
 
     @Test("A selection survives a fresh controller over the same preferences")
@@ -163,26 +164,26 @@ struct ModelSelectionPersistenceTests {
 
     @Test("An empty model directory clears the persisted selection")
     func emptyDirectoryClearsSelection() async throws {
-        configStore.modelId = modelDir.appending(path: "gone")
+        configStore.selectedModel = ModelID(engine: .coreMLStableDiffusion, key: "gone")
 
         let controller = makeController()
         await controller.loadModels()
 
         #expect(controller.models.isEmpty)
         #expect(controller.currentModel == nil)
-        #expect(configStore.modelId == nil)
+        #expect(configStore.selectedModel == nil)
     }
 
     @Test("An unreadable model directory clears the persisted selection")
     func unreadableDirectoryClearsSelection() async throws {
         configStore.modelDir = temp.appending("does-not-exist").path(percentEncoded: false)
-        configStore.modelId = modelDir.appending(path: "a-model")
+        configStore.selectedModel = ModelID(engine: .coreMLStableDiffusion, key: "a-model")
 
         let controller = makeController()
         await controller.loadModels()
 
         #expect(controller.models.isEmpty)
-        #expect(configStore.modelId == nil)
+        #expect(configStore.selectedModel == nil)
     }
 
     @Test("Losing the models directory clears a previously good selection")
@@ -190,14 +191,14 @@ struct ModelSelectionPersistenceTests {
         try makeTwoModels()
         let controller = makeController()
         await controller.loadModels()
-        #expect(configStore.modelId != nil)
+        #expect(configStore.selectedModel != nil)
 
         try FileManager.default.removeItem(at: modelDir)
         await controller.loadModels()
 
         // The models list is deliberately left stale — only the persisted
         // selection is cleared — so the sidebar keeps showing what it had.
-        #expect(configStore.modelId == nil)
+        #expect(configStore.selectedModel == nil)
     }
 
     // MARK: - Selection side effects
@@ -255,13 +256,13 @@ struct ModelSelectionPersistenceTests {
         try makeTwoModels()
         let controller = makeController()
         await controller.loadModels()
-        let persisted = configStore.modelId
+        let persisted = configStore.selectedModel
 
-        controller.currentModelId = modelDir.appending(path: "not-a-model")
+        controller.currentModelId = ModelID(engine: .coreMLStableDiffusion, key: "not-a-model")
 
         // didSet only writes through when the id resolves to a known model, so
         // currentModelId and the persisted value disagree here.
-        #expect(configStore.modelId == persisted)
+        #expect(configStore.selectedModel == persisted)
         #expect(controller.currentModel == nil)
     }
 

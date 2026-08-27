@@ -569,6 +569,23 @@ Confidence labels are honest signals about how much these should be trusted.
 the migration must preserve is covered. The migration's own tests are written with the
 migration, in Phase 2.
 
+### Phase 2 progress
+
+- **Engine-qualified identity** — `EngineID`/`ModelID` with decided key rules (§5.1). Done.
+- **Identity adopted end to end** — `MochiModel` is now `EngineModel` with `id: ModelID`;
+  `GenerationController.currentModelId` and the persisted selection are engine-qualified.
+  Done.
+- **Preference migration** — legacy `Model` URL to `SelectedModelEngine`/`SelectedModelKey`
+  via a frozen classifier, idempotent, folders untouched. Done.
+- **Engine descriptors, registry, independent discovery** — next.
+- **`plan` as a pure move, request reshape, deleting `GenerationPipeline` and
+  `PipelineModelAdapter`** — after that.
+- **`.engine`/`.modelKey` metadata keys** — last.
+
+Adopting identity closed the `withKnownIssue` from the entry gate: a persisted selection
+now survives the models directory being spelled differently, because a key is the
+directory's own name rather than an absolute URL compared for exact equality.
+
 ### Release gating
 
 Every phase must leave `main` green — building, all tests passing, `swift format lint`

@@ -10,7 +10,7 @@ import os.log
 
 nonisolated private let logger = Logger()
 
-nonisolated struct SDModel: MochiModel {
+nonisolated struct SDModel: EngineModel {
     enum ModelType: Sendable {
         case sdxl
         case sd3
@@ -23,7 +23,7 @@ nonisolated struct SDModel: MochiModel {
     let controlNet: [String]
     let inputSize: CGSize?
 
-    var id: URL { url }
+    var id: ModelID { ModelID(engine: .coreMLStableDiffusion, key: ModelID.localKey(for: url)) }
     var promptTokenLimit: Int? { 75 }
     var tokenizerModelDir: URL? { url }
     var config: MochiModelConfig {

@@ -16,7 +16,7 @@ final class GenerationController {
         case sd(SDModel)
         case irisFluxKlein(IrisFluxKleinModel)
 
-        static func from(_ model: any MochiModel) -> PipelineModelAdapter? {
+        static func from(_ model: any EngineModel) -> PipelineModelAdapter? {
             switch model {
             case let model as SDModel:
                 return .sd(model)
@@ -66,17 +66,17 @@ final class GenerationController {
     private let imageRepository: ImageRepository
     private(set) var generationQueue = [GenerationRequest]()
     private(set) var currentGeneration: GenerationRequest?
-    private(set) var models = [any MochiModel]()
+    private(set) var models = [any EngineModel]()
     private(set) var controlNet: [String] = []
     var startingImage: CGImage?
     var startingImageFilename: String?
     var numberOfImages = 1.0
     var seed: UInt32 = 0
 
-    var currentModelId: URL? {
+    var currentModelId: ModelID? {
         didSet {
             if let model = models.first(where: { $0.id == self.currentModelId }) {
-                configStore.modelId = currentModelId
+                configStore.selectedModel = currentModelId
                 if let model = model as? SDModel {
                     controlNet = model.controlNet
                 } else {
@@ -87,7 +87,7 @@ final class GenerationController {
             }
         }
     }
-    var currentModel: (any MochiModel)? {
+    var currentModel: (any EngineModel)? {
         models.first(where: { $0.id == self.currentModelId })
     }
 
@@ -139,6 +139,10 @@ final class GenerationController {
             let controlNetDirectoryURL = ModelRepository.controlNetDirectoryURL(
                 fromPath: configStore.controlNetDir)
 
+            // Before the selection is read, so a user upgrading from a build
+            // without engines keeps the model they had selected.
+            configStore.migrateSelectedModelIfNeeded(modelDirectory: modelDirectoryURL)
+
             self.models = try await modelRepository.load(
                 modelDir: modelDirectoryURL,
                 controlNetDir: controlNetDirectoryURL
@@ -148,28 +152,28 @@ final class GenerationController {
 
             /// Try restoring last user selected model
             /// If not found, use first model from list
-            if self.models.first(where: { $0.id == configStore.modelId }) != nil {
-                self.currentModelId = configStore.modelId
+            if self.models.first(where: { $0.id == configStore.selectedModel }) != nil {
+                self.currentModelId = configStore.selectedModel
                 return
             }
             self.currentModelId = self.models.first?.id
         } catch SDImageGenerator.GeneratorError.modelDirectoryNoAccess {
             logger.error("Couldn't access model directory.")
-            configStore.modelId = nil
+            configStore.selectedModel = nil
         } catch SDImageGenerator.GeneratorError.modelSubDirectoriesNoAccess {
             logger.error("Could not get model subdirectories.")
             await GenerationService.shared.updateStatus(
                 .error("Could not get model subdirectories.")
             )
-            configStore.modelId = nil
+            configStore.selectedModel = nil
         } catch SDImageGenerator.GeneratorError.noModelsFound {
             logger.error("No models found.")
             await GenerationService.shared.updateStatus(
                 .error("No models found under: \(configStore.modelDir)")
             )
-            configStore.modelId = nil
+            configStore.selectedModel = nil
         } catch {
-            configStore.modelId = nil
+            configStore.selectedModel = nil
         }
     }
 

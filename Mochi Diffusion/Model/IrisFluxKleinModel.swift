@@ -5,7 +5,7 @@
 
 import Foundation
 
-nonisolated struct IrisFluxKleinModel: MochiModel {
+nonisolated struct IrisFluxKleinModel: EngineModel {
     static let generationCapabilities: GenerationCapabilities = [.startingImage]
     static let metadataFields: Set<MetadataField> = [
         .prompt,
@@ -20,7 +20,7 @@ nonisolated struct IrisFluxKleinModel: MochiModel {
     let url: URL
     let name: String
 
-    var id: URL { url }
+    var id: ModelID { ModelID(engine: .iris, key: ModelID.localKey(for: url)) }
     var promptTokenLimit: Int? { 512 }
     var tokenizerModelDir: URL? { url.appending(path: "tokenizer") }
     var config: MochiModelConfig {

@@ -11,11 +11,11 @@ nonisolated struct EngineID: RawRepresentable, Hashable, Codable, Sendable {
     let rawValue: String
 }
 
-extension EngineID: CustomStringConvertible {
+nonisolated extension EngineID: CustomStringConvertible {
     var description: String { rawValue }
 }
 
-extension EngineID {
+nonisolated extension EngineID {
     static let coreMLStableDiffusion = EngineID(rawValue: "coreml-sd")
     static let iris = EngineID(rawValue: "iris")
 }
@@ -34,13 +34,13 @@ nonisolated struct ModelID: Hashable, Codable, Sendable {
     let key: String
 }
 
-extension ModelID: CustomStringConvertible {
+nonisolated extension ModelID: CustomStringConvertible {
     var description: String { "\(engine.rawValue):\(key)" }
 }
 
 // MARK: - Local keys
 
-extension ModelID {
+nonisolated extension ModelID {
     /// The key for a model directory that discovery returned.
     ///
     /// Deliberately just the last path component, rather than a relative path

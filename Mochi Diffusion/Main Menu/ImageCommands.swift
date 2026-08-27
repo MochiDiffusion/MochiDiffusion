@@ -35,7 +35,7 @@ struct ImageCommands: Commands {
                     }
                 }
                 .keyboardShortcut("G", modifiers: .command)
-                .disabled(configStore.modelId == nil)
+                .disabled(configStore.selectedModel == nil)
             }
             Section {
                 Button {

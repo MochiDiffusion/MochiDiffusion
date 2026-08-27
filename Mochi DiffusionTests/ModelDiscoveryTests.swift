@@ -134,7 +134,7 @@ struct IrisFluxKleinDiscoveryTests {
         try makeKleinModelFixture(at: url, weights: .single)
 
         let model = try #require(IrisFluxKleinModel(url: url, name: "klein"))
-        #expect(model.id == url)
+        #expect(model.id == ModelID(engine: .iris, key: "klein"))
         #expect(model.promptTokenLimit == 512)
         #expect(model.tokenizerModelDir == url.appending(path: "tokenizer"))
     }

@@ -1,5 +1,5 @@
 //
-//  MochiModel.swift
+//  EngineModel.swift
 //  Mochi Diffusion
 //
 
@@ -37,6 +37,8 @@ nonisolated enum MetadataField: String, CaseIterable, Sendable {
     case guidanceScale
 }
 
+/// Kept under its old name because Phase 4 replaces the capability half of it
+/// with `OptionConstraints`; renaming it now would churn every call site twice.
 nonisolated struct MochiModelConfig: Sendable {
     let generationCapabilities: GenerationCapabilities
     /// Metadata keys this model should embed in generated image metadata.
@@ -47,10 +49,24 @@ nonisolated struct MochiModelConfig: Sendable {
     }
 }
 
-nonisolated protocol MochiModel: Identifiable, Sendable {
+/// A model a particular engine can generate with.
+///
+/// Identity is engine-qualified (``ModelID``), so two engines may expose the same
+/// directory without discovery having to arbitrate which one owns it.
+///
+/// Phase staging, per `Multi-Engine-Design.md`:
+///
+/// - `config` holds today's capability flags. Phase 4 replaces that half of it
+///   with per-model `OptionConstraints`.
+/// - `url` is non-optional and `tokenizerModelDir` is still here because every
+///   model today is a local directory. A hosted model has neither: `url` should
+///   leave this protocol entirely once engines own their own path handling, and
+///   prompt token counting needs to become something an engine provides rather
+///   than a directory the UI tokenizes itself.
+nonisolated protocol EngineModel: Identifiable, Sendable {
+    var id: ModelID { get }
     var url: URL { get }
     var name: String { get }
-    var id: URL { get }
     var config: MochiModelConfig { get }
     var promptTokenLimit: Int? { get }
     var tokenizerModelDir: URL? { get }

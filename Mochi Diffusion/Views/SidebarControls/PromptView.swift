@@ -91,7 +91,7 @@ struct PromptView: View {
     @State private var tokenizer: Tokenizer?
     @State private var tokenLimit: Int?
 
-    private func updatePromptTokenInfo(for model: (any MochiModel)?) {
+    private func updatePromptTokenInfo(for model: (any EngineModel)?) {
         tokenLimit = model?.promptTokenLimit
         tokenizer = Tokenizer(modelDir: model?.tokenizerModelDir)
     }
@@ -138,7 +138,7 @@ struct PromptView: View {
                     )
                 }
             }
-            .disabled(configStore.modelId == nil)
+            .disabled(configStore.selectedModel == nil)
             .buttonStyle(.borderedProminent)
             .controlSize(.large)
         }
