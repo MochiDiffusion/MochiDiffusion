@@ -498,6 +498,34 @@ API client.** Two specific gaps:
   `GenerationPlan` carries it. A hosted engine with quality tiers needs the whole chain:
   constraint, draft field, plan field, sidebar control, and metadata wiring.
 
+- **`Scheduler` is a Core ML type being used as cross-engine vocabulary.** It
+  `import StableDiffusion`, its own comment describes it as "Schedulers compatible with
+  `StableDiffusionPipeline`", and `convertScheduler` maps it one-to-one onto
+  `StableDiffusionScheduler`. `OptionConstraints.scheduler` is a
+  `ChoiceConstraint<Scheduler>`, so that Core ML enum is the vocabulary every engine has to
+  express its sampler in.
+
+  It holds today only because Iris has no choice to express: `IrisEngineRuntime` never
+  passes a sampler to the C library — flow matching is fixed inside it — and uses the value
+  only to write metadata, resolved from `.pinned(.discreteFlowScheduler)`. Core ML is the
+  one engine that consumes it, at `pipelineConfig.schedulerType`.
+
+  It breaks as soon as a second engine offers a real choice. Draw Things has its own
+  sampler list, and those cases cannot be added to this enum without Core ML offering them
+  too, because `SDModel` declares `.oneOf(Scheduler.allCases)` — and `convertScheduler`
+  would need to map a case with no `StableDiffusionScheduler` equivalent. The fix is an
+  engine-scoped identifier: a stable string per scheduler, each engine declaring its own
+  set and mapping to its own runtime type.
+
+  **Related import defect, worth fixing whenever this is touched.** `MetadataCodec` parses
+  the scheduler into the enum (`Scheduler(rawValue:)`), and `createImageRecordFromURL`
+  falls back to `.dpmSolverMultistepScheduler` when that fails — while `presentFields`
+  still records `.scheduler` as present. So an image whose metadata names a scheduler this
+  build does not know imports claiming DPM-Solver++, and the Info panel displays a
+  scheduler the image never used. Silently attributing the wrong value is worse than
+  showing none. Metadata should carry the scheduler as the opaque string it is on disk,
+  and resolve it to a known case only where one is needed.
+
 So "add the OpenAI engine" is at least five separable pieces of work: the two vocabulary
 extensions above (which belong conceptually with Phase 4), indeterminate progress, the
 error taxonomy, Keychain storage, and the client itself. Size Phase 6 accordingly rather
