@@ -31,12 +31,18 @@ nonisolated enum MetadataField: String, CaseIterable, Sendable {
 /// Identity is engine-qualified (`ModelID`), so two engines may expose the same
 /// directory without discovery having to arbitrate which one owns it.
 ///
-/// `url` is non-optional and `tokenizerModelDir` exists because every model is
-/// currently a local directory. A hosted model would have neither, and both would
-/// need to move behind the engine before one could be added.
+/// Deliberately says nothing about where the model *is*. A local model has a
+/// directory and a hosted one has only a name, so `url` is not a requirement
+/// here: the two local model types keep theirs, and the only code that read one
+/// generically — `ModelRepository.modelExists` — now takes a `URL` from the
+/// engine that has one. An `Optional` requirement would have been worse, since
+/// every caller would still have to handle a `nil` that means "wrong question".
+///
+/// `tokenizerModelDir` stays, and stays `Optional`, because `nil` is a real
+/// answer rather than an absent one: it means "no local tokenizer", and the
+/// prompt token counter already treats that as "no token count available".
 nonisolated protocol EngineModel: Identifiable, Sendable {
     var id: ModelID { get }
-    var url: URL { get }
     var name: String { get }
     /// What this model will and will not honour. Per model, not per engine: a
     /// Core ML model's size is fixed by how it was converted.

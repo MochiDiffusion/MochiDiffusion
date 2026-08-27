@@ -9,10 +9,11 @@ import Foundation
 /// business. Discovery itself belongs to the engines: each applies its own
 /// recognition rules to its own source, and nothing arbitrates between them.
 ///
-/// `modelExists(_:)` serves engines whose models are local directories. What
+/// `modelExists(at:)` serves engines whose models are local directories. What
 /// "present" means is ultimately an engine's own question — a hosted model is
-/// never on disk at all — so a hosted engine would answer it for itself rather
-/// than come here.
+/// never on disk at all — so a hosted engine answers it for itself rather than
+/// coming here. It takes a `URL` rather than an `any EngineModel` for that
+/// reason: only an engine that has a directory can ask.
 actor ModelRepository {
     private let fileSystem: FileSystemStore
 
@@ -34,8 +35,8 @@ actor ModelRepository {
         )
     }
 
-    func modelExists(_ model: any EngineModel) -> Bool {
-        fileSystem.fileExists(model.url)
+    func modelExists(at url: URL) -> Bool {
+        fileSystem.fileExists(url)
     }
 
 }

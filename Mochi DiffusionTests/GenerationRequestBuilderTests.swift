@@ -335,7 +335,9 @@ struct GenerationRequestBuilderTests {
         // trailing slash, so `modelDir.appending(path:)` names the same directory
         // in a form that does not compare equal. The string handed to
         // `iris_load_dir` therefore carries that trailing slash.
-        let model = try #require(controller.currentModel)
+        // Downcast because `url` is not on `EngineModel`: where a model lives is
+        // its own engine's business, and a hosted model has no path at all.
+        let model = try #require(controller.currentModel as? IrisFluxKleinModel)
         #expect(payload.modelDirectory == model.url.path(percentEncoded: false))
         #expect(payload.modelDirectory.hasSuffix("/klein-model/"))
         #expect(request.modelID.engine == .iris)

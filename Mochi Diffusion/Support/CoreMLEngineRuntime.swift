@@ -71,7 +71,7 @@ actor CoreMLEngineRuntime: GenerationEngineRuntime {
 
         // Whether a model is still on disk is knowledge about this engine's
         // models, so the queue does not have to inspect the payload to ask.
-        guard await modelRepository.modelExists(payload.model) else {
+        guard await modelRepository.modelExists(at: payload.model.url) else {
             throw GenerationError.requestedModelNotFound
         }
 
