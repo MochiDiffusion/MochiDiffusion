@@ -8,9 +8,14 @@
 - Changed the model list to empty itself when the models folder cannot be read, instead of continuing to show models that are no longer there
   - The selected engine and model are remembered across the failure, so restoring the folder restores the selection
 - Changed the sidebar to show only the options the selected model actually uses
-  - FLUX.2 Klein models no longer offer Exclude from Image, Guidance Scale, ControlNet, or starting image Strength, all of which were previously accepted and ignored
+  - FLUX.2 Klein models no longer offer Exclude from Image or ControlNet, both of which were previously accepted and ignored
+  - Guidance Scale and starting image Strength are shown as disabled for a model that has no use for them, instead of being accepted and ignored
   - Step count and scheduler are shown as the fixed values a distilled model uses, instead of controls whose value was overridden
-- Changed the swap width/height button to appear only when it does something, instead of silently doing nothing for a fixed-size model with no matching portrait or landscape version
+- Changed the sidebar to keep its controls in the same places as the selected engine and model change
+  - Include in Image grows into the space where Exclude from Image would be, so nothing below the prompt moves and the Engine picker no longer jumps out from under the pointer that just changed it
+  - An option a model does not use keeps its row, disabled, instead of disappearing and pulling everything below it up
+  - Typing into an empty prompt no longer nudges the sidebar down as the token count appears
+- Changed the swap width/height button to be disabled, rather than removed, for a fixed-size model with no matching portrait or landscape version; the width and height fields keep their spacing either way
 - Fixed the Scheduler setting offering schedulers a distilled model cannot use; it now shows the one such a model always uses
 - Added the generating engine to image metadata and the Info panel
   - Images also record which engine's model made them, so copying a model from an image selects that exact model even when two engines offer the same name

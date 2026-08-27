@@ -14,15 +14,20 @@ struct NumberOfImagesView: View {
         @Bindable var controller = controller
 
         let numberOfImages = controller.currentConstraints.numberOfImages
+
+        Text("Number of Images")
+            .sidebarLabelFormat()
         if let bounds = numberOfImages.bounds {
-            Text("Number of Images")
-                .sidebarLabelFormat()
             MochiSlider(
                 value: $controller.numberOfImages,
                 bounds: Double(bounds.lowerBound)...Double(bounds.upperBound),
                 step: 1,
                 strictUpperBound: !numberOfImages.allowsValuesAboveBounds
             )
+        } else if let pinned = numberOfImages.resolved(Int(controller.numberOfImages)) {
+            PinnedValueField(text: String(pinned))
+        } else {
+            UnsupportedValueField()
         }
     }
 }

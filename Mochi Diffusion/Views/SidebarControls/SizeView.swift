@@ -67,9 +67,13 @@ struct SizeView: View {
         )
     }
 
-    /// Swapping is only offered when it would do something: either the size is
-    /// freeform, or the engine has a model for the flipped orientation. A
-    /// fixed-size model with no sibling has nothing to swap to.
+    /// Whether swapping would do anything: either the size is freeform, or the
+    /// engine has a model for the flipped orientation. A fixed-size model with no
+    /// sibling has nothing to swap to.
+    ///
+    /// Disables the button rather than removing it. The two fields keep their
+    /// positions across every model that way — a button that came and went moved
+    /// them relative to each other and to the sidebar's edges.
     private var canSwap: Bool {
         controller.canSetSize(width: Int(resolvedSize.height), height: Int(resolvedSize.width))
     }
@@ -96,27 +100,26 @@ struct SizeView: View {
                 }
             }
 
-            if canSwap {
-                Button {
-                    withAnimation(.easeInOut(duration: 0.15)) {
-                        // Routed through the controller, which asks the engine
-                        // whether a size means a different model. For a freeform
-                        // size it just writes the two numbers back.
-                        controller.setSize(
-                            width: Int(resolvedSize.height),
-                            height: Int(resolvedSize.width)
-                        )
-                    }
-                } label: {
-                    Image(systemName: "arrow.left.arrow.right")
-                        .imageScale(.medium)
-                        .font(.system(size: 14, weight: .semibold))
-                        .frame(minWidth: 28, minHeight: 28)
-                        .contentShape(Rectangle())
+            Button {
+                withAnimation(.easeInOut(duration: 0.15)) {
+                    // Routed through the controller, which asks the engine
+                    // whether a size means a different model. For a freeform
+                    // size it just writes the two numbers back.
+                    controller.setSize(
+                        width: Int(resolvedSize.height),
+                        height: Int(resolvedSize.width)
+                    )
                 }
-                .accessibilityLabel("Swap width and height")
-                .buttonStyle(.borderless)
+            } label: {
+                Image(systemName: "arrow.left.arrow.right")
+                    .imageScale(.medium)
+                    .font(.system(size: 14, weight: .semibold))
+                    .frame(minWidth: 28, minHeight: 28)
+                    .contentShape(Rectangle())
             }
+            .accessibilityLabel("Swap width and height")
+            .buttonStyle(.borderless)
+            .disabled(!canSwap)
 
             VStack(alignment: .leading) {
                 Text(

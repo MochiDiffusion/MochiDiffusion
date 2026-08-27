@@ -8,6 +8,15 @@
 import SwiftUI
 
 struct PromptTextEditor: View {
+    /// The gap between the editor and its token counter, and the height the
+    /// counter row keeps whether or not it has anything to show. Reserving it
+    /// stops the first typed character from pushing the rest of the sidebar down,
+    /// and lets `PromptView` predict this view's height.
+    static let counterSpacing: CGFloat = 3
+    /// A caption line plus the count's own bottom padding, rounded up: the row has
+    /// to be at least as tall as its tallest content or it would still grow by a
+    /// point or two when the count appears.
+    static let counterHeight: CGFloat = 16
 
     @Binding var text: String
 
@@ -43,7 +52,7 @@ struct PromptTextEditor: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 3) {
+        VStack(alignment: .leading, spacing: Self.counterSpacing) {
             TextEditor(text: $text)
                 .font(.system(size: 14))
                 .focused($focused)
@@ -79,6 +88,10 @@ struct PromptTextEditor: View {
                     .font(.caption)
                 }
             }
+            // `minHeight`, not a fixed height: an over-long warning is free to
+            // wrap in a locale where it does not fit on one line rather than
+            // being clipped.
+            .frame(minHeight: Self.counterHeight, alignment: .top)
         }
     }
 }
@@ -90,6 +103,34 @@ struct PromptView: View {
     @Environment(GenerationState.self) private var generationState: GenerationState
     @State private var tokenizer: Tokenizer?
     @State private var tokenLimit: Int?
+    /// Measured from the "Include in Image" label, which is always present and
+    /// styled identically to the one that is not, so the reclaimed height below
+    /// follows the label's real size instead of a guess that font or locale
+    /// changes would invalidate.
+    @State private var labelHeight: CGFloat = 0
+
+    private static let spacing: CGFloat = 6
+    private static let includeHeight: CGFloat = 120
+    private static let excludeHeight: CGFloat = 70
+
+    /// The prompt block keeps one height whichever model is selected, so nothing
+    /// below it moves when the negative prompt comes and goes — the Engine picker
+    /// sitting directly underneath used to jump out from under the pointer that
+    /// had just changed it.
+    ///
+    /// The space goes to the remaining editor rather than being left blank, which
+    /// suits the models that lack a negative prompt: FLUX.2 Klein attends to 512
+    /// prompt tokens where Core ML SD attends to 75.
+    private var includeEditorHeight: CGFloat {
+        if controller.currentConstraints.supportsNegativePrompt {
+            return Self.includeHeight
+        }
+        // The label, the editor, its token counter, and the two gaps the pair of
+        // them occupies in the enclosing stack.
+        return Self.includeHeight + labelHeight + Self.excludeHeight
+            + PromptTextEditor.counterSpacing + PromptTextEditor.counterHeight
+            + Self.spacing * 2
+    }
 
     private func updatePromptTokenInfo(for model: (any EngineModel)?) {
         tokenLimit = model?.constraints.promptTokenLimit
@@ -100,12 +141,17 @@ struct PromptView: View {
         @Bindable var configStore = configStore
         @Bindable var focusCon = focusCon
 
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: Self.spacing) {
             Text("Include in Image")
                 .sidebarLabelFormat()
+                .onGeometryChange(for: CGFloat.self) {
+                    $0.size.height
+                } action: {
+                    labelHeight = $0
+                }
             PromptTextEditor(
                 text: $configStore.prompt,
-                height: 120,
+                height: includeEditorHeight,
                 focusBinding: $focusCon.promptFieldIsFocused,
                 tokenizer: tokenizer,
                 tokenLimit: tokenLimit
@@ -119,7 +165,7 @@ struct PromptView: View {
                     .sidebarLabelFormat()
                 PromptTextEditor(
                     text: $configStore.negativePrompt,
-                    height: 70,
+                    height: Self.excludeHeight,
                     focusBinding: $focusCon.negativePromptFieldIsFocused,
                     tokenizer: tokenizer,
                     tokenLimit: tokenLimit

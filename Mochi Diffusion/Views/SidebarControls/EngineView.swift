@@ -25,11 +25,21 @@ struct EngineView: View {
         }
         .labelsHidden()
 
-        if let reason = unusableReason(for: controller.selectedEngine) {
-            Text(verbatim: reason)
+        // One caption line is held open whether or not there is a reason to show,
+        // so an engine that reports one does not push the model picker below it
+        // down. A hidden placeholder rather than an empty string, whose height
+        // SwiftUI does not promise.
+        ZStack(alignment: .topLeading) {
+            Text(verbatim: "0")
                 .font(.caption)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
+                .hidden()
+
+            if let reason = unusableReason(for: controller.selectedEngine) {
+                Text(verbatim: reason)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
         }
     }
 

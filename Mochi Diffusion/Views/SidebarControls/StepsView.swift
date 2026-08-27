@@ -15,22 +15,23 @@ struct StepsView: View {
         @Bindable var configStore = configStore
 
         let steps = controller.currentConstraints.steps
-        if steps.isSupported {
-            Text("Steps")
-                .sidebarLabelFormat()
-            if let bounds = steps.bounds {
-                MochiSlider(
-                    value: $configStore.steps,
-                    bounds: Double(bounds.lowerBound)...Double(bounds.upperBound),
-                    step: 1,
-                    strictUpperBound: !steps.allowsValuesAboveBounds
-                )
-            } else if let pinned = steps.resolved(Int(configStore.steps)) {
-                // Shown disabled rather than hidden: a distilled model always
-                // takes four steps, and seeing that explains the behaviour better
-                // than the row disappearing does.
-                PinnedValueField(text: String(pinned))
-            }
+
+        Text("Steps")
+            .sidebarLabelFormat()
+        if let bounds = steps.bounds {
+            MochiSlider(
+                value: $configStore.steps,
+                bounds: Double(bounds.lowerBound)...Double(bounds.upperBound),
+                step: 1,
+                strictUpperBound: !steps.allowsValuesAboveBounds
+            )
+        } else if let pinned = steps.resolved(Int(configStore.steps)) {
+            // Shown disabled rather than hidden: a distilled model always
+            // takes four steps, and seeing that explains the behaviour better
+            // than the row disappearing does.
+            PinnedValueField(text: String(pinned))
+        } else {
+            UnsupportedValueField()
         }
     }
 }
@@ -44,6 +45,24 @@ struct PinnedValueField: View {
             .frame(width: 60)
             .disabled(true)
             .opacity(0.6)
+    }
+}
+
+/// A placeholder for an option the model does not have at all.
+///
+/// Holds the row open so the controls below it keep their positions when the
+/// selected model changes, and reads as "not applicable" rather than showing a
+/// number the model would ignore.
+struct UnsupportedValueField: View {
+    var body: some View {
+        PinnedValueField(text: "\u{2014}")
+            // The field inside is disabled and so never sees the pointer. The
+            // overlay is not, which is what makes the tooltip reachable.
+            .overlay {
+                Color.clear
+                    .contentShape(Rectangle())
+                    .help("Not used by this model")
+            }
     }
 }
 

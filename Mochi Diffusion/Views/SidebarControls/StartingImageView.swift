@@ -56,9 +56,7 @@ struct StartingImageView: View {
             }
         }
 
-        if strengthConstraint.isSupported {
-            strengthControl
-        }
+        strengthControl
     }
 
     @ViewBuilder private var strengthControl: some View {
@@ -93,17 +91,20 @@ struct StartingImageView: View {
                 .padding()
             }
         }
-        MochiSlider(value: $configStore.strength, bounds: strengthBounds, step: 0.05)
+        if let bounds = strengthConstraint.bounds {
+            MochiSlider(value: $configStore.strength, bounds: bounds, step: 0.05)
+        } else if let pinned = strengthConstraint.resolved(configStore.strength) {
+            PinnedValueField(text: pinned.formatted(.number.precision(.fractionLength(2))))
+        } else {
+            UnsupportedValueField()
+        }
     }
 
     /// Iris takes a starting image but treats it as an input image, so strength
-    /// has no meaning there and the whole row goes.
+    /// has no meaning there. The row is still shown, disabled, so the sections
+    /// below it do not move when the engine changes.
     private var strengthConstraint: DoubleConstraint {
         controller.currentConstraints.startingImage.strength
-    }
-
-    private var strengthBounds: ClosedRange<Double> {
-        strengthConstraint.bounds ?? 0.0...1.0
     }
 }
 

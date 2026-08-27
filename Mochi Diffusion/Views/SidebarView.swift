@@ -25,9 +25,11 @@ struct SidebarView: View {
                     ModelView()
                     Spacer().frame(height: 6)
                 }
-                // Sections whose whole subject a model may not support are gated
-                // here rather than inside each view, so the divider and spacing go
-                // with them instead of leaving a gap.
+                // Whole sections a model may not support are gated here rather
+                // than inside each view, so the divider and spacing go with them
+                // instead of leaving a gap. Individual rows within a section are
+                // never gated: they stay in place and show a disabled field, so
+                // the controls below them do not move when the model changes.
                 if controller.currentConstraints.startingImage.isSupported {
                     Group {
                         StartingImageView()
@@ -42,17 +44,13 @@ struct SidebarView: View {
                     NumberOfImagesView()
                     Spacer().frame(height: 6)
                 }
-                if controller.currentConstraints.steps.isSupported {
-                    Group {
-                        StepsView()
-                        Spacer().frame(height: 6)
-                    }
+                Group {
+                    StepsView()
+                    Spacer().frame(height: 6)
                 }
-                if controller.currentConstraints.guidanceScale.isSupported {
-                    Group {
-                        GuidanceScaleView()
-                        Spacer().frame(height: 6)
-                    }
+                Group {
+                    GuidanceScaleView()
+                    Spacer().frame(height: 6)
                 }
                 Group {
                     SeedView()
