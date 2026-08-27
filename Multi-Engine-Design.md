@@ -567,7 +567,7 @@ Confidence labels are honest signals about how much these should be trusted.
 | 0 | Test target (see §12) | none | done |
 | 1 | `MetadataCodec`: fix the import crash and the separator defect; versioned encoding | crash fix | **done** |
 | 2 | Engine descriptor/registry, `EngineID`/`ModelID`, independent discovery, migration, `.engine`/`.modelKey` metadata keys | none | **done** |
-| 3 | Engine runtime and session boundaries; request-scoped cancellation; remove serialization-assumption `@unchecked Sendable`; move generator selection, the payload downcast and the ControlNet symlink write out of the queue and discovery (§4) | ordered progress, no cross-job previews | **code done, runtime unvalidated** |
+| 3 | Engine runtime and session boundaries; request-scoped cancellation; remove serialization-assumption `@unchecked Sendable`; move generator selection, the payload downcast and the ControlNet symlink write out of the queue and discovery (§4) | ordered progress, no cross-job previews | **done** |
 | 4 | Constraints model; `plan` as the sole resolution point; sidebar driven from constraints | unsupported controls hide; step count stops lying | settled |
 | 5 | Engine picker, per-engine settings store, Settings restructure | the feature as described | likely |
 | 6 | OpenAI engine: Keychain, indeterminate progress, richer errors | first hosted engine | sketch |
@@ -724,14 +724,10 @@ Note that `CHANGELOG.md` had not been updated since v5.0 while the app shipped v
 and v6.0, so the `# Unreleased` heading is a new convention here. Backfilling those three
 releases is out of scope for this work.
 
-**Phase 3's outstanding item is validation, not code.** §11.8 named runtime validation as
-the dominant uncertainty and it still is: cancellation, callback teardown and the Iris
-cancel poke are covered by unit tests against the session and the router, but nothing has
-exercised them against a real Core ML or Iris generation. Before Phase 4, someone should
-generate with a Core ML model and cancel mid-run, generate a multi-image Iris batch and
-cancel mid-run, and confirm a queued second request starts clean — no stale preview, no
-progress inherited from the cancelled job. That cannot be automated here; it needs real
-models on a real machine.
+**Phase 3 runtime validation passed** (2026-08-27, by hand against real models): cancelling
+a Core ML generation mid-run, cancelling a multi-image Iris batch mid-run, and a queued
+second request starting clean with no stale preview or inherited progress. §11.8 named this
+the dominant uncertainty in the phase; it is closed.
 
 ### Definition of done
 
