@@ -7,7 +7,7 @@
   - The model picker shows only the selected engine's models, and each engine remembers the model it was last using
   - Engines that are unconfigured or have no models are still listed, with the reason shown
 - Added an Engines tab to Settings
-  - ControlNet Folder, Reduce Memory Usage, and ML Compute Unit moved there, under Core ML Stable Diffusion; they never affected any other engine
+  - ControlNet Folder, Reduce Memory Usage, ML Compute Unit, and Filter Inappropriate Images moved there, under Core ML Stable Diffusion; none of them ever affected any other engine
 - Changed the model list to empty itself when the models folder cannot be read, instead of continuing to show models that are no longer there
   - The selected engine and model are remembered across the failure, so restoring the folder restores the selection
 - Changed the sidebar to show only the options the selected model actually uses

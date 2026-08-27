@@ -234,35 +234,19 @@ struct SettingsView: View {
                 .padding(4)
             }
 
-            GroupBox {
-                VStack(alignment: .leading) {
-                    HStack {
-                        Text("Filter Inappropriate Images")
-
-                        Spacer()
-
-                        Toggle("", isOn: $configStore.safetyChecker)
-                            .labelsHidden()
-                            .toggleStyle(.switch)
-                            .controlSize(.small)
-                    }
-                    Text(
-                        "Uses the model's safety checker module. This does not guarantee that all inappropriate images will be filtered.",
-                        comment: "Help text for Filter Inappropriate Images setting"
-                    )
-                    .helpTextFormat()
-                }
-                .padding(4)
-            }
         }
     }
 
     /// Settings that belong to one engine rather than to the app.
     ///
-    /// `ControlNetDir`, `ReduceMemory` and `MLComputeUnitPreference` used to sit in
-    /// General and Image, presented as global while only ever affecting Core ML
-    /// Stable Diffusion. Iris ignores all three, so a user changing them saw no
-    /// effect and no reason why.
+    /// `ControlNetDir`, `ReduceMemory`, `MLComputeUnitPreference` and
+    /// `SafetyChecker` used to sit in General and Image, presented as global while
+    /// only ever affecting Core ML Stable Diffusion. Iris ignores all four, so a
+    /// user changing them saw no effect and no reason why.
+    ///
+    /// The safety checker is a `StableDiffusionPipeline` module, which is why it
+    /// belongs here rather than being a model capability: nothing outside Core ML
+    /// has one to enable.
     ///
     /// The models folder stays global: one shared folder is a settled decision, so
     /// there is no per-engine path to show here.
@@ -312,6 +296,27 @@ struct SettingsView: View {
                         .buttonStyle(PlainButtonStyle())
                         .help("Open in Finder")
                     }
+                }
+                .padding(4)
+            }
+
+            GroupBox {
+                VStack(alignment: .leading) {
+                    HStack {
+                        Text("Filter Inappropriate Images")
+
+                        Spacer()
+
+                        Toggle("", isOn: $configStore.safetyChecker)
+                            .labelsHidden()
+                            .toggleStyle(.switch)
+                            .controlSize(.small)
+                    }
+                    Text(
+                        "Uses the model's safety checker module. This does not guarantee that all inappropriate images will be filtered.",
+                        comment: "Help text for Filter Inappropriate Images setting"
+                    )
+                    .helpTextFormat()
                 }
                 .padding(4)
             }
