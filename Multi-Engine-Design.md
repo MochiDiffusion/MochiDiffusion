@@ -348,6 +348,48 @@ UI stops lying. The same change removes the `as? SDModel` downcasts in
 [Views/SidebarControls/SizeView.swift](Mochi%20Diffusion/Views/SidebarControls/SizeView.swift)
 and the model-name-prefix orientation hack in `GenerationController.setSize`.
 
+### Decided before Phase 4
+
+**Constraints live on the model, not on the engine.** `EngineModel.constraints`, replacing
+the capability half of `MochiModelConfig`. Some are engine-wide facts — Iris never supports
+a negative prompt — and an engine's model type restating them is the same small duplication
+`config` already carries. `engine.constraints(for: model)` would spare that at the cost of
+an indirection on the path the sidebar reads most.
+
+**The size swap button is hidden when the size is pinned.** Today `SizeView`'s swap calls
+`GenerationController.setSize`, which for a Core ML model searches for a *different* model
+whose name prefix matches and whose orientation is flipped — `foo_512x768` → `foo_768x512`.
+Constraints cannot express "a sibling model has the other orientation", and the heuristic's
+own comment calls itself hacky. A fixed-size model has one size, so the control goes away
+and the model picker is how you reach the other orientation. The name-prefix search is
+deleted with it. This is a small regression for anyone relying on paired models; it buys
+back a control that lied about what it did.
+
+**`plan` normalizes; it throws only when normalization is impossible.** §5.3 said Phase 4
+makes `plan` reject unsupported values, which is too strong. The persisted width and height
+will routinely not match a newly selected fixed-size model, and overriding them is correct
+behaviour rather than an error — throwing there would turn every model switch into an error
+banner. So `plan` clamps to range, snaps to step, and overrides pinned values silently,
+because a constraint-driven sidebar already shows a pinned value as disabled and therefore
+already told the user. It throws only for a combination no normalization can rescue, which
+in practice means a wiring bug.
+
+**`GenerationRequest.capabilities` goes away.** Its only consumer is
+`JobQueueView.supportsStrengthControl`, which wants to know whether the request has a
+strength value at all. A resolved `strength: Float?` answers that directly and matches how
+`stepCount` and `scheduler` are already read from the request.
+
+**Prompt token counting is not part of this.** `promptTokenLimit` moves into constraints,
+but `tokenizerModelDir` stays where it is. It is a live measurement rather than a constraint
+on a control, and it only *has* to change when a hosted engine has no directory to tokenize
+— so it moves in Phase 6, where there will be two implementations to design against
+instead of one.
+
+**Control visibility is a pure function, and there are no view tests.** Each control asks
+the constraints a question that can be unit-tested (`constraints.showsGuidanceScale`), and
+the views stay thin enough that the untested part is only the wiring. The repo has no
+view-test infrastructure and adding it for this would be disproportionate.
+
 Engine-specific long-tail options (Draw Things will have many) are deferred to Phase 7 as
 a declarative `[OptionSpec]` bag. We deliberately do *not* start there: a fully
 declarative sidebar would cost us `SizeView`'s swap button, the ControlNet image wells,
@@ -568,7 +610,8 @@ Confidence labels are honest signals about how much these should be trusted.
 | 1 | `MetadataCodec`: fix the import crash and the separator defect; versioned encoding | crash fix | **done** |
 | 2 | Engine descriptor/registry, `EngineID`/`ModelID`, independent discovery, migration, `.engine`/`.modelKey` metadata keys | none | **done** |
 | 3 | Engine runtime and session boundaries; request-scoped cancellation; remove serialization-assumption `@unchecked Sendable`; move generator selection, the payload downcast and the ControlNet symlink write out of the queue and discovery (§4) | ordered progress, no cross-job previews | **done** |
-| 4 | Constraints model; `plan` as the sole resolution point; sidebar driven from constraints | unsupported controls hide; step count stops lying | settled |
+| 4a | Constraints model; `plan` as the sole resolution point; request carries resolved values | none | settled |
+| 4b | Sidebar driven from constraints; size swap hidden for pinned sizes | unsupported controls hide; step count stops lying | settled |
 | 5 | Engine picker, per-engine settings store, Settings restructure | the feature as described | likely |
 | 6 | OpenAI engine: Keychain, indeterminate progress, richer errors | first hosted engine | sketch |
 | 7 | MediaGenerationKit prototype, then local/remote integration | | direction only |
