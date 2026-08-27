@@ -1,5 +1,12 @@
 # Unreleased
 
+- Added an Engine picker to the sidebar, above the model picker
+  - The model picker shows only the selected engine's models, and each engine remembers the model it was last using
+  - Engines that are unconfigured or have no models are still listed, with the reason shown
+- Added an Engines tab to Settings
+  - ControlNet Folder, Reduce Memory Usage, and ML Compute Unit moved there, under Core ML Stable Diffusion; they never affected any other engine
+- Changed the model list to empty itself when the models folder cannot be read, instead of continuing to show models that are no longer there
+  - The selected engine and model are remembered across the failure, so restoring the folder restores the selection
 - Changed the sidebar to show only the options the selected model actually uses
   - FLUX.2 Klein models no longer offer Exclude from Image, Guidance Scale, ControlNet, or starting image Strength, all of which were previously accepted and ignored
   - Step count and scheduler are shown as the fixed values a distilled model uses, instead of controls whose value was overridden
