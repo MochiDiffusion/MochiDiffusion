@@ -20,7 +20,7 @@ struct ModelView: View {
             .sidebarLabelFormat()
         HStack {
             Picker("", selection: $controller.currentModelId) {
-                ForEach(controller.models, id: \.id) { model in
+                ForEach(controller.visibleModels, id: \.id) { model in
                     Text(verbatim: model.name).tag(Optional(model.id))
                 }
             }

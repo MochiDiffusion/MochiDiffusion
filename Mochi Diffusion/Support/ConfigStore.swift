@@ -92,7 +92,19 @@ import UniformTypeIdentifiers
     ///   nor overwrite the real app's settings. The test host *is* Mochi
     ///   Diffusion, so `UserDefaults.standard` here is the developer's own
     ///   preferences.
+    /// The defaults this store reads and writes.
+    ///
+    /// Exposed so a store built alongside this one — `EngineSettingsStore`, whose
+    /// keys are dynamic and so cannot use `@AppStorage` — inherits the same suite
+    /// rather than defaulting to `.standard`. Under test the difference is between
+    /// an isolated suite and the developer's own preferences, since the test host
+    /// is the app itself.
+    /// `UserDefaults` is not `Sendable`, so this stays main-actor-isolated like
+    /// the rest of the store; every reader is already on the main actor.
+    @ObservationIgnored let defaults: UserDefaults
+
     init(store: UserDefaults? = nil) {
+        defaults = store ?? .standard
         guard let store else { return }
         __imageDir = AppStorage(wrappedValue: Default.imageDir, Key.imageDir, store: store)
         __imageType = AppStorage(wrappedValue: Default.imageType, Key.imageType, store: store)

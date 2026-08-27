@@ -49,6 +49,13 @@ actor EngineRegistry {
         engines.map(\.id)
     }
 
+    /// Every engine, in registration order — what the picker lists, including
+    /// engines that are unconfigured or have no models. Hiding those would make an
+    /// engine that only appears once configured impossible to discover (§8).
+    nonisolated var allEngines: [AnyGenerationEngine] {
+        engines
+    }
+
     nonisolated func engine(_ id: EngineID) -> AnyGenerationEngine? {
         engines.first { $0.id == id }
     }

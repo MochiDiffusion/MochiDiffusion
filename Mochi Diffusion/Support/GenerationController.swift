@@ -20,6 +20,7 @@ final class GenerationController {
 
     private var logger = Logger()
     private(set) var configStore: ConfigStore
+    private(set) var engineSettings: EngineSettingsStore
     private let modelRepository: ModelRepository
     private let engineRegistry: EngineRegistry
     private let imageRepository: ImageRepository
@@ -34,15 +35,70 @@ final class GenerationController {
 
     var currentModelId: ModelID? {
         didSet {
-            if let model = models.first(where: { $0.id == self.currentModelId }) {
-                configStore.selectedModel = currentModelId
-                // From the constraint rather than a downcast: which ControlNets a
-                // model can use is something it declares, not something the
-                // controller reads off one engine's concrete type.
-                controlNet = model.constraints.controlNet.names
+            guard let model = models.first(where: { $0.id == self.currentModelId }) else {
+                // Selecting nothing — an engine with no models — has to clear the
+                // ControlNet state too. Leaving it would offer the previous
+                // model's ControlNets for a model that is not selected.
+                controlNet = []
                 currentControlNets = []
+                return
             }
+            engineSettings.selectedEngine = model.id.engine
+            engineSettings.setSelectedModel(model.id, for: model.id.engine)
+            // From the constraint rather than a downcast: which ControlNets a
+            // model can use is something it declares, not something the
+            // controller reads off one engine's concrete type.
+            controlNet = model.constraints.controlNet.names
+            currentControlNets = []
         }
+    }
+
+    /// Every registered engine, for the picker. Unconfigured engines and engines
+    /// with no models are included on purpose (§8).
+    var engines: [AnyGenerationEngine] {
+        engineRegistry.allEngines
+    }
+
+    /// Why each engine can or cannot be used, refreshed with every discovery pass.
+    private(set) var engineAvailability: [EngineID: EngineAvailability] = [:]
+
+    var selectedEngine: EngineID? {
+        engineSettings.selectedEngine
+    }
+
+    /// The models the model picker shows: the selected engine's own.
+    ///
+    /// Falls back to every model when no engine is selected, which is the state
+    /// before the first discovery pass finishes.
+    var visibleModels: [any EngineModel] {
+        guard let selectedEngine else { return models }
+        return models.filter { $0.id.engine == selectedEngine }
+    }
+
+    /// Whether `engine` has anything to generate with right now.
+    func hasModels(_ engine: EngineID) -> Bool {
+        models.contains { $0.id.engine == engine }
+    }
+
+    /// Switches engine, restoring the model that engine was last using.
+    ///
+    /// An engine with no models leaves the selection empty rather than borrowing
+    /// another engine's model: silently generating with a model from an engine the
+    /// user did not pick is worse than an empty picker that says why (§8).
+    func selectEngine(_ engine: EngineID) {
+        guard engine != engineSettings.selectedEngine else { return }
+        engineSettings.selectedEngine = engine
+        currentModelId = rememberedOrFirstModel(for: engine)
+    }
+
+    private func rememberedOrFirstModel(for engine: EngineID) -> ModelID? {
+        let candidates = models.filter { $0.id.engine == engine }
+        if let remembered = engineSettings.selectedModel(for: engine),
+            candidates.contains(where: { $0.id == remembered })
+        {
+            return remembered
+        }
+        return candidates.first?.id
     }
     var currentModel: (any EngineModel)? {
         models.first(where: { $0.id == self.currentModelId })
@@ -87,12 +143,21 @@ final class GenerationController {
         modelRepository: ModelRepository = ModelRepository(),
         imageRepository: ImageRepository = ImageRepository(),
         engineRegistry: EngineRegistry = EngineRegistry(),
+        engineSettings: EngineSettingsStore? = nil,
         startsObserving: Bool = true
     ) {
         self.configStore = configStore
         self.modelRepository = modelRepository
         self.engineRegistry = engineRegistry
         self.imageRepository = imageRepository
+        // Defaulted from the registry rather than by the caller, so the store only
+        // ever loads selections for engines that actually exist.
+        self.engineSettings =
+            engineSettings
+            ?? EngineSettingsStore(
+                store: configStore.defaults,
+                engines: engineRegistry.engineIDs
+            )
         guard startsObserving else { return }
         initialLoadTask = Task { [weak self] in
             await self?.loadModels()
@@ -114,18 +179,22 @@ final class GenerationController {
             let controlNetDirectoryURL = ModelRepository.controlNetDirectoryURL(
                 fromPath: configStore.controlNetDir)
 
-            let discoveries = await engineRegistry.discoverAll(
-                settings: EngineSettings(
-                    modelDirectory: modelDirectoryURL,
-                    controlNetDirectory: controlNetDirectoryURL
-                )
+            let settings = EngineSettings(
+                modelDirectory: modelDirectoryURL,
+                controlNetDirectory: controlNetDirectoryURL
             )
+            let discoveries = await engineRegistry.discoverAll(settings: settings)
+            engineAvailability = await engineRegistry.availability(settings)
             for (engine, error) in discoveries.failures {
                 logger.error("\(engine.rawValue) found no models: \(error)")
             }
 
             let discoveredModels = discoveries.allModels
+            // Assigned before the check below, so a pass that finds nothing empties
+            // the picker instead of leaving the previous pass's models on screen.
+            self.models = discoveredModels
             guard !discoveredModels.isEmpty else {
+                currentModelId = nil
                 // "Nothing was found" and "nothing could be read" need different
                 // messages: reporting an unreadable models folder as an empty one
                 // sends the user looking for missing models when the problem is the
@@ -136,40 +205,65 @@ final class GenerationController {
                 }
                 throw GenerationError.modelSubDirectoriesNoAccess
             }
-            self.models = discoveredModels
 
-            // After discovery and before the selection is read: recovering the
-            // engine for a legacy URL means matching what discovery found, so a
-            // user upgrading keeps the model they had selected.
+            // Two migrations, in order, both idempotent. The first recovers the
+            // engine for a pre-engine `Model` URL by matching what discovery just
+            // found; the second turns that single selection into an engine plus a
+            // per-engine model. A user upgrading across both arrives with the model
+            // they had selected still selected.
             configStore.migrateSelectedModelIfNeeded(discovered: self.models.map(\.id))
+            engineSettings.migrateSelectedEngineIfNeeded(
+                from: configStore.selectedModel,
+                discovered: self.models.map(\.id)
+            )
 
             logger.info("Found \(self.models.count) model(s)")
-
-            /// Try restoring last user selected model
-            /// If not found, use first model from list
-            if self.models.first(where: { $0.id == configStore.selectedModel }) != nil {
-                self.currentModelId = configStore.selectedModel
-                return
-            }
-            self.currentModelId = self.models.first?.id
+            restoreSelection()
         } catch GenerationError.modelDirectoryNoAccess {
             logger.error("Couldn't access model directory.")
-            configStore.selectedModel = nil
+            currentModelId = nil
         } catch GenerationError.modelSubDirectoriesNoAccess {
             logger.error("Could not get model subdirectories.")
             await GenerationService.shared.updateStatus(
                 .error("Could not get model subdirectories.")
             )
-            configStore.selectedModel = nil
+            currentModelId = nil
         } catch GenerationError.noModelsFound {
             logger.error("No models found.")
             await GenerationService.shared.updateStatus(
                 .error("No models found under: \(configStore.modelDir)")
             )
-            configStore.selectedModel = nil
+            currentModelId = nil
         } catch {
-            configStore.selectedModel = nil
+            currentModelId = nil
         }
+    }
+
+    /// Picks the engine and model to show after a discovery pass.
+    ///
+    /// A persisted engine is kept even when it has no models, so the picker can
+    /// say why rather than moving the user to an engine they did not choose. With
+    /// no engine persisted — a first launch, or a selection whose engine is no
+    /// longer registered — the first engine that actually has a model is chosen,
+    /// in registration order, so the sidebar is never pointlessly empty.
+    private func restoreSelection() {
+        if let engine = engineSettings.selectedEngine, engines.contains(where: { $0.id == engine })
+        {
+            currentModelId = rememberedOrFirstModel(for: engine)
+            return
+        }
+        // The engine of the first model in the combined list, not the first engine
+        // in registration order. `models` is sorted by name, so this lands on the
+        // same model the app picked before engines were selectable; going by
+        // registration order would instead make Iris the default for any mixed
+        // folder, which is arbitrary and would change what a fresh install opens
+        // with.
+        guard let firstModel = models.first else {
+            currentModelId = nil
+            return
+        }
+        engineSettings.selectedEngine = firstModel.id.engine
+        currentModelId = rememberedOrFirstModel(for: firstModel.id.engine)
     }
 
     func generate() async {

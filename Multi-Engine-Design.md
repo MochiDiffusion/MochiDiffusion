@@ -474,24 +474,72 @@ a declarative `[OptionSpec]` bag. We deliberately do *not* start there: a fully
 declarative sidebar would cost us `SizeView`'s swap button, the ControlNet image wells,
 and straightforward localization.
 
+### The vocabulary is narrower than a hosted engine needs
+
+Phase 4 implemented only the constraint kinds the two local engines need, which was the
+right call — but it means **Phase 6 begins with a constraint-vocabulary extension, not an
+API client.** Two specific gaps:
+
+- **`SizeConstraint` has no aspect-ratio case.** It is `.pinned([CGSize])` or
+  `.freeform(range:step:)`. §6's original sketch listed `.aspectRatios([...])`; nothing
+  needed it, so nothing was built. If the hosted API expresses geometry as ratios rather
+  than pixel dimensions, that case has to be added, and `SizeView` has to grow a third
+  presentation beyond "fixed field" and "editable field".
+- **There is no `quality` constraint at all.** `MetadataField.quality` exists and
+  round-trips — it is pre-engine vocabulary — but no model declares it, no constraint
+  describes it, no sidebar control edits it, and neither `GenerationDraft` nor
+  `GenerationPlan` carries it. A hosted engine with quality tiers needs the whole chain:
+  constraint, draft field, plan field, sidebar control, and metadata wiring.
+
+So "add the OpenAI engine" is at least five separable pieces of work: the two vocabulary
+extensions above (which belong conceptually with Phase 4), indeterminate progress, the
+error taxonomy, Keychain storage, and the client itself. Size Phase 6 accordingly rather
+than discovering this at implementation time.
+
 ## 7. Persistence and migration
 
 ```
 SelectedEngine                 -> EngineID
 Engine.<id>.SelectedModel      -> ModelID (encoded)
-Engine.<id>.ModelDir           -> String
 Engine.<id>.Options            -> JSON blob of engine-specific values
 ```
 
-Shared, and deliberately **not** namespaced: `Prompt`, `NegativePrompt`, `Seed`,
-`NumberOfImages`, `ImageDir`, `ImageType`. A prompt should survive an engine switch.
-
-`Width`/`Height` become per-engine, because Core ML SD pins them per model while other
-engines offer their own fixed sets.
+Shared, and deliberately **not** namespaced: `ModelDir`, `ControlNetDir`, `Prompt`,
+`NegativePrompt`, `Seed`, `NumberOfImages`, `Width`, `Height`, `ImageDir`, `ImageType`.
+A prompt should survive an engine switch.
 
 `ConfigStore`'s one-property-per-key pattern cannot express dynamic keys, so add an
 `@Observable EngineSettingsStore` reading and writing `UserDefaults` under a prefix.
 `ConfigStore` keeps the genuinely global values.
+
+### Decided: one shared models folder, not one per engine
+
+**Decision (2026-08-27): `ModelDir` stays global.** Both local engines continue to scan
+the same folder, and a per-engine models directory is not built.
+
+An earlier draft made `ModelDir` per-engine, on the grounds that Klein's multi-gigabyte
+diffusers trees and Core ML's `.mlmodelc` bundles are different enough to want separate
+homes, and that separate folders would end the double scan. Rejected: it buys organisation
+users have not asked for, at the cost of a third migration and a settings surface that
+grows a folder picker per engine. Users with one mixed folder keep working unchanged.
+
+Two consequences follow, and both are now Phase 5 obligations rather than optional:
+
+- **Discovery must coalesce per directory.** With a shared folder this is permanent, not a
+  transitional state: every folder-change event otherwise triggers one full enumeration per
+  engine, and every subdirectory is sniffed by every engine. Coalesce the enumeration and
+  hand each engine the same child list to apply its own recognition rules to. §5.5 raised
+  this as a wrinkle; it is now a requirement.
+- **`EngineSettings` keeps `controlNetDirectory` for every engine**, including Iris, which
+  ignores it. §5.3's comment calls this a Phase 5 cleanup; with one shared folder there is
+  nothing to clean up, so the comment should be corrected to say the field is global and
+  deliberately so.
+
+**`Width`/`Height` also stay global.** The earlier rationale — Core ML pins size per model
+— was answered by Phase 4 instead: `SizeConstraint.resolved(_:)` already overrides the
+configured size for a pinned model, so the stored value is only ever the freeform value the
+sidebar shows when a model permits one. Namespacing it per engine would preserve two copies
+of a number the constraint layer resolves anyway.
 
 ### Phase 2 scope versus Phase 5
 
@@ -546,9 +594,16 @@ appears once it is already configured.
 Empty-engine case: engine selected, no models available → disable Generate and show the
 reason. Do not silently fall back to another engine's model.
 
-`Views/SettingsView.swift` grows a per-engine section for paths, keys, hosts, and compute
-units. Exact shape TBD in Phase 3 — likely a list of engines rather than the current
-fixed tabs.
+`Views/SettingsView.swift` grows a per-engine section. With one shared models folder
+(§7) that section holds no paths for the local engines — Core ML's compute units, reduce
+memory and ControlNet folder, nothing yet for Iris, and in Phase 6 the hosted engine's key
+and host. Shape TBD in Phase 5; likely a list of engines rather than the current fixed
+tabs, but with two local engines contributing little, a flat section per engine may be
+enough.
+
+Phase 5 ships as one unit rather than splitting the settings layer from the picker
+(decided 2026-08-27), so the picker and the per-engine selected-model memory arrive
+together — which is what makes per-engine memory observable at all.
 
 ## 9. Metadata
 
@@ -691,7 +746,7 @@ Confidence labels are honest signals about how much these should be trusted.
 | 3 | Engine runtime and session boundaries; request-scoped cancellation; remove serialization-assumption `@unchecked Sendable`; move generator selection, the payload downcast and the ControlNet symlink write out of the queue and discovery (§4) | ordered progress, no cross-job previews | **done** |
 | 4a | Constraints model; `plan` as the sole resolution point; request carries resolved values | none | **done** |
 | 4b | Sidebar driven from constraints; size swap routed through the engine | unsupported controls hide; step count stops lying | **done** |
-| 5 | Engine picker, per-engine settings store, Settings restructure | the feature as described | likely |
+| 5 | Engine picker, `EngineSettingsStore`, per-engine selected model, Settings restructure, coalesced discovery (§7). Shared `ModelDir`; **no** per-engine model directories | the feature as described | likely |
 | 6 | OpenAI engine: Keychain, indeterminate progress, richer errors | first hosted engine | sketch |
 | 7 | MediaGenerationKit prototype, then local/remote integration | | direction only |
 | 8 | Declarative long-tail options | | direction only |
@@ -1238,6 +1293,24 @@ New behavioral tests to add before the old pipeline switches are deleted:
 
 Use `confirmation` for callback-style events, or consume event streams with bounded test
 helpers. No timing-based sleeps.
+
+### `AGENTS.md` is now wrong
+
+Not a test, but it belongs with the things that silently rot. `AGENTS.md` is the
+orientation file a new contributor or agent reads first, and its "High-Level Design Flow"
+still describes the pre-engine architecture: `GenerationPipeline` (three mentions),
+`SDImageGenerator` and `IrisFluxKleinImageGenerator` as the two generators, `MochiModel`,
+and `ModelRepository` returning `[any MochiModel]`. It mentions none of `EngineID`,
+`ModelID`, `EngineRegistry`, `GenerationEngineDescriptor`, `GenerationEngineRuntime`,
+`GenerationSession`, or `OptionConstraints`.
+
+Its "Potential improvements" list is also stale in a misleading direction — it still
+recommends aligning the sidebar to `generationCapabilities` (done in Phase 4b, via
+constraints rather than capabilities) and replacing the generators'
+`@unchecked Sendable` conformances (done in Phase 3).
+
+Rewrite it once Phase 5 settles the settings layer, so it is rewritten once rather than
+per phase. Until then it actively misleads anyone starting from it.
 
 ## 13. Hosted and third-party engines
 

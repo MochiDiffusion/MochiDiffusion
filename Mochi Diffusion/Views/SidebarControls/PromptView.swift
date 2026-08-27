@@ -143,7 +143,9 @@ struct PromptView: View {
                     )
                 }
             }
-            .disabled(configStore.selectedModel == nil)
+            // The live selection, not `ConfigStore.selectedModel`, which is now
+            // only a migration waypoint. An engine with no models leaves this nil.
+            .disabled(controller.currentModelId == nil)
             .buttonStyle(.borderedProminent)
             .controlSize(.large)
         }

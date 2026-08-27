@@ -47,6 +47,26 @@ struct ModelSelectionPersistenceTests {
         )
     }
 
+    /// Writes an engine-scoped selection the way a previous launch would have,
+    /// so a test starts from Phase 5 state rather than relying on the Phase 2
+    /// migration to produce it.
+    private func seedSelection(_ id: ModelID) {
+        tempDefaults.defaults.set(
+            id.engine.rawValue, forKey: EngineSettingsStore.Key.selectedEngine)
+        tempDefaults.defaults.set(
+            id.persistedValue,
+            forKey: EngineSettingsStore.Key.selectedModel(id.engine)
+        )
+    }
+
+    /// The live selection as persisted: the selected engine, and the model that
+    /// engine remembers. Since Phase 5 this is `EngineSettingsStore`'s, not
+    /// `ConfigStore.selectedModel` — which is now only a migration waypoint.
+    private func persistedSelection(_ controller: GenerationController) -> ModelID? {
+        guard let engine = controller.engineSettings.selectedEngine else { return nil }
+        return controller.engineSettings.selectedModel(for: engine)
+    }
+
     /// The message the app is showing, or `nil` if it is not in an error state.
     /// `GenerationState` is a singleton, hence `.serialized` on this suite.
     private func statusMessage() -> String? {
@@ -73,7 +93,7 @@ struct ModelSelectionPersistenceTests {
         #expect(controller.currentModel?.name == "a-model")
         // Persisted as a side effect of currentModelId's didSet, so the next
         // launch restores rather than re-picks.
-        #expect(configStore.selectedModel == controller.currentModelId)
+        #expect(persistedSelection(controller) == controller.currentModelId)
     }
 
     @Test("A persisted selection is restored in preference to the first model")
@@ -128,7 +148,7 @@ struct ModelSelectionPersistenceTests {
 
         #expect(controller.currentModel?.name == "a-model")
         // The stale key is replaced rather than left to fail again next launch.
-        #expect(configStore.selectedModel == controller.currentModelId)
+        #expect(persistedSelection(controller) == controller.currentModelId)
     }
 
     @Test("A selection survives a fresh controller over the same preferences")
@@ -165,16 +185,21 @@ struct ModelSelectionPersistenceTests {
 
     // MARK: - Failure paths
 
-    @Test("An empty model directory clears the persisted selection")
-    func emptyDirectoryClearsSelection() async throws {
-        configStore.selectedModel = ModelID(engine: .coreMLStableDiffusion, key: "gone")
+    /// The persisted choice deliberately survives a failed pass. Wiping it would
+    /// now discard the engine as well as the model, and a models folder that is
+    /// briefly unavailable should not cost the user either.
+    @Test("An empty model directory clears the live selection but keeps the persisted one")
+    func emptyDirectoryClearsLiveSelectionOnly() async throws {
+        seedSelection(ModelID(engine: .coreMLStableDiffusion, key: "gone"))
 
         let controller = makeController()
         await controller.loadModels()
 
         #expect(controller.models.isEmpty)
         #expect(controller.currentModel == nil)
-        #expect(configStore.selectedModel == nil)
+        #expect(controller.currentModelId == nil)
+        #expect(
+            persistedSelection(controller) == ModelID(engine: .coreMLStableDiffusion, key: "gone"))
         #expect(statusMessage()?.contains("No models found") == true)
     }
 
@@ -193,31 +218,37 @@ struct ModelSelectionPersistenceTests {
         #expect(!message.contains("No models found"))
     }
 
-    @Test("An unreadable model directory clears the persisted selection")
-    func unreadableDirectoryClearsSelection() async throws {
+    @Test("An unreadable model directory clears the live selection but keeps the persisted one")
+    func unreadableDirectoryClearsLiveSelectionOnly() async throws {
         configStore.modelDir = temp.appending("does-not-exist").path(percentEncoded: false)
-        configStore.selectedModel = ModelID(engine: .coreMLStableDiffusion, key: "a-model")
+        seedSelection(ModelID(engine: .coreMLStableDiffusion, key: "a-model"))
 
         let controller = makeController()
         await controller.loadModels()
 
         #expect(controller.models.isEmpty)
-        #expect(configStore.selectedModel == nil)
+        #expect(controller.currentModelId == nil)
+        #expect(
+            persistedSelection(controller)
+                == ModelID(engine: .coreMLStableDiffusion, key: "a-model"))
     }
 
-    @Test("Losing the models directory clears a previously good selection")
-    func selectionIsClearedWhenDirectoryDisappears() async throws {
+    @Test("Losing the models directory empties the picker without forgetting the choice")
+    func losingDirectoryEmptiesPickerAndKeepsChoice() async throws {
         try makeTwoModels()
         let controller = makeController()
         await controller.loadModels()
-        #expect(configStore.selectedModel != nil)
+        let chosen = try #require(persistedSelection(controller))
 
         try FileManager.default.removeItem(at: modelDir)
         await controller.loadModels()
 
-        // The models list is deliberately left stale — only the persisted
-        // selection is cleared — so the sidebar keeps showing what it had.
-        #expect(configStore.selectedModel == nil)
+        // The models list used to be left stale, showing models that were gone.
+        // It is now emptied, and the persisted choice is what survives instead —
+        // so restoring the folder restores the selection.
+        #expect(controller.models.isEmpty)
+        #expect(controller.currentModelId == nil)
+        #expect(persistedSelection(controller) == chosen)
     }
 
     // MARK: - Selection side effects
@@ -275,13 +306,13 @@ struct ModelSelectionPersistenceTests {
         try makeTwoModels()
         let controller = makeController()
         await controller.loadModels()
-        let persisted = configStore.selectedModel
+        let persisted = persistedSelection(controller)
 
         controller.currentModelId = ModelID(engine: .coreMLStableDiffusion, key: "not-a-model")
 
         // didSet only writes through when the id resolves to a known model, so
         // currentModelId and the persisted value disagree here.
-        #expect(configStore.selectedModel == persisted)
+        #expect(persistedSelection(controller) == persisted)
         #expect(controller.currentModel == nil)
     }
 
