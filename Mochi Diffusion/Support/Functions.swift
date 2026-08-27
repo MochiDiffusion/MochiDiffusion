@@ -55,122 +55,6 @@ nonisolated func getFinderTagColorNumber(_ url: URL) -> Int {
     return finderTagColorNumber
 }
 
-private struct ParsedMetadataInfo {
-    var prompt: String?
-    var negativePrompt: String?
-    var model: String?
-    var quality: String?
-    var startingImage: String?
-    var controlNetImage: String?
-    var inputImages: [String] = []
-    var scheduler: Scheduler?
-    var mlComputeUnit: MLComputeUnits?
-    var seed: UInt32?
-    var steps: Int?
-    var guidanceScale: Double?
-    var generatedVersion = ""
-    var presentFields: Set<MetadataField> = []
-}
-
-nonisolated private func metadataField(for key: Metadata) -> MetadataField? {
-    switch key {
-    case .includeInImage:
-        return .prompt
-    case .excludeFromImage:
-        return .negativePrompt
-    case .model:
-        return .model
-    case .size:
-        return .size
-    case .quality:
-        return .quality
-    case .startingImage:
-        return .startingImage
-    case .controlNetImage:
-        return .controlNetImage
-    case .inputImages:
-        return .inputImages
-    case .scheduler:
-        return .scheduler
-    case .mlComputeUnit:
-        return .mlComputeUnit
-    case .seed:
-        return .seed
-    case .steps:
-        return .steps
-    case .guidanceScale:
-        return .guidanceScale
-    case .date, .generator:
-        return nil
-    }
-}
-
-nonisolated private func parseMetadataInfo(_ infoString: String) -> ParsedMetadataInfo {
-    var parsed = ParsedMetadataInfo()
-
-    func parseInputImages(_ value: String) -> [String] {
-        value
-            .split(separator: ",")
-            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-            .filter { !$0.isEmpty }
-    }
-
-    for field in infoString.split(separator: "; ") {
-        guard let separatorIndex = field.firstIndex(of: ":") else { continue }
-        guard let key = Metadata(rawValue: String(field[field.startIndex..<separatorIndex])) else {
-            continue
-        }
-
-        let valueIndex = field.index(separatorIndex, offsetBy: 2)
-        guard valueIndex <= field.endIndex else { continue }
-        let value = String(field[valueIndex...])
-
-        if let mappedField = metadataField(for: key) {
-            parsed.presentFields.insert(mappedField)
-        }
-
-        switch key {
-        case .model:
-            parsed.model = value
-        case .includeInImage:
-            parsed.prompt = value
-        case .excludeFromImage:
-            parsed.negativePrompt = value
-        case .quality:
-            parsed.quality = value
-        case .startingImage:
-            parsed.startingImage = value
-        case .controlNetImage:
-            parsed.controlNetImage = value
-        case .inputImages:
-            parsed.inputImages = parseInputImages(value)
-        case .seed:
-            parsed.seed = UInt32(value)
-        case .steps:
-            parsed.steps = Int(value)
-        case .guidanceScale:
-            parsed.guidanceScale = Double(value)
-        case .scheduler:
-            parsed.scheduler = Scheduler(rawValue: value)
-        case .mlComputeUnit:
-            parsed.mlComputeUnit = MLComputeUnits.fromString(value)
-        case .generator:
-            guard let index = value.lastIndex(of: " ") else { break }
-            let start = value.index(after: index)
-            parsed.generatedVersion = String(value[start...])
-        case .date, .size:
-            break
-        }
-    }
-
-    return parsed
-}
-
-nonisolated private func isSupportedGeneratedVersion(_ generatedVersion: String) -> Bool {
-    guard !generatedVersion.isEmpty else { return false }
-    return compareVersion("2.2", generatedVersion) != .orderedDescending
-}
-
 nonisolated func createImageRecordFromURL(_ url: URL) -> ImageRecord? {
     guard
         let attr = try? FileManager.default.attributesOfItem(
@@ -220,8 +104,8 @@ nonisolated func createImageRecordFromURL(_ url: URL) -> ImageRecord? {
         imageData: data
     )
 
-    let parsed = parseMetadataInfo(infoString)
-    guard isSupportedGeneratedVersion(parsed.generatedVersion) else { return nil }
+    let parsed = MetadataCodec.decode(infoString)
+    guard MetadataCodec.isSupportedGeneratedVersion(parsed.generatedVersion) else { return nil }
 
     record.prompt = parsed.prompt ?? ""
     record.negativePrompt = parsed.negativePrompt ?? ""

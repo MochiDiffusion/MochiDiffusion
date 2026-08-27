@@ -3,6 +3,7 @@
 //  Mochi DiffusionTests
 //
 
+import AppKit
 import CoreML
 import Foundation
 import Testing
@@ -128,7 +129,7 @@ struct MetadataRoundTripTests {
         #expect(record.metadataFields.contains(.negativePrompt))
     }
 
-    @Test("Multiple input images round trip as a comma-separated list")
+    @Test("Multiple input images round trip as one field each")
     func inputImagesRoundTripAsList() async throws {
         var sdi = Self.makeImage()
         sdi.inputImages = ["one.png", "two.png", "three.png"]
@@ -188,17 +189,64 @@ struct MetadataRoundTripTests {
         #expect(record.metadataFields == [.prompt])
     }
 
-    @Test("Prompts containing the field separator round trip intact")
-    func promptContainingFieldSeparatorRoundTrips() async throws {
+    @Test(
+        "Prompts containing separators and escapes round trip intact",
+        arguments: [
+            "a cat; wearing a hat",
+            "a cat\nwearing a hat",
+            "a cat\r\nwearing a hat",
+            "back\\slash",
+            "Model: not a key",
+            "trailing backslash\\",
+        ]
+    )
+    func hostilePromptRoundTripsThroughAnImage(prompt: String) async throws {
         var sdi = Self.makeImage()
-        sdi.prompt = "a cat; wearing a hat"
+        sdi.prompt = prompt
+
+        let record = try #require(
+            await roundTrip(sdi, fields: [.prompt], name: "hostile-\(abs(prompt.hashValue))")
+        )
+
+        #expect(record.prompt == prompt)
+    }
+
+    /// Multi-line prompts are ordinary — the sidebar prompt field is a
+    /// `TextEditor`. They worked by accident under the version 1 format because
+    /// newlines were not the separator; under version 2 they only work because
+    /// the codec escapes them.
+    @Test("A multi-line prompt survives export and import")
+    func multiLinePromptRoundTrips() async throws {
+        var sdi = Self.makeImage()
+        sdi.prompt = "a cat\n\nwearing a hat\nin three lines"
 
         let record = try #require(await roundTrip(sdi, fields: [.prompt]))
 
-        // Known defect: the metadata string is both joined and split on "; ",
-        // so any prompt containing that sequence is truncated on import.
-        withKnownIssue("Prompt is truncated at the first \"; \" on import") {
-            #expect(record.prompt == sdi.prompt)
-        }
+        #expect(record.prompt == sdi.prompt)
+    }
+
+    /// Round-trip tests cannot catch a format change, because a compensating
+    /// change on both sides still passes. This pins the bytes an image actually
+    /// carries, so a codec change that breaks previously-saved images fails
+    /// here.
+    @Test("The written caption has the expected shape")
+    func writtenCaptionShapeIsStable() {
+        var sdi = Self.makeImage()
+        sdi.prompt = "a cat"
+        sdi.inputImages = ["one.png", "two.png"]
+
+        let caption = sdi.metadata(including: [.prompt, .model, .seed, .inputImages])
+
+        #expect(
+            caption == """
+                Metadata Version: 2
+                Include in Image: a cat
+                Model: sd-1.5_512x512
+                Seed: 123456789
+                Input Images: one.png
+                Input Images: two.png
+                Generator: Mochi Diffusion \(NSApplication.appVersion)
+                """
+        )
     }
 }

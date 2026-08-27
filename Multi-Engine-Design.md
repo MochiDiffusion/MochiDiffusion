@@ -383,24 +383,59 @@ the engine work rather than as part of it.
 Hosted engines make this urgent for a second reason: OpenAI returns a *revised prompt*
 written by a model, and model-written prose contains semicolons and colons routinely.
 
-### 9.2 Codec fix
+### 9.2 Codec fix (implemented)
 
-Introduce a `MetadataCodec` owning both directions.
+`MetadataCodec` ([Support/MetadataCodec.swift](Mochi%20Diffusion/Support/MetadataCodec.swift))
+owns both directions. Version 2 of the format:
 
-- Preserve the human-readable `Key: value; Key: value` shape. This is not a switch to an
-  opaque format.
-- Add an explicit metadata-format version. Do **not** overload the app version — the
-  existing `Generator: Mochi Diffusion <appVersion>` key stays as-is for the
-  `isSupportedGeneratedVersion` gate.
-- Escape at least the escape character and the field separator in every string value.
-- Give string arrays an unambiguous representation.
-- Parse legacy unversioned captions with the current rules; keep unknown-key handling
-  lenient; keep "field was present" tracking separate from parsed values.
-- Never trap on malformed input.
+```
+Metadata Version: 2
+Include in Image: a cat; wearing a hat
+Exclude from Image: blurry\nlow quality
+Model: sd-1.5_512x512
+Input Images: one.png
+Input Images: two.png
+Generator: Mochi Diffusion 6.0
+```
 
-New writes must be lossless. Old captions already truncated by the legacy parser are only
-heuristically recoverable, and perfect reconstruction of malformed history is not a
-requirement.
+- **Fields are separated by newlines**, one `Key: value` per line.
+- **Values escape** `\` as `\\`, LF as `\n`, and CR as `\r`. Semicolons and colons
+  need no escaping at all, so ordinary prose prompts are untouched.
+- **Escaping happens at the unicode-scalar level, not the character level.** `"\r\n"` is a
+  single Swift `Character` — one extended grapheme cluster — so a character-by-character
+  switch silently passes CRLF through unescaped, which then splits the caption apart on
+  import. The adversarial test matrix caught this; it is not obvious from reading the code.
+- **Arrays repeat their key** rather than using a comma sub-format, so a filename may
+  contain any character.
+- **The version marker is written first**, so detection never has to infer the format from
+  the shape of the rest of the caption. That matters because a version 2 value may
+  legitimately contain `"; "`, which version 1 used as its field separator.
+- **Absence of the marker means version 1**, parsed with the legacy rules: split on
+  `"; "`, no unescaping, comma-separated input images.
+- **A version higher than we know is read with version 2 rules** rather than rejected, so
+  a future field never costs us the fields we do understand.
+- **Malformed input never traps.** Key/value splitting uses only in-bounds index
+  arithmetic.
+- The app version continues to travel in `Generator:` and still gates import through
+  `isSupportedGeneratedVersion`. The format version is deliberately separate.
+
+#### Accepted costs of newline separation
+
+Chosen knowingly over keeping `"; "` with escaped semicolons:
+
+- **Images written from now on are invisible to older Mochi builds.** An older parser
+  splits on `"; "`, so a version 2 caption collapses into one field, never yields a
+  `Generator:` key, fails the version gate, and returns nil — and
+  [Support/ImageRepository.swift](Mochi%20Diffusion/Support/ImageRepository.swift) skips
+  nil records entirely. The image does not appear in the gallery at all. This affects
+  downgrades and folders shared with users on older versions.
+- **Multi-line prompts now carry literal `\n` escapes** in the caption. The prompt field
+  is a `TextEditor`, so multi-line prompts are ordinary. They round-tripped by accident
+  under version 1 because newlines were not the separator; under version 2 they work only
+  because the codec escapes them. Pinned by a test.
+
+In exchange the format is materially cleaner to read for single-line prompts and needs no
+semicolon escaping, and the array sub-format problem disappears.
 
 ### 9.3 New fields
 
@@ -435,7 +470,7 @@ Confidence labels are honest signals about how much these should be trusted.
 | Phase | Scope | User-visible | Confidence |
 |---|---|---|---|
 | 0 | Test target (see §12) | none | done |
-| 1 | `MetadataCodec`: fix the import crash and the separator defect; versioned encoding | crash fix | settled |
+| 1 | `MetadataCodec`: fix the import crash and the separator defect; versioned encoding | crash fix | **done** |
 | 2 | Engine descriptor/registry, `EngineID`/`ModelID`, independent discovery, migration | none | settled |
 | 3 | Engine runtime and session boundaries; request-scoped cancellation; remove serialization-assumption `@unchecked Sendable` | more reliable cancel | settled |
 | 4 | Constraints model; `plan` as the sole resolution point; sidebar driven from constraints | unsupported controls hide; step count stops lying | settled |
@@ -608,11 +643,16 @@ code. Deliberately no day figure here — one would get quoted back as a commitm
 
 ## 12. Tests
 
-The Swift Testing target exists and passes (39 test cases, two `withKnownIssue` defects,
-`swift format lint` clean). It uses current idioms correctly: `@Test`, parameterized
-`arguments:`, `#expect`/`#require`, per-test temporary directories, and no XCTest.
+The Swift Testing target exists and passes: 154 test-case executions, one remaining
+`withKnownIssue` (`IrisModelFamily.fallbackDisplayName` is unreachable), `swift format
+lint` clean. It uses current idioms correctly: `@Test`, parameterized `arguments:`,
+`#expect`/`#require`, per-test temporary directories, and no XCTest.
 
 Changes needed before it becomes the contract for the new architecture:
+
+0. **Still outstanding.** `MetadataCodecTests` is declared `nonisolated` as a local
+   workaround, because `@Test(arguments:)` cannot read a main-actor-isolated `static let`
+   from its macro expansion. That is a symptom of item 1, not a fix for it.
 
 1. **Drop the Main Actor default for the test target.** It currently inherits
    `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor` from the app target, which serializes pure
@@ -632,11 +672,11 @@ Changes needed before it becomes the contract for the new architecture:
 4. **Rename or extend "Every required Klein config file is required."** It parameterizes
    5 of the 12 required paths. Either drive it from the shared fixture list or drop the
    word "every".
-5. **Turn the separator known-issue into a passing parameterized test** once §9.2 lands,
-   covering `"; "`, bare semicolons, backslashes, colons, key-lookalike strings, newlines,
+5. ~~**Turn the separator known-issue into a passing parameterized test.**~~ Done in
+   Phase 1: `MetadataCodecTests` covers `"; "`, bare semicolons, backslashes, colons, key-lookalike strings, newlines,
    Unicode, empty strings, filenames containing commas and semicolons, legacy unescaped
-   captions, and unknown future keys alongside escaped known values. Add the crash case
-   from §9.1 — a recognized key with a bare trailing colon.
+   captions, and unknown future keys alongside escaped known values, plus the crash case
+   from §9.1 and a golden encoded-shape assertion in both the codec and image suites.
 
 New behavioral tests to add before the old pipeline switches are deleted:
 
@@ -770,8 +810,9 @@ the code where checkable.
 
 - Reworking the gallery, filtering, or inspector beyond the new metadata fields.
 - Model downloading or conversion for any engine.
-- Replacing the human-readable metadata format. Backward-compatible versioned codec fixes
-  and additive keys are in scope (§9.2); a wholesale switch to an opaque format is not.
+- A wholesale switch to an opaque metadata format. The format stays human-readable
+  `Key: value` lines; §9.2 changed the separator and added escaping and a version marker,
+  and additive keys remain in scope.
 - Multi-engine batching within a single request.
 - A separate "Swift Concurrency migration" project. The remaining hardening rides along
   with the engine runtime work in Phase 3.

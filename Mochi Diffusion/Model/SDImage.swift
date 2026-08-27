@@ -130,53 +130,52 @@ extension SDImage {
     }
 
     nonisolated func metadata(including metadataFields: Set<MetadataField>) -> String {
-        var pairs: [String] = []
+        var pairs: [(key: Metadata, value: String)] = []
 
         if metadataFields.contains(.prompt) {
-            pairs.append("\(Metadata.includeInImage.rawValue): \(prompt)")
+            pairs.append((.includeInImage, prompt))
         }
         if metadataFields.contains(.negativePrompt) {
-            pairs.append("\(Metadata.excludeFromImage.rawValue): \(negativePrompt)")
+            pairs.append((.excludeFromImage, negativePrompt))
         }
         if metadataFields.contains(.model) {
-            pairs.append("\(Metadata.model.rawValue): \(model)")
+            pairs.append((.model, model))
         }
         if metadataFields.contains(.steps) {
-            pairs.append("\(Metadata.steps.rawValue): \(steps)")
+            pairs.append((.steps, "\(steps)"))
         }
         if metadataFields.contains(.guidanceScale) {
-            pairs.append("\(Metadata.guidanceScale.rawValue): \(guidanceScale)")
+            pairs.append((.guidanceScale, "\(guidanceScale)"))
         }
         if metadataFields.contains(.seed) {
-            pairs.append("\(Metadata.seed.rawValue): \(seed)")
+            pairs.append((.seed, "\(seed)"))
         }
         if metadataFields.contains(.size) {
-            pairs.append("\(Metadata.size.rawValue): \(width)x\(height)")
+            pairs.append((.size, "\(width)x\(height)"))
         }
         if metadataFields.contains(.quality), !quality.isEmpty {
-            pairs.append("\(Metadata.quality.rawValue): \(quality)")
+            pairs.append((.quality, quality))
         }
         if metadataFields.contains(.startingImage), !startingImage.isEmpty {
-            pairs.append("\(Metadata.startingImage.rawValue): \(startingImage)")
+            pairs.append((.startingImage, startingImage))
         }
         if metadataFields.contains(.controlNetImage), !controlNetImage.isEmpty {
-            pairs.append("\(Metadata.controlNetImage.rawValue): \(controlNetImage)")
+            pairs.append((.controlNetImage, controlNetImage))
         }
         if metadataFields.contains(.inputImages), !inputImages.isEmpty {
-            pairs.append("\(Metadata.inputImages.rawValue): \(inputImages.joined(separator: ", "))")
+            // One line per image, so a filename may contain any character.
+            pairs += inputImages.map { (key: Metadata.inputImages, value: $0) }
         }
         if metadataFields.contains(.scheduler) {
-            pairs.append("\(Metadata.scheduler.rawValue): \(scheduler.rawValue)")
+            pairs.append((.scheduler, scheduler.rawValue))
         }
         if metadataFields.contains(.mlComputeUnit) {
-            pairs.append(
-                "\(Metadata.mlComputeUnit.rawValue): \(MLComputeUnits.toString(mlComputeUnit))"
-            )
+            pairs.append((.mlComputeUnit, MLComputeUnits.toString(mlComputeUnit)))
         }
 
         // Generator/version is always emitted for import compatibility checks.
-        pairs.append("\(Metadata.generator.rawValue): Mochi Diffusion \(NSApplication.appVersion)")
-        return pairs.joined(separator: "; ")
+        pairs.append((.generator, "Mochi Diffusion \(NSApplication.appVersion)"))
+        return MetadataCodec.encode(pairs)
     }
 
     func getHumanReadableInfo(
