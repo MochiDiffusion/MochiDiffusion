@@ -131,7 +131,7 @@ private struct JobView: View {
                     Text(request.prompt)
                         .lineLimit(1)
                         .help(request.prompt)
-                    Text(request.pipeline.displayName)
+                    Text(request.displayName)
                         .font(.caption2)
                         .foregroundStyle(Color.secondary)
                         .lineLimit(1)
@@ -189,23 +189,23 @@ private struct InfoPopoverView: View {
     }
 
     private var capabilities: GenerationCapabilities {
-        request.pipeline.generationCapabilities
+        request.capabilities
     }
 
     private var metadataFields: Set<MetadataField> {
-        request.pipeline.metadataFields
+        request.metadataFields
     }
 
+    /// The request's own values, because `plan` already resolved them. These used
+    /// to be recomputed here through the pipeline, so a distilled model's queue
+    /// row showed four steps while the request carried whatever the sidebar said.
+    /// The remaining `Optional` is only "does this model record the field".
     private var effectiveStepCount: Int? {
-        request.pipeline.effectiveStepCount(
-            requestedStepCount: request.stepCount
-        )
+        metadataFields.contains(.steps) ? request.stepCount : nil
     }
 
     private var effectiveScheduler: Scheduler? {
-        request.pipeline.effectiveScheduler(
-            requestedScheduler: request.scheduler
-        )
+        metadataFields.contains(.scheduler) ? request.scheduler : nil
     }
 
     private var supportsStrengthControl: Bool {
@@ -237,9 +237,7 @@ private struct InfoPopoverView: View {
                 configStore.scheduler = scheduler
             }
 
-            if let model = request.pipeline.coreMLModel {
-                controller.currentModelId = model.id  // TODO: we should just store id?
-            }
+            controller.currentModelId = request.modelID
 
             if let startingImage = decodeImage(from: request.startingImageData) {
                 controller.setStartingImage(
@@ -253,8 +251,8 @@ private struct InfoPopoverView: View {
                 await controller.unsetStartingImage()
             }
 
-            if let controlNetName = request.pipeline.controlNets.first,
-                let controlNetImage = decodeImage(from: request.controlNetInputs.first)
+            if let controlNetName = request.controlNetNames.first,
+                let controlNetImage = decodeImage(from: request.controlNetImageData.first)
             {
                 await controller.setControlNet(name: controlNetName)
                 await controller.setControlNet(
@@ -274,7 +272,7 @@ private struct InfoPopoverView: View {
                     if metadataFields.contains(.model) {
                         InfoGridRow(
                             type: LocalizedStringKey(Metadata.model.rawValue),
-                            text: request.pipeline.displayName,
+                            text: request.displayName,
                             showCopyToPromptOption: false
                         )
                     }
@@ -354,7 +352,7 @@ private struct InfoPopoverView: View {
                         )
                     }
                     if metadataFields.contains(.mlComputeUnit),
-                        let computeUnit = request.pipeline.mlComputeUnit
+                        let computeUnit = request.mlComputeUnit
                     {
                         InfoGridRow(
                             type: LocalizedStringKey(Metadata.mlComputeUnit.rawValue),
@@ -380,8 +378,8 @@ private struct InfoPopoverView: View {
                             )
                         }
                     }
-                    if let controlNetName = request.pipeline.controlNets.first,
-                        let controlNetImage = decodeImage(from: request.controlNetInputs.first)
+                    if let controlNetName = request.controlNetNames.first,
+                        let controlNetImage = decodeImage(from: request.controlNetImageData.first)
                     {
                         InfoGridRow(
                             type: LocalizedStringKey("ControlNet"),

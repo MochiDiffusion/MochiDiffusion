@@ -30,18 +30,22 @@ actor EngineRegistry {
         let failure: (any Error)?
     }
 
-    private let engines: [AnyGenerationEngine]
+    /// `nonisolated` because the engines are immutable `Sendable` values and the
+    /// sidebar reads them on every request it builds. This is the descriptor half
+    /// of the split in §5.3: engine facts without an actor hop. Discovery stays
+    /// isolated — it does I/O.
+    nonisolated private let engines: [AnyGenerationEngine]
     private let logger = Logger()
 
     init(engines: [AnyGenerationEngine] = EngineRegistry.defaultEngines) {
         self.engines = engines
     }
 
-    var engineIDs: [EngineID] {
+    nonisolated var engineIDs: [EngineID] {
         engines.map(\.id)
     }
 
-    func engine(_ id: EngineID) -> AnyGenerationEngine? {
+    nonisolated func engine(_ id: EngineID) -> AnyGenerationEngine? {
         engines.first { $0.id == id }
     }
 

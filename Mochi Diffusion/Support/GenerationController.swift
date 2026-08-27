@@ -12,48 +12,6 @@ import os
 @MainActor
 @Observable
 final class GenerationController {
-    private enum PipelineModelAdapter {
-        case sd(SDModel)
-        case irisFluxKlein(IrisFluxKleinModel)
-
-        static func from(_ model: any EngineModel) -> PipelineModelAdapter? {
-            switch model {
-            case let model as SDModel:
-                return .sd(model)
-            case let model as IrisFluxKleinModel:
-                return .irisFluxKlein(model)
-            default:
-                return nil
-            }
-        }
-
-        var inputSize: CGSize? {
-            switch self {
-            case .sd(let model):
-                return model.inputSize
-            case .irisFluxKlein:
-                return nil
-            }
-        }
-
-        func makePipeline(configStore: ConfigStore, controlNets: [String]) -> GenerationPipeline {
-            switch self {
-            case .sd(let model):
-                return .sd(
-                    model: model,
-                    computeUnit: configStore.mlComputeUnitPreference.computeUnits(forModel: model),
-                    controlNets: controlNets,
-                    reduceMemory: configStore.reduceMemory
-                )
-            case .irisFluxKlein(let model):
-                return .iris(
-                    modelDir: model.url.path(percentEncoded: false),
-                    family: .fluxKlein
-                )
-            }
-        }
-    }
-
     struct ControlNetInput {
         var name: String?
         var image: CGImage?
@@ -197,22 +155,23 @@ final class GenerationController {
 
     func generate() async {
         guard let request = buildGenerationRequest() else { return }
-        if case .sd = request.pipeline {
-            do {
-                _ = try await imageRepository.ensureOutputDirectory(
-                    imageDir: request.imageDir
-                )
-            } catch ImageRepositoryError.imageDirectoryNoAccess(let path) {
-                await GenerationService.shared.updateStatus(
-                    .error("Couldn't access images folder at: \(path)")
-                )
-                return
-            } catch {
-                await GenerationService.shared.updateStatus(
-                    .error("Couldn't access images folder.")
-                )
-                return
-            }
+        // Core ML writes through ImageRepository, so a bad images folder should
+        // surface before the job is queued rather than after it runs. Iris takes
+        // the same path, so the check is no longer conditional.
+        do {
+            _ = try await imageRepository.ensureOutputDirectory(
+                imageDir: request.imageDir
+            )
+        } catch ImageRepositoryError.imageDirectoryNoAccess(let path) {
+            await GenerationService.shared.updateStatus(
+                .error("Couldn't access images folder at: \(path)")
+            )
+            return
+        } catch {
+            await GenerationService.shared.updateStatus(
+                .error("Couldn't access images folder.")
+            )
+            return
         }
 
         await GenerationService.shared.enqueue(request)
@@ -221,7 +180,7 @@ final class GenerationController {
     func setStartingImage(image: CGImage, filename: String? = nil) {
         startingImage = image
         startingImageFilename =
-            normalizedFilename(filename) ?? consumePendingSelectedImageFilename()
+            filename?.normalizedFilename ?? consumePendingSelectedImageFilename()
     }
 
     func selectStartingImage() async {
@@ -249,7 +208,7 @@ final class GenerationController {
     }
 
     func setControlNet(image: CGImage, filename: String? = nil) async {
-        let imageFilename = normalizedFilename(filename) ?? consumePendingSelectedImageFilename()
+        let imageFilename = filename?.normalizedFilename ?? consumePendingSelectedImageFilename()
         if self.currentControlNets.isEmpty {
             self.currentControlNets = [
                 ControlNetInput(name: nil, image: image, imageFilename: imageFilename)
@@ -314,13 +273,7 @@ final class GenerationController {
 
     private func consumePendingSelectedImageFilename() -> String? {
         defer { pendingSelectedImageFilename = nil }
-        return normalizedFilename(pendingSelectedImageFilename)
-    }
-
-    private func normalizedFilename(_ filename: String?) -> String? {
-        guard let filename else { return nil }
-        let trimmed = filename.trimmingCharacters(in: .whitespacesAndNewlines)
-        return trimmed.isEmpty ? nil : trimmed
+        return pendingSelectedImageFilename?.normalizedFilename
     }
 
     func copyToPrompt() {
@@ -441,82 +394,72 @@ final class GenerationController {
     }
 
     /// Internal rather than private so the regression suite can assert the exact
-    /// request today's code builds; Phase 2 moves these branches into per-engine
-    /// `plan` implementations and "the request is unchanged" is the success test.
+    /// request the app builds. The per-engine branches this used to hold now live
+    /// in each engine's `plan`; what is left is gathering the sidebar into a draft
+    /// and copying the resolved plan into the request.
     func buildGenerationRequest() -> GenerationRequest? {
-        guard let model = currentModel else {
+        guard let model = currentModel else { return nil }
+        guard let engine = engineRegistry.engine(model.id.engine) else {
+            logger.error("no engine registered for \(model.id.description)")
             return nil
         }
-        guard let adapter = PipelineModelAdapter.from(model) else {
-            logger.error("unknown model type")
-            return nil
-        }
 
-        // A Core ML model with a fixed input size produces that size whatever the
-        // sidebar says, so the request records what will actually be generated
-        // rather than what was typed. JobQueueView both displays this and copies
-        // it back into the sidebar, so a configured size that the model ignores
-        // is a wrong number on screen.
-        let configuredSize = CGSize(width: configStore.width, height: configStore.height)
-        let size = adapter.inputSize ?? configuredSize
-        let startingImageData = startingImage?.scaledAndCroppedTo(size: size)?.pngData()
-
-        var controlNetInputs: [Data] = []
-        var controlNets: [String] = []
-        var controlNetImageNames: [String] = []
-        if let inputSize = adapter.inputSize {
-            for input in currentControlNets {
-                guard
-                    let name = input.name,
-                    let image = input.image,
-                    let data = image.scaledAndCroppedTo(size: inputSize)?.pngData()
-                else { continue }
-
-                controlNetInputs.append(data)
-                controlNets.append(name)
-                if let imageFilename = normalizedFilename(input.imageFilename) {
-                    controlNetImageNames.append(imageFilename)
-                }
-            }
-        }
-
-        let pipeline: GenerationPipeline
-        let startingImageName: String?
-        let requestControlNetImageNames: [String]
-        let inputImageNames: [String]
-        switch adapter {
-        case .sd:
-            pipeline = adapter.makePipeline(configStore: configStore, controlNets: controlNets)
-            startingImageName = normalizedFilename(startingImageFilename)
-            requestControlNetImageNames = controlNetImageNames
-            inputImageNames = []
-        case .irisFluxKlein:
-            pipeline = adapter.makePipeline(configStore: configStore, controlNets: [])
-            startingImageName = nil
-            requestControlNetImageNames = []
-            inputImageNames = normalizedFilename(startingImageFilename).map { [$0] } ?? []
-        }
-
-        return GenerationRequest(
-            pipeline: pipeline,
+        let draft = GenerationDraft(
             prompt: configStore.prompt,
             negativePrompt: configStore.negativePrompt,
-            size: size,
-            startingImageData: startingImageData,
-            startingImageName: startingImageName,
-            controlNetInputs: controlNetInputs,
-            controlNetImageNames: requestControlNetImageNames,
-            inputImageNames: inputImageNames,
+            configuredSize: CGSize(width: configStore.width, height: configStore.height),
+            startingImage: startingImage,
+            startingImageName: startingImageFilename,
+            controlNets: currentControlNets.map {
+                ControlNetDraft(name: $0.name, image: $0.image, imageName: $0.imageFilename)
+            },
             strength: Float(configStore.strength),
             stepCount: Int(configStore.steps),
             guidanceScale: Float(configStore.guidanceScale),
-            disableSafety: !configStore.safetyChecker,
             scheduler: configStore.scheduler,
-            useDenoisedIntermediates: configStore.showGenerationPreview,
             seed: seed == 0 ? UInt32.random(in: 0..<UInt32.max) : seed,
             numberOfImages: Int(numberOfImages),
+            computeUnitPreference: configStore.mlComputeUnitPreference,
+            reduceMemory: configStore.reduceMemory,
+            safetyChecker: configStore.safetyChecker,
+            showGenerationPreview: configStore.showGenerationPreview,
             imageDir: configStore.imageDir,
             imageType: configStore.imageType
+        )
+
+        let plan: GenerationPlan
+        do {
+            plan = try engine.plan(draft: draft, model: model)
+        } catch {
+            logger.error("\(engine.id.rawValue) could not plan a generation: \(error)")
+            return nil
+        }
+
+        return GenerationRequest(
+            modelID: model.id,
+            displayName: model.name,
+            capabilities: model.config.generationCapabilities,
+            metadataFields: model.config.metadataFields,
+            payload: plan.payload,
+            prompt: draft.prompt,
+            negativePrompt: draft.negativePrompt,
+            size: plan.size,
+            startingImageData: plan.startingImageData,
+            startingImageName: plan.startingImageName,
+            controlNetImageData: plan.controlNetImageData,
+            controlNetNames: plan.controlNetNames,
+            controlNetImageNames: plan.controlNetImageNames,
+            inputImageNames: plan.inputImageNames,
+            strength: draft.strength,
+            stepCount: plan.stepCount,
+            guidanceScale: draft.guidanceScale,
+            scheduler: plan.scheduler,
+            mlComputeUnit: plan.mlComputeUnit,
+            useDenoisedIntermediates: draft.showGenerationPreview,
+            seed: draft.seed,
+            numberOfImages: draft.numberOfImages,
+            imageDir: draft.imageDir,
+            imageType: draft.imageType
         )
     }
 
@@ -568,7 +511,7 @@ final class GenerationController {
             controlNetImage: metadata.controlNetImage,
             inputImages: metadata.inputImages,
             scheduler: metadata.scheduler,
-            mlComputeUnit: metadata.pipeline.mlComputeUnit,
+            mlComputeUnit: metadata.mlComputeUnit,
             seed: metadata.seed,
             steps: metadata.steps,
             guidanceScale: metadata.guidanceScale,

@@ -19,10 +19,13 @@ nonisolated final class IrisFluxKleinImageGenerator: ImageGenerator {
         onPreview: @escaping @Sendable (CGImage?) async -> Void,
         onResult: @escaping @Sendable (GenerationResult) async throws -> Void
     ) async throws {
-        guard case .iris(let modelDir, let family) = request.pipeline, family == .fluxKlein else {
+        // The single downcast of this engine's payload; a mismatch is a wiring
+        // bug, not a pipeline the user could fix.
+        guard let payload = request.payload as? IrisGenerationPayload else {
             await onState(.error("Pipeline is not loaded."))
             throw IrisFluxKleinImageGeneratorError.invalidPipeline
         }
+        let modelDir = payload.modelDirectory
 
         await onState(.loading("Loading model..."))
         setGenerationStopped(false)
@@ -131,7 +134,9 @@ nonisolated final class IrisFluxKleinImageGenerator: ImageGenerator {
             var params = iris_params.defaultParams
             params.width = Int32(request.size.width)
             params.height = Int32(request.size.height)
-            params.num_steps = 4
+            // Resolved by IrisEngine.plan, so the queue, the generator and the
+            // saved metadata cannot disagree about how many steps ran.
+            params.num_steps = Int32(request.stepCount)
             params.seed = Int64(seed)
 
             let image: UnsafeMutablePointer<iris_image>?
@@ -173,18 +178,18 @@ nonisolated final class IrisFluxKleinImageGenerator: ImageGenerator {
                 negativePrompt: request.negativePrompt,
                 width: Int(image.pointee.width),
                 height: Int(image.pointee.height),
-                pipeline: request.pipeline,
-                model: request.pipeline.displayName,
+                model: request.displayName,
                 quality: "",
                 startingImage: "",
                 controlNetImage: "",
                 inputImages: request.inputImageNames,
-                scheduler: .discreteFlowScheduler,
+                scheduler: request.scheduler,
+                mlComputeUnit: request.mlComputeUnit,
                 seed: seed,
-                steps: 4,
+                steps: request.stepCount,
                 guidanceScale: isDistilled ? 1.0 : 4.0,
                 generatedDate: Date.now,
-                metadataFields: request.pipeline.metadataFields
+                metadataFields: request.metadataFields
             )
 
             guard let cgImage = Self.makeCGImage(from: UnsafePointer(image)) else {

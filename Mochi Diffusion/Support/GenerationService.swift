@@ -117,29 +117,34 @@ actor GenerationService {
             didEmitResultForCurrentRequest = false
             broadcastSnapshot()
 
+            // Selected by engine rather than by unwrapping a pipeline case.
+            // Phase 3 replaces this with the engine's own runtime, which is what
+            // should own the generator, its loaded state, and its cancellation.
             let generator: ImageGenerator
-            switch request.pipeline {
-            case .sd(let model, _, _, _):
-                if !(await modelRepository.modelExists(model)) {
-                    logger.error("Couldn't load \(model.name) because it doesn't exist.")
+            switch request.modelID.engine {
+            case .coreMLStableDiffusion:
+                if let model = (request.payload as? CoreMLGenerationPayload)?.model,
+                    !(await modelRepository.modelExists(model))
+                {
+                    logger.error("Couldn't load \(request.displayName) because it doesn't exist.")
                     await updateStatus(
-                        .ready("Couldn't load \(model.name) because it doesn't exist.")
+                        .ready(
+                            "Couldn't load \(request.displayName) because it doesn't exist."
+                        )
                     )
                     await finishCurrentRequest(request.id, restoreReadyAfterCancel: false)
                     continue
                 }
                 generator = sdGenerator
-            case .iris(_, let family):
-                switch family {
-                case .fluxKlein:
-                    generator = irisFluxKleinGenerator
-                case .zImageTurbo:
-                    await updateStatus(
-                        .ready("Iris Z-Image-Turbo generation is not supported yet.")
-                    )
-                    await finishCurrentRequest(request.id, restoreReadyAfterCancel: false)
-                    continue
-                }
+            case .iris:
+                generator = irisFluxKleinGenerator
+            default:
+                logger.error("no generator for engine \(request.modelID.engine.rawValue)")
+                await updateStatus(
+                    .error("There is no generator for \(request.displayName).")
+                )
+                await finishCurrentRequest(request.id, restoreReadyAfterCancel: false)
+                continue
             }
 
             currentGenerator = generator
@@ -196,11 +201,9 @@ actor GenerationService {
                 )
                 restoreReadyAfterCancel = true
             } catch SDImageGenerator.GeneratorError.requestedModelNotFound {
-                if case .sd(let model, _, _, _) = request.pipeline {
-                    logger.error("Couldn't load \(model.name) because it doesn't exist.")
-                    await updateStatus(
-                        .ready("Couldn't load \(model.name) because it doesn't exist."))
-                }
+                logger.error("Couldn't load \(request.displayName) because it doesn't exist.")
+                await updateStatus(
+                    .ready("Couldn't load \(request.displayName) because it doesn't exist."))
             } catch ImageRepositoryError.imageDirectoryNoAccess(let path) {
                 logger.error("Couldn't access images folder at \(path)")
                 await updateStatus(

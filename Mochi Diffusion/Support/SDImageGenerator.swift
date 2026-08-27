@@ -103,36 +103,32 @@ nonisolated final class SDImageGenerator: ImageGenerator {
         onPreview: @escaping @Sendable (CGImage?) async -> Void,
         onResult: @escaping @Sendable (GenerationResult) async throws -> Void
     ) async throws {
-        guard
-            case .sd(
-                let model,
-                let computeUnit,
-                let controlNets,
-                let reduceMemory
-            ) = request.pipeline
-        else {
+        // The single downcast of this engine's payload. A mismatch means a
+        // request reached the wrong generator, which is a wiring bug, so it is
+        // reported as an invariant failure rather than as a pipeline the user
+        // could fix.
+        guard let payload = request.payload as? CoreMLGenerationPayload else {
             await onState(.error("Pipeline is not loaded."))
-            throw GeneratorError.pipelineNotAvailable
+            throw EngineError.payloadDoesNotBelongToEngine(engine: .coreMLStableDiffusion)
         }
 
         let config = makeGenerationConfig(
             from: request,
-            model: model,
-            computeUnit: computeUnit,
-            controlNets: controlNets
+            payload: payload,
+            controlNets: request.controlNetNames
         )
 
         try await loadPipeline(
-            model: model,
+            model: payload.model,
             controlNet: config.controlNets,
-            computeUnit: computeUnit,
-            reduceMemory: reduceMemory,
+            computeUnit: payload.computeUnit,
+            reduceMemory: payload.reduceMemory,
             onState: onState
         )
 
         try await generate(
             config,
-            generationPipeline: request.pipeline,
+            request: request,
             onState: onState,
             onProgress: onProgress,
             onPreview: onPreview,
@@ -142,7 +138,7 @@ nonisolated final class SDImageGenerator: ImageGenerator {
 
     @concurrent func generate(
         _ config: SDGenerationConfig,
-        generationPipeline: GenerationPipeline,
+        request: GenerationRequest,
         onState: @escaping @Sendable (GenerationState.Status) async -> Void,
         onProgress: @escaping @Sendable (GenerationState.Progress, Double?) async -> Void,
         onPreview: @escaping @Sendable (CGImage?) async -> Void,
@@ -231,7 +227,7 @@ nonisolated final class SDImageGenerator: ImageGenerator {
                 guard
                     let data = await sdi.imageData(
                         type,
-                        metadataFields: generationPipeline.metadataFields
+                        metadataFields: request.metadataFields
                     )
                 else { continue }
                 let metadata = GenerationMetadata(
@@ -239,18 +235,18 @@ nonisolated final class SDImageGenerator: ImageGenerator {
                     negativePrompt: sdi.negativePrompt,
                     width: image.width,
                     height: image.height,
-                    pipeline: generationPipeline,
                     model: sdi.model,
                     quality: sdi.quality,
                     startingImage: config.startingImageName,
                     controlNetImage: config.controlNetImageName,
                     inputImages: config.inputImageNames,
                     scheduler: sdi.scheduler,
+                    mlComputeUnit: request.mlComputeUnit,
                     seed: sdi.seed,
                     steps: sdi.steps,
                     guidanceScale: sdi.guidanceScale,
                     generatedDate: sdi.generatedDate,
-                    metadataFields: generationPipeline.metadataFields
+                    metadataFields: request.metadataFields
                 )
                 let result = GenerationResult(metadata: metadata, imageData: data)
                 try await onResult(result)
@@ -286,10 +282,10 @@ extension SDImageGenerator: @unchecked Sendable {}
 extension SDImageGenerator {
     fileprivate func makeGenerationConfig(
         from request: GenerationRequest,
-        model: SDModel,
-        computeUnit: MLComputeUnits,
+        payload: CoreMLGenerationPayload,
         controlNets: [String]
     ) -> SDGenerationConfig {
+        let model = payload.model
         var startingImage: CGImage?
         var controlNetInputs: [CGImage] = []
         var resolvedControlNets: [String] = []
@@ -299,7 +295,7 @@ extension SDImageGenerator {
                 startingImage = CGImage.fromData(data)?.scaledAndCroppedTo(size: size)
             }
 
-            for (name, data) in zip(controlNets, request.controlNetInputs) {
+            for (name, data) in zip(controlNets, request.controlNetImageData) {
                 guard let image = CGImage.fromData(data)?.scaledAndCroppedTo(size: size) else {
                     continue
                 }
@@ -317,12 +313,12 @@ extension SDImageGenerator {
             inputImageNames: request.inputImageNames,
             controlNetInputs: controlNetInputs,
             model: model,
-            mlComputeUnit: computeUnit,
+            mlComputeUnit: payload.computeUnit,
             controlNets: resolvedControlNets,
             strength: request.strength,
             stepCount: request.stepCount,
             guidanceScale: request.guidanceScale,
-            disableSafety: request.disableSafety,
+            disableSafety: payload.disableSafety,
             scheduler: request.scheduler,
             useDenoisedIntermediates: request.useDenoisedIntermediates,
             seed: request.seed,

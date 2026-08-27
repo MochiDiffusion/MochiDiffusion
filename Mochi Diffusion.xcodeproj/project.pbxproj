@@ -106,7 +106,7 @@
 		AA2000000000000000000009 /* PreferenceMigrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000009 /* PreferenceMigrationTests.swift */; };
 		AA2000000000000000000010 /* EngineDiscoveryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000010 /* EngineDiscoveryTests.swift */; };
 		AA2000000000000000000003 /* ModelDiscoveryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000003 /* ModelDiscoveryTests.swift */; };
-		AA2000000000000000000004 /* PipelineBehaviorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000004 /* PipelineBehaviorTests.swift */; };
+		AA2000000000000000000004 /* ComputeUnitPreferenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000004 /* ComputeUnitPreferenceTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -227,7 +227,7 @@
 		AA1000000000000000000009 /* PreferenceMigrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferenceMigrationTests.swift; sourceTree = "<group>"; };
 		AA1000000000000000000010 /* EngineDiscoveryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngineDiscoveryTests.swift; sourceTree = "<group>"; };
 		AA1000000000000000000003 /* ModelDiscoveryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelDiscoveryTests.swift; sourceTree = "<group>"; };
-		AA1000000000000000000004 /* PipelineBehaviorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PipelineBehaviorTests.swift; sourceTree = "<group>"; };
+		AA1000000000000000000004 /* ComputeUnitPreferenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComputeUnitPreferenceTests.swift; sourceTree = "<group>"; };
 		AA0000000000000000000002 /* Mochi DiffusionTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Mochi DiffusionTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -438,7 +438,7 @@
 				AA1000000000000000000010 /* EngineDiscoveryTests.swift */,
 				AA1000000000000000000002 /* MetadataRoundTripTests.swift */,
 				AA1000000000000000000003 /* ModelDiscoveryTests.swift */,
-				AA1000000000000000000004 /* PipelineBehaviorTests.swift */,
+				AA1000000000000000000004 /* ComputeUnitPreferenceTests.swift */,
 			);
 			path = "Mochi DiffusionTests";
 			sourceTree = "<group>";
@@ -722,7 +722,7 @@
 				AA2000000000000000000010 /* EngineDiscoveryTests.swift in Sources */,
 				AA2000000000000000000002 /* MetadataRoundTripTests.swift in Sources */,
 				AA2000000000000000000003 /* ModelDiscoveryTests.swift in Sources */,
-				AA2000000000000000000004 /* PipelineBehaviorTests.swift in Sources */,
+				AA2000000000000000000004 /* ComputeUnitPreferenceTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

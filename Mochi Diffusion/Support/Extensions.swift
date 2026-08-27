@@ -270,3 +270,13 @@ extension MLComputeUnits {
         }
     }
 }
+
+nonisolated extension String {
+    /// Trimmed, or `nil` when nothing is left. Filenames arrive from panels and
+    /// metadata, and a blank one should read as absent rather than as an empty
+    /// name that gets written out.
+    var normalizedFilename: String? {
+        let trimmed = trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.isEmpty ? nil : trimmed
+    }
+}

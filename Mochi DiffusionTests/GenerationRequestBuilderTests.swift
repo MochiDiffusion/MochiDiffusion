@@ -120,8 +120,10 @@ struct GenerationRequestBuilderTests {
         #expect(request.imageDir == "/tmp/mochi-test-images")
         #expect(request.imageType == "heic")
         // Both of these invert their config value; a sign flip would otherwise
-        // be invisible.
-        #expect(request.disableSafety == false)  // safetyChecker == true
+        // be invisible. `disableSafety` moved into the Core ML payload, since it
+        // is a Core ML pipeline setting and no other engine has one.
+        let payload = try #require(request.payload as? CoreMLGenerationPayload)
+        #expect(payload.disableSafety == false)  // safetyChecker == true
         #expect(request.useDenoisedIntermediates == false)  // showGenerationPreview == false
     }
 
@@ -168,18 +170,12 @@ struct GenerationRequestBuilderTests {
 
         let request = try #require(controller.buildGenerationRequest())
 
-        guard
-            case .sd(let model, let computeUnit, let controlNets, let reduceMemory) =
-                request.pipeline
-        else {
-            Issue.record("expected an .sd pipeline, got \(request.pipeline)")
-            return
-        }
-        #expect(model.name == "sd-model")
+        let payload = try #require(request.payload as? CoreMLGenerationPayload)
+        #expect(payload.model.name == "sd-model")
         // .auto follows the model's attention type.
-        #expect(computeUnit == .cpuAndNeuralEngine)
-        #expect(controlNets.isEmpty)
-        #expect(reduceMemory)
+        #expect(payload.computeUnit == .cpuAndNeuralEngine)
+        #expect(request.controlNetNames.isEmpty)
+        #expect(payload.reduceMemory)
     }
 
     @Test("An explicit compute unit preference overrides the model's attention type")
@@ -193,7 +189,7 @@ struct GenerationRequestBuilderTests {
 
         let request = try #require(controller.buildGenerationRequest())
 
-        #expect(request.pipeline.mlComputeUnit == .all)
+        #expect(request.mlComputeUnit == .all)
     }
 
     @Test("A starting image is scaled to a fixed-size model's input size")
@@ -261,9 +257,9 @@ struct GenerationRequestBuilderTests {
 
         let request = try #require(controller.buildGenerationRequest())
 
-        #expect(request.pipeline.controlNets == ["canny"])
+        #expect(request.controlNetNames == ["canny"])
         #expect(request.controlNetImageNames == ["c.png"])
-        let data = try #require(request.controlNetInputs.first)
+        let data = try #require(request.controlNetImageData.first)
         #expect(pixelSize(of: data) == CGSize(width: 512, height: 512))
     }
 
@@ -284,8 +280,8 @@ struct GenerationRequestBuilderTests {
 
         let request = try #require(controller.buildGenerationRequest())
 
-        #expect(request.controlNetInputs.isEmpty)
-        #expect(request.pipeline.controlNets.isEmpty)
+        #expect(request.controlNetImageData.isEmpty)
+        #expect(request.controlNetNames.isEmpty)
         #expect(request.controlNetImageNames.isEmpty)
     }
 
@@ -307,8 +303,8 @@ struct GenerationRequestBuilderTests {
         // size, so a fully configured ControlNet is silently discarded here.
         // Phase 4 should express this as an unsupported constraint that hides the
         // control instead.
-        #expect(request.controlNetInputs.isEmpty)
-        #expect(request.pipeline.controlNets.isEmpty)
+        #expect(request.controlNetImageData.isEmpty)
+        #expect(request.controlNetNames.isEmpty)
     }
 
     @Test("A ControlNet image with no filename still contributes its input")
@@ -326,8 +322,8 @@ struct GenerationRequestBuilderTests {
 
         // Names and image names are appended to separate arrays, so a missing
         // filename leaves them different lengths and positionally uncorrelated.
-        #expect(request.controlNetInputs.count == 1)
-        #expect(request.pipeline.controlNets == ["canny"])
+        #expect(request.controlNetImageData.count == 1)
+        #expect(request.controlNetNames == ["canny"])
         #expect(request.controlNetImageNames.isEmpty)
     }
 
@@ -340,19 +336,16 @@ struct GenerationRequestBuilderTests {
 
         let request = try #require(controller.buildGenerationRequest())
 
-        guard case .iris(let dir, let family) = request.pipeline else {
-            Issue.record("expected an .iris pipeline, got \(request.pipeline)")
-            return
-        }
+        let payload = try #require(request.payload as? IrisGenerationPayload)
         // Compared against the discovered model's own url rather than a
         // reconstructed path: discovery returns symlink-resolved URLs with a
         // trailing slash, so `modelDir.appending(path:)` names the same directory
         // in a form that does not compare equal. The string handed to
         // `iris_load_dir` therefore carries that trailing slash.
         let model = try #require(controller.currentModel)
-        #expect(dir == model.url.path(percentEncoded: false))
-        #expect(dir.hasSuffix("/klein-model/"))
-        #expect(family == .fluxKlein)
+        #expect(payload.modelDirectory == model.url.path(percentEncoded: false))
+        #expect(payload.modelDirectory.hasSuffix("/klein-model/"))
+        #expect(request.modelID.engine == .iris)
     }
 
     @Test("Klein records the starting image as an input image, not a starting image")
@@ -387,33 +380,44 @@ struct GenerationRequestBuilderTests {
 
         let request = try #require(controller.buildGenerationRequest())
 
-        #expect(request.controlNetInputs.isEmpty)
+        #expect(request.controlNetImageData.isEmpty)
         #expect(request.controlNetImageNames.isEmpty)
-        #expect(request.pipeline.controlNets.isEmpty)
+        #expect(request.controlNetNames.isEmpty)
     }
 
-    @Test("Klein still receives options its pipeline ignores")
-    func kleinReceivesIgnoredOptions() async throws {
+    @Test("Klein resolves its pinned step count and scheduler in the request")
+    func kleinResolvesPinnedValues() async throws {
         try makeKleinModelFixture(at: modelDir.appending(path: "klein-model"))
-        applyDistinctiveConfig()
+        applyDistinctiveConfig()  // steps 23, scheduler .pndmScheduler
         let controller = try await makeControllerSelecting("klein-model")
 
         let request = try #require(controller.buildGenerationRequest())
 
-        // Klein declares neither negativePrompt, guidanceScale nor scheduler, yet
-        // the request carries all three and the pipeline overrides steps and
-        // scheduler downstream. This is precisely the "the UI shows one number and
-        // the image records another" problem Phase 4 removes; pinned here so the
-        // Phase 2 move does not accidentally change it early.
+        // Klein is distilled: four steps on flow-match, whatever the sidebar
+        // says. The request used to carry the sidebar's 23 while the queue
+        // displayed 4 through a pipeline helper and the generator hardcoded its
+        // own 4 -- three places to disagree. `plan` resolves it once, so all
+        // three now read the same value. The queue shows the same 4 it did
+        // before; only where the number comes from changed.
+        #expect(request.stepCount == 4)
+        #expect(request.scheduler == .discreteFlowScheduler)
+
+        // Still carried, still ignored: Klein declares neither, and Phase 4's
+        // constraints are what stop the sidebar offering them at all.
         #expect(request.negativePrompt == "blurry, low quality")
         #expect(request.guidanceScale == 6.5)
+    }
+
+    @Test("Core ML passes the requested step count and scheduler through unchanged")
+    func coreMLKeepsRequestedStepCountAndScheduler() async throws {
+        try makeSDModelFixture(at: modelDir.appending(path: "sd-model"))
+        applyDistinctiveConfig()
+        let controller = try await makeControllerSelecting("sd-model")
+
+        let request = try #require(controller.buildGenerationRequest())
+
         #expect(request.stepCount == 23)
         #expect(request.scheduler == .pndmScheduler)
-        #expect(request.pipeline.effectiveStepCount(requestedStepCount: 23) == 4)
-        #expect(
-            request.pipeline.effectiveScheduler(requestedScheduler: .pndmScheduler)
-                == .discreteFlowScheduler
-        )
     }
 
     // MARK: - Seed

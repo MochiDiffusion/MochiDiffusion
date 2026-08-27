@@ -609,8 +609,32 @@ migration, in Phase 2.
   compile. Extensions holding closures that cross threads need explicit `nonisolated`.
   Note that the nonisolated test target is what surfaced this: a main-actor-defaulted test
   target would have run the sort on the main queue and let it pass (§12.1).
-- **`plan` as a pure move, request reshape, deleting `GenerationPipeline` and
-  `PipelineModelAdapter`** — after that.
+- **`plan`, request reshape, deleting `GenerationPipeline` and
+  `PipelineModelAdapter`** — done. `IrisModelFamily` went with them, and its
+  `withKnownIssue` with it: **no known issues remain**.
+
+  Two deviations from §5.4 worth recording:
+
+  - **The scalar options stay flat on the request rather than grouping under `core`.**
+    Grouping them is cosmetic regrouping, and doing it here would have rewritten almost
+    every assertion in the entry-gate pins — which are only worth what their textual
+    stability is worth. Keeping them flat meant the pins verified the move rather than
+    being rewritten alongside it. Phase 4 reshapes *which* options exist anyway, so the
+    grouping is better done there.
+  - **`controlNetImageData` sits on the request, not in the Core ML payload.** The queue
+    shows guide images as thumbnails and restores them to the sidebar, so it needs the
+    bytes; duplicating them in both places is worse than one field that only one engine
+    currently fills. Consistent with `startingImageData`, which was always flat.
+    The queue still never inspects `payload`, which is the actual rule.
+
+  `plan` resolves the distilled step count and scheduler, so the request, the queue and
+  the saved metadata read one value instead of three that happened to agree. Before this,
+  the request carried the sidebar's number, the queue recomputed 4 through a pipeline
+  helper, and the Iris generator hardcoded its own 4. The displayed value is unchanged.
+
+  Also cleared on the way through: `ComputeUnitPreference` became `nonisolated`, exactly as
+  §12.1 predicted it would when compute-unit selection moved into the Core ML engine, and
+  the `@MainActor` annotation on its tests went with it.
 - **`.engine`/`.modelKey` metadata keys** — last.
 
 Adopting identity closed the `withKnownIssue` from the entry gate: a persisted selection

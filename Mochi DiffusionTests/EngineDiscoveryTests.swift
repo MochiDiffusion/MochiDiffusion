@@ -169,6 +169,9 @@ struct EngineRegistryTests {
         func discoverModels(_ settings: EngineSettings) async throws -> [SDModel] {
             throw Failure()
         }
+        func plan(draft: GenerationDraft, model: SDModel) throws -> GenerationPlan {
+            throw Failure()
+        }
     }
 
     @Test("Discovery covers every registered engine")
