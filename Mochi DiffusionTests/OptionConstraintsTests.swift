@@ -154,6 +154,144 @@ struct OptionConstraintsTests {
         #expect(constraint.isEditable)
     }
 
+    // MARK: - Joint size limits
+
+    /// The shape a hosted model needs: an arbitrary size on a 16px grid, but
+    /// capped in elongation and in total pixels. Numbers follow the OpenAI image
+    /// API (§13.2, D1 of `Multi-Engine-Design.md`).
+    private static let hosted = SizeConstraint.freeform(
+        range: 512...3_840,
+        step: 16,
+        limits: SizeLimits(maxAspectRatio: 3, pixelBounds: 655_360...8_294_400)
+    )
+
+    private func isLegal(_ size: CGSize, _ limits: SizeLimits) -> Bool {
+        let long = max(Int(size.width), Int(size.height))
+        let short = min(Int(size.width), Int(size.height))
+        if let ratio = limits.maxAspectRatio, Double(long) / Double(short) > ratio + 0.0001 {
+            return false
+        }
+        if let pixels = limits.pixelBounds, !pixels.contains(Int(size.width) * Int(size.height)) {
+            return false
+        }
+        return Int(size.width) % 16 == 0 && Int(size.height) % 16 == 0
+    }
+
+    @Test("No limits leaves a size exactly as per-dimension bounds left it")
+    func noLimitsIsPassthrough() {
+        let plain = SizeConstraint.freeform(range: 512...3_840, step: 16)
+
+        #expect(plain.limits.isEmpty)
+        // 3840x512 is 7.5:1 and only 1.97M pixels — illegal for the hosted
+        // constraint, untouched without limits.
+        #expect(
+            plain.resolved(CGSize(width: 3_840, height: 512))
+                == CGSize(width: 3_840, height: 512))
+    }
+
+    @Test(
+        "An already-legal size is returned unchanged",
+        arguments: [
+            CGSize(width: 1_024, height: 1_024),
+            CGSize(width: 1_536, height: 1_024),
+            CGSize(width: 1_024, height: 1_536),
+            CGSize(width: 2_048, height: 2_048),
+            CGSize(width: 3_840, height: 2_160),
+        ]
+    )
+    func legalSizeUnchanged(size: CGSize) {
+        #expect(Self.hosted.resolved(size) == size)
+    }
+
+    /// Correcting elongation reduces the long edge and leaves the short one, so
+    /// the result is never larger than what was asked for.
+    @Test(
+        "An over-elongated size has its long edge brought in",
+        arguments: [
+            (CGSize(width: 3_840, height: 512), CGSize(width: 1_536, height: 512)),
+            (CGSize(width: 512, height: 3_840), CGSize(width: 512, height: 1_536)),
+        ]
+    )
+    func elongationCorrected(requested: CGSize, expected: CGSize) {
+        let resolved = Self.hosted.resolved(requested)
+
+        #expect(resolved == expected)
+        #expect(isLegal(resolved, Self.hosted.limits))
+    }
+
+    /// Over-budget scales both edges, so the shape survives. Nibbling one edge
+    /// would hand back something squarer than the user asked for.
+    @Test("An over-budget size is scaled down, keeping its shape")
+    func pixelCeilingScalesProportionally() {
+        let requested = CGSize(width: 3_840, height: 2_400)  // 1.6:1, 9.2M pixels
+        let resolved = Self.hosted.resolved(requested)
+
+        #expect(Int(resolved.width) * Int(resolved.height) <= 8_294_400)
+        #expect(isLegal(resolved, Self.hosted.limits))
+        let requestedRatio = 3_840.0 / 2_400.0
+        let resolvedRatio = Double(resolved.width) / Double(resolved.height)
+        #expect(abs(resolvedRatio - requestedRatio) < 0.05)
+        // Scaled down, not up.
+        #expect(resolved.width <= requested.width && resolved.height <= requested.height)
+    }
+
+    /// The one case that enlarges. A floor cannot be met by shrinking, and the
+    /// alternative is a request the service rejects.
+    @Test("An under-budget size is scaled up to reach the floor")
+    func pixelFloorScalesUp() {
+        let requested = CGSize(width: 512, height: 512)  // 262k pixels, below the floor
+        let resolved = Self.hosted.resolved(requested)
+
+        #expect(Int(resolved.width) * Int(resolved.height) >= 655_360)
+        #expect(isLegal(resolved, Self.hosted.limits))
+        #expect(resolved.width >= requested.width && resolved.height >= requested.height)
+    }
+
+    /// Both corrections at once, and in the order that matters: the ratio step
+    /// moves one edge, the budget steps scale both, so satisfying the budget
+    /// cannot undo the ratio.
+    @Test("A size violating both rules ends up legal")
+    func bothRulesCorrected() {
+        // 12:1 and far under the pixel floor.
+        let resolved = Self.hosted.resolved(CGSize(width: 6_144, height: 512))
+
+        #expect(isLegal(resolved, Self.hosted.limits))
+    }
+
+    @Test(
+        "Every corrected size is legal, whatever was asked for",
+        arguments: [
+            CGSize(width: 1, height: 1),
+            CGSize(width: 10_000, height: 10_000),
+            CGSize(width: 10_000, height: 1),
+            CGSize(width: 1, height: 10_000),
+            CGSize(width: 640, height: 4_000),
+            CGSize(width: 3_000, height: 700),
+            CGSize(width: 1_023, height: 1_025),
+            CGSize(width: 2_560, height: 1_440),
+        ]
+    )
+    func correctionAlwaysLands(requested: CGSize) {
+        let resolved = Self.hosted.resolved(requested)
+
+        #expect(isLegal(resolved, Self.hosted.limits))
+        #expect((512...3_840).contains(Int(resolved.width)))
+        #expect((512...3_840).contains(Int(resolved.height)))
+    }
+
+    @Test("Resolving is idempotent: a corrected size does not move again")
+    func correctionIsIdempotent() {
+        for requested in [
+            CGSize(width: 1, height: 1),
+            CGSize(width: 10_000, height: 1),
+            CGSize(width: 3_840, height: 2_400),
+            CGSize(width: 640, height: 4_000),
+        ] {
+            let once = Self.hosted.resolved(requested)
+            #expect(Self.hosted.resolved(once) == once)
+        }
+    }
+
     // MARK: - Choices
 
     @Test("A pinned choice ignores the request, an offered one is honoured")
