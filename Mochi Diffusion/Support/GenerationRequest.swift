@@ -75,17 +75,27 @@ nonisolated struct GenerationResult: Sendable, Identifiable {
     let metadata: GenerationMetadata
     let imageData: Data
     let imageURL: URL?
+    /// Which request produced this, so applying it late cannot disturb state the
+    /// next request already owns — the in-progress preview in particular.
+    ///
+    /// Not part of `GenerationMetadata`: that is the contract written into the
+    /// image, and a request id means nothing once the file is on disk. Attached by
+    /// `GenerationService`, which knows the request, so a runtime does not have to
+    /// remember to.
+    let requestID: GenerationRequest.ID?
 
     init(
         id: UUID = UUID(),
         metadata: GenerationMetadata,
         imageData: Data,
-        imageURL: URL? = nil
+        imageURL: URL? = nil,
+        requestID: GenerationRequest.ID? = nil
     ) {
         self.id = id
         self.metadata = metadata
         self.imageData = imageData
         self.imageURL = imageURL
+        self.requestID = requestID
     }
 }
 

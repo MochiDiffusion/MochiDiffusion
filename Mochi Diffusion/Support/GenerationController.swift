@@ -682,7 +682,14 @@ final class GenerationController {
     private func apply(_ result: GenerationResult) {
         let shouldAnimateInsert = ImageGallery.shared.currentGeneratingImage == nil
         defer {
-            ImageGallery.shared.setCurrentGenerating(image: nil)
+            // Scoped to the request that produced this result. Results arrive on
+            // their own channel and can be applied after the next request has put
+            // its first preview up; clearing unconditionally erased it.
+            if let requestID = result.requestID {
+                ImageGallery.shared.clearCurrentGenerating(owner: requestID)
+            } else {
+                ImageGallery.shared.clearCurrentGenerating()
+            }
         }
         guard let url = result.imageURL else { return }
         let metadata = result.metadata

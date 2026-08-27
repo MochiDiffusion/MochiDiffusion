@@ -37,6 +37,13 @@ enum ImagesSortType: String {
     private(set) var images: [SDImage] = []
 
     private(set) var currentGeneratingImage: CGImage?
+    /// Which request the preview belongs to.
+    ///
+    /// Results and progress events travel on separate channels, so a finished
+    /// request's result can be applied *after* the next request has already put its
+    /// first preview on screen. Without an owner, that result's teardown would
+    /// erase a preview belonging to a generation still running.
+    private(set) var currentGeneratingOwner: GenerationRequest.ID?
 
     private(set) var selectedId: SDImage.ID?
     private(set) var metadataFieldsByImageID: [SDImage.ID: Set<MetadataField>] = [:]
@@ -119,12 +126,30 @@ enum ImagesSortType: String {
         }
     }
 
-    func setCurrentGenerating(image: CGImage?) {
+    /// Shows `image` as `owner`'s in-progress preview, taking ownership of the slot.
+    func setCurrentGenerating(image: CGImage, owner: GenerationRequest.ID) {
         let hadImage = currentGeneratingImage != nil
-        let hasImage = image != nil
-        runWithOptionalAnimation(animate: !hadImage && hasImage) {
+        runWithOptionalAnimation(animate: !hadImage) {
             currentGeneratingImage = image
+            currentGeneratingOwner = owner
         }
+    }
+
+    /// Clears the preview only if `owner` still owns it.
+    ///
+    /// A request that has finished must not clear a preview the next one has already
+    /// replaced, which is a real ordering: a result is delivered on its own channel
+    /// and can be applied late.
+    func clearCurrentGenerating(owner: GenerationRequest.ID) {
+        guard currentGeneratingOwner == owner else { return }
+        clearCurrentGenerating()
+    }
+
+    /// Clears the preview whoever owns it. For teardown paths that are ending
+    /// generation altogether rather than finishing one request.
+    func clearCurrentGenerating() {
+        currentGeneratingImage = nil
+        currentGeneratingOwner = nil
     }
 
     func remove(_ sdi: SDImage) {

@@ -28,6 +28,22 @@ actor IrisEngineRuntime: GenerationEngineRuntime {
         // every exit path — hence the explicit outcome rather than a `defer`,
         // which cannot await.
         await IrisSingleFlight.shared.acquire()
+
+        // Checked here rather than only inside the generation loop. Waiting for the
+        // lease is unbounded — it lasts as long as the generation ahead — so a
+        // request cancelled while queued would otherwise take its turn and pay for
+        // `iris_metal_init` and a multi-gigabyte `iris_load_dir` before the first
+        // check, holding the lease against work that is still wanted.
+        //
+        // A cancelled waiter still takes its place in the FIFO rather than being
+        // removed from it, but its turn is now one actor round-trip, so it delays
+        // nothing measurably. Removing it instead would mean plumbing session
+        // cancellation into the lease, and the session's flag is not the task's.
+        guard !session.isCancelled else {
+            await IrisSingleFlight.shared.release()
+            return
+        }
+
         let outcome: Result<Void, any Error>
         do {
             try await runHoldingLease(request: request, session: session, onResult: onResult)

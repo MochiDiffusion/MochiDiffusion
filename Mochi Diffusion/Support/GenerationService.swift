@@ -240,7 +240,8 @@ actor GenerationService {
                                 id: result.id,
                                 metadata: result.metadata,
                                 imageData: result.imageData,
-                                imageURL: path
+                                imageURL: path,
+                                requestID: request.id
                             )
                             await self.emitResultForCurrentRequest(savedResult)
                         }
@@ -354,22 +355,22 @@ actor GenerationService {
         _ image: CGImage?,
         for requestID: GenerationRequest.ID
     ) async {
-        if image == nil {
+        guard let image else {
             // Keep the last preview frame visible until result insertion/teardown.
             if current?.id == requestID, !isCancelRequested(for: requestID) {
                 return
             }
             guard current?.id == requestID || current == nil else { return }
-            await setCurrentGeneratingImage(nil)
+            await clearCurrentGeneratingImage(owner: requestID)
             return
         }
 
         guard current?.id == requestID else { return }
-        if isCancelRequested(for: requestID), image != nil {
+        if isCancelRequested(for: requestID) {
             return
         }
 
-        await setCurrentGeneratingImage(image)
+        await setCurrentGeneratingImage(image, owner: requestID)
         didApplyPreviewSinceResult = true
     }
 
@@ -416,9 +417,20 @@ actor GenerationService {
         }
     }
 
-    private func setCurrentGeneratingImage(_ image: CGImage?) async {
+    private func setCurrentGeneratingImage(
+        _ image: CGImage,
+        owner: GenerationRequest.ID
+    ) async {
         await MainActor.run {
-            ImageGallery.shared.setCurrentGenerating(image: image)
+            ImageGallery.shared.setCurrentGenerating(image: image, owner: owner)
+        }
+    }
+
+    /// Clears the preview if `owner` still owns it, so teardown for one request
+    /// cannot erase a preview the next has already put up.
+    private func clearCurrentGeneratingImage(owner: GenerationRequest.ID) async {
+        await MainActor.run {
+            ImageGallery.shared.clearCurrentGenerating(owner: owner)
         }
     }
 
@@ -437,7 +449,7 @@ actor GenerationService {
         // unchanged — no blank flash between the last preview and the inserted
         // image, and no change to whether the insert animates.
         if cancelRequested || !didEmitResultForCurrentRequest || didApplyPreviewSinceResult {
-            await setCurrentGeneratingImage(nil)
+            await clearCurrentGeneratingImage(owner: requestID)
         }
 
         if cancelRequested {
