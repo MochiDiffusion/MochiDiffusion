@@ -30,6 +30,7 @@
 		0311C6BD2989E3EF0074BCAE /* Localizable.stringsdict in Resources */ = {isa = PBXBuildFile; fileRef = 0311C6BF2989E3EF0074BCAE /* Localizable.stringsdict */; };
 		03173C112999D83600B03456 /* SDImageGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03173C102999D83600B03456 /* SDImageGenerator.swift */; };
 		03173C132999E2B500B03456 /* MochiModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03173C122999E2B500B03456 /* MochiModel.swift */; };
+		AA3000000000000000000001 /* EngineIdentity.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1100000000000000000001 /* EngineIdentity.swift */; };
 		03173C18299B3C1300B03456 /* ImageGallery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03173C17299B3C1300B03456 /* ImageGallery.swift */; };
 		0352E2A5294E2591003FBF25 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 0352E2A4294E2591003FBF25 /* Sparkle */; };
 		0352E2A7294E3148003FBF25 /* HelpCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0352E2A6294E3148003FBF25 /* HelpCommands.swift */; };
@@ -97,6 +98,7 @@
 		AA2000000000000000000005 /* MetadataCodecTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000005 /* MetadataCodecTests.swift */; };
 		AA2000000000000000000006 /* GenerationRequestBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000006 /* GenerationRequestBuilderTests.swift */; };
 		AA2000000000000000000007 /* ModelSelectionPersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000007 /* ModelSelectionPersistenceTests.swift */; };
+		AA2000000000000000000008 /* EngineIdentityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000008 /* EngineIdentityTests.swift */; };
 		AA2000000000000000000003 /* ModelDiscoveryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000003 /* ModelDiscoveryTests.swift */; };
 		AA2000000000000000000004 /* PipelineBehaviorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000004 /* PipelineBehaviorTests.swift */; };
 /* End PBXBuildFile section */
@@ -127,6 +129,7 @@
 		0316D7D52983468600340F0C /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
 		03173C102999D83600B03456 /* SDImageGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDImageGenerator.swift; sourceTree = "<group>"; };
 		03173C122999E2B500B03456 /* MochiModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MochiModel.swift; sourceTree = "<group>"; };
+		AA1100000000000000000001 /* EngineIdentity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngineIdentity.swift; sourceTree = "<group>"; };
 		03173C17299B3C1300B03456 /* ImageGallery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageGallery.swift; sourceTree = "<group>"; };
 		031AC9D3296881F500F95E4B /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
 		032535D72A6B905B00DF76A4 /* nl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nl; path = nl.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -210,6 +213,7 @@
 		AA1000000000000000000005 /* MetadataCodecTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetadataCodecTests.swift; sourceTree = "<group>"; };
 		AA1000000000000000000006 /* GenerationRequestBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationRequestBuilderTests.swift; sourceTree = "<group>"; };
 		AA1000000000000000000007 /* ModelSelectionPersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelSelectionPersistenceTests.swift; sourceTree = "<group>"; };
+		AA1000000000000000000008 /* EngineIdentityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngineIdentityTests.swift; sourceTree = "<group>"; };
 		AA1000000000000000000003 /* ModelDiscoveryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelDiscoveryTests.swift; sourceTree = "<group>"; };
 		AA1000000000000000000004 /* PipelineBehaviorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PipelineBehaviorTests.swift; sourceTree = "<group>"; };
 		AA0000000000000000000002 /* Mochi DiffusionTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Mochi DiffusionTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -371,6 +375,7 @@
 				030370302A2BECDD003D2F0C /* SDControlNet.swift */,
 				03E89F3B294FE6ED0067457E /* SDImage.swift */,
 				03173C122999E2B500B03456 /* MochiModel.swift */,
+				AA1100000000000000000001 /* EngineIdentity.swift */,
 				BF3689662F3086B2006501CE /* IrisFluxKleinModel.swift */,
 				D7B03F1F29D42F9900DF89DD /* SDModelAttentionType.swift */,
 				BF3689642F308607006501CE /* SDModel.swift */,
@@ -412,6 +417,7 @@
 				AA1000000000000000000005 /* MetadataCodecTests.swift */,
 				AA1000000000000000000006 /* GenerationRequestBuilderTests.swift */,
 				AA1000000000000000000007 /* ModelSelectionPersistenceTests.swift */,
+				AA1000000000000000000008 /* EngineIdentityTests.swift */,
 				AA1000000000000000000002 /* MetadataRoundTripTests.swift */,
 				AA1000000000000000000003 /* ModelDiscoveryTests.swift */,
 				AA1000000000000000000004 /* PipelineBehaviorTests.swift */,
@@ -645,6 +651,7 @@
 				D7B03F2029D42F9900DF89DD /* SDModelAttentionType.swift in Sources */,
 				0352E2B5294EA887003FBF25 /* Functions.swift in Sources */,
 				03173C132999E2B500B03456 /* MochiModel.swift in Sources */,
+				AA3000000000000000000001 /* EngineIdentity.swift in Sources */,
 				0352E2B1294EA30D003FBF25 /* Extensions.swift in Sources */,
 				C1F0A1A42D0E6B6A00C0BEEF /* FileSystemStore.swift in Sources */,
 				9401BC712CB9ECA500F00DDE /* FilterTagView.swift in Sources */,
@@ -688,6 +695,7 @@
 				AA2000000000000000000005 /* MetadataCodecTests.swift in Sources */,
 				AA2000000000000000000006 /* GenerationRequestBuilderTests.swift in Sources */,
 				AA2000000000000000000007 /* ModelSelectionPersistenceTests.swift in Sources */,
+				AA2000000000000000000008 /* EngineIdentityTests.swift in Sources */,
 				AA2000000000000000000002 /* MetadataRoundTripTests.swift in Sources */,
 				AA2000000000000000000003 /* ModelDiscoveryTests.swift in Sources */,
 				AA2000000000000000000004 /* PipelineBehaviorTests.swift in Sources */,

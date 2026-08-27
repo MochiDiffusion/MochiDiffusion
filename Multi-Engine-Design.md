@@ -113,12 +113,34 @@ nonisolated struct ModelID: Hashable, Codable, Sendable {
 Using a path *relative* to the engine's model directory means moving or renaming the
 models folder does not orphan the selection.
 
-Because `ModelID.key` is persisted data, its normalization rules need to be specified and
-tested rather than left to whatever `URL` happens to do:
+Because `ModelID.key` is persisted data, its rules are specified and tested rather than
+left to whatever `URL` happens to do. **Decided (implemented in `EngineIdentity.swift`,
+pinned by `EngineIdentityTests`):**
 
-- Reject keys that escape the configured root (`../`).
-- Decide and pin symlink policy — resolve, or preserve as written.
-- Decide case sensitivity explicitly, given a case-insensitive default filesystem.
+- **A local key is the model directory's own name** — its `lastPathComponent` — not a
+  relative path computed against the models root. Two measured behaviours rule the
+  arithmetic version out. `FileManager.contentsOfDirectory(at:)` returns children prefixed
+  `/private/var` even when handed a `/var` URL, while `resolvingSymlinksInPath()`
+  normalises back the other way, so child and root disagree about the same prefix. And a
+  model directory symlinked *into* the models folder — which `FileSystemStore` accepts,
+  since it filters on the resolved path being a directory — resolves outside the root
+  entirely, so stripping a resolved root off a resolved child would reject exactly those
+  models. Discovery only enumerates direct children, so the last component *is* the whole
+  relative path. It also drops the trailing slash that enumeration adds for real
+  directories but not for symlinks.
+- **Traversal is rejected on resolution, not derivation.** `isValidLocalKey` requires a
+  single non-empty path component that is not `.` or `..`, and `localURL(forKey:under:)`
+  refuses anything else. The dangerous direction is a persisted or imported key being
+  turned back into a path to read, so that is where the check lives.
+- **Symlinks are preserved as written.** A symlinked model is keyed by the name visible in
+  the models folder, which is the name the user sees and the only one stable against the
+  link's target moving.
+- **Keys are case-sensitive.** On a case-insensitive volume, renaming a model's case loses
+  the selection and falls back to the first model — the same outcome as any other rename,
+  and better than two keys comparing equal while naming different strings.
+
+If a nested model layout is ever needed, the key becomes a relative path, and whatever
+computes it must still not resolve symlinks in the child.
 
 This is not hypothetical. Today a model's identity is the exact `URL`
 `contentsOfDirectory` returned — symlinks already resolved (`/private/var/…`, not
@@ -339,6 +361,19 @@ engines offer their own fixed sets.
 `ConfigStore`'s one-property-per-key pattern cannot express dynamic keys, so add an
 `@Observable EngineSettingsStore` reading and writing `UserDefaults` under a prefix.
 `ConfigStore` keeps the genuinely global values.
+
+### Phase 2 scope versus Phase 5
+
+The key layout above is the Phase 5 end state. §10 puts the per-engine settings store and
+the engine picker in Phase 5 but the migration in Phase 2, which needs resolving: Phase 2
+migrates the legacy `Model` URL to a **single, engine-qualified selection** —
+`SelectedModelEngine` plus `SelectedModelKey` — and both local engines keep sharing one
+`ModelDir`. Remembering a *separate* model and directory per engine is Phase 5, and arrives
+with the picker that makes per-engine memory observable in the first place.
+
+The legacy `Model` key is left in place rather than deleted. Migration is gated on the new
+keys being absent, so it runs once, and leaving the old value costs nothing while making a
+downgrade less destructive.
 
 ### Migration
 
