@@ -180,6 +180,13 @@ nonisolated protocol EngineModel: Identifiable, Sendable {
 detail and does not belong in a contract a hosted engine has to satisfy. It moves onto
 those engines' own concrete model types, which their own code can see.
 
+**Not yet true, as of Phase 5.** `EngineModel` still declares `url: URL` — non-optional —
+and still carries `tokenizerModelDir`, because every model is a local directory today and
+nothing forced the issue. Both are Phase 6 prerequisites: a hosted model has neither, and
+the test double standing in for one already has to invent a placeholder `url`. Moving them
+behind the engine is part of adding the first hosted engine, alongside the constraint
+vocabulary gaps in §6.
+
 **Phase staging.** The protocol above is the Phase 4 shape. `OptionConstraints` does not
 exist until Phase 4, so Phase 2 lands `EngineModel` carrying today's
 `config: MochiModelConfig` (capabilities plus `metadataFields`) in that slot, and Phase 4
@@ -746,7 +753,7 @@ Confidence labels are honest signals about how much these should be trusted.
 | 3 | Engine runtime and session boundaries; request-scoped cancellation; remove serialization-assumption `@unchecked Sendable`; move generator selection, the payload downcast and the ControlNet symlink write out of the queue and discovery (§4) | ordered progress, no cross-job previews | **done** |
 | 4a | Constraints model; `plan` as the sole resolution point; request carries resolved values | none | **done** |
 | 4b | Sidebar driven from constraints; size swap routed through the engine | unsupported controls hide; step count stops lying | **done** |
-| 5 | Engine picker, `EngineSettingsStore`, per-engine selected model, Settings restructure, coalesced discovery (§7). Shared `ModelDir`; **no** per-engine model directories | the feature as described | likely |
+| 5 | Engine picker, `EngineSettingsStore`, per-engine selected model, Settings restructure, coalesced discovery (§7). Shared `ModelDir`; **no** per-engine model directories | the feature as described | **done** |
 | 6 | OpenAI engine: Keychain, indeterminate progress, richer errors | first hosted engine | sketch |
 | 7 | MediaGenerationKit prototype, then local/remote integration | | direction only |
 | 8 | Declarative long-tail options | | direction only |
@@ -858,6 +865,39 @@ Three review findings landed after the phase was first called done:
 Adopting identity closed the `withKnownIssue` from the entry gate: a persisted selection
 now survives the models directory being spelled differently, because a key is the
 directory's own name rather than an absolute URL compared for exact equality.
+
+### Phase 5 progress
+
+Built: `ModelDiscoveryContext` (one enumeration per pass), `EngineSettingsStore`
+(`SelectedEngine` plus `Engine.<id>.SelectedModel`), `EngineSelectionMigration`, the
+sidebar `EngineView`, an Engines tab in Settings, and per-engine model memory. 373
+test-case executions, `swift format lint` clean.
+
+Four places the implementation departed from this document:
+
+- **The Phase 2 → Phase 5 migration must resolve against discovered models.** §7 said it
+  needed none, because the Phase 2 value is already engine-qualified and so has nothing to
+  resolve. That was wrong in a way only the regression suite caught: writing it through
+  unchecked sets `SelectedEngine` to an engine that may have no models, and the controller
+  deliberately *keeps* a chosen engine when it is empty. An upgrading user would land on an
+  empty sidebar with no way to see why. The migration now records nothing unless the
+  selection names a model discovery found, and retries next pass otherwise.
+- **§8's "keep the chosen engine even when empty" applies to engines the user chose**,
+  through a picker that only offers real ones. A stale persisted waypoint is not a choice,
+  which is what the point above turns on. Worth stating because the two read identically
+  from inside `restoreSelection`.
+- **With nothing persisted, the engine comes from the first model in the sorted list, not
+  the first engine in registration order.** Iris is registered first, so registration order
+  would open any mixed folder on a Klein model and change what a fresh install starts with.
+- **A failed discovery pass no longer clears the persisted selection**, and does now empty
+  the model list. Both are reversals of pre-Phase-5 behaviour, and both follow from
+  per-engine memory: wiping the selection would discard the engine as well as the model,
+  and a briefly unavailable folder should cost neither. The model list used to be left
+  stale, showing models that were gone.
+
+Not built, and deliberately: `Engine.<id>.Options` exists as a key but nothing reads or
+writes it. It is where a host or an API key will go, and inventing a shape for it before a
+hosted engine needs one would be guessing.
 
 ### Release gating
 
