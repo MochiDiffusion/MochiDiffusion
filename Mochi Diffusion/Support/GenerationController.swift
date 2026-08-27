@@ -36,18 +36,22 @@ final class GenerationController {
         didSet {
             if let model = models.first(where: { $0.id == self.currentModelId }) {
                 configStore.selectedModel = currentModelId
-                if let model = model as? SDModel {
-                    controlNet = model.controlNet
-                } else {
-                    controlNet = []
-                }
+                // From the constraint rather than a downcast: which ControlNets a
+                // model can use is something it declares, not something the
+                // controller reads off one engine's concrete type.
+                controlNet = model.constraints.controlNet.names
                 currentControlNets = []
-
             }
         }
     }
     var currentModel: (any EngineModel)? {
         models.first(where: { $0.id == self.currentModelId })
+    }
+
+    /// What the sidebar should offer. Falls back to
+    /// ``OptionConstraints/unconstrained`` when no model is selected.
+    var currentConstraints: OptionConstraints {
+        currentModel?.constraints ?? .unconstrained
     }
 
     private(set) var currentControlNets: [ControlNetInput] = []

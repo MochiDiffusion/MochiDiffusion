@@ -58,10 +58,27 @@ struct NumericTextField: View {
 struct SizeView: View {
     @Environment(GenerationController.self) private var controller: GenerationController
     @Environment(ConfigStore.self) private var configStore: ConfigStore
-    let minSize = 64, maxSize = 1792, step = 16
+
+    /// The size the model will produce, which for a fixed-size model is not
+    /// whatever the sidebar has been left set to.
+    private var resolvedSize: CGSize {
+        controller.currentConstraints.size.resolved(
+            CGSize(width: configStore.width, height: configStore.height)
+        )
+    }
+
+    /// Swapping is only offered when it would do something: either the size is
+    /// freeform, or the engine has a model for the flipped orientation. A
+    /// fixed-size model with no sibling used to show the button and silently do
+    /// nothing.
+    private var canSwap: Bool {
+        controller.canSetSize(width: Int(resolvedSize.height), height: Int(resolvedSize.width))
+    }
 
     var body: some View {
         @Bindable var configStore = configStore
+
+        let size = controller.currentConstraints.size
 
         HStack(spacing: 12) {
             VStack(alignment: .leading) {
@@ -69,63 +86,52 @@ struct SizeView: View {
                     "Width:",
                     comment: "Label for image width picker"
                 )
-                if let sdModel = controller.currentModel as? SDModel,
-                    let w = sdModel.inputSize?.width
-                {
-                    TextField("", text: .constant(String(Int(w))))
-                        .frame(width: 60)
-                        .disabled(true)
-                        .opacity(0.6)
-                } else {
+                if let bounds = size.bounds, let step = size.step {
                     NumericTextField(
                         value: $configStore.width,
-                        bounds: minSize...maxSize,
+                        bounds: bounds,
                         step: step
                     )
+                } else {
+                    PinnedValueField(text: String(Int(resolvedSize.width)))
                 }
             }
 
-            Button {
-                withAnimation(.easeInOut(duration: 0.15)) {
-                    if let sdModel = controller.currentModel as? SDModel,
-                        let w = sdModel.inputSize?.width,
-                        let h = sdModel.inputSize?.height
-                    {
-                        controller.setSize(width: Int(h), height: Int(w))
-                    } else {
-                        let w = configStore.width
-                        configStore.width = configStore.height
-                        configStore.height = w
+            if canSwap {
+                Button {
+                    withAnimation(.easeInOut(duration: 0.15)) {
+                        // Routed through the controller, which asks the engine
+                        // whether a size means a different model. For a freeform
+                        // size it just writes the two numbers back.
+                        controller.setSize(
+                            width: Int(resolvedSize.height),
+                            height: Int(resolvedSize.width)
+                        )
                     }
+                } label: {
+                    Image(systemName: "arrow.left.arrow.right")
+                        .imageScale(.medium)
+                        .font(.system(size: 14, weight: .semibold))
+                        .frame(minWidth: 28, minHeight: 28)
+                        .contentShape(Rectangle())
                 }
-            } label: {
-                Image(systemName: "arrow.left.arrow.right")
-                    .imageScale(.medium)
-                    .font(.system(size: 14, weight: .semibold))
-                    .frame(minWidth: 28, minHeight: 28)
-                    .contentShape(Rectangle())
+                .accessibilityLabel("Swap width and height")
+                .buttonStyle(.borderless)
             }
-            .accessibilityLabel("Swap width and height")
-            .buttonStyle(.borderless)
 
             VStack(alignment: .leading) {
                 Text(
                     "Height:",
                     comment: "Label for image height picker"
                 )
-                if let sdModel = controller.currentModel as? SDModel,
-                    let h = sdModel.inputSize?.height
-                {
-                    TextField("", text: .constant(String(Int(h))))
-                        .frame(width: 60)
-                        .disabled(true)
-                        .opacity(0.6)
-                } else {
+                if let bounds = size.bounds, let step = size.step {
                     NumericTextField(
                         value: $configStore.height,
-                        bounds: minSize...maxSize,
+                        bounds: bounds,
                         step: step
                     )
+                } else {
+                    PinnedValueField(text: String(Int(resolvedSize.height)))
                 }
             }
         }

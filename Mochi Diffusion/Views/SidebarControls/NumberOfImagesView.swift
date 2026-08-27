@@ -13,15 +13,22 @@ struct NumberOfImagesView: View {
     var body: some View {
         @Bindable var controller = controller
 
-        Text("Number of Images")
-            .sidebarLabelFormat()
-        MochiSlider(
-            value: $controller.numberOfImages, bounds: 1...100, step: 1,
-            strictUpperBound: false)
+        let numberOfImages = controller.currentConstraints.numberOfImages
+        if let bounds = numberOfImages.bounds {
+            Text("Number of Images")
+                .sidebarLabelFormat()
+            MochiSlider(
+                value: $controller.numberOfImages,
+                bounds: Double(bounds.lowerBound)...Double(bounds.upperBound),
+                step: 1,
+                strictUpperBound: false
+            )
+        }
     }
 }
 
 #Preview {
     NumberOfImagesView()
         .environment(GenerationController(configStore: ConfigStore()))
+        .environment(ConfigStore())
 }

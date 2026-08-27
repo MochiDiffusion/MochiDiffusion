@@ -10,6 +10,7 @@ import SwiftUI
 
 struct ControlNetView: View {
     @Environment(GenerationController.self) private var controller: GenerationController
+    @Environment(ConfigStore.self) private var configStore: ConfigStore
 
     var body: some View {
         Text("ControlNet")
@@ -18,8 +19,9 @@ struct ControlNetView: View {
         HStack(alignment: .top) {
             ImageWellView(
                 image: controller.currentControlNets.first?.image,
-                size: (controller.currentModel as? SDModel)?.inputSize
-                    ?? CGSize(width: 256, height: 256),
+                size: controller.currentConstraints.size.resolved(
+                    CGSize(width: configStore.width, height: configStore.height)
+                ),
                 selectImage: controller.selectImage
             ) { image in
                 if let image {

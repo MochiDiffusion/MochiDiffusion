@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct SidebarView: View {
+    @Environment(GenerationController.self) private var controller: GenerationController
+
     var body: some View {
         ScrollView(.vertical) {
             VStack(alignment: .leading, spacing: 6) {
@@ -19,9 +21,14 @@ struct SidebarView: View {
                     ModelView()
                     Spacer().frame(height: 6)
                 }
-                Group {
-                    StartingImageView()
-                    Divider().frame(height: 16)
+                // Sections whose whole subject a model may not support are gated
+                // here rather than inside, so the divider and spacing go with
+                // them instead of leaving a gap where a control used to be.
+                if controller.currentConstraints.startingImage.isSupported {
+                    Group {
+                        StartingImageView()
+                        Divider().frame(height: 16)
+                    }
                 }
                 Group {
                     SizeView()
@@ -31,20 +38,26 @@ struct SidebarView: View {
                     NumberOfImagesView()
                     Spacer().frame(height: 6)
                 }
-                Group {
-                    StepsView()
-                    Spacer().frame(height: 6)
+                if controller.currentConstraints.steps.isSupported {
+                    Group {
+                        StepsView()
+                        Spacer().frame(height: 6)
+                    }
                 }
-                Group {
-                    GuidanceScaleView()
-                    Spacer().frame(height: 6)
+                if controller.currentConstraints.guidanceScale.isSupported {
+                    Group {
+                        GuidanceScaleView()
+                        Spacer().frame(height: 6)
+                    }
                 }
                 Group {
                     SeedView()
                     Divider().frame(height: 16)
                 }
-                Group {
-                    ControlNetView()
+                if controller.currentConstraints.controlNet.isSupported {
+                    Group {
+                        ControlNetView()
+                    }
                 }
             }
             .padding([.horizontal, .bottom])

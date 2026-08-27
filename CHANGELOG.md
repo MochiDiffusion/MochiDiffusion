@@ -1,5 +1,9 @@
 # Unreleased
 
+- Changed the sidebar to show only the options the selected model actually uses
+  - FLUX.2 Klein models no longer offer Exclude from Image, Guidance Scale, ControlNet, or starting image Strength, all of which were previously accepted and ignored
+  - Step count and scheduler are shown as the fixed values a distilled model uses, instead of controls whose value was overridden
+- Changed the swap width/height button to appear only when it does something, instead of silently doing nothing for a fixed-size model with no matching portrait or landscape version
 - Added the generating engine to image metadata and the Info panel
   - Images also record which engine's model made them, so copying a model from an image selects that exact model even when two engines offer the same name
 - Fixed the job queue showing the sidebar's image size instead of the size a fixed-size Core ML model will actually produce

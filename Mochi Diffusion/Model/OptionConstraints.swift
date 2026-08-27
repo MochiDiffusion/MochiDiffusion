@@ -256,4 +256,22 @@ nonisolated struct OptionConstraints: Sendable {
     /// Not a constraint the sidebar enforces — over-long prompts are truncated by
     /// the model, and warning is more useful than refusing to type.
     var promptTokenLimit: Int?
+
+    /// What the sidebar shows when no model is selected.
+    ///
+    /// Every control visible with its pre-constraint bounds. There is nothing to
+    /// generate with in that state, so hiding controls would just make the
+    /// sidebar flicker as models are discovered — and an empty model list is
+    /// already reported by its own message.
+    static let unconstrained = OptionConstraints(
+        supportsNegativePrompt: true,
+        size: .freeform(range: 64...1_792, step: 16),
+        steps: .range(1...50, step: 1),
+        guidanceScale: .range(1...20, step: nil),
+        scheduler: .oneOf(Scheduler.allCases),
+        startingImage: .supported(strength: .range(0...1, step: nil)),
+        controlNet: .unsupported,
+        numberOfImages: .range(1...100, step: 1),
+        promptTokenLimit: nil
+    )
 }

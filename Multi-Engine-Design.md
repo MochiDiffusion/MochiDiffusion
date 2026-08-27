@@ -411,9 +411,35 @@ on a control, and it only *has* to change when a hosted engine has no directory 
 instead of one.
 
 **Control visibility is a pure function, and there are no view tests.** Each control asks
-the constraints a question that can be unit-tested (`constraints.showsGuidanceScale`), and
-the views stay thin enough that the untested part is only the wiring. The repo has no
-view-test infrastructure and adding it for this would be disproportionate.
+the constraints a question that can be unit-tested — in the event `isSupported`,
+`isEditable` and `bounds` on the constraint itself rather than a `shows…` helper per
+control, which is the same property with less vocabulary. `ModelVisibilityTests` pins the
+answers for both real models. The views stay thin enough that the untested part is only the
+wiring, and the repo has no view-test infrastructure worth adding for this.
+
+### Learned while building it
+
+**Snapping belongs to the slider, not the constraint.** The first cut gave guidance scale
+`step: 0.5` and strength `step: 0.05`, mirroring the sliders — and a typed 0.42 became 0.40.
+The Phase 2 entry-gate tests caught it. Nothing in Core ML requires either value to land on
+a grid, and `MochiSlider` already rounds to its own step when it writes, so a constraint
+that snaps is moving a number the user typed for no reason the model cares about. Both are
+clamp-only; `DoubleConstraint.range` takes an optional step for the cases that do need one.
+Size is the genuine opposite: latent dimensions really are multiples of 16, so it snaps.
+
+The general rule: **a constraint says what the model accepts; granularity is a UI
+affordance.** Worth keeping in mind for the hosted engines, where quality levels and
+aspect ratios *are* genuinely enumerated by the API.
+
+**Bounds must match the released controls.** The same first cut invented `0.05...0.95` for
+strength where the shipped slider is `0.0...1.0`, which would have clamped persisted values
+at both ends. Constraints for an existing engine are a description of what already works,
+not an opportunity to tidy the numbers.
+
+**`OptionConstraints.unconstrained`** is what the sidebar shows with no model selected —
+every control visible with its pre-constraint bounds. Hiding controls in that state would
+make the sidebar flicker as discovery finishes, and an empty model list already reports
+itself.
 
 Engine-specific long-tail options (Draw Things will have many) are deferred to Phase 7 as
 a declarative `[OptionSpec]` bag. We deliberately do *not* start there: a fully
@@ -635,8 +661,8 @@ Confidence labels are honest signals about how much these should be trusted.
 | 1 | `MetadataCodec`: fix the import crash and the separator defect; versioned encoding | crash fix | **done** |
 | 2 | Engine descriptor/registry, `EngineID`/`ModelID`, independent discovery, migration, `.engine`/`.modelKey` metadata keys | none | **done** |
 | 3 | Engine runtime and session boundaries; request-scoped cancellation; remove serialization-assumption `@unchecked Sendable`; move generator selection, the payload downcast and the ControlNet symlink write out of the queue and discovery (§4) | ordered progress, no cross-job previews | **done** |
-| 4a | Constraints model; `plan` as the sole resolution point; request carries resolved values | none | settled |
-| 4b | Sidebar driven from constraints; size swap routed through the engine | unsupported controls hide; step count stops lying | settled |
+| 4a | Constraints model; `plan` as the sole resolution point; request carries resolved values | none | **done** |
+| 4b | Sidebar driven from constraints; size swap routed through the engine | unsupported controls hide; step count stops lying | **done** |
 | 5 | Engine picker, per-engine settings store, Settings restructure | the feature as described | likely |
 | 6 | OpenAI engine: Keychain, indeterminate progress, richer errors | first hosted engine | sketch |
 | 7 | MediaGenerationKit prototype, then local/remote integration | | direction only |

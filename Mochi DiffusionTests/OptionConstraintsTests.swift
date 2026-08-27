@@ -171,3 +171,88 @@ struct OptionConstraintsTests {
         #expect(supported.names == ["canny", "depth"])
     }
 }
+
+/// Pins what the sidebar will actually show for the two real models.
+///
+/// The views ask the constraints these same questions, so asserting them here is
+/// what the "no view tests, testable decisions instead" call in §6 buys: a
+/// regression shows up as a failing expectation rather than as a control quietly
+/// reappearing.
+struct ModelVisibilityTests {
+    let temp: TempDirectory
+
+    init() throws {
+        temp = try TempDirectory()
+    }
+
+    private func makeSDModel(inputSize: CGSize?, controlNets: [SDControlNet] = []) throws -> SDModel
+    {
+        let url = try temp.subdirectory("sd-\(UUID().uuidString)")
+        try makeSDModelFixture(at: url, inputSize: inputSize)
+        return try #require(SDModel(url: url, name: "sd-model", controlNet: controlNets))
+    }
+
+    @Test("Klein hides everything a distilled model cannot use")
+    func kleinHidesUnusableControls() {
+        let constraints = IrisFluxKleinModel.constraints
+
+        #expect(!constraints.supportsNegativePrompt)
+        #expect(!constraints.guidanceScale.isSupported)
+        #expect(!constraints.controlNet.isSupported)
+        #expect(!constraints.startingImage.strength.isSupported)
+        // Shown, but disabled: seeing "4" explains the model better than an
+        // absent row does.
+        #expect(constraints.steps.isSupported)
+        #expect(!constraints.steps.isEditable)
+        #expect(!constraints.scheduler.isEditable)
+        // A starting image is still accepted, as an input image.
+        #expect(constraints.startingImage.isSupported)
+    }
+
+    @Test("A fixed-size Core ML model shows its size read-only")
+    func fixedSizeIsReadOnly() throws {
+        let model = try makeSDModel(inputSize: CGSize(width: 512, height: 768))
+
+        #expect(!model.constraints.size.isEditable)
+        #expect(model.constraints.size.pinnedSizes == [CGSize(width: 512, height: 768)])
+    }
+
+    @Test("A Core ML model with no fixed size stays editable")
+    func freeformSizeIsEditable() throws {
+        let model = try makeSDModel(inputSize: nil)
+
+        #expect(model.constraints.size.isEditable)
+        #expect(model.constraints.size.bounds == 64...1_792)
+        #expect(model.constraints.size.step == 16)
+    }
+
+    /// ControlNet needs a fixed size to scale guide images to, and `SDModel`
+    /// reports no matching nets for a freeform model — so the section is hidden
+    /// rather than shown and then ignored, which is what used to happen.
+    @Test("ControlNet is unsupported without a fixed size")
+    func controlNetNeedsFixedSize() throws {
+        let controlNetDir = try temp.subdirectory("controlnet")
+        let netURL = controlNetDir.appending(path: "canny.mlmodelc")
+        try makeControlNetFixture(at: netURL, size: CGSize(width: 512, height: 512))
+        let net = try #require(SDControlNet(url: netURL))
+
+        let fixed = try makeSDModel(inputSize: CGSize(width: 512, height: 512), controlNets: [net])
+        #expect(fixed.constraints.controlNet.isSupported)
+        #expect(fixed.constraints.controlNet.names == ["canny"])
+
+        let freeform = try makeSDModel(inputSize: nil, controlNets: [net])
+        #expect(!freeform.constraints.controlNet.isSupported)
+    }
+
+    @Test("Core ML keeps every option the sidebar offered before")
+    func coreMLKeepsFullOptionSet() throws {
+        let constraints = try makeSDModel(inputSize: nil).constraints
+
+        #expect(constraints.supportsNegativePrompt)
+        #expect(constraints.steps.bounds == 1...50)
+        #expect(constraints.guidanceScale.bounds == 1...20)
+        #expect(constraints.startingImage.strength.bounds == 0...1)
+        #expect(constraints.numberOfImages.bounds == 1...100)
+        #expect(constraints.scheduler.options == Scheduler.allCases)
+    }
+}

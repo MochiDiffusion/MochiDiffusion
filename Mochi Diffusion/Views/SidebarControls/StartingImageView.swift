@@ -24,8 +24,9 @@ struct StartingImageView: View {
         HStack(alignment: .top) {
             ImageWellView(
                 image: controller.startingImage,
-                size: (controller.currentModel as? SDModel)?.inputSize
-                    ?? CGSize(width: configStore.width, height: configStore.height),
+                size: controller.currentConstraints.size.resolved(
+                    CGSize(width: configStore.width, height: configStore.height)
+                ),
                 selectImage: controller.selectImage
             ) { image in
                 if let image {
@@ -54,6 +55,14 @@ struct StartingImageView: View {
                 }
             }
         }
+
+        if strengthConstraint.isSupported {
+            strengthControl
+        }
+    }
+
+    @ViewBuilder private var strengthControl: some View {
+        @Bindable var configStore = configStore
 
         HStack {
             Text(
@@ -84,7 +93,17 @@ struct StartingImageView: View {
                 .padding()
             }
         }
-        MochiSlider(value: $configStore.strength, bounds: 0.0...1.0, step: 0.05)
+        MochiSlider(value: $configStore.strength, bounds: strengthBounds, step: 0.05)
+    }
+
+    /// Iris takes a starting image but treats it as an input image, so strength
+    /// has no meaning there and the whole row goes.
+    private var strengthConstraint: DoubleConstraint {
+        controller.currentConstraints.startingImage.strength
+    }
+
+    private var strengthBounds: ClosedRange<Double> {
+        strengthConstraint.bounds ?? 0.0...1.0
     }
 }
 

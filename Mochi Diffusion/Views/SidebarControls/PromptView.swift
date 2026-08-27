@@ -111,15 +111,20 @@ struct PromptView: View {
                 tokenLimit: tokenLimit
             )
 
-            Text("Exclude from Image")
-                .sidebarLabelFormat()
-            PromptTextEditor(
-                text: $configStore.negativePrompt,
-                height: 70,
-                focusBinding: $focusCon.negativePromptFieldIsFocused,
-                tokenizer: tokenizer,
-                tokenLimit: tokenLimit
-            )
+            // A distilled model has no classifier-free guidance, so there is
+            // nothing for a negative prompt to steer away from. The field used to
+            // be offered and the text silently discarded.
+            if controller.currentConstraints.supportsNegativePrompt {
+                Text("Exclude from Image")
+                    .sidebarLabelFormat()
+                PromptTextEditor(
+                    text: $configStore.negativePrompt,
+                    height: 70,
+                    focusBinding: $focusCon.negativePromptFieldIsFocused,
+                    tokenizer: tokenizer,
+                    tokenLimit: tokenLimit
+                )
+            }
 
             Spacer().frame(height: 2)
 
