@@ -1253,8 +1253,9 @@ code. Deliberately no day figure here — one would get quoted back as a commitm
 
 ## 12. Tests
 
-The Swift Testing target exists and passes: **223 test cases, 223 passing, no known
-issues**, and `swift format lint` is clean.
+The Swift Testing target exists and passes: **235 test cases, 235 passing, no known
+issues**, and `swift format lint` is clean. (223 at the first triage pass; 235 after the
+second.)
 
 **Counts come from `xcresulttool get test-results summary`.** Grepping `xcodebuild` output
 for passed test cases roughly doubles the figure, because it logs most cases twice. This
@@ -1640,27 +1641,50 @@ code. Seven were real; the two severity calls below are ours, not the reviewer's
 - **The safety checker was still global** (agreed; a Phase 5 miss). Moved under Core ML with
   the other three.
 
-**Real, not yet fixed:**
+**Also fixed, in a second pass:**
 
-- **Result delivery can clear the next request's preview.** Real mechanism —
-  `apply(_ result:)` clears `currentGeneratingImage` unconditionally — but **Medium, not
-  High**: the result is yielded before `session.close()`, `await forwarding.value`, the
-  terminal status and teardown, and only then is the next request dequeued and its model
-  loaded, so the result has a large head start on that request's first preview. Fix is to
-  scope the clear to a request id. The review's framing is the right one to keep: Phase 3
+- **Result delivery could clear the next request's preview.** `ImageGallery` now records
+  which request the preview belongs to, and a scoped clear is ignored unless that request
+  still owns it. The request id rides on `GenerationResult`, not `GenerationMetadata`:
+  metadata is the contract written into the image, where a request id means nothing.
+  Severity was **Medium, not High** — the result is yielded before `session.close()`,
+  `await forwarding.value`, the terminal status and teardown, and only then is the next
+  request dequeued and its model loaded, so the result had a large head start on that
+  request's first preview. The review's framing is the one worth keeping: Phase 3
   established ordering *within* the event stream and none *across* the result and event
   streams.
-- **`loadModels` reentrancy.** Real, and Phase 5 widened it by adding a second `await`
-  (availability) inside the same window. Fix direction: one aggregate `refresh(settings:)`
-  returning models, failures and availability together, with concurrent per-engine work and
-  an epoch check before applying.
-- **`IrisSingleFlight.acquire()` is not cancellation-aware.** A cancelled waiter still
-  acquires the lease, and nothing checks `session.isCancelled` between acquiring it and
-  `iris_load_dir`, so a cancelled request can pay for a model load while blocking real work.
-  Unreachable while the queue is globally serial — which is exactly why it is worth fixing,
-  since the lease exists so correctness does not depend on that.
-- **`shutdown()` is not terminal for an in-flight refresh.** Low; fold into the reentrancy
-  work, which touches the same code.
+- **`loadModels` reentrancy**, and **`shutdown()` not being terminal** for a refresh already
+  past its await. `EngineRegistry.refresh(settings:)` now gathers availability and discovery
+  into one value, asked concurrently, re-ordered to registration order; `loadModels` takes an
+  epoch and discards a superseded pass. The discovery-failure merge moved into `refresh` and
+  now overrides only `.ready`, since an engine that has already said why it cannot be used
+  has given the actionable answer.
+- **`IrisSingleFlight` waiting was not cancellation-aware.** Cancellation is now checked
+  immediately after acquiring the lease, before `iris_metal_init` and `iris_load_dir`. A
+  cancelled waiter still takes its place in the FIFO rather than being removed from it, but
+  its turn is one actor round-trip. Removing it would mean plumbing session cancellation into
+  the lease, and the session's flag is not the task's.
+
+**Known gaps in the tests for the above**, recorded rather than papered over:
+
+- The queue-teardown race — a request enqueued after the inner drain loop exits but before
+  `processingTask` is cleared — is fixed but not pinned. Hitting the window needs a slow
+  queue-empty notification, and `NotificationController.shared` is a singleton with no seam.
+- Both ordering tests were checked against the unguarded code, and the first version of the
+  superseded-pass test was **not** a real pin: releasing a gate only schedules the waiting
+  continuation, so releasing both passes and then awaiting left the apply order unspecified.
+  It now lets the newer pass finish completely before releasing the older one. A regression
+  test that has not been run against the bug is not yet a regression test.
+
+**Still open:**
+
+- **The state-machine separation itself.** The queue no longer consults `GenerationState`,
+  and per-engine availability is now correct, so the two concrete harms are gone. What
+  remains is that `loadModels` still reports discovery problems *through*
+  `GenerationService.updateStatus(.error:)` — discovery writing into the generation status.
+  The consequence is now cosmetic: a discovery message and a generation message share one
+  banner and overwrite each other. Giving the controller its own `discoveryMessage` and
+  rendering it in `GalleryView` alongside the generation error is the remaining step.
 
 **Declined:**
 
