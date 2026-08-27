@@ -44,6 +44,17 @@ struct SettingsView: View {
                             Image(systemName: "photo")
                         }
                     }
+                enginesView
+                    .tabItem {
+                        Label {
+                            Text(
+                                "Engines",
+                                comment: "Settings tab header label"
+                            )
+                        } icon: {
+                            Image(systemName: "cpu")
+                        }
+                    }
                 notificationsView
                     .tabItem {
                         Label {
@@ -139,33 +150,6 @@ struct SettingsView: View {
 
             GroupBox {
                 VStack(alignment: .leading) {
-                    Text("ControlNet Folder")
-
-                    HStack {
-                        TextField("", text: $configStore.controlNetDir)
-                            .disableAutocorrection(true)
-                            .textFieldStyle(.roundedBorder)
-
-                        Button {
-                            guard
-                                let url = showOpenPanel(
-                                    from: URL(string: configStore.controlNetDir)
-                                )
-                            else { return }
-                            configStore.controlNetDir = url.path(percentEncoded: false)
-                        } label: {
-                            Image(systemName: "magnifyingglass.circle.fill")
-                                .foregroundColor(Color.secondary)
-                        }
-                        .buttonStyle(PlainButtonStyle())
-                        .help("Open in Finder")
-                    }
-                }
-                .padding(4)
-            }
-
-            GroupBox {
-                VStack(alignment: .leading) {
                     HStack {
                         Text("Move Images to Trash")
 
@@ -185,26 +169,6 @@ struct SettingsView: View {
                 .padding(4)
             }
 
-            GroupBox {
-                VStack(alignment: .leading) {
-                    HStack {
-                        Text("Reduce Memory Usage")
-
-                        Spacer()
-
-                        Toggle("", isOn: $configStore.reduceMemory)
-                            .labelsHidden()
-                            .toggleStyle(.switch)
-                            .controlSize(.small)
-                    }
-                    Text(
-                        "Reduce memory usage further at the cost of speed.",
-                        comment: "Help text for Reduce Memory Usage setting"
-                    )
-                    .helpTextFormat()
-                }
-                .padding(4)
-            }
         }
     }
 
@@ -268,9 +232,112 @@ struct SettingsView: View {
                     }
                 }
                 .padding(4)
+            }
 
-                Divider()
+            GroupBox {
+                VStack(alignment: .leading) {
+                    HStack {
+                        Text("Filter Inappropriate Images")
 
+                        Spacer()
+
+                        Toggle("", isOn: $configStore.safetyChecker)
+                            .labelsHidden()
+                            .toggleStyle(.switch)
+                            .controlSize(.small)
+                    }
+                    Text(
+                        "Uses the model's safety checker module. This does not guarantee that all inappropriate images will be filtered.",
+                        comment: "Help text for Filter Inappropriate Images setting"
+                    )
+                    .helpTextFormat()
+                }
+                .padding(4)
+            }
+        }
+    }
+
+    /// Settings that belong to one engine rather than to the app.
+    ///
+    /// `ControlNetDir`, `ReduceMemory` and `MLComputeUnitPreference` used to sit in
+    /// General and Image, presented as global while only ever affecting Core ML
+    /// Stable Diffusion. Iris ignores all three, so a user changing them saw no
+    /// effect and no reason why.
+    ///
+    /// The models folder stays global: one shared folder is a settled decision, so
+    /// there is no per-engine path to show here.
+    @ViewBuilder
+    private var enginesView: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            ForEach(controller.engines) { engine in
+                Text(verbatim: engine.displayName)
+                    .font(.headline)
+                settings(for: engine.id)
+            }
+        }
+    }
+
+    /// One engine's settings.
+    ///
+    /// A `switch` rather than something the engine itself supplies: a settings pane
+    /// is a view, and `GenerationEngineDescriptor` is deliberately free of SwiftUI.
+    /// An engine with nothing to configure — Iris today — says so, so its section
+    /// does not read as a rendering failure.
+    @ViewBuilder
+    private func settings(for engine: EngineID) -> some View {
+        @Bindable var configStore = configStore
+
+        switch engine {
+        case .coreMLStableDiffusion:
+            GroupBox {
+                VStack(alignment: .leading) {
+                    Text("ControlNet Folder")
+
+                    HStack {
+                        TextField("", text: $configStore.controlNetDir)
+                            .disableAutocorrection(true)
+                            .textFieldStyle(.roundedBorder)
+
+                        Button {
+                            guard
+                                let url = showOpenPanel(
+                                    from: URL(string: configStore.controlNetDir)
+                                )
+                            else { return }
+                            configStore.controlNetDir = url.path(percentEncoded: false)
+                        } label: {
+                            Image(systemName: "magnifyingglass.circle.fill")
+                                .foregroundColor(Color.secondary)
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        .help("Open in Finder")
+                    }
+                }
+                .padding(4)
+            }
+
+            GroupBox {
+                VStack(alignment: .leading) {
+                    HStack {
+                        Text("Reduce Memory Usage")
+
+                        Spacer()
+
+                        Toggle("", isOn: $configStore.reduceMemory)
+                            .labelsHidden()
+                            .toggleStyle(.switch)
+                            .controlSize(.small)
+                    }
+                    Text(
+                        "Reduce memory usage further at the cost of speed.",
+                        comment: "Help text for Reduce Memory Usage setting"
+                    )
+                    .helpTextFormat()
+                }
+                .padding(4)
+            }
+
+            GroupBox {
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
                         Text("ML Compute Unit")
@@ -327,26 +394,12 @@ struct SettingsView: View {
                 .padding(4)
             }
 
-            GroupBox {
-                VStack(alignment: .leading) {
-                    HStack {
-                        Text("Filter Inappropriate Images")
-
-                        Spacer()
-
-                        Toggle("", isOn: $configStore.safetyChecker)
-                            .labelsHidden()
-                            .toggleStyle(.switch)
-                            .controlSize(.small)
-                    }
-                    Text(
-                        "Uses the model's safety checker module. This does not guarantee that all inappropriate images will be filtered.",
-                        comment: "Help text for Filter Inappropriate Images setting"
-                    )
-                    .helpTextFormat()
-                }
-                .padding(4)
-            }
+        default:
+            Text(
+                "This engine has no settings.",
+                comment: "Shown in Settings for an engine with nothing to configure"
+            )
+            .helpTextFormat()
         }
     }
 
