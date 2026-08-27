@@ -188,10 +188,6 @@ private struct InfoPopoverView: View {
         return CGImage.fromData(data)
     }
 
-    private var capabilities: GenerationCapabilities {
-        request.capabilities
-    }
-
     private var metadataFields: Set<MetadataField> {
         request.metadataFields
     }
@@ -208,8 +204,16 @@ private struct InfoPopoverView: View {
         metadataFields.contains(.scheduler) ? request.scheduler : nil
     }
 
-    private var supportsStrengthControl: Bool {
-        capabilities.contains(.strength)
+    /// `plan` leaves these `nil` when the model does not use the option, so a row
+    /// is absent rather than showing a value that had no effect. They used to be
+    /// gated on a capability flag and on `metadataFields`, neither of which says
+    /// anything about the value itself.
+    private var effectiveStrength: Float? {
+        request.strength
+    }
+
+    private var effectiveGuidanceScale: Float? {
+        request.guidanceScale
     }
 
     func copyOptionsToSidebar() {
@@ -227,8 +231,8 @@ private struct InfoPopoverView: View {
             if let stepCount = effectiveStepCount {
                 configStore.steps = Double(stepCount)
             }
-            if metadataFields.contains(.guidanceScale) {
-                configStore.guidanceScale = Double(request.guidanceScale)
+            if let guidanceScale = effectiveGuidanceScale {
+                configStore.guidanceScale = Double(guidanceScale)
             }
             if metadataFields.contains(.seed) {
                 controller.seed = request.seed
@@ -244,8 +248,8 @@ private struct InfoPopoverView: View {
                     image: startingImage,
                     filename: request.startingImageName
                 )
-                if supportsStrengthControl {
-                    configStore.strength = Double(request.strength)
+                if let strength = effectiveStrength {
+                    configStore.strength = Double(strength)
                 }
             } else {
                 await controller.unsetStartingImage()
@@ -331,15 +335,15 @@ private struct InfoPopoverView: View {
                             callback: { configStore.steps = Double(stepCount) }
                         )
                     }
-                    if metadataFields.contains(.guidanceScale) {
+                    if let guidanceScale = effectiveGuidanceScale {
                         InfoGridRow(
                             type: LocalizedStringKey(Metadata.guidanceScale.rawValue),
                             text: String(
-                                request.guidanceScale.formatted(
+                                guidanceScale.formatted(
                                     .number.precision(.fractionLength(2)))),
                             showCopyToPromptOption: true,
                             callback: {
-                                configStore.guidanceScale = Double(request.guidanceScale)
+                                configStore.guidanceScale = Double(guidanceScale)
                             }
                         )
                     }
@@ -366,14 +370,14 @@ private struct InfoPopoverView: View {
                             image: startingImage,
                             showCopyToPromptOption: false
                         )
-                        if supportsStrengthControl {
+                        if let strength = effectiveStrength {
                             InfoGridRow(
                                 type: LocalizedStringKey("Strength"),
-                                text: request.strength.formatted(
+                                text: strength.formatted(
                                     .number.precision(.fractionLength(2))),
                                 showCopyToPromptOption: true,
                                 callback: {
-                                    configStore.strength = Double(request.strength)
+                                    configStore.strength = Double(strength)
                                 }
                             )
                         }

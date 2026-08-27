@@ -79,6 +79,11 @@ nonisolated struct GenerationPlan<Payload: Sendable>: Sendable {
     var controlNetImageNames: [String]
     var stepCount: Int
     var scheduler: Scheduler
+    /// `nil` where the model does not use the option at all, which is what lets
+    /// the queue hide a row rather than print a number that had no effect.
+    var strength: Float?
+    var guidanceScale: Float?
+    var numberOfImages: Int
     var mlComputeUnit: MLComputeUnits?
     /// Core ML records a starting image; Iris records input images. Same sidebar
     /// state, different field, so the engine decides which one it fills.
@@ -98,6 +103,9 @@ nonisolated extension GenerationPlan {
             controlNetImageNames: controlNetImageNames,
             stepCount: stepCount,
             scheduler: scheduler,
+            strength: strength,
+            guidanceScale: guidanceScale,
+            numberOfImages: numberOfImages,
             mlComputeUnit: mlComputeUnit,
             startingImageName: startingImageName,
             inputImageNames: inputImageNames
@@ -182,6 +190,19 @@ nonisolated protocol GenerationEngineDescriptor: Sendable {
     /// starts rejecting unsupported values instead of quietly dropping them.
     func plan(draft: GenerationDraft, model: Model) throws -> GenerationPlan<Payload>
 
+    /// The model this engine would use to produce `size`, when its models are
+    /// per-size variants rather than one model that accepts any size.
+    ///
+    /// Core ML models are converted at a fixed resolution and usually ship as a
+    /// set — `foo_512x768` beside `foo_768x512` — so asking for a different size
+    /// means selecting a different model. Nothing in `OptionConstraints` can
+    /// express that relationship, and it is released behaviour: it drives the
+    /// sidebar's width/height swap and the Info panel's copy-size button.
+    ///
+    /// Returns `nil` when there is no such model, which is the default and what
+    /// every engine with freeform sizes answers.
+    func model(forSize size: CGSize, among candidates: [Model], current: Model) -> Model?
+
     /// Makes the runtime that executes this engine's requests.
     ///
     /// Called once per engine and the result reused, so a loaded pipeline
@@ -207,6 +228,8 @@ nonisolated struct AnyGenerationEngine: Sendable, Identifiable {
         @Sendable (GenerationDraft, any EngineModel) throws -> GenerationPlan<any Sendable>
     private let _accepts: @Sendable (any Sendable) -> Bool
     private let _makeRuntime: @Sendable () -> any GenerationEngineRuntime
+    private let _modelForSize:
+        @Sendable (CGSize, [any EngineModel], any EngineModel) -> (any EngineModel)?
 
     init<Engine: GenerationEngineDescriptor>(_ engine: Engine) {
         id = Engine.id
@@ -225,6 +248,14 @@ nonisolated struct AnyGenerationEngine: Sendable, Identifiable {
         }
         _accepts = { $0 is Engine.Payload }
         _makeRuntime = { engine.makeRuntime() }
+        _modelForSize = { size, candidates, current in
+            guard let current = current as? Engine.Model else { return nil }
+            return engine.model(
+                forSize: size,
+                among: candidates.compactMap { $0 as? Engine.Model },
+                current: current
+            )
+        }
     }
 
     func availability(_ settings: EngineSettings) async -> EngineAvailability {
@@ -245,6 +276,14 @@ nonisolated struct AnyGenerationEngine: Sendable, Identifiable {
         _makeRuntime()
     }
 
+    func model(
+        forSize size: CGSize,
+        among candidates: [any EngineModel],
+        current: any EngineModel
+    ) -> (any EngineModel)? {
+        _modelForSize(size, candidates, current)
+    }
+
     /// Whether `payload` is the kind this engine produces.
     ///
     /// Checked where a request enters the queue, not where a generator finally
@@ -252,6 +291,14 @@ nonisolated struct AnyGenerationEngine: Sendable, Identifiable {
     /// current, and the queue cannot un-publish it.
     func accepts(payload: any Sendable) -> Bool {
         _accepts(payload)
+    }
+}
+
+nonisolated extension GenerationEngineDescriptor {
+    /// One model per engine that accepts whatever size it is given is the common
+    /// case, so the default answer is "no other model".
+    func model(forSize size: CGSize, among candidates: [Model], current: Model) -> Model? {
+        nil
     }
 }
 

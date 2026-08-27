@@ -373,42 +373,46 @@ final class GenerationController {
         setSize(width: sdi.width, height: sdi.height)
     }
 
+    /// Applies a size, which for some engines means selecting a different model.
+    ///
+    /// Core ML models are converted at a fixed resolution and usually ship as a
+    /// per-orientation set, so a size the current model cannot produce may be
+    /// another model's. The engine answers whether such a model exists — the
+    /// name-prefix search used to live here, which meant the controller knew how
+    /// one engine names its files.
     func setSize(width: Int, height: Int) {
-        func orientationCategory(width: Int, height: Int) -> Int {
-            if width > height {
-                return 1
-            }
-            if width < height {
-                return -1
-            }
-            return 0
-        }
+        guard let model = currentModel else { return }
+        let size = CGSize(width: width, height: height)
 
-        if let currentSDModel = currentModel as? SDModel {
-            // Match model name prefix and orientation (portrait, landscape, square)
-            // hacky special treatment for models with names like <model-name>_
-            let currentOrientation = orientationCategory(width: width, height: height)
-            let currentModelPrefix = currentSDModel.name.split(separator: "_").first
-            if let matchingModel = models.first(where: {
-                guard
-                    let model = $0 as? SDModel,
-                    model.name.split(separator: "_").first == currentModelPrefix,
-                    let size = model.inputSize
-                else { return false }
-
-                let modelOrientation = orientationCategory(
-                    width: Int(size.width),
-                    height: Int(size.height)
-                )
-                return currentOrientation == modelOrientation
-            }) {
-                currentModelId = matchingModel.id
-                return
-            }
-        } else {
+        if model.constraints.size.isEditable {
             configStore.width = width
             configStore.height = height
+            return
         }
+
+        guard
+            let engine = engineRegistry.engine(model.id.engine),
+            let variant = engine.model(
+                forSize: size,
+                among: models.filter { $0.id.engine == model.id.engine },
+                current: model
+            )
+        else { return }
+        currentModelId = variant.id
+    }
+
+    /// Whether ``setSize(width:height:)`` would change anything, so the sidebar
+    /// can hide a swap control that would silently do nothing.
+    func canSetSize(width: Int, height: Int) -> Bool {
+        guard let model = currentModel else { return false }
+        if model.constraints.size.isEditable { return true }
+        guard let engine = engineRegistry.engine(model.id.engine) else { return false }
+        let variant = engine.model(
+            forSize: CGSize(width: width, height: height),
+            among: models.filter { $0.id.engine == model.id.engine },
+            current: model
+        )
+        return variant != nil && variant?.id != model.id
     }
 
     func copyNegativePromptToPrompt() {
@@ -484,8 +488,7 @@ final class GenerationController {
         return GenerationRequest(
             modelID: model.id,
             displayName: model.name,
-            capabilities: model.config.generationCapabilities,
-            metadataFields: model.config.metadataFields,
+            metadataFields: model.metadataFields,
             payload: plan.payload,
             prompt: draft.prompt,
             negativePrompt: draft.negativePrompt,
@@ -496,14 +499,14 @@ final class GenerationController {
             controlNetNames: plan.controlNetNames,
             controlNetImageNames: plan.controlNetImageNames,
             inputImageNames: plan.inputImageNames,
-            strength: draft.strength,
+            strength: plan.strength,
             stepCount: plan.stepCount,
-            guidanceScale: draft.guidanceScale,
+            guidanceScale: plan.guidanceScale,
             scheduler: plan.scheduler,
             mlComputeUnit: plan.mlComputeUnit,
             useDenoisedIntermediates: draft.showGenerationPreview,
             seed: draft.seed,
-            numberOfImages: draft.numberOfImages,
+            numberOfImages: plan.numberOfImages,
             imageDir: draft.imageDir,
             imageType: draft.imageType
         )

@@ -92,7 +92,7 @@ struct PromptView: View {
     @State private var tokenLimit: Int?
 
     private func updatePromptTokenInfo(for model: (any EngineModel)?) {
-        tokenLimit = model?.promptTokenLimit
+        tokenLimit = model?.constraints.promptTokenLimit
         tokenizer = Tokenizer(modelDir: model?.tokenizerModelDir)
     }
 

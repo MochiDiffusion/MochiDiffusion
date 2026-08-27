@@ -402,10 +402,13 @@ struct GenerationRequestBuilderTests {
         #expect(request.stepCount == 4)
         #expect(request.scheduler == .discreteFlowScheduler)
 
-        // Still carried, still ignored: Klein declares neither, and Phase 4's
-        // constraints are what stop the sidebar offering them at all.
+        // Klein declares no guidance scale, so `plan` resolves it to nothing and
+        // the queue leaves the row out rather than printing a number that had no
+        // effect. It used to carry the sidebar's 6.5 and ignore it.
+        #expect(request.guidanceScale == nil)
+        // The negative prompt is still carried. Klein ignores it, and 4b stops
+        // the sidebar offering it, but nothing resolves free text away.
         #expect(request.negativePrompt == "blurry, low quality")
-        #expect(request.guidanceScale == 6.5)
     }
 
     @Test("Core ML passes the requested step count and scheduler through unchanged")

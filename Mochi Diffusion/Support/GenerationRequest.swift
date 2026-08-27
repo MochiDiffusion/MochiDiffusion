@@ -25,7 +25,6 @@ nonisolated struct GenerationRequest: Sendable, Identifiable {
     /// derived from `payload`, so the queue never has to know which engine
     /// produced the request.
     let displayName: String
-    let capabilities: GenerationCapabilities
     let metadataFields: Set<MetadataField>
 
     /// Engine-typed, produced by ``GenerationEngineDescriptor/plan(draft:model:)``.
@@ -53,9 +52,13 @@ nonisolated struct GenerationRequest: Sendable, Identifiable {
     let controlNetImageNames: [String]
     let inputImageNames: [String]
 
-    let strength: Float
+    /// Resolved by `plan`; `nil` when the model does not use it at all, so the
+    /// queue can leave the row out rather than print a number that had no effect.
+    let strength: Float?
     let stepCount: Int
-    let guidanceScale: Float
+    /// Resolved by `plan`; `nil` when the model does not use it at all, so the
+    /// queue can leave the row out rather than print a number that had no effect.
+    let guidanceScale: Float?
     let scheduler: Scheduler
     /// Core ML only, but the queue displays it when the model records it, so it
     /// stays a plain field rather than something the queue has to unwrap a

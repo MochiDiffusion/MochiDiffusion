@@ -24,35 +24,45 @@ nonisolated struct SDModel: EngineModel {
     let inputSize: CGSize?
 
     var id: ModelID { ModelID(engine: .coreMLStableDiffusion, key: ModelID.localKey(for: url)) }
-    var promptTokenLimit: Int? { 75 }
     var tokenizerModelDir: URL? { url }
-    var config: MochiModelConfig {
-        MochiModelConfig(
-            generationCapabilities: [
-                .negativePrompt,
-                .startingImage,
-                .strength,
-                .stepCount,
-                .guidanceScale,
-                .scheduler,
-                .controlNet,
-            ],
-            metadataFields: [
-                .prompt,
-                .negativePrompt,
-                .model,
-                .engine,
-                .modelKey,
-                .size,
-                .scheduler,
-                .mlComputeUnit,
-                .startingImage,
-                .controlNetImage,
-                .seed,
-                .steps,
-                .guidanceScale,
-            ]
+
+    /// Per model, not per engine. A converted Core ML model has whatever
+    /// resolution it was converted at, and only ControlNets converted to the same
+    /// size and attention type can be used with it — which is why `inputSize` and
+    /// `controlNet` decide two of these.
+    var constraints: OptionConstraints {
+        OptionConstraints(
+            supportsNegativePrompt: true,
+            size: inputSize.map { .pinned([$0]) }
+                ?? .freeform(range: 64...1_792, step: 16),
+            steps: .range(1...50, step: 1),
+            // Bounds match the released sliders exactly. Tightening them would
+            // clamp values users already have persisted.
+            guidanceScale: .range(1...20, step: nil),
+            scheduler: .oneOf(Scheduler.allCases),
+            startingImage: .supported(strength: .range(0...1, step: nil)),
+            controlNet: controlNet.isEmpty ? .unsupported : .supported(names: controlNet),
+            numberOfImages: .range(1...100, step: 1),
+            promptTokenLimit: 75
         )
+    }
+
+    var metadataFields: Set<MetadataField> {
+        [
+            .prompt,
+            .negativePrompt,
+            .model,
+            .engine,
+            .modelKey,
+            .size,
+            .scheduler,
+            .mlComputeUnit,
+            .startingImage,
+            .controlNetImage,
+            .seed,
+            .steps,
+            .guidanceScale,
+        ]
     }
 
     init?(url: URL, name: String, controlNet: [SDControlNet]) {

@@ -6,7 +6,24 @@
 import Foundation
 
 nonisolated struct IrisFluxKleinModel: EngineModel {
-    static let generationCapabilities: GenerationCapabilities = [.startingImage]
+    /// FLUX.2 Klein is distilled: four steps on the flow-match scheduler, and no
+    /// classifier-free guidance, so there is no negative prompt or guidance scale
+    /// to offer. It accepts a starting image but treats it as an input image
+    /// rather than a denoising origin, so strength has no meaning.
+    static let constraints = OptionConstraints(
+        supportsNegativePrompt: false,
+        size: .freeform(range: 64...1_792, step: 16),
+        steps: .pinned(distilledStepCount),
+        guidanceScale: .unsupported,
+        scheduler: .pinned(.discreteFlowScheduler),
+        startingImage: .supported(strength: .unsupported),
+        controlNet: .unsupported,
+        numberOfImages: .range(1...100, step: 1),
+        promptTokenLimit: 512
+    )
+
+    static let distilledStepCount = 4
+
     static let metadataFields: Set<MetadataField> = [
         .prompt,
         .model,
@@ -23,14 +40,9 @@ nonisolated struct IrisFluxKleinModel: EngineModel {
     let name: String
 
     var id: ModelID { ModelID(engine: .iris, key: ModelID.localKey(for: url)) }
-    var promptTokenLimit: Int? { 512 }
     var tokenizerModelDir: URL? { url.appending(path: "tokenizer") }
-    var config: MochiModelConfig {
-        MochiModelConfig(
-            generationCapabilities: Self.generationCapabilities,
-            metadataFields: Self.metadataFields
-        )
-    }
+    var constraints: OptionConstraints { Self.constraints }
+    var metadataFields: Set<MetadataField> { Self.metadataFields }
 
     init?(url: URL, name: String) {
         guard isIrisFluxKleinModelDirectory(url) else { return nil }

@@ -31,6 +31,7 @@
 		03173C112999D83600B03456 /* CoreMLEngineRuntime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03173C102999D83600B03456 /* CoreMLEngineRuntime.swift */; };
 		03173C132999E2B500B03456 /* EngineModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03173C122999E2B500B03456 /* EngineModel.swift */; };
 		AA3000000000000000000001 /* EngineIdentity.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1100000000000000000001 /* EngineIdentity.swift */; };
+		AA3000000000000000000031 /* OptionConstraints.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1100000000000000000031 /* OptionConstraints.swift */; };
 		03173C18299B3C1300B03456 /* ImageGallery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03173C17299B3C1300B03456 /* ImageGallery.swift */; };
 		0352E2A5294E2591003FBF25 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 0352E2A4294E2591003FBF25 /* Sparkle */; };
 		0352E2A7294E3148003FBF25 /* HelpCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0352E2A6294E3148003FBF25 /* HelpCommands.swift */; };
@@ -108,6 +109,7 @@
 		AA2000000000000000000008 /* EngineIdentityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000008 /* EngineIdentityTests.swift */; };
 		AA2000000000000000000009 /* PreferenceMigrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000009 /* PreferenceMigrationTests.swift */; };
 		AA2000000000000000000010 /* EngineDiscoveryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000010 /* EngineDiscoveryTests.swift */; };
+		AA2000000000000000000093 /* OptionConstraintsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000093 /* OptionConstraintsTests.swift */; };
 		AA2000000000000000000092 /* ControllerLifecycleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000092 /* ControllerLifecycleTests.swift */; };
 		AA2000000000000000000091 /* ControlNetLinkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000091 /* ControlNetLinkTests.swift */; };
 		AA2000000000000000000090 /* GenerationSessionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000090 /* GenerationSessionTests.swift */; };
@@ -142,6 +144,7 @@
 		03173C102999D83600B03456 /* CoreMLEngineRuntime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreMLEngineRuntime.swift; sourceTree = "<group>"; };
 		03173C122999E2B500B03456 /* EngineModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngineModel.swift; sourceTree = "<group>"; };
 		AA1100000000000000000001 /* EngineIdentity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngineIdentity.swift; sourceTree = "<group>"; };
+		AA1100000000000000000031 /* OptionConstraints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionConstraints.swift; sourceTree = "<group>"; };
 		03173C17299B3C1300B03456 /* ImageGallery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageGallery.swift; sourceTree = "<group>"; };
 		031AC9D3296881F500F95E4B /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
 		032535D72A6B905B00DF76A4 /* nl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nl; path = nl.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -235,6 +238,7 @@
 		AA1000000000000000000008 /* EngineIdentityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngineIdentityTests.swift; sourceTree = "<group>"; };
 		AA1000000000000000000009 /* PreferenceMigrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferenceMigrationTests.swift; sourceTree = "<group>"; };
 		AA1000000000000000000010 /* EngineDiscoveryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngineDiscoveryTests.swift; sourceTree = "<group>"; };
+		AA1000000000000000000093 /* OptionConstraintsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionConstraintsTests.swift; sourceTree = "<group>"; };
 		AA1000000000000000000092 /* ControllerLifecycleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControllerLifecycleTests.swift; sourceTree = "<group>"; };
 		AA1000000000000000000091 /* ControlNetLinkTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlNetLinkTests.swift; sourceTree = "<group>"; };
 		AA1000000000000000000090 /* GenerationSessionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationSessionTests.swift; sourceTree = "<group>"; };
@@ -407,6 +411,7 @@
 				03E89F3B294FE6ED0067457E /* SDImage.swift */,
 				03173C122999E2B500B03456 /* EngineModel.swift */,
 				AA1100000000000000000001 /* EngineIdentity.swift */,
+				AA1100000000000000000031 /* OptionConstraints.swift */,
 				BF3689662F3086B2006501CE /* IrisFluxKleinModel.swift */,
 				D7B03F1F29D42F9900DF89DD /* SDModelAttentionType.swift */,
 				BF3689642F308607006501CE /* SDModel.swift */,
@@ -451,6 +456,7 @@
 				AA1000000000000000000008 /* EngineIdentityTests.swift */,
 				AA1000000000000000000009 /* PreferenceMigrationTests.swift */,
 				AA1000000000000000000010 /* EngineDiscoveryTests.swift */,
+				AA1000000000000000000093 /* OptionConstraintsTests.swift */,
 				AA1000000000000000000092 /* ControllerLifecycleTests.swift */,
 				AA1000000000000000000091 /* ControlNetLinkTests.swift */,
 				AA1000000000000000000090 /* GenerationSessionTests.swift */,
@@ -688,6 +694,7 @@
 				0352E2B5294EA887003FBF25 /* Functions.swift in Sources */,
 				03173C132999E2B500B03456 /* EngineModel.swift in Sources */,
 				AA3000000000000000000001 /* EngineIdentity.swift in Sources */,
+				AA3000000000000000000031 /* OptionConstraints.swift in Sources */,
 				0352E2B1294EA30D003FBF25 /* Extensions.swift in Sources */,
 				C1F0A1A42D0E6B6A00C0BEEF /* FileSystemStore.swift in Sources */,
 				9401BC712CB9ECA500F00DDE /* FilterTagView.swift in Sources */,
@@ -741,6 +748,7 @@
 				AA2000000000000000000008 /* EngineIdentityTests.swift in Sources */,
 				AA2000000000000000000009 /* PreferenceMigrationTests.swift in Sources */,
 				AA2000000000000000000010 /* EngineDiscoveryTests.swift in Sources */,
+				AA2000000000000000000093 /* OptionConstraintsTests.swift in Sources */,
 				AA2000000000000000000092 /* ControllerLifecycleTests.swift in Sources */,
 				AA2000000000000000000091 /* ControlNetLinkTests.swift in Sources */,
 				AA2000000000000000000090 /* GenerationSessionTests.swift in Sources */,

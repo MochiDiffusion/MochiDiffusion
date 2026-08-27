@@ -48,19 +48,31 @@ nonisolated struct CoreMLStableDiffusionEngine: GenerationEngineDescriptor {
     func plan(draft: GenerationDraft, model: SDModel) throws
         -> GenerationPlan<CoreMLGenerationPayload>
     {
-        // A fixed-size model produces its own size whatever the sidebar says, and
-        // every image handed to it has to match.
-        let size = model.inputSize ?? draft.configuredSize
+        // Every value the model will actually use, resolved here and nowhere
+        // else. A fixed-size model overrides the sidebar's size; a persisted
+        // guidance scale from another model is clamped rather than rejected.
+        let constraints = model.constraints
+        let size = constraints.size.resolved(draft.configuredSize)
+        let stepCount = constraints.steps.resolved(draft.stepCount) ?? draft.stepCount
+        let scheduler = constraints.scheduler.resolved(draft.scheduler) ?? draft.scheduler
+        let strength = constraints.startingImage.strength
+            .resolved(Double(draft.strength))
+            .map(Float.init)
+        let guidanceScale = constraints.guidanceScale
+            .resolved(Double(draft.guidanceScale))
+            .map(Float.init)
+        let numberOfImages =
+            constraints.numberOfImages.resolved(draft.numberOfImages) ?? draft.numberOfImages
         let computeUnit = draft.computeUnitPreference.computeUnits(forModel: model)
 
         var controlNetNames: [String] = []
         var controlNetImageNames: [String] = []
         var controlNetInputs: [Data] = []
-        // ControlNet needs a fixed input size to scale its guide images to, so a
-        // freeform model gets none. Phase 4 should say this as an unsupported
-        // constraint that hides the control, rather than accepting the input and
-        // dropping it here.
-        if model.inputSize != nil {
+        // Said as a constraint now, so the sidebar hides the control instead of
+        // this quietly dropping what the user put in it. A freeform model has no
+        // fixed size to scale guide images to, and `SDModel` reports no matching
+        // nets for one, so its constraint is `.unsupported`.
+        if constraints.controlNet.isSupported {
             for controlNet in draft.controlNets {
                 guard
                     let name = controlNet.name,
@@ -81,19 +93,48 @@ nonisolated struct CoreMLStableDiffusionEngine: GenerationEngineDescriptor {
                 computeUnit: computeUnit,
                 reduceMemory: draft.reduceMemory,
                 disableSafety: !draft.safetyChecker,
-                controlNetDirectory: draft.controlNetDirectory
+                controlNetDirectory: draft.controlNetDirectory,
+                strength: strength ?? draft.strength,
+                guidanceScale: guidanceScale ?? draft.guidanceScale
             ),
             size: size,
             startingImageData: draft.startingImage?.scaledAndCroppedTo(size: size)?.pngData(),
             controlNetImageData: controlNetInputs,
             controlNetNames: controlNetNames,
             controlNetImageNames: controlNetImageNames,
-            stepCount: draft.stepCount,
-            scheduler: draft.scheduler,
+            stepCount: stepCount,
+            scheduler: scheduler,
+            strength: strength,
+            guidanceScale: guidanceScale,
+            numberOfImages: numberOfImages,
             mlComputeUnit: computeUnit,
             startingImageName: draft.startingImageName?.normalizedFilename,
             inputImageNames: []
         )
+    }
+
+    /// Matches on the model name's prefix before the first underscore and on
+    /// orientation, which is how converted sets are named in practice —
+    /// `foo_512x768` beside `foo_768x512`. A heuristic, and it was a heuristic
+    /// when it lived in `GenerationController`; what changed is that it is now
+    /// the Core ML engine's business rather than something the sidebar knew about
+    /// its models.
+    func model(forSize size: CGSize, among candidates: [SDModel], current: SDModel) -> SDModel? {
+        func orientation(width: Double, height: Double) -> Int {
+            if width > height { return 1 }
+            if width < height { return -1 }
+            return 0
+        }
+
+        let wanted = orientation(width: size.width, height: size.height)
+        let prefix = current.name.split(separator: "_").first
+        return candidates.first { candidate in
+            guard
+                candidate.name.split(separator: "_").first == prefix,
+                let candidateSize = candidate.inputSize
+            else { return false }
+            return orientation(width: candidateSize.width, height: candidateSize.height) == wanted
+        }
     }
 
     func makeRuntime() -> any GenerationEngineRuntime {
@@ -149,15 +190,17 @@ nonisolated struct IrisEngine: GenerationEngineDescriptor {
     func plan(draft: GenerationDraft, model: IrisFluxKleinModel) throws
         -> GenerationPlan<IrisGenerationPayload>
     {
-        // FLUX.2 Klein is a distilled model: four steps on the flow-match
-        // scheduler, whatever the sidebar offers. This used to live in
-        // IrisModelFamily.effectiveStepCount, consulted by the queue for display
-        // while the request still carried the user's number and the generator
-        // hardcoded its own — three places to disagree. Resolving it here means
-        // the request, the queue and the saved metadata all read the same value.
-        // Phase 4 turns it into a pinned constraint so the sidebar stops offering
-        // an editable field in the first place.
-        let size = draft.configuredSize
+        // Klein's four steps and flow-match scheduler are pinned constraints now,
+        // so the sidebar shows them disabled rather than offering fields it will
+        // override, and this reads the same declaration the sidebar reads. They
+        // were previously restated here as literals — a third place to disagree
+        // with, after the queue and the generator.
+        let constraints = model.constraints
+        let size = constraints.size.resolved(draft.configuredSize)
+        let stepCount = constraints.steps.resolved(draft.stepCount) ?? draft.stepCount
+        let scheduler = constraints.scheduler.resolved(draft.scheduler) ?? draft.scheduler
+        let numberOfImages =
+            constraints.numberOfImages.resolved(draft.numberOfImages) ?? draft.numberOfImages
 
         return GenerationPlan<IrisGenerationPayload>(
             payload: IrisGenerationPayload(
@@ -168,8 +211,15 @@ nonisolated struct IrisEngine: GenerationEngineDescriptor {
             controlNetImageData: [],
             controlNetNames: [],
             controlNetImageNames: [],
-            stepCount: Self.distilledStepCount,
-            scheduler: .discreteFlowScheduler,
+            stepCount: stepCount,
+            scheduler: scheduler,
+            // Klein ignores both: a distilled model has no guidance, and a
+            // starting image is an input image rather than a denoising origin.
+            strength: constraints.startingImage.strength.resolved(Double(draft.strength))
+                .map(Float.init),
+            guidanceScale: constraints.guidanceScale.resolved(Double(draft.guidanceScale))
+                .map(Float.init),
+            numberOfImages: numberOfImages,
             mlComputeUnit: nil,
             // Iris records what it was given as an input image rather than as a
             // starting image, so the same sidebar state lands in a different field.
@@ -182,7 +232,6 @@ nonisolated struct IrisEngine: GenerationEngineDescriptor {
         IrisEngineRuntime()
     }
 
-    static let distilledStepCount = 4
 }
 
 /// What Core ML Stable Diffusion needs beyond the values every engine reports.
@@ -195,6 +244,11 @@ nonisolated struct CoreMLGenerationPayload: Sendable {
     /// it is about to load a ControlNet pipeline, rather than discovery doing it
     /// for every model on every folder-change event.
     let controlNetDirectory: URL
+    /// Resolved, and non-optional, because Core ML always uses both. The request
+    /// carries them as optionals for the queue's benefit; the runtime wants the
+    /// values it will actually pass to the pipeline.
+    let strength: Float
+    let guidanceScale: Float
 }
 
 /// Iris loads from a directory rather than a typed model handle.

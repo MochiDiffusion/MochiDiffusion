@@ -134,7 +134,7 @@ struct IrisFluxKleinDiscoveryTests {
 
         let model = try #require(IrisFluxKleinModel(url: url, name: "klein"))
         #expect(model.id == ModelID(engine: .iris, key: "klein"))
-        #expect(model.promptTokenLimit == 512)
+        #expect(model.constraints.promptTokenLimit == 512)
         #expect(model.tokenizerModelDir == url.appending(path: "tokenizer"))
     }
 
@@ -165,12 +165,23 @@ struct IrisFluxKleinDiscoveryTests {
         #expect(IrisFluxKleinModel(url: url, name: "klein") == nil)
     }
 
-    @Test("Klein declares only the capabilities it can honour")
-    func declaresCapabilities() {
-        let capabilities = IrisFluxKleinModel.generationCapabilities
-        #expect(capabilities.contains(.startingImage))
-        #expect(!capabilities.contains(.controlNet))
-        #expect(!capabilities.contains(.negativePrompt))
-        #expect(!capabilities.contains(.guidanceScale))
+    /// Klein is distilled, which is what makes most of these unsupported rather
+    /// than merely unused: no classifier-free guidance means no negative prompt
+    /// and no guidance scale, and four steps on the flow-match scheduler are
+    /// properties of the distillation rather than choices.
+    @Test("Klein declares only what it can honour")
+    func declaresConstraints() {
+        let constraints = IrisFluxKleinModel.constraints
+
+        #expect(!constraints.supportsNegativePrompt)
+        #expect(constraints.steps == .pinned(4))
+        #expect(constraints.scheduler == .pinned(.discreteFlowScheduler))
+        #expect(constraints.guidanceScale == .unsupported)
+        #expect(constraints.controlNet == .unsupported)
+        // A starting image is accepted, but as an input image rather than a
+        // denoising origin, so strength has no meaning.
+        #expect(constraints.startingImage.isSupported)
+        #expect(constraints.startingImage.strength == .unsupported)
+        #expect(constraints.size.isEditable)
     }
 }

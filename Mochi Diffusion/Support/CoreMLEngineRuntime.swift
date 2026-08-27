@@ -302,9 +302,12 @@ actor CoreMLEngineRuntime: GenerationEngineRuntime {
             model: model,
             mlComputeUnit: payload.computeUnit,
             controlNets: resolvedControlNets,
-            strength: request.strength,
+            // From the payload, not the request: the request carries these as
+            // optionals so the queue can hide a row the model does not use, while
+            // the runtime wants the value it will pass to the pipeline.
+            strength: payload.strength,
             stepCount: request.stepCount,
-            guidanceScale: request.guidanceScale,
+            guidanceScale: payload.guidanceScale,
             disableSafety: payload.disableSafety,
             scheduler: request.scheduler,
             useDenoisedIntermediates: request.useDenoisedIntermediates,
