@@ -68,30 +68,47 @@ More of the seam is in place than a first read suggests:
 So this work is largely *finishing* a refactor that was started, plus one genuinely new
 axis: hosted generation over the network.
 
-## 4. What blocks adding a third engine
+## 4. What blocked adding a third engine
 
-Four closed sum types that must be edited in lockstep for every new engine:
+Four closed sum types had to be edited in lockstep for every new engine. **Three are
+gone as of Phase 2:**
 
-1. `GenerationPipeline` — an enum of `.sd` / `.iris` with roughly ten switch-based
-   accessors (`mlComputeUnit`, `controlNets`, `reduceMemory`, `effectiveStepCount`, …).
-   Every accessor is a question a hosted engine has no answer to.
-   ([Support/GenerationRequest.swift](Mochi%20Diffusion/Support/GenerationRequest.swift))
-2. `PipelineModelAdapter` — restates the same taxonomy a second time.
-   ([Support/GenerationController.swift](Mochi%20Diffusion/Support/GenerationController.swift))
-3. Generator selection — `switch request.pipeline` with all generators eagerly held as
-   stored properties. ([Support/GenerationService.swift](Mochi%20Diffusion/Support/GenerationService.swift))
-4. Model discovery — a hard-coded sniffing chain over a single directory that throws
-   `noModelsFound` globally rather than per engine.
-   ([Support/ModelRepository.swift](Mochi%20Diffusion/Support/ModelRepository.swift))
+1. ~~`GenerationPipeline`~~ — the enum of `.sd` / `.iris` with roughly ten switch-based
+   accessors is deleted. Engines resolve their own values in `plan`.
+2. ~~`PipelineModelAdapter`~~ — deleted; it restated the same taxonomy a second time.
+3. **Generator selection — still present.** `GenerationService` now switches on
+   `request.modelID.engine` instead of unwrapping a pipeline case, with a `default:` arm
+   that reports "no generator for engine X". Better, but still a lockstep edit point, and
+   the failure moved from compile time to runtime.
+   ([Support/GenerationService.swift](Mochi%20Diffusion/Support/GenerationService.swift))
+4. ~~Model discovery~~ — each engine discovers independently behind `EngineRegistry`, and
+   per-engine failures no longer take the whole model list down. `ModelRepository` is
+   reduced to directory resolution and an existence check.
 
-And three structural mismatches:
+**This makes Phase 3 a prerequisite for Phase 6, not just a concurrency improvement.**
+Until the engine runtime owns generator selection, adding OpenAI means editing
+`GenerationService`, and forgetting to means a runtime error rather than a build failure.
+Do not add a new engine before Phase 3 lands.
 
-- **`MochiModel.id` is a `URL`.** Hosted models have no URL.
-- **`GenerationRequest` is a flat 23-field struct** merging every engine's options.
-  Quality, aspect ratio, moderation and LoRAs would each widen it further.
-- **`ConfigStore` is a flat `@AppStorage` bag** with a single `prompt`/`steps`/`width`/
-  `height` for everything, and a verbose `access`/`withMutation` pair per key. It cannot
-  express per-engine values or dynamic keys.
+Two transitional leaks Phase 3 must also clear:
+
+- `GenerationService` downcasts `request.payload as? CoreMLGenerationPayload` to check the
+  model still exists on disk. §5.4 says the queue never inspects the payload; this is the
+  one place it does. The check belongs to the Core ML runtime.
+- `CoreMLStableDiffusionEngine.discoverModels` writes a `controlnet` symlink into each
+  ControlNet-capable model directory. A write on a read path, fired on every
+  folder-change event, mutating the user's models folder. It belongs at pipeline load.
+
+Of the three structural mismatches, two are resolved:
+
+- ~~**`MochiModel.id` is a `URL`.**~~ Identity is `ModelID` (engine + key); `url` is
+  optional on `EngineModel`, so a hosted model needs no fake path.
+- **`GenerationRequest` is still flat**, but no longer merges every engine's options: the
+  engine-specific half moved into an opaque `payload`, and the shared half now carries
+  *resolved* values rather than raw sidebar input.
+- ~~**`ConfigStore` cannot express dynamic keys.**~~ Partly resolved: it now takes an
+  injectable `UserDefaults` store and persists the selection as one engine-qualified key.
+  Per-engine namespacing still arrives in Phase 5.
 
 ## 5. Target architecture
 
@@ -557,7 +574,7 @@ Confidence labels are honest signals about how much these should be trusted.
 | 0 | Test target (see §12) | none | done |
 | 1 | `MetadataCodec`: fix the import crash and the separator defect; versioned encoding | crash fix | **done** |
 | 2 | Engine descriptor/registry, `EngineID`/`ModelID`, independent discovery, migration, `.engine`/`.modelKey` metadata keys | none | **done** |
-| 3 | Engine runtime and session boundaries; request-scoped cancellation; remove serialization-assumption `@unchecked Sendable` | more reliable cancel | settled |
+| 3 | Engine runtime and session boundaries; request-scoped cancellation; remove serialization-assumption `@unchecked Sendable`; move generator selection, the payload downcast and the ControlNet symlink write out of the queue and discovery (§4) | more reliable cancel | settled |
 | 4 | Constraints model; `plan` as the sole resolution point; sidebar driven from constraints | unsupported controls hide; step count stops lying | settled |
 | 5 | Engine picker, per-engine settings store, Settings restructure | the feature as described | likely |
 | 6 | OpenAI engine: Keychain, indeterminate progress, richer errors | first hosted engine | sketch |
