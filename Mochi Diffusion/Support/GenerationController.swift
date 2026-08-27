@@ -59,6 +59,11 @@ final class GenerationController {
     private var controlNetDirDebounceTask: Task<Void, Never>?
     private var generationUpdatesTask: Task<Void, Never>?
     private var generationResultsTask: Task<Void, Never>?
+    /// Stored, and weak inside, so `shutdown()` can reach it. It used to be a
+    /// bare `Task { await loadModels() }`, which captured `self` strongly and was
+    /// held by nothing — so it kept the controller alive until the load finished
+    /// and `shutdown()` had no handle to cancel.
+    private var initialLoadTask: Task<Void, Never>?
 
     /// - Parameter startsObserving: whether to begin the eager work — the initial
     ///   model load, the folder monitors, and the generation-service observation.
@@ -80,8 +85,8 @@ final class GenerationController {
         self.engineRegistry = engineRegistry
         self.imageRepository = imageRepository
         guard startsObserving else { return }
-        Task {
-            await loadModels()
+        initialLoadTask = Task { [weak self] in
+            await self?.loadModels()
         }
         startModelFolderMonitor()
         startControlNetFolderMonitor()
@@ -512,12 +517,14 @@ final class GenerationController {
     /// before entering the loop, so task and controller kept each other alive
     /// until something cancelled — which nothing did. See §11.6.
     func shutdown() {
+        initialLoadTask?.cancel()
         generationUpdatesTask?.cancel()
         generationResultsTask?.cancel()
         modelFolderMonitorTask?.cancel()
         controlNetFolderMonitorTask?.cancel()
         modelDirDebounceTask?.cancel()
         controlNetDirDebounceTask?.cancel()
+        initialLoadTask = nil
         generationUpdatesTask = nil
         generationResultsTask = nil
         modelFolderMonitorTask = nil

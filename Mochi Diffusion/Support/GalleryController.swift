@@ -20,6 +20,9 @@ final class GalleryController {
 
     private var imageFolderMonitorTask: Task<Void, Never>?
     private var imageDirDebounceTask: Task<Void, Never>?
+    /// See `GenerationController.initialLoadTask`: stored and weak so
+    /// `shutdown()` can cancel it and it cannot outlive its owner.
+    private var initialLoadTask: Task<Void, Never>?
 
     init(
         configStore: ConfigStore,
@@ -29,8 +32,8 @@ final class GalleryController {
         self.configStore = configStore
         self.imageRepository = imageRepository
         self.focusController = focusController
-        Task {
-            await load()
+        initialLoadTask = Task { [weak self] in
+            await self?.load()
         }
         startImageFolderMonitor()
         observeImageDir()
@@ -234,8 +237,10 @@ final class GalleryController {
     /// Cancels every task this controller owns. See
     /// `GenerationController.shutdown()`.
     func shutdown() {
+        initialLoadTask?.cancel()
         imageFolderMonitorTask?.cancel()
         imageDirDebounceTask?.cancel()
+        initialLoadTask = nil
         imageFolderMonitorTask = nil
         imageDirDebounceTask = nil
     }

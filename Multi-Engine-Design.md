@@ -991,10 +991,29 @@ hoisting `self` before it, which is what made task and controller retain each ot
 `GenerationController.shutdown()` and `GalleryController.shutdown()` cancel every owned
 task. `updates()` is `bufferingNewest(1)`; `results()` stays unbounded.
 
-`shutdown()` has **no caller in the app yet** — both controllers live as long as the
-process. It exists because the tests construct controllers freely, and because Phase 5's
-settings changes are expected to rebuild them. Wire it up there rather than leaving it to
-be discovered.
+`shutdown()` has **no caller in the app, deliberately.** Both controllers are created once
+in `App.init()` and held in `@State` on the `App` struct, with a single `Window` scene;
+SwiftUI creates that state once per process and nothing replaces it. So there is no leak
+today, and no path where `shutdown()` would change observable behaviour.
+
+A review suggested wiring it into `NSApplication.willTerminateNotification`, alongside the
+temp-file cleanup. Declined: it would run microseconds before the process dies, where tasks
+are killed by teardown anyway, FSEvent sources are reclaimed by the OS and there is nothing
+to flush. It is also faintly counterproductive — it cancels the debounce and monitor loops,
+so an in-flight `loadModels()` or `syncImages()` would be interrupted for no gain — and it
+adds a call site that reads as load-bearing when it is not. Wire it up in Phase 5, at the
+real call site, when settings changes actually rebuild a controller.
+
+What the review was right about is that `shutdown()` was dead code, and the fix for that is
+a test rather than a call site. `ControllerLifecycleTests` asserts both controllers are
+released after `shutdown()`, which pins the thing Phase 3 actually fixed: re-hoisting a
+`guard let self` out of a monitor loop compiles, reads as a simplification, and silently
+restores the retain cycle. A termination call site would not have caught that.
+
+Writing the test found a hole the review had not: both controllers spawned an untracked
+`Task { await loadModels() }` in `init` with an implicit strong `self`, so `shutdown()`'s
+claim to cancel every task the controller owns was false — it had no handle on that one, and
+the controller stayed alive until the load finished. Both are now stored and capture weakly.
 
 ### 11.7 Concurrency is an engine property
 

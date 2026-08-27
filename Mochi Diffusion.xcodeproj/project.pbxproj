@@ -108,6 +108,7 @@
 		AA2000000000000000000008 /* EngineIdentityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000008 /* EngineIdentityTests.swift */; };
 		AA2000000000000000000009 /* PreferenceMigrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000009 /* PreferenceMigrationTests.swift */; };
 		AA2000000000000000000010 /* EngineDiscoveryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000010 /* EngineDiscoveryTests.swift */; };
+		AA2000000000000000000092 /* ControllerLifecycleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000092 /* ControllerLifecycleTests.swift */; };
 		AA2000000000000000000091 /* ControlNetLinkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000091 /* ControlNetLinkTests.swift */; };
 		AA2000000000000000000090 /* GenerationSessionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000090 /* GenerationSessionTests.swift */; };
 		AA2000000000000000000003 /* ModelDiscoveryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000003 /* ModelDiscoveryTests.swift */; };
@@ -234,6 +235,7 @@
 		AA1000000000000000000008 /* EngineIdentityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngineIdentityTests.swift; sourceTree = "<group>"; };
 		AA1000000000000000000009 /* PreferenceMigrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferenceMigrationTests.swift; sourceTree = "<group>"; };
 		AA1000000000000000000010 /* EngineDiscoveryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngineDiscoveryTests.swift; sourceTree = "<group>"; };
+		AA1000000000000000000092 /* ControllerLifecycleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControllerLifecycleTests.swift; sourceTree = "<group>"; };
 		AA1000000000000000000091 /* ControlNetLinkTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlNetLinkTests.swift; sourceTree = "<group>"; };
 		AA1000000000000000000090 /* GenerationSessionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationSessionTests.swift; sourceTree = "<group>"; };
 		AA1000000000000000000003 /* ModelDiscoveryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelDiscoveryTests.swift; sourceTree = "<group>"; };
@@ -449,6 +451,7 @@
 				AA1000000000000000000008 /* EngineIdentityTests.swift */,
 				AA1000000000000000000009 /* PreferenceMigrationTests.swift */,
 				AA1000000000000000000010 /* EngineDiscoveryTests.swift */,
+				AA1000000000000000000092 /* ControllerLifecycleTests.swift */,
 				AA1000000000000000000091 /* ControlNetLinkTests.swift */,
 				AA1000000000000000000090 /* GenerationSessionTests.swift */,
 				AA1000000000000000000002 /* MetadataRoundTripTests.swift */,
@@ -738,6 +741,7 @@
 				AA2000000000000000000008 /* EngineIdentityTests.swift in Sources */,
 				AA2000000000000000000009 /* PreferenceMigrationTests.swift in Sources */,
 				AA2000000000000000000010 /* EngineDiscoveryTests.swift in Sources */,
+				AA2000000000000000000092 /* ControllerLifecycleTests.swift in Sources */,
 				AA2000000000000000000091 /* ControlNetLinkTests.swift in Sources */,
 				AA2000000000000000000090 /* GenerationSessionTests.swift in Sources */,
 				AA2000000000000000000002 /* MetadataRoundTripTests.swift in Sources */,
