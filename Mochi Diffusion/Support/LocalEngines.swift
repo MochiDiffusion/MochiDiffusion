@@ -96,6 +96,10 @@ nonisolated struct CoreMLStableDiffusionEngine: GenerationEngineDescriptor {
         )
     }
 
+    func makeRuntime() -> any GenerationEngineRuntime {
+        CoreMLEngineRuntime()
+    }
+
     private func hasControlNet(_ url: URL) -> Bool {
         fileSystem.fileExists(url.appending(components: "ControlledUnet.mlmodelc", "metadata.json"))
     }
@@ -189,6 +193,10 @@ nonisolated struct IrisEngine: GenerationEngineDescriptor {
             startingImageName: nil,
             inputImageNames: draft.startingImageName?.normalizedFilename.map { [$0] } ?? []
         )
+    }
+
+    func makeRuntime() -> any GenerationEngineRuntime {
+        IrisEngineRuntime()
     }
 
     static let distilledStepCount = 4

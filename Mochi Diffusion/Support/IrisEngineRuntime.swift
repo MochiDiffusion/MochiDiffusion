@@ -1,5 +1,5 @@
 //
-//  IrisFluxKleinImageGenerator.swift
+//  IrisEngineRuntime.swift
 //  Mochi Diffusion
 //
 
@@ -7,46 +7,52 @@ import CoreGraphics
 import Foundation
 import UniformTypeIdentifiers
 
-nonisolated final class IrisFluxKleinImageGenerator: ImageGenerator {
-    private let generationStopLock = NSLock()
-    private var generationStopped = false
+/// Runs Iris FLUX.2 requests.
+///
+/// An `actor`, replacing a `@unchecked Sendable` class whose safety comment
+/// asserted that `GenerationService` serialized generation — something the
+/// compiler could not check and §11.7's per-engine lanes would have broken.
+///
+/// The Iris C calls block inside the actor for the length of a generation. That is
+/// the same trade `CoreMLEngineRuntime` documents, and here it is also *required*:
+/// the C library keeps its callback slots and cancel flag in process globals, so
+/// only one generation can be in flight per process regardless of what the queue
+/// does. The actor is what makes that single-flight rule structural instead of a
+/// comment.
+actor IrisEngineRuntime: GenerationEngineRuntime {
     private static let embeddingCache = FluxPromptEmbeddingCache(maxEntries: 16)
 
-    @concurrent func generate(
+    func run(
         request: GenerationRequest,
-        onState: @escaping @Sendable (GenerationState.Status) async -> Void,
-        onProgress: @escaping @Sendable (GenerationState.Progress, Double?) async -> Void,
-        onPreview: @escaping @Sendable (CGImage?) async -> Void,
+        session: GenerationSession,
         onResult: @escaping @Sendable (GenerationResult) async throws -> Void
     ) async throws {
         // The single downcast of this engine's payload; a mismatch is a wiring
         // bug, not a pipeline the user could fix.
         guard let payload = request.payload as? IrisGenerationPayload else {
-            await onState(.error("Pipeline is not loaded."))
-            throw IrisFluxKleinImageGeneratorError.invalidPipeline
+            throw EngineError.payloadDoesNotBelongToEngine(engine: .iris)
         }
         let modelDir = payload.modelDirectory
 
-        await onState(.loading("Loading model..."))
-        setGenerationStopped(false)
+        session.emit(.state(.loading("Loading model...")))
         iris_clear_cancel()
+        // The C loop stops when the library's own flag is set, and this runtime
+        // cannot set it while it is inside the call that would notice. So the poke
+        // is registered on the session and runs on whichever thread cancels.
+        session.onCancel { iris_request_cancel() }
         // Match the CLI startup order so transformer load sees Metal availability.
         _ = iris_metal_init()
-        await FluxStepImageBridge.shared.configure(
-            onState: onState,
-            onProgress: onProgress,
-            onPreview: onPreview,
+        IrisCallbackRouter.shared.begin(
+            session: session,
             usePreview: request.useDenoisedIntermediates
         )
         defer {
             iris_clear_cancel()
-            Task {
-                await FluxStepImageBridge.shared.reset()
-                await onPreview(nil)
-            }
+            IrisCallbackRouter.shared.end(session: session)
+            session.emit(.preview(nil))
         }
         guard let ctx = iris_load_dir(modelDir) else {
-            throw IrisFluxKleinImageGeneratorError.loadFailed(fluxErrorMessage())
+            throw IrisRuntimeError.loadFailed(fluxErrorMessage())
         }
 
         iris_set_mmap(ctx, 1)
@@ -66,7 +72,7 @@ nonisolated final class IrisFluxKleinImageGenerator: ImageGenerator {
         if let startingImageData = request.startingImageData {
             startingFluxImage = Self.makeFluxImage(from: startingImageData)
             if startingFluxImage == nil {
-                throw IrisFluxKleinImageGeneratorError.decodeStartingImageFailed
+                throw IrisRuntimeError.decodeStartingImageFailed
             }
         }
 
@@ -79,12 +85,12 @@ nonisolated final class IrisFluxKleinImageGenerator: ImageGenerator {
                 embeddings = cached.values
             } else {
                 guard let encoded = iris_encode_text(ctx, request.prompt, &embeddingLength) else {
-                    throw IrisFluxKleinImageGeneratorError.generateFailed(fluxErrorMessage())
+                    throw IrisRuntimeError.generateFailed(fluxErrorMessage())
                 }
                 let textDim = Int(iris_text_dim(ctx))
                 guard textDim > 0 else {
                     free(encoded)
-                    throw IrisFluxKleinImageGeneratorError.generateFailed(
+                    throw IrisRuntimeError.generateFailed(
                         "Invalid text embedding dimension."
                     )
                 }
@@ -127,7 +133,7 @@ nonisolated final class IrisFluxKleinImageGenerator: ImageGenerator {
         var seed = request.seed
 
         for _ in 0..<request.numberOfImages {
-            if isGenerationStopped() {
+            if session.isCancelled {
                 break
             }
 
@@ -166,10 +172,10 @@ nonisolated final class IrisFluxKleinImageGenerator: ImageGenerator {
             }
 
             guard let image else {
-                if isGenerationStopped() {
+                if session.isCancelled {
                     break
                 }
-                throw IrisFluxKleinImageGeneratorError.generateFailed(fluxErrorMessage())
+                throw IrisRuntimeError.generateFailed(fluxErrorMessage())
             }
             defer { iris_image_free(image) }
 
@@ -195,7 +201,7 @@ nonisolated final class IrisFluxKleinImageGenerator: ImageGenerator {
             )
 
             guard let cgImage = Self.makeCGImage(from: UnsafePointer(image)) else {
-                throw IrisFluxKleinImageGeneratorError.encodeFailed
+                throw IrisRuntimeError.encodeFailed
             }
 
             guard
@@ -205,15 +211,13 @@ nonisolated final class IrisFluxKleinImageGenerator: ImageGenerator {
                     imageType: request.imageType
                 )
             else {
-                throw IrisFluxKleinImageGeneratorError.encodeFailed
+                throw IrisRuntimeError.encodeFailed
             }
 
             let result = GenerationResult(metadata: metadata, imageData: imageData)
             try await onResult(result)
             seed &+= 1
         }
-
-        await onState(.ready(nil))
     }
 
     private static func generateWithEmbeddings(
@@ -245,24 +249,6 @@ nonisolated final class IrisFluxKleinImageGenerator: ImageGenerator {
                 &params
             )
         }
-    }
-
-    func stopGenerate() async {
-        setGenerationStopped(true)
-        iris_request_cancel()
-    }
-
-    private func setGenerationStopped(_ value: Bool) {
-        generationStopLock.lock()
-        generationStopped = value
-        generationStopLock.unlock()
-    }
-
-    private func isGenerationStopped() -> Bool {
-        generationStopLock.lock()
-        let value = generationStopped
-        generationStopLock.unlock()
-        return value
     }
 
     private func makeImageData(
@@ -390,13 +376,7 @@ nonisolated final class IrisFluxKleinImageGenerator: ImageGenerator {
     }
 }
 
-// Safety invariant: GenerationService serializes generation calls, and cancellation state
-// mutation is synchronized with generationStopLock while migration away from class-based
-// generators is in progress.
-extension IrisFluxKleinImageGenerator: @unchecked Sendable {}
-
-private enum IrisFluxKleinImageGeneratorError: Error, CustomStringConvertible {
-    case invalidPipeline
+private enum IrisRuntimeError: Error, CustomStringConvertible {
     case loadFailed(String)
     case generateFailed(String)
     case encodeFailed
@@ -404,8 +384,6 @@ private enum IrisFluxKleinImageGeneratorError: Error, CustomStringConvertible {
 
     var description: String {
         switch self {
-        case .invalidPipeline:
-            return "IrisFluxKleinImageGenerator called with non-Iris FLUX.2 pipeline."
         case .loadFailed(let message):
             return "Failed to load model: \(message)"
         case .generateFailed(let message):
@@ -568,66 +546,84 @@ extension iris_params {
     }
 }
 
-private actor FluxStepImageBridge {
-    static let shared = FluxStepImageBridge()
+/// Routes the Iris C callbacks to the session that is generating.
+///
+/// The Iris C API takes bare function pointers with no context parameter, so a
+/// callback cannot be told which request it belongs to. Two things follow.
+///
+/// First, delivery is **synchronous**. Each callback used to spawn
+/// `Task { await bridge.handle… }`, which meant a scheduling delay between the
+/// callback firing and the event being applied, no ordering guarantee between two
+/// such tasks, and a task that could outlive the request that created it and land
+/// on the next one. Emitting straight into the session's stream removes all three.
+///
+/// Second, the router holds the active session and clears it on teardown, so a
+/// callback arriving after generation finished has nowhere to go. What that cannot
+/// defend against is a callback arriving after the *next* session has begun: with
+/// no context pointer, such a callback is indistinguishable from a current one.
+/// That is safe only because Iris calls back from inside `iris_generate` and
+/// friends, so no callback outlives the call that produced it. This is an
+/// assumption about the C library, stated rather than enforced — which is the only
+/// honest option at this boundary.
+///
+/// `@unchecked Sendable` is guarded by this type's own lock, not by an assumption
+/// about another type's behaviour (§11.3).
+nonisolated final class IrisCallbackRouter: @unchecked Sendable {
+    static let shared = IrisCallbackRouter()
 
-    private var onState: (@Sendable (GenerationState.Status) async -> Void)?
-    private var onProgress: (@Sendable (GenerationState.Progress, Double?) async -> Void)?
-    private var onPreview: (@Sendable (CGImage?) async -> Void)?
+    private let lock = NSLock()
+    private var session: GenerationSession?
     private var usePreview = false
 
-    func configure(
-        onState: @escaping @Sendable (GenerationState.Status) async -> Void,
-        onProgress: @escaping @Sendable (GenerationState.Progress, Double?) async -> Void,
-        onPreview: @escaping @Sendable (CGImage?) async -> Void,
-        usePreview: Bool
-    ) {
-        self.onState = onState
-        self.onProgress = onProgress
-        self.onPreview = onPreview
+    func begin(session: GenerationSession, usePreview: Bool) {
+        lock.lock()
+        self.session = session
         self.usePreview = usePreview
+        lock.unlock()
     }
 
-    func reset() {
-        onState = nil
-        onProgress = nil
-        onPreview = nil
-        usePreview = false
-    }
-
-    func handleStep(step: Int32, total: Int32) async {
-        guard
-            let onProgress,
-            total > 0
-        else {
-            return
+    /// Clears the route, but only if `session` is still the one installed, so a
+    /// late teardown cannot detach the session that replaced it.
+    func end(session: GenerationSession) {
+        lock.lock()
+        if self.session === session {
+            self.session = nil
+            usePreview = false
         }
+        lock.unlock()
+    }
 
+    func report(progress step: Int32, total: Int32) {
+        guard total > 0 else { return }
         let totalSteps = Int(total)
+        // Iris counts from one; the UI's progress is zero-based.
         let zeroBasedStep = max(0, min(Int(step) - 1, totalSteps - 1))
-        await onProgress(
-            GenerationState.Progress(step: zeroBasedStep, stepCount: totalSteps),
-            nil
+        emit(
+            .progress(GenerationState.Progress(step: zeroBasedStep, stepCount: totalSteps))
         )
     }
 
-    func handlePhase(_ phaseName: String?, done: Int32) async {
-        guard done == 0, let onState else { return }
-        guard let label = phaseLabel(for: phaseName) else { return }
-        await onState(.loading(label))
+    func report(phase name: String?, done: Int32) {
+        guard done == 0, let label = Self.phaseLabel(for: name) else { return }
+        emit(.state(.loading(label)))
     }
 
-    func handlePreview(_ image: CGImage?) async {
-        guard
-            usePreview,
-            let onPreview
-        else {
-            return
-        }
-        await onPreview(image)
+    func report(preview image: CGImage?) {
+        lock.lock()
+        let wantsPreview = usePreview
+        lock.unlock()
+        guard wantsPreview else { return }
+        emit(.preview(image))
     }
 
-    private func phaseLabel(for phaseName: String?) -> String? {
+    private func emit(_ event: GenerationEvent) {
+        lock.lock()
+        let session = self.session
+        lock.unlock()
+        session?.emit(event)
+    }
+
+    private static func phaseLabel(for phaseName: String?) -> String? {
         guard let phaseName else { return nil }
         let normalized = phaseName.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
 
@@ -648,18 +644,14 @@ private actor FluxStepImageBridge {
     }
 }
 
-nonisolated private let fluxStepCallback: @convention(c) (Int32, Int32) -> Void = { step, total in
-    Task {
-        await FluxStepImageBridge.shared.handleStep(step: step, total: total)
-    }
+nonisolated private let fluxStepCallback: @convention(c) (Int32, Int32) -> Void = {
+    step, total in
+    IrisCallbackRouter.shared.report(progress: step, total: total)
 }
 
 nonisolated private let fluxPhaseCallback: @convention(c) (UnsafePointer<CChar>?, Int32) -> Void = {
     phase, done in
-    let phaseName = phase.map { String(cString: $0) }
-    Task {
-        await FluxStepImageBridge.shared.handlePhase(phaseName, done: done)
-    }
+    IrisCallbackRouter.shared.report(phase: phase.map { String(cString: $0) }, done: done)
 }
 
 nonisolated private let fluxStepImageCallback:
@@ -668,10 +660,7 @@ nonisolated private let fluxStepImageCallback:
         Int32,
         UnsafePointer<iris_image>?
     ) -> Void = { _, _, image in
-        let previewImage = image.flatMap {
-            IrisFluxKleinImageGenerator.makeCGImage(from: $0)
-        }
-        Task {
-            await FluxStepImageBridge.shared.handlePreview(previewImage)
-        }
+        IrisCallbackRouter.shared.report(
+            preview: image.flatMap { IrisEngineRuntime.makeCGImage(from: $0) }
+        )
     }

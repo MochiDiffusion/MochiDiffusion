@@ -259,6 +259,20 @@ struct EngineRegistryTests {
         {
             throw Failure()
         }
+        func makeRuntime() -> any GenerationEngineRuntime {
+            NeverRunsRuntime()
+        }
+    }
+
+    /// This engine never gets as far as running anything; discovery fails first.
+    private struct NeverRunsRuntime: GenerationEngineRuntime {
+        func run(
+            request: GenerationRequest,
+            session: GenerationSession,
+            onResult: @escaping @Sendable (GenerationResult) async throws -> Void
+        ) async throws {
+            throw FailingEngine.Failure()
+        }
     }
 
     @Test("Discovery covers every registered engine")

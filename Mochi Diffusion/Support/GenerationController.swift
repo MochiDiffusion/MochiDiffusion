@@ -119,9 +119,9 @@ final class GenerationController {
                 // unreachable. Phase 5's picker replaces this single global
                 // message with per-engine availability reasons.
                 if discoveries.failures.isEmpty {
-                    throw SDImageGenerator.GeneratorError.noModelsFound
+                    throw GenerationError.noModelsFound
                 }
-                throw SDImageGenerator.GeneratorError.modelSubDirectoriesNoAccess
+                throw GenerationError.modelSubDirectoriesNoAccess
             }
             self.models = discoveredModels
 
@@ -139,16 +139,16 @@ final class GenerationController {
                 return
             }
             self.currentModelId = self.models.first?.id
-        } catch SDImageGenerator.GeneratorError.modelDirectoryNoAccess {
+        } catch GenerationError.modelDirectoryNoAccess {
             logger.error("Couldn't access model directory.")
             configStore.selectedModel = nil
-        } catch SDImageGenerator.GeneratorError.modelSubDirectoriesNoAccess {
+        } catch GenerationError.modelSubDirectoriesNoAccess {
             logger.error("Could not get model subdirectories.")
             await GenerationService.shared.updateStatus(
                 .error("Could not get model subdirectories.")
             )
             configStore.selectedModel = nil
-        } catch SDImageGenerator.GeneratorError.noModelsFound {
+        } catch GenerationError.noModelsFound {
             logger.error("No models found.")
             await GenerationService.shared.updateStatus(
                 .error("No models found under: \(configStore.modelDir)")

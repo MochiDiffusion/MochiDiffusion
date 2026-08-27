@@ -1,5 +1,5 @@
 //
-//  ImageGenerator.swift
+//  CoreMLEngineRuntime.swift
 //  Mochi Diffusion
 //
 //  Created by Joshua Park on 2/12/23.
@@ -9,9 +9,9 @@ import CoreML
 import StableDiffusion
 import UniformTypeIdentifiers
 
-struct SDGenerationConfig: Identifiable {
-    let id = UUID()
-
+/// Resolved values for one Core ML generation, in the shape the Apple pipeline
+/// wants them.
+nonisolated struct CoreMLGenerationConfig {
     let prompt: String
     let negativePrompt: String
     let startingImage: CGImage?
@@ -20,141 +20,137 @@ struct SDGenerationConfig: Identifiable {
     let inputImageNames: [String]
     let controlNetInputs: [CGImage]
     let model: SDModel
-    var mlComputeUnit: MLComputeUnits
-    var controlNets: [String]
+    let mlComputeUnit: MLComputeUnits
+    let controlNets: [String]
     let strength: Float
     let stepCount: Int
     let guidanceScale: Float
     let disableSafety: Bool
-    var scheduler: Scheduler
+    let scheduler: Scheduler
     let useDenoisedIntermediates: Bool
     let seed: UInt32
-    var numberOfImages: Int
-    var imageType: String
+    let numberOfImages: Int
+    let imageType: String
 }
 
-nonisolated final class SDImageGenerator: ImageGenerator {
+/// Runs Core ML Stable Diffusion requests and owns the loaded pipeline between
+/// them.
+///
+/// An `actor`, which is what let the previous `@unchecked Sendable` conformance go
+/// away. That conformance was justified by a comment asserting `GenerationService`
+/// serialized generation — an invariant the compiler could not see and the
+/// per-engine-lane work in §11.7 would have silently broken. The pipeline and its
+/// cache key are now ordinary isolated state.
+///
+/// The blocking `generateImages` call runs *inside* the actor, so it occupies the
+/// actor's executor for the length of a generation. That is deliberate and it is a
+/// trade: moving it out would mean sending the non-`Sendable` pipeline across an
+/// isolation boundary and back, which Swift's region analysis cannot prove safe
+/// for a value read out of actor storage. Nothing deadlocks on it, because the
+/// only two things that would want in during a generation do not come here —
+/// cancellation goes to the ``GenerationSession``, and the queue admits one
+/// request at a time.
+actor CoreMLEngineRuntime: GenerationEngineRuntime {
+    private var pipeline: (any StableDiffusionPipelineProtocol)?
+    private var currentPipelineHash: Int?
+    private let modelRepository: ModelRepository
 
-    enum GeneratorError: Error {
-        case imageDirectoryNoAccess
-        case modelDirectoryNoAccess
-        case modelSubDirectoriesNoAccess
-        case noModelsFound
-        case pipelineNotAvailable
-        case requestedModelNotFound
+    init(modelRepository: ModelRepository = ModelRepository()) {
+        self.modelRepository = modelRepository
     }
 
-    private var pipeline: (any StableDiffusionPipelineProtocol)?
+    func run(
+        request: GenerationRequest,
+        session: GenerationSession,
+        onResult: @escaping @Sendable (GenerationResult) async throws -> Void
+    ) async throws {
+        // The single downcast of this engine's payload. A mismatch means a
+        // request reached the wrong runtime, which is a wiring bug, so it is
+        // reported as an invariant failure rather than as a pipeline the user
+        // could fix. `AnyGenerationEngine.accepts(payload:)` rejects it at
+        // enqueue, so reaching here means that check was bypassed.
+        guard let payload = request.payload as? CoreMLGenerationPayload else {
+            throw EngineError.payloadDoesNotBelongToEngine(engine: .coreMLStableDiffusion)
+        }
 
-    private let generationStopLock = NSLock()
-    private var generationStopped = false
+        // Moved out of the queue, which used to downcast this payload itself to
+        // ask the question. Whether a model is still on disk is knowledge about
+        // this engine's models, so it belongs to this engine.
+        guard await modelRepository.modelExists(payload.model) else {
+            throw GenerationError.requestedModelNotFound
+        }
 
-    private var currentPipelineHash: Int?
+        let config = makeConfig(from: request, payload: payload)
 
-    @concurrent func loadPipeline(
+        try loadPipelineIfNeeded(
+            model: payload.model,
+            controlNet: config.controlNets,
+            computeUnit: payload.computeUnit,
+            reduceMemory: payload.reduceMemory,
+            session: session
+        )
+
+        try await generate(config, request: request, session: session, onResult: onResult)
+    }
+
+    /// Loads the pipeline unless the one already loaded was built from the same
+    /// inputs. Synchronous: it is called from inside the actor and the work is
+    /// the load itself, not something to await.
+    private func loadPipelineIfNeeded(
         model: SDModel,
-        controlNet: [String] = [],
+        controlNet: [String],
         computeUnit: MLComputeUnits,
         reduceMemory: Bool,
-        onState: @escaping @Sendable (GenerationState.Status) async -> Void
-    ) async throws {
+        session: GenerationSession
+    ) throws {
         var hasher = Hasher()
         hasher.combine(model)
         hasher.combine(controlNet)
         hasher.combine(computeUnit)
         hasher.combine(reduceMemory)
         let hash = hasher.finalize()
-        guard hash != self.currentPipelineHash else { return }
+        guard hash != currentPipelineHash else { return }
 
-        await onState(.loading(nil))
-        let config = MLModelConfiguration()
-        config.computeUnits = computeUnit
+        session.emit(.state(.loading(nil)))
+        let configuration = MLModelConfiguration()
+        configuration.computeUnits = computeUnit
 
-        if model.type == .sdxl {
-            self.pipeline = try StableDiffusionXLPipeline(
+        switch model.type {
+        case .sdxl:
+            pipeline = try StableDiffusionXLPipeline(
                 resourcesAt: model.url,
-                configuration: config,
+                configuration: configuration,
                 reduceMemory: reduceMemory
             )
-        } else if model.type == .sd3 {
-            self.pipeline = try StableDiffusion3Pipeline(
+        case .sd3:
+            pipeline = try StableDiffusion3Pipeline(
                 resourcesAt: model.url,
-                configuration: config,
+                configuration: configuration,
                 reduceMemory: reduceMemory
             )
-        } else {
-            self.pipeline = try StableDiffusionPipeline(
+        case .sd15:
+            pipeline = try StableDiffusionPipeline(
                 resourcesAt: model.url,
                 controlNet: controlNet,
-                configuration: config,
+                configuration: configuration,
                 disableSafety: true,
                 reduceMemory: reduceMemory
             )
         }
 
-        self.currentPipelineHash = hash
-        await onState(.ready(nil))
+        currentPipelineHash = hash
     }
 
-    @concurrent func generate(
+    private func generate(
+        _ config: CoreMLGenerationConfig,
         request: GenerationRequest,
-        onState: @escaping @Sendable (GenerationState.Status) async -> Void,
-        onProgress: @escaping @Sendable (GenerationState.Progress, Double?) async -> Void,
-        onPreview: @escaping @Sendable (CGImage?) async -> Void,
+        session: GenerationSession,
         onResult: @escaping @Sendable (GenerationResult) async throws -> Void
     ) async throws {
-        // The single downcast of this engine's payload. A mismatch means a
-        // request reached the wrong generator, which is a wiring bug, so it is
-        // reported as an invariant failure rather than as a pipeline the user
-        // could fix.
-        guard let payload = request.payload as? CoreMLGenerationPayload else {
-            await onState(.error("Pipeline is not loaded."))
-            throw EngineError.payloadDoesNotBelongToEngine(engine: .coreMLStableDiffusion)
+        guard let pipeline else {
+            throw GenerationError.pipelineNotAvailable
         }
-
-        let config = makeGenerationConfig(
-            from: request,
-            payload: payload,
-            controlNets: request.controlNetNames
-        )
-
-        try await loadPipeline(
-            model: payload.model,
-            controlNet: config.controlNets,
-            computeUnit: payload.computeUnit,
-            reduceMemory: payload.reduceMemory,
-            onState: onState
-        )
-
-        try await generate(
-            config,
-            request: request,
-            onState: onState,
-            onProgress: onProgress,
-            onPreview: onPreview,
-            onResult: onResult
-        )
-    }
-
-    @concurrent func generate(
-        _ config: SDGenerationConfig,
-        request: GenerationRequest,
-        onState: @escaping @Sendable (GenerationState.Status) async -> Void,
-        onProgress: @escaping @Sendable (GenerationState.Progress, Double?) async -> Void,
-        onPreview: @escaping @Sendable (CGImage?) async -> Void,
-        onResult: @escaping @Sendable (GenerationResult) async throws -> Void
-    ) async throws {
-        guard let pipeline = pipeline else {
-            await onState(.error("Pipeline is not loaded."))
-            throw GeneratorError.pipelineNotAvailable
-        }
-        await onState(.loading(nil))
-        setGenerationStopped(false)
-        defer {
-            Task {
-                await onPreview(nil)
-            }
-        }
+        session.emit(.state(.loading(nil)))
 
         var pipelineConfig = StableDiffusionPipeline.Configuration(prompt: config.prompt)
         pipelineConfig.negativePrompt = config.negativePrompt
@@ -191,30 +187,31 @@ nonisolated final class SDImageGenerator: ImageGenerator {
 
         let useDenoisedIntermediates = pipelineConfig.useDenoisedIntermediates
         for _ in 0..<config.numberOfImages {
-            let images = try pipeline.generateImages(configuration: pipelineConfig) {
-                progress in
-
-                let progressUpdate = GenerationState.Progress(
-                    step: progress.step,
-                    stepCount: progress.stepCount
+            let images = try pipeline.generateImages(configuration: pipelineConfig) { progress in
+                // Synchronous, unlike the `Task { await onProgress(…) }` this
+                // replaces. Each of those was a separate unstructured task, so
+                // two progress updates could be applied out of order, and a task
+                // created during teardown could outlive the request. Emitting
+                // into the session's stream preserves order and is dropped at one
+                // checkpoint once the session closes.
+                session.emit(
+                    .progress(
+                        GenerationState.Progress(
+                            step: progress.step,
+                            stepCount: progress.stepCount
+                        )
+                    )
                 )
-                Task {
-                    await onProgress(progressUpdate, nil)
+                if useDenoisedIntermediates {
+                    session.emit(.preview(progress.currentImages.last.flatMap { $0 }))
                 }
-
-                let previewImage =
-                    useDenoisedIntermediates ? progress.currentImages.last.flatMap { $0 } : nil
-                Task {
-                    await onPreview(previewImage)
-                }
-
-                return !isGenerationStopped()
+                return !session.isCancelled
             }
-            if isGenerationStopped() {
+            if session.isCancelled {
                 break
             }
             for image in images {
-                guard let image = image else { continue }
+                guard let image else { continue }
                 sdi.image = image
                 sdi.aspectRatio = CGFloat(Double(image.width) / Double(image.height))
                 sdi.id = UUID()
@@ -227,10 +224,7 @@ nonisolated final class SDImageGenerator: ImageGenerator {
 
                 let type = UTType.fromString(config.imageType)
                 guard
-                    let data = await sdi.imageData(
-                        type,
-                        metadataFields: request.metadataFields
-                    )
+                    let data = await sdi.imageData(type, metadataFields: request.metadataFields)
                 else { continue }
                 let metadata = GenerationMetadata(
                     prompt: sdi.prompt,
@@ -252,43 +246,16 @@ nonisolated final class SDImageGenerator: ImageGenerator {
                     generatedDate: sdi.generatedDate,
                     metadataFields: request.metadataFields
                 )
-                let result = GenerationResult(metadata: metadata, imageData: data)
-                try await onResult(result)
+                try await onResult(GenerationResult(metadata: metadata, imageData: data))
             }
             pipelineConfig.seed += 1
         }
-        await onState(.ready(nil))
     }
 
-    func stopGenerate() async {
-        setGenerationStopped(true)
-    }
-
-    private func setGenerationStopped(_ value: Bool) {
-        generationStopLock.lock()
-        generationStopped = value
-        generationStopLock.unlock()
-    }
-
-    private func isGenerationStopped() -> Bool {
-        generationStopLock.lock()
-        let value = generationStopped
-        generationStopLock.unlock()
-        return value
-    }
-}
-
-// Safety invariant: GenerationService serializes generation calls, and cancellation state
-// mutation is synchronized with generationStopLock while migration away from class-based
-// generators is in progress.
-extension SDImageGenerator: @unchecked Sendable {}
-
-extension SDImageGenerator {
-    fileprivate func makeGenerationConfig(
+    private func makeConfig(
         from request: GenerationRequest,
-        payload: CoreMLGenerationPayload,
-        controlNets: [String]
-    ) -> SDGenerationConfig {
+        payload: CoreMLGenerationPayload
+    ) -> CoreMLGenerationConfig {
         let model = payload.model
         var startingImage: CGImage?
         var controlNetInputs: [CGImage] = []
@@ -299,7 +266,7 @@ extension SDImageGenerator {
                 startingImage = CGImage.fromData(data)?.scaledAndCroppedTo(size: size)
             }
 
-            for (name, data) in zip(controlNets, request.controlNetImageData) {
+            for (name, data) in zip(request.controlNetNames, request.controlNetImageData) {
                 guard let image = CGImage.fromData(data)?.scaledAndCroppedTo(size: size) else {
                     continue
                 }
@@ -308,7 +275,7 @@ extension SDImageGenerator {
             }
         }
 
-        return SDGenerationConfig(
+        return CoreMLGenerationConfig(
             prompt: request.prompt,
             negativePrompt: request.negativePrompt,
             startingImage: startingImage,

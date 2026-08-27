@@ -113,6 +113,32 @@ nonisolated enum EngineAvailability: Sendable, Equatable {
     case unreachable(String)
 }
 
+/// The stateful half of an engine: it runs one request at a time and owns
+/// whatever that costs — a loaded multi-gigabyte pipeline, a C context, a network
+/// session.
+///
+/// Deliberately does **not** have a `cancel` method. Cancellation lives on the
+/// ``GenerationSession`` the caller already holds, because a runtime that blocks
+/// its executor inside a synchronous `generateImages` could not accept a call
+/// until generation returned — cancellation would compile, and silently never
+/// arrive. See §11.2 of `Multi-Engine-Design.md`.
+///
+/// Results are an awaited throwing callback rather than an event, because the
+/// caller writes each image to disk before the engine produces the next one, and
+/// a failed write has to stop the generation.
+nonisolated protocol GenerationEngineRuntime: Sendable {
+    /// Runs `request` to completion, or until `session` is cancelled.
+    ///
+    /// Reports phase, progress and preview through `session`; hands each finished
+    /// image to `onResult`. Returning normally means the request is done —
+    /// including when it stopped early because the session was cancelled.
+    func run(
+        request: GenerationRequest,
+        session: GenerationSession,
+        onResult: @escaping @Sendable (GenerationResult) async throws -> Void
+    ) async throws
+}
+
 /// The immutable half of an engine: what it is, what models it has, and — from
 /// the next step — how it turns the UI's draft into a request payload.
 ///
@@ -151,6 +177,14 @@ nonisolated protocol GenerationEngineDescriptor: Sendable {
     /// place a draft is resolved against a model's constraints, at which point it
     /// starts rejecting unsupported values instead of quietly dropping them.
     func plan(draft: GenerationDraft, model: Model) throws -> GenerationPlan<Payload>
+
+    /// Makes the runtime that executes this engine's requests.
+    ///
+    /// Called once per engine and the result reused, so a loaded pipeline
+    /// survives between requests exactly as it did when the queue held the
+    /// generators itself. Separate from the descriptor so reading a model's name
+    /// never touches the thing holding the pipeline.
+    func makeRuntime() -> any GenerationEngineRuntime
 }
 
 /// Type-erased engine, so a heterogeneous registry can hold them.
@@ -168,6 +202,7 @@ nonisolated struct AnyGenerationEngine: Sendable, Identifiable {
     private let _plan:
         @Sendable (GenerationDraft, any EngineModel) throws -> GenerationPlan<any Sendable>
     private let _accepts: @Sendable (any Sendable) -> Bool
+    private let _makeRuntime: @Sendable () -> any GenerationEngineRuntime
 
     init<Engine: GenerationEngineDescriptor>(_ engine: Engine) {
         id = Engine.id
@@ -185,6 +220,7 @@ nonisolated struct AnyGenerationEngine: Sendable, Identifiable {
             return try engine.plan(draft: draft, model: typed).erased()
         }
         _accepts = { $0 is Engine.Payload }
+        _makeRuntime = { engine.makeRuntime() }
     }
 
     func availability(_ settings: EngineSettings) async -> EngineAvailability {
@@ -199,6 +235,10 @@ nonisolated struct AnyGenerationEngine: Sendable, Identifiable {
         -> GenerationPlan<any Sendable>
     {
         try _plan(draft, model)
+    }
+
+    func makeRuntime() -> any GenerationEngineRuntime {
+        _makeRuntime()
     }
 
     /// Whether `payload` is the kind this engine produces.

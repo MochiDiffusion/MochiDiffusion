@@ -8,18 +8,6 @@ import CoreML
 import Foundation
 import os
 
-protocol ImageGenerator: Sendable {
-    func generate(
-        request: GenerationRequest,
-        onState: @escaping @Sendable (GenerationState.Status) async -> Void,
-        onProgress: @escaping @Sendable (GenerationState.Progress, Double?) async -> Void,
-        onPreview: @escaping @Sendable (CGImage?) async -> Void,
-        onResult: @escaping @Sendable (GenerationResult) async throws -> Void
-    ) async throws
-
-    func stopGenerate() async
-}
-
 actor GenerationService {
     struct Snapshot: Sendable {
         var queue: [GenerationRequest]
@@ -32,12 +20,20 @@ actor GenerationService {
     private var queue: [GenerationRequest] = []
     private var current: GenerationRequest?
     private var cancelingCurrentID: GenerationRequest.ID?
-    private var currentGenerator: ImageGenerator?
+    /// The running request's cancellation flag and event route. Held so
+    /// ``stopCurrentGeneration()`` can cancel without calling into a runtime that
+    /// is blocked inside a synchronous generate.
+    private var currentSession: GenerationSession?
     private var processingTask: Task<Void, Never>?
     private var continuations: [UUID: AsyncStream<Snapshot>.Continuation] = [:]
     private var resultContinuations: [UUID: AsyncStream<GenerationResult>.Continuation] = [:]
-    private let sdGenerator = SDImageGenerator()
-    private let irisFluxKleinGenerator = IrisFluxKleinImageGenerator()
+    /// One runtime per engine, made on first use and kept.
+    ///
+    /// Keeping them is what preserves the old behaviour of a warm Core ML
+    /// pipeline between requests: the generators used to be stored properties
+    /// here, so the pipeline cache outlived a single request. Making them lazily
+    /// means an engine nobody generates with never allocates its runtime.
+    private var runtimes: [EngineID: any GenerationEngineRuntime] = [:]
     private var nextImageIndex = 1
     private var didEmitResultForCurrentRequest = false
     private let imageRepository: ImageRepository
@@ -116,7 +112,10 @@ actor GenerationService {
         cancelingCurrentID = current.id
         broadcastSnapshot()
         await updateGenerationState(.canceling(nil))
-        await currentGenerator?.stopGenerate()
+        // Synchronous, and it does not touch the runtime. A runtime blocked
+        // inside `generateImages` or `iris_generate` could not have accepted a
+        // call, which is why cancellation lives on the session (§11.2).
+        currentSession?.cancel()
     }
 
     func updateStatus(_ status: GenerationState.Status) async {
@@ -136,41 +135,23 @@ actor GenerationService {
         while !queue.isEmpty {
             let request = queue.removeFirst()
             current = request
-            currentGenerator = nil
             didEmitResultForCurrentRequest = false
             broadcastSnapshot()
 
-            // Selected by engine rather than by unwrapping a pipeline case.
-            // Phase 3 replaces this with the engine's own runtime, which is what
-            // should own the generator, its loaded state, and its cancellation.
-            let generator: ImageGenerator
-            switch request.modelID.engine {
-            case .coreMLStableDiffusion:
-                if let model = (request.payload as? CoreMLGenerationPayload)?.model,
-                    !(await modelRepository.modelExists(model))
-                {
-                    logger.error("Couldn't load \(request.displayName) because it doesn't exist.")
-                    await updateStatus(
-                        .ready(
-                            "Couldn't load \(request.displayName) because it doesn't exist."
-                        )
-                    )
-                    await finishCurrentRequest(request.id, restoreReadyAfterCancel: false)
-                    continue
-                }
-                generator = sdGenerator
-            case .iris:
-                generator = irisFluxKleinGenerator
-            default:
-                logger.error("no generator for engine \(request.modelID.engine.rawValue)")
-                await updateStatus(
-                    .error("There is no generator for \(request.displayName).")
-                )
+            // No switch over engines, and no `default:` arm that turned a missing
+            // engine into a runtime error. The registry answers which engine owns
+            // the request, and the engine makes its own runtime, so adding an
+            // engine no longer means editing the queue.
+            guard let engine = engineRegistry.engine(request.modelID.engine) else {
+                logger.error("no engine registered for \(request.modelID.description)")
+                await updateStatus(.error("There is no engine for \(request.displayName)."))
                 await finishCurrentRequest(request.id, restoreReadyAfterCancel: false)
                 continue
             }
+            let runtime = runtime(for: engine)
 
-            currentGenerator = generator
+            let session = GenerationSession(requestID: request.id)
+            currentSession = session
             var restoreReadyAfterCancel = false
             do {
                 let outputDirectory = try await imageRepository.ensureOutputDirectory(
@@ -180,6 +161,7 @@ actor GenerationService {
 
                 if isCancelRequested(for: request.id) {
                     restoreReadyAfterCancel = true
+                    session.close()
                     await finishCurrentRequest(
                         request.id,
                         restoreReadyAfterCancel: restoreReadyAfterCancel
@@ -187,43 +169,65 @@ actor GenerationService {
                     continue
                 }
 
-                try await generator.generate(
-                    request: request,
-                    onState: { [weak self] status in
-                        await self?.handleGeneratorStateUpdate(status, for: request.id)
-                    },
-                    onProgress: { [weak self] progress, _ in
-                        await self?.handleGeneratorProgressUpdate(progress, for: request.id)
-                    },
-                    onPreview: { [weak self] image in
-                        await self?.handleGeneratorPreviewUpdate(image, for: request.id)
-                    },
-                    onResult: { [weak self] result in
-                        guard let self else { return }
-                        let filenameWithoutExtension = await self.nextFilename(
-                            for: result.metadata
-                        )
-                        guard
-                            let path = await imageRepository.writeImage(
-                                filenameWithoutExtension: filenameWithoutExtension,
-                                imageData: result.imageData,
-                                imageDir: outputDirectory.path(percentEncoded: false),
-                                imageType: request.imageType
-                            )
-                        else {
-                            throw SDImageGenerator.GeneratorError.imageDirectoryNoAccess
-                        }
-                        let savedResult = GenerationResult(
-                            id: result.id,
-                            metadata: result.metadata,
-                            imageData: result.imageData,
-                            imageURL: path
-                        )
-                        await self.emitResultForCurrentRequest(savedResult)
+                // One task drains the session's events in order, for the whole
+                // request. Previously each callback spawned its own task, so two
+                // progress updates had no defined order between them.
+                let forwarding = Task { [weak self] in
+                    for await event in session.events {
+                        await self?.apply(event, for: request.id)
                     }
-                )
+                }
+                // Not a `defer`: closing the stream and joining the drain has to
+                // happen on both the success and failure paths, and `defer` cannot
+                // await. The outcome is held and rethrown afterwards so the
+                // existing per-error handling below still sees it.
+                let outcome: Result<Void, any Error>
+                do {
+                    try await runtime.run(
+                        request: request,
+                        session: session,
+                        onResult: { [weak self] result in
+                            guard let self else { return }
+                            let filenameWithoutExtension = await self.nextFilename(
+                                for: result.metadata
+                            )
+                            guard
+                                let path = await imageRepository.writeImage(
+                                    filenameWithoutExtension: filenameWithoutExtension,
+                                    imageData: result.imageData,
+                                    imageDir: outputDirectory.path(percentEncoded: false),
+                                    imageType: request.imageType
+                                )
+                            else {
+                                throw GenerationError.imageDirectoryNoAccess
+                            }
+                            let savedResult = GenerationResult(
+                                id: result.id,
+                                metadata: result.metadata,
+                                imageData: result.imageData,
+                                imageURL: path
+                            )
+                            await self.emitResultForCurrentRequest(savedResult)
+                        }
+                    )
+                    outcome = .success(())
+                } catch {
+                    outcome = .failure(error)
+                }
+                // Finish the stream rather than cancelling the drain, so events
+                // already emitted are still applied, then wait for the drain to
+                // end. Past this point no event from this request can be in
+                // flight, which is what lets the next request reuse the UI state.
+                session.close()
+                await forwarding.value
+                try outcome.get()
+                // The runtime no longer reports its own terminal state, so a
+                // dropped event cannot leave the UI stuck mid-generation.
+                if !isCancelRequested(for: request.id) {
+                    await updateStatus(.ready(nil))
+                }
                 restoreReadyAfterCancel = true
-            } catch SDImageGenerator.GeneratorError.requestedModelNotFound {
+            } catch GenerationError.requestedModelNotFound {
                 logger.error("Couldn't load \(request.displayName) because it doesn't exist.")
                 await updateStatus(
                     .ready("Couldn't load \(request.displayName) because it doesn't exist."))
@@ -232,12 +236,12 @@ actor GenerationService {
                 await updateStatus(
                     .error("Couldn't access images folder at: \(path)")
                 )
-            } catch SDImageGenerator.GeneratorError.imageDirectoryNoAccess {
+            } catch GenerationError.imageDirectoryNoAccess {
                 logger.error("Couldn't save image to images folder.")
                 await updateStatus(
                     .error("Couldn't save image to the images folder.")
                 )
-            } catch SDImageGenerator.GeneratorError.pipelineNotAvailable {
+            } catch GenerationError.pipelineNotAvailable {
                 logger.error("Pipeline is not available.")
                 await updateStatus(
                     .ready("There was a problem loading pipeline."))
@@ -255,7 +259,7 @@ actor GenerationService {
 
         current = nil
         cancelingCurrentID = nil
-        currentGenerator = nil
+        currentSession = nil
         broadcastSnapshot()
         await NotificationController.shared.sendQueueEmptyNotification()
     }
@@ -264,6 +268,31 @@ actor GenerationService {
         await MainActor.run {
             GenerationState.shared.state = status
         }
+    }
+
+    /// Applies one event from the running session.
+    ///
+    /// The single checkpoint an event from a finished or cancelled request is
+    /// dropped at, instead of the same two guards repeated in three handlers.
+    private func apply(_ event: GenerationEvent, for requestID: GenerationRequest.ID) async {
+        switch event {
+        case .state(let status):
+            await handleGeneratorStateUpdate(status, for: requestID)
+        case .progress(let progress):
+            await handleGeneratorProgressUpdate(progress, for: requestID)
+        case .preview(let image):
+            await handleGeneratorPreviewUpdate(image, for: requestID)
+        }
+    }
+
+    /// The runtime for `engine`, made on first use.
+    private func runtime(for engine: AnyGenerationEngine) -> any GenerationEngineRuntime {
+        if let existing = runtimes[engine.id] {
+            return existing
+        }
+        let runtime = engine.makeRuntime()
+        runtimes[engine.id] = runtime
+        return runtime
     }
 
     private func handleGeneratorStateUpdate(
@@ -383,7 +412,7 @@ actor GenerationService {
         }
 
         if current?.id == requestID {
-            currentGenerator = nil
+            currentSession = nil
         }
         didEmitResultForCurrentRequest = false
     }
