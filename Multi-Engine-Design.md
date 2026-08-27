@@ -536,11 +536,14 @@ Phase 4 implemented only the constraint kinds the two local engines need, which 
 right call — but it means **Phase 6 begins with a constraint-vocabulary extension, not an
 API client.** Two specific gaps:
 
-- **`SizeConstraint` has no aspect-ratio case.** It is `.pinned([CGSize])` or
-  `.freeform(range:step:)`. §6's original sketch listed `.aspectRatios([...])`; nothing
-  needed it, so nothing was built. If the hosted API expresses geometry as ratios rather
-  than pixel dimensions, that case has to be added, and `SizeView` has to grow a third
-  presentation beyond "fixed field" and "editable field".
+- **`SizeConstraint` cannot express a joint width/height rule.** It is `.pinned([CGSize])`
+  or `.freeform(range:step:)`, and `.freeform` bounds each dimension independently.
+  **Resolved by the Phase 6 research (§13.2, D1): an `.aspectRatios` case is *not* what is
+  needed.** The hosted API takes pixel `WIDTHxHEIGHT` with both edges multiples of 16 —
+  which `.freeform(range:step:)` already says — but also caps the long:short ratio and
+  bounds total pixels, and those are joint constraints on the pair. So `.freeform` grows
+  limits, and `resolved(_:)` becomes the first one that must move both dimensions. `SizeView`
+  needs no third presentation.
 - **`EngineModel.url` is non-optional, and `tokenizerModelDir` is on the protocol.** Both
   exist because every model is a local directory today; a hosted model has neither. §5.2
   specified `url: URL?` and it was implemented non-optional — the protocol's own doc comment
@@ -840,7 +843,7 @@ Confidence labels are honest signals about how much these should be trusted.
 | 4a | Constraints model; `plan` as the sole resolution point; request carries resolved values | none | **done** |
 | 4b | Sidebar driven from constraints; size swap routed through the engine | unsupported controls hide; step count stops lying | **done** |
 | 5 | Engine picker, `EngineSettingsStore`, per-engine selected model, Settings restructure, coalesced discovery (§7). Shared `ModelDir`; **no** per-engine model directories | the feature as described | **done** |
-| 6 | OpenAI engine: Keychain, indeterminate progress, richer errors | first hosted engine | sketch |
+| 6 | OpenAI engine. Decisions settled in §13.2 (D1–D10): joint size limits, streamed previews, idle timeout, refusal-is-not-an-error, one call per image, png-then-re-encode, keyless availability check, static model list | first hosted engine | **decided, not started** |
 | 7 | MediaGenerationKit prototype, then local/remote integration | | direction only |
 | 8 | Declarative long-tail options | | direction only |
 
@@ -1466,8 +1469,12 @@ per phase. Until then it actively misleads anyone starting from it.
 The app is **not** sandboxed (`MochiDiffusion.entitlements` is empty), so no network
 entitlement is required. Everything else needs work:
 
-- **No progress or preview frames.** `GenerationState.Progress` and the `onPreview`
-  stream assume step-by-step denoising. An indeterminate mode is needed.
+- **Progress and preview frames may or may not exist — do not assume they are absent.**
+  `GenerationState.Progress` and the `onPreview` stream assume step-by-step denoising, and
+  an indeterminate mode is needed for services that report nothing. But this is a
+  per-service question, not a property of "hosted": the OpenAI API streams up to three
+  partial images with a 0-based index, which feeds `onPreview` and a truthful `Progress`
+  directly (§13.2, D2). The indeterminate case is narrower than it looks — see D3.
 - **Cancellation differs.** Cancelling local waiting may not cancel remote computation or
   avoid a charge. The UI wording must be honest about that.
 - **API keys belong in the Keychain**, and out of persisted requests, logs, metadata, and
@@ -1488,29 +1495,203 @@ entitlement is required. Everything else needs work:
   `_dt-grpc._tcp.` in domain `local.` (`GRPCServiceBrowser` uses `NetServiceBrowser`), and
   the server's default port is 7859. That service type is what goes in `NSBonjourServices`.
 
-### 13.2 OpenAI
+### 13.2 OpenAI — decided before Phase 6
 
-Do not hard-code an assumption about aspect ratios versus concrete sizes. **Correction:
-the constraint vocabulary does *not* currently cover both** — an earlier revision of this
-section said it did, which was true of §6's original sketch and false of what Phase 4
-built. `SizeConstraint` is `.pinned([CGSize])` or `.freeform(range:step:)` only, and there
-is no `quality` constraint at all. See "The vocabulary is narrower than a hosted engine
-needs" in §6. Model capabilities also change independently of our release
-schedule. Treat model IDs and model-specific options as API-derived engine data where
-practical, and revalidate allowed models, sizes, quality levels, output formats and edit
-inputs against current official documentation at implementation time.
+Researched 2026-08-27 against the live documentation, in the same spirit as the Phase 4
+decisions pass. Sources: the [image generation
+guide](https://developers.openai.com/api/docs/guides/image-generation), the [generation
+streaming events
+reference](https://developers.openai.com/api/reference/resources/images/generation-streaming-events),
+and the [gpt-image-2 model page](https://developers.openai.com/api/docs/models/gpt-image-2).
+
+**Provenance caveat.** The numeric limits below were read out of the guide page by a
+summarising fetch, not transcribed from a table by hand. Treat the *shape* of each decision
+as settled and re-confirm the exact numbers against the reference when writing the client.
+Nothing below depends on a number being exactly right; several decisions depend on the
+shape, which is why they can be made now.
+
+#### Verified API surface
+
+- **Model:** `gpt-image-2` (dated alias `gpt-image-2-2026-04-21`, released 2026-04-21).
+  Earlier models — `gpt-image-1.5`, `gpt-image-1`, `gpt-image-1-mini` — still exist and had
+  narrower geometry.
+- **`size`:** an arbitrary `WIDTHxHEIGHT` string, or `auto`. Both edges multiples of 16;
+  maximum edge 3840; long-edge-to-short-edge ratio at most 3:1; total pixels between
+  655,360 and 8,294,400. Presets: 1024x1024, 1536x1024, 1024x1536, 2048x2048, 3840x2160.
+- **`quality`:** `low`, `medium`, `high`, `auto` (default).
+- **`output_format`:** `png` (default), `jpeg`, `webp`. `output_compression` 0–100 applies
+  to jpeg and webp only.
+- **`background`:** `transparent`, `opaque`, `auto`.
+- **`moderation`:** `auto` (default) or `low`.
+- **`n`:** more than one image per request, default 1.
+- **`partial_images`:** 0–3. With streaming, `image_generation.partial_image` events carry
+  `b64_json` and a 0-based `partial_image_index` (no total), and
+  `image_generation.completed` carries the final image plus a `usage` breakdown of input,
+  output and total tokens. No error event is documented.
+- **Response:** base64 image data, not a URL.
+- **`revised_prompt`** is documented on the Responses API image tool. It was *not* confirmed
+  on the Images API response. Verify before adding the metadata field.
+
+#### D1 — Geometry needs a joint constraint, not an aspect-ratio case
+
+**This corrects §6.** The gap is not a missing `.aspectRatios` case: `size` is
+width-by-height in pixels, and "both edges multiples of 16" is exactly what
+`SizeConstraint.freeform(range:step:)` already expresses. What `.freeform` cannot express is
+that the ratio cap and the pixel budget are *joint* constraints on width × height, while
+`.freeform` bounds each dimension independently.
+
+So `SizeConstraint.freeform` grows limits — a maximum long:short ratio and minimum/maximum
+total pixels — rather than gaining a new case. Two consequences:
+
+- **`resolved(_:)` must be able to move both dimensions.** Every existing constraint clamps
+  one number at a time. Here a pair can each be individually legal and jointly illegal.
+  Decision: clamp each dimension to range and step first, then while the ratio or pixel
+  budget is violated, reduce the **long** edge and leave the short one alone. Deterministic,
+  predictable, and it never silently grows an image the user asked to be smaller.
+- **A hosted model's floor is far above a local one's.** A 655,360-pixel minimum rules out
+  most sizes a Core ML model offers. Per-model constraints already handle this; it is worth
+  noting because it is the first model whose *minimum* is interesting rather than its
+  maximum.
+
+`auto` is deliberately not modelled. Mochi always has a concrete size to send, and letting
+the service choose would put a value in the metadata that the sidebar never showed.
+
+#### D2 — Previews work; §13.1's "no preview frames" is wrong for this API
+
+`partial_images` up to 3, each event carrying `b64_json`, feeds `onPreview` directly. So a
+hosted engine is not preview-less, and `showGenerationPreview` maps cleanly: request
+`partial_images: 3` when it is on, `0` when it is off. That is the same switch
+`useDenoisedIntermediates` already performs for Iris.
+
+Progress is honest too. `partial_image_index` has no total, but *we* choose the total, so
+`Progress(step: index, stepCount: requested)` is accurate rather than invented.
+
+#### D3 — Indeterminate progress is still needed, but only for one window
+
+With D2 the indeterminate case shrinks to the wait before the first partial arrives, plus
+whenever previews are off. The representation already exists — `Status.running(nil)` — and
+the real defect is that all three renderers (`GalleryToolbarView`, `GalleryPreviewView`,
+`JobQueueView`) test `if case .running(let p) = state, let p, p.stepCount > 0` and fall
+through otherwise, so `.running(nil)` draws nothing and the UI looks idle while a job is in
+flight. Decision: render an indeterminate spinner. Three view sites, no new state.
+
+#### D4 — An idle timeout, not a wall-clock budget
+
+Streaming makes the better-shaped decision available: a 3840x2160 high-quality generation
+may legitimately take minutes, so a total-duration budget is either useless or a footgun.
+What is unambiguously wrong is a stream that stops producing events. Decision: bound the gap
+*between* events, not the whole request.
+
+- **Lives on the runtime**, not in `EngineSettings` or a constraint. It is a property of the
+  transport, not of the model or of anything the user should tune.
+- **Local engines get none.** A wedged Core ML load is a bug to fix, and any bound loose
+  enough for a slow 9B Klein generation is too loose to catch anything.
+- **Not cancellation.** `session.cancel()` means "the user asked to stop", and reusing it
+  would make an expired request indistinguishable from a deliberate one in the queue
+  snapshot. Expiry needs its own terminal state.
+- **The clock starts when the request starts**, not when it is enqueued. With a serial queue
+  a hosted request can sit behind a long local job for minutes; starting the clock at enqueue
+  would expire a queue of hosted jobs en masse.
+- **Expiry must release the drain exactly as completion does.** This is the `dc209e9` bug
+  class — a failure path that leaves the queue unable to start again — and it is the single
+  most important thing to get right here.
+
+#### D5 — A refusal is not an error
+
+`GenerationError` is entirely filesystem-shaped (`imageDirectoryNoAccess`,
+`modelDirectoryNoAccess`, `noModelsFound`, `pipelineNotAvailable`,
+`requestedModelNotFound`). It gains hosted cases: authentication failure, rate limit,
+transient service error, request expired.
+
+A content-policy refusal is **not** among them. The call succeeded and the service told us
+something; routing that through `.error` makes a normal outcome look like a malfunction.
+Decision: refusals surface as a message against the request, in the same register as
+"Couldn't load <model>", not as a red banner.
+
+`usage` on the completed event means cost could be surfaced. Decision: not in Phase 6.
+Recording token counts in image metadata would make it a permanent part of the export
+contract for a number nobody has asked for.
+
+#### D6 — One API call per image; keep the runtime loop
+
+Both existing runtimes loop `for _ in 0..<numberOfImages` and yield results one at a time.
+Decision: the hosted runtime does the same, with `n: 1`, rather than sending `n: 5`.
+
+- Cancellation granularity is the money argument: stopping after image 2 of 5 should cost
+  two images, not five.
+- Results already stream into the gallery one at a time; `n > 1` would hold them all until
+  the end.
+- `partial_images` previews are per-call, so batching would lose previews for all but one.
+
+#### D7 — Request `png`, then re-encode through the existing path
+
+There is an apparent mismatch — Mochi's `imageType` is png, jpeg or **heic**, while the API
+offers png, jpeg and **webp** — and it dissolves on inspection. Both runtimes already build
+an `SDImage` and call `imageData(type, metadataFields:)`, because Mochi embeds its own
+metadata into the file and the service's bytes carry none. A hosted engine must decode and
+re-encode regardless.
+
+So: request `output_format: png` (lossless, transparency-capable, and the default), decode to
+a `CGImage`, and hand it to the same encode path. All three of Mochi's output types keep
+working, including HEIC. Passing service bytes straight to disk would be the mistake — it
+would produce a file with no Mochi metadata and, for HEIC, a misleading extension.
+
+`background: transparent` is not modelled in Phase 6. It needs png or webp output and a new
+option kind, and nothing in the sidebar expresses transparency today.
+
+#### D8 — Check for the key without reading it
+
+`availability` is consulted on every discovery pass, so it must answer "is a key
+configured?" without fetching the secret — a Keychain read can prompt, and a credential
+fetch does not belong on the discovery path. Decision: `SecItemCopyMatching` with
+`kSecReturnData: false` for the existence check. Preferred over mirroring a "key is set"
+flag into `EngineSettingsStore`, which would be a second source of truth that can drift from
+the Keychain.
+
+#### D9 — Model discovery is a static list
+
+`/v1/models` returns every model the account can see and does not mark which are
+image-capable, so it cannot drive the picker. Decision: the engine reports a hand-maintained
+list of known image models, each with its own constraints, and `availability` reports
+`.needsConfiguration` when no key is present. Revisit if a capability-filtered endpoint
+appears.
+
+This is also where `EngineModel.url` being non-optional bites — see §6.
+
+#### D10 — Still deferred, deliberately
+
+- **Concurrency stays serial** (§11.7). D4's idle timeout bounds the damage.
+- **Discovery messages still share the generation banner** (§15's open item). This is the
+  phase where it stops being cosmetic, since a hosted engine produces availability messages
+  and generation errors in roughly equal number. Fix it in Phase 6, not after.
+- **`moderation: low`** is not exposed. It is an account-policy decision, not a per-image
+  one, and it belongs in Settings if anywhere.
 
 ### 13.3 Draw Things / MediaGenerationKit
 
 Verified 2026-08-26 against `drawthingsai/media-generation-kit` and
-`drawthingsai/draw-things-community` at `main`.
+`drawthingsai/draw-things-community` at `main`. The option-mapping subsections from
+"The configuration surface" onward are a second pass, 2026-08-27, against the same two
+repositories at `main` plus the live catalogs at `models.drawthings.ai`.
 
-**Licensing is settled, but name the whole chain.** MediaGenerationKit's own wrapper is
-LGPL-3.0. It is a façade: its single library target depends on `_MediaGenerationKit`, a
-product of `drawthingsai/draw-things-community`, which is **GPL-v3**. Mochi Diffusion is
-GPLv3, so linking GPL-3 code is fine and this needs no further legal review — but do not
-record it as "an LGPL dependency." The transitive reality is GPL-3, and that forecloses
-any future relicensing conversation.
+**Licensing is settled either way, but the earlier reading was too strong.**
+MediaGenerationKit's own wrapper is LGPL-3.0, and it is a façade: its single library target
+depends on `_MediaGenerationKit`, a product of `drawthingsai/draw-things-community`, whose
+repository is GPL-v3. An earlier revision of this section concluded from that graph alone
+that "the transitive reality is GPL-3" and that any future relicensing conversation was
+therefore foreclosed.
+
+That does not survive reading MGK's own license note. It states that the code and
+dependencies which cross from `draw-things-community` into the `media-generation-kit`
+distribution are **relicensed under LGPLv3 as part of that package**, and says the intent is
+explicitly *not* to force GPLv3-style licensing onto downstream applications. So the
+artifact we would link is offered as LGPL-3 over a GPL-3 upstream, not as GPL-3.
+
+Our decision does not change — Mochi Diffusion is GPLv3, and GPL-3 and LGPL-3 are both fine
+to link, so this still needs no further legal review. What changes is that the doc must not
+assert the stronger claim. Record it as "LGPL-3 as distributed, over a GPL-3 upstream," and
+if relicensing ever matters, read the note at the revision we actually pin rather than
+inferring from the upstream repository's license file.
 
 **Dependency weight is a first-class risk, alongside maturity.** MGK's `Package.swift`
 declares one library target wrapping `_MediaGenerationKit`; the real payload is
