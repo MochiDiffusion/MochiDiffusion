@@ -192,8 +192,47 @@ struct EnginePickerTests {
         configStore.controlNetDir = controlNetDir.path(percentEncoded: false)
     }
 
-    private func makeController() -> GenerationController {
-        GenerationController(configStore: configStore, startsObserving: false)
+    private func makeController(
+        engineRegistry: EngineRegistry = EngineRegistry()
+    ) -> GenerationController {
+        GenerationController(
+            configStore: configStore,
+            engineRegistry: engineRegistry,
+            startsObserving: false
+        )
+    }
+
+    /// Reports itself ready and then fails to list anything — the shape of a folder
+    /// that exists but cannot be read, and of a hosted engine whose credentials are
+    /// accepted but whose request fails.
+    private struct ReadyButFailingEngine: GenerationEngineDescriptor {
+        struct Model: EngineModel {
+            let id: ModelID
+            let url: URL
+            let name: String
+            var constraints: OptionConstraints { .unconstrained }
+            var metadataFields: Set<MetadataField> { [.prompt] }
+            var tokenizerModelDir: URL? { nil }
+        }
+        struct Payload: Sendable {}
+        struct Failure: Error {}
+
+        static let id = EngineID(rawValue: "ready-but-failing")
+        var displayName: String { "Ready But Failing" }
+
+        func availability(_ settings: EngineSettings) async -> EngineAvailability { .ready }
+
+        func discoverModels(_ context: ModelDiscoveryContext) async throws -> [Model] {
+            throw Failure()
+        }
+
+        func plan(draft: GenerationDraft, model: Model) throws -> GenerationPlan<Payload> {
+            throw Failure()
+        }
+
+        func makeRuntime() -> any GenerationEngineRuntime {
+            fatalError("never runs")
+        }
     }
 
     /// One Core ML model and one Klein model, named so the Core ML one sorts first.
@@ -332,6 +371,45 @@ struct EnginePickerTests {
         #expect(controller.engines.map(\.id) == [.iris, .coreMLStableDiffusion])
         #expect(controller.engineAvailability[.iris] == .ready)
         #expect(controller.engineAvailability[.coreMLStableDiffusion] == .ready)
+    }
+
+    /// The picker distinguishes "there are none" from "we could not look". Before
+    /// this was merged in, a folder that existed but could not be read answered
+    /// `.ready` from `availability`, failed in discovery, and was reported as
+    /// "No models found" — sending the user after missing models when the folder
+    /// was the problem.
+    @Test("A discovery failure is reported as unreachable, not as an empty engine")
+    func discoveryFailureIsNotReportedAsEmpty() async throws {
+        try makeSDModelFixture(at: modelDir.appending(path: "a-coreml"))
+        let controller = makeController(
+            engineRegistry: EngineRegistry(engines: [
+                AnyGenerationEngine(CoreMLStableDiffusionEngine()),
+                AnyGenerationEngine(ReadyButFailingEngine()),
+            ])
+        )
+
+        await controller.loadModels()
+
+        #expect(
+            controller.engineAvailability[ReadyButFailingEngine.id]
+                == .unreachable("Models could not be read")
+        )
+        // The engine that worked is unaffected.
+        #expect(controller.engineAvailability[.coreMLStableDiffusion] == .ready)
+        #expect(controller.models.map(\.name) == ["a-coreml"])
+    }
+
+    /// An engine that is genuinely empty still reads as ready, so the two cases stay
+    /// distinguishable in both directions.
+    @Test("An engine that simply has no models stays ready")
+    func emptyEngineStaysReady() async throws {
+        try makeSDModelFixture(at: modelDir.appending(path: "a-coreml"))
+        let controller = makeController()
+
+        await controller.loadModels()
+
+        #expect(controller.engineAvailability[.iris] == .ready)
+        #expect(controller.hasModels(.iris) == false)
     }
 
     @Test("A missing models folder reports both engines as unreachable")

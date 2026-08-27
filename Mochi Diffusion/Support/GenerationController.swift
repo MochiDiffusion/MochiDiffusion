@@ -184,10 +184,24 @@ final class GenerationController {
                 controlNetDirectory: controlNetDirectoryURL
             )
             let discoveries = await engineRegistry.discoverAll(settings: settings)
-            engineAvailability = await engineRegistry.availability(settings)
+            var availability = await engineRegistry.availability(settings)
+            // A discovery failure is an availability failure, and has to be merged
+            // in or it is lost. `availability` only asks whether the models folder
+            // exists, so a folder that exists but cannot be read answers `.ready`,
+            // discovery then throws, and the picker — finding an engine that is
+            // ready with no models — reports "No models found". That sends the user
+            // looking for missing models when the problem is the folder, which is
+            // exactly the distinction §8 asks each engine to make for itself.
             for (engine, error) in discoveries.failures {
-                logger.error("\(engine.rawValue) found no models: \(error)")
+                logger.error("\(engine.rawValue) discovery failed: \(error)")
+                availability[engine] = .unreachable(
+                    String(
+                        localized: "Models could not be read",
+                        comment: "Engine unavailable because listing its models failed"
+                    )
+                )
             }
+            engineAvailability = availability
 
             let discoveredModels = discoveries.allModels
             // Assigned before the check below, so a pass that finds nothing empties
