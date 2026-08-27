@@ -8,27 +8,116 @@ import UniformTypeIdentifiers
 
 @MainActor
 @Observable final class ConfigStore {
-    @ObservationIgnored @AppStorage("ImageDir") private var _imageDir = ""
-    @ObservationIgnored @AppStorage("ImageType") private var _imageType =
-        UTType.png.preferredFilenameExtension!
-    @ObservationIgnored @AppStorage("ModelDir") private var _modelDir = ""
-    @ObservationIgnored @AppStorage("ControlNetDir") private var _controlNetDir = ""
-    @ObservationIgnored @AppStorage("Model") private var _modelId: URL?
-    @ObservationIgnored @AppStorage("Prompt") private var _prompt = ""
-    @ObservationIgnored @AppStorage("NegativePrompt") private var _negativePrompt = ""
-    @ObservationIgnored @AppStorage("ImageStrength") private var _strength = 0.75
-    @ObservationIgnored @AppStorage("Steps") private var _steps = 12.0
-    @ObservationIgnored @AppStorage("Scale") private var _guidanceScale = 11.0
-    @ObservationIgnored @AppStorage("ImageWidth") private var _width = 512
-    @ObservationIgnored @AppStorage("ImageHeight") private var _height = 512
-    @ObservationIgnored @AppStorage("Scheduler") private var _scheduler: Scheduler =
-        .dpmSolverMultistepScheduler
-    @ObservationIgnored @AppStorage("ShowGenerationPreview") private var _showGenPreview = true
-    @ObservationIgnored @AppStorage("MLComputeUnitPreference") private var _mlComputeUnitPreference:
-        ComputeUnitPreference = .auto
-    @ObservationIgnored @AppStorage("ReduceMemory") private var _reduceMemory = false
-    @ObservationIgnored @AppStorage("SafetyChecker") private var _safetyChecker = false
-    @ObservationIgnored @AppStorage("UseTrash") private var _useTrash = true
+    /// Storage keys, named once so ``init(store:)`` and tests cannot drift from
+    /// the property wrappers.
+    enum Key {
+        static let imageDir = "ImageDir"
+        static let imageType = "ImageType"
+        static let modelDir = "ModelDir"
+        static let controlNetDir = "ControlNetDir"
+        static let modelId = "Model"
+        static let prompt = "Prompt"
+        static let negativePrompt = "NegativePrompt"
+        static let strength = "ImageStrength"
+        static let steps = "Steps"
+        static let guidanceScale = "Scale"
+        static let width = "ImageWidth"
+        static let height = "ImageHeight"
+        static let scheduler = "Scheduler"
+        static let showGenerationPreview = "ShowGenerationPreview"
+        static let mlComputeUnitPreference = "MLComputeUnitPreference"
+        static let reduceMemory = "ReduceMemory"
+        static let safetyChecker = "SafetyChecker"
+        static let useTrash = "UseTrash"
+    }
+
+    /// Declared once for the same reason. `init(store:)` has to restate every
+    /// default when it rebinds the wrappers, and a default that drifts from its
+    /// declaration would be visible only under an injected store — that is, only
+    /// in tests, and as a wrong expected value rather than a failure.
+    private enum Default {
+        static let imageDir = ""
+        static let imageType = UTType.png.preferredFilenameExtension!
+        static let modelDir = ""
+        static let controlNetDir = ""
+        static let prompt = ""
+        static let negativePrompt = ""
+        static let strength = 0.75
+        static let steps = 12.0
+        static let guidanceScale = 11.0
+        static let width = 512
+        static let height = 512
+        static let scheduler = Scheduler.dpmSolverMultistepScheduler
+        static let showGenerationPreview = true
+        static let mlComputeUnitPreference = ComputeUnitPreference.auto
+        static let reduceMemory = false
+        static let safetyChecker = false
+        static let useTrash = true
+    }
+
+    @ObservationIgnored @AppStorage(Key.imageDir) private var _imageDir = Default.imageDir
+    @ObservationIgnored @AppStorage(Key.imageType) private var _imageType = Default.imageType
+    @ObservationIgnored @AppStorage(Key.modelDir) private var _modelDir = Default.modelDir
+    @ObservationIgnored @AppStorage(Key.controlNetDir) private var _controlNetDir =
+        Default.controlNetDir
+    @ObservationIgnored @AppStorage(Key.modelId) private var _modelId: URL?
+    @ObservationIgnored @AppStorage(Key.prompt) private var _prompt = Default.prompt
+    @ObservationIgnored @AppStorage(Key.negativePrompt) private var _negativePrompt =
+        Default.negativePrompt
+    @ObservationIgnored @AppStorage(Key.strength) private var _strength = Default.strength
+    @ObservationIgnored @AppStorage(Key.steps) private var _steps = Default.steps
+    @ObservationIgnored @AppStorage(Key.guidanceScale) private var _guidanceScale =
+        Default.guidanceScale
+    @ObservationIgnored @AppStorage(Key.width) private var _width = Default.width
+    @ObservationIgnored @AppStorage(Key.height) private var _height = Default.height
+    @ObservationIgnored @AppStorage(Key.scheduler) private var _scheduler = Default.scheduler
+    @ObservationIgnored @AppStorage(Key.showGenerationPreview) private var _showGenPreview =
+        Default.showGenerationPreview
+    @ObservationIgnored @AppStorage(Key.mlComputeUnitPreference)
+    private var _mlComputeUnitPreference = Default.mlComputeUnitPreference
+    @ObservationIgnored @AppStorage(Key.reduceMemory) private var _reduceMemory =
+        Default.reduceMemory
+    @ObservationIgnored @AppStorage(Key.safetyChecker) private var _safetyChecker =
+        Default.safetyChecker
+    @ObservationIgnored @AppStorage(Key.useTrash) private var _useTrash = Default.useTrash
+
+    /// - Parameter store: the defaults every value is read from and written to.
+    ///   `nil` keeps `@AppStorage`'s own `UserDefaults.standard`, which is what
+    ///   the app always wants; tests pass an isolated suite so they neither read
+    ///   nor overwrite the real app's settings. The test host *is* Mochi
+    ///   Diffusion, so `UserDefaults.standard` here is the developer's own
+    ///   preferences.
+    init(store: UserDefaults? = nil) {
+        guard let store else { return }
+        __imageDir = AppStorage(wrappedValue: Default.imageDir, Key.imageDir, store: store)
+        __imageType = AppStorage(wrappedValue: Default.imageType, Key.imageType, store: store)
+        __modelDir = AppStorage(wrappedValue: Default.modelDir, Key.modelDir, store: store)
+        __controlNetDir = AppStorage(
+            wrappedValue: Default.controlNetDir, Key.controlNetDir, store: store)
+        __modelId = AppStorage(Key.modelId, store: store)
+        __prompt = AppStorage(wrappedValue: Default.prompt, Key.prompt, store: store)
+        __negativePrompt = AppStorage(
+            wrappedValue: Default.negativePrompt, Key.negativePrompt, store: store)
+        __strength = AppStorage(wrappedValue: Default.strength, Key.strength, store: store)
+        __steps = AppStorage(wrappedValue: Default.steps, Key.steps, store: store)
+        __guidanceScale = AppStorage(
+            wrappedValue: Default.guidanceScale, Key.guidanceScale, store: store)
+        __width = AppStorage(wrappedValue: Default.width, Key.width, store: store)
+        __height = AppStorage(wrappedValue: Default.height, Key.height, store: store)
+        __scheduler = AppStorage(wrappedValue: Default.scheduler, Key.scheduler, store: store)
+        __showGenPreview = AppStorage(
+            wrappedValue: Default.showGenerationPreview, Key.showGenerationPreview, store: store)
+        __mlComputeUnitPreference = AppStorage(
+            wrappedValue: Default.mlComputeUnitPreference,
+            Key.mlComputeUnitPreference,
+            store: store
+        )
+        __reduceMemory = AppStorage(
+            wrappedValue: Default.reduceMemory, Key.reduceMemory, store: store)
+        __safetyChecker = AppStorage(
+            wrappedValue: Default.safetyChecker, Key.safetyChecker, store: store)
+        __useTrash = AppStorage(wrappedValue: Default.useTrash, Key.useTrash, store: store)
+    }
 
     var imageDir: String {
         get {

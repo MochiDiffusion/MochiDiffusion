@@ -110,31 +110,40 @@ nonisolated func makeControlNetFixture(
 nonisolated enum KleinWeightLayout {
     /// A single `<base>.safetensors` file.
     case single
-    /// An index file plus one shard, as produced by sharded exports.
+    /// An index file plus every shard it names, as produced by sharded exports.
+    /// Production only requires the index and at least one matching shard, so
+    /// this fixture is deliberately stricter than discovery needs — discovery
+    /// stays shallow on purpose, since parsing every index for every model on
+    /// every folder-change event would put real I/O on that path.
     case sharded
     /// Nothing — used to assert the model is rejected.
     case missing
 }
+
+/// Every non-weight path `IrisFluxKleinModel.init?` requires, declared once so a
+/// test can assert that each one is load-bearing without restating the list and
+/// silently covering only part of it.
+nonisolated let kleinRequiredConfigPaths: [[String]] = [
+    ["text_encoder", "config.json"],
+    ["text_encoder", "generation_config.json"],
+    ["tokenizer", "added_tokens.json"],
+    ["tokenizer", "chat_template.jinja"],
+    ["tokenizer", "merges.txt"],
+    ["tokenizer", "special_tokens_map.json"],
+    ["tokenizer", "tokenizer.json"],
+    ["tokenizer", "tokenizer_config.json"],
+    ["tokenizer", "vocab.json"],
+    ["transformer", "config.json"],
+    ["vae", "config.json"],
+    ["vae", "diffusion_pytorch_model.safetensors"],
+]
 
 nonisolated func makeKleinModelFixture(
     at url: URL,
     weights: KleinWeightLayout = .single,
     omitting omittedPaths: [[String]] = []
 ) throws {
-    var required: [[String]] = [
-        ["text_encoder", "config.json"],
-        ["text_encoder", "generation_config.json"],
-        ["tokenizer", "added_tokens.json"],
-        ["tokenizer", "chat_template.jinja"],
-        ["tokenizer", "merges.txt"],
-        ["tokenizer", "special_tokens_map.json"],
-        ["tokenizer", "tokenizer.json"],
-        ["tokenizer", "tokenizer_config.json"],
-        ["tokenizer", "vocab.json"],
-        ["transformer", "config.json"],
-        ["vae", "config.json"],
-        ["vae", "diffusion_pytorch_model.safetensors"],
-    ]
+    var required = kleinRequiredConfigPaths
     required.removeAll { omittedPaths.contains($0) }
 
     for components in required {
@@ -155,11 +164,13 @@ nonisolated func makeKleinModelFixture(
             "{}",
             to: url.appending(
                 components: "transformer", "diffusion_pytorch_model.safetensors.index.json"))
-        try writeFile(
-            "",
-            to: url.appending(
-                components: "transformer",
-                "diffusion_pytorch_model-00001-of-00002.safetensors"))
+        for shard in 1...2 {
+            try writeFile(
+                "",
+                to: url.appending(
+                    components: "transformer",
+                    "diffusion_pytorch_model-0000\(shard)-of-00002.safetensors"))
+        }
     case .missing:
         break
     }
@@ -207,4 +218,39 @@ nonisolated func writePNG(
     CGImageDestinationAddImage(destination, image, properties)
     precondition(CGImageDestinationFinalize(destination))
     try (data as Data).write(to: url, options: .atomic)
+}
+
+// MARK: - Preferences
+
+/// An isolated `UserDefaults` suite that removes itself when the test scope ends.
+///
+/// The test host *is* Mochi Diffusion, so `UserDefaults.standard` inside a test is
+/// the developer's own live preferences. A `ConfigStore` built on this suite
+/// neither reads real settings nor overwrites them, and parallel suites cannot
+/// see each other's writes.
+nonisolated final class TempDefaults {
+    let suiteName: String
+    let defaults: UserDefaults
+
+    init() {
+        suiteName = "MochiDiffusionTests-\(UUID().uuidString)"
+        defaults = UserDefaults(suiteName: suiteName)!
+        defaults.removePersistentDomain(forName: suiteName)
+    }
+
+    deinit {
+        defaults.removePersistentDomain(forName: suiteName)
+    }
+}
+
+// MARK: - Image inspection
+
+/// Decodes just the pixel dimensions of encoded image data, so tests can assert
+/// what a starting image was scaled to without pinning encoded bytes.
+nonisolated func pixelSize(of data: Data) -> CGSize? {
+    guard
+        let source = CGImageSourceCreateWithData(data as CFData, nil),
+        let image = CGImageSourceCreateImageAtIndex(source, 0, nil)
+    else { return nil }
+    return CGSize(width: image.width, height: image.height)
 }

@@ -48,16 +48,45 @@ struct MetadataRoundTripTests {
         return sdi
     }
 
-    /// Round-trips `sdi` through a real PNG on disk and returns the parsed record.
+    /// Round-trips `sdi` through a real image file on disk and returns the parsed
+    /// record.
     func roundTrip(
         _ sdi: SDImage,
         fields: Set<MetadataField>,
-        name: String = "image"
+        name: String = "image",
+        type: UTType = .png
     ) async throws -> ImageRecord? {
-        let data = try #require(await sdi.imageData(.png, metadataFields: fields))
-        let url = temp.appending("\(name).png")
+        let data = try #require(await sdi.imageData(type, metadataFields: fields))
+        let url = temp.appending("\(name).\(type.preferredFilenameExtension!)")
         try data.write(to: url, options: .atomic)
         return createImageRecordFromURL(url)
+    }
+
+    /// Version 2 captions separate fields with real newlines, so the whole format
+    /// rests on every container preserving embedded LF in the IPTC caption byte
+    /// for byte. If one normalised LF to CRLF, every field would decode with a
+    /// trailing `\r` and the numeric fields would parse as nil — a silent,
+    /// format-wide failure. `SettingsView` offers all three of these types and
+    /// only PNG was covered.
+    @Test(
+        "A multi-line caption survives every image type the app writes",
+        arguments: [UTType.png, .jpeg, .heic]
+    )
+    func captionSurvivesEveryContainer(type: UTType) async throws {
+        var sdi = Self.makeImage()
+        sdi.prompt = "a cat; wearing a hat\nand a scarf"
+        let fields = Set(MetadataField.allCases)
+
+        let record = try #require(
+            await roundTrip(sdi, fields: fields, name: "container", type: type)
+        )
+
+        #expect(record.prompt == sdi.prompt)
+        #expect(record.seed == sdi.seed)
+        #expect(record.steps == sdi.steps)
+        #expect(record.guidanceScale == sdi.guidanceScale)
+        #expect(record.inputImages == sdi.inputImages)
+        #expect(record.metadataFields == fields)
     }
 
     @Test("Every declared field survives an export/import round trip")

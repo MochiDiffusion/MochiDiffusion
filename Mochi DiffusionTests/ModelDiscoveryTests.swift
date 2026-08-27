@@ -157,13 +157,7 @@ struct IrisFluxKleinDiscoveryTests {
 
     @Test(
         "Every required Klein config file is required",
-        arguments: [
-            ["text_encoder", "config.json"],
-            ["tokenizer", "tokenizer.json"],
-            ["tokenizer", "chat_template.jinja"],
-            ["transformer", "config.json"],
-            ["vae", "diffusion_pytorch_model.safetensors"],
-        ]
+        arguments: kleinRequiredConfigPaths
     )
     func rejectsIncompleteDirectory(omitted: [String]) throws {
         let url = try temp.subdirectory("klein-\(omitted.joined(separator: "-"))")

@@ -194,9 +194,14 @@ struct MetadataCodecTests {
         ]
     )
     func malformedCaptionsDoNotTrap(caption: String) {
-        // Reaching the assertion at all is the point: decode must return.
         let parsed = MetadataCodec.decode(caption)
-        #expect(parsed.prompt != nil || parsed.prompt == nil)
+
+        // Returning at all is the substance of this test. The assertion states
+        // the consequence that follows: none of these captions carries a
+        // Generator key, so every one of them fails the import gate rather than
+        // being half-imported with default values.
+        #expect(parsed.generatedVersion.isEmpty)
+        #expect(!MetadataCodec.isSupportedGeneratedVersion(parsed.generatedVersion))
     }
 
     @Test("A key with an empty value is recorded as present but empty")

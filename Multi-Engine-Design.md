@@ -1,7 +1,8 @@
 # Multi-Engine Design
 
 **Status:** draft — Phases 1–2 settled, Phase 3 onward expected to shift
-**Last updated:** 2026-08-26 (revised after an independent design review; see §14)
+**Last updated:** 2026-08-26 (Phase 1 complete; phase staging clarified in §5.2/§5.3;
+§13.1/§13.3 rewritten against the Draw Things sources)
 
 This is a living document. Phase 1 and 2 are specified tightly enough to implement.
 Phase 3 onward records intent and the decisions we know we owe ourselves, not a
@@ -26,7 +27,7 @@ Backends in scope, in rough order of intended arrival:
 | Core ML Stable Diffusion | local | exists today; fixed input size per model, ControlNet, schedulers |
 | Iris (FLUX.2 Klein, Z-Image-Turbo) | local | exists today; no ControlNet, pinned step count and scheduler |
 | OpenAI image generation | hosted | model-derived option set, no step progress or previews |
-| Draw Things MediaGenerationKit | local + LAN + cloud | see §13 for maturity and licensing findings |
+| Draw Things MediaGenerationKit | local + LAN + cloud | see §13.3 for dependency weight, maturity, and remote model listing |
 
 ## 2. Terminology
 
@@ -119,6 +120,15 @@ tested rather than left to whatever `URL` happens to do:
 - Decide and pin symlink policy — resolve, or preserve as written.
 - Decide case sensitivity explicitly, given a case-insensitive default filesystem.
 
+This is not hypothetical. Today a model's identity is the exact `URL`
+`contentsOfDirectory` returned — symlinks already resolved (`/private/var/…`, not
+`/var/…`) and carrying a trailing slash because it is a directory — and restore is plain
+`URL` equality. A path naming the same directory in any other form misses, and the user
+silently gets the first model instead of theirs. Nothing writes such a value today, since
+`currentModelId.didSet` only ever persists a discovered id, so the defect is latent; it
+goes live the moment anything else computes a model path. `ModelSelectionPersistenceTests`
+pins it as a `withKnownIssue` that should start failing when Phase 2 lands relative keys.
+
 ### 5.2 Models
 
 `MochiModel` becomes `EngineModel`:
@@ -137,6 +147,13 @@ nonisolated protocol EngineModel: Identifiable, Sendable {
 `tokenizerModelDir` comes off the shared protocol — it is an Iris/SD implementation
 detail and does not belong in a contract a hosted engine has to satisfy. It moves onto
 those engines' own concrete model types, which their own code can see.
+
+**Phase staging.** The protocol above is the Phase 4 shape. `OptionConstraints` does not
+exist until Phase 4, so Phase 2 lands `EngineModel` carrying today's
+`config: MochiModelConfig` (capabilities plus `metadataFields`) in that slot, and Phase 4
+replaces the capabilities half with `constraints`. Do not block Phase 2 on the constraint
+vocabulary — engine-qualified identity is independently valuable and the swap is
+mechanical once every model already answers a per-model question.
 
 ### 5.3 Engines: immutable descriptor, stateful runtime
 
@@ -180,6 +197,17 @@ than reconstructed independently in each generator.
 
 No network access, pipeline loading, or mutable cache state in `plan`. Anything that needs
 those belongs in `availability`, `discoverModels`, or the runtime.
+
+**Phase staging.** Phase 2 introduces `plan` as a pure *move*: the per-engine branches now
+in `GenerationController.buildGenerationRequest` and `PipelineModelAdapter` become each
+engine's `plan`, producing the same values today's code produces. It does not yet resolve
+anything against constraints — that is Phase 4, which is what makes `plan` the sole
+resolution point. Staging it this way means Phase 2 can be verified by asserting the
+request is byte-identical to what the old path built (§12).
+
+`EngineSettings` likewise starts minimal in Phase 2 — the engine's model directory and
+whatever else `discoverModels` needs — and grows into the per-engine store in Phase 5.
+It is a parameter, not the persistence layer.
 
 ### 5.4 Requests
 
@@ -239,6 +267,12 @@ One practical consequence: after migration both local engines point at the same 
 by default (§7), so each folder-monitor event triggers two independent scans of the same
 tree. Coalesce discovery per directory, or debounce at the registry, rather than letting
 scan cost scale with engine count.
+
+A second consequence, from §13.3: for at least one engine a discovered model carries data
+that request construction needs and cannot re-derive — Draw Things must replay the model
+specification it learned during discovery back into the generation request. So the
+aggregated discovery result is retained state, not a value recomputed per read. Cache it
+per engine and invalidate on the engine's own discovery trigger.
 
 ## 6. Constraints, not capability booleans
 
@@ -437,6 +471,15 @@ Chosen knowingly over keeping `"; "` with escaped semicolons:
 In exchange the format is materially cleaner to read for single-line prompts and needs no
 semicolon escaping, and the array sub-format problem disappears.
 
+**Container check (verified 2026-08-26).** Newline-separated captions are only safe if
+every container preserves embedded LF in the IPTC caption byte for byte. If any of them
+normalised LF to CRLF, every field would decode with a trailing `\r` and numeric fields
+would silently parse as nil. Round-tripping a multi-field caption through
+`CGImageDestination` was confirmed identical for **PNG, JPEG and HEIC** — the three types
+`SettingsView` offers. The round-trip suite only covers PNG, so this invariant is
+since verified by CI: the image round-trip test is parameterized over all three
+`UTType`s, so a future container change cannot break the format silently.
+
 ### 9.3 New fields
 
 - `.engine` — engine identity
@@ -448,6 +491,13 @@ semicolon escaping, and the array sub-format problem disappears.
 
 Existing images carry no `Engine` key, and its absence must mean "legacy, infer from the
 other fields," never "corrupt."
+
+**Write `.engine` and `.modelKey` in Phase 2, not later.** Engine identity exists as of
+Phase 2, and additive keys are now free — the codec skips unknown keys leniently and old
+readers are already excluded (§9.2). If we defer these keys to Phase 6, every image
+generated during Phases 2–5 is permanently unqualified legacy data, and §9.4's
+name-matching fallback has to cover our own recent output rather than only pre-engine
+history.
 
 ### 9.4 `setModel(_ name:)` across engines
 
@@ -471,13 +521,18 @@ Confidence labels are honest signals about how much these should be trusted.
 |---|---|---|---|
 | 0 | Test target (see §12) | none | done |
 | 1 | `MetadataCodec`: fix the import crash and the separator defect; versioned encoding | crash fix | **done** |
-| 2 | Engine descriptor/registry, `EngineID`/`ModelID`, independent discovery, migration | none | settled |
+| 2 | Engine descriptor/registry, `EngineID`/`ModelID`, independent discovery, migration, `.engine`/`.modelKey` metadata keys | none | settled |
 | 3 | Engine runtime and session boundaries; request-scoped cancellation; remove serialization-assumption `@unchecked Sendable` | more reliable cancel | settled |
 | 4 | Constraints model; `plan` as the sole resolution point; sidebar driven from constraints | unsupported controls hide; step count stops lying | settled |
 | 5 | Engine picker, per-engine settings store, Settings restructure | the feature as described | likely |
 | 6 | OpenAI engine: Keychain, indeterminate progress, richer errors | first hosted engine | sketch |
 | 7 | MediaGenerationKit prototype, then local/remote integration | | direction only |
 | 8 | Declarative long-tail options | | direction only |
+
+**Entry gate for Phase 2: satisfied.** The two regression suites in §12 have landed —
+`buildGenerationRequest` is pinned field by field, and the model-selection restore contract
+the migration must preserve is covered. The migration's own tests are written with the
+migration, in Phase 2.
 
 ### Release gating
 
@@ -501,6 +556,26 @@ a new engine working end to end. That bundles a crash fix, a concurrency refacto
 UI feature into a single long-lived branch, which is the shape that produces six-month
 integration debt. The narrower gate above gets the same safety.
 
+### Release notes
+
+Every phase that changes observable behaviour updates the `# Unreleased` section at the
+top of [CHANGELOG.md](CHANGELOG.md) in the same commit, in the house style: one bullet per
+change, starting with Added / Changed / Fixed / Removed / Updated, described from the
+user's point of view. Sub-bullets carry consequences the user has to act on.
+
+Write nothing for internal work. Extracting `MetadataCodec`, adding a test target, or
+changing an actor-isolation build setting are invisible and do not belong there; the
+crash they fixed does. Phases 2 and 3 are expected to produce **no** changelog entries at
+all except for behaviour a user could notice — for Phase 3, more responsive cancellation.
+
+Compatibility consequences are the entries most easily forgotten and the most important
+to record. Phase 1's format change means images written by this build do not appear in an
+older build's gallery (§9.2); that is a changelog entry, not just a commit message.
+
+Note that `CHANGELOG.md` had not been updated since v5.0 while the app shipped v5.1, v5.2
+and v6.0, so the `# Unreleased` heading is a new convention here. Backfilling those three
+releases is out of scope for this work.
+
 ### Definition of done
 
 The multi-engine foundation is complete when:
@@ -522,6 +597,8 @@ The multi-engine foundation is complete when:
   malformed input never traps, and legacy images stay readable.
 - The test target defaults to nonisolated, with `@MainActor` only where required.
 - The project builds, all tests pass, and `swift format lint -p -r ./` is clean.
+- `CHANGELOG.md` describes every user-visible change the work introduced, including the
+  metadata compatibility break.
 
 ## 11. Concurrency
 
@@ -643,9 +720,11 @@ code. Deliberately no day figure here — one would get quoted back as a commitm
 
 ## 12. Tests
 
-The Swift Testing target exists and passes: 154 test-case executions, one remaining
-`withKnownIssue` (`IrisModelFamily.fallbackDisplayName` is unreachable), `swift format
-lint` clean. It uses current idioms correctly: `@Test`, parameterized `arguments:`,
+The Swift Testing target exists and passes: 95 test cases — 93 passing plus two
+`withKnownIssue` defects (`IrisModelFamily.fallbackDisplayName` is unreachable; model
+identity is an exact `URL` match, §5.1) — and `swift format lint` is clean. Counts here come
+from `xcresulttool get test-results summary`; grepping `xcodebuild` output for passed test
+cases roughly doubles the figure, because it logs most cases twice. It uses current idioms correctly: `@Test`, parameterized `arguments:`,
 `#expect`/`#require`, per-test temporary directories, and no XCTest.
 
 Changes needed before it becomes the contract for the new architecture:
@@ -668,21 +747,75 @@ Changes needed before it becomes the contract for the new architecture:
 2. **Delete `kleinTakesPrecedenceOverCoreML`.** It pins sniffer precedence, which §5.5
    removes. Replace it with a test that both engines can expose the same directory under
    distinct `ModelID`s.
-3. **Fix the sharded Klein fixture or rename it.** It writes an index naming a two-shard
-   layout but creates one shard. Production `hasSafetensorWeights` intentionally checks
-   only for an index plus any matching shard, and that shallowness is defensible for a
-   *picker* — parsing every index for every model on every folder-change event would put
-   real I/O on the discovery path. So rename the fixture to say it is minimal, or make the
-   index name one shard. Deep validation belongs at load time, where failure is already
-   handled — not in discovery.
-4. **Rename or extend "Every required Klein config file is required."** It parameterizes
-   5 of the 12 required paths. Either drive it from the shared fixture list or drop the
-   word "every".
+3. ~~**Fix the sharded Klein fixture or rename it.**~~ Done. The fixture now writes every
+   shard its index names. Production `hasSafetensorWeights` still only checks for an index
+   plus any matching shard, and that shallowness is deliberate for a *picker* — parsing
+   every index for every model on every folder-change event would put real I/O on the
+   discovery path — so the fixture is documented as stricter than discovery requires. Deep
+   validation belongs at load time, where failure is already handled.
+4. ~~**Rename or extend "Every required Klein config file is required."**~~ Done. Both the
+   fixture and the test now read the same `kleinRequiredConfigPaths`, so it covers all
+   twelve and cannot silently cover fewer again.
 5. ~~**Turn the separator known-issue into a passing parameterized test.**~~ Done in
    Phase 1: `MetadataCodecTests` covers `"; "`, bare semicolons, backslashes, colons, key-lookalike strings, newlines,
    Unicode, empty strings, filenames containing commas and semicolons, legacy unescaped
    captions, and unknown future keys alongside escaped known values, plus the crash case
    from §9.1 and a golden encoded-shape assertion in both the codec and image suites.
+
+### Phase 2 entry gate — landed
+
+Both suites exist. 95 test cases pass, two of them as `withKnownIssue` defects.
+
+- **`GenerationRequestBuilderTests`** pins `buildGenerationRequest` field by field: scalar
+  pass-through, size, compute-unit resolution, starting-image scaling for fixed-size and
+  freeform models, all four ControlNet gates, the Klein `startingImageName` →
+  `inputImageNames` divergence, and both seed branches. Phase 2 moves this logic into
+  per-engine `plan` implementations, and these tests are what "the request is unchanged"
+  means.
+- **`ModelSelectionPersistenceTests`** pins the restore contract the §7 migration has to
+  preserve: first-model selection, persisted restore, stale-selection fallback, the three
+  failure paths that clear the persisted id, `currentModelId.didSet`'s side effects on
+  ControlNet state, and name-based selection as the baseline for §9.4.
+
+Two enabling changes came with them:
+
+- `ConfigStore` gained `init(store: UserDefaults? = nil)`, which rebinds its `@AppStorage`
+  wrappers to an injected suite. The test host *is* Mochi Diffusion, so without this a test
+  run reads and overwrites the developer's real preferences. Keys and defaults are now
+  declared once each (`ConfigStore.Key`, `ConfigStore.Default`) because `init(store:)` has
+  to restate every default, and a drifted default would be visible only under an injected
+  store — that is, only in tests, and as a wrong expected value rather than a failure.
+- `GenerationController.init` gained `startsObserving: Bool = true`. Its eager work — the
+  initial model load, folder monitors, service observation — is an unowned background task
+  that can reload models mid-test, and `currentModelId.didSet` clears `currentControlNets`,
+  so a stray reload silently empties state a test just set up. §11.5 wants this seam to
+  become an explicit lifecycle with a matching shutdown path.
+
+#### What writing the pins turned up
+
+Pinning behaviour before refactoring it found two things neither the design nor the review
+had noticed:
+
+- **A live bug, now fixed.** `buildGenerationRequest` recorded the *configured* size even
+  for a Core ML model with a fixed input size that ignores it. Generation was unaffected —
+  `SDImageGenerator` ignores `request.size` — but `JobQueueView` displays it and
+  `copyOptionsToSidebar` writes it back, so a queued job showed dimensions no generated
+  image would match. Divergence is the normal case, not an edge one: `SizeView` shows a
+  fixed model's size in a disabled constant field without writing it to `ConfigStore`. The
+  request now carries `adapter.inputSize ?? configuredSize`. Fixed ahead of the suites so
+  the pins assert correct behaviour rather than encoding the bug.
+- **Model identity is an exact `URL` match** — see §5.1. Left as a known issue for Phase 2.
+
+Both were invisible until something asserted what the code actually produced, which is the
+argument for the entry gate in general.
+
+**Still owed: the migration itself.** The §7 migration cannot be tested before it exists,
+so its own tests are written with it in Phase 2 — legacy `Model` URL resolving to a Core ML
+directory, to a Klein directory, to one satisfying both, to a path that no longer exists,
+and to no value at all; asserting `SelectedEngine`, `Engine.<id>.SelectedModel`, that both
+local engines' `ModelDir` inherit the legacy value, and that the migration is idempotent.
+
+### Remaining test work
 
 New behavioral tests to add before the old pipeline switches are deleted:
 
@@ -717,7 +850,9 @@ entitlement is required. Everything else needs work:
   transient service error. `GeneratorError` is currently a small filesystem-shaped enum.
   A refusal must read as a message, not as a crash.
 - **LAN discovery** needs `NSLocalNetworkUsageDescription` and Bonjour service types on
-  macOS 15+, even unsandboxed.
+  macOS 15+, even unsandboxed. For Draw Things the values are already known: browse
+  `_dt-grpc._tcp.` in domain `local.` (`GRPCServiceBrowser` uses `NetServiceBrowser`), and
+  the server's default port is 7859. That service type is what goes in `NSBonjourServices`.
 
 ### 13.2 OpenAI
 
@@ -727,27 +862,130 @@ schedule. Treat model IDs and model-specific options as API-derived engine data 
 practical, and revalidate allowed models, sizes, quality levels, output formats and edit
 inputs against current official documentation at implementation time.
 
-### 13.3 MediaGenerationKit
+### 13.3 Draw Things / MediaGenerationKit
 
-Verified 2026-08-26 against `drawthingsai/media-generation-kit`:
+Verified 2026-08-26 against `drawthingsai/media-generation-kit` and
+`drawthingsai/draw-things-community` at `main`.
 
-- **License: LGPL-3.0.** Mochi Diffusion is GPLv3, and LGPL-3.0 links cleanly into a
-  GPLv3 work, so there is **no additional licensing obligation** here beyond what GPLv3
-  already imposes. This does not need further legal review.
-- **Maturity is the actual risk.** The repository was created 2026-03-30, last pushed
-  2026-07-14, has ~25 stars and two tags. That is a very young package with minimal
-  external adoption, and its installation guidance pins a specific revision. Depending on
-  it for a shipping feature carries genuine churn risk — pin a revision, and expect to
-  track breaking changes.
+**Licensing is settled, but name the whole chain.** MediaGenerationKit's own wrapper is
+LGPL-3.0. It is a façade: its single library target depends on `_MediaGenerationKit`, a
+product of `drawthingsai/draw-things-community`, which is **GPL-v3**. Mochi Diffusion is
+GPLv3, so linking GPL-3 code is fine and this needs no further legal review — but do not
+record it as "an LGPL dependency." The transitive reality is GPL-3, and that forecloses
+any future relicensing conversation.
 
-Reported capabilities to verify in the prototype: local pipelines, LAN remote generation
-by host and port, Draw Things cloud compute, previews in progress callbacks, and local
-model catalog helpers. Remote *model listing* is reportedly absent from the public API, so
-the initial remote UI may need the user to enter a known model identifier or reuse a local
-catalog.
+**Dependency weight is a first-class risk, alongside maturity.** MGK's `Package.swift`
+declares one library target wrapping `_MediaGenerationKit`; the real payload is
+`draw-things-community`, a 752-line manifest whose graph includes `ccv` (C), `s4nnc`,
+`dflat` and `SQLiteDflat`, `swift-fickling`, `swift-sentencepiece`, `grpc-swift`,
+`swift-protobuf`, `swift-nio-ssl`, `swift-crypto`, `swift-png`, and vendored copies of
+`SnapKit`, `Nantes`, `SwiftSoup`, `SwiftMath` and `HighlighterSwift`. Bazel is that
+project's primary build system; the SwiftPM manifest is a secondary path. Mochi today
+builds against Apple's `ml-stable-diffusion` and little else, so this is a step change in
+build time, binary size, and exposure to a build path upstream does not dogfood.
+
+**Maturity, restated.** Repository created 2026-03-30, last pushed 2026-07-14, ~25 stars,
+two tags. Installation guidance pins a revision because version requirements are not
+supported, and MGK in turn pins `draw-things-community` by revision. Pin both, and expect
+to track breaking changes.
+
+**Gate the prototype on the build, not the UI.** The first milestone is a clean Xcode
+build of Mochi plus MGK on our toolchain, with build time and app size measured before and
+after. Everything else in this section is downstream of that number.
+
+#### Remote model listing
+
+An earlier draft recorded remote model listing as simply absent. That is true of MGK's
+public API and false of the protocol underneath, and the difference changes the design.
+
+MGK's CLI does expose `models list-remote`, and it deliberately fails, because the public
+API provides no remote listing. But
+`Libraries/GRPC/Models/Sources/imageService/imageService.proto` defines an `Echo` RPC whose
+reply carries the catalog:
+
+- `EchoReply.files` — every `*.ckpt` of nonzero size in the server's internal model
+  directory plus its first external URL. Non-recursive.
+- `EchoReply.override` — a `MetadataOverride` whose `models`, `loras`, `controlNets`,
+  `textualInversions` and `upscalers` fields each hold a **JSON-encoded array of
+  `*Zoo.Specification`** (snake_case keys), filtered to what is actually downloaded on
+  that host.
+
+`ModelZoo.Specification` carries what the picker and the §6 constraints need: `name`,
+`file`, `version`, `defaultScale`, `modifier`, `guidanceEmbed`, `isConsistencyModel`,
+`hiresFixScale`, `deprecated`, `note`. `ImageGenerationClientWrapper.echo(...)` in
+`Libraries/GRPC/Server/Sources` already decodes all of it into a
+`(files:, models:, LoRAs:, controlNets:, textualInversions:)` tuple, wrapping each element
+in `FailableDecodable` so one unrecognized specification does not discard the whole list.
+Copy that tolerance; a catalog from a newer server than our decoder is the normal case,
+not the exception.
+
+Two constraints on using this:
+
+1. **The server must opt in.** `ImageGenerationServiceImpl.enableModelBrowsing` defaults to
+   `false`, and `gRPCServerCLI` sets it from a `--model-browser` flag. A server started
+   without the flag answers `Echo` with an empty `files` and no `override`. "This host does
+   not publish its models" is therefore a normal state and must render as an explanatory UI
+   state, not a discovery failure. §5.5 already demands the related property — an unhelpful
+   remote host must not wipe the local model list.
+2. **`GRPCServer` is not reachable from SwiftPM.** `draw-things-community` exports only
+   `gRPCServerCLI`, `draw-things-cli`, `LocalCodeApp` and `_MediaGenerationKit` as products.
+   `GRPCImageServiceModels` and `GRPCServer` are internal targets, so that client wrapper
+   cannot be imported.
+
+So, three tiers, in this order:
+
+1. **Generate our own stubs for `Echo` alone.** We need `EchoRequest`, `EchoReply`,
+   `MetadataOverride`, and a *partial* `Codable` mirror of `ModelZoo.Specification`
+   covering only the fields the picker uses — decoding the full type would drag in
+   `ModelVersion`, `Denoiser` and the rest of the zoo's enum surface. grpc-swift and
+   swift-protobuf are already in the transitive graph. Small, independent of upstream, and
+   the path to assume when planning.
+2. **Catalog plus probe, when browsing is off.** Use
+   `MediaGenerationEnvironment.default.downloadableModels()` / `suggestedModels()` for the
+   universe of known files, let the user pick or type one, then validate it against the host
+   with the `FilesExist` RPC — which also returns hashes — before enabling Generate. This
+   replaces the earlier plan of accepting an unvalidated identifier.
+3. **Push the gap upstream in parallel.** Either a `GRPCImageServiceModels` SwiftPM product
+   or a public `remoteModels()` on MGK. The correct long-term fix; keep it off the critical
+   path.
+
+Discovery must run on the async path. MGK's catalog helpers are split: sync overloads are
+offline- or cache-only and throw `MediaGenerationKitError.asyncOperationRequired` when they
+would need uncached remote catalog data, and `suggestedModels(..., offline: false)` throws
+immediately if that data is not already cached.
+
+**Unresolved:** whether `Echo` is meaningful against `.cloudCompute`, where the served
+catalog is presumably the official one rather than one host's directory listing. Settle
+this in the prototype before designing a single discovery path across all three
+connections.
+
+#### `MetadataOverride` round-trips
+
+`MetadataOverride` is not only a response field. It is also an input on
+`ImageGenerationRequest`, and the client is expected to hand the specification back at
+generation time. A remote model is therefore not just a name: whatever we discover through
+`Echo` has to retain its specification and replay it in the request.
+
+That couples remote discovery to request construction in a way local discovery does not,
+and it is the first case where a §5.4 payload needs data only discovery can supply. The
+Draw Things payload type must carry the specification bytes, and the per-engine discovery
+result in §5.5 has to outlive the sidebar read that produced it — a model list recomputed
+and discarded per read is not sufficient here.
+
+#### Connection and remaining unknowns
 
 Keep "Draw Things" as **one** engine with a Connection setting (§2), not several sibling
-entries.
+entries. MGK makes this easy: the backend is a single value on `pipeline.configuration` —
+`.local`, `.local(directory:)`, `.remote(.init(host:port:))`, or
+`.cloudCompute(apiKey:)` — which maps onto Connection directly.
+
+To verify in the prototype: local pipelines, LAN remote generation by host and port, Draw
+Things cloud compute, previews in the progress callback (`MediaGenerationPipeline.Preview`
+is a random-access collection that lazily decodes a `CGImage` per subscript, which suits
+`onPreview`), and whether `fromPretrained(_:backend:)` will accept a model name present on
+the remote host but absent from the local catalog. That last one decides whether tier 1
+above is sufficient on its own or whether the local catalog must first be seeded from
+`Echo`.
 
 Do not assume in advance that MediaGenerationKit replaces Core ML SD or Iris. Overlap is
 likely; preserving the existing runtimes as separate engines stays valid where model
@@ -807,8 +1045,14 @@ the code where checkable.
 - The `parseMetadataInfo` **crash** on a recognized key with a bare trailing colon, with
   the dead `guard` that fails to prevent it (§9.1). Verified by reproduction. This is the
   strongest reason to do the codec work first.
-- MediaGenerationKit **licensing is a non-issue** (LGPL-3.0 into GPLv3), while its
-  **maturity** is the real risk — created five months ago, ~25 stars (§13.3).
+- MediaGenerationKit **licensing is a non-issue**, though the chain is GPL-3 rather than
+  LGPL-3 as first recorded. The real risks are **dependency weight** — MGK is a façade over
+  the whole `draw-things-community` tree — and **maturity**: created five months ago, ~25
+  stars (§13.3).
+- Remote model listing is **absent from MGK's public API but present in the protocol**, via
+  `Echo`'s `files` and `MetadataOverride`. The earlier "have the user type a known
+  identifier" plan is replaced by a three-tier strategy, and `MetadataOverride`'s
+  round-trip adds a discovery-lifetime requirement to §5.5 (§13.3).
 - Duplicated directory scans once both local engines share a model dir (§5.5).
 - `ModelID.key` normalization rules — traversal, symlinks, case sensitivity (§5.1).
 

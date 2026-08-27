@@ -101,14 +101,24 @@ final class GenerationController {
     private var generationUpdatesTask: Task<Void, Never>?
     private var generationResultsTask: Task<Void, Never>?
 
+    /// - Parameter startsObserving: whether to begin the eager work — the initial
+    ///   model load, the folder monitors, and the generation-service observation.
+    ///   The app always wants it. Tests opt out so the controller owns no
+    ///   background task that can reload models, and therefore reassign
+    ///   `currentModelId`, in the middle of their assertions; `currentModelId`'s
+    ///   `didSet` clears `currentControlNets`, so a stray reload silently empties
+    ///   state a test just set up. §11.5 of `Multi-Engine-Design.md` wants this
+    ///   seam to grow into an explicit lifecycle with a matching shutdown path.
     init(
         configStore: ConfigStore,
         modelRepository: ModelRepository = ModelRepository(),
-        imageRepository: ImageRepository = ImageRepository()
+        imageRepository: ImageRepository = ImageRepository(),
+        startsObserving: Bool = true
     ) {
         self.configStore = configStore
         self.modelRepository = modelRepository
         self.imageRepository = imageRepository
+        guard startsObserving else { return }
         Task {
             await loadModels()
         }
@@ -408,7 +418,10 @@ final class GenerationController {
         configStore.guidanceScale = sdi.guidanceScale
     }
 
-    private func buildGenerationRequest() -> GenerationRequest? {
+    /// Internal rather than private so the regression suite can assert the exact
+    /// request today's code builds; Phase 2 moves these branches into per-engine
+    /// `plan` implementations and "the request is unchanged" is the success test.
+    func buildGenerationRequest() -> GenerationRequest? {
         guard let model = currentModel else {
             return nil
         }
