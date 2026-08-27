@@ -1,8 +1,12 @@
 # Multi-Engine Design
 
-**Status:** draft — Phases 1–2 complete, Phase 3 onward expected to shift
-**Last updated:** 2026-08-26 (Phase 1 complete; phase staging clarified in §5.2/§5.3;
-§13.1/§13.3 rewritten against the Draw Things sources)
+**Status:** draft — Phases 1–5 complete, Phase 6 onward expected to shift
+**Last updated:** 2026-08-27 (post-Phase-5 review triage; see §15)
+
+**Reading this document.** Sections 1–9 and 11–15 describe the *intended* design and are
+kept current. §10's phase table is the status of record. Where a section describes what was
+built, it says so. Where an earlier claim turned out wrong, the correction is inline rather
+than by deletion, so the reasoning stays reviewable — §14 and §15 exist for exactly that.
 
 This is a living document. Phase 1 and 2 are specified tightly enough to implement.
 Phase 3 onward records intent and the decisions we know we owe ourselves, not a
@@ -1249,11 +1253,18 @@ code. Deliberately no day figure here — one would get quoted back as a commitm
 
 ## 12. Tests
 
-The Swift Testing target exists and passes: 95 test cases — 93 passing plus two
-`withKnownIssue` defects (`IrisModelFamily.fallbackDisplayName` is unreachable; model
-identity is an exact `URL` match, §5.1) — and `swift format lint` is clean. Counts here come
-from `xcresulttool get test-results summary`; grepping `xcodebuild` output for passed test
-cases roughly doubles the figure, because it logs most cases twice. It uses current idioms correctly: `@Test`, parameterized `arguments:`,
+The Swift Testing target exists and passes: **223 test cases, 223 passing, no known
+issues**, and `swift format lint` is clean.
+
+**Counts come from `xcresulttool get test-results summary`.** Grepping `xcodebuild` output
+for passed test cases roughly doubles the figure, because it logs most cases twice. This
+warning has already been ignored once: figures of 273, 347 and 373 were reported during
+Phases 2–5 from grepped output and were all roughly 2× the truth. Use the result bundle:
+
+```
+xcodebuild test … -resultBundlePath out.xcresult
+xcrun xcresulttool get test-results summary --path out.xcresult
+``` It uses current idioms correctly: `@Test`, parameterized `arguments:`,
 `#expect`/`#require`, per-test temporary directories, and no XCTest.
 
 Changes needed before it becomes the contract for the new architecture:
@@ -1603,7 +1614,76 @@ the code where checkable.
 - Duplicated directory scans once both local engines share a model dir (§5.5).
 - `ModelID.key` normalization rules — traversal, symlinks, case sensitivity (§5.1).
 
-## 15. Non-goals
+## 15. Post-Phase-5 review triage
+
+An independent review of Phases 3–5 raised nine findings. All nine were checked against the
+code. Seven were real; the two severity calls below are ours, not the reviewer's.
+
+**Fixed:**
+
+- **Queued requests stranded after an error** (reviewer's High, agreed). `processQueue`
+  gated on `GenerationState` being `.ready`, and nothing outside `GenerationService`
+  restores `.ready`. Fixed by removing the guard: `startProcessingIfNeeded` already
+  prevents a second drain, so the guard could only ever block a terminal `.error`. Two
+  refinements the review did not have: the guard was only at the *top* of the drain, so a
+  mid-batch error never stranded the rest of a batch; and three of six failure paths report
+  `.ready(message)`, which satisfied the guard — which is why this went unnoticed, since the
+  common missing-model failure is one of the safe ones.
+- **A second liveness bug, found while fixing the first.** The drain ends with an `await` on
+  the queue-empty notification. A request enqueued during that await saw `processingTask`
+  still set, scheduled no drain, and was then left queued when the finishing task cleared
+  `processingTask`. `processQueue` now re-checks the queue after the notification. **Not
+  pinned by a test**: hitting the window needs a slow queue-empty notification, and
+  `NotificationController.shared` is a singleton with no seam.
+- **Discovery failures reported as "No models found"** (reviewer's Medium, agreed; a Phase 5
+  defect). Merged into `engineAvailability` as `.unreachable` before the picker reads it.
+- **The safety checker was still global** (agreed; a Phase 5 miss). Moved under Core ML with
+  the other three.
+
+**Real, not yet fixed:**
+
+- **Result delivery can clear the next request's preview.** Real mechanism —
+  `apply(_ result:)` clears `currentGeneratingImage` unconditionally — but **Medium, not
+  High**: the result is yielded before `session.close()`, `await forwarding.value`, the
+  terminal status and teardown, and only then is the next request dequeued and its model
+  loaded, so the result has a large head start on that request's first preview. Fix is to
+  scope the clear to a request id. The review's framing is the right one to keep: Phase 3
+  established ordering *within* the event stream and none *across* the result and event
+  streams.
+- **`loadModels` reentrancy.** Real, and Phase 5 widened it by adding a second `await`
+  (availability) inside the same window. Fix direction: one aggregate `refresh(settings:)`
+  returning models, failures and availability together, with concurrent per-engine work and
+  an epoch check before applying.
+- **`IrisSingleFlight.acquire()` is not cancellation-aware.** A cancelled waiter still
+  acquires the lease, and nothing checks `session.isCancelled` between acquiring it and
+  `iris_load_dir`, so a cancelled request can pay for a model load while blocking real work.
+  Unreachable while the queue is globally serial — which is exactly why it is worth fixing,
+  since the lease exists so correctness does not depend on that.
+- **`shutdown()` is not terminal for an in-flight refresh.** Low; fold into the reentrancy
+  work, which touches the same code.
+
+**Declined:**
+
+- **"`plan` is not the sole resolution point" (negative prompt).** The finding infers a
+  principle from `guidanceScale` — that `plan` resolves unsupported options to absent — but
+  `guidanceScale` is optional so the *queue row* knows whether to draw it, which is §6's
+  presentation distinction, not a rule about erasing input. Checked the consumers:
+  `copyOptionsToSidebar` already gates the negative prompt on `metadataFields`, which Klein
+  does not declare, so nothing reads it for a Klein job and nil'ing it buys no observable
+  correctness. The inconsistency in how unsupported fields are represented is real, and is
+  better revisited with the Phase 6 work that already has to change `EngineModel.url` and
+  the constraint vocabulary.
+
+**The review's structural conclusion is endorsed:** discovery status, generation status,
+queue readiness, preview ownership and result delivery are spread across loosely
+coordinated state machines above the engines. Three of the findings above are one defect —
+`GenerationState.shared` conflates engine and discovery health with queue activity and is
+written from several places with no owner. Separating "can the queue run" from "what is the
+UI showing", and giving discovery its own per-engine status, dissolves them rather than
+patching each. That belongs before Phase 6, not inside it: a hosted engine makes every one
+of them worse.
+
+## 16. Non-goals
 
 - Reworking the gallery, filtering, or inspector beyond the new metadata fields.
 - Model downloading or conversion for any engine.
