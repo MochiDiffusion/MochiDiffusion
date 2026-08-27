@@ -97,17 +97,23 @@ struct EngineDiscoveryTests {
 
     // MARK: - Core ML specifics stay in the Core ML engine
 
-    @Test("A ControlNet-capable model gets a controlnet symlink into the shared folder")
-    func createsControlNetSymlink() async throws {
+    /// Discovery used to drop a `controlnet` symlink into every capable model
+    /// directory, which meant writing to the user's models folder from a read
+    /// path on every folder-change event. The link is still needed — the Apple
+    /// pipeline resolves bundles relative to the model — but `CoreMLEngineRuntime`
+    /// now creates it when it is about to load a ControlNet pipeline.
+    @Test("Discovery does not write into the models folder")
+    func discoveryDoesNotWrite() async throws {
         let modelURL = modelDir.appending(path: "controlled-model")
         try makeSDModelFixture(at: modelURL, unetName: "ControlledUnet.mlmodelc")
 
         _ = try await CoreMLStableDiffusionEngine().discoverModels(settings)
 
-        let destination = try FileManager.default.destinationOfSymbolicLink(
-            atPath: modelURL.appending(path: "controlnet").path(percentEncoded: false)
+        #expect(
+            !FileManager.default.fileExists(
+                atPath: modelURL.appending(path: "controlnet").path(percentEncoded: false)
+            )
         )
-        #expect(destination == controlNetDir.path(percentEncoded: false))
     }
 
     @Test("Matching ControlNets are offered to a ControlNet-capable model")
@@ -176,7 +182,8 @@ struct EnginePayloadOwnershipTests {
             safetyChecker: false,
             showGenerationPreview: false,
             imageDir: "",
-            imageType: "png"
+            imageType: "png",
+            controlNetDirectory: controlNetDir
         )
     }
 

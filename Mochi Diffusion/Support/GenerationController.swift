@@ -462,7 +462,10 @@ final class GenerationController {
             safetyChecker: configStore.safetyChecker,
             showGenerationPreview: configStore.showGenerationPreview,
             imageDir: configStore.imageDir,
-            imageType: configStore.imageType
+            imageType: configStore.imageType,
+            controlNetDirectory: ModelRepository.controlNetDirectoryURL(
+                fromPath: configStore.controlNetDir
+            )
         )
 
         let plan: GenerationPlan<any Sendable>
@@ -501,12 +504,35 @@ final class GenerationController {
         )
     }
 
+    /// Cancels every task this controller owns.
+    ///
+    /// The observation loops iterate streams that never end on their own, so
+    /// without this they keep consuming after the controller is finished with.
+    /// The folder monitors were worse: they promoted `self` to a strong reference
+    /// before entering the loop, so task and controller kept each other alive
+    /// until something cancelled — which nothing did. See §11.6.
+    func shutdown() {
+        generationUpdatesTask?.cancel()
+        generationResultsTask?.cancel()
+        modelFolderMonitorTask?.cancel()
+        controlNetFolderMonitorTask?.cancel()
+        modelDirDebounceTask?.cancel()
+        controlNetDirDebounceTask?.cancel()
+        generationUpdatesTask = nil
+        generationResultsTask = nil
+        modelFolderMonitorTask = nil
+        controlNetFolderMonitorTask = nil
+        modelDirDebounceTask = nil
+        controlNetDirDebounceTask = nil
+    }
+
     private func observeGenerationService() {
         generationUpdatesTask?.cancel()
         generationUpdatesTask = Task { [weak self] in
             let stream = await GenerationService.shared.updates()
             for await snapshot in stream {
-                self?.apply(snapshot)
+                guard let self else { return }
+                self.apply(snapshot)
             }
         }
     }
@@ -516,7 +542,8 @@ final class GenerationController {
         generationResultsTask = Task { [weak self] in
             let stream = await GenerationService.shared.results()
             for await result in stream {
-                self?.apply(result)
+                guard let self else { return }
+                self.apply(result)
             }
         }
     }
@@ -633,9 +660,12 @@ final class GenerationController {
         modelFolderMonitorTask?.cancel()
         let path = modelDirectoryPath()
         modelFolderMonitorTask = Task { [weak self] in
-            guard let self else { return }
+            // Weak *inside* the loop, not before it. Hoisting `self` out kept the
+            // controller alive for as long as the task ran, and the task ran
+            // forever, so neither could be released.
             let stream = await FolderMonitorService.shared.updates(for: path)
             for await _ in stream {
+                guard let self else { return }
                 await self.loadModels()
             }
         }
@@ -645,9 +675,9 @@ final class GenerationController {
         controlNetFolderMonitorTask?.cancel()
         let path = controlNetDirectoryPath()
         controlNetFolderMonitorTask = Task { [weak self] in
-            guard let self else { return }
             let stream = await FolderMonitorService.shared.updates(for: path)
             for await _ in stream {
+                guard let self else { return }
                 await self.loadModels()
             }
         }

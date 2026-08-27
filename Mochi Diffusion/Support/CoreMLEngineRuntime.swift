@@ -85,6 +85,7 @@ actor CoreMLEngineRuntime: GenerationEngineRuntime {
         try loadPipelineIfNeeded(
             model: payload.model,
             controlNet: config.controlNets,
+            controlNetDirectory: payload.controlNetDirectory,
             computeUnit: payload.computeUnit,
             reduceMemory: payload.reduceMemory,
             session: session
@@ -99,6 +100,7 @@ actor CoreMLEngineRuntime: GenerationEngineRuntime {
     private func loadPipelineIfNeeded(
         model: SDModel,
         controlNet: [String],
+        controlNetDirectory: URL,
         computeUnit: MLComputeUnits,
         reduceMemory: Bool,
         session: GenerationSession
@@ -112,6 +114,9 @@ actor CoreMLEngineRuntime: GenerationEngineRuntime {
         guard hash != currentPipelineHash else { return }
 
         session.emit(.state(.loading(nil)))
+        if !controlNet.isEmpty {
+            linkControlNetDirectory(controlNetDirectory, into: model.url)
+        }
         let configuration = MLModelConfiguration()
         configuration.computeUnits = computeUnit
 
@@ -139,6 +144,24 @@ actor CoreMLEngineRuntime: GenerationEngineRuntime {
         }
 
         currentPipelineHash = hash
+    }
+
+    /// The Apple pipeline resolves ControlNet bundles relative to the model
+    /// directory, so a ControlNet-capable model needs them reachable from inside
+    /// it.
+    ///
+    /// This used to run during discovery, which meant writing into the user's
+    /// models folder from a read path, for every capable model, on every
+    /// folder-change event. Here it happens once, for the one model about to
+    /// load, and only when that load actually wants ControlNet.
+    private func linkControlNetDirectory(_ directory: URL, into modelURL: URL) {
+        let link = modelURL.appending(component: "controlnet")
+        let fileManager = FileManager.default
+        guard !fileManager.fileExists(atPath: link.path(percentEncoded: false)) else { return }
+        try? fileManager.createSymbolicLink(
+            atPath: link.path(percentEncoded: false),
+            withDestinationPath: directory.path(percentEncoded: false)
+        )
     }
 
     private func generate(

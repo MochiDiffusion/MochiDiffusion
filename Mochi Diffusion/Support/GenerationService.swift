@@ -50,8 +50,11 @@ actor GenerationService {
         self.engineRegistry = engineRegistry
     }
 
+    /// Latest-state stream: only the newest snapshot matters, so a suspended UI
+    /// cannot accumulate obsolete ones. `results()` below stays unbounded on
+    /// purpose — a dropped result is a lost image.
     func updates() -> AsyncStream<Snapshot> {
-        AsyncStream { continuation in
+        AsyncStream(bufferingPolicy: .bufferingNewest(1)) { continuation in
             let id = UUID()
             continuations[id] = continuation
             continuation.yield(snapshot())

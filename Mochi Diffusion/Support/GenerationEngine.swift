@@ -47,6 +47,10 @@ nonisolated struct GenerationDraft: Sendable {
     var showGenerationPreview: Bool
     var imageDir: String
     var imageType: String
+    /// Where the shared ControlNet bundles live. Only Core ML Stable Diffusion
+    /// reads it — the same wart as `EngineSettings.controlNetDirectory`, and it
+    /// goes away with the per-engine settings store in Phase 5.
+    var controlNetDirectory: URL
 }
 
 nonisolated struct ControlNetDraft: Sendable {

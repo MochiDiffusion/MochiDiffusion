@@ -220,12 +220,24 @@ final class GalleryController {
         imageFolderMonitorTask?.cancel()
         let path = imageDirectoryPath()
         imageFolderMonitorTask = Task { [weak self] in
-            guard let self else { return }
+            // Weak inside the loop rather than hoisted before it: the loop never
+            // ends on its own, so a strong `self` here meant the task and the
+            // controller kept each other alive indefinitely (§11.6).
             let stream = await FolderMonitorService.shared.updates(for: path)
             for await _ in stream {
+                guard let self else { return }
                 await self.syncImages()
             }
         }
+    }
+
+    /// Cancels every task this controller owns. See
+    /// `GenerationController.shutdown()`.
+    func shutdown() {
+        imageFolderMonitorTask?.cancel()
+        imageDirDebounceTask?.cancel()
+        imageFolderMonitorTask = nil
+        imageDirDebounceTask = nil
     }
 
     private func imageDirectoryPath() -> String {

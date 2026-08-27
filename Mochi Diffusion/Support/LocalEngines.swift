@@ -37,9 +37,7 @@ nonisolated struct CoreMLStableDiffusionEngine: GenerationEngineDescriptor {
         let controlNets = controlNets(in: settings.controlNetDirectory)
         return try fileSystem.subDirectories(in: settings.modelDirectory)
             .compactMap { url in
-                linkControlNetDirectoryIfNeeded(
-                    for: url, controlNetDir: settings.controlNetDirectory)
-                return SDModel(
+                SDModel(
                     url: url,
                     name: ModelID.localKey(for: url),
                     controlNet: hasControlNet(url) ? controlNets : []
@@ -53,6 +51,7 @@ nonisolated struct CoreMLStableDiffusionEngine: GenerationEngineDescriptor {
         // A fixed-size model produces its own size whatever the sidebar says, and
         // every image handed to it has to match.
         let size = model.inputSize ?? draft.configuredSize
+        let computeUnit = draft.computeUnitPreference.computeUnits(forModel: model)
 
         var controlNetNames: [String] = []
         var controlNetImageNames: [String] = []
@@ -79,9 +78,10 @@ nonisolated struct CoreMLStableDiffusionEngine: GenerationEngineDescriptor {
         return GenerationPlan<CoreMLGenerationPayload>(
             payload: CoreMLGenerationPayload(
                 model: model,
-                computeUnit: draft.computeUnitPreference.computeUnits(forModel: model),
+                computeUnit: computeUnit,
                 reduceMemory: draft.reduceMemory,
-                disableSafety: !draft.safetyChecker
+                disableSafety: !draft.safetyChecker,
+                controlNetDirectory: draft.controlNetDirectory
             ),
             size: size,
             startingImageData: draft.startingImage?.scaledAndCroppedTo(size: size)?.pngData(),
@@ -90,7 +90,7 @@ nonisolated struct CoreMLStableDiffusionEngine: GenerationEngineDescriptor {
             controlNetImageNames: controlNetImageNames,
             stepCount: draft.stepCount,
             scheduler: draft.scheduler,
-            mlComputeUnit: draft.computeUnitPreference.computeUnits(forModel: model),
+            mlComputeUnit: computeUnit,
             startingImageName: draft.startingImageName?.normalizedFilename,
             inputImageNames: []
         )
@@ -102,23 +102,6 @@ nonisolated struct CoreMLStableDiffusionEngine: GenerationEngineDescriptor {
 
     private func hasControlNet(_ url: URL) -> Bool {
         fileSystem.fileExists(url.appending(components: "ControlledUnet.mlmodelc", "metadata.json"))
-    }
-
-    /// A ControlNet-capable model needs the ControlNet bundles reachable from
-    /// inside its own directory, so discovery drops a symlink in.
-    ///
-    /// A write during discovery is a side effect that does not belong on a read
-    /// path — it fires on every folder-change event, and it mutates the user's
-    /// models folder. Preserved as-is here because this step is a refactor;
-    /// pipeline loading is where it belongs, which is the runtime's job in Phase 3.
-    private func linkControlNetDirectoryIfNeeded(for url: URL, controlNetDir: URL) {
-        guard hasControlNet(url) else { return }
-        let link = url.appending(component: "controlnet")
-        guard !fileSystem.fileExists(link) else { return }
-        try? FileManager.default.createSymbolicLink(
-            atPath: link.path(percentEncoded: false),
-            withDestinationPath: controlNetDir.path(percentEncoded: false)
-        )
     }
 
     private func controlNets(in directory: URL) -> [SDControlNet] {
@@ -208,6 +191,10 @@ nonisolated struct CoreMLGenerationPayload: Sendable {
     let computeUnit: MLComputeUnits
     let reduceMemory: Bool
     let disableSafety: Bool
+    /// Carried so the runtime can link the bundles into the model directory when
+    /// it is about to load a ControlNet pipeline, rather than discovery doing it
+    /// for every model on every folder-change event.
+    let controlNetDirectory: URL
 }
 
 /// Iris loads from a directory rather than a typed model handle.
