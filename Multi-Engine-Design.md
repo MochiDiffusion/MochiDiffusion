@@ -356,14 +356,39 @@ a negative prompt — and an engine's model type restating them is the same smal
 `config` already carries. `engine.constraints(for: model)` would spare that at the cost of
 an indirection on the path the sidebar reads most.
 
-**The size swap button is hidden when the size is pinned.** Today `SizeView`'s swap calls
-`GenerationController.setSize`, which for a Core ML model searches for a *different* model
-whose name prefix matches and whose orientation is flipped — `foo_512x768` → `foo_768x512`.
-Constraints cannot express "a sibling model has the other orientation", and the heuristic's
-own comment calls itself hacky. A fixed-size model has one size, so the control goes away
-and the model picker is how you reach the other orientation. The name-prefix search is
-deleted with it. This is a small regression for anyone relying on paired models; it buys
-back a control that lied about what it did.
+**The size swap keeps working for paired Core ML models, behind an engine hook.**
+
+Today `SizeView`'s swap calls `GenerationController.setSize`, which for a Core ML model
+searches for a *different* model whose name prefix matches and whose orientation is flipped
+— `foo_512x768` → `foo_768x512`. An earlier revision of this section proposed deleting it,
+on the grounds that constraints cannot express "a sibling model has the other orientation"
+and the heuristic's own comment calls itself hacky.
+
+That was wrong: **it is released behaviour.** Both the swap button and `setSize`'s
+model-prefix search are present at `v6.0`, and `setSize` has a second released caller —
+`copySizeToPrompt`, behind the Info panel's copy-size button, which v6.0's notes list as a
+feature. Removing the search would have quietly broken both. Phase 4 is a refactor with a
+visible payload; it does not get to drop shipped features to make a type nicer.
+
+So the relationship moves into the engine rather than out of the app. The descriptor gains
+a resolution the engine performs over its own models:
+
+```swift
+/// The model this engine would use to produce `size`, when its models are
+/// per-size variants. `nil` when there is no such model — the default, and what
+/// every engine with freeform sizes returns.
+func model(forSize size: CGSize, among candidates: [Model], current: Model) -> Model?
+```
+
+Core ML implements the name-prefix and orientation search it does today; Iris returns
+`nil`. `GenerationController.setSize` and `copySizeToPrompt` route through it, which is what
+removes the `as? SDModel` downcast from the controller and from `SizeView` without removing
+the behaviour.
+
+The swap button is then shown when the size is freeform (swap the two numbers, as now) or
+when it is pinned *and* the engine offers a model for the flipped size. A lone fixed-size
+model with no sibling hides the button — today it is shown and silently does nothing, so
+that case gets better rather than worse.
 
 **`plan` normalizes; it throws only when normalization is impossible.** §5.3 said Phase 4
 makes `plan` reject unsupported values, which is too strong. The persisted width and height
@@ -611,7 +636,7 @@ Confidence labels are honest signals about how much these should be trusted.
 | 2 | Engine descriptor/registry, `EngineID`/`ModelID`, independent discovery, migration, `.engine`/`.modelKey` metadata keys | none | **done** |
 | 3 | Engine runtime and session boundaries; request-scoped cancellation; remove serialization-assumption `@unchecked Sendable`; move generator selection, the payload downcast and the ControlNet symlink write out of the queue and discovery (§4) | ordered progress, no cross-job previews | **done** |
 | 4a | Constraints model; `plan` as the sole resolution point; request carries resolved values | none | settled |
-| 4b | Sidebar driven from constraints; size swap hidden for pinned sizes | unsupported controls hide; step count stops lying | settled |
+| 4b | Sidebar driven from constraints; size swap routed through the engine | unsupported controls hide; step count stops lying | settled |
 | 5 | Engine picker, per-engine settings store, Settings restructure | the feature as described | likely |
 | 6 | OpenAI engine: Keychain, indeterminate progress, richer errors | first hosted engine | sketch |
 | 7 | MediaGenerationKit prototype, then local/remote integration | | direction only |
