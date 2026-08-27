@@ -69,9 +69,26 @@ fi
 
 MPS_TARGETS="${MPS_TARGETS} ${METAL_OBJ}"
 
+# ---- PIN THE CPU BASELINE ----
+# The vendor Makefile hardcodes -march=native. On a post-M1 Mac that raises the
+# baseline from ARMv8.5-A to ARMv8.6-A and enables +bf16/+i8mm, extensions the
+# M1 does not implement, so a release built on newer hardware can emit
+# instructions that fault with SIGILL on M1 only -- invisible on the build
+# machine. Rewrite just that flag to the oldest Apple Silicon the app supports
+# (macOS 15.6 runs on M1), preserving whatever else upstream sets so the
+# override does not drift when the submodule is bumped.
+# Note: -mcpu cannot override -march, so the flag has to be replaced.
+CFLAGS_BASE_UPSTREAM="$(awk -F'= ' '/^CFLAGS_BASE[[:space:]]*=[[:space:]]*/ {print $2; exit}' "${VENDOR_DIR}/Makefile")"
+if [ -z "${CFLAGS_BASE_UPSTREAM}" ]; then
+  echo "error: Could not parse CFLAGS_BASE from ${VENDOR_DIR}/Makefile"
+  exit 1
+fi
+CFLAGS_BASE_PINNED="$(printf '%s' "${CFLAGS_BASE_UPSTREAM}" | sed 's/-march=native/-mcpu=apple-m1/g')"
+echo "Vendor CFLAGS_BASE: ${CFLAGS_BASE_PINNED}"
+
 # ---- BUILD ONLY THE VENDOR OBJECTS (NO LINK STEP) ----
 make -C "${VENDOR_DIR}" clean
-make -C "${VENDOR_DIR}" ${MPS_TARGETS}
+make -C "${VENDOR_DIR}" CFLAGS_BASE="${CFLAGS_BASE_PINNED}" ${MPS_TARGETS}
 
 # ---- ARCHIVE INTO A STATIC LIB ----
 rm -f "${OUT_LIB}"
