@@ -650,15 +650,21 @@ lint` clean. It uses current idioms correctly: `@Test`, parameterized `arguments
 
 Changes needed before it becomes the contract for the new architecture:
 
-0. **Still outstanding.** `MetadataCodecTests` is declared `nonisolated` as a local
-   workaround, because `@Test(arguments:)` cannot read a main-actor-isolated `static let`
-   from its macro expansion. That is a symptom of item 1, not a fix for it.
+1. ~~**Drop the Main Actor default for the test target.**~~ Done. The test target now sets
+   `SWIFT_DEFAULT_ACTOR_ISOLATION = nonisolated` (the app target keeps `MainActor`), so
+   pure domain suites run nonisolated and in parallel, and actor crossings stay visible.
+   `@MainActor` is now applied only where production isolation genuinely requires it:
+   `MetadataRoundTripTests` (constructs and mutates `SDImage`) and
+   `ComputeUnitPreferenceTests` (`ComputeUnitPreference` is main-actor-isolated).
 
-1. **Drop the Main Actor default for the test target.** It currently inherits
-   `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor` from the app target, which serializes pure
-   domain tests onto the main actor and hides exactly the actor-crossing problems §11 is
-   about. Default the target to nonisolated and annotate `@MainActor` only where a suite
-   touches genuinely main-actor types (`MetadataRoundTripTests` currently qualifies).
+   The setting is written explicitly as `nonisolated` rather than deleted, so it does not
+   silently change if Xcode's target template default changes.
+
+   Worth noting for Phase 4: `ComputeUnitPreference` is a pure value mapping that only
+   needs `@MainActor` because it was never marked `nonisolated`. When compute-unit
+   selection moves into the Core ML engine it should become `nonisolated`, and that test
+   annotation should disappear with it.
+
 2. **Delete `kleinTakesPrecedenceOverCoreML`.** It pins sniffer precedence, which §5.5
    removes. Replace it with a test that both engines can expose the same directory under
    distinct `ModelID`s.

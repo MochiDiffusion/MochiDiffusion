@@ -15,7 +15,7 @@ import Testing
 /// values. Version 1 — everything written before this type existed — joined
 /// fields with `"; "` and escaped nothing; those captions must keep parsing
 /// exactly as they did, since real user galleries are full of them.
-nonisolated struct MetadataCodecTests {
+struct MetadataCodecTests {
 
     // MARK: - Round trip
 

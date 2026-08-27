@@ -154,6 +154,7 @@ struct PipelineBehaviorTests {
 
 /// Compute unit selection is Core ML specific and moves into the Core ML
 /// provider; the auto behaviour is the part users notice.
+@MainActor
 struct ComputeUnitPreferenceTests {
     let temp: TempDirectory
 

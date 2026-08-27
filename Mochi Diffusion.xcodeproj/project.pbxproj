@@ -969,7 +969,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.joshua-park.Mochi-Diffusion.tests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = nonisolated;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/Mochi Diffusion/Iris-BridgingHeader.h";
 				SWIFT_STRICT_CONCURRENCY = complete;
@@ -992,7 +992,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.joshua-park.Mochi-Diffusion.tests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = nonisolated;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/Mochi Diffusion/Iris-BridgingHeader.h";
 				SWIFT_STRICT_CONCURRENCY = complete;
