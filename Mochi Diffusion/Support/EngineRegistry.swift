@@ -60,32 +60,97 @@ actor EngineRegistry {
         engines.first { $0.id == id }
     }
 
-    func availability(_ settings: EngineSettings) async -> [EngineID: EngineAvailability] {
-        var result: [EngineID: EngineAvailability] = [:]
-        for engine in engines {
-            result[engine.id] = await engine.availability(settings)
-        }
-        return result
+    /// Everything one refresh produces, so a caller applies a single consistent
+    /// snapshot.
+    ///
+    /// Availability and discovery used to be two separate calls, which let a caller
+    /// pair one engine's availability with another pass's models. They are gathered
+    /// together here and returned together.
+    struct Refresh: Sendable {
+        let discoveries: [Discovery]
+        let availability: [EngineID: EngineAvailability]
+
+        var models: [any EngineModel] { discoveries.allModels }
+        var failures: [(engine: EngineID, error: any Error)] { discoveries.failures }
     }
 
-    /// Discovers every engine's models, in registration order.
+    /// Asks every engine what it has and whether it can be used, concurrently.
+    ///
+    /// Concurrent because the work is per engine and independent: with a hosted
+    /// engine registered, a serial pass would make a slow network round trip delay
+    /// the local engines that were ready all along.
     ///
     /// Never throws. An engine that fails contributes its error and no models,
     /// which is what keeps one engine's problem from looking like a global one.
-    func discoverAll(settings: EngineSettings) async -> [Discovery] {
+    func refresh(settings: EngineSettings) async -> Refresh {
         // Enumerated once for the whole pass; see `ModelDiscoveryContext`.
         let context = ModelDiscoveryContext(settings: settings, fileSystem: fileSystem)
-        var results: [Discovery] = []
-        for engine in engines {
-            do {
-                let models = try await engine.discoverModels(context)
-                results.append(Discovery(engine: engine.id, models: models, failure: nil))
-            } catch {
-                logger.error("\(engine.id.rawValue) discovery failed: \(error)")
-                results.append(Discovery(engine: engine.id, models: [], failure: error))
+
+        var discoveredByEngine: [EngineID: Discovery] = [:]
+        var availability: [EngineID: EngineAvailability] = [:]
+
+        await withTaskGroup(of: (EngineID, Discovery, EngineAvailability).self) { group in
+            for engine in engines {
+                group.addTask {
+                    // Both halves of one engine's answer, also concurrently: a
+                    // hosted engine will reach the network for each.
+                    async let reported = engine.availability(settings)
+                    let discovery: Discovery
+                    do {
+                        let models = try await engine.discoverModels(context)
+                        discovery = Discovery(engine: engine.id, models: models, failure: nil)
+                    } catch {
+                        discovery = Discovery(engine: engine.id, models: [], failure: error)
+                    }
+                    return (engine.id, discovery, await reported)
+                }
+            }
+            for await (id, discovery, reported) in group {
+                discoveredByEngine[id] = discovery
+                availability[id] = reported
             }
         }
-        return results
+
+        for engine in engines {
+            guard let failure = discoveredByEngine[engine.id]?.failure else { continue }
+            logger.error("\(engine.id.rawValue) discovery failed: \(failure)")
+            // A discovery failure *is* an availability failure, and merging it here
+            // rather than in the caller is what stops it being lost. `availability`
+            // only asks whether the models folder exists, so a folder that exists
+            // and cannot be read answers `.ready`; without this the picker would
+            // find an engine that is ready with no models and report "No models
+            // found", sending the user after missing models when the folder is the
+            // problem.
+            //
+            // Only `.ready` is overridden. An engine that already said why it cannot
+            // be used — no API key, host unreachable — has given the better reason,
+            // and its discovery failing is a consequence of it rather than a second
+            // fact. Replacing that with a generic message would lose the only one
+            // the user can act on.
+            guard case .ready = availability[engine.id] else { continue }
+            availability[engine.id] = .unreachable(
+                String(
+                    localized: "Models could not be read",
+                    comment: "Engine unavailable because listing its models failed"
+                )
+            )
+        }
+
+        // Re-ordered to registration order, which the task group does not preserve.
+        // `allModels` breaks name ties by engine id, and presentation order is
+        // supposed to be fixed in code rather than depend on completion timing.
+        return Refresh(
+            discoveries: engines.compactMap { discoveredByEngine[$0.id] },
+            availability: availability
+        )
+    }
+
+    /// Discovery alone, in registration order.
+    ///
+    /// Kept for tests that assert discovery without availability. Production uses
+    /// ``refresh(settings:)``, so the two halves cannot be paired across passes.
+    func discoverAll(settings: EngineSettings) async -> [Discovery] {
+        await refresh(settings: settings).discoveries
     }
 }
 

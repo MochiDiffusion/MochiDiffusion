@@ -433,8 +433,11 @@ struct EngineRegistryTests {
             AnyGenerationEngine(CoreMLStableDiffusionEngine()),
         ])
 
-        let availability = await registry.availability(settings)
+        let availability = await registry.refresh(settings: settings).availability
 
+        // `FailingEngine` also fails discovery, and its own reason survives that: an
+        // engine that has said why it cannot be used has given the actionable
+        // answer, and its discovery failing follows from it.
         #expect(availability[EngineID(rawValue: "failing")] == .needsConfiguration("always"))
         #expect(availability[.coreMLStableDiffusion] == .ready)
     }

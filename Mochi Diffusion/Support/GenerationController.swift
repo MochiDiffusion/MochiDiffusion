@@ -62,6 +62,10 @@ final class GenerationController {
     /// Why each engine can or cannot be used, refreshed with every discovery pass.
     private(set) var engineAvailability: [EngineID: EngineAvailability] = [:]
 
+    /// Increments per `loadModels()` call, so a pass that finishes after a newer one
+    /// can tell and discard itself rather than overwriting it.
+    private var loadGeneration = 0
+
     var selectedEngine: EngineID? {
         engineSettings.selectedEngine
     }
@@ -129,6 +133,10 @@ final class GenerationController {
     /// A `withObservationTracking` callback stays armed until it fires, and firing
     /// is what re-registers it, so cancelling tasks alone does not stop a
     /// configuration change after `shutdown()` from scheduling fresh work.
+    ///
+    /// Also checked by `loadModels()` after its await. Cancellation is cooperative,
+    /// so a refresh already past that point would otherwise mutate — and keep
+    /// alive — a controller that has been shut down.
     private var isShutDown = false
 
     /// - Parameter startsObserving: whether to begin the eager work — the initial
@@ -171,6 +179,8 @@ final class GenerationController {
     }
 
     func loadModels() async {
+        loadGeneration += 1
+        let generation = loadGeneration
         logger.info("Started loading model directory at: \"\(self.configStore.modelDir)\"")
         do {
             let modelDirectoryURL = ModelRepository.modelDirectoryURL(
@@ -183,27 +193,25 @@ final class GenerationController {
                 modelDirectory: modelDirectoryURL,
                 controlNetDirectory: controlNetDirectoryURL
             )
-            let discoveries = await engineRegistry.discoverAll(settings: settings)
-            var availability = await engineRegistry.availability(settings)
-            // A discovery failure is an availability failure, and has to be merged
-            // in or it is lost. `availability` only asks whether the models folder
-            // exists, so a folder that exists but cannot be read answers `.ready`,
-            // discovery then throws, and the picker — finding an engine that is
-            // ready with no models — reports "No models found". That sends the user
-            // looking for missing models when the problem is the folder, which is
-            // exactly the distinction §8 asks each engine to make for itself.
-            for (engine, error) in discoveries.failures {
-                logger.error("\(engine.rawValue) discovery failed: \(error)")
-                availability[engine] = .unreachable(
-                    String(
-                        localized: "Models could not be read",
-                        comment: "Engine unavailable because listing its models failed"
-                    )
-                )
-            }
-            engineAvailability = availability
+            // One aggregate pass: availability and discovery gathered together, so
+            // this cannot pair one engine's availability with another pass's models.
+            let refresh = await engineRegistry.refresh(settings: settings)
 
-            let discoveredModels = discoveries.allModels
+            // The two guards that make a refresh abandonable. `loadModels` is
+            // started by the initial load, two folder monitors and two debounced
+            // settings paths, and `@MainActor` serialises the *mutations* without
+            // preventing reentrancy across the await above. Without the epoch, a
+            // pass for the previous models folder could finish after a newer pass
+            // and overwrite its models, availability and selection.
+            guard generation == loadGeneration else {
+                logger.info("Discarding a superseded model load")
+                return
+            }
+            guard !isShutDown else { return }
+
+            engineAvailability = refresh.availability
+            let discoveries = refresh.discoveries
+            let discoveredModels = refresh.models
             // Assigned before the check below, so a pass that finds nothing empties
             // the picker instead of leaving the previous pass's models on screen.
             self.models = discoveredModels

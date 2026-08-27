@@ -427,3 +427,290 @@ struct EnginePickerTests {
         }
     }
 }
+
+/// Records how many engines were inside discovery at once, so concurrency is
+/// asserted rather than assumed.
+private actor ConcurrencyProbe {
+    private(set) var peak = 0
+    private(set) var started = 0
+    private var inside = 0
+    private var waiters: [CheckedContinuation<Void, Never>] = []
+
+    func enter() async {
+        inside += 1
+        started += 1
+        peak = max(peak, inside)
+        for waiter in waiters {
+            waiter.resume()
+        }
+        waiters = []
+    }
+
+    func leave() {
+        inside -= 1
+    }
+
+    /// Suspends until `count` engines have entered, so the probe does not have to
+    /// guess how long to hold them.
+    func waitUntilStarted(_ count: Int) async {
+        while started < count {
+            await withCheckedContinuation { waiters.append($0) }
+        }
+    }
+}
+
+/// Enters the probe, waits for every engine to arrive, then returns. Serial
+/// discovery would deadlock here rather than merely be slow, so the assertion is
+/// unambiguous.
+private struct ProbedEngine: GenerationEngineDescriptor {
+    struct Model: EngineModel {
+        let id: ModelID
+        let url: URL
+        let name: String
+        var constraints: OptionConstraints { .unconstrained }
+        var metadataFields: Set<MetadataField> { [.prompt] }
+        var tokenizerModelDir: URL? { nil }
+    }
+    struct Payload: Sendable {}
+    struct NotRun: Error {}
+
+    let engineID: EngineID
+    let probe: ConcurrencyProbe
+    let expected: Int
+
+    static var id: EngineID { EngineID(rawValue: "probed") }
+    var displayName: String { engineID.rawValue }
+
+    func availability(_ settings: EngineSettings) async -> EngineAvailability { .ready }
+
+    func discoverModels(_ context: ModelDiscoveryContext) async throws -> [Model] {
+        await probe.enter()
+        await probe.waitUntilStarted(expected)
+        await probe.leave()
+        return [
+            Model(
+                id: ModelID(engine: engineID, key: "model"),
+                url: URL(fileURLWithPath: "/dev/null"),
+                name: engineID.rawValue
+            )
+        ]
+    }
+
+    func plan(draft: GenerationDraft, model: Model) throws -> GenerationPlan<Payload> {
+        throw NotRun()
+    }
+
+    func makeRuntime() -> any GenerationEngineRuntime { fatalError("never runs") }
+}
+
+/// Pins that one refresh is one consistent snapshot, gathered concurrently.
+struct EngineRefreshTests {
+    let temp: TempDirectory
+    let modelDir: URL
+
+    init() throws {
+        temp = try TempDirectory()
+        modelDir = try temp.subdirectory("models")
+    }
+
+    private var settings: EngineSettings {
+        EngineSettings(modelDirectory: modelDir, controlNetDirectory: modelDir)
+    }
+
+    /// Serial discovery would hang instead of failing an assertion: each engine
+    /// waits for the other to arrive. A one-minute limit turns that into a failure.
+    @Test("Engines are asked concurrently, not one after another", .timeLimit(.minutes(1)))
+    func enginesAreAskedConcurrently() async throws {
+        let probe = ConcurrencyProbe()
+        let registry = EngineRegistry(engines: [
+            AnyGenerationEngine(
+                ProbedEngine(engineID: EngineID(rawValue: "a"), probe: probe, expected: 2)),
+            AnyGenerationEngine(
+                ProbedEngine(engineID: EngineID(rawValue: "b"), probe: probe, expected: 2)),
+        ])
+
+        let refresh = await registry.refresh(settings: settings)
+
+        #expect(await probe.peak == 2)
+        #expect(refresh.models.count == 2)
+    }
+
+    /// Registration order is fixed in code, and a task group does not preserve it,
+    /// so the refresh has to restore it.
+    @Test("Results come back in registration order however they complete")
+    func resultsAreInRegistrationOrder() async throws {
+        try makeSDModelFixture(at: modelDir.appending(path: "z-coreml"))
+        try makeKleinModelFixture(at: modelDir.appending(path: "a-klein"))
+
+        let refresh = await EngineRegistry().refresh(settings: settings)
+
+        #expect(refresh.discoveries.map(\.engine) == [.iris, .coreMLStableDiffusion])
+        // Sorted by name across engines, independent of completion order.
+        #expect(refresh.models.map(\.name) == ["a-klein", "z-coreml"])
+    }
+
+    @Test("Availability and models arrive from the same pass")
+    func availabilityAndModelsAreOneSnapshot() async throws {
+        try makeSDModelFixture(at: modelDir.appending(path: "a-coreml"))
+
+        let refresh = await EngineRegistry().refresh(settings: settings)
+
+        #expect(refresh.availability[.coreMLStableDiffusion] == .ready)
+        #expect(refresh.availability[.iris] == .ready)
+        #expect(refresh.models.map(\.name) == ["a-coreml"])
+        #expect(refresh.failures.isEmpty)
+    }
+}
+
+/// Lets a test decide the order two discovery passes finish in.
+private actor LoadSequencer {
+    private var startedCalls = 0
+    private var released: Set<Int> = []
+    private var releaseWaiters: [Int: [CheckedContinuation<Void, Never>]] = [:]
+    private var startWaiters: [CheckedContinuation<Void, Never>] = []
+
+    /// Claims the next call number and reports that it has started.
+    func begin() -> Int {
+        startedCalls += 1
+        for waiter in startWaiters {
+            waiter.resume()
+        }
+        startWaiters = []
+        return startedCalls
+    }
+
+    func waitForRelease(_ call: Int) async {
+        if released.contains(call) { return }
+        await withCheckedContinuation { releaseWaiters[call, default: []].append($0) }
+    }
+
+    func release(_ call: Int) {
+        released.insert(call)
+        for waiter in releaseWaiters[call] ?? [] {
+            waiter.resume()
+        }
+        releaseWaiters[call] = nil
+    }
+
+    func waitUntilStarted(_ count: Int) async {
+        while startedCalls < count {
+            await withCheckedContinuation { startWaiters.append($0) }
+        }
+    }
+}
+
+/// Names its model after the discovery pass that found it, and does not finish
+/// until the test says so, so "which pass won" is observable.
+private struct GatedEngine: GenerationEngineDescriptor {
+    struct Model: EngineModel {
+        let id: ModelID
+        let url: URL
+        let name: String
+        var constraints: OptionConstraints { .unconstrained }
+        var metadataFields: Set<MetadataField> { [.prompt] }
+        var tokenizerModelDir: URL? { nil }
+    }
+    struct Payload: Sendable {}
+    struct NotRun: Error {}
+
+    static let id = EngineID(rawValue: "gated")
+    let sequencer: LoadSequencer
+    var displayName: String { "Gated" }
+
+    func availability(_ settings: EngineSettings) async -> EngineAvailability { .ready }
+
+    func discoverModels(_ context: ModelDiscoveryContext) async throws -> [Model] {
+        let call = await sequencer.begin()
+        await sequencer.waitForRelease(call)
+        return [
+            Model(
+                id: ModelID(engine: Self.id, key: "call-\(call)"),
+                url: URL(fileURLWithPath: "/dev/null"),
+                name: "call-\(call)"
+            )
+        ]
+    }
+
+    func plan(draft: GenerationDraft, model: Model) throws -> GenerationPlan<Payload> {
+        throw NotRun()
+    }
+
+    func makeRuntime() -> any GenerationEngineRuntime { fatalError("never runs") }
+}
+
+/// Pins that a discovery pass which finishes late does not overwrite a newer one,
+/// and that a shut-down controller stops applying results.
+///
+/// `loadModels()` is started by the initial load, two folder monitors and two
+/// debounced settings paths. `@MainActor` serialises the mutations without
+/// preventing reentrancy across the await in the middle, so ordering is a real
+/// hazard rather than a theoretical one.
+@MainActor
+@Suite(.serialized, .timeLimit(.minutes(1)))
+struct RefreshOrderingTests {
+    let temp: TempDirectory
+    let tempDefaults: TempDefaults
+    let configStore: ConfigStore
+
+    init() throws {
+        temp = try TempDirectory()
+        tempDefaults = TempDefaults()
+        configStore = ConfigStore(store: tempDefaults.defaults)
+        configStore.modelDir = try temp.subdirectory("models").path(percentEncoded: false)
+    }
+
+    private func makeController(_ registry: EngineRegistry) -> GenerationController {
+        GenerationController(
+            configStore: configStore,
+            engineRegistry: registry,
+            startsObserving: false
+        )
+    }
+
+    @Test("A pass that finishes after a newer one discards itself")
+    func supersededPassIsDiscarded() async throws {
+        let sequencer = LoadSequencer()
+        let controller = makeController(
+            EngineRegistry(engines: [AnyGenerationEngine(GatedEngine(sequencer: sequencer))])
+        )
+
+        let first = Task { await controller.loadModels() }
+        await sequencer.waitUntilStarted(1)
+        let second = Task { await controller.loadModels() }
+        await sequencer.waitUntilStarted(2)
+
+        // The newer pass is allowed to finish *completely* before the older one is
+        // released — the order that used to leave the older pass's models on screen.
+        //
+        // Awaiting `second.value` here rather than at the end is what makes this a
+        // pin. Releasing a gate only schedules the waiting continuation, so
+        // releasing both and then awaiting leaves the order they apply in
+        // unspecified: without the epoch guard the test would pass whenever the
+        // older pass happened to run first.
+        await sequencer.release(2)
+        _ = await second.value
+        #expect(controller.models.map(\.name) == ["call-2"])
+
+        await sequencer.release(1)
+        _ = await first.value
+
+        #expect(controller.models.map(\.name) == ["call-2"])
+    }
+
+    @Test("A refresh already in flight applies nothing after shutdown")
+    func shutdownStopsAnInFlightRefresh() async throws {
+        let sequencer = LoadSequencer()
+        let controller = makeController(
+            EngineRegistry(engines: [AnyGenerationEngine(GatedEngine(sequencer: sequencer))])
+        )
+
+        let load = Task { await controller.loadModels() }
+        await sequencer.waitUntilStarted(1)
+        controller.shutdown()
+        await sequencer.release(1)
+        _ = await load.value
+
+        #expect(controller.models.isEmpty)
+        #expect(controller.currentModelId == nil)
+    }
+}
