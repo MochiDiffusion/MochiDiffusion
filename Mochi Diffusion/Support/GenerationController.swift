@@ -417,9 +417,14 @@ final class GenerationController {
             return nil
         }
 
-        let size = CGSize(width: configStore.width, height: configStore.height)
-        let targetImageSize = adapter.inputSize ?? size
-        let startingImageData = startingImage?.scaledAndCroppedTo(size: targetImageSize)?.pngData()
+        // A Core ML model with a fixed input size produces that size whatever the
+        // sidebar says, so the request records what will actually be generated
+        // rather than what was typed. JobQueueView both displays this and copies
+        // it back into the sidebar, so a configured size that the model ignores
+        // is a wrong number on screen.
+        let configuredSize = CGSize(width: configStore.width, height: configStore.height)
+        let size = adapter.inputSize ?? configuredSize
+        let startingImageData = startingImage?.scaledAndCroppedTo(size: size)?.pngData()
 
         var controlNetInputs: [Data] = []
         var controlNets: [String] = []
