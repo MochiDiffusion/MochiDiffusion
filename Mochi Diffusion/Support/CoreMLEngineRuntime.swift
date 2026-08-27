@@ -105,18 +105,29 @@ actor CoreMLEngineRuntime: GenerationEngineRuntime {
         reduceMemory: Bool,
         session: GenerationSession
     ) throws {
+        // Relinking happens *before* the cache check, and its result is part of
+        // the key. Both matter: changing the configured ControlNet folder used to
+        // leave a stale link in place and produce an identical hash, so the
+        // pipeline already loaded from the old folder was reused indefinitely.
+        // Only two stat calls, against reloading a multi-gigabyte pipeline.
+        var effectiveControlNetLocation: String?
+        if !controlNet.isEmpty {
+            effectiveControlNetLocation = ControlNetLink.resolve(
+                configured: controlNetDirectory,
+                in: model.url
+            )
+        }
+
         var hasher = Hasher()
         hasher.combine(model)
         hasher.combine(controlNet)
+        hasher.combine(effectiveControlNetLocation)
         hasher.combine(computeUnit)
         hasher.combine(reduceMemory)
         let hash = hasher.finalize()
         guard hash != currentPipelineHash else { return }
 
         session.emit(.state(.loading(nil)))
-        if !controlNet.isEmpty {
-            linkControlNetDirectory(controlNetDirectory, into: model.url)
-        }
         let configuration = MLModelConfiguration()
         configuration.computeUnits = computeUnit
 
@@ -144,24 +155,6 @@ actor CoreMLEngineRuntime: GenerationEngineRuntime {
         }
 
         currentPipelineHash = hash
-    }
-
-    /// The Apple pipeline resolves ControlNet bundles relative to the model
-    /// directory, so a ControlNet-capable model needs them reachable from inside
-    /// it.
-    ///
-    /// This used to run during discovery, which meant writing into the user's
-    /// models folder from a read path, for every capable model, on every
-    /// folder-change event. Here it happens once, for the one model about to
-    /// load, and only when that load actually wants ControlNet.
-    private func linkControlNetDirectory(_ directory: URL, into modelURL: URL) {
-        let link = modelURL.appending(component: "controlnet")
-        let fileManager = FileManager.default
-        guard !fileManager.fileExists(atPath: link.path(percentEncoded: false)) else { return }
-        try? fileManager.createSymbolicLink(
-            atPath: link.path(percentEncoded: false),
-            withDestinationPath: directory.path(percentEncoded: false)
-        )
     }
 
     private func generate(

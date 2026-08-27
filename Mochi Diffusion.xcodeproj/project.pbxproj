@@ -73,6 +73,7 @@
 		C0DEC0DEC0DEC0DEC0DE0002 /* MetadataCodec.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DEC0DEC0DEC0DEC0DE0001 /* MetadataCodec.swift */; };
 		AA4000000000000000000002 /* PreferenceMigration.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA4000000000000000000001 /* PreferenceMigration.swift */; };
 		AA50000000000000000001102 /* GenerationEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA50000000000000000001101 /* GenerationEngine.swift */; };
+		AA50000000000000000001922 /* ControlNetLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA50000000000000000001921 /* ControlNetLink.swift */; };
 		AA50000000000000000001912 /* GenerationError.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA50000000000000000001911 /* GenerationError.swift */; };
 		AA50000000000000000001902 /* GenerationSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA50000000000000000001901 /* GenerationSession.swift */; };
 		AA50000000000000000001202 /* LocalEngines.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA50000000000000000001201 /* LocalEngines.swift */; };
@@ -107,6 +108,7 @@
 		AA2000000000000000000008 /* EngineIdentityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000008 /* EngineIdentityTests.swift */; };
 		AA2000000000000000000009 /* PreferenceMigrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000009 /* PreferenceMigrationTests.swift */; };
 		AA2000000000000000000010 /* EngineDiscoveryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000010 /* EngineDiscoveryTests.swift */; };
+		AA2000000000000000000091 /* ControlNetLinkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000091 /* ControlNetLinkTests.swift */; };
 		AA2000000000000000000090 /* GenerationSessionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000090 /* GenerationSessionTests.swift */; };
 		AA2000000000000000000003 /* ModelDiscoveryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000003 /* ModelDiscoveryTests.swift */; };
 		AA2000000000000000000004 /* ComputeUnitPreferenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000004 /* ComputeUnitPreferenceTests.swift */; };
@@ -189,6 +191,7 @@
 		C0DEC0DEC0DEC0DEC0DE0001 /* MetadataCodec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetadataCodec.swift; sourceTree = "<group>"; };
 		AA4000000000000000000001 /* PreferenceMigration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferenceMigration.swift; sourceTree = "<group>"; };
 		AA50000000000000000001101 /* GenerationEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationEngine.swift; sourceTree = "<group>"; };
+		AA50000000000000000001921 /* ControlNetLink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlNetLink.swift; sourceTree = "<group>"; };
 		AA50000000000000000001911 /* GenerationError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationError.swift; sourceTree = "<group>"; };
 		AA50000000000000000001901 /* GenerationSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationSession.swift; sourceTree = "<group>"; };
 		AA50000000000000000001201 /* LocalEngines.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalEngines.swift; sourceTree = "<group>"; };
@@ -231,6 +234,7 @@
 		AA1000000000000000000008 /* EngineIdentityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngineIdentityTests.swift; sourceTree = "<group>"; };
 		AA1000000000000000000009 /* PreferenceMigrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferenceMigrationTests.swift; sourceTree = "<group>"; };
 		AA1000000000000000000010 /* EngineDiscoveryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngineDiscoveryTests.swift; sourceTree = "<group>"; };
+		AA1000000000000000000091 /* ControlNetLinkTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlNetLinkTests.swift; sourceTree = "<group>"; };
 		AA1000000000000000000090 /* GenerationSessionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationSessionTests.swift; sourceTree = "<group>"; };
 		AA1000000000000000000003 /* ModelDiscoveryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelDiscoveryTests.swift; sourceTree = "<group>"; };
 		AA1000000000000000000004 /* ComputeUnitPreferenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComputeUnitPreferenceTests.swift; sourceTree = "<group>"; };
@@ -293,6 +297,7 @@
 				C0DEC0DEC0DEC0DEC0DE0001 /* MetadataCodec.swift */,
 				AA4000000000000000000001 /* PreferenceMigration.swift */,
 				AA50000000000000000001101 /* GenerationEngine.swift */,
+				AA50000000000000000001921 /* ControlNetLink.swift */,
 				AA50000000000000000001911 /* GenerationError.swift */,
 				AA50000000000000000001901 /* GenerationSession.swift */,
 				AA50000000000000000001201 /* LocalEngines.swift */,
@@ -444,6 +449,7 @@
 				AA1000000000000000000008 /* EngineIdentityTests.swift */,
 				AA1000000000000000000009 /* PreferenceMigrationTests.swift */,
 				AA1000000000000000000010 /* EngineDiscoveryTests.swift */,
+				AA1000000000000000000091 /* ControlNetLinkTests.swift */,
 				AA1000000000000000000090 /* GenerationSessionTests.swift */,
 				AA1000000000000000000002 /* MetadataRoundTripTests.swift */,
 				AA1000000000000000000003 /* ModelDiscoveryTests.swift */,
@@ -703,6 +709,7 @@
 				C0DEC0DEC0DEC0DEC0DE0002 /* MetadataCodec.swift in Sources */,
 				AA4000000000000000000002 /* PreferenceMigration.swift in Sources */,
 				AA50000000000000000001102 /* GenerationEngine.swift in Sources */,
+				AA50000000000000000001922 /* ControlNetLink.swift in Sources */,
 				AA50000000000000000001912 /* GenerationError.swift in Sources */,
 				AA50000000000000000001902 /* GenerationSession.swift in Sources */,
 				AA50000000000000000001202 /* LocalEngines.swift in Sources */,
@@ -731,6 +738,7 @@
 				AA2000000000000000000008 /* EngineIdentityTests.swift in Sources */,
 				AA2000000000000000000009 /* PreferenceMigrationTests.swift in Sources */,
 				AA2000000000000000000010 /* EngineDiscoveryTests.swift in Sources */,
+				AA2000000000000000000091 /* ControlNetLinkTests.swift in Sources */,
 				AA2000000000000000000090 /* GenerationSessionTests.swift in Sources */,
 				AA2000000000000000000002 /* MetadataRoundTripTests.swift in Sources */,
 				AA2000000000000000000003 /* ModelDiscoveryTests.swift in Sources */,
