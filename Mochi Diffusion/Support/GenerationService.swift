@@ -21,7 +21,7 @@ actor GenerationService {
     private var current: GenerationRequest?
     private var cancelingCurrentID: GenerationRequest.ID?
     /// The running request's cancellation flag and event route. Held so
-    /// ``stopCurrentGeneration()`` can cancel without calling into a runtime that
+    /// `stopCurrentGeneration()` can cancel without calling into a runtime that
     /// is blocked inside a synchronous generate.
     private var currentSession: GenerationSession?
     private var processingTask: Task<Void, Never>?

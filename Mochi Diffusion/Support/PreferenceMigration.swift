@@ -8,7 +8,7 @@ import Foundation
 /// One-time migration of the pre-multi-engine selected-model preference.
 ///
 /// Before engines existed, the selection was an absolute `URL` under the models
-/// directory. It is now a ``ModelID``: an engine plus the model directory's name.
+/// directory. It is now a `ModelID`: an engine plus the model directory's name.
 /// The engine is not recoverable from the URL, so it has to be recovered some
 /// other way.
 ///
@@ -21,7 +21,7 @@ import Foundation
 /// models means the migration agrees with the list the user is about to see.
 ///
 /// Deciding and persisting are separate so the decision can be tested as a pure
-/// function. ``ConfigStore/migrateSelectedModelIfNeeded(discovered:)`` applies it.
+/// function. `ConfigStore.migrateSelectedModelIfNeeded(discovered:)` applies it.
 ///
 /// Delete this type once the migration window closes.
 nonisolated enum PreferenceMigration {

@@ -19,7 +19,7 @@ import Foundation
 nonisolated enum MetadataCodec {
     /// Bumped only when the encoding rules change, never with the app version.
     /// The app version continues to travel in `Metadata.generator`, which gates
-    /// import separately via ``isSupportedGeneratedVersion(_:)``.
+    /// import separately via `isSupportedGeneratedVersion(_:)`.
     static let currentVersion = 2
 
     /// Not a `Metadata` case: this is a codec concern, not a field users see.

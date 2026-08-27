@@ -48,11 +48,11 @@ nonisolated extension ModelID {
     /// pair that looks valid, names nothing, and silently resets the user's
     /// selection on the next launch.
     ///
-    /// Deliberately not ``description``, so how an id reads in a log can change
+    /// Deliberately not `description`, so how an id reads in a log can change
     /// without changing what is on disk.
     var persistedValue: String { "\(engine.rawValue):\(key)" }
 
-    /// Parses ``persistedValue``.
+    /// Parses `persistedValue`.
     ///
     /// Splits on the *first* colon. Engine ids never contain one — we choose them
     /// — but a model key may, since a colon is legal in a POSIX filename.
@@ -93,7 +93,7 @@ nonisolated extension ModelID {
         url.lastPathComponent
     }
 
-    /// Whether `key` could have come from ``localKey(for:)``.
+    /// Whether `key` could have come from `localKey(for:)`.
     ///
     /// This is the escape check: a key is a single path component, so it cannot
     /// traverse out of the models directory. It belongs here rather than at

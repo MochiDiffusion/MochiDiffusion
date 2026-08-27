@@ -20,10 +20,10 @@ final class GalleryController {
 
     private var imageFolderMonitorTask: Task<Void, Never>?
     private var imageDirDebounceTask: Task<Void, Never>?
-    /// Stored, and capturing weakly, so ``shutdown()`` can cancel it and it cannot
+    /// Stored, and capturing weakly, so `shutdown()` can cancel it and it cannot
     /// outlive its owner.
     private var initialLoadTask: Task<Void, Never>?
-    /// See ``GenerationController/isShutDown``: cancelling tasks does not disarm a
+    /// See `GenerationController.isShutDown`: cancelling tasks does not disarm a
     /// `withObservationTracking` callback, and firing is what re-arms it.
     private var isShutDown = false
 
@@ -241,7 +241,7 @@ final class GalleryController {
     }
 
     /// Cancels every task this controller owns and stops it starting new ones.
-    /// See ``GenerationController/shutdown()``.
+    /// See `GenerationController.shutdown()`.
     func shutdown() {
         isShutDown = true
         initialLoadTask?.cancel()

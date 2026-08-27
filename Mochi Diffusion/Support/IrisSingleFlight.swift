@@ -9,7 +9,7 @@ import Foundation
 /// time whatever the queue above it does.
 ///
 /// **Making the runtime an actor does not achieve this.** Actors are reentrant at
-/// every suspension point, and ``IrisEngineRuntime/run(request:session:onResult:)``
+/// every suspension point, and `IrisEngineRuntime.run(request:session:onResult:)`
 /// suspends four times — twice on the embedding cache, once encoding image data,
 /// once delivering a result. A second call can enter during any of them and call
 /// `iris_clear_cancel()`, install its own callback route and load a second context

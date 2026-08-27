@@ -49,7 +49,7 @@ final class GenerationController {
     }
 
     /// What the sidebar should offer. Falls back to
-    /// ``OptionConstraints/unconstrained`` when no model is selected.
+    /// `OptionConstraints.unconstrained` when no model is selected.
     var currentConstraints: OptionConstraints {
         currentModel?.constraints ?? .unconstrained
     }
@@ -63,7 +63,7 @@ final class GenerationController {
     private var controlNetDirDebounceTask: Task<Void, Never>?
     private var generationUpdatesTask: Task<Void, Never>?
     private var generationResultsTask: Task<Void, Never>?
-    /// Stored, and capturing weakly, so ``shutdown()`` can reach it. An
+    /// Stored, and capturing weakly, so `shutdown()` can reach it. An
     /// unreferenced `Task` capturing `self` strongly would keep the controller
     /// alive until the load finished, with no handle to cancel.
     private var initialLoadTask: Task<Void, Never>?
@@ -72,15 +72,15 @@ final class GenerationController {
     ///
     /// A `withObservationTracking` callback stays armed until it fires, and firing
     /// is what re-registers it, so cancelling tasks alone does not stop a
-    /// configuration change after ``shutdown()`` from scheduling fresh work.
+    /// configuration change after `shutdown()` from scheduling fresh work.
     private var isShutDown = false
 
     /// - Parameter startsObserving: whether to begin the eager work — the initial
     ///   model load, the folder monitors, and the generation-service observation.
     ///   The app always wants it. Tests opt out so the controller owns no
     ///   background task that can reload models, and therefore reassign
-    ///   ``currentModelId``, in the middle of their assertions: its `didSet` clears
-    ///   ``currentControlNets``, so a stray reload silently empties state a test
+    ///   `currentModelId`, in the middle of their assertions: its `didSet` clears
+    ///   `currentControlNets`, so a stray reload silently empties state a test
     ///   just set up.
     init(
         configStore: ConfigStore,
@@ -340,7 +340,7 @@ final class GenerationController {
     ///
     /// An image whose metadata records an engine and key resolves exactly. Older
     /// images carry only a display name, which two engines may both offer — see
-    /// ``setModel(_:)`` for how that ambiguity is settled.
+    /// `setModel(_:)` for how that ambiguity is settled.
     func selectModel(named name: String, engine: String, key: String) {
         if !engine.isEmpty, !key.isEmpty {
             let id = ModelID(engine: EngineID(rawValue: engine), key: key)
@@ -407,7 +407,7 @@ final class GenerationController {
         currentModelId = variant.id
     }
 
-    /// Whether ``setSize(width:height:)`` would change anything, so the sidebar
+    /// Whether `setSize(width:height:)` would change anything, so the sidebar
     /// can hide a swap control that would silently do nothing.
     func canSetSize(width: Int, height: Int) -> Bool {
         guard let model = currentModel else { return false }
@@ -446,7 +446,7 @@ final class GenerationController {
         configStore.guidanceScale = sdi.guidanceScale
     }
 
-    /// Gathers the sidebar into a ``GenerationDraft``, hands it to the selected
+    /// Gathers the sidebar into a `GenerationDraft`, hands it to the selected
     /// model's engine to resolve, and copies the resulting plan into a request.
     /// Every per-engine decision belongs to that engine's `plan`.
     ///

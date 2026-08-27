@@ -45,7 +45,7 @@ nonisolated struct CoreMLGenerationConfig {
 /// and back, which Swift's region analysis cannot prove safe for a value read out
 /// of actor storage. Nothing deadlocks on it, because the two things that would
 /// want in during a generation do not come here — cancellation goes to the
-/// ``GenerationSession``, and the queue admits one request at a time.
+/// `GenerationSession`, and the queue admits one request at a time.
 actor CoreMLEngineRuntime: GenerationEngineRuntime {
     private var pipeline: (any StableDiffusionPipelineProtocol)?
     private var currentPipelineHash: Int?

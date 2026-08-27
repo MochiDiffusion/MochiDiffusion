@@ -10,9 +10,9 @@ import UniformTypeIdentifiers
 /// Runs Iris FLUX.2 requests.
 ///
 /// The Iris C calls block inside the actor for the length of a generation, the
-/// same trade ``CoreMLEngineRuntime`` documents.
+/// same trade `CoreMLEngineRuntime` documents.
 ///
-/// Single-flight is enforced by ``IrisSingleFlight``, *not* by this being an
+/// Single-flight is enforced by `IrisSingleFlight`, *not* by this being an
 /// actor. Actors are reentrant at every suspension point and `run` suspends four
 /// times, so a second call would otherwise interleave and reset the C library's
 /// process-global callback route and cancel flag under the first.

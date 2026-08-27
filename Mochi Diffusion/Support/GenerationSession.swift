@@ -16,7 +16,7 @@ import Foundation
 /// the next image — and a failed write has to fail the generation, which needs a
 /// call that can throw back into the generation loop. Results are also emitted
 /// from the generation loop rather than from a C callback, so they cannot arrive
-/// late. See ``GenerationEngineRuntime/run(request:session:onResult:)``.
+/// late. See `GenerationEngineRuntime.run(request:session:onResult:)`.
 nonisolated enum GenerationEvent: Sendable {
     /// A phase label such as "Loading model…". Informational only: the terminal
     /// `.ready` and `.error` states belong to whoever ran the session, so losing
@@ -107,7 +107,7 @@ nonisolated final class GenerationSession: @unchecked Sendable {
     /// Registers work to run the moment cancellation is requested, on the
     /// cancelling thread.
     ///
-    /// Polling ``isCancelled`` suffices for an engine whose loop asks between
+    /// Polling `isCancelled` suffices for an engine whose loop asks between
     /// steps, as Core ML's progress handler does. It does not for one that must be
     /// interrupted from outside: Iris runs its loop inside a C call that stops
     /// only when `iris_request_cancel()` sets the library's flag, and the runtime
@@ -140,7 +140,7 @@ nonisolated final class GenerationSession: @unchecked Sendable {
     /// Ends the event stream and drops anything emitted afterwards.
     ///
     /// Call once, after the runtime has returned. A C callback firing during
-    /// teardown may still reach ``emit(_:)``; it finds no continuation and goes
+    /// teardown may still reach `emit(_:)`; it finds no continuation and goes
     /// nowhere rather than arriving at the next request.
     func close() {
         lock.lock()

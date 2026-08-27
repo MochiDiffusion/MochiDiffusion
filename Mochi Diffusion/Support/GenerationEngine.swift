@@ -63,7 +63,7 @@ nonisolated struct ControlNetDraft: Sendable {
 /// returns *that engine's* payload type. Erasing it here instead would let an
 /// engine return the wrong payload with no diagnostic, surfacing only when a
 /// runtime unwrapped it — by which point the queue has dequeued the request and
-/// published it as current. ``erased()`` widens it once, at the boundary where the
+/// published it as current. `erased()` widens it once, at the boundary where the
 /// heterogeneous queue needs it.
 nonisolated struct GenerationPlan<Payload: Sendable>: Sendable {
     var payload: Payload
@@ -127,7 +127,7 @@ nonisolated enum EngineAvailability: Sendable, Equatable {
 /// session.
 ///
 /// Deliberately has no `cancel` method. Cancellation lives on the
-/// ``GenerationSession`` the caller already holds, because a runtime that blocks
+/// `GenerationSession` the caller already holds, because a runtime that blocks
 /// its executor inside a synchronous generation call cannot accept one until that
 /// call returns — an actor-isolated `cancel` would compile and never arrive.
 ///
@@ -150,7 +150,7 @@ nonisolated protocol GenerationEngineRuntime: Sendable {
 /// The immutable half of an engine: what it is, what models it has, and — from
 /// the next step — how it turns the UI's draft into a request payload.
 ///
-/// Separate from ``GenerationEngineRuntime``, which owns loaded pipelines and the
+/// Separate from `GenerationEngineRuntime`, which owns loaded pipelines and the
 /// active generation, so the UI can read engine and model facts without an actor
 /// hop to something holding a multi-gigabyte pipeline.
 ///
@@ -191,7 +191,7 @@ nonisolated protocol GenerationEngineDescriptor: Sendable {
     ///
     /// Core ML models are converted at a fixed resolution and usually ship as a
     /// set — `foo_512x768` beside `foo_768x512` — so asking for a different size
-    /// means selecting a different model. ``OptionConstraints`` cannot express
+    /// means selecting a different model. `OptionConstraints` cannot express
     /// that relationship, and it drives both the sidebar's width/height swap and
     /// the Info panel's copy-size button.
     ///

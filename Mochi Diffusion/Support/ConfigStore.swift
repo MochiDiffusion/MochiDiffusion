@@ -8,7 +8,7 @@ import UniformTypeIdentifiers
 
 @MainActor
 @Observable final class ConfigStore {
-    /// Storage keys, named once so ``init(store:)`` and tests cannot drift from
+    /// Storage keys, named once so `init(store:)` and tests cannot drift from
     /// the property wrappers. `nonisolated` so `PreferenceMigration` can name them
     /// without hopping to the main actor.
     nonisolated enum Key {

@@ -38,7 +38,7 @@ nonisolated enum IntConstraint: Sendable, Equatable {
     }
 
     /// What a control should span. Not necessarily what the model will accept —
-    /// see ``allowsValuesAboveBounds``.
+    /// see `allowsValuesAboveBounds`.
     var bounds: ClosedRange<Int>? {
         if case .range(let bounds, _, _) = self { return bounds }
         return nil
@@ -49,7 +49,7 @@ nonisolated enum IntConstraint: Sendable, Equatable {
         return nil
     }
 
-    /// Whether a value typed above ``bounds`` is honoured rather than clamped.
+    /// Whether a value typed above `bounds` is honoured rather than clamped.
     /// Maps straight onto `MochiSlider`'s `strictUpperBound`.
     var allowsValuesAboveBounds: Bool {
         if case .range(_, _, let allows) = self { return allows }
@@ -90,7 +90,7 @@ nonisolated enum IntConstraint: Sendable, Equatable {
 /// land on a half or a strength on a twentieth. Granularity belongs to the
 /// control, and `MochiSlider` already applies its own when it writes the value, so
 /// snapping here would move a number the user typed for no reason the model cares
-/// about. ``SizeConstraint`` is the case that genuinely does snap, since latent
+/// about. `SizeConstraint` is the case that genuinely does snap, since latent
 /// dimensions have to be multiples of 16.
 nonisolated enum DoubleConstraint: Sendable, Equatable {
     case unsupported

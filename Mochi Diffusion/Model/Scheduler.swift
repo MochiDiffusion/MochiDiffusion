@@ -12,7 +12,7 @@ import StableDiffusion
 /// **The raw value is a stable identifier, not display text.** It is persisted in
 /// `UserDefaults` and written into image metadata, so renaming one orphans a
 /// user's preference and stops their existing images from parsing. Read
-/// ``displayName`` for anything shown on screen.
+/// `displayName` for anything shown on screen.
 ///
 /// The two read the same today, which is how a display string ends up
 /// load-bearing. Keeping them separate means a label can be reworded or localised

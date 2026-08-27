@@ -28,7 +28,7 @@ nonisolated enum MetadataField: String, CaseIterable, Sendable {
 
 /// A model a particular engine can generate with.
 ///
-/// Identity is engine-qualified (``ModelID``), so two engines may expose the same
+/// Identity is engine-qualified (`ModelID`), so two engines may expose the same
 /// directory without discovery having to arbitrate which one owns it.
 ///
 /// `url` is non-optional and `tokenizerModelDir` exists because every model is

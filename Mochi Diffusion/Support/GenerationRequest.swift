@@ -8,7 +8,7 @@ import Foundation
 
 /// A queued generation, resolved.
 ///
-/// Engine-specific values live in ``payload``, produced by that engine's
+/// Engine-specific values live in `payload`, produced by that engine's
 /// `plan`; everything the queue and gallery need is a plain field, so neither has
 /// to know which engine produced the request.
 ///
@@ -25,7 +25,7 @@ nonisolated struct GenerationRequest: Sendable, Identifiable {
     let displayName: String
     let metadataFields: Set<MetadataField>
 
-    /// Engine-typed, produced by ``GenerationEngineDescriptor/plan(draft:model:)``.
+    /// Engine-typed, produced by `GenerationEngineDescriptor.plan(draft:model:)`.
     ///
     /// The one concession in this design: the queue is heterogeneous, so the
     /// payload's type is erased and the owning generator downcasts it. A mismatch
