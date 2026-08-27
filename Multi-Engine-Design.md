@@ -76,28 +76,21 @@ gone as of Phase 2:**
 1. ~~`GenerationPipeline`~~ — the enum of `.sd` / `.iris` with roughly ten switch-based
    accessors is deleted. Engines resolve their own values in `plan`.
 2. ~~`PipelineModelAdapter`~~ — deleted; it restated the same taxonomy a second time.
-3. **Generator selection — still present.** `GenerationService` now switches on
-   `request.modelID.engine` instead of unwrapping a pipeline case, with a `default:` arm
-   that reports "no generator for engine X". Better, but still a lockstep edit point, and
-   the failure moved from compile time to runtime.
-   ([Support/GenerationService.swift](Mochi%20Diffusion/Support/GenerationService.swift))
+3. ~~Generator selection~~ — closed in Phase 3. `GenerationService` asks the registry
+   which engine owns the request and the engine makes its own runtime, so the switch and
+   its `default:` arm are gone. Adding an engine no longer touches the queue.
 4. ~~Model discovery~~ — each engine discovers independently behind `EngineRegistry`, and
    per-engine failures no longer take the whole model list down. `ModelRepository` is
    reduced to directory resolution and an existence check.
 
-**This makes Phase 3 a prerequisite for Phase 6, not just a concurrency improvement.**
-Until the engine runtime owns generator selection, adding OpenAI means editing
-`GenerationService`, and forgetting to means a runtime error rather than a build failure.
-Do not add a new engine before Phase 3 lands.
+All four are now closed, and so are both transitional leaks Phase 2 left:
 
-Two transitional leaks Phase 3 must also clear:
-
-- `GenerationService` downcasts `request.payload as? CoreMLGenerationPayload` to check the
-  model still exists on disk. §5.4 says the queue never inspects the payload; this is the
-  one place it does. The check belongs to the Core ML runtime.
-- `CoreMLStableDiffusionEngine.discoverModels` writes a `controlnet` symlink into each
-  ControlNet-capable model directory. A write on a read path, fired on every
-  folder-change event, mutating the user's models folder. It belongs at pipeline load.
+- ~~The queue downcast `request.payload as? CoreMLGenerationPayload`~~ to check the model
+  still existed. The check moved into `CoreMLEngineRuntime`, so the queue no longer
+  inspects a payload §5.4 says it must not.
+- ~~`discoverModels` wrote a `controlnet` symlink~~ into every capable model directory on
+  every folder-change event. `CoreMLEngineRuntime` creates it at load, for the one model
+  being loaded, only when that load asks for ControlNet.
 
 Of the three structural mismatches, two are resolved:
 
@@ -574,7 +567,7 @@ Confidence labels are honest signals about how much these should be trusted.
 | 0 | Test target (see §12) | none | done |
 | 1 | `MetadataCodec`: fix the import crash and the separator defect; versioned encoding | crash fix | **done** |
 | 2 | Engine descriptor/registry, `EngineID`/`ModelID`, independent discovery, migration, `.engine`/`.modelKey` metadata keys | none | **done** |
-| 3 | Engine runtime and session boundaries; request-scoped cancellation; remove serialization-assumption `@unchecked Sendable`; move generator selection, the payload downcast and the ControlNet symlink write out of the queue and discovery (§4) | more reliable cancel | settled |
+| 3 | Engine runtime and session boundaries; request-scoped cancellation; remove serialization-assumption `@unchecked Sendable`; move generator selection, the payload downcast and the ControlNet symlink write out of the queue and discovery (§4) | ordered progress, no cross-job previews | **code done, runtime unvalidated** |
 | 4 | Constraints model; `plan` as the sole resolution point; sidebar driven from constraints | unsupported controls hide; step count stops lying | settled |
 | 5 | Engine picker, per-engine settings store, Settings restructure | the feature as described | likely |
 | 6 | OpenAI engine: Keychain, indeterminate progress, richer errors | first hosted engine | sketch |
@@ -731,6 +724,15 @@ Note that `CHANGELOG.md` had not been updated since v5.0 while the app shipped v
 and v6.0, so the `# Unreleased` heading is a new convention here. Backfilling those three
 releases is out of scope for this work.
 
+**Phase 3's outstanding item is validation, not code.** §11.8 named runtime validation as
+the dominant uncertainty and it still is: cancellation, callback teardown and the Iris
+cancel poke are covered by unit tests against the session and the router, but nothing has
+exercised them against a real Core ML or Iris generation. Before Phase 4, someone should
+generate with a Core ML model and cancel mid-run, generate a multi-image Iris batch and
+cancel mid-run, and confirm a queued second request starts clean — no stale preview, no
+progress inherited from the cancelled job. That cannot be automated here; it needs real
+models on a real machine.
+
 ### Definition of done
 
 The multi-engine foundation is complete when:
@@ -764,7 +766,7 @@ Already in place: Swift 6 language mode, `SWIFT_STRICT_CONCURRENCY = complete`,
 `ModelRepository`, `ImageRepository` and `FolderMonitorService`, and `Sendable` domain
 values. This is hardening, not a migration.
 
-### 11.2 An actor alone does not make cancellation work
+### 11.2 An actor alone does not make cancellation work (implemented)
 
 Core ML and Iris generation calls are synchronous and long-running. If an engine runtime
 actor executes the whole call on its own executor, `cancel()` cannot enter the actor until
@@ -786,7 +788,29 @@ Runtime shape:
 Unstructured tasks are not used to silence isolation errors. Any that remain need an
 explicit owner, cancellation path, and join point.
 
-### 11.3 `@unchecked Sendable` policy
+**As built.** `GenerationSession`
+([Support/GenerationSession.swift](Mochi%20Diffusion/Support/GenerationSession.swift)) is
+the token: one per request, created and closed by `GenerationService`, holding the
+cancellation flag and the event route behind its own lock. Both runtimes are actors and
+both run their blocking call inside the actor.
+
+Two things the plan did not anticipate:
+
+- **Polling is not enough for Iris.** Core ML's progress handler returns `Bool`, so
+  `!session.isCancelled` stops it. Iris runs its loop inside a C call that stops only when
+  `iris_request_cancel()` sets the library's flag — and the runtime cannot call that,
+  because it is inside the call that would notice. So the session takes cancellation
+  *handlers* that run synchronously on the cancelling thread, and the Iris runtime
+  registers the poke as one. Without this, cancelling Iris would have compiled and done
+  nothing until the current image finished.
+- **The blocking call stayed inside the actor.** §11.2 wanted it on "an execution context
+  suited to the blocking API", with the session borrowing the pipeline. That needs a
+  non-`Sendable` pipeline sent out of actor storage and back, which Swift's region
+  analysis will not prove for a value read from a stored property. Occupying the actor's
+  executor is the accepted cost; nothing deadlocks on it, because the queue admits one
+  request at a time and cancellation never comes here.
+
+### 11.3 `@unchecked Sendable` policy (satisfied)
 
 The two generator conformances
 ([Support/SDImageGenerator.swift](Mochi%20Diffusion/Support/SDImageGenerator.swift),
@@ -806,6 +830,11 @@ The Iris C library exposes process-global callback slots with no caller-supplied
 pointer, so its runtime must enforce single-flight explicitly; a checked wrapper that
 lies would be worse than an honest unchecked one.
 
+**As built.** Both generator conformances are gone — the generators became actors. Two
+`@unchecked Sendable` conformances exist, and both are the permitted kind: `GenerationSession`
+and `IrisCallbackRouter` each guard every mutable field with their own lock, and each needs
+to be readable from a synchronous C callback that has no actor to hop to.
+
 ### 11.4 Iris callback routing
 
 The C callbacks create unstructured Swift tasks that later reach a singleton
@@ -814,6 +843,16 @@ has been reconfigured for the next request, delivering a stale event to the wron
 
 Callbacks must synchronously snapshot request-scoped routing state, or carry a
 session/epoch token checked before delivery.
+
+**As built.** `IrisCallbackRouter` replaces the singleton bridge. Delivery is now
+*synchronous* — no `Task` per callback, so no scheduling delay, no undefined order between
+two updates, and no task outliving the request that made it. Teardown is keyed by session
+identity, so a finishing request cannot detach the route its successor just installed.
+
+What this does **not** solve, and the source says so: with no context pointer, a callback
+that outlived its `iris_generate` call would be indistinguishable from a current one. That
+is safe only because Iris calls back from inside those calls. It is an assumption about the
+C library, stated rather than enforced, which is the only honest option at that boundary.
 
 ### 11.5 Generation events
 
@@ -838,11 +877,37 @@ that produced it, so a late event from a finished request is dropped at one chec
 instead of four. State and preview events may use bounded newest-value buffering; results
 must never be dropped, because a dropped result is a lost image.
 
-This is not required for the identity work in Phase 2 and should not gate it. It belongs
-with Phase 3, and it is also what makes indeterminate hosted progress (§13.1) natural
-rather than a fifth special case.
+**As built, with one deliberate deviation: results are not events.**
 
-### 11.6 Observation task lifecycle
+`GenerationEvent` carries `.state`, `.progress` and `.preview` on one ordered stream per
+session. Results stay an awaited, throwing callback. Three reasons, and they are properties
+of results rather than convenience:
+
+- **They must not be dropped**, and the stream is bounded on purpose (previews are
+  full-size images, so an unbounded buffer in front of a suspended consumer grows without
+  limit). Putting results on the same stream would mean choosing one policy for channels
+  that need opposite ones.
+- **They carry back-pressure.** The caller writes each image to disk before the engine
+  produces the next one. A stream would decouple that, so a broken images folder would let
+  the engine keep generating into nothing.
+- **A failed write has to stop generation**, which needs the call to throw back into the
+  generation loop. A stream cannot fail the producer.
+
+They also never arrive late — they are emitted from the generation loop, not a C callback —
+so they are not subject to the stale-delivery problem the stream exists to solve. The count
+that matters went from four channels to two, and the one that needed a single stale-event
+checkpoint got it.
+
+The terminal `.ready` moved out of the runtimes and onto `GenerationService`, so a dropped
+informational event cannot leave the UI stuck mid-generation.
+
+Separately: `GenerationState.Progress` and `.Status` are now `nonisolated`. Nested in a
+`@MainActor` class under `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor`, they were `Sendable`
+with main-actor-isolated members — an engine off the main actor could build a `Progress`
+and hand it over but could not read one back. Indeterminate hosted progress (§13.1) needs
+both directions.
+
+### 11.6 Observation task lifecycle (implemented)
 
 `GenerationController`'s update/result loops iterate infinite streams and keep consuming
 after the controller is gone. The folder-monitor loops in both `GenerationController` and
@@ -856,6 +921,16 @@ promptly.
 For latest-state streams such as queue snapshots, use bounded newest-value buffering so a
 suspended UI cannot accumulate obsolete snapshots. Results need reliable delivery and a
 different policy — a dropped result means a lost image.
+
+**As built.** All four loops take their weak reference *inside* the loop rather than
+hoisting `self` before it, which is what made task and controller retain each other.
+`GenerationController.shutdown()` and `GalleryController.shutdown()` cancel every owned
+task. `updates()` is `bufferingNewest(1)`; `results()` stays unbounded.
+
+`shutdown()` has **no caller in the app yet** — both controllers live as long as the
+process. It exists because the tests construct controllers freely, and because Phase 5's
+settings changes are expected to rebuild them. Wire it up there rather than leaving it to
+be discovered.
 
 ### 11.7 Concurrency is an engine property
 
