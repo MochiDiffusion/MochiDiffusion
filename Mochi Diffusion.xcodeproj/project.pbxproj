@@ -116,6 +116,7 @@
 		AA2000000000000000000093 /* OptionConstraintsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000093 /* OptionConstraintsTests.swift */; };
 		AA2000000000000000000092 /* ControllerLifecycleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000092 /* ControllerLifecycleTests.swift */; };
 		AA50000000000000000001972 /* EngineSelectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA50000000000000000001971 /* EngineSelectionTests.swift */; };
+		AA50000000000000000001982 /* QueueLivenessTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA50000000000000000001981 /* QueueLivenessTests.swift */; };
 		AA2000000000000000000091 /* ControlNetLinkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000091 /* ControlNetLinkTests.swift */; };
 		AA2000000000000000000090 /* GenerationSessionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000090 /* GenerationSessionTests.swift */; };
 		AA2000000000000000000003 /* ModelDiscoveryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000003 /* ModelDiscoveryTests.swift */; };
@@ -250,6 +251,7 @@
 		AA1000000000000000000093 /* OptionConstraintsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionConstraintsTests.swift; sourceTree = "<group>"; };
 		AA1000000000000000000092 /* ControllerLifecycleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControllerLifecycleTests.swift; sourceTree = "<group>"; };
 		AA50000000000000000001971 /* EngineSelectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngineSelectionTests.swift; sourceTree = "<group>"; };
+		AA50000000000000000001981 /* QueueLivenessTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueueLivenessTests.swift; sourceTree = "<group>"; };
 		AA1000000000000000000091 /* ControlNetLinkTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlNetLinkTests.swift; sourceTree = "<group>"; };
 		AA1000000000000000000090 /* GenerationSessionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationSessionTests.swift; sourceTree = "<group>"; };
 		AA1000000000000000000003 /* ModelDiscoveryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelDiscoveryTests.swift; sourceTree = "<group>"; };
@@ -473,6 +475,7 @@
 				AA1000000000000000000093 /* OptionConstraintsTests.swift */,
 				AA1000000000000000000092 /* ControllerLifecycleTests.swift */,
 				AA50000000000000000001971 /* EngineSelectionTests.swift */,
+				AA50000000000000000001981 /* QueueLivenessTests.swift */,
 				AA1000000000000000000091 /* ControlNetLinkTests.swift */,
 				AA1000000000000000000090 /* GenerationSessionTests.swift */,
 				AA1000000000000000000002 /* MetadataRoundTripTests.swift */,
@@ -770,6 +773,7 @@
 				AA2000000000000000000093 /* OptionConstraintsTests.swift in Sources */,
 				AA2000000000000000000092 /* ControllerLifecycleTests.swift in Sources */,
 				AA50000000000000000001972 /* EngineSelectionTests.swift in Sources */,
+				AA50000000000000000001982 /* QueueLivenessTests.swift in Sources */,
 				AA2000000000000000000091 /* ControlNetLinkTests.swift in Sources */,
 				AA2000000000000000000090 /* GenerationSessionTests.swift in Sources */,
 				AA2000000000000000000002 /* MetadataRoundTripTests.swift in Sources */,

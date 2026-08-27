@@ -1,5 +1,7 @@
 # Unreleased
 
+- Fixed queued images never generating after an earlier failure
+  - Once a generation failed in a way that left an error showing — an images folder that could not be written to, for example — every image queued afterwards was accepted and silently never started, until the app was relaunched
 - Added an Engine picker to the sidebar, above the model picker
   - The model picker shows only the selected engine's models, and each engine remembers the model it was last using
   - Engines that are unconfigured or have no models are still listed, with the reason shown

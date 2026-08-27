@@ -136,11 +136,38 @@ actor GenerationService {
         processingTask = Task { await processQueue() }
     }
 
+    /// Drains the queue until it is empty.
+    ///
+    /// Deliberately does not consult `GenerationState`. It used to return unless
+    /// the state was `.ready`, which stranded work permanently: nothing outside
+    /// this actor ever restores `.ready`, so once a failure left `.error` — an
+    /// unwritable images folder, say — every later request was appended to a queue
+    /// no drain would ever start. The guard could not serve its apparent purpose
+    /// either, since `startProcessingIfNeeded` already refuses to start a second
+    /// drain while one is running, and that is the only way the state can be
+    /// `.loading` or `.running` here. Queue readiness is not a UI status.
+    ///
+    /// A stale `.error` heals on its own: the first thing a started request does is
+    /// report `.loading`.
     private func processQueue() async {
         defer { processingTask = nil }
-        let currentState = await MainActor.run { GenerationState.shared.state }
-        guard case .ready = currentState else { return }
 
+        // Outer loop because the drain ends with an `await`. A request enqueued
+        // during that await sees `processingTask` still set and so schedules no
+        // drain of its own, and without re-checking here this task would then
+        // clear `processingTask` and leave it queued.
+        while !queue.isEmpty {
+            await drainQueue()
+
+            current = nil
+            cancelingCurrentID = nil
+            currentSession = nil
+            broadcastSnapshot()
+            await NotificationController.shared.sendQueueEmptyNotification()
+        }
+    }
+
+    private func drainQueue() async {
         while !queue.isEmpty {
             let request = queue.removeFirst()
             current = request
@@ -264,12 +291,6 @@ actor GenerationService {
                 restoreReadyAfterCancel: restoreReadyAfterCancel
             )
         }
-
-        current = nil
-        cancelingCurrentID = nil
-        currentSession = nil
-        broadcastSnapshot()
-        await NotificationController.shared.sendQueueEmptyNotification()
     }
 
     private func updateGenerationState(_ status: GenerationState.Status) async {
