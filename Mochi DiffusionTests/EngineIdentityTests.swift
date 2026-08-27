@@ -175,6 +175,63 @@ struct ModelIDKeyTests {
         #expect(decoded == id)
     }
 
+    // MARK: - Persistence
+
+    /// A selection is one stored value, not two, so it cannot be torn into a
+    /// valid-looking hybrid of a new engine and an old key by a process that dies
+    /// between two `UserDefaults` writes.
+    @Test("The persisted form is one value with the engine first")
+    func persistedFormIsStable() {
+        let id = ModelID(engine: .coreMLStableDiffusion, key: "sd-1.5_512x512")
+
+        // Pinned: this is on-disk format, so a change must be deliberate.
+        #expect(id.persistedValue == "coreml-sd:sd-1.5_512x512")
+    }
+
+    @Test(
+        "A persisted selection round-trips, including keys containing a colon",
+        arguments: [
+            "sd-model",
+            "sd-1.5_512x512",
+            "model with spaces",
+            // Legal in a POSIX filename, which is why parsing splits on the
+            // first colon rather than the only one.
+            "colon:in:name",
+            ":leading-colon",
+            "モデル",
+        ]
+    )
+    func persistedFormRoundTrips(key: String) throws {
+        let id = ModelID(engine: .iris, key: key)
+
+        let decoded = try #require(ModelID(persistedValue: id.persistedValue))
+
+        #expect(decoded == id)
+    }
+
+    @Test(
+        "An unparseable persisted value is no selection rather than a wrong one",
+        arguments: [
+            "",
+            "no-separator",
+            ":no-engine",
+            "no-key:",
+        ]
+    )
+    func unparseablePersistedFormIsNil(value: String) {
+        #expect(ModelID(persistedValue: value) == nil)
+    }
+
+    @Test("The persisted form is not tied to the description")
+    func persistedFormIsIndependentOfDescription() {
+        let id = ModelID(engine: .iris, key: "klein")
+
+        // They coincide today. The point is that they are separate members, so
+        // making logs read better cannot silently change what is on disk.
+        #expect(id.persistedValue == "iris:klein")
+        #expect(id.description == "iris:klein")
+    }
+
     @Test("Engine ids are stable strings")
     func engineIDsAreStable() {
         // These are persisted, so a change here silently orphans a user's

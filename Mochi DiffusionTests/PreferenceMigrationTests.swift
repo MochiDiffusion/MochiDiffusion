@@ -12,91 +12,98 @@ import Testing
 /// highest-risk detail in the plan: get it wrong and every existing user loses
 /// the model they had selected, or worse, their configured folders.
 ///
-/// The decision is a pure function, so most of this needs no `UserDefaults` at
-/// all; `ConfigStoreMigrationTests` covers applying it.
+/// The decision is a pure function of the legacy URL, the existing selection and
+/// what discovery found, so it needs neither `UserDefaults` nor a filesystem.
+/// `ConfigStoreMigrationTests` covers applying it, and one case there goes through
+/// real discovery to prove the wiring.
 struct PreferenceMigrationTests {
-    let temp: TempDirectory
-    let modelDir: URL
+    private let coreML = EngineID.coreMLStableDiffusion
 
-    init() throws {
-        temp = try TempDirectory()
-        modelDir = try temp.subdirectory("models")
+    private func legacyURL(_ name: String) -> URL {
+        URL(fileURLWithPath: "/Users/someone/models/\(name)")
     }
 
-    // MARK: - Classification
+    // MARK: - Recovering the engine
 
-    @Test("A legacy selection of a Core ML model migrates to the Core ML engine")
-    func migratesCoreMLSelection() throws {
-        try makeSDModelFixture(at: modelDir.appending(path: "sd-model"))
-
+    @Test("A legacy selection resolves to whichever engine discovered it")
+    func migratesToTheDiscoveringEngine() {
         let outcome = PreferenceMigration.selectedModel(
-            legacyURL: modelDir.appending(path: "sd-model"),
+            legacyURL: legacyURL("sd-model"),
             existing: nil,
-            modelDirectory: modelDir
+            discovered: [
+                ModelID(engine: coreML, key: "other"),
+                ModelID(engine: coreML, key: "sd-model"),
+            ]
         )
 
-        #expect(
-            outcome == .migrated(ModelID(engine: .coreMLStableDiffusion, key: "sd-model"))
-        )
+        #expect(outcome == .migrated(ModelID(engine: coreML, key: "sd-model")))
     }
 
-    @Test("A legacy selection of a Klein model migrates to the Iris engine")
-    func migratesKleinSelection() throws {
-        try makeKleinModelFixture(at: modelDir.appending(path: "klein-model"))
-
+    @Test("A legacy selection of an Iris model resolves to the Iris engine")
+    func migratesKleinSelection() {
         let outcome = PreferenceMigration.selectedModel(
-            legacyURL: modelDir.appending(path: "klein-model"),
+            legacyURL: legacyURL("klein-model"),
             existing: nil,
-            modelDirectory: modelDir
+            discovered: [ModelID(engine: .iris, key: "klein-model")]
         )
 
         #expect(outcome == .migrated(ModelID(engine: .iris, key: "klein-model")))
     }
 
-    /// The frozen classifier has to reproduce `ModelRepository.load`'s sniff
-    /// order, because that order is what decided which kind of model the user was
-    /// actually looking at when the preference was written. Klein was tested
-    /// first, so a directory satisfying both migrates to Iris.
-    @Test("A directory both engines recognise migrates the way the old app read it")
-    func ambiguousDirectoryFollowsTheOldSniffOrder() throws {
-        let ambiguous = modelDir.appending(path: "ambiguous")
-        try makeKleinModelFixture(at: ambiguous)
-        try makeSDModelFixture(at: ambiguous)
-
+    /// Once engines discover independently, a directory both recognise yields two
+    /// models with the same key. The tiebreak reproduces the sniff order
+    /// `ModelRepository.load` used when the legacy preference was written — Klein
+    /// first — because that is what the user was actually looking at.
+    @Test("A key both engines expose follows the order the old app read them in")
+    func ambiguousKeyFollowsTheOldSniffOrder() {
         let outcome = PreferenceMigration.selectedModel(
-            legacyURL: ambiguous,
+            legacyURL: legacyURL("ambiguous"),
             existing: nil,
-            modelDirectory: modelDir
+            discovered: [
+                ModelID(engine: coreML, key: "ambiguous"),
+                ModelID(engine: .iris, key: "ambiguous"),
+            ]
         )
 
         #expect(outcome == .migrated(ModelID(engine: .iris, key: "ambiguous")))
     }
 
-    // MARK: - Paths that cannot be migrated
+    /// The property that makes the outcome stable however long a user waits to
+    /// upgrade: an engine that did not exist when the legacy format did cannot
+    /// claim an old selection, even if it exposes a model with the same key.
+    @Test("An engine that postdates the legacy format is never a candidate")
+    func laterEnginesAreNotCandidates() {
+        let future = EngineID(rawValue: "openai")
 
-    @Test("A legacy selection that no longer exists is left unmigrated")
-    func missingDirectoryIsUnresolvable() {
         let outcome = PreferenceMigration.selectedModel(
-            legacyURL: modelDir.appending(path: "deleted-model"),
+            legacyURL: legacyURL("sd-model"),
             existing: nil,
-            modelDirectory: modelDir
+            discovered: [ModelID(engine: future, key: "sd-model")]
+        )
+
+        #expect(outcome == .unresolvable)
+        #expect(!PreferenceMigration.legacyEnginePreference.contains(future))
+    }
+
+    // MARK: - Nothing to resolve to
+
+    @Test(
+        "A legacy selection nothing discovered matches is left unmigrated",
+        arguments: [
+            "deleted-model",
+            "not-a-model",
+            "/",
+        ]
+    )
+    func unmatchedSelectionIsUnresolvable(name: String) {
+        let outcome = PreferenceMigration.selectedModel(
+            legacyURL: legacyURL(name),
+            existing: nil,
+            discovered: [ModelID(engine: EngineID.coreMLStableDiffusion, key: "sd-model")]
         )
 
         // Not an error: the app already falls back to the first model for a
         // selection that does not resolve.
-        #expect(outcome == .unresolvable)
-    }
-
-    @Test("A legacy selection naming a directory no engine recognises is left unmigrated")
-    func unrecognisedDirectoryIsUnresolvable() throws {
-        try writeFile("{}", to: modelDir.appending(components: "not-a-model", "readme.txt"))
-
-        let outcome = PreferenceMigration.selectedModel(
-            legacyURL: modelDir.appending(path: "not-a-model"),
-            existing: nil,
-            modelDirectory: modelDir
-        )
-
         #expect(outcome == .unresolvable)
     }
 
@@ -105,64 +112,60 @@ struct PreferenceMigrationTests {
         let outcome = PreferenceMigration.selectedModel(
             legacyURL: nil,
             existing: nil,
-            modelDirectory: modelDir
+            discovered: [ModelID(engine: EngineID.coreMLStableDiffusion, key: "sd-model")]
         )
 
         #expect(outcome == .nothingToMigrate)
     }
 
+    @Test("Nothing discovered at all is unresolvable rather than a crash")
+    func emptyDiscoveryIsUnresolvable() {
+        let outcome = PreferenceMigration.selectedModel(
+            legacyURL: legacyURL("sd-model"),
+            existing: nil,
+            discovered: []
+        )
+
+        #expect(outcome == .unresolvable)
+    }
+
     // MARK: - Path spelling and idempotency
 
-    /// The legacy value is an absolute URL written by a previous launch, and may
-    /// be spelled differently from the root configured now — the mismatch that
-    /// motivated key-based identity. Only the directory name is taken from it.
+    /// The legacy value is an absolute URL written by a previous launch and may be
+    /// spelled differently from the root configured now — the mismatch that
+    /// motivated key-based identity. Only the last component is used.
     @Test(
         "The legacy URL's spelling does not affect the migrated key",
-        arguments: [true, false]
+        arguments: [
+            "/var/models/sd-model",
+            "/private/var/models/sd-model",
+            "/var/models/sd-model/",
+            "/somewhere/else/entirely/sd-model",
+        ]
     )
-    func spellingDoesNotAffectTheKey(resolved: Bool) throws {
-        try makeSDModelFixture(at: modelDir.appending(path: "sd-model"))
-        let path = modelDir.appending(path: "sd-model").path(percentEncoded: false)
-        let legacyURL = URL(fileURLWithPath: resolved ? "/private" + path : path)
-
+    func spellingDoesNotAffectTheKey(path: String) {
         let outcome = PreferenceMigration.selectedModel(
-            legacyURL: legacyURL,
+            legacyURL: URL(fileURLWithPath: path),
             existing: nil,
-            modelDirectory: modelDir
+            discovered: [ModelID(engine: EngineID.coreMLStableDiffusion, key: "sd-model")]
         )
 
-        #expect(
-            outcome == .migrated(ModelID(engine: .coreMLStableDiffusion, key: "sd-model"))
-        )
+        #expect(outcome == .migrated(ModelID(engine: .coreMLStableDiffusion, key: "sd-model")))
     }
 
     @Test("An existing engine-qualified selection is never overwritten")
-    func alreadyMigratedIsLeftAlone() throws {
-        try makeKleinModelFixture(at: modelDir.appending(path: "klein-model"))
-        let existing = ModelID(engine: .coreMLStableDiffusion, key: "something-else")
+    func alreadyMigratedIsLeftAlone() {
+        let existing = ModelID(engine: coreML, key: "something-else")
 
         let outcome = PreferenceMigration.selectedModel(
-            legacyURL: modelDir.appending(path: "klein-model"),
+            legacyURL: legacyURL("klein-model"),
             existing: existing,
-            modelDirectory: modelDir
+            discovered: [ModelID(engine: .iris, key: "klein-model")]
         )
 
         // Idempotency is what makes this safe to call on every model load, and
         // what stops a stale legacy value from clobbering a later choice.
         #expect(outcome == .alreadyMigrated)
-    }
-
-    @Test("A legacy URL that is not a direct child of the models root is rejected")
-    func legacyURLOutsideRootIsRejected() throws {
-        // A key is a single path component, so nothing derived from a legacy URL
-        // can point outside the configured models directory.
-        let outcome = PreferenceMigration.selectedModel(
-            legacyURL: URL(fileURLWithPath: "/"),
-            existing: nil,
-            modelDirectory: modelDir
-        )
-
-        #expect(outcome == .unresolvable)
     }
 }
 
@@ -192,7 +195,8 @@ struct ConfigStoreMigrationTests {
         let store = makeStore()
         #expect(store.selectedModel == nil)
 
-        let outcome = store.migrateSelectedModelIfNeeded(modelDirectory: modelDir)
+        let outcome = store.migrateSelectedModelIfNeeded(
+            discovered: [ModelID(engine: .coreMLStableDiffusion, key: "sd-model")])
 
         #expect(outcome == .migrated(ModelID(engine: .coreMLStableDiffusion, key: "sd-model")))
         #expect(store.selectedModel == ModelID(engine: .coreMLStableDiffusion, key: "sd-model"))
@@ -203,7 +207,8 @@ struct ConfigStoreMigrationTests {
         try makeKleinModelFixture(at: modelDir.appending(path: "klein-model"))
         tempDefaults.defaults.set(
             modelDir.appending(path: "klein-model"), forKey: ConfigStore.Key.legacyModelId)
-        makeStore().migrateSelectedModelIfNeeded(modelDirectory: modelDir)
+        makeStore().migrateSelectedModelIfNeeded(
+            discovered: [ModelID(engine: .iris, key: "klein-model")])
 
         // A relaunch reads the migrated value, not the legacy one.
         #expect(makeStore().selectedModel == ModelID(engine: .iris, key: "klein-model"))
@@ -215,13 +220,17 @@ struct ConfigStoreMigrationTests {
         try makeSDModelFixture(at: modelDir.appending(path: "other-model"))
         tempDefaults.defaults.set(
             modelDir.appending(path: "sd-model"), forKey: ConfigStore.Key.legacyModelId)
+        let discovered = [
+            ModelID(engine: .coreMLStableDiffusion, key: "sd-model"),
+            ModelID(engine: .coreMLStableDiffusion, key: "other-model"),
+        ]
         let store = makeStore()
-        store.migrateSelectedModelIfNeeded(modelDirectory: modelDir)
+        store.migrateSelectedModelIfNeeded(discovered: discovered)
 
         // A choice made after migrating must survive the next call, even though
         // the legacy key is still there naming a different model.
         store.selectedModel = ModelID(engine: .coreMLStableDiffusion, key: "other-model")
-        let outcome = store.migrateSelectedModelIfNeeded(modelDirectory: modelDir)
+        let outcome = store.migrateSelectedModelIfNeeded(discovered: discovered)
 
         #expect(outcome == .alreadyMigrated)
         #expect(store.selectedModel == ModelID(engine: .coreMLStableDiffusion, key: "other-model"))
@@ -234,7 +243,8 @@ struct ConfigStoreMigrationTests {
         tempDefaults.defaults.set(legacyURL, forKey: ConfigStore.Key.legacyModelId)
         let store = makeStore()
 
-        store.migrateSelectedModelIfNeeded(modelDirectory: modelDir)
+        store.migrateSelectedModelIfNeeded(
+            discovered: [ModelID(engine: .coreMLStableDiffusion, key: "sd-model")])
 
         // Deleting it would buy nothing and make a downgrade more destructive.
         #expect(store.legacyModelId?.lastPathComponent == "sd-model")
@@ -250,7 +260,8 @@ struct ConfigStoreMigrationTests {
         store.controlNetDir = "/somewhere/controlnet"
         store.imageDir = "/somewhere/images"
 
-        store.migrateSelectedModelIfNeeded(modelDirectory: modelDir)
+        store.migrateSelectedModelIfNeeded(
+            discovered: [ModelID(engine: .coreMLStableDiffusion, key: "sd-model")])
 
         // The failure mode that would hurt most on upgrade is a user having to
         // re-pick their folders.

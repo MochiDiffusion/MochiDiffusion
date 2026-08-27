@@ -139,14 +139,15 @@ final class GenerationController {
             let controlNetDirectoryURL = ModelRepository.controlNetDirectoryURL(
                 fromPath: configStore.controlNetDir)
 
-            // Before the selection is read, so a user upgrading from a build
-            // without engines keeps the model they had selected.
-            configStore.migrateSelectedModelIfNeeded(modelDirectory: modelDirectoryURL)
-
             self.models = try await modelRepository.load(
                 modelDir: modelDirectoryURL,
                 controlNetDir: controlNetDirectoryURL
             )
+
+            // After discovery and before the selection is read: recovering the
+            // engine for a legacy URL means matching what discovery found, so a
+            // user upgrading keeps the model they had selected.
+            configStore.migrateSelectedModelIfNeeded(discovered: self.models.map(\.id))
 
             logger.info("Found \(self.models.count) model(s)")
 

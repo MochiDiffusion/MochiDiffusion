@@ -19,8 +19,7 @@ import UniformTypeIdentifiers
         /// Superseded by `selectedModelEngine`/`selectedModelKey`. Still read, by
         /// `PreferenceMigration`, and still written by nothing.
         static let legacyModelId = "Model"
-        static let selectedModelEngine = "SelectedModelEngine"
-        static let selectedModelKey = "SelectedModelKey"
+        static let selectedModel = "SelectedModel"
         static let prompt = "Prompt"
         static let negativePrompt = "NegativePrompt"
         static let strength = "ImageStrength"
@@ -66,9 +65,7 @@ import UniformTypeIdentifiers
     @ObservationIgnored @AppStorage(Key.controlNetDir) private var _controlNetDir =
         Default.controlNetDir
     @ObservationIgnored @AppStorage(Key.legacyModelId) private var _legacyModelId: URL?
-    @ObservationIgnored @AppStorage(Key.selectedModelEngine) private var _selectedModelEngine:
-        String?
-    @ObservationIgnored @AppStorage(Key.selectedModelKey) private var _selectedModelKey: String?
+    @ObservationIgnored @AppStorage(Key.selectedModel) private var _selectedModel: String?
     @ObservationIgnored @AppStorage(Key.prompt) private var _prompt = Default.prompt
     @ObservationIgnored @AppStorage(Key.negativePrompt) private var _negativePrompt =
         Default.negativePrompt
@@ -103,8 +100,7 @@ import UniformTypeIdentifiers
         __controlNetDir = AppStorage(
             wrappedValue: Default.controlNetDir, Key.controlNetDir, store: store)
         __legacyModelId = AppStorage(Key.legacyModelId, store: store)
-        __selectedModelEngine = AppStorage(Key.selectedModelEngine, store: store)
-        __selectedModelKey = AppStorage(Key.selectedModelKey, store: store)
+        __selectedModel = AppStorage(Key.selectedModel, store: store)
         __prompt = AppStorage(wrappedValue: Default.prompt, Key.prompt, store: store)
         __negativePrompt = AppStorage(
             wrappedValue: Default.negativePrompt, Key.negativePrompt, store: store)
@@ -179,21 +175,19 @@ import UniformTypeIdentifiers
 
     /// The engine-qualified selected model, or `nil` when nothing is selected.
     ///
-    /// Stored as two plain strings rather than an encoded `ModelID` so the values
-    /// stay legible in `defaults read` and a half-written pair degrades to "no
-    /// selection" instead of a decode failure.
+    /// One `"engine:key"` string rather than two keys, so writing a selection is a
+    /// single `UserDefaults` write and cannot be torn into a valid-looking hybrid
+    /// of a new engine and an old key. Still a plain readable string rather than
+    /// encoded data, so it stays legible in `defaults read`, and anything
+    /// unparseable degrades to "no selection".
     var selectedModel: ModelID? {
         get {
             access(keyPath: \.selectedModel)
-            guard let engine = _selectedModelEngine, let key = _selectedModelKey else {
-                return nil
-            }
-            return ModelID(engine: EngineID(rawValue: engine), key: key)
+            return _selectedModel.flatMap(ModelID.init(persistedValue:))
         }
         set {
             withMutation(keyPath: \.selectedModel) {
-                _selectedModelEngine = newValue?.engine.rawValue
-                _selectedModelKey = newValue?.key
+                _selectedModel = newValue?.persistedValue
             }
         }
     }
@@ -207,16 +201,17 @@ import UniformTypeIdentifiers
 
     /// Converts a pre-multi-engine selection into an engine-qualified one.
     ///
-    /// Idempotent, and cheap enough to call on every model load: once a
-    /// selection exists it returns immediately. The result is written through
-    /// `selectedModel` rather than straight to `UserDefaults` so observers see
-    /// the change.
+    /// Idempotent, and cheap enough to call on every model load: once a selection
+    /// exists it returns immediately. Takes the ids discovery just found, because
+    /// recovering the engine from a bare URL means matching what is actually
+    /// there. The result is written through `selectedModel` rather than straight
+    /// to `UserDefaults` so observers see the change.
     @discardableResult
-    func migrateSelectedModelIfNeeded(modelDirectory: URL) -> PreferenceMigration.Outcome {
+    func migrateSelectedModelIfNeeded(discovered: [ModelID]) -> PreferenceMigration.Outcome {
         let outcome = PreferenceMigration.selectedModel(
             legacyURL: legacyModelId,
             existing: selectedModel,
-            modelDirectory: modelDirectory
+            discovered: discovered
         )
         if case .migrated(let id) = outcome {
             selectedModel = id

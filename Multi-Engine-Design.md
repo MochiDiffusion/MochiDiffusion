@@ -575,8 +575,25 @@ migration, in Phase 2.
 - **Identity adopted end to end** — `MochiModel` is now `EngineModel` with `id: ModelID`;
   `GenerationController.currentModelId` and the persisted selection are engine-qualified.
   Done.
-- **Preference migration** — legacy `Model` URL to `SelectedModelEngine`/`SelectedModelKey`
-  via a frozen classifier, idempotent, folders untouched. Done.
+- **Preference migration** — legacy `Model` URL to a single `SelectedModel` value,
+  idempotent, folders untouched. Done.
+
+  Two review findings changed how, both worth recording:
+
+  - The engine is recovered by matching **what discovery just found**, not by re-running
+    recognition. A first attempt called `IrisFluxKleinModel.init?` and `SDModel.init?` and
+    described itself as frozen, which it was not: those are live sniffers that Phases 3
+    onward rewrite, so relaxing Klein's required-file list would have silently changed
+    which engine a legacy URL migrated to — and because users upgrade at different times,
+    two users with identical preferences would migrate differently depending on which
+    version they landed on. The only frozen part is now a two-element preference order
+    (Iris, then Core ML) reproducing the old sniff order, and engines absent from that list
+    are ignored as candidates, so an engine added later can never claim an old selection.
+  - The selection is **one** stored `"engine:key"` string, not two keys. Two
+    `UserDefaults.set` calls reach `cfprefsd` as two messages, so a process killed between
+    them could leave a new engine beside an old key — a pair that looks valid, names
+    nothing, and resets the selection. One value cannot tear. Parsing splits on the first
+    colon, since engine ids never contain one but a model key legally may.
 - **Engine descriptors, registry, independent discovery** — next.
 - **`plan` as a pure move, request reshape, deleting `GenerationPipeline` and
   `PipelineModelAdapter`** — after that.

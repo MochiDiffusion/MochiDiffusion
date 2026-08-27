@@ -9,20 +9,24 @@ import Foundation
 ///
 /// Before engines existed, the selection was an absolute `URL` under the models
 /// directory. It is now a ``ModelID``: an engine plus the model directory's name.
-/// The engine is not recoverable from the URL, so it has to be re-derived from
-/// what is on disk.
+/// The engine is not recoverable from the URL, so it has to be recovered some
+/// other way.
 ///
-/// The classifier here is **frozen**. It reproduces the sniff order
-/// `ModelRepository.load` used at the time of migration — Iris/Klein first, then
-/// Core ML Stable Diffusion — because that order is what decided which kind of
-/// model the user was actually looking at. It exists only to interpret old
-/// preferences and must not become a general rule: engines discover
-/// independently and the registry arbitrates nothing (§5.5 of
-/// `Multi-Engine-Design.md`). Delete this type once the migration window closes.
+/// It is recovered by matching against the models **discovery actually found**,
+/// rather than by re-running recognition. An earlier version called
+/// `IrisFluxKleinModel.init?` and `SDModel.init?` directly and called itself
+/// frozen, which it was not: those initialisers are live production sniffers that
+/// Phases 3 onward rewrite. Relaxing Klein's required-file list, say, would have
+/// silently changed which engine a legacy URL migrated to — and since users
+/// upgrade at different times, two users with identical preferences would migrate
+/// differently depending on which version they happened to land on. Matching
+/// discovered models instead means the migration agrees with the list the user is
+/// about to see, whatever recognition has become.
 ///
-/// Deciding and persisting are separate so the decision can be tested without
-/// `UserDefaults` at all. ``ConfigStore/migrateSelectedModelIfNeeded(modelDirectory:)``
-/// applies the result.
+/// Deciding and persisting are separate so the decision can be tested as a pure
+/// function. ``ConfigStore/migrateSelectedModelIfNeeded(discovered:)`` applies it.
+///
+/// Delete this type once the migration window closes.
 nonisolated enum PreferenceMigration {
     /// Migration never fails destructively. Worst case the selection is left
     /// unset and the app picks the first model — exactly what it already does for
@@ -32,10 +36,23 @@ nonisolated enum PreferenceMigration {
         case alreadyMigrated
         /// No legacy selection to migrate.
         case nothingToMigrate
-        /// The legacy URL no longer names a directory any engine recognises.
+        /// Nothing discovery found matches the legacy selection.
         case unresolvable
         case migrated(ModelID)
     }
+
+    /// Engines that could have produced a legacy selection, most-preferred first.
+    ///
+    /// This ordering is the only frozen thing here, and it reproduces the sniff
+    /// order `ModelRepository.load` used when the legacy format was written —
+    /// Klein first, then Core ML — because that order is what decided which kind
+    /// of model the user was actually looking at.
+    ///
+    /// Engines absent from this list are ignored as candidates, so an engine added
+    /// in a later phase can never claim an old selection just because it happens
+    /// to expose a model with the same key. That is what makes the outcome stable
+    /// no matter when a given user upgrades.
+    static let legacyEnginePreference: [EngineID] = [.iris, .coreMLStableDiffusion]
 
     /// Decides what the engine-qualified selection should become.
     ///
@@ -43,13 +60,13 @@ nonisolated enum PreferenceMigration {
     ///   - legacyURL: the old `Model` preference, if any.
     ///   - existing: the current engine-qualified selection, if any. Its presence
     ///     is what makes this idempotent.
-    ///   - modelDirectory: the models root as configured *now*. The legacy URL is
-    ///     absolute and may be spelled differently, which is why only the
-    ///     directory name is taken from it.
+    ///   - discovered: the ids of every model discovery just found. The legacy URL
+    ///     is absolute and may be spelled differently from the models root
+    ///     configured now, which is why only its last component is used.
     static func selectedModel(
         legacyURL: URL?,
         existing: ModelID?,
-        modelDirectory: URL
+        discovered: [ModelID]
     ) -> Outcome {
         if existing != nil {
             return .alreadyMigrated
@@ -59,23 +76,12 @@ nonisolated enum PreferenceMigration {
         }
 
         let key = ModelID.localKey(for: legacyURL)
-        guard let url = ModelID.localURL(forKey: key, under: modelDirectory),
-            let engine = frozenEngineClassification(of: url, name: key)
-        else {
-            return .unresolvable
+        let candidates = discovered.filter { $0.key == key }
+        for engine in legacyEnginePreference {
+            if let match = candidates.first(where: { $0.engine == engine }) {
+                return .migrated(match)
+            }
         }
-        return .migrated(ModelID(engine: engine, key: key))
-    }
-
-    /// Which engine the app would have shown this directory as, at the time the
-    /// preference was written. Frozen; see the type's documentation.
-    private static func frozenEngineClassification(of url: URL, name: String) -> EngineID? {
-        if IrisFluxKleinModel(url: url, name: name) != nil {
-            return .iris
-        }
-        if SDModel(url: url, name: name, controlNet: []) != nil {
-            return .coreMLStableDiffusion
-        }
-        return nil
+        return .unresolvable
     }
 }

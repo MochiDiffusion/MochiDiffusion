@@ -38,6 +38,35 @@ nonisolated extension ModelID: CustomStringConvertible {
     var description: String { "\(engine.rawValue):\(key)" }
 }
 
+// MARK: - Persistence
+
+nonisolated extension ModelID {
+    /// The persisted form: engine and key in one value.
+    ///
+    /// One value rather than two so a selection is stored with a single
+    /// `UserDefaults` write. Two writes go to `cfprefsd` as two messages, so a
+    /// process killed between them could leave a new engine beside an old key —
+    /// a pair that looks valid, names nothing, and silently resets the user's
+    /// selection on the next launch.
+    ///
+    /// Deliberately not `description`: how an id reads in a log should be free to
+    /// change without changing what is on disk. `ModelIDKeyTests` pins this
+    /// format.
+    var persistedValue: String { "\(engine.rawValue):\(key)" }
+
+    /// Parses ``persistedValue``.
+    ///
+    /// Splits on the *first* colon. Engine ids never contain one — we choose them
+    /// — but a model key may, since a colon is legal in a POSIX filename.
+    init?(persistedValue: String) {
+        guard let separator = persistedValue.firstIndex(of: ":") else { return nil }
+        let engine = String(persistedValue[persistedValue.startIndex..<separator])
+        let key = String(persistedValue[persistedValue.index(after: separator)...])
+        guard !engine.isEmpty, !key.isEmpty else { return nil }
+        self.init(engine: EngineID(rawValue: engine), key: key)
+    }
+}
+
 // MARK: - Local keys
 
 nonisolated extension ModelID {
