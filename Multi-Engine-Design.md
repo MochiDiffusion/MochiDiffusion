@@ -925,6 +925,26 @@ lies would be worse than an honest unchecked one.
 and `IrisCallbackRouter` each guard every mutable field with their own lock, and each needs
 to be readable from a synchronous C callback that has no actor to hop to.
 
+**Correction: an actor does not give single-flight.** Phase 3 claimed making
+`IrisEngineRuntime` an actor made Iris's one-generation-per-process rule structural. That
+was wrong, and it is the same mistake in a new costume: actors are reentrant at every
+suspension point, and `run` suspends four times — twice on the embedding cache, once
+encoding image data, once delivering a result. A second `run` could enter during any of
+them and call `iris_clear_cancel()`, install its own callback route and load a second
+context while the first still owned one. Two runtime *instances* could overlap for the same
+reason, the C state being per process. Nothing hit it only because `GenerationService` runs
+one request at a time — precisely the external serialization assumption this section forbids
+relying on.
+
+`IrisSingleFlight` ([Support/IrisSingleFlight.swift](Mochi%20Diffusion/Support/IrisSingleFlight.swift))
+is a process-wide FIFO lease held across the whole call, suspending rather than blocking a
+pool thread. `IrisSingleFlightTests` asserts holders never coexist even when each suspends
+mid-critical-section, which is the shape an actor cannot protect.
+
+The general lesson, which is worth more than the fix: **"it is an actor" answers questions
+about state, not about invocations.** Any invariant that has to hold across an `await` needs
+something that outlives the suspension.
+
 ### 11.4 Iris callback routing
 
 The C callbacks create unstructured Swift tasks that later reach a singleton
@@ -991,6 +1011,16 @@ checkpoint got it.
 The terminal `.ready` moved out of the runtimes and onto `GenerationService`, so a dropped
 informational event cannot leave the UI stuck mid-generation.
 
+**The cost of two channels, and what it took to pay it.** Splitting results from events means
+their relative order is not guaranteed, and that had a visible consequence: a buffered
+preview could be applied *after* the controller had replaced the preview with the finished
+image, and teardown skipped clearing on the assumption the insert had done it — so the stale
+frame survived and was inherited by the next request. `GenerationService` now tracks whether
+a preview was applied since the last result and clears at teardown only in that case, which
+leaves the common path untouched (no blank between the last preview and the inserted image,
+and no change to whether the insert animates). Anything that adds a third channel needs to
+answer the same question.
+
 Separately: `GenerationState.Progress` and `.Status` are now `nonisolated`. Nested in a
 `@MainActor` class under `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor`, they were `Sendable`
 with main-actor-isolated members — an engine off the main actor could build a `Progress`
@@ -1016,6 +1046,15 @@ different policy — a dropped result means a lost image.
 hoisting `self` before it, which is what made task and controller retain each other.
 `GenerationController.shutdown()` and `GalleryController.shutdown()` cancel every owned
 task. `updates()` is `bufferingNewest(1)`; `results()` stays unbounded.
+
+**Cancelling tasks is not the same as being shut down.** Two holes turned up after the fact.
+The initial `Task { await loadModels() }` in each `init` was stored nowhere and captured
+`self` strongly, so `shutdown()` had no handle on it. And a `withObservationTracking`
+callback stays armed until it fires, and *firing is what re-registers it* — so a settings
+change after shutdown armed observation again and scheduled fresh debounce work. Both
+controllers now store that initial task weakly and carry an `isShutDown` flag checked before
+arming observation, scheduling a debounce, or starting a monitor. `ControllerLifecycleTests`
+changes settings after shutdown and asserts the controller still deallocates.
 
 `shutdown()` has **no caller in the app, deliberately.** Both controllers are created once
 in `App.init()` and held in `@State` on the `App` struct, with a single `Window` scene;

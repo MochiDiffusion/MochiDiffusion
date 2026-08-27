@@ -14,15 +14,36 @@ import UniformTypeIdentifiers
 /// compiler could not check and §11.7's per-engine lanes would have broken.
 ///
 /// The Iris C calls block inside the actor for the length of a generation. That is
-/// the same trade `CoreMLEngineRuntime` documents, and here it is also *required*:
-/// the C library keeps its callback slots and cancel flag in process globals, so
-/// only one generation can be in flight per process regardless of what the queue
-/// does. The actor is what makes that single-flight rule structural instead of a
-/// comment.
+/// the same trade `CoreMLEngineRuntime` documents.
+///
+/// Single-flight is enforced by ``IrisSingleFlight``, *not* by this being an actor.
+/// Actors are reentrant at every suspension point and `run` suspends four times,
+/// so a second call could otherwise interleave and reset the C library's
+/// process-global callback route and cancel flag under the first one.
 actor IrisEngineRuntime: GenerationEngineRuntime {
     private static let embeddingCache = FluxPromptEmbeddingCache(maxEntries: 16)
 
     func run(
+        request: GenerationRequest,
+        session: GenerationSession,
+        onResult: @escaping @Sendable (GenerationResult) async throws -> Void
+    ) async throws {
+        // Held across the whole call, including its suspensions. Released on
+        // every exit path — hence the explicit outcome rather than a `defer`,
+        // which cannot await.
+        await IrisSingleFlight.shared.acquire()
+        let outcome: Result<Void, any Error>
+        do {
+            try await runHoldingLease(request: request, session: session, onResult: onResult)
+            outcome = .success(())
+        } catch {
+            outcome = .failure(error)
+        }
+        await IrisSingleFlight.shared.release()
+        try outcome.get()
+    }
+
+    private func runHoldingLease(
         request: GenerationRequest,
         session: GenerationSession,
         onResult: @escaping @Sendable (GenerationResult) async throws -> Void

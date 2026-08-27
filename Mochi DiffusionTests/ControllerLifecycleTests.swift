@@ -56,6 +56,49 @@ struct ControllerLifecycleTests {
         #expect(weakController == nil)
     }
 
+    /// `withObservationTracking` callbacks stay armed until they fire, and firing
+    /// is what re-registers them — so cancelling tasks did not stop a settings
+    /// change after `shutdown()` from arming observation and scheduling debounce
+    /// work all over again. If it still did, the new task would hold the
+    /// controller and this would not deallocate.
+    @Test("A settings change after shutdown does not revive the controller")
+    func settingsChangeAfterShutdownDoesNothing() async throws {
+        let defaults = try TempDefaults()
+        let configStore = ConfigStore(store: defaults.defaults)
+        weak var weakController: GenerationController?
+
+        do {
+            let controller = GenerationController(configStore: configStore, startsObserving: true)
+            weakController = controller
+            controller.shutdown()
+            configStore.modelDir = "/tmp/mochi-somewhere-else"
+            configStore.controlNetDir = "/tmp/mochi-controlnet-elsewhere"
+        }
+
+        await Task.yield()
+        #expect(weakController == nil)
+    }
+
+    @Test("A settings change after gallery shutdown does not revive it")
+    func gallerySettingsChangeAfterShutdownDoesNothing() async throws {
+        let defaults = try TempDefaults()
+        let configStore = ConfigStore(store: defaults.defaults)
+        weak var weakController: GalleryController?
+
+        do {
+            let controller = GalleryController(
+                configStore: configStore,
+                focusController: FocusController()
+            )
+            weakController = controller
+            controller.shutdown()
+            configStore.imageDir = "/tmp/mochi-images-elsewhere"
+        }
+
+        await Task.yield()
+        #expect(weakController == nil)
+    }
+
     @Test("Shutting down twice is harmless")
     func shutdownIsIdempotent() throws {
         let defaults = try TempDefaults()

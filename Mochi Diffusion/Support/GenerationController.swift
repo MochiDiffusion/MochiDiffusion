@@ -68,6 +68,11 @@ final class GenerationController {
     /// held by nothing — so it kept the controller alive until the load finished
     /// and `shutdown()` had no handle to cancel.
     private var initialLoadTask: Task<Void, Never>?
+    /// `withObservationTracking` callbacks stay armed until they fire, and firing
+    /// is what re-registers them. Cancelling tasks therefore does not stop a
+    /// configuration change after `shutdown()` from scheduling fresh debounce work
+    /// and arming observation all over again, so shutdown was not terminal.
+    private var isShutDown = false
 
     /// - Parameter startsObserving: whether to begin the eager work — the initial
     ///   model load, the folder monitors, and the generation-service observation.
@@ -524,6 +529,7 @@ final class GenerationController {
     /// before entering the loop, so task and controller kept each other alive
     /// until something cancelled — which nothing did. See §11.6.
     func shutdown() {
+        isShutDown = true
         initialLoadTask?.cancel()
         generationUpdatesTask?.cancel()
         generationResultsTask?.cancel()
@@ -615,6 +621,7 @@ final class GenerationController {
     }
 
     private func observeModelDir() {
+        guard !isShutDown else { return }
         withObservationTracking {
             _ = configStore.modelDir
         } onChange: { [weak self] in
@@ -626,6 +633,7 @@ final class GenerationController {
     }
 
     private func observeControlNetDir() {
+        guard !isShutDown else { return }
         withObservationTracking {
             _ = configStore.controlNetDir
         } onChange: { [weak self] in
@@ -637,6 +645,7 @@ final class GenerationController {
     }
 
     private func scheduleModelDirUpdate() {
+        guard !isShutDown else { return }
         modelDirDebounceTask?.cancel()
         modelDirDebounceTask = Task { @MainActor in
             do {
@@ -649,6 +658,7 @@ final class GenerationController {
     }
 
     private func scheduleControlNetDirUpdate() {
+        guard !isShutDown else { return }
         controlNetDirDebounceTask?.cancel()
         controlNetDirDebounceTask = Task { @MainActor in
             do {
@@ -671,6 +681,7 @@ final class GenerationController {
     }
 
     private func startModelFolderMonitor() {
+        guard !isShutDown else { return }
         modelFolderMonitorTask?.cancel()
         let path = modelDirectoryPath()
         modelFolderMonitorTask = Task { [weak self] in
@@ -686,6 +697,7 @@ final class GenerationController {
     }
 
     private func startControlNetFolderMonitor() {
+        guard !isShutDown else { return }
         controlNetFolderMonitorTask?.cancel()
         let path = controlNetDirectoryPath()
         controlNetFolderMonitorTask = Task { [weak self] in

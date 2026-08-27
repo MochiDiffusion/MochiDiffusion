@@ -36,6 +36,15 @@ actor GenerationService {
     private var runtimes: [EngineID: any GenerationEngineRuntime] = [:]
     private var nextImageIndex = 1
     private var didEmitResultForCurrentRequest = false
+    /// Whether a preview frame has been applied since the last result was emitted.
+    ///
+    /// Results and events travel on separate channels — deliberately, since
+    /// results need back-pressure and previews do not — so a buffered preview can
+    /// be applied *after* the controller has already replaced the preview with the
+    /// finished image. Teardown skips clearing when a result was emitted, on the
+    /// assumption that the insert did it, so that late frame would survive and be
+    /// inherited by the next request. This is how teardown tells the two apart.
+    private var didApplyPreviewSinceResult = false
     private let imageRepository: ImageRepository
     private let modelRepository: ModelRepository
     private let engineRegistry: EngineRegistry
@@ -344,6 +353,7 @@ actor GenerationService {
         }
 
         await setCurrentGeneratingImage(image)
+        didApplyPreviewSinceResult = true
     }
 
     private func nextFilename(for metadata: GenerationMetadata) async -> String {
@@ -383,6 +393,7 @@ actor GenerationService {
 
     private func emitResultForCurrentRequest(_ result: GenerationResult) {
         didEmitResultForCurrentRequest = true
+        didApplyPreviewSinceResult = false
         for continuation in resultContinuations.values {
             continuation.yield(result)
         }
@@ -403,7 +414,12 @@ actor GenerationService {
         restoreReadyAfterCancel: Bool
     ) async {
         let cancelRequested = isCancelRequested(for: requestID)
-        if cancelRequested || !didEmitResultForCurrentRequest {
+        // The third condition is the fix: a result was emitted, so the insert was
+        // expected to replace the preview, but a frame arrived after it and is
+        // still on screen. Clearing only in that case keeps the common path
+        // unchanged — no blank flash between the last preview and the inserted
+        // image, and no change to whether the insert animates.
+        if cancelRequested || !didEmitResultForCurrentRequest || didApplyPreviewSinceResult {
             await setCurrentGeneratingImage(nil)
         }
 
@@ -418,6 +434,7 @@ actor GenerationService {
             currentSession = nil
         }
         didEmitResultForCurrentRequest = false
+        didApplyPreviewSinceResult = false
     }
 
     private func removeResultContinuation(_ id: UUID) {

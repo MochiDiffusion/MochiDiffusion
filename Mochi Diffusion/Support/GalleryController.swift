@@ -23,6 +23,9 @@ final class GalleryController {
     /// See `GenerationController.initialLoadTask`: stored and weak so
     /// `shutdown()` can cancel it and it cannot outlive its owner.
     private var initialLoadTask: Task<Void, Never>?
+    /// See `GenerationController.isShutDown`: cancelling tasks does not disarm a
+    /// `withObservationTracking` callback, and firing is what re-arms it.
+    private var isShutDown = false
 
     init(
         configStore: ConfigStore,
@@ -192,6 +195,7 @@ final class GalleryController {
     }
 
     private func observeImageDir() {
+        guard !isShutDown else { return }
         withObservationTracking {
             _ = configStore.imageDir
         } onChange: { [weak self] in
@@ -203,6 +207,7 @@ final class GalleryController {
     }
 
     private func scheduleImageDirUpdate() {
+        guard !isShutDown else { return }
         imageDirDebounceTask?.cancel()
         imageDirDebounceTask = Task { @MainActor in
             do {
@@ -220,6 +225,7 @@ final class GalleryController {
     }
 
     private func startImageFolderMonitor() {
+        guard !isShutDown else { return }
         imageFolderMonitorTask?.cancel()
         let path = imageDirectoryPath()
         imageFolderMonitorTask = Task { [weak self] in
@@ -237,6 +243,7 @@ final class GalleryController {
     /// Cancels every task this controller owns. See
     /// `GenerationController.shutdown()`.
     func shutdown() {
+        isShutDown = true
         initialLoadTask?.cancel()
         imageFolderMonitorTask?.cancel()
         imageDirDebounceTask?.cancel()
