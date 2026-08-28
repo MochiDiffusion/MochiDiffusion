@@ -18,7 +18,8 @@ import os
 nonisolated protocol SecretStore: Sendable {
     /// Whether a secret exists, without reading it.
     func hasSecret(for account: String) -> Bool
-    /// The secret itself. Only generation should need this.
+    /// The secret itself. Only generation and ``OpenAICredentialCheck`` need this;
+    /// no caller may put the value into a view.
     func secret(for account: String) -> String?
     /// Stores, or removes when `secret` is `nil`.
     func setSecret(_ secret: String?, for account: String) throws

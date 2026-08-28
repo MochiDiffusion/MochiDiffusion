@@ -371,7 +371,9 @@ nonisolated final class OpenAIEngineRuntime: GenerationEngineRuntime {
             || code.contains("safety")
     }
 
-    private static func errorFields(in body: String) -> (code: String?, message: String?) {
+    /// Not private: ``OpenAICredentialCheck`` reports the same service's failures
+    /// and there is one place the API's error envelope is understood.
+    static func errorFields(in body: String) -> (code: String?, message: String?) {
         guard
             let data = body.data(using: .utf8),
             let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any],

@@ -17,11 +17,13 @@ nonisolated final class FakeHTTPSession: HTTPSession, @unchecked Sendable {
     private let lock = NSLock()
     private var statusCode: Int
     private var body: [String]
+    private var failure: (any Error)?
     private var recorded: URLRequest?
 
-    init(statusCode: Int = 200, body: [String] = []) {
+    init(statusCode: Int = 200, body: [String] = [], failure: (any Error)? = nil) {
         self.statusCode = statusCode
         self.body = body
+        self.failure = failure
     }
 
     var lastRequest: URLRequest? {
@@ -35,11 +37,11 @@ nonisolated final class FakeHTTPSession: HTTPSession, @unchecked Sendable {
         return try? JSONSerialization.jsonObject(with: data) as? [String: Any]
     }
 
-    private func record(_ request: URLRequest) -> (Int, [String]) {
+    private func record(_ request: URLRequest) -> (Int, [String], (any Error)?) {
         lock.lock()
         defer { lock.unlock() }
         recorded = request
-        return (statusCode, body)
+        return (statusCode, body, failure)
     }
 
     func lines(
@@ -48,7 +50,10 @@ nonisolated final class FakeHTTPSession: HTTPSession, @unchecked Sendable {
         // `NSLock` is unavailable from an async context, so the mutation is done
         // in a synchronous helper. The lock is still needed: the runtime may call
         // this from any executor.
-        let (status, lines) = record(request)
+        let (status, lines, failure) = record(request)
+        // A transport failure, for the callers that have to tell "the service
+        // said no" apart from "the service could not be asked".
+        if let failure { throw failure }
 
         let response = HTTPURLResponse(
             url: request.url!, statusCode: status, httpVersion: nil, headerFields: nil)!
