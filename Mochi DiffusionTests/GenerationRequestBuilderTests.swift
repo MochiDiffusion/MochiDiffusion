@@ -358,7 +358,11 @@ struct GenerationRequestBuilderTests {
         #expect(request.startingImageName == nil)
         #expect(request.inputImageNames == ["in.png"])
         let data = try #require(request.inputImageData.first)
-        #expect(pixelSize(of: data) == CGSize(width: 512, height: 512))
+        // A reference keeps its own resolution, snapped to the 16px token grid —
+        // 40x20 becomes 32x16 — rather than being scaled up to the output size.
+        // Iris attends to references as tokens, so enlarging one would spend
+        // attention budget on pixels the source never had.
+        #expect(pixelSize(of: data) == CGSize(width: 32, height: 16))
         // Klein models declare no fixed input size, so the configured size
         // reaches the request — and unlike Core ML, the Iris generator actually
         // uses it as the generation dimensions.
@@ -388,8 +392,33 @@ struct GenerationRequestBuilderTests {
         #expect(request.inputImageData.count == IrisEngine.maxReferenceImages)
         #expect(request.inputImageNames == ["ref0.png", "ref1.png", "ref2.png", "ref3.png"])
         #expect(request.startingImageName == nil)
+        // Grid-normalized, not upscaled to the output size. These are small enough
+        // that the attention budget leaves them alone.
         for data in request.inputImageData {
-            #expect(pixelSize(of: data) == CGSize(width: 512, height: 512))
+            #expect(pixelSize(of: data) == CGSize(width: 32, height: 16))
+        }
+    }
+
+    /// The budget is Iris's alone. Four large references against a large output
+    /// exceed what attention can hold, and the estimator shrinks them to fit rather
+    /// than letting the generation die.
+    @Test("Large references are shrunk to fit the attention budget")
+    func largeReferencesAreFittedToBudget() async throws {
+        try makeKleinModelFixture(at: modelDir.appending(path: "klein-model"))
+        configStore.width = 1_792
+        configStore.height = 1_792
+        let controller = try await makeControllerSelecting("klein-model")
+        for _ in 0..<IrisEngine.maxReferenceImages {
+            controller.addInputImage(image: makeCGImage(width: 1_792, height: 1_792))
+        }
+
+        let report = try #require(controller.irisReferenceBudgetReport)
+        let request = try #require(controller.buildGenerationRequest())
+
+        // Every reference came in at the maximum dimension and had to give ground.
+        #expect(report.predictedReferenceSizes.allSatisfy { $0.width < 1_792 })
+        for (index, data) in request.inputImageData.enumerated() {
+            #expect(pixelSize(of: data) == report.predictedReferenceSizes[index])
         }
     }
 

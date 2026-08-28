@@ -392,14 +392,18 @@ final class GenerationController {
         ]
     }
 
+    /// How many images the selected model will take.
+    var maxInputImageCount: Int {
+        currentConstraints.inputImages.maxCount
+    }
+
     /// Appends an image, up to what the selected model accepts.
     ///
     /// Refuses silently at the cap rather than dropping the oldest: a user who has
     /// filled the list and adds another is more likely to have miscounted than to
     /// want their first image replaced.
     func addInputImage(image: CGImage, filename: String? = nil) {
-        let maxCount = currentConstraints.inputImages.maxCount
-        guard maxCount > 0, inputImages.count < maxCount else { return }
+        guard maxInputImageCount > 0, inputImages.count < maxInputImageCount else { return }
         inputImages.append(
             InputImage(
                 image: image,
@@ -410,6 +414,43 @@ final class GenerationController {
 
     func setInputImages(_ images: [InputImage]) {
         inputImages = images
+    }
+
+    /// Sets the image at `index`, appending when the list is not that long yet.
+    ///
+    /// Indexed rather than keyed by id because the sidebar shows an empty well past
+    /// the last image — the slot exists before anything is in it.
+    ///
+    /// Replacing keeps the entry's id, so its row does not animate out and back in,
+    /// and drops its old name: the previous filename no longer describes the new
+    /// picture, and keeping it would put a wrong name in the image's metadata.
+    func setInputImage(image: CGImage, at index: Int, filename: String? = nil) {
+        let name = filename?.normalizedFilename ?? consumePendingSelectedImageFilename()
+        guard index >= 0, index < maxInputImageCount else { return }
+
+        if index < inputImages.count {
+            inputImages[index].image = image
+            inputImages[index].name = name
+            // A new picture invalidates a crop dragged out against the old one.
+            inputImages[index].edit = .identity
+        } else if index == inputImages.count {
+            inputImages.append(InputImage(image: image, name: name))
+        }
+    }
+
+    /// Fills consecutive slots from `index`, for a multi-file drop.
+    ///
+    /// Extras past the model's limit are dropped rather than wrapping around to the
+    /// front, so dropping six files on a four-image model keeps the first four.
+    func setInputImages(_ dropped: [ImageWellView.DroppedImage], startingAt index: Int) {
+        for (offset, item) in dropped.enumerated() {
+            setInputImage(image: item.image, at: index + offset, filename: item.filename)
+        }
+    }
+
+    func unsetInputImage(at index: Int) {
+        guard inputImages.indices.contains(index) else { return }
+        inputImages.remove(at: index)
     }
 
     func selectStartingImage() async {
@@ -431,28 +472,66 @@ final class GenerationController {
         addInputImage(image: image, filename: filename)
     }
 
-    func selectAdditionalInputImage() async {
-        guard let image = await selectImage() else { return }
-        addInputImage(image: image)
-    }
-
-    func removeInputImage(id: InputImage.ID) {
-        inputImages.removeAll { $0.id == id }
-    }
-
-    /// Swaps one entry's picture, keeping its place in the list.
-    ///
-    /// Its `id` is kept so the row does not animate out and back in, and its name is
-    /// dropped: the old filename would no longer describe the new picture, and
-    /// recording it would put a wrong name in the image's metadata.
-    func replaceInputImage(id: InputImage.ID, with image: CGImage) {
-        guard let index = inputImages.firstIndex(where: { $0.id == id }) else { return }
-        inputImages[index].image = image
-        inputImages[index].name = consumePendingSelectedImageFilename()
-    }
-
     func unsetStartingImage() async {
         inputImages = []
+    }
+
+    // MARK: - Per-image crop
+
+    func inputImageEdit(at index: Int) -> IrisReferenceImageEdit? {
+        inputImages[safe: index]?.edit
+    }
+
+    func setInputImageEdit(_ edit: IrisReferenceImageEdit, at index: Int) {
+        guard inputImages.indices.contains(index) else { return }
+        inputImages[index].edit = edit.clamped()
+    }
+
+    func resetInputImageEdit(at index: Int) {
+        setInputImageEdit(.identity, at: index)
+    }
+
+    /// The cropped image, for the well's preview.
+    func editedInputImage(at index: Int) -> CGImage? {
+        inputImages[safe: index]?.edited
+    }
+
+    func editedInputImageSize(at index: Int) -> CGSize? {
+        inputImages[safe: index]?.editedSize
+    }
+
+    /// What will actually be sent, cropped and fitted the way the request will
+    /// fit it. Shown in the crop popover's preview so the estimate is not a
+    /// separate calculation from the one that runs.
+    func preprocessedInputImage(at index: Int) -> CGImage? {
+        guard let cropped = editedInputImage(at: index) else { return nil }
+        guard let target = predictedInputImageSize(at: index) else { return cropped }
+        return IrisReferenceImageProcessor.resizedAndCroppedToTokenGrid(cropped, to: target)
+            ?? cropped
+    }
+
+    /// The size the model's own budget leaves for this image, or `nil` when the
+    /// engine has no budget to fit — every engine but Iris.
+    func predictedInputImageSize(at index: Int) -> CGSize? {
+        irisReferenceBudgetReport?.predictedReferenceSizes[safe: index]
+    }
+
+    /// Iris's attention budget for the current references, or `nil` for any other
+    /// engine or when there are no references.
+    ///
+    /// Computed through `IrisEngine.budgetReport`, the same call `plan` makes, so
+    /// the warning the sidebar shows and the sizes the request uses cannot drift
+    /// apart.
+    var irisReferenceBudgetReport: IrisReferenceBudgetReport? {
+        guard let model = currentModel as? IrisFluxKleinModel else { return nil }
+        return IrisEngine.budgetReport(
+            for: inputImages,
+            model: model,
+            outputSize: currentConstraints.size.resolved(
+                CGSize(width: configStore.width, height: configStore.height)
+            ),
+            constraint: currentConstraints.inputImages
+        )
     }
 
     func setControlNet(name: String) async {

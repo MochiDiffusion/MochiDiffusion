@@ -215,7 +215,26 @@ nonisolated struct IrisEngine: GenerationEngineDescriptor {
         let scheduler = constraints.scheduler.resolved(draft.scheduler)
         let numberOfImages =
             constraints.numberOfImages.resolved(draft.numberOfImages) ?? draft.numberOfImages
-        let inputs = constraints.inputImages.prepared(draft.inputImages, scaledTo: size)
+        // Iris is the one engine with a memory budget to respect. Attention cost
+        // grows with the square of the sequence length times the head count, and
+        // references add tokens to that sequence — so four full-size references
+        // against a large output can ask for more than the machine has. The
+        // estimator predicts a size per reference that fits, and each is fitted to
+        // it here.
+        //
+        // Deliberately not generalised to every engine. A hosted model has no
+        // attention budget we can see, and applying this to one would shrink images
+        // for a limit that does not exist.
+        let budget = Self.budgetReport(
+            for: draft.inputImages,
+            model: model,
+            outputSize: size,
+            constraint: constraints.inputImages
+        )
+        let inputs = constraints.inputImages.prepared(draft.inputImages) { image, index in
+            guard let fitted = budget?.predictedReferenceSizes[safe: index] else { return nil }
+            return IrisReferenceImageProcessor.resizedAndCroppedToTokenGrid(image, to: fitted)
+        }
 
         return GenerationPlan<IrisGenerationPayload>(
             payload: IrisGenerationPayload(
@@ -242,6 +261,27 @@ nonisolated struct IrisEngine: GenerationEngineDescriptor {
             // sidebar list lands in a different field.
             startingImageName: nil,
             inputImageNames: inputs.names
+        )
+    }
+
+    /// What the attention budget leaves for each reference, or `nil` when there are
+    /// none to fit.
+    ///
+    /// `static` and taking everything it needs, so the sidebar can ask the same
+    /// question to decide whether to warn — the number it shows and the size the
+    /// request uses come from one calculation.
+    static func budgetReport(
+        for images: [InputImage],
+        model: IrisFluxKleinModel,
+        outputSize: CGSize,
+        constraint: InputImagesConstraint
+    ) -> IrisReferenceBudgetReport? {
+        let sizes = constraint.resolved(images).map(\.editedSize)
+        guard !sizes.isEmpty else { return nil }
+        return IrisReferenceBudgetEstimator.estimate(
+            numHeads: model.attentionHeadCount,
+            outputSize: outputSize,
+            referenceSizes: sizes
         )
     }
 

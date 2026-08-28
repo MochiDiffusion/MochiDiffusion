@@ -76,6 +76,7 @@
 		71D315162B2A584E007FFDEB /* NotificationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71D315152B2A584E007FFDEB /* NotificationController.swift */; };
 		73F2FE036E51455A99DBC80B /* GenerationRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E790ECE28024A119CB77474 /* GenerationRequest.swift */; };
 		C0DEC0DEC0DEC0DEC0DE0002 /* MetadataCodec.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DEC0DEC0DEC0DEC0DE0001 /* MetadataCodec.swift */; };
+		AA3000000000000000000098 /* IrisReferenceImageSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1100000000000000000098 /* IrisReferenceImageSupport.swift */; };
 		AA4000000000000000000002 /* PreferenceMigration.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA4000000000000000000001 /* PreferenceMigration.swift */; };
 		AA50000000000000000001102 /* GenerationEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA50000000000000000001101 /* GenerationEngine.swift */; };
 		AA50000000000000000001942 /* IrisSingleFlight.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA50000000000000000001941 /* IrisSingleFlight.swift */; };
@@ -218,6 +219,7 @@
 		03F75CEC2979B3910071CD1C /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		0E790ECE28024A119CB77474 /* GenerationRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationRequest.swift; sourceTree = "<group>"; };
 		C0DEC0DEC0DEC0DEC0DE0001 /* MetadataCodec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetadataCodec.swift; sourceTree = "<group>"; };
+		AA1100000000000000000098 /* IrisReferenceImageSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IrisReferenceImageSupport.swift; sourceTree = "<group>"; };
 		AA4000000000000000000001 /* PreferenceMigration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferenceMigration.swift; sourceTree = "<group>"; };
 		AA50000000000000000001101 /* GenerationEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationEngine.swift; sourceTree = "<group>"; };
 		AA50000000000000000001941 /* IrisSingleFlight.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IrisSingleFlight.swift; sourceTree = "<group>"; };
@@ -343,6 +345,7 @@
 				03173C102999D83600B03456 /* CoreMLEngineRuntime.swift */,
 				52F2A312D80E8D81A88D7636 /* ImageRepository.swift */,
 				C0DEC0DEC0DEC0DEC0DE0001 /* MetadataCodec.swift */,
+				AA1100000000000000000098 /* IrisReferenceImageSupport.swift */,
 				AA4000000000000000000001 /* PreferenceMigration.swift */,
 				AA50000000000000000001101 /* GenerationEngine.swift */,
 				AA50000000000000000001941 /* IrisSingleFlight.swift */,
@@ -784,6 +787,7 @@
 				463715C52EA79FC4AF642B78 /* GenerationController.swift in Sources */,
 				73F2FE036E51455A99DBC80B /* GenerationRequest.swift in Sources */,
 				C0DEC0DEC0DEC0DEC0DE0002 /* MetadataCodec.swift in Sources */,
+				AA3000000000000000000098 /* IrisReferenceImageSupport.swift in Sources */,
 				AA4000000000000000000002 /* PreferenceMigration.swift in Sources */,
 				AA50000000000000000001102 /* GenerationEngine.swift in Sources */,
 				AA50000000000000000001942 /* IrisSingleFlight.swift in Sources */,
