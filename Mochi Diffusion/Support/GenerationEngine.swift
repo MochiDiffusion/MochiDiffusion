@@ -58,8 +58,10 @@ nonisolated struct GenerationDraft: Sendable {
     /// The size typed into the sidebar. An engine may override it; a Core ML
     /// model with a fixed input size does.
     var configuredSize: CGSize
-    var startingImage: CGImage?
-    var startingImageName: String?
+    /// Every image the sidebar currently holds, in the order the user added them.
+    /// An engine takes as many as its `InputImagesConstraint` allows and decides
+    /// what they mean.
+    var inputImages: [InputImage]
     var controlNets: [ControlNetDraft]
     var strength: Float
     var stepCount: Int
@@ -95,7 +97,10 @@ nonisolated struct GenerationPlan<Payload: Sendable>: Sendable {
     var payload: Payload
     /// The size that will actually be produced.
     var size: CGSize
-    var startingImageData: Data?
+    /// The input images this engine will actually use, already scaled and encoded,
+    /// truncated to what the model accepts. Ordered: Core ML denoises from the
+    /// first, and a reference list is positional.
+    var inputImageData: [Data]
     var controlNetImageData: [Data]
     var controlNetNames: [String]
     var controlNetImageNames: [String]
@@ -124,7 +129,7 @@ nonisolated extension GenerationPlan {
         GenerationPlan<any Sendable>(
             payload: payload,
             size: size,
-            startingImageData: startingImageData,
+            inputImageData: inputImageData,
             controlNetImageData: controlNetImageData,
             controlNetNames: controlNetNames,
             controlNetImageNames: controlNetImageNames,

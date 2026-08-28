@@ -100,10 +100,10 @@ nonisolated struct OpenAIImageEngine: GenerationEngineDescriptor {
                 wantsPreviews: draft.showGenerationPreview
             ),
             size: size,
-            // Generations only in this version. Editing and inpainting are a
-            // different endpoint with their own inputs, and `startingImage` is
-            // declared unsupported so the sidebar does not offer one.
-            startingImageData: nil,
+            // Generations only in this version. Input images go to the edits
+            // endpoint, which takes its own multipart form, and `inputImages` is
+            // declared unsupported so the sidebar does not offer any.
+            inputImageData: [],
             controlNetImageData: [],
             controlNetNames: [],
             controlNetImageNames: [],
@@ -158,7 +158,7 @@ nonisolated extension OpenAIImageEngine {
             steps: .unsupported,
             guidanceScale: .unsupported,
             scheduler: .unsupported,
-            startingImage: .unsupported,
+            inputImages: .unsupported,
             controlNet: .unsupported,
             quality: .oneOf([.auto, .low, .medium, .high]),
             // Ours to choose, not the API's: one request is sent per image, so this

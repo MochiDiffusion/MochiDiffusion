@@ -102,7 +102,7 @@ actor IrisEngineRuntime: GenerationEngineRuntime {
         var embeddings: [Float]?
 
         var startingFluxImage: UnsafeMutablePointer<iris_image>?
-        if let startingImageData = request.startingImageData {
+        if let startingImageData = request.inputImageData.first {
             startingFluxImage = Self.makeFluxImage(from: startingImageData)
             if startingFluxImage == nil {
                 throw IrisRuntimeError.decodeStartingImageFailed

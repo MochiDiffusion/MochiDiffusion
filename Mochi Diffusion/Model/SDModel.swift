@@ -43,7 +43,7 @@ nonisolated struct SDModel: EngineModel {
             // clamp values users already have persisted.
             guidanceScale: .range(1...20, step: nil),
             scheduler: .oneOf(Scheduler.allCases),
-            startingImage: .supported(strength: .range(0...1, step: nil)),
+            inputImages: .supported(maxCount: 1, strength: .range(0...1, step: nil)),
             controlNet: controlNet.isEmpty ? .unsupported : .supported(names: controlNet),
             quality: .unsupported,
             numberOfImages: .range(1...100, step: 1, acceptsBeyondUpperBound: true),

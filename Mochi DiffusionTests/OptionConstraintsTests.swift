@@ -386,19 +386,89 @@ struct OptionConstraintsTests {
         #expect(offered.resolved(.discreteFlowScheduler) == .pndmScheduler)
     }
 
-    // MARK: - Starting image and ControlNet
+    // MARK: - Input images and ControlNet
 
-    /// Nesting strength inside the starting-image constraint is what makes
-    /// "strength but no starting image" unrepresentable. Iris is the case that
-    /// needs it: it takes a starting image and ignores strength.
-    @Test("Strength is unreachable without a starting image")
-    func strengthRequiresStartingImage() {
-        #expect(StartingImageConstraint.unsupported.strength == .unsupported)
-        #expect(!StartingImageConstraint.unsupported.isSupported)
+    /// Nesting strength inside the input-images constraint is what makes
+    /// "strength but no image" unrepresentable. Iris is the case that needs it: it
+    /// takes images and ignores strength.
+    @Test("Strength is unreachable without an input image")
+    func strengthRequiresInputImage() {
+        #expect(InputImagesConstraint.unsupported.strength == .unsupported)
+        #expect(!InputImagesConstraint.unsupported.isSupported)
 
-        let inputImageOnly = StartingImageConstraint.supported(strength: .unsupported)
+        let inputImageOnly = InputImagesConstraint.supported(maxCount: 1, strength: .unsupported)
         #expect(inputImageOnly.isSupported)
         #expect(inputImageOnly.strength.resolved(0.5) == nil)
+    }
+
+    @Test("An unsupported constraint accepts nothing and counts zero")
+    func unsupportedInputImagesTakesNothing() {
+        let constraint = InputImagesConstraint.unsupported
+
+        #expect(constraint.maxCount == 0)
+        #expect(!constraint.acceptsMultiple)
+        #expect(constraint.resolved([makeInputImage(), makeInputImage()]).isEmpty)
+    }
+
+    @Test("Only a constraint that takes more than one is multiple")
+    func acceptsMultipleFollowsMaxCount() {
+        #expect(
+            !InputImagesConstraint.supported(maxCount: 1, strength: .unsupported)
+                .acceptsMultiple)
+        #expect(
+            InputImagesConstraint.supported(maxCount: 2, strength: .unsupported)
+                .acceptsMultiple)
+    }
+
+    /// The front of the list, not any other subset: order is meaningful to the
+    /// engines — Core ML denoises from the first — and the images a user added first
+    /// are the ones they meant most.
+    @Test("Extra images are dropped from the end")
+    func resolvedKeepsLeadingImages() {
+        let first = makeInputImage(name: "first.png")
+        let second = makeInputImage(name: "second.png")
+        let third = makeInputImage(name: "third.png")
+        let constraint = InputImagesConstraint.supported(maxCount: 2, strength: .unsupported)
+
+        #expect(constraint.resolved([first, second, third]) == [first, second])
+        #expect(constraint.resolved([first]) == [first])
+        #expect(constraint.resolved([]).isEmpty)
+    }
+
+    /// A guard against metadata that claims an image the request never carried.
+    /// Data and names come out of one pass precisely so they cannot disagree.
+    @Test("Preparing truncates and names only what survives")
+    func preparedPairsDataWithNames() {
+        let named = makeInputImage(name: "kept.png")
+        let unnamed = makeInputImage(name: nil)
+        let dropped = makeInputImage(name: "dropped.png")
+        let constraint = InputImagesConstraint.supported(maxCount: 2, strength: .unsupported)
+
+        let prepared = constraint.prepared(
+            [named, unnamed, dropped],
+            scaledTo: CGSize(width: 16, height: 16)
+        )
+
+        // Two images, because the third is past the cap.
+        #expect(prepared.data.count == 2)
+        // One name, because the second image never had one — and crucially *not*
+        // "dropped.png", whose image was not sent.
+        #expect(prepared.names == ["kept.png"])
+    }
+
+    @Test("An unsupported constraint prepares nothing even when handed images")
+    func preparedRespectsUnsupported() {
+        let prepared = InputImagesConstraint.unsupported.prepared(
+            [makeInputImage(name: "ignored.png")],
+            scaledTo: CGSize(width: 16, height: 16)
+        )
+
+        #expect(prepared.data.isEmpty)
+        #expect(prepared.names.isEmpty)
+    }
+
+    private func makeInputImage(name: String? = nil) -> InputImage {
+        InputImage(image: makeCGImage(), name: name)
     }
 
     @Test("ControlNet carries the names the model can actually use")
@@ -438,14 +508,14 @@ struct ModelVisibilityTests {
         #expect(!constraints.supportsNegativePrompt)
         #expect(!constraints.guidanceScale.isSupported)
         #expect(!constraints.controlNet.isSupported)
-        #expect(!constraints.startingImage.strength.isSupported)
+        #expect(!constraints.inputImages.strength.isSupported)
         // Shown, but disabled: seeing "4" explains the model better than an
         // absent row does.
         #expect(constraints.steps.isSupported)
         #expect(!constraints.steps.isEditable)
         #expect(!constraints.scheduler.isEditable)
         // A starting image is still accepted, as an input image.
-        #expect(constraints.startingImage.isSupported)
+        #expect(constraints.inputImages.isSupported)
     }
 
     @Test("A fixed-size Core ML model shows its size read-only")
@@ -494,7 +564,7 @@ struct ModelVisibilityTests {
         #expect(constraints.numberOfImages.allowsValuesAboveBounds)
         #expect(constraints.steps.resolved(75) == 75)
         #expect(constraints.guidanceScale.bounds == 1...20)
-        #expect(constraints.startingImage.strength.bounds == 0...1)
+        #expect(constraints.inputImages.strength.bounds == 0...1)
         #expect(constraints.numberOfImages.bounds == 1...100)
         #expect(constraints.scheduler.options == Scheduler.allCases)
     }

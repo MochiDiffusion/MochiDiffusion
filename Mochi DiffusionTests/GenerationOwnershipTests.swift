@@ -109,7 +109,7 @@ struct IrisCancelledWaiterTests {
             prompt: "a cat",
             negativePrompt: "",
             size: CGSize(width: 64, height: 64),
-            startingImageData: nil,
+            inputImageData: [],
             startingImageName: nil,
             controlNetImageData: [],
             controlNetNames: [],

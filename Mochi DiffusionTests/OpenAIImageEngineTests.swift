@@ -100,8 +100,9 @@ struct OpenAIImageEngineTests {
             prompt: "a cat",
             negativePrompt: "blurry",
             configuredSize: size,
-            startingImage: makeCGImage(),
-            startingImageName: "start.png",
+            // Deliberately non-empty: this engine declares `inputImages`
+            // unsupported, so the plan must drop them rather than pass them on.
+            inputImages: [InputImage(image: makeCGImage(), name: "start.png")],
             controlNets: [],
             strength: 0.5,
             stepCount: 23,
@@ -201,7 +202,7 @@ struct OpenAIImageEngineTests {
         #expect(plan.mlComputeUnit == nil)
         // A starting image was set too, and is dropped rather than sent: this
         // version uses the generations endpoint only.
-        #expect(plan.startingImageData == nil)
+        #expect(plan.inputImageData.isEmpty)
         #expect(plan.startingImageName == nil)
         #expect(plan.inputImageNames.isEmpty)
         #expect(plan.controlNetImageData.isEmpty)

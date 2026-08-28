@@ -200,7 +200,7 @@ struct GenerationRequestBuilderTests {
 
         let request = try #require(controller.buildGenerationRequest())
 
-        let data = try #require(request.startingImageData)
+        let data = try #require(request.inputImageData.first)
         #expect(pixelSize(of: data) == CGSize(width: 512, height: 768))
         #expect(request.startingImageName == "start.png")
         // Core ML SD records a starting image; the Iris path records input images.
@@ -218,7 +218,7 @@ struct GenerationRequestBuilderTests {
 
         let request = try #require(controller.buildGenerationRequest())
 
-        let data = try #require(request.startingImageData)
+        let data = try #require(request.inputImageData.first)
         #expect(pixelSize(of: data) == CGSize(width: 320, height: 448))
     }
 
@@ -231,7 +231,7 @@ struct GenerationRequestBuilderTests {
         let request = try #require(controller.buildGenerationRequest())
 
         #expect(request.startingImageName == nil)
-        #expect(request.startingImageData != nil)
+        #expect(request.inputImageData.count == 1)
     }
 
     // MARK: - ControlNet
@@ -357,7 +357,7 @@ struct GenerationRequestBuilderTests {
         // records a starting image, Iris an input image.
         #expect(request.startingImageName == nil)
         #expect(request.inputImageNames == ["in.png"])
-        let data = try #require(request.startingImageData)
+        let data = try #require(request.inputImageData.first)
         #expect(pixelSize(of: data) == CGSize(width: 512, height: 512))
         // Klein models declare no fixed input size, so the configured size
         // reaches the request — and unlike Core ML, the Iris generator actually

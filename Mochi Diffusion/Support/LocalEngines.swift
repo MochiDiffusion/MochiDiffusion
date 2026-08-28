@@ -55,7 +55,7 @@ nonisolated struct CoreMLStableDiffusionEngine: GenerationEngineDescriptor {
         let size = constraints.size.resolved(draft.configuredSize)
         let stepCount = constraints.steps.resolved(draft.stepCount)
         let scheduler = constraints.scheduler.resolved(draft.scheduler)
-        let strength = constraints.startingImage.strength
+        let strength = constraints.inputImages.strength
             .resolved(Double(draft.strength))
             .map(Float.init)
         let guidanceScale = constraints.guidanceScale
@@ -65,6 +65,7 @@ nonisolated struct CoreMLStableDiffusionEngine: GenerationEngineDescriptor {
             constraints.numberOfImages.resolved(draft.numberOfImages) ?? draft.numberOfImages
         let quality = constraints.quality.resolved(draft.quality)
         let computeUnit = draft.computeUnitPreference.computeUnits(forModel: model)
+        let inputs = constraints.inputImages.prepared(draft.inputImages, scaledTo: size)
 
         var controlNetNames: [String] = []
         var controlNetImageNames: [String] = []
@@ -101,7 +102,7 @@ nonisolated struct CoreMLStableDiffusionEngine: GenerationEngineDescriptor {
                 scheduler: scheduler ?? draft.scheduler
             ),
             size: size,
-            startingImageData: draft.startingImage?.scaledAndCroppedTo(size: size)?.pngData(),
+            inputImageData: inputs.data,
             controlNetImageData: controlNetInputs,
             controlNetNames: controlNetNames,
             controlNetImageNames: controlNetImageNames,
@@ -112,7 +113,9 @@ nonisolated struct CoreMLStableDiffusionEngine: GenerationEngineDescriptor {
             quality: quality,
             numberOfImages: numberOfImages,
             mlComputeUnit: computeUnit,
-            startingImageName: draft.startingImageName?.normalizedFilename,
+            // Core ML denoises from its one image, so it records a *starting*
+            // image. Same sidebar list, different metadata vocabulary.
+            startingImageName: inputs.names.first,
             inputImageNames: []
         )
     }
@@ -203,6 +206,7 @@ nonisolated struct IrisEngine: GenerationEngineDescriptor {
         let scheduler = constraints.scheduler.resolved(draft.scheduler)
         let numberOfImages =
             constraints.numberOfImages.resolved(draft.numberOfImages) ?? draft.numberOfImages
+        let inputs = constraints.inputImages.prepared(draft.inputImages, scaledTo: size)
 
         return GenerationPlan<IrisGenerationPayload>(
             payload: IrisGenerationPayload(
@@ -211,24 +215,24 @@ nonisolated struct IrisEngine: GenerationEngineDescriptor {
                 scheduler: scheduler ?? draft.scheduler
             ),
             size: size,
-            startingImageData: draft.startingImage?.scaledAndCroppedTo(size: size)?.pngData(),
+            inputImageData: inputs.data,
             controlNetImageData: [],
             controlNetNames: [],
             controlNetImageNames: [],
             stepCount: stepCount,
             scheduler: scheduler,
-            // Klein ignores both: a distilled model has no guidance, and a
-            // starting image is an input image rather than a denoising origin.
-            strength: constraints.startingImage.strength.resolved(Double(draft.strength))
+            // Klein ignores both: a distilled model has no guidance, and an input
+            // image is a reference rather than a denoising origin.
+            strength: constraints.inputImages.strength.resolved(Double(draft.strength))
                 .map(Float.init),
             guidanceScale: constraints.guidanceScale.resolved(Double(draft.guidanceScale))
                 .map(Float.init),
             numberOfImages: numberOfImages,
             mlComputeUnit: nil,
-            // Iris records what it was given as an input image rather than as a
-            // starting image, so the same sidebar state lands in a different field.
+            // Iris records references rather than a denoising origin, so the same
+            // sidebar list lands in a different field.
             startingImageName: nil,
-            inputImageNames: draft.startingImageName?.normalizedFilename.map { [$0] } ?? []
+            inputImageNames: inputs.names
         )
     }
 

@@ -32,8 +32,13 @@ final class GenerationController {
     /// ``discoveryMessage(failures:engines:foundModels:modelDir:)``.
     private(set) var discoveryMessage: String?
     private(set) var controlNet: [String] = []
-    var startingImage: CGImage?
-    var startingImageFilename: String?
+    /// The images the sidebar is holding, in the order the user added them.
+    ///
+    /// Kept whole regardless of what the selected model accepts, so switching to a
+    /// model that takes fewer does not throw away images the user chose. `plan`
+    /// truncates to the model's `maxCount` when the request is built, and the
+    /// sidebar marks the ones that will not be used.
+    private(set) var inputImages: [InputImage] = []
     var numberOfImages = 1.0
     var seed: UInt32 = 0
 
@@ -374,10 +379,37 @@ final class GenerationController {
         await GenerationService.shared.enqueue(request)
     }
 
+    /// Replaces the whole list with one image.
+    ///
+    /// The single-image entry point, kept for the drops and menu commands that mean
+    /// "use this one". Adding to a list is ``addInputImage(image:filename:)``.
     func setStartingImage(image: CGImage, filename: String? = nil) {
-        startingImage = image
-        startingImageFilename =
-            filename?.normalizedFilename ?? consumePendingSelectedImageFilename()
+        inputImages = [
+            InputImage(
+                image: image,
+                name: filename?.normalizedFilename ?? consumePendingSelectedImageFilename()
+            )
+        ]
+    }
+
+    /// Appends an image, up to what the selected model accepts.
+    ///
+    /// Refuses silently at the cap rather than dropping the oldest: a user who has
+    /// filled the list and adds another is more likely to have miscounted than to
+    /// want their first image replaced.
+    func addInputImage(image: CGImage, filename: String? = nil) {
+        let maxCount = currentConstraints.inputImages.maxCount
+        guard maxCount > 0, inputImages.count < maxCount else { return }
+        inputImages.append(
+            InputImage(
+                image: image,
+                name: filename?.normalizedFilename ?? consumePendingSelectedImageFilename()
+            )
+        )
+    }
+
+    func setInputImages(_ images: [InputImage]) {
+        inputImages = images
     }
 
     func selectStartingImage() async {
@@ -391,9 +423,36 @@ final class GenerationController {
         setStartingImage(image: image, filename: filename)
     }
 
+    /// Adds a gallery image to the list, for "Set as Input Image" on a model that
+    /// takes several.
+    func addInputImage(sdi: SDImage) async {
+        guard let image = sdi.image else { return }
+        let filename = URL(fileURLWithPath: sdi.path).lastPathComponent
+        addInputImage(image: image, filename: filename)
+    }
+
+    func selectAdditionalInputImage() async {
+        guard let image = await selectImage() else { return }
+        addInputImage(image: image)
+    }
+
+    func removeInputImage(id: InputImage.ID) {
+        inputImages.removeAll { $0.id == id }
+    }
+
+    /// Swaps one entry's picture, keeping its place in the list.
+    ///
+    /// Its `id` is kept so the row does not animate out and back in, and its name is
+    /// dropped: the old filename would no longer describe the new picture, and
+    /// recording it would put a wrong name in the image's metadata.
+    func replaceInputImage(id: InputImage.ID, with image: CGImage) {
+        guard let index = inputImages.firstIndex(where: { $0.id == id }) else { return }
+        inputImages[index].image = image
+        inputImages[index].name = consumePendingSelectedImageFilename()
+    }
+
     func unsetStartingImage() async {
-        startingImage = nil
-        startingImageFilename = nil
+        inputImages = []
     }
 
     func setControlNet(name: String) async {
@@ -643,8 +702,7 @@ final class GenerationController {
             prompt: configStore.prompt,
             negativePrompt: configStore.negativePrompt,
             configuredSize: CGSize(width: configStore.width, height: configStore.height),
-            startingImage: startingImage,
-            startingImageName: startingImageFilename,
+            inputImages: inputImages,
             controlNets: currentControlNets.map {
                 ControlNetDraft(name: $0.name, image: $0.image, imageName: $0.imageFilename)
             },
@@ -682,7 +740,7 @@ final class GenerationController {
             prompt: draft.prompt,
             negativePrompt: draft.negativePrompt,
             size: plan.size,
-            startingImageData: plan.startingImageData,
+            inputImageData: plan.inputImageData,
             startingImageName: plan.startingImageName,
             controlNetImageData: plan.controlNetImageData,
             controlNetNames: plan.controlNetNames,

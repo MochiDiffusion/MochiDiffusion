@@ -178,10 +178,10 @@ struct IrisFluxKleinDiscoveryTests {
         #expect(constraints.scheduler == .pinned(.discreteFlowScheduler))
         #expect(constraints.guidanceScale == .unsupported)
         #expect(constraints.controlNet == .unsupported)
-        // A starting image is accepted, but as an input image rather than a
-        // denoising origin, so strength has no meaning.
-        #expect(constraints.startingImage.isSupported)
-        #expect(constraints.startingImage.strength == .unsupported)
+        // An input image is accepted, but as a reference rather than a denoising
+        // origin, so strength has no meaning.
+        #expect(constraints.inputImages.isSupported)
+        #expect(constraints.inputImages.strength == .unsupported)
         #expect(constraints.size.isEditable)
         // Klein's image count is a plain loop, so it takes what it is given.
         #expect(constraints.numberOfImages.allowsValuesAboveBounds)

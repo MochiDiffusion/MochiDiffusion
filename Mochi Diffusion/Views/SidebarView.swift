@@ -29,9 +29,9 @@ struct SidebarView: View {
                 // hidden section takes its divider and spacing with it. Individual
                 // rows are never gated: they show a disabled field instead, so the
                 // controls below them do not move when the model changes.
-                if controller.currentConstraints.startingImage.isSupported {
+                if controller.currentConstraints.inputImages.isSupported {
                     Group {
-                        StartingImageView()
+                        InputImagesView()
                         Divider().frame(height: 16)
                     }
                 }
