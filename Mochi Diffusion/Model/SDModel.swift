@@ -45,6 +45,7 @@ nonisolated struct SDModel: EngineModel {
             scheduler: .oneOf(Scheduler.allCases),
             startingImage: .supported(strength: .range(0...1, step: nil)),
             controlNet: controlNet.isEmpty ? .unsupported : .supported(names: controlNet),
+            quality: .unsupported,
             numberOfImages: .range(1...100, step: 1, acceptsBeyondUpperBound: true),
             promptTokenLimit: 75
         )

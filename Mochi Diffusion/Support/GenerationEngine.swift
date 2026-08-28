@@ -80,6 +80,7 @@ nonisolated struct GenerationDraft: Sendable {
     var stepCount: Int
     var guidanceScale: Float
     var scheduler: Scheduler
+    var quality: ImageQuality
     var seed: UInt32
     var numberOfImages: Int
     var computeUnitPreference: ComputeUnitPreference
@@ -130,6 +131,7 @@ nonisolated struct GenerationPlan<Payload: Sendable>: Sendable {
     var scheduler: Scheduler?
     var strength: Float?
     var guidanceScale: Float?
+    var quality: ImageQuality?
     var numberOfImages: Int
     var mlComputeUnit: MLComputeUnits?
     /// Core ML records a starting image; Iris records input images. Same sidebar
@@ -152,6 +154,7 @@ nonisolated extension GenerationPlan {
             scheduler: scheduler,
             strength: strength,
             guidanceScale: guidanceScale,
+            quality: quality,
             numberOfImages: numberOfImages,
             mlComputeUnit: mlComputeUnit,
             startingImageName: startingImageName,

@@ -28,6 +28,7 @@ import UniformTypeIdentifiers
         static let width = "ImageWidth"
         static let height = "ImageHeight"
         static let scheduler = "Scheduler"
+        static let quality = "ImageQuality"
         static let showGenerationPreview = "ShowGenerationPreview"
         static let mlComputeUnitPreference = "MLComputeUnitPreference"
         static let reduceMemory = "ReduceMemory"
@@ -52,6 +53,8 @@ import UniformTypeIdentifiers
         static let width = 512
         static let height = 512
         static let scheduler = Scheduler.dpmSolverMultistepScheduler
+        /// What the service picks unless the user says otherwise.
+        static let quality = ImageQuality.auto
         static let showGenerationPreview = true
         static let mlComputeUnitPreference = ComputeUnitPreference.auto
         static let reduceMemory = false
@@ -76,6 +79,7 @@ import UniformTypeIdentifiers
     @ObservationIgnored @AppStorage(Key.width) private var _width = Default.width
     @ObservationIgnored @AppStorage(Key.height) private var _height = Default.height
     @ObservationIgnored @AppStorage(Key.scheduler) private var _scheduler = Default.scheduler
+    @ObservationIgnored @AppStorage(Key.quality) private var _quality = Default.quality
     @ObservationIgnored @AppStorage(Key.showGenerationPreview) private var _showGenPreview =
         Default.showGenerationPreview
     @ObservationIgnored @AppStorage(Key.mlComputeUnitPreference)
@@ -123,6 +127,7 @@ import UniformTypeIdentifiers
         __width = AppStorage(wrappedValue: Default.width, Key.width, store: store)
         __height = AppStorage(wrappedValue: Default.height, Key.height, store: store)
         __scheduler = AppStorage(wrappedValue: Default.scheduler, Key.scheduler, store: store)
+        __quality = AppStorage(wrappedValue: Default.quality, Key.quality, store: store)
         __showGenPreview = AppStorage(
             wrappedValue: Default.showGenerationPreview, Key.showGenerationPreview, store: store)
         __mlComputeUnitPreference = AppStorage(
@@ -323,6 +328,21 @@ import UniformTypeIdentifiers
         set {
             withMutation(keyPath: \.scheduler) {
                 _scheduler = newValue
+            }
+        }
+    }
+
+    /// Global rather than per-engine: only a hosted model honours it, and a user
+    /// who prefers drafts probably prefers them from whichever engine offers the
+    /// choice.
+    var quality: ImageQuality {
+        get {
+            access(keyPath: \.quality)
+            return _quality
+        }
+        set {
+            withMutation(keyPath: \.quality) {
+                _quality = newValue
             }
         }
     }

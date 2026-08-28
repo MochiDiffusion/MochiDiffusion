@@ -409,6 +409,8 @@ nonisolated struct OptionConstraints: Sendable {
     var scheduler: ChoiceConstraint<Scheduler>
     var startingImage: StartingImageConstraint
     var controlNet: ControlNetConstraint
+    /// Hosted vocabulary; the local engines declare `.unsupported`.
+    var quality: ChoiceConstraint<ImageQuality>
     var numberOfImages: IntConstraint
     /// How many prompt tokens the model can attend to, for the sidebar's counter.
     /// Not a constraint the sidebar enforces — over-long prompts are truncated by
@@ -429,6 +431,7 @@ nonisolated struct OptionConstraints: Sendable {
         scheduler: .oneOf(Scheduler.allCases),
         startingImage: .supported(strength: .range(0...1, step: nil)),
         controlNet: .unsupported,
+        quality: .unsupported,
         numberOfImages: .range(1...100, step: 1, acceptsBeyondUpperBound: true),
         promptTokenLimit: nil
     )

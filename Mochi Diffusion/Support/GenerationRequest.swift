@@ -65,6 +65,9 @@ nonisolated struct GenerationRequest: Sendable, Identifiable {
     /// Resolved by `plan`; `nil` when the model does not use it at all. See
     /// `stepCount`.
     let scheduler: Scheduler?
+    /// Resolved by `plan`; `nil` for every model that has no notion of quality,
+    /// which is both local engines.
+    let quality: ImageQuality?
     /// Core ML only, but the queue displays it when the model records it, so it
     /// stays a plain field rather than something the queue has to unwrap a
     /// payload for. Becomes an engine-provided display detail once engines

@@ -124,6 +124,7 @@ struct QueueLivenessTests {
             stepCount: 1,
             guidanceScale: nil,
             scheduler: .pndmScheduler,
+            quality: nil,
             mlComputeUnit: nil,
             useDenoisedIntermediates: false,
             seed: 1,

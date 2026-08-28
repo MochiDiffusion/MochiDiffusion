@@ -18,6 +18,7 @@ nonisolated struct IrisFluxKleinModel: EngineModel {
         scheduler: .pinned(.discreteFlowScheduler),
         startingImage: .supported(strength: .unsupported),
         controlNet: .unsupported,
+        quality: .unsupported,
         numberOfImages: .range(1...100, step: 1, acceptsBeyondUpperBound: true),
         promptTokenLimit: 512
     )

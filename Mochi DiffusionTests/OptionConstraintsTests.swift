@@ -292,6 +292,52 @@ struct OptionConstraintsTests {
         }
     }
 
+    // MARK: - Quality
+
+    /// Hosted vocabulary. Both local engines declare it unsupported, so `plan`
+    /// resolves it to nothing and no image records a quality it did not have.
+    @Test("Neither local model claims a quality")
+    func localModelsHaveNoQuality() throws {
+        let temp = try TempDirectory()
+        let sdURL = try temp.subdirectory("sd")
+        try makeSDModelFixture(at: sdURL)
+        let kleinURL = try temp.subdirectory("klein")
+        try makeKleinModelFixture(at: kleinURL)
+
+        let sd = try #require(SDModel(url: sdURL, name: "sd", controlNet: []))
+        let klein = try #require(IrisFluxKleinModel(url: kleinURL, name: "klein"))
+
+        #expect(!sd.constraints.quality.isSupported)
+        #expect(!klein.constraints.quality.isSupported)
+        #expect(sd.constraints.quality.resolved(.high) == nil)
+        #expect(klein.constraints.quality.resolved(.high) == nil)
+    }
+
+    /// Raw values reach the wire and the image metadata, so they are pinned. §6
+    /// learned with `Scheduler` what it costs to let a display string double as a
+    /// persisted identifier.
+    @Test("Quality identifiers are stable and distinct from their labels")
+    func qualityIdentifiersAreStable() {
+        #expect(ImageQuality.auto.rawValue == "auto")
+        #expect(ImageQuality.low.rawValue == "low")
+        #expect(ImageQuality.medium.rawValue == "medium")
+        #expect(ImageQuality.high.rawValue == "high")
+        #expect(ImageQuality.allCases.count == 4)
+        // A label is free to be reworded or localized; an identifier is not.
+        #expect(ImageQuality.auto.displayName != ImageQuality.auto.rawValue)
+    }
+
+    @Test("An offered quality is honoured and an unoffered one falls back")
+    func qualityChoiceResolution() {
+        let offered = ChoiceConstraint<ImageQuality>.oneOf([.auto, .low, .high])
+
+        #expect(offered.resolved(.high) == .high)
+        // Not offered, so the first is used rather than the request being rejected
+        // — the same rule every other choice constraint follows.
+        #expect(offered.resolved(.medium) == .auto)
+        #expect(ChoiceConstraint<ImageQuality>.pinned(.low).resolved(.high) == .low)
+    }
+
     // MARK: - Choices
 
     @Test("A pinned choice ignores the request, an offered one is honoured")

@@ -181,6 +181,7 @@ struct EnginePayloadOwnershipTests {
             stepCount: 12,
             guidanceScale: 11,
             scheduler: .dpmSolverMultistepScheduler,
+            quality: .auto,
             seed: 1,
             numberOfImages: 1,
             computeUnitPreference: .auto,
