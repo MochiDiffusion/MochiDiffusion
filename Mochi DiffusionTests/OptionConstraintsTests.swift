@@ -327,6 +327,31 @@ struct OptionConstraintsTests {
         #expect(ImageQuality.auto.displayName != ImageQuality.auto.rawValue)
     }
 
+    /// The forward-compatibility rule. An image written by a later build naming a
+    /// quality this one does not have must leave the sidebar alone rather than be
+    /// read as `auto` — that would show a value the image never used, which is the
+    /// scheduler import defect in a new place.
+    @Test(
+        "Only a recognised recorded quality is read back",
+        arguments: [
+            ("auto", ImageQuality.auto),
+            ("low", .low),
+            ("medium", .medium),
+            ("high", .high),
+        ]
+    )
+    func recognisedQualityIsRead(recorded: String, expected: ImageQuality) {
+        #expect(ImageQuality(recorded) == expected)
+    }
+
+    @Test(
+        "An unrecognised or absent quality reads as nothing",
+        arguments: ["", "ultra", "Auto", "HIGH", "low ", "0"]
+    )
+    func unrecognisedQualityIsNil(recorded: String) {
+        #expect(ImageQuality(recorded) == nil)
+    }
+
     @Test("An offered quality is honoured and an unoffered one falls back")
     func qualityChoiceResolution() {
         let offered = ChoiceConstraint<ImageQuality>.oneOf([.auto, .low, .high])

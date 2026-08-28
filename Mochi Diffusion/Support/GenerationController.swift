@@ -515,6 +515,9 @@ final class GenerationController {
         if metadataFields.contains(.scheduler) {
             configStore.scheduler = sdi.scheduler
         }
+        if metadataFields.contains(.quality), let quality = ImageQuality(sdi.quality) {
+            configStore.quality = quality
+        }
     }
 
     func copyPromptToPrompt() {

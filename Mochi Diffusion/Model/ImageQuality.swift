@@ -23,6 +23,19 @@ nonisolated enum ImageQuality: String, CaseIterable, Sendable, Identifiable {
 
     var id: String { rawValue }
 
+    /// Reads a quality recorded in image metadata, or `nil` when it is not one
+    /// this build knows.
+    ///
+    /// `nil` deliberately means "leave the current selection alone" to whoever
+    /// asked. An image written by a later build naming a quality we do not have
+    /// must not be quietly read as `auto`: that would put a value in the sidebar
+    /// the image never used, which is the same class of defect as a scheduler
+    /// importing as DPM-Solver++ because its name was unrecognised.
+    init?(_ recorded: String) {
+        guard let quality = ImageQuality(rawValue: recorded) else { return nil }
+        self = quality
+    }
+
     var displayName: String {
         switch self {
         case .auto:

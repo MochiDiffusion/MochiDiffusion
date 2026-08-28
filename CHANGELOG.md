@@ -5,6 +5,8 @@
 - Fixed the model list occasionally reverting to an older models folder's contents when the folder was changed twice in quick succession
 - Fixed queued images never generating after an earlier failure
   - Once a generation failed in a way that left an error showing — an images folder that could not be written to, for example — every image queued afterwards was accepted and silently never started, until the app was relaunched
+- Fixed copying an image's options to the sidebar not restoring its quality
+  - A quality this version does not recognise now leaves your current selection alone rather than resetting it
 - Fixed cancelling or timing out a hosted generation not actually stopping it
   - A service that accepted the request and then went quiet would hold the queue indefinitely, blocking every image behind it, and keep a billable request open
 - Fixed a hosted generation with previews turned off being given up on after a minute

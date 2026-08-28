@@ -255,6 +255,32 @@ struct ModelSelectionPersistenceTests {
         #expect(!message.contains("No models found"))
     }
 
+    /// Copying an image's options used to drop quality, so regenerating an OpenAI
+    /// image reused whatever the sidebar happened to have.
+    @Test(
+        "Copying an image restores a recognised quality and leaves an unknown one",
+        arguments: [("high", ImageQuality.high), ("ultra", ImageQuality.low)]
+    )
+    func copyRestoresRecognisedQuality(
+        recorded: String, expected: ImageQuality
+    ) async throws {
+        try makeSDModelFixture(at: modelDir.appending(path: "a-model"))
+        let controller = makeController()
+        await controller.loadModels()
+        // The value the sidebar is left holding when the metadata says nothing we
+        // understand.
+        configStore.quality = .low
+
+        var image = SDImage(image: makeCGImage(), aspectRatio: 1, path: "")
+        image.quality = recorded
+        ImageGallery.shared.replaceAll([(image: image, metadataFields: [.quality])])
+        ImageGallery.shared.select(image.id)
+
+        controller.copyToPrompt(image)
+
+        #expect(configStore.quality == expected)
+    }
+
     /// A ready hosted engine used to be able to end the Phase 2 migration without
     /// performing it. `restoreSelection` persists a fallback engine, and the
     /// migration read "some engine is selected" as "this has already run" — so a

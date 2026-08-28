@@ -240,6 +240,12 @@ private struct InfoPopoverView: View {
             if let scheduler = effectiveScheduler {
                 configStore.scheduler = scheduler
             }
+            // The request carries a resolved `ImageQuality?` rather than a string,
+            // so there is nothing to recognise here — `nil` already means the model
+            // does not use it.
+            if let quality = request.quality {
+                configStore.quality = quality
+            }
 
             controller.currentModelId = request.modelID
 
