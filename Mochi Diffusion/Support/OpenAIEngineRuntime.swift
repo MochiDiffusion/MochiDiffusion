@@ -6,7 +6,6 @@
 import CoreGraphics
 import Foundation
 import UniformTypeIdentifiers
-import os
 
 /// Runs a generation against the OpenAI image API.
 ///
@@ -22,7 +21,6 @@ nonisolated final class OpenAIEngineRuntime: GenerationEngineRuntime {
     private let secrets: any SecretStore
     private let account: String
     private let session: any HTTPSession
-    private let logger = Logger()
 
     init(secrets: any SecretStore, account: String, session: any HTTPSession) {
         self.secrets = secrets
