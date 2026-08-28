@@ -370,15 +370,66 @@ struct EnginePickerTests {
         let controller = makeController()
         await controller.loadModels()
 
+        // Every registered engine, which is what Settings ▸ Engines lists.
         #expect(controller.engines.map(\.id) == [.iris, .coreMLStableDiffusion, .openAI])
         #expect(controller.engineAvailability[.iris] == .ready)
         #expect(controller.engineAvailability[.coreMLStableDiffusion] == .ready)
-        // Listed while unconfigured, saying why — the whole point of §8. The
-        // default registry hands it a store with nothing in it, so this is the
-        // same answer on every machine and no keychain is queried.
+        // The default registry hands the hosted engine a store with nothing in it,
+        // so this is the same answer on every machine and no keychain is queried.
         #expect(
             controller.engineAvailability[.openAI]
                 == .needsConfiguration("Add an API key in Settings"))
+
+        // The sidebar offers only what can be generated with. Iris is `.ready` —
+        // the folder exists — but has no Klein model in it, and the hosted engine
+        // has a model but no key, so neither is offered.
+        #expect(controller.pickerEngines.map(\.id) == [.coreMLStableDiffusion])
+        #expect(controller.isUsable(.coreMLStableDiffusion))
+        #expect(!controller.isUsable(.iris))
+        #expect(!controller.isUsable(.openAI))
+    }
+
+    /// Both halves of "usable" are needed and neither implies the other.
+    @Test("A hosted engine becomes usable when a key is entered")
+    func hostedEngineBecomesUsableWithAKey() async throws {
+        let secrets = InMemorySecretStore()
+        let controller = makeController(
+            engineRegistry: EngineRegistry(engines: [
+                AnyGenerationEngine(OpenAIImageEngine(secrets: secrets))
+            ]))
+
+        await controller.loadModels()
+        // A model, but nothing to authenticate with.
+        #expect(controller.hasModels(.openAI))
+        #expect(!controller.isUsable(.openAI))
+        #expect(controller.pickerEngines.isEmpty)
+
+        try secrets.setSecret("sk-test", for: OpenAIImageEngine.secretAccount)
+        await controller.loadModels()
+
+        #expect(controller.isUsable(.openAI))
+        #expect(controller.pickerEngines.map(\.id) == [.openAI])
+    }
+
+    /// The rule that keeps a selection from pointing at something absent from its
+    /// own picker. `restoreSelection` keeps a chosen engine whose models have gone
+    /// so the picker can say why, and hiding it would take the explanation too.
+    @Test("The selected engine stays listed after its models disappear")
+    func selectedEngineStaysListedWhenEmptied() async throws {
+        try makeMixedFolder()
+        let controller = makeController()
+        await controller.loadModels()
+        controller.selectEngine(.iris)
+        #expect(controller.pickerEngines.map(\.id).contains(.iris))
+
+        try FileManager.default.removeItem(
+            at: modelDir.appending(path: "b-klein"))
+        await controller.loadModels()
+
+        #expect(!controller.isUsable(.iris))
+        #expect(controller.selectedEngine == .iris)
+        // Registration order, which is presentation order and nothing else.
+        #expect(controller.pickerEngines.map(\.id) == [.iris, .coreMLStableDiffusion])
     }
 
     /// The picker distinguishes "there are none" from "we could not look". Before

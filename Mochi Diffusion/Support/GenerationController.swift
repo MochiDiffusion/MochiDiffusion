@@ -84,6 +84,37 @@ final class GenerationController {
     }
 
     /// Whether `engine` has anything to generate with right now.
+    /// Whether an engine can be generated with right now.
+    ///
+    /// Both halves are needed and neither implies the other: a local engine is
+    /// `.ready` as soon as its folder exists but has no models until one is put
+    /// there, and a hosted engine always has a model but is not `.ready` until a
+    /// key is entered.
+    func isUsable(_ engine: EngineID) -> Bool {
+        engineAvailability[engine] == .ready && hasModels(engine)
+    }
+
+    /// The engines the sidebar picker offers.
+    ///
+    /// Not every registered engine. Most people use one or two, and a mode switch
+    /// that lists modes you cannot enter is noise on the surface you look at for
+    /// every generation — which only gets worse as engines are added. Settings ▸
+    /// Engines lists all of them unconditionally, and that is where an engine is
+    /// meant to be discovered and configured.
+    ///
+    /// The selected engine is always included, even when it stops being usable.
+    /// `restoreSelection` deliberately keeps a chosen engine whose models have
+    /// disappeared so the picker can say why; hiding it would leave the selection
+    /// pointing at something absent from its own picker, and take the explanation
+    /// with it.
+    ///
+    /// Empty is a real answer, and `EngineView` renders a placeholder for it rather
+    /// than this inventing one — an engine is a thing that can generate, and the
+    /// placeholder is not one.
+    var pickerEngines: [AnyGenerationEngine] {
+        engines.filter { isUsable($0.id) || $0.id == selectedEngine }
+    }
+
     func hasModels(_ engine: EngineID) -> Bool {
         models.contains { $0.id.engine == engine }
     }

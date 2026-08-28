@@ -856,10 +856,36 @@ Model    [picker, filtered to the selected engine]
 … constraint-driven controls …
 ```
 
-The engine picker lists **all registered engines, including unconfigured ones**, with the
-reason inline from `EngineAvailability` ("No models found", "API key required"). Hiding
-unavailable engines would make OpenAI undiscoverable — nobody finds a backend that only
-appears once it is already configured.
+**Revised 2026-08-27: the picker lists only engines that can be generated with.** The
+original decision was to list every registered engine with its reason inline, on the
+grounds that hiding an unconfigured engine makes it undiscoverable.
+
+That rationale is satisfied by Settings ▸ Engines, which lists every engine
+unconditionally — and satisfies it better than a greyed-out picker row does. Settings is
+where you configure; the sidebar is where you work. Putting the discovery burden on the
+surface a user looks at for every generation was the wrong division, and it gets worse with
+each engine added: Draw Things would make four, three of them unusable for most people.
+
+The rules:
+
+- **Usable** means `availability == .ready` *and* the engine has at least one model. Both
+  halves are needed and neither implies the other: a local engine is ready as soon as its
+  folder exists but has no models until one is put there, and a hosted engine always has a
+  model but is not ready until a key is entered.
+- **The selected engine is always listed**, even once it stops being usable. `restoreSelection`
+  deliberately keeps a chosen engine whose models have disappeared so the picker can say why;
+  hiding it would leave the selection pointing at something absent from its own picker and
+  take the explanation with it.
+- **When nothing is usable the picker holds a placeholder**, an em dash, with a caption
+  naming the two ways out. Not a registered engine and not selectable — an engine is a thing
+  that can generate, and this is not one. It is plainly a placeholder, so it can come and go
+  without looking like something was removed, which is the objection to a *real* engine
+  disappearing. The sidebar renders `OptionConstraints.unconstrained` in that state, which it
+  already did for "no model selected", and Generate is already disabled on
+  `currentModelId == nil`.
+
+Rejected: always listing Core ML Stable Diffusion as a floor. It would privilege one engine
+permanently, which is the same litter for anyone who only uses another one.
 
 Empty-engine case: engine selected, no models available → disable Generate and show the
 reason. Do not silently fall back to another engine's model.

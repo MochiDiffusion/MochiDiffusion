@@ -123,18 +123,22 @@ struct GenerationStopReasonTests {
 /// matters — that giving up releases the drain exactly as a completion does.
 ///
 /// A failure path that leaves the queue unable to start again is the bug class
-/// `QueueLivenessTests` exists for; this is the same hazard reached by a new
-/// route.
+/// `QueueLivenessTests` exists for; this is the same hazard reached by a new route.
 ///
-/// `.serialized` because `GenerationState` is a main-actor singleton, and a time
-/// limit because a regression here hangs rather than fails.
-@Suite(.serialized, .timeLimit(.minutes(1)))
-struct IdleTimeoutQueueTests {
+/// **An extension of that suite rather than a suite of its own.** Both drive
+/// `GenerationService`, which publishes to the `GenerationState` singleton, and two
+/// separately `.serialized` suites are serialized within themselves but not against
+/// each other — so a liveness test setting `.ready(nil)` could overwrite the expiry
+/// error this one was waiting for, and it would spin to its time limit. It passed
+/// alone and failed in the full suite, which is what that looks like. Sharing one
+/// suite makes them serial with respect to each other, which is the actual
+/// requirement.
+extension QueueLivenessTests {
 
     /// Runs, reports nothing, and waits to be stopped — as a real runtime does
     /// between steps. Never returns on its own, so only the watchdog ends it.
     struct StallingRuntime: GenerationEngineRuntime {
-        let started: QueueLivenessTests.RunSignal
+        let started: RunSignal
         let timeout: Duration
 
         var idleTimeout: Duration? { timeout }
@@ -154,7 +158,7 @@ struct IdleTimeoutQueueTests {
     /// Reports steadily for longer than the timeout, but never idles that long.
     /// The distinction between an idle bound and a wall-clock budget, as a test.
     struct HeartbeatRuntime: GenerationEngineRuntime {
-        let started: QueueLivenessTests.RunSignal
+        let started: RunSignal
         let timeout: Duration
         let beats: Int
         let interval: Duration
@@ -177,8 +181,8 @@ struct IdleTimeoutQueueTests {
     }
 
     struct TimedEngine: GenerationEngineDescriptor {
-        typealias Model = QueueLivenessTests.SignallingEngine.Model
-        typealias Payload = QueueLivenessTests.SignallingEngine.Payload
+        typealias Model = SignallingEngine.Model
+        typealias Payload = SignallingEngine.Payload
 
         static let id = EngineID(rawValue: "timed")
         let makeIt: @Sendable () -> any GenerationEngineRuntime
@@ -194,12 +198,12 @@ struct IdleTimeoutQueueTests {
         func makeRuntime() -> any GenerationEngineRuntime { makeIt() }
     }
 
-    private func makeRequest(prompt: String) -> GenerationRequest {
+    private func makeTimedRequest(prompt: String) -> GenerationRequest {
         GenerationRequest(
             modelID: ModelID(engine: TimedEngine.id, key: "model"),
             displayName: "model",
             metadataFields: [.prompt],
-            payload: QueueLivenessTests.SignallingEngine.Payload(),
+            payload: SignallingEngine.Payload(),
             prompt: prompt,
             negativePrompt: "",
             size: CGSize(width: 64, height: 64),
@@ -223,7 +227,7 @@ struct IdleTimeoutQueueTests {
         )
     }
 
-    private func makeService(
+    private func makeTimedService(
         _ runtime: @escaping @Sendable () -> any GenerationEngineRuntime
     ) -> GenerationService {
         GenerationService(
@@ -244,12 +248,12 @@ struct IdleTimeoutQueueTests {
     @Test("A runtime that goes quiet is given up on and reported")
     func stalledRuntimeExpires() async throws {
         await MainActor.run { GenerationState.shared.state = .ready(nil) }
-        let started = QueueLivenessTests.RunSignal()
-        let service = makeService {
+        let started = RunSignal()
+        let service = makeTimedService {
             StallingRuntime(started: started, timeout: .milliseconds(300))
         }
 
-        await service.enqueue(makeRequest(prompt: "stalls"))
+        await service.enqueue(makeTimedRequest(prompt: "stalls"))
         await started.wait(untilRuns: 1)
 
         // Reported as an error rather than going quietly `.ready`, and honest that
@@ -269,19 +273,19 @@ struct IdleTimeoutQueueTests {
     @Test("A request enqueued after an expiry still runs")
     func drainSurvivesAnExpiry() async throws {
         await MainActor.run { GenerationState.shared.state = .ready(nil) }
-        let started = QueueLivenessTests.RunSignal()
-        let service = makeService {
+        let started = RunSignal()
+        let service = makeTimedService {
             StallingRuntime(started: started, timeout: .milliseconds(300))
         }
 
-        await service.enqueue(makeRequest(prompt: "stalls"))
+        await service.enqueue(makeTimedRequest(prompt: "stalls"))
         await started.wait(untilRuns: 1)
         await waitForState { status in
             if case .error = status { return true }
             return false
         }
 
-        await service.enqueue(makeRequest(prompt: "after the expiry"))
+        await service.enqueue(makeTimedRequest(prompt: "after the expiry"))
         await started.wait(untilRuns: 2)
 
         #expect(await started.runCount == 2)
@@ -292,8 +296,8 @@ struct IdleTimeoutQueueTests {
     @Test("A runtime reporting steadily is not given up on")
     func heartbeatingRuntimeSurvives() async throws {
         await MainActor.run { GenerationState.shared.state = .ready(nil) }
-        let started = QueueLivenessTests.RunSignal()
-        let service = makeService {
+        let started = RunSignal()
+        let service = makeTimedService {
             HeartbeatRuntime(
                 started: started,
                 timeout: .milliseconds(400),
@@ -302,7 +306,7 @@ struct IdleTimeoutQueueTests {
             )
         }
 
-        await service.enqueue(makeRequest(prompt: "reports"))
+        await service.enqueue(makeTimedRequest(prompt: "reports"))
         await started.wait(untilRuns: 1)
 
         // Finishes normally: 720ms of work, never 400ms of silence.

@@ -17,7 +17,7 @@
   - It used to share one banner with generation errors, so whichever happened last hid the other
 - Added an Engine picker to the sidebar, above the model picker
   - The model picker shows only the selected engine's models, and each engine remembers the model it was last using
-  - Engines that are unconfigured or have no models are still listed, with the reason shown
+  - Only engines you can actually generate with are listed. Every engine is always shown in Settings → Engines, which is where you set one up
 - Added an Engines tab to Settings
   - ControlNet Folder, Reduce Memory Usage, ML Compute Unit, and Filter Inappropriate Images moved there, under Core ML Stable Diffusion; none of them ever affected any other engine
 - Changed the model list to empty itself when the models folder cannot be read, instead of continuing to show models that are no longer there
