@@ -24,6 +24,10 @@ final class GenerationController {
     private let modelRepository: ModelRepository
     private let engineRegistry: EngineRegistry
     private let imageRepository: ImageRepository
+    /// The gallery finished images are inserted into, and the one "copy to sidebar"
+    /// reads its selection from. Injected for the same reason as
+    /// `GalleryController.imageGallery`.
+    private let imageGallery: ImageGallery
     private(set) var generationQueue = [GenerationRequest]()
     private(set) var currentGeneration: GenerationRequest?
     private(set) var models = [any EngineModel]()
@@ -197,6 +201,7 @@ final class GenerationController {
         configStore: ConfigStore,
         modelRepository: ModelRepository = ModelRepository(),
         imageRepository: ImageRepository = ImageRepository(),
+        imageGallery: ImageGallery = .shared,
         engineRegistry: EngineRegistry = EngineRegistry(),
         engineSettings: EngineSettingsStore? = nil,
         startsObserving: Bool = true
@@ -205,6 +210,7 @@ final class GenerationController {
         self.modelRepository = modelRepository
         self.engineRegistry = engineRegistry
         self.imageRepository = imageRepository
+        self.imageGallery = imageGallery
         // Defaulted from the registry rather than by the caller, so the store only
         // ever loads selections for engines that actually exist.
         self.engineSettings =
@@ -652,12 +658,12 @@ final class GenerationController {
     }
 
     func copyToPrompt() {
-        guard let sdi = ImageGallery.shared.selected() else { return }
+        guard let sdi = imageGallery.selected() else { return }
         copyToPrompt(sdi)
     }
 
     func copyToPrompt(_ sdi: SDImage) {
-        let metadataFields = ImageGallery.shared.metadataFields(for: sdi.id)
+        let metadataFields = imageGallery.metadataFields(for: sdi.id)
 
         if metadataFields.contains(.prompt) {
             configStore.prompt = sdi.prompt
@@ -687,12 +693,12 @@ final class GenerationController {
     }
 
     func copyPromptToPrompt() {
-        guard let sdi = ImageGallery.shared.selected() else { return }
+        guard let sdi = imageGallery.selected() else { return }
         configStore.prompt = sdi.prompt
     }
 
     func copyModelToPrompt() {
-        guard let sdi = ImageGallery.shared.selected() else { return }
+        guard let sdi = imageGallery.selected() else { return }
         selectModel(named: sdi.model, engine: sdi.engine, key: sdi.modelKey)
     }
 
@@ -734,7 +740,7 @@ final class GenerationController {
     }
 
     func copySizeToPrompt() {
-        guard let sdi = ImageGallery.shared.selected() else { return }
+        guard let sdi = imageGallery.selected() else { return }
         setSize(width: sdi.width, height: sdi.height)
     }
 
@@ -780,27 +786,27 @@ final class GenerationController {
     }
 
     func copyNegativePromptToPrompt() {
-        guard let sdi = ImageGallery.shared.selected() else { return }
+        guard let sdi = imageGallery.selected() else { return }
         configStore.negativePrompt = sdi.negativePrompt
     }
 
     func copySchedulerToPrompt() {
-        guard let sdi = ImageGallery.shared.selected() else { return }
+        guard let sdi = imageGallery.selected() else { return }
         configStore.scheduler = sdi.scheduler
     }
 
     func copySeedToPrompt() {
-        guard let sdi = ImageGallery.shared.selected() else { return }
+        guard let sdi = imageGallery.selected() else { return }
         seed = sdi.seed
     }
 
     func copyStepsToPrompt() {
-        guard let sdi = ImageGallery.shared.selected() else { return }
+        guard let sdi = imageGallery.selected() else { return }
         configStore.steps = Double(sdi.steps)
     }
 
     func copyGuidanceScaleToPrompt() {
-        guard let sdi = ImageGallery.shared.selected() else { return }
+        guard let sdi = imageGallery.selected() else { return }
         configStore.guidanceScale = sdi.guidanceScale
     }
 
@@ -932,15 +938,15 @@ final class GenerationController {
     }
 
     private func apply(_ result: GenerationResult) {
-        let shouldAnimateInsert = ImageGallery.shared.currentGeneratingImage == nil
+        let shouldAnimateInsert = imageGallery.currentGeneratingImage == nil
         defer {
             // Scoped to the request that produced this result. Results arrive on
             // their own channel and can be applied after the next request has put
             // its first preview up; clearing unconditionally erased it.
             if let requestID = result.requestID {
-                ImageGallery.shared.clearCurrentGenerating(owner: requestID)
+                imageGallery.clearCurrentGenerating(owner: requestID)
             } else {
-                ImageGallery.shared.clearCurrentGenerating()
+                imageGallery.clearCurrentGenerating()
             }
         }
         guard let url = result.imageURL else { return }
@@ -974,7 +980,7 @@ final class GenerationController {
             imageData: result.imageData
         )
         guard let sdi = createSDImage(from: record) else { return }
-        ImageGallery.shared.add(
+        imageGallery.add(
             sdi,
             metadataFields: metadata.metadataFields,
             animate: shouldAnimateInsert

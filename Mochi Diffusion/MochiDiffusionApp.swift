@@ -26,23 +26,28 @@ struct MochiDiffusionApp: App {
     init() {
         let configStore = ConfigStore()
         let focusController = FocusController()
+        // Named once and handed to everything that needs it, rather than three
+        // places independently reaching for `.shared` and happening to agree.
+        let imageGallery = ImageGallery.shared
         self._configStore = State(initialValue: configStore)
         self._generationController = State(
             // The other place the real credential store is wired in; the
             // initialiser's default is keychain-free so tests stay off it.
             initialValue: GenerationController(
                 configStore: configStore,
+                imageGallery: imageGallery,
                 engineRegistry: EngineRegistry(secrets: KeychainSecretStore())
             )
         )
         self._galleryController = State(
             initialValue: GalleryController(
                 configStore: configStore,
+                imageGallery: imageGallery,
                 focusController: focusController
             )
         )
         self._generationState = .init(wrappedValue: .shared)
-        self._store = .init(wrappedValue: .shared)
+        self._store = .init(wrappedValue: imageGallery)
         self._focusCon = .init(wrappedValue: focusController)
         self._notificationController = .init(wrappedValue: .shared)
         self._quickLook = State(initialValue: QuickLookState())

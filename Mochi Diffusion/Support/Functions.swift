@@ -26,9 +26,13 @@ nonisolated func finderTagColorNumberToString(_ tagColorNumber: Int) -> String {
     }
 }
 
-// zero for clear all tags
-func setFinderTagColorNumber(_ sdi: SDImage, colorNumber: Int) {
-    var url = URL(fileURLWithPath: sdi.path)
+/// Writes a Finder label onto the file. Zero clears every tag.
+///
+/// Only the filesystem half. Telling the gallery lives on
+/// `GalleryController.setFinderTagColorNumber(_:colorNumber:)`, which has the
+/// gallery to tell — this used to reach for the singleton from a free function.
+nonisolated func writeFinderTagColorNumber(_ path: String, colorNumber: Int) {
+    var url = URL(fileURLWithPath: path)
     var rv = URLResourceValues()
     rv.labelNumber = colorNumber
     do {
@@ -36,13 +40,6 @@ func setFinderTagColorNumber(_ sdi: SDImage, colorNumber: Int) {
     } catch {
         print(error.localizedDescription)
     }
-    Task { @MainActor in
-        ImageGallery.shared.updateMetadata(sdi, colorNumber: colorNumber)
-    }
-}
-
-func clearFinderTags(_ sdi: SDImage) {
-    setFinderTagColorNumber(sdi, colorNumber: 0)
 }
 
 nonisolated func getFinderTagColorNumber(_ url: URL) -> Int {

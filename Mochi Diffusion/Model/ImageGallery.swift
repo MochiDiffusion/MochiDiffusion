@@ -19,11 +19,19 @@ enum ImagesSortType: String {
 @MainActor
 @Observable public final class ImageGallery {
 
-    static let shared = ImageGallery()
+    /// `nonisolated` so a non-main-actor type can be *handed* the app's gallery
+    /// without hopping — `GenerationService` is an actor and takes it as an
+    /// initialiser default. The reference is `Sendable` because the class is
+    /// main-actor-isolated; reading or mutating anything on it still requires the
+    /// main actor, which is what every use goes through.
+    nonisolated static let shared = ImageGallery()
 
     private let imageRepository: ImageRepository
 
-    init(imageRepository: ImageRepository = ImageRepository()) {
+    /// `nonisolated` for the same reason as `shared`: constructing a gallery only
+    /// initialises stored properties, so it needs no main actor, and requiring one
+    /// would mean a nonisolated context could not build a gallery to hand over.
+    nonisolated init(imageRepository: ImageRepository = ImageRepository()) {
         self.imageRepository = imageRepository
     }
 
