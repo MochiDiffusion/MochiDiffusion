@@ -1,6 +1,6 @@
 # Multi-Engine Design
 
-**Status:** draft — Phases 1–5 complete, Phase 6 onward expected to shift
+**Status:** draft — Phases 1–6 complete, Phase 7 onward expected to shift
 **Last updated:** 2026-08-27 (post-Phase-5 triage §15; Draw Things §13.3; metadata §6.5)
 
 **Reading this document.** Sections 1–9 and 11–15 describe the *intended* design and are
@@ -1021,7 +1021,7 @@ Confidence labels are honest signals about how much these should be trusted.
 | 4a | Constraints model; `plan` as the sole resolution point; request carries resolved values | none | **done** |
 | 4b | Sidebar driven from constraints; size swap routed through the engine | unsupported controls hide; step count stops lying | **done** |
 | 5 | Engine picker, `EngineSettingsStore`, per-engine selected model, Settings restructure, coalesced discovery (§7). Shared `ModelDir`; **no** per-engine model directories | the feature as described | **done** |
-| 6 | OpenAI engine. Decisions settled in §13.2 (D1–D10). **Landed:** `EngineModel.url` dropped (`d5a06dd`), `SizeLimits` joint size bounds (`eda3fa2`), idle timeout and `requestExpired` (`649f5b4`); D3 withdrawn as needing no code. **Remaining:** quality constraint, Keychain (D8), the client and engine (D2, D6, D7, D9) with the rest of the error taxonomy | first hosted engine | **in progress** |
+| 6 | OpenAI engine, per §13.2 (D1–D10). `EngineModel.url` dropped, `SizeLimits`, idle timeout and `requestExpired`, Keychain-backed credential, quality vocabulary, the streaming client, the Settings field and the sidebar row, and the discovery-message fix §15 needed before it could be registered. D3 withdrawn as needing no code | first hosted engine | **done** |
 | 6.5 | Metadata fields resolved by `plan` rather than declared per model; scheduler carried as an opaque string (§6.5) | imported images stop misreporting the scheduler | sketch |
 | 7 | MediaGenerationKit prototype, then local/remote integration | | direction only |
 | 8 | Declarative long-tail options | | direction only |
@@ -2426,13 +2426,23 @@ code. Seven were real; the two severity calls below are ours, not the reviewer's
 
 **Still open:**
 
-- **The state-machine separation itself.** The queue no longer consults `GenerationState`,
-  and per-engine availability is now correct, so the two concrete harms are gone. What
-  remains is that `loadModels` still reports discovery problems *through*
-  `GenerationService.updateStatus(.error:)` — discovery writing into the generation status.
-  The consequence is now cosmetic: a discovery message and a generation message share one
-  banner and overwrite each other. Giving the controller its own `discoveryMessage` and
-  rendering it in `GalleryView` alongside the generation error is the remaining step.
+- ~~**The state-machine separation itself.**~~ **Fixed while registering the hosted
+  engine.** `GenerationController` now owns a `discoveryMessage`, reported per engine and
+  rendered in `GalleryView` beside the generation banner rather than through it.
+
+  It stopped being cosmetic exactly where this section predicted. The old messages fired
+  only when the *combined* model list was empty, and a hosted engine always contributes a
+  model — so registering one would have silenced "No models found" and "couldn't read the
+  models folder" permanently, leaving a broken models folder visible only as a label inside
+  the picker.
+
+  Registering it also exposed a second problem this section did not anticipate. Selection
+  fell back to the first model by name, and assigning `currentModelId` **persists** it — so
+  an empty local folder would have selected a hosted engine with no API key *and overwritten
+  the user's stored choice*, which would not have come back when their folder did. The
+  fallback is now restricted to engines reporting `.ready`, and selecting nothing is
+  preferred to selecting something unusable. Pinned by
+  `ModelSelectionPersistenceTests.hostedEngineIsNotAutoSelected`.
 
 **Declined:**
 

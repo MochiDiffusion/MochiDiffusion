@@ -27,6 +27,10 @@ final class GenerationController {
     private(set) var generationQueue = [GenerationRequest]()
     private(set) var currentGeneration: GenerationRequest?
     private(set) var models = [any EngineModel]()
+    /// What the last discovery pass has to report, if anything. Rendered beside
+    /// the generation banner rather than through it — see
+    /// ``discoveryMessage(failures:engines:foundModels:modelDir:)``.
+    private(set) var discoveryMessage: String?
     private(set) var controlNet: [String] = []
     var startingImage: CGImage?
     var startingImageFilename: String?
@@ -150,7 +154,7 @@ final class GenerationController {
         configStore: ConfigStore,
         modelRepository: ModelRepository = ModelRepository(),
         imageRepository: ImageRepository = ImageRepository(),
-        engineRegistry: EngineRegistry = EngineRegistry(secrets: KeychainSecretStore()),
+        engineRegistry: EngineRegistry = EngineRegistry(),
         engineSettings: EngineSettingsStore? = nil,
         startsObserving: Bool = true
     ) {
@@ -215,17 +219,15 @@ final class GenerationController {
             // Assigned before the check below, so a pass that finds nothing empties
             // the picker instead of leaving the previous pass's models on screen.
             self.models = discoveredModels
+            discoveryMessage = Self.discoveryMessage(
+                failures: discoveries.failures,
+                engines: engines,
+                foundModels: !discoveredModels.isEmpty,
+                modelDir: configStore.modelDir
+            )
             guard !discoveredModels.isEmpty else {
                 currentModelId = nil
-                // "Nothing was found" and "nothing could be read" need different
-                // messages: reporting an unreadable models folder as an empty one
-                // sends the user looking for missing models when the problem is the
-                // folder. Engines report their own reasons, which this single
-                // message flattens.
-                if discoveries.failures.isEmpty {
-                    throw GenerationError.noModelsFound
-                }
-                throw GenerationError.modelSubDirectoriesNoAccess
+                return
             }
 
             // Two migrations, in order, both idempotent. The first recovers the
@@ -241,24 +243,54 @@ final class GenerationController {
 
             logger.info("Found \(self.models.count) model(s)")
             restoreSelection()
-        } catch GenerationError.modelDirectoryNoAccess {
-            logger.error("Couldn't access model directory.")
-            currentModelId = nil
-        } catch GenerationError.modelSubDirectoriesNoAccess {
-            logger.error("Could not get model subdirectories.")
-            await GenerationService.shared.updateStatus(
-                .error("Could not get model subdirectories.")
-            )
-            currentModelId = nil
-        } catch GenerationError.noModelsFound {
-            logger.error("No models found.")
-            await GenerationService.shared.updateStatus(
-                .error("No models found under: \(configStore.modelDir)")
-            )
-            currentModelId = nil
         } catch {
+            // Nothing above throws any more: a discovery problem is reported by
+            // `discoveryMessage`, and per-engine failures never propagate out of
+            // the registry. Kept so an unexpected throw empties the selection
+            // rather than leaving a model that may no longer be there.
+            logger.error("Loading models failed unexpectedly: \(error)")
             currentModelId = nil
         }
+    }
+
+    /// What to tell the user about the discovery pass, or `nil` when there is
+    /// nothing to say.
+    ///
+    /// Owned by the controller rather than pushed into `GenerationState`, which is
+    /// the fix for §15's open item. Discovery and generation are different
+    /// subjects, and routing the first through the second meant a discovery
+    /// problem and a generation error shared one banner and overwrote each other.
+    ///
+    /// Reported **per engine**, which is what makes a hosted engine safe to ship.
+    /// The old message fired only when the *combined* model list was empty, so an
+    /// engine that always has a model — any hosted one — silenced it permanently
+    /// and a broken models folder became invisible.
+    ///
+    /// Availability is deliberately not reported here. "Add an API key" is not a
+    /// problem with this pass, it is a standing fact about an engine, and the
+    /// picker already says it next to the engine's name. A banner repeating it on
+    /// every launch would be noise.
+    nonisolated static func discoveryMessage(
+        failures: [(engine: EngineID, error: any Error)],
+        engines: [AnyGenerationEngine],
+        foundModels: Bool,
+        modelDir: String
+    ) -> String? {
+        if !failures.isEmpty {
+            let names = failures.map { failure in
+                engines.first { $0.id == failure.engine }?.displayName
+                    ?? failure.engine.rawValue
+            }
+            return String(
+                localized: "Couldn't read the models folder for \(names.joined(separator: ", ")).",
+                comment: "Shown when one or more engines could not read their models folder"
+            )
+        }
+        guard !foundModels else { return nil }
+        return String(
+            localized: "No models found under: \(modelDir)",
+            comment: "Shown when discovery completed but found no models anywhere"
+        )
     }
 
     /// Picks the engine and model to show after a discovery pass.
@@ -280,7 +312,19 @@ final class GenerationController {
         // registration order would instead make Iris the default for any mixed
         // folder, which is arbitrary and would change what a fresh install opens
         // with.
-        guard let firstModel = models.first else {
+        //
+        // Restricted to engines that are `.ready`, which matters as soon as a
+        // hosted engine ships. It always has a model, so without this an empty
+        // local folder would land on an engine with no API key — and because
+        // assigning `currentModelId` persists it, that would overwrite the
+        // selection the user had and not give it back when their folder returned.
+        // Selecting nothing is better: the picker still lists every engine with
+        // its reason.
+        guard
+            let firstModel = models.first(where: {
+                engineAvailability[$0.id.engine] == .ready
+            })
+        else {
             currentModelId = nil
             return
         }

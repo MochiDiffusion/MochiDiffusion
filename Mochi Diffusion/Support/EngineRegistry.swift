@@ -22,26 +22,12 @@ actor EngineRegistry {
     /// A function rather than a stored list because the hosted engine needs a
     /// credential store, and which store that is must be a decision the caller
     /// makes — see the `secrets:` initialiser.
-    /// - Parameter secrets: where a hosted engine reads its credential. Unused
-    ///   while the list is local-only, and kept because the wiring is what the
-    ///   `secrets:` initialiser exists to route.
+    /// - Parameter secrets: where the hosted engine reads its credential.
     static func shipped(secrets: any SecretStore) -> [AnyGenerationEngine] {
         [
             AnyGenerationEngine(IrisEngine()),
             AnyGenerationEngine(CoreMLStableDiffusionEngine()),
-            // `OpenAIImageEngine(secrets: secrets)` belongs here and is not here
-            // yet. Adding it silences two messages the app relies on:
-            // `GenerationController.loadModels` reports "No models found" and
-            // "couldn't read the models folder" only when the *combined* model
-            // list is empty, and a hosted engine always contributes a model. So a
-            // user whose models folder broke would see neither message, and — since
-            // selection falls back to the first model — would be moved silently
-            // onto an engine they may not have configured.
-            //
-            // The fix is the open item in §15 of `Multi-Engine-Design.md`: give the
-            // controller its own discovery message, reported per engine rather than
-            // through the generation status, so a local folder problem stays
-            // visible when another engine has models. Register the engine with it.
+            AnyGenerationEngine(OpenAIImageEngine(secrets: secrets)),
         ]
     }
 

@@ -260,7 +260,9 @@ struct EnginePickerTests {
         let controller = makeController()
         await controller.loadModels()
 
-        #expect(controller.models.count == 2)
+        // Two local models plus the hosted engine's one.
+        #expect(controller.models.count == 3)
+        // Scoped to the selected engine, so the hosted model is not among them.
         #expect(controller.visibleModels.map(\.name) == ["a-coreml"])
 
         controller.selectEngine(.iris)
@@ -368,9 +370,15 @@ struct EnginePickerTests {
         let controller = makeController()
         await controller.loadModels()
 
-        #expect(controller.engines.map(\.id) == [.iris, .coreMLStableDiffusion])
+        #expect(controller.engines.map(\.id) == [.iris, .coreMLStableDiffusion, .openAI])
         #expect(controller.engineAvailability[.iris] == .ready)
         #expect(controller.engineAvailability[.coreMLStableDiffusion] == .ready)
+        // Listed while unconfigured, saying why — the whole point of §8. The
+        // default registry hands it a store with nothing in it, so this is the
+        // same answer on every machine and no keychain is queried.
+        #expect(
+            controller.engineAvailability[.openAI]
+                == .needsConfiguration("Add an API key in Settings"))
     }
 
     /// The picker distinguishes "there are none" from "we could not look". Before
@@ -544,9 +552,9 @@ struct EngineRefreshTests {
 
         let refresh = await EngineRegistry().refresh(settings: settings)
 
-        #expect(refresh.discoveries.map(\.engine) == [.iris, .coreMLStableDiffusion])
+        #expect(refresh.discoveries.map(\.engine) == [.iris, .coreMLStableDiffusion, .openAI])
         // Sorted by name across engines, independent of completion order.
-        #expect(refresh.models.map(\.name) == ["a-klein", "z-coreml"])
+        #expect(refresh.models.map(\.name) == ["a-klein", "gpt-image-2", "z-coreml"])
     }
 
     @Test("Availability and models arrive from the same pass")
@@ -557,7 +565,7 @@ struct EngineRefreshTests {
 
         #expect(refresh.availability[.coreMLStableDiffusion] == .ready)
         #expect(refresh.availability[.iris] == .ready)
-        #expect(refresh.models.map(\.name) == ["a-coreml"])
+        #expect(refresh.models.map(\.name) == ["a-coreml", "gpt-image-2"])
         #expect(refresh.failures.isEmpty)
     }
 }

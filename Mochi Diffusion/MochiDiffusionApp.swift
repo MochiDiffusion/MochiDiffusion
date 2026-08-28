@@ -28,7 +28,12 @@ struct MochiDiffusionApp: App {
         let focusController = FocusController()
         self._configStore = State(initialValue: configStore)
         self._generationController = State(
-            initialValue: GenerationController(configStore: configStore)
+            // The other place the real credential store is wired in; the
+            // initialiser's default is keychain-free so tests stay off it.
+            initialValue: GenerationController(
+                configStore: configStore,
+                engineRegistry: EngineRegistry(secrets: KeychainSecretStore())
+            )
         )
         self._galleryController = State(
             initialValue: GalleryController(

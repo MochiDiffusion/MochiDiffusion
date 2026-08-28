@@ -18,6 +18,7 @@ nonisolated extension EngineID: CustomStringConvertible {
 nonisolated extension EngineID {
     static let coreMLStableDiffusion = EngineID(rawValue: "coreml-sd")
     static let iris = EngineID(rawValue: "iris")
+    static let openAI = EngineID(rawValue: "openai")
 }
 
 /// Identifies a model *within* an engine.

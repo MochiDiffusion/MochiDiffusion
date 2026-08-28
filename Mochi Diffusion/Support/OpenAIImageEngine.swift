@@ -42,7 +42,7 @@ nonisolated struct OpenAIImageEngine: GenerationEngineDescriptor {
     typealias Model = OpenAIImageModel
     typealias Payload = OpenAIGenerationPayload
 
-    static let id = EngineID(rawValue: "openai")
+    static let id = EngineID.openAI
     var displayName: String { "OpenAI" }
 
     private let secrets: any SecretStore

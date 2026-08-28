@@ -14,7 +14,12 @@ actor GenerationService {
         var current: GenerationRequest?
     }
 
-    static let shared = GenerationService()
+    /// The one place the real credential store is wired in. The initialiser's
+    /// default is deliberately the keychain-free registry, so a test that does not
+    /// pass one cannot reach the user's keychain.
+    static let shared = GenerationService(
+        engineRegistry: EngineRegistry(secrets: KeychainSecretStore())
+    )
 
     private var logger = Logger()
     private var queue: [GenerationRequest] = []
@@ -50,7 +55,7 @@ actor GenerationService {
     init(
         imageRepository: ImageRepository = ImageRepository(),
         modelRepository: ModelRepository = ModelRepository(),
-        engineRegistry: EngineRegistry = EngineRegistry(secrets: KeychainSecretStore())
+        engineRegistry: EngineRegistry = EngineRegistry()
     ) {
         self.imageRepository = imageRepository
         self.modelRepository = modelRepository

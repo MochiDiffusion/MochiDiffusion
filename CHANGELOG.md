@@ -5,6 +5,16 @@
 - Fixed the model list occasionally reverting to an older models folder's contents when the folder was changed twice in quick succession
 - Fixed queued images never generating after an earlier failure
   - Once a generation failed in a way that left an error showing — an images folder that could not be written to, for example — every image queued afterwards was accepted and silently never started, until the app was relaunched
+- Added OpenAI image generation as an engine
+  - Requires an API key, entered under Settings → Engines. It is kept in your keychain and is never written to image metadata, logs, or saved requests
+  - Sizes are flexible rather than fixed: any multiple of 16 up to 3840 a side, no more elongated than 3:1, within the service's pixel limits. A size outside them is corrected rather than rejected
+  - Generation previews appear as the service streams partial images
+  - Each image is a separate request, so cancelling part-way through a batch does not pay for the rest
+  - A prompt the service declines is reported as a message rather than an error, because nothing malfunctioned
+- Added a Quality option to the sidebar, for engines that offer one
+  - Shown as unused for Core ML Stable Diffusion and Iris, neither of which has an equivalent
+- Changed a problem reading the models folder to appear in its own message
+  - It used to share one banner with generation errors, so whichever happened last hid the other
 - Added an Engine picker to the sidebar, above the model picker
   - The model picker shows only the selected engine's models, and each engine remembers the model it was last using
   - Engines that are unconfigured or have no models are still listed, with the reason shown

@@ -361,7 +361,8 @@ struct EngineRegistryTests {
 
         // Both engines saw both directories and each recognised its own, which is
         // only possible if the shared enumeration reached both.
-        #expect(discoveries.allModels.map(\.name) == ["coreml-model", "klein-model"])
+        #expect(
+            discoveries.allModels.map(\.name) == ["coreml-model", "gpt-image-2", "klein-model"])
         #expect(discoveries.failures.isEmpty)
     }
 
@@ -397,8 +398,9 @@ struct EngineRegistryTests {
 
         let discoveries = await registry.discoverAll(settings: settings)
 
-        #expect(Set(discoveries.map(\.engine)) == [.iris, .coreMLStableDiffusion])
-        #expect(discoveries.allModels.count == 2)
+        #expect(Set(discoveries.map(\.engine)) == [.iris, .coreMLStableDiffusion, .openAI])
+        // Two local models plus the hosted engine's one.
+        #expect(discoveries.allModels.count == 3)
         #expect(discoveries.failures.isEmpty)
     }
 
@@ -428,6 +430,8 @@ struct EngineRegistryTests {
         let discoveries = await registry.discoverAll(settings: settings)
 
         #expect(discoveries.allModels.isEmpty)
+        // Both local engines fail on an unreadable folder; the hosted engine
+        // never touches it, which is why it is not counted here.
         #expect(discoveries.failures.count == 2)
     }
 
@@ -457,7 +461,9 @@ struct EngineRegistryTests {
         let models = await EngineRegistry().discoverAll(settings: settings).allModels
 
         // One flat list ordered by name, regardless of which engine found what.
-        #expect(models.map(\.name) == ["a-klein-model", "B-coreml-model"])
+        // Case- and diacritic-insensitive, and the hosted model sorts among
+        // the local ones like any other name.
+        #expect(models.map(\.name) == ["a-klein-model", "B-coreml-model", "gpt-image-2"])
     }
 
     /// Independent discovery makes duplicate names reachable, so the order of that
@@ -489,6 +495,7 @@ struct EngineRegistryTests {
 
         // Both, not one. This is what `kleinTakesPrecedenceOverCoreML` used to
         // assert the opposite of.
-        #expect(models.count == 2)
+        // Two local models plus the hosted engine's one.
+        #expect(models.count == 3)
     }
 }

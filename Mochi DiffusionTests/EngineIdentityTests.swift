@@ -238,5 +238,6 @@ struct ModelIDKeyTests {
         // selection. Pinned so that requires a deliberate edit.
         #expect(EngineID.coreMLStableDiffusion.rawValue == "coreml-sd")
         #expect(EngineID.iris.rawValue == "iris")
+        #expect(EngineID.openAI.rawValue == "openai")
     }
 }

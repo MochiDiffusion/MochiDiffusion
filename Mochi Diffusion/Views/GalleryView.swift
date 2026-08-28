@@ -10,6 +10,7 @@ import SwiftUI
 struct GalleryView: View {
 
     @Environment(GenerationState.self) private var generationState: GenerationState
+    @Environment(GenerationController.self) private var controller: GenerationController
     @Environment(ImageGallery.self) private var store: ImageGallery
     @Environment(GalleryController.self) private var galleryController: GalleryController
     @Environment(QuickLookState.self) private var quickLook: QuickLookState
@@ -19,6 +20,13 @@ struct GalleryView: View {
 
     var body: some View {
         VStack(spacing: 0) {
+            // Two banners rather than one, because discovery and generation are
+            // different subjects and used to overwrite each other in a single
+            // status. A folder problem stays on screen while a generation reports
+            // its own outcome.
+            if let discoveryMessage = controller.discoveryMessage {
+                MessageBanner(message: discoveryMessage)
+            }
             if case .error(let msg) = generationState.state {
                 MessageBanner(message: msg)
             } else if case .ready(let msg) = generationState.state, let msg = msg {

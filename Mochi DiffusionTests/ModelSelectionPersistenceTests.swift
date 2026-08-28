@@ -38,11 +38,31 @@ struct ModelSelectionPersistenceTests {
         configStore.controlNetDir = controlNetDir.path(percentEncoded: false)
     }
 
+    /// Local engines only. These tests are about what an empty or unreadable
+    /// models folder does, and a hosted engine always contributes a model, so
+    /// including it would mean every assertion about an empty picker was really an
+    /// assertion about the shipped engine list. `hostedEngineIsNotAutoSelected`
+    /// covers the interaction deliberately.
     private func makeController() -> GenerationController {
         GenerationController(
             configStore: configStore,
             modelRepository: ModelRepository(),
             imageRepository: ImageRepository(),
+            engineRegistry: EngineRegistry(engines: [
+                AnyGenerationEngine(IrisEngine()),
+                AnyGenerationEngine(CoreMLStableDiffusionEngine()),
+            ]),
+            startsObserving: false
+        )
+    }
+
+    /// The shipped list, whose hosted engine has no key in a test.
+    private func makeShippedController() -> GenerationController {
+        GenerationController(
+            configStore: configStore,
+            modelRepository: ModelRepository(),
+            imageRepository: ImageRepository(),
+            engineRegistry: EngineRegistry(),
             startsObserving: false
         )
     }
@@ -69,9 +89,11 @@ struct ModelSelectionPersistenceTests {
 
     /// The message the app is showing, or `nil` if it is not in an error state.
     /// `GenerationState` is a singleton, hence `.serialized` on this suite.
-    private func statusMessage() -> String? {
-        if case .error(let message) = GenerationState.shared.state { return message }
-        return nil
+    /// Discovery problems are the controller's own message now, not the
+    /// generation status. Routing them through the status meant a folder problem
+    /// and a generation error shared one banner and overwrote each other.
+    private func discoveryMessage(_ controller: GenerationController) -> String? {
+        controller.discoveryMessage
     }
 
     /// Two Core ML models whose names sort `a-model` before `b-model`
@@ -200,7 +222,7 @@ struct ModelSelectionPersistenceTests {
         #expect(controller.currentModelId == nil)
         #expect(
             persistedSelection(controller) == ModelID(engine: .coreMLStableDiffusion, key: "gone"))
-        #expect(statusMessage()?.contains("No models found") == true)
+        #expect(discoveryMessage(controller)?.contains("No models found") == true)
     }
 
     /// A readable-but-empty folder and an unreadable one need different messages.
@@ -213,9 +235,51 @@ struct ModelSelectionPersistenceTests {
         let controller = makeController()
         await controller.loadModels()
 
-        let message = try #require(statusMessage())
-        #expect(message.contains("subdirectories"))
+        let message = try #require(discoveryMessage(controller))
+        // Names the engines that could not read it, rather than flattening two
+        // different problems into one sentence.
+        #expect(message.contains("Couldn't read the models folder"))
         #expect(!message.contains("No models found"))
+    }
+
+    /// The reason registering a hosted engine needed care. It always has a model,
+    /// so an empty local folder no longer means an empty combined list — and
+    /// because assigning `currentModelId` persists it, auto-selecting an engine
+    /// with no API key would overwrite the user's choice and not give it back when
+    /// their folder returned.
+    @Test("A hosted engine with no key is never auto-selected")
+    func hostedEngineIsNotAutoSelected() async throws {
+        seedSelection(ModelID(engine: .coreMLStableDiffusion, key: "gone"))
+
+        let controller = makeShippedController()
+        await controller.loadModels()
+
+        // Present in the list and in the picker, saying why it cannot be used.
+        #expect(controller.models.map(\.name) == ["gpt-image-2"])
+        #expect(
+            controller.engineAvailability[.openAI]
+                == .needsConfiguration("Add an API key in Settings"))
+        // But not selected, and the choice the user made is still on disk.
+        #expect(controller.currentModelId == nil)
+        #expect(
+            persistedSelection(controller) == ModelID(engine: .coreMLStableDiffusion, key: "gone"))
+        // Models were found, so there is nothing for the banner to report. The
+        // per-engine reasons in the picker are the right channel for "needs a key".
+        #expect(discoveryMessage(controller) == nil)
+    }
+
+    /// A local model is preferred over a hosted one that cannot run, whatever the
+    /// names sort to.
+    @Test("A usable local model wins over an unusable hosted one")
+    func readyEngineIsPreferred() async throws {
+        // Sorts after "gpt-image-2", so name order alone would pick the hosted one.
+        try makeSDModelFixture(at: modelDir.appending(path: "z-model"))
+
+        let controller = makeShippedController()
+        await controller.loadModels()
+
+        #expect(controller.currentModelId?.engine == .coreMLStableDiffusion)
+        #expect(controller.currentModelId?.key == "z-model")
     }
 
     @Test("An unreadable model directory clears the live selection but keeps the persisted one")
