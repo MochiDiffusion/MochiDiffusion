@@ -101,13 +101,24 @@ actor IrisEngineRuntime: GenerationEngineRuntime {
         var embeddingLength: Int32 = 0
         var embeddings: [Float]?
 
-        var startingFluxImage: UnsafeMutablePointer<iris_image>?
-        if let startingImageData = request.inputImageData.first {
-            startingFluxImage = Self.makeFluxImage(from: startingImageData)
-            if startingFluxImage == nil {
+        // Every reference the request carried, decoded up front so a failure is
+        // reported before any generation starts rather than part-way through a
+        // batch. Freed together in the `defer` below.
+        var referenceImages: [UnsafeMutablePointer<iris_image>] = []
+        for data in request.inputImageData {
+            guard let decoded = Self.makeFluxImage(from: data) else {
+                for image in referenceImages {
+                    iris_image_free(image)
+                }
                 throw IrisRuntimeError.decodeStartingImageFailed
             }
+            referenceImages.append(decoded)
         }
+        // More than one reference means `iris_multiref`, which has no
+        // `_with_embeddings` variant — so a multi-reference request re-encodes its
+        // prompt instead of reusing the cache. Worth knowing when a two-image
+        // generation feels slower to start than a one-image one.
+        let usesMultiref = referenceImages.count > 1
 
         if isDistilled {
             if let cached = await Self.embeddingCache.lookup(
@@ -158,8 +169,8 @@ actor IrisEngineRuntime: GenerationEngineRuntime {
             iris_set_step_callback(nil)
             iris_set_phase_callback(nil)
             iris_free(ctx)
-            if let startingFluxImage {
-                iris_image_free(startingFluxImage)
+            for image in referenceImages {
+                iris_image_free(image)
             }
         }
 
@@ -179,7 +190,14 @@ actor IrisEngineRuntime: GenerationEngineRuntime {
             params.seed = Int64(seed)
 
             let image: UnsafeMutablePointer<iris_image>?
-            if let startingFluxImage {
+            if usesMultiref {
+                image = Self.generateMultiref(
+                    ctx: ctx,
+                    prompt: request.prompt,
+                    references: referenceImages,
+                    params: &params
+                )
+            } else if let startingFluxImage = referenceImages.first {
                 if isDistilled, let embeddings {
                     image = Self.generateImg2ImgWithEmbeddings(
                         ctx: ctx,
@@ -281,6 +299,26 @@ actor IrisEngineRuntime: GenerationEngineRuntime {
                 startingFluxImage,
                 &params
             )
+        }
+    }
+
+    /// Generation against several reference images.
+    ///
+    /// `iris_multiref` wants an array of `const iris_image *`, so the owned mutable
+    /// pointers are rebound to immutable ones for the call. The array is local to
+    /// the call and the images it points at outlive it — they are freed with the
+    /// context — so nothing here escapes.
+    private static func generateMultiref(
+        ctx: OpaquePointer,
+        prompt: String,
+        references: [UnsafeMutablePointer<iris_image>],
+        params: inout iris_params
+    ) -> UnsafeMutablePointer<iris_image>? {
+        var pointers: [UnsafePointer<iris_image>?] = references.map { UnsafePointer($0) }
+        return pointers.withUnsafeMutableBufferPointer {
+            buffer -> UnsafeMutablePointer<iris_image>? in
+            guard let base = buffer.baseAddress else { return nil }
+            return iris_multiref(ctx, prompt, base, Int32(buffer.count), &params)
         }
     }
 

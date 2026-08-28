@@ -365,6 +365,52 @@ struct GenerationRequestBuilderTests {
         #expect(request.size == CGSize(width: 512, height: 512))
     }
 
+    @Test("Klein carries several references, up to what iris_multiref takes")
+    func kleinCarriesSeveralReferences() async throws {
+        try makeKleinModelFixture(at: modelDir.appending(path: "klein-model"))
+        configStore.width = 512
+        configStore.height = 512
+        let controller = try await makeControllerSelecting("klein-model")
+
+        // One more than the library accepts, to pin the truncation rather than
+        // only the happy path.
+        for index in 0..<(IrisEngine.maxReferenceImages + 1) {
+            controller.addInputImage(
+                image: makeCGImage(width: 40, height: 20),
+                filename: "ref\(index).png"
+            )
+        }
+        // The sidebar keeps them all; the request takes what the model accepts.
+        #expect(controller.inputImages.count == IrisEngine.maxReferenceImages)
+
+        let request = try #require(controller.buildGenerationRequest())
+
+        #expect(request.inputImageData.count == IrisEngine.maxReferenceImages)
+        #expect(request.inputImageNames == ["ref0.png", "ref1.png", "ref2.png", "ref3.png"])
+        #expect(request.startingImageName == nil)
+        for data in request.inputImageData {
+            #expect(pixelSize(of: data) == CGSize(width: 512, height: 512))
+        }
+    }
+
+    @Test("A Core ML model takes only the first image, however many are held")
+    func coreMLTakesOneImage() async throws {
+        try makeSDModelFixture(
+            at: modelDir.appending(path: "sd-model"),
+            inputSize: CGSize(width: 512, height: 512)
+        )
+        let controller = try await makeControllerSelecting("sd-model")
+        controller.setStartingImage(image: makeCGImage(width: 40, height: 20), filename: "one.png")
+        // Refused at the cap rather than replacing what is there.
+        controller.addInputImage(image: makeCGImage(width: 40, height: 20), filename: "two.png")
+
+        let request = try #require(controller.buildGenerationRequest())
+
+        #expect(request.inputImageData.count == 1)
+        #expect(request.startingImageName == "one.png")
+        #expect(request.inputImageNames.isEmpty)
+    }
+
     @Test("Klein never carries ControlNet state")
     func kleinHasNoControlNet() async throws {
         try makeKleinModelFixture(at: modelDir.appending(path: "klein-model"))

@@ -16,7 +16,7 @@ nonisolated struct IrisFluxKleinModel: EngineModel {
         steps: .pinned(distilledStepCount),
         guidanceScale: .unsupported,
         scheduler: .pinned(.discreteFlowScheduler),
-        inputImages: .supported(maxCount: 1, strength: .unsupported),
+        inputImages: .supported(maxCount: IrisEngine.maxReferenceImages, strength: .unsupported),
         controlNet: .unsupported,
         quality: .unsupported,
         numberOfImages: .range(1...100, step: 1, acceptsBeyondUpperBound: true),

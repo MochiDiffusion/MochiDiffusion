@@ -514,8 +514,10 @@ struct ModelVisibilityTests {
         #expect(constraints.steps.isSupported)
         #expect(!constraints.steps.isEditable)
         #expect(!constraints.scheduler.isEditable)
-        // A starting image is still accepted, as an input image.
+        // Images are accepted as references, up to what `iris_multiref` takes.
         #expect(constraints.inputImages.isSupported)
+        #expect(constraints.inputImages.acceptsMultiple)
+        #expect(constraints.inputImages.maxCount == IrisEngine.maxReferenceImages)
     }
 
     @Test("A fixed-size Core ML model shows its size read-only")

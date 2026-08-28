@@ -171,6 +171,15 @@ nonisolated struct IrisEngine: GenerationEngineDescriptor {
     static let id = EngineID.iris
     var displayName: String { "Iris" }
 
+    /// What `iris_multiref` accepts for Klein, per its declaration in `iris.h`:
+    /// "up to 4 reference images for klein".
+    ///
+    /// A limit of the library rather than a policy of ours, so it lives beside the
+    /// code that calls it. Nothing here shrinks images to fit a memory budget: a
+    /// request that asks too much of the machine is the user's to reconsider, and
+    /// silently resizing their references would change the picture they asked for.
+    static let maxReferenceImages = 4
+
     private let fileSystem: FileSystemStore
 
     init(fileSystem: FileSystemStore = FileSystemStore()) {
