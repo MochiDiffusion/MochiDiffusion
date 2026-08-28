@@ -14,8 +14,29 @@ struct SDImage: Identifiable, Hashable {
     var image: CGImage?
     var prompt = ""
     var negativePrompt = ""
-    nonisolated var width: Int { self.image?.width ?? 0 }
-    nonisolated var height: Int { self.image?.height ?? 0 }
+    /// The pixel size, stored when known and otherwise taken from `image`.
+    ///
+    /// It used to be read off `image` alone, which tied every size reader — gallery
+    /// layout, the Info panel, the `Size:` metadata field — to a decoded image being
+    /// resident. That is the assumption the thumbnail work removes, so the size is
+    /// now a fact a caller can supply from a file's properties without decoding it.
+    ///
+    /// The fallback is what keeps that change additive. A generated image is built by
+    /// assigning `image` and nothing else, in three separate runtimes; without it,
+    /// every one of those would silently record `0x0` and the compiler would not say
+    /// a word, because these have defaults.
+    nonisolated var width: Int {
+        get { storedWidth > 0 ? storedWidth : (image?.width ?? 0) }
+        set { storedWidth = newValue }
+    }
+    nonisolated var height: Int {
+        get { storedHeight > 0 ? storedHeight : (image?.height ?? 0) }
+        set { storedHeight = newValue }
+    }
+    /// Not `private`: that would make the synthesised memberwise initialiser private
+    /// too. Assign through `width`/`height`.
+    nonisolated var storedWidth = 0
+    nonisolated var storedHeight = 0
     var aspectRatio: CGFloat = 0.0
     var model = ""
     /// The engine's stable id and its own key for the model, as strings, so an

@@ -135,14 +135,19 @@ func createSDImage(from record: ImageRecord) -> SDImage? {
         return nil
     }
 
-    let aspectRatio = Double(cgImage.width) / Double(cgImage.height)
+    // From the record, not the decoded image: the record already knows the size
+    // from the file's properties, and the thumbnail path does not decode at all.
+    let width = record.width > 0 ? record.width : cgImage.width
+    let height = record.height > 0 ? record.height : cgImage.height
     var sdi = SDImage(
         id: record.id,
         image: cgImage,
-        aspectRatio: CGFloat(aspectRatio),
+        aspectRatio: height > 0 ? CGFloat(Double(width) / Double(height)) : 0,
         generatedDate: record.generatedDate,
         path: record.path
     )
+    sdi.width = width
+    sdi.height = height
     sdi.prompt = record.prompt
     sdi.negativePrompt = record.negativePrompt
     sdi.model = record.model
