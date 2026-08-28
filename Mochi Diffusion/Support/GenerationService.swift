@@ -50,7 +50,7 @@ actor GenerationService {
     init(
         imageRepository: ImageRepository = ImageRepository(),
         modelRepository: ModelRepository = ModelRepository(),
-        engineRegistry: EngineRegistry = EngineRegistry()
+        engineRegistry: EngineRegistry = EngineRegistry(secrets: KeychainSecretStore())
     ) {
         self.imageRepository = imageRepository
         self.modelRepository = modelRepository
@@ -283,6 +283,36 @@ actor GenerationService {
                     await updateStatus(.ready(nil))
                 }
                 restoreReadyAfterCancel = true
+            } catch GenerationError.refused(let reason) {
+                // Reported through `.ready` rather than `.error`: the call
+                // succeeded and the service declined, so this is news rather than
+                // a malfunction (D5). Both render the same banner today, so the
+                // difference is the register the message is written in and the
+                // state the queue is left in, not the presentation.
+                logger.info("\(request.displayName) declined the prompt: \(reason)")
+                await updateStatus(.ready(reason))
+            } catch GenerationError.authenticationFailed {
+                logger.error("\(request.displayName) rejected the stored credential.")
+                await updateStatus(
+                    .error(
+                        "Couldn't sign in to \(request.displayName). Check the API key in Settings."
+                    )
+                )
+            } catch GenerationError.rateLimited {
+                // Not a malfunction either: the service asked us to slow down, and
+                // the next request may well succeed.
+                logger.info("\(request.displayName) is rate limiting requests.")
+                await updateStatus(
+                    .ready("\(request.displayName) is rate limiting requests. Try again shortly.")
+                )
+            } catch GenerationError.serviceFailure(let message) {
+                logger.error("\(request.displayName) failed: \(message)")
+                await updateStatus(.error(message))
+            } catch GenerationError.malformedResponse {
+                logger.error("\(request.displayName) returned something unexpected.")
+                await updateStatus(
+                    .error("\(request.displayName) returned a response Mochi couldn't read.")
+                )
             } catch GenerationError.requestExpired {
                 logger.error("\(request.displayName) stopped responding; gave up waiting.")
                 await updateStatus(

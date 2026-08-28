@@ -45,6 +45,10 @@ struct SidebarView: View {
                     Spacer().frame(height: 6)
                 }
                 Group {
+                    QualityView()
+                    Spacer().frame(height: 6)
+                }
+                Group {
                     StepsView()
                     Spacer().frame(height: 6)
                 }

@@ -17,10 +17,33 @@ actor EngineRegistry {
     /// Registration order. It affects only where an engine appears in a list;
     /// never which engine owns a model, and never whether a model is valid.
     /// Kept fixed in code rather than derived, so it cannot vary between launches.
-    static let defaultEngines: [AnyGenerationEngine] = [
-        AnyGenerationEngine(IrisEngine()),
-        AnyGenerationEngine(CoreMLStableDiffusionEngine()),
-    ]
+    /// The engines the app ships, in registration order.
+    ///
+    /// A function rather than a stored list because the hosted engine needs a
+    /// credential store, and which store that is must be a decision the caller
+    /// makes — see the `secrets:` initialiser.
+    /// - Parameter secrets: where a hosted engine reads its credential. Unused
+    ///   while the list is local-only, and kept because the wiring is what the
+    ///   `secrets:` initialiser exists to route.
+    static func shipped(secrets: any SecretStore) -> [AnyGenerationEngine] {
+        [
+            AnyGenerationEngine(IrisEngine()),
+            AnyGenerationEngine(CoreMLStableDiffusionEngine()),
+            // `OpenAIImageEngine(secrets: secrets)` belongs here and is not here
+            // yet. Adding it silences two messages the app relies on:
+            // `GenerationController.loadModels` reports "No models found" and
+            // "couldn't read the models folder" only when the *combined* model
+            // list is empty, and a hosted engine always contributes a model. So a
+            // user whose models folder broke would see neither message, and — since
+            // selection falls back to the first model — would be moved silently
+            // onto an engine they may not have configured.
+            //
+            // The fix is the open item in §15 of `Multi-Engine-Design.md`: give the
+            // controller its own discovery message, reported per engine rather than
+            // through the generation status, so a local folder problem stays
+            // visible when another engine has models. Register the engine with it.
+        ]
+    }
 
     /// One engine's discovery result, kept whole so a caller can report a failure
     /// against the engine it belongs to.
@@ -38,11 +61,25 @@ actor EngineRegistry {
     private let logger = Logger()
 
     init(
-        engines: [AnyGenerationEngine] = EngineRegistry.defaultEngines,
+        engines: [AnyGenerationEngine],
         fileSystem: FileSystemStore = FileSystemStore()
     ) {
         self.engines = engines
         self.fileSystem = fileSystem
+    }
+
+    /// The shipped engine list.
+    ///
+    /// `secrets` defaults to a store holding nothing, which is what makes
+    /// `EngineRegistry()` safe in a test: the hosted engine is present, so the
+    /// list a test sees is the real one, but it reports "no key configured"
+    /// deterministically and never queries the keychain. Production passes the
+    /// real store, and is the only caller that does.
+    init(
+        secrets: any SecretStore = NoSecretStore(),
+        fileSystem: FileSystemStore = FileSystemStore()
+    ) {
+        self.init(engines: EngineRegistry.shipped(secrets: secrets), fileSystem: fileSystem)
     }
 
     nonisolated var engineIDs: [EngineID] {

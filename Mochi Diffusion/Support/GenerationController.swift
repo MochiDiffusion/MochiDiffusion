@@ -150,7 +150,7 @@ final class GenerationController {
         configStore: ConfigStore,
         modelRepository: ModelRepository = ModelRepository(),
         imageRepository: ImageRepository = ImageRepository(),
-        engineRegistry: EngineRegistry = EngineRegistry(),
+        engineRegistry: EngineRegistry = EngineRegistry(secrets: KeychainSecretStore()),
         engineSettings: EngineSettingsStore? = nil,
         startsObserving: Bool = true
     ) {

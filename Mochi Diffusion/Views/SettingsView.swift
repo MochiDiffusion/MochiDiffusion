@@ -9,9 +9,18 @@ import CoreML
 import SwiftUI
 import UniformTypeIdentifiers
 import UserNotifications
+import os
 
 struct SettingsView: View {
     @Environment(ConfigStore.self) private var configStore: ConfigStore
+    /// Held here rather than injected: this is the only view that writes a
+    /// credential, and the store is a stateless handle to the keychain.
+    private let secrets = KeychainSecretStore()
+    private let logger = Logger()
+    /// Never the key itself once saved — only what the user is currently typing.
+    @State private var apiKey = ""
+    /// Presence, asked via `hasSecret` so the pane never reads the secret.
+    @State private var hasStoredAPIKey = false
     /// Needed because the scheduler is a per-model option shown in a
     /// model-agnostic window: without the selected model's constraints, this could
     /// offer a scheduler the model overrides.
@@ -399,6 +408,57 @@ struct SettingsView: View {
                 .padding(4)
             }
 
+        case OpenAIImageEngine.id:
+            GroupBox {
+                VStack(alignment: .leading) {
+                    Text("API Key")
+
+                    HStack {
+                        // The stored key is never read back into the field. A
+                        // credential the UI echoes is one that ends up in a
+                        // screenshot, and `hasSecret` answers the only question
+                        // this pane needs to ask.
+                        SecureField(
+                            "",
+                            text: $apiKey,
+                            prompt: Text(
+                                hasStoredAPIKey
+                                    ? String(
+                                        localized: "A key is stored",
+                                        comment: "Placeholder when an API key is already saved")
+                                    : String(
+                                        localized: "Paste your API key",
+                                        comment: "Placeholder when no API key is saved")
+                            )
+                        )
+                        .textFieldStyle(.roundedBorder)
+
+                        Button {
+                            saveAPIKey()
+                        } label: {
+                            Text("Save", comment: "Button to store an API key")
+                        }
+                        .disabled(apiKey.isEmpty)
+
+                        if hasStoredAPIKey {
+                            Button {
+                                removeAPIKey()
+                            } label: {
+                                Text("Remove", comment: "Button to delete a stored API key")
+                            }
+                        }
+                    }
+
+                    Text(
+                        "The key is kept in your keychain. It is never written to image metadata, logs, or saved requests.",
+                        comment: "Explains where a hosted engine's API key is stored"
+                    )
+                    .helpTextFormat()
+                }
+                .padding(4)
+            }
+            .onAppear { refreshAPIKeyState() }
+
         default:
             Text(
                 "This engine has no settings.",
@@ -406,6 +466,39 @@ struct SettingsView: View {
             )
             .helpTextFormat()
         }
+    }
+
+    // MARK: - API key
+
+    /// Stores the key and asks for a refresh, so the engine picker stops saying a
+    /// key is missing without the user having to do anything else.
+    private func saveAPIKey() {
+        let key = apiKey.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !key.isEmpty else { return }
+        do {
+            try secrets.setSecret(key, for: OpenAIImageEngine.secretAccount)
+            apiKey = ""
+            refreshAPIKeyState()
+            Task { await controller.loadModels() }
+        } catch {
+            logger.error("Couldn't store the API key: \(error)")
+        }
+    }
+
+    private func removeAPIKey() {
+        do {
+            try secrets.setSecret(nil, for: OpenAIImageEngine.secretAccount)
+            apiKey = ""
+            refreshAPIKeyState()
+            Task { await controller.loadModels() }
+        } catch {
+            logger.error("Couldn't remove the API key: \(error)")
+        }
+    }
+
+    /// Presence only, never the value.
+    private func refreshAPIKeyState() {
+        hasStoredAPIKey = secrets.hasSecret(for: OpenAIImageEngine.secretAccount)
     }
 
     @ViewBuilder
