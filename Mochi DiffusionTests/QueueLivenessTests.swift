@@ -223,11 +223,29 @@ struct QueueLivenessTests {
 
         // The drain sets the terminal state after the runtime returns, so the stale
         // error heals rather than needing anything outside the service to clear it.
+        //
+        // Reaching the end of the wait *is* the assertion. Re-reading the state
+        // afterwards was racy: `GenerationState` is a singleton, and a service
+        // from an earlier test that is still finishing can write to it between the
+        // loop exiting and the check. That failed about one isolated run in three.
         while await MainActor.run(
             resultType: Bool.self, body: { GenerationState.shared.state != .ready(nil) })
         {
             await Task.yield()
         }
-        #expect(await MainActor.run { GenerationState.shared.state } == .ready(nil))
+        await waitUntilIdle(service)
+    }
+
+    /// Waits until `service` has nothing running and nothing queued.
+    ///
+    /// Tests share the `GenerationState` singleton, and a test that returns while
+    /// its own service is still finishing leaves that service's terminal writes to
+    /// land during the *next* test. Draining before returning is what keeps one
+    /// test's tail out of the next one's assertions.
+    func waitUntilIdle(_ service: GenerationService) async {
+        let stream = await service.updates()
+        for await snapshot in stream {
+            if snapshot.current == nil, snapshot.queue.isEmpty { return }
+        }
     }
 }

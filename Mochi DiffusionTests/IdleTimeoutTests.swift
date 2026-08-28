@@ -141,7 +141,7 @@ extension QueueLivenessTests {
         let started: RunSignal
         let timeout: Duration
 
-        var idleTimeout: Duration? { timeout }
+        func idleTimeout(for request: GenerationRequest) -> Duration? { timeout }
 
         func run(
             request: GenerationRequest,
@@ -163,7 +163,7 @@ extension QueueLivenessTests {
         let beats: Int
         let interval: Duration
 
-        var idleTimeout: Duration? { timeout }
+        func idleTimeout(for request: GenerationRequest) -> Duration? { timeout }
 
         func run(
             request: GenerationRequest,
@@ -265,6 +265,7 @@ extension QueueLivenessTests {
             }
             return false
         }
+        await waitUntilIdle(service)
     }
 
     /// The hazard. An expiry that failed to release the drain would leave every
@@ -289,6 +290,7 @@ extension QueueLivenessTests {
         await started.wait(untilRuns: 2)
 
         #expect(await started.runCount == 2)
+        await waitUntilIdle(service)
     }
 
     /// Total duration well past the timeout, no single gap anywhere near it. A
@@ -311,11 +313,14 @@ extension QueueLivenessTests {
 
         // Finishes normally: 720ms of work, never 400ms of silence.
         await waitForState { $0 == .ready(nil) }
+        await waitUntilIdle(service)
     }
 
     @Test("A local runtime declares no idle timeout")
     func localRuntimesHaveNoTimeout() {
-        #expect(CoreMLEngineRuntime().idleTimeout == nil)
-        #expect(IrisEngineRuntime().idleTimeout == nil)
+        let request = makeTimedRequest(prompt: "anything")
+
+        #expect(CoreMLEngineRuntime().idleTimeout(for: request) == nil)
+        #expect(IrisEngineRuntime().idleTimeout(for: request) == nil)
     }
 }

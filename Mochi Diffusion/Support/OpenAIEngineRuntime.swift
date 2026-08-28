@@ -30,10 +30,34 @@ nonisolated final class OpenAIEngineRuntime: GenerationEngineRuntime {
         self.session = session
     }
 
-    /// Generous, because it bounds silence rather than duration: a high-quality
-    /// 3840x2160 image can take minutes, but a stream that says nothing for a
-    /// minute has stopped.
-    var idleTimeout: Duration? { .seconds(60) }
+    /// Bounds silence when there is a heartbeat to measure it against, and total
+    /// duration when there is not.
+    ///
+    /// With partial images requested, every one is a sign of life, so a minute of
+    /// silence means the stream has stopped even though a high-quality 3840x2160
+    /// image can legitimately take minutes to finish.
+    ///
+    /// With `partial_images: 0` the only event is the final one, so there is
+    /// nothing to reset an idle clock and the same number would quietly become a
+    /// *total* budget — expiring a slow-but-healthy generation and throwing away
+    /// the image it was about to return. So that case gets an explicitly generous
+    /// total budget instead, and is documented as being one.
+    ///
+    /// The alternative — always requesting partials purely as heartbeats and
+    /// discarding them — was rejected. It fetches full-size images for a user who
+    /// asked not to receive them, and it assumes streamed partials do not affect
+    /// billing, which is not something we have confirmed.
+    static let streamingIdleTimeout = Duration.seconds(60)
+    static let nonStreamingTotalTimeout = Duration.seconds(300)
+
+    var cancellationMayLeaveWorkBilled: Bool { true }
+
+    func idleTimeout(for request: GenerationRequest) -> Duration? {
+        guard let payload = request.payload as? OpenAIGenerationPayload else { return nil }
+        return payload.wantsPreviews
+            ? Self.streamingIdleTimeout
+            : Self.nonStreamingTotalTimeout
+    }
 
     func run(
         request: GenerationRequest,
@@ -51,6 +75,19 @@ nonisolated final class OpenAIEngineRuntime: GenerationEngineRuntime {
 
         generationSession.emit(.state(.loading(nil)))
 
+        // Registered once, cancelling whichever image is in flight.
+        //
+        // Polling `isCancelled` is not enough for this runtime, and that is the
+        // difference from Core ML. A network call suspends: waiting for response
+        // headers, then for the next line of the stream. A server that accepts the
+        // connection and sends nothing leaves this suspended indefinitely, so
+        // neither a user cancelling nor the watchdog expiring would ever be
+        // noticed — the request would hold the serial queue for good and keep a
+        // billable call open. So the work goes in a task the handler can cancel,
+        // which terminates the stream, which cancels the underlying transfer.
+        let inFlight = TaskHandle()
+        generationSession.onCancel { inFlight.cancel() }
+
         // One request per image, per D6. Cancelling after the second of five
         // should cost two images rather than five, results reach the gallery as
         // they arrive, and partial-image previews are per-request.
@@ -61,7 +98,8 @@ nonisolated final class OpenAIEngineRuntime: GenerationEngineRuntime {
                 request: request,
                 payload: payload,
                 apiKey: apiKey,
-                session: generationSession
+                session: generationSession,
+                inFlight: inFlight
             )
             guard let image else { return }
             if generationSession.isCancelled { return }
@@ -83,9 +121,36 @@ nonisolated final class OpenAIEngineRuntime: GenerationEngineRuntime {
         request: GenerationRequest,
         payload: OpenAIGenerationPayload,
         apiKey: String,
-        session generationSession: GenerationSession
+        session generationSession: GenerationSession,
+        inFlight: TaskHandle
     ) async throws -> CGImage? {
         let urlRequest = try makeURLRequest(request: request, payload: payload, apiKey: apiKey)
+
+        // Both awaits below can suspend indefinitely, so both are inside the
+        // cancellable task rather than only the loop.
+        let work = Task { () throws -> CGImage? in
+            try await self.stream(
+                urlRequest: urlRequest,
+                payload: payload,
+                session: generationSession
+            )
+        }
+        inFlight.adopt(work)
+        do {
+            return try await work.value
+        } catch is CancellationError {
+            // Stopped on purpose, by the user or the watchdog. The queue reads the
+            // session's stop reason to tell which.
+            return nil
+        }
+    }
+
+    /// The suspending half, in its own function so the task above wraps all of it.
+    private func stream(
+        urlRequest: URLRequest,
+        payload: OpenAIGenerationPayload,
+        session generationSession: GenerationSession
+    ) async throws -> CGImage? {
         let (response, lines) = try await session.lines(for: urlRequest)
 
         guard (200..<300).contains(response.statusCode) else {
@@ -123,10 +188,14 @@ nonisolated final class OpenAIEngineRuntime: GenerationEngineRuntime {
             }
         }
 
+        // Cancelling terminates the stream, so the loop above ends without a
+        // completed event. That is a stop, not a malformed response, and reporting
+        // it as the latter would turn every cancellation into an error.
+        if generationSession.isCancelled { return nil }
         guard let finished else {
             // The stream ended without a completed event. Not a refusal, which the
-            // service states, and not a timeout, which the watchdog reports — so it
-            // is a shape we do not understand.
+            // service states, and not a stop, which is handled above — so it is a
+            // shape we do not understand.
             throw GenerationError.malformedResponse
         }
         return finished
@@ -320,5 +389,39 @@ nonisolated final class OpenAIEngineRuntime: GenerationEngineRuntime {
             return (nil, nil)
         }
         return (error["code"] as? String, error["message"] as? String)
+    }
+}
+
+/// Holds whichever task is currently in flight, so one cancellation handler can
+/// stop it whatever image the loop has reached.
+///
+/// Lock-guarded rather than an actor, and per-run rather than on the runtime: a
+/// handler runs synchronously on whichever thread cancelled, and `makeRuntime()`
+/// is called once per engine so runtime-level state would be shared across
+/// requests.
+nonisolated final class TaskHandle: @unchecked Sendable {
+    private let lock = NSLock()
+    private var task: Task<CGImage?, any Error>?
+    private var isCancelled = false
+
+    /// Takes ownership of `task`, cancelling it immediately if a cancel already
+    /// arrived — otherwise a cancel landing between images would be lost.
+    func adopt(_ task: Task<CGImage?, any Error>) {
+        lock.lock()
+        if isCancelled {
+            lock.unlock()
+            task.cancel()
+            return
+        }
+        self.task = task
+        lock.unlock()
+    }
+
+    func cancel() {
+        lock.lock()
+        isCancelled = true
+        let task = self.task
+        lock.unlock()
+        task?.cancel()
     }
 }

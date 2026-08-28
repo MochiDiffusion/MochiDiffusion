@@ -5,6 +5,10 @@
 - Fixed the model list occasionally reverting to an older models folder's contents when the folder was changed twice in quick succession
 - Fixed queued images never generating after an earlier failure
   - Once a generation failed in a way that left an error showing — an images folder that could not be written to, for example — every image queued afterwards was accepted and silently never started, until the app was relaunched
+- Fixed cancelling or timing out a hosted generation not actually stopping it
+  - A service that accepted the request and then went quiet would hold the queue indefinitely, blocking every image behind it, and keep a billable request open
+- Fixed a hosted generation with previews turned off being given up on after a minute
+  - Without previews there are no progress updates to show it is still working, so a slow but healthy generation was abandoned and its finished image discarded
 - Added OpenAI image generation as an engine
   - Requires an API key, entered under Settings → Engines. It is kept in your keychain and is never written to image metadata, logs, or saved requests
   - Sizes are flexible rather than fixed: any multiple of 16 up to 3840 a side, no more elongated than 3:1, within the service's pixel limits. A size outside them is corrected rather than rejected

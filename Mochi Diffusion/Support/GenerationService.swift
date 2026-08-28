@@ -29,6 +29,10 @@ actor GenerationService {
     /// `stopCurrentGeneration()` can cancel without calling into a runtime that
     /// is blocked inside a synchronous generate.
     private var currentSession: GenerationSession?
+    /// Whether the running request's work may outlive a cancel. Recorded when the
+    /// runtime is chosen, because `stopCurrentGeneration` has the request but not
+    /// the runtime.
+    private var currentRuntimeMayLeaveWorkBilled = false
     private var processingTask: Task<Void, Never>?
     private var continuations: [UUID: AsyncStream<Snapshot>.Continuation] = [:]
     private var resultContinuations: [UUID: AsyncStream<GenerationResult>.Continuation] = [:]
@@ -126,7 +130,16 @@ actor GenerationService {
 
         cancelingCurrentID = current.id
         broadcastSnapshot()
-        await updateGenerationState(.canceling(nil))
+        // Says so when it is true rather than implying a cancel is always free.
+        // Stopping a hosted request stops us waiting; it does not necessarily stop
+        // the service, and the image may still be charged for.
+        await updateGenerationState(
+            .canceling(
+                currentRuntimeMayLeaveWorkBilled
+                    ? "Stopping. \(current.displayName) may still finish and charge for this image."
+                    : nil
+            )
+        )
         // Synchronous, and it does not touch the runtime: one blocked inside
         // `generateImages` or `iris_generate` could not accept a call.
         currentSession?.cancel()
@@ -189,6 +202,7 @@ actor GenerationService {
                 continue
             }
             let runtime = runtime(for: engine)
+            currentRuntimeMayLeaveWorkBilled = runtime.cancellationMayLeaveWorkBilled
 
             let session = GenerationSession(requestID: request.id)
             currentSession = session
@@ -226,7 +240,7 @@ actor GenerationService {
                 // hosted request can sit behind a long local one for minutes.
                 // Starting it earlier would expire a whole queue at once.
                 session.noteActivity()
-                let watchdog = runtime.idleTimeout.map {
+                let watchdog = runtime.idleTimeout(for: request).map {
                     Self.startIdleWatchdog(session: session, timeout: $0)
                 }
                 let outcome: Result<Void, any Error>

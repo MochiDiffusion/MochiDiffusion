@@ -195,6 +195,13 @@ nonisolated protocol GenerationEngineRuntime: Sendable {
     /// How long this runtime may go without emitting an event or a result before
     /// the queue gives up on it. `nil` — the default — means never.
     ///
+    /// A function of the request because the bound depends on what the request
+    /// asked for. A hosted runtime that requested streamed partial images has a
+    /// heartbeat and can be held to a tight *idle* bound; one that did not has no
+    /// intermediate events at all, so the same number would silently become a
+    /// *total* budget and kill a legitimately slow generation. Which it is has to
+    /// be decided per request, not per runtime.
+    ///
     /// The value belongs to the runtime because it is a property of the
     /// *transport*, not of the model, the engine, or anything a user should tune.
     /// Enforcement belongs to the queue, which owns the request lifecycle and the
@@ -208,11 +215,20 @@ nonisolated protocol GenerationEngineRuntime: Sendable {
     /// Local runtimes leave this `nil` deliberately. A wedged Core ML load is a
     /// bug to fix, and any bound generous enough for a slow 9B Klein generation
     /// would never fire.
-    var idleTimeout: Duration? { get }
+    func idleTimeout(for request: GenerationRequest) -> Duration?
+
+    /// Whether stopping this runtime leaves work running somewhere we cannot
+    /// reach. `false` — the default — for anything that runs in this process.
+    ///
+    /// A hosted service may well finish an image we stopped waiting for, and bill
+    /// for it. §13.1 asks the UI to be honest about that rather than implying a
+    /// cancel is free.
+    var cancellationMayLeaveWorkBilled: Bool { get }
 }
 
 nonisolated extension GenerationEngineRuntime {
-    var idleTimeout: Duration? { nil }
+    func idleTimeout(for request: GenerationRequest) -> Duration? { nil }
+    var cancellationMayLeaveWorkBilled: Bool { false }
 }
 
 /// The immutable half of an engine: what it is, what models it has, and — from

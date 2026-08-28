@@ -378,6 +378,144 @@ struct OpenAIRuntimeTests {
         #expect(await http.count == 1)
     }
 
+    // MARK: - Interrupting a suspended request
+
+    /// The P1 this suite missed. A network call suspends — on response headers,
+    /// then on the next line — so polling `isCancelled` never runs, and neither a
+    /// user cancelling nor the watchdog expiring would be noticed. The request
+    /// would hold the serial queue for good and keep a billable call open.
+    @Test(
+        "Cancelling interrupts a request suspended on the network",
+        .timeLimit(.minutes(1)),
+        arguments: [HangingHTTPSession.Mode.beforeHeaders, .afterHeaders]
+    )
+    func cancelInterruptsASuspendedRequest(mode: HangingHTTPSession.Mode) async throws {
+        let http = HangingHTTPSession(mode: mode)
+        let generationSession = GenerationSession(requestID: UUID())
+        let runtime = runtime(session: http)
+        let req = request(previews: true)
+        let results = ResultCollector()
+
+        let run = Task {
+            try await runtime.run(
+                request: req,
+                session: generationSession,
+                onResult: { await results.add($0) }
+            )
+        }
+        await http.waitUntilAsked()
+
+        generationSession.cancel()
+
+        // Returns rather than hanging. Without the fix this awaits until the
+        // suite's time limit kills it.
+        try await run.value
+        #expect(await results.all.isEmpty)
+        // Reaching the network, not just unblocking the caller: a cancelled
+        // request that leaves the transfer running is still being paid for.
+        if case .afterHeaders = mode {
+            #expect(http.wasTerminated)
+        }
+    }
+
+    /// Expiry has to interrupt for the same reason, and by the same route — the
+    /// watchdog calls `expire()`, which runs the handlers `cancel()` does.
+    @Test("Expiry interrupts a request suspended on the network", .timeLimit(.minutes(1)))
+    func expiryInterruptsASuspendedRequest() async throws {
+        let http = HangingHTTPSession(mode: .afterHeaders)
+        let generationSession = GenerationSession(requestID: UUID())
+        let runtime = runtime(session: http)
+        let req = request(previews: true)
+
+        let run = Task {
+            try await runtime.run(
+                request: req, session: generationSession, onResult: { _ in })
+        }
+        await http.waitUntilAsked()
+
+        generationSession.expire()
+
+        try await run.value
+        #expect(generationSession.stopReason == .expired)
+        #expect(http.wasTerminated)
+    }
+
+    /// A cancel arriving between images must not be lost. `TaskHandle` cancels a
+    /// task it adopts after the fact, so the next image is stopped rather than
+    /// started.
+    @Test("A cancel arriving before the next image still stops it")
+    func cancelBeforeAdoptionIsNotLost() async throws {
+        let handle = TaskHandle()
+        handle.cancel()
+
+        let task = Task { () throws -> CGImage? in
+            try await Task.sleep(for: .seconds(3_600))
+            return nil
+        }
+        handle.adopt(task)
+
+        await #expect(throws: CancellationError.self) { try await task.value }
+    }
+
+    // MARK: - Timeout policy
+
+    /// The other P1. With no partial images there are no intermediate events, so a
+    /// 60-second *idle* bound silently becomes a 60-second *total* one and kills a
+    /// slow-but-healthy generation, discarding the image it was about to return.
+    @Test("The bound is idle when there is a heartbeat and total when there is not")
+    func timeoutPolicyDependsOnTheRequest() {
+        let runtime = runtime(session: FakeHTTPSession())
+
+        let streaming = runtime.idleTimeout(for: request(previews: true))
+        let notStreaming = runtime.idleTimeout(for: request(previews: false))
+
+        #expect(streaming == OpenAIEngineRuntime.streamingIdleTimeout)
+        #expect(notStreaming == OpenAIEngineRuntime.nonStreamingTotalTimeout)
+        // The distinction only helps if the no-heartbeat budget is the larger one.
+        #expect(notStreaming! > streaming!)
+    }
+
+    /// §13.1 asks the UI not to imply a cancel is free when it is not.
+    @Test("A hosted runtime says its work may still be billed; a local one does not")
+    func billingHonesty() {
+        #expect(runtime(session: FakeHTTPSession()).cancellationMayLeaveWorkBilled)
+        #expect(!CoreMLEngineRuntime().cancellationMayLeaveWorkBilled)
+        #expect(!IrisEngineRuntime().cancellationMayLeaveWorkBilled)
+    }
+
+    @Test("A foreign payload gets no timeout rather than a wrong one")
+    func timeoutIsNilForAForeignPayload() {
+        let foreign = GenerationRequest(
+            modelID: ModelID(engine: .iris, key: "klein"),
+            displayName: "klein",
+            metadataFields: [.prompt],
+            payload: IrisGenerationPayload(
+                modelDirectory: "/models/klein", stepCount: 4, scheduler: .discreteFlowScheduler),
+            prompt: "a cat",
+            negativePrompt: "",
+            size: CGSize(width: 64, height: 64),
+            startingImageData: nil,
+            startingImageName: nil,
+            controlNetImageData: [],
+            controlNetNames: [],
+            controlNetImageNames: [],
+            inputImageNames: [],
+            strength: nil,
+            stepCount: 4,
+            guidanceScale: nil,
+            scheduler: .discreteFlowScheduler,
+            quality: nil,
+            mlComputeUnit: nil,
+            useDenoisedIntermediates: false,
+            seed: 1,
+            numberOfImages: 1,
+            imageDir: FileManager.default.temporaryDirectory.path(percentEncoded: false),
+            imageType: "png"
+        )
+
+        #expect(runtime(session: FakeHTTPSession()).idleTimeout(for: foreign) == nil)
+    }
+
     // MARK: - Helpers
 
     actor ResultCollector {
@@ -409,5 +547,86 @@ struct OpenAIRuntimeTests {
             }
             return (response, stream)
         }
+    }
+}
+
+/// A transport that never answers, in the two ways it can fail to: no response
+/// headers, and headers followed by a stream that yields nothing.
+///
+/// The gap these cover is the one a cooperative fake hides. `StallingRuntime` in
+/// `IdleTimeoutTests` polls `isCancelled` in a sleep loop, so it proved the queue
+/// releases its drain on expiry while never showing whether a *real* runtime can
+/// be interrupted at all — and the hosted one could not: it suspends on the
+/// network, where polling never runs.
+nonisolated final class HangingHTTPSession: HTTPSession, @unchecked Sendable {
+    enum Mode: Sendable {
+        /// Never returns response headers.
+        case beforeHeaders
+        /// Returns headers, then a stream that never yields and never finishes.
+        case afterHeaders
+    }
+
+    private let lock = NSLock()
+    private let mode: Mode
+    private var asked = false
+    private var waiters: [CheckedContinuation<Void, Never>] = []
+    private var terminated = false
+
+    init(mode: Mode) {
+        self.mode = mode
+    }
+
+    /// Whether the transfer was torn down — the signal that cancellation reached
+    /// the network rather than merely unblocking the caller.
+    var wasTerminated: Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        return terminated
+    }
+
+    func waitUntilAsked() async {
+        await withCheckedContinuation { continuation in
+            lock.lock()
+            if asked {
+                lock.unlock()
+                continuation.resume()
+                return
+            }
+            waiters.append(continuation)
+            lock.unlock()
+        }
+    }
+
+    private func noteAsked() {
+        lock.lock()
+        asked = true
+        let waiting = waiters
+        waiters = []
+        lock.unlock()
+        for waiter in waiting { waiter.resume() }
+    }
+
+    private func noteTerminated() {
+        lock.lock()
+        terminated = true
+        lock.unlock()
+    }
+
+    func lines(
+        for request: URLRequest
+    ) async throws -> (response: HTTPURLResponse, lines: AsyncThrowingStream<String, any Error>) {
+        noteAsked()
+        if case .beforeHeaders = mode {
+            // Suspends until the task is cancelled, which is what a server that
+            // accepts a connection and says nothing looks like.
+            try await Task.sleep(for: .seconds(3_600))
+        }
+        let response = HTTPURLResponse(
+            url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
+        let stream = AsyncThrowingStream<String, any Error> { continuation in
+            // Deliberately holds the continuation and yields nothing.
+            continuation.onTermination = { [weak self] _ in self?.noteTerminated() }
+        }
+        return (response, stream)
     }
 }
