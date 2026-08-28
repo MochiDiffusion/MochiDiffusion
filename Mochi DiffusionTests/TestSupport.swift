@@ -254,3 +254,52 @@ nonisolated func pixelSize(of data: Data) -> CGSize? {
     else { return nil }
     return CGSize(width: image.width, height: image.height)
 }
+
+// MARK: - Secrets
+
+/// A `SecretStore` held in memory.
+///
+/// Exists so no test ever writes to the developer's login keychain.
+/// `KeychainSecretStore` itself is deliberately not exercised by the suite — see
+/// `SecretStoreTests` for why, and for what was verified by hand instead.
+nonisolated final class InMemorySecretStore: SecretStore, @unchecked Sendable {
+    private let lock = NSLock()
+    private var secrets: [String: String]
+    /// Set to make writes fail, for testing the paths that report a store problem.
+    var writesFail = false
+
+    init(_ secrets: [String: String] = [:]) {
+        self.secrets = secrets
+    }
+
+    func hasSecret(for account: String) -> Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        return secrets[account] != nil
+    }
+
+    func secret(for account: String) -> String? {
+        lock.lock()
+        defer { lock.unlock() }
+        return secrets[account]
+    }
+
+    func setSecret(_ secret: String?, for account: String) throws {
+        lock.lock()
+        defer { lock.unlock() }
+        if writesFail { throw SecretStoreError.unavailable }
+        if let secret, !secret.isEmpty {
+            secrets[account] = secret
+        } else {
+            secrets.removeValue(forKey: account)
+        }
+    }
+
+    /// Reads without going through the protocol, so a test can assert on what was
+    /// stored without the assertion depending on the code under test.
+    func storedValue(for account: String) -> String? {
+        lock.lock()
+        defer { lock.unlock() }
+        return secrets[account]
+    }
+}
