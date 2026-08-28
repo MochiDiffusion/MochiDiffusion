@@ -30,9 +30,10 @@ nonisolated protocol SecretStore: Sendable {
 
 /// A store with nothing in it that cannot be written to.
 ///
-/// The default in ``EngineSettings``, so the failure mode of forgetting to inject
-/// the real store is an engine reporting "no key configured" rather than one
-/// silently reaching into the user's keychain. Fail closed, and fail visibly.
+/// Not a default anywhere — an engine that needs a credential takes one with no
+/// default, so the compiler requires production to pass the Keychain store and a
+/// test to pass its own. This exists for the case a test wants to describe
+/// explicitly: an engine whose key has never been entered.
 nonisolated struct NoSecretStore: SecretStore {
     func hasSecret(for account: String) -> Bool { false }
     func secret(for account: String) -> String? { nil }

@@ -31,9 +31,9 @@ struct SecretStoreTests {
 
     // MARK: - The fail-closed default
 
-    /// `EngineSettings.secrets` defaults to this, so forgetting to inject the real
-    /// store makes a hosted engine report "no key configured" rather than
-    /// silently reaching into the keychain.
+    /// The explicit "no key has ever been entered" store. Nothing defaults to it:
+    /// an engine that needs a credential takes one with no default, so the
+    /// compiler is what stops a test reaching the real keychain.
     @Test("The default store holds nothing")
     func noSecretStoreIsEmpty() {
         let store = NoSecretStore()
@@ -51,16 +51,6 @@ struct SecretStoreTests {
         #expect(throws: SecretStoreError.unavailable) {
             try store.setSecret("sk-test", for: "openai")
         }
-    }
-
-    @Test("A fresh EngineSettings has no secrets")
-    func engineSettingsDefaultsToNoSecrets() {
-        let settings = EngineSettings(
-            modelDirectory: URL(fileURLWithPath: "/models"),
-            controlNetDirectory: URL(fileURLWithPath: "/controlnet")
-        )
-
-        #expect(!settings.secrets.hasSecret(for: "openai"))
     }
 
     // MARK: - The contract

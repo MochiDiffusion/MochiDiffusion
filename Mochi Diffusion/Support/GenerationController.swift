@@ -22,10 +22,6 @@ final class GenerationController {
     private(set) var configStore: ConfigStore
     private(set) var engineSettings: EngineSettingsStore
     private let modelRepository: ModelRepository
-    /// The credential store handed to engines on every discovery pass. The app
-    /// uses the Keychain; tests pass their own, so the suite never writes to the
-    /// developer's login keychain.
-    private let secrets: any SecretStore
     private let engineRegistry: EngineRegistry
     private let imageRepository: ImageRepository
     private(set) var generationQueue = [GenerationRequest]()
@@ -156,11 +152,9 @@ final class GenerationController {
         imageRepository: ImageRepository = ImageRepository(),
         engineRegistry: EngineRegistry = EngineRegistry(),
         engineSettings: EngineSettingsStore? = nil,
-        secrets: any SecretStore = KeychainSecretStore(),
         startsObserving: Bool = true
     ) {
         self.configStore = configStore
-        self.secrets = secrets
         self.modelRepository = modelRepository
         self.engineRegistry = engineRegistry
         self.imageRepository = imageRepository
@@ -197,8 +191,7 @@ final class GenerationController {
 
             let settings = EngineSettings(
                 modelDirectory: modelDirectoryURL,
-                controlNetDirectory: controlNetDirectoryURL,
-                secrets: secrets
+                controlNetDirectory: controlNetDirectoryURL
             )
             // One aggregate pass: availability and discovery gathered together, so
             // this cannot pair one engine's availability with another pass's models.

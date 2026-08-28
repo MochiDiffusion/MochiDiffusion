@@ -23,4 +23,24 @@ nonisolated enum GenerationError: Error, Equatable {
     case noModelsFound
     case pipelineNotAvailable
     case requestedModelNotFound
+
+    // MARK: - Hosted engines
+
+    /// No credential, or one the service rejected.
+    case authenticationFailed
+    /// Asked to slow down. Not fatal to the queue: the next request may succeed.
+    case rateLimited
+    /// The service answered, unhappily. Carries what it said, because a hosted
+    /// failure the user cannot see the text of is one they cannot act on.
+    case serviceFailure(String)
+    /// The response was not shaped the way the API documents.
+    case malformedResponse
+    /// The service declined to make the image on content-policy grounds.
+    ///
+    /// An `Error` because it ends the request, but **not** an error the user sees
+    /// as one: the call succeeded and the service told us something. The queue
+    /// reports it through `.ready(message)`, the same channel as "Couldn't load
+    /// <model>", rather than the red banner an `.error` produces. See D5 of
+    /// `Multi-Engine-Design.md`.
+    case refused(String)
 }

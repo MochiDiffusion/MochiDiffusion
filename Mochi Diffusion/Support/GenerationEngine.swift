@@ -15,14 +15,6 @@ import Foundation
 nonisolated struct EngineSettings: Sendable {
     var modelDirectory: URL
     var controlNetDirectory: URL
-    /// Where a hosted engine finds its credential.
-    ///
-    /// Defaults to a store that holds nothing and cannot be written to, so
-    /// forgetting to inject the real one makes an engine report "no key
-    /// configured" rather than silently reaching into the user's keychain. Last
-    /// in the declaration so the memberwise initialiser's existing call sites are
-    /// unchanged.
-    var secrets: any SecretStore = NoSecretStore()
 }
 
 /// One discovery pass, with the work that does not vary by engine done once.
