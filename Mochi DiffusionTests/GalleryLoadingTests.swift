@@ -92,6 +92,63 @@ struct GalleryLoadingTests {
         controller.shutdown()
     }
 
+    /// The point of the whole exercise: a gallery image is not decoded at load.
+    ///
+    /// A decoded 1024x1024 image is about 4 MB, so holding one per entry made a large
+    /// gallery cost gigabytes for pictures drawn a couple of hundred points wide.
+    @Test("A loaded image carries no decoded pixels, but knows its size")
+    func loadedImagesAreNotDecoded() async throws {
+        try writePNG(
+            caption: MetadataCodec.encode([
+                (.includeInImage, "a cat"),
+                (.generator, "Mochi Diffusion 6.0"),
+            ]),
+            to: imageDir.appending(path: "one.png"),
+            image: makeCGImage(width: 96, height: 48)
+        )
+        let gallery = ImageGallery()
+        let controller = makeController(gallery: gallery)
+
+        await controller.loadImages()
+        let sdi = try #require(gallery.images.first)
+
+        #expect(sdi.image == nil)
+        // Read from the file's properties, which needs no decode.
+        #expect(sdi.width == 96)
+        #expect(sdi.height == 48)
+        #expect(sdi.aspectRatio == 2)
+        controller.shutdown()
+    }
+
+    /// Save As, Save All and Copy all go through `imageData`, and would each have
+    /// silently produced nothing once gallery images stopped being decoded.
+    @Test("Re-encoding loads the file when no pixels are resident")
+    func imageDataLoadsFromDisk() async throws {
+        let url = imageDir.appending(path: "one.png")
+        try writePNG(
+            caption: MetadataCodec.encode([
+                (.includeInImage, "a cat"),
+                (.generator, "Mochi Diffusion 6.0"),
+            ]),
+            to: url,
+            image: makeCGImage(width: 64, height: 32)
+        )
+        var sdi = SDImage(image: nil, aspectRatio: 2, path: url.path(percentEncoded: false))
+        sdi.width = 64
+        sdi.height = 32
+
+        let data = try #require(await sdi.imageData(.png, metadataFields: [.prompt]))
+
+        #expect(pixelSize(of: data) == CGSize(width: 64, height: 32))
+    }
+
+    @Test("An image with neither pixels nor a path re-encodes to nothing")
+    func imageDataWithoutSourceIsNil() async {
+        let sdi = SDImage(image: nil, aspectRatio: 0, path: "")
+
+        #expect(await sdi.imageData(.png) == nil)
+    }
+
     /// The half of Finder tagging that needed a gallery to talk to, which is why it
     /// moved off a free function and onto the controller.
     @Test("Setting a Finder tag updates the gallery's copy")

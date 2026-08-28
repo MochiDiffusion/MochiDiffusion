@@ -30,7 +30,14 @@ struct ImageRecord: Sendable, Identifiable {
     var generatedDate: Date
     var path: String
     var finderTagColorNumber: Int
-    var imageData: Data
+    /// The encoded image, when the caller already has it.
+    ///
+    /// Set for a generation result, whose bytes were just written to disk anyway, so
+    /// the gallery can show it without a read-back. Nil for a record built by
+    /// scanning the images folder: decoding every file at load is what made a large
+    /// gallery cost gigabytes, and the grid renders from `GalleryThumbnailProvider`
+    /// instead.
+    var imageData: Data?
 }
 
 struct ImageExportRequest: Sendable {

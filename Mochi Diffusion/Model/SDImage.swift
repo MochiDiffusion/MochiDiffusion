@@ -129,10 +129,24 @@ extension SDImage {
         }
     }
 
+    /// Re-encodes the image with its metadata.
+    ///
+    /// Loads the file when no decoded image is resident, which is now the normal
+    /// state for anything in the gallery: only a freshly generated image arrives with
+    /// its pixels. Without this, Save As, Save All and Copy would each silently
+    /// produce nothing for an image loaded from disk.
+    ///
+    /// Deliberately re-encodes rather than copying the file, even though the file is
+    /// usually identical: the caller chooses the type, so this is also the path that
+    /// converts a PNG to JPEG on save.
     nonisolated func imageData(
         _ type: UTType,
         metadataFields: Set<MetadataField> = Set(MetadataField.allCases)
     ) async -> Data? {
+        let image =
+            self.image
+            ?? (path.isEmpty
+                ? nil : cgImageFromFileURL(URL(fileURLWithPath: path, isDirectory: false)))
         guard let image else { return nil }
         guard let data = CFDataCreateMutable(nil, 0) else { return nil }
         guard

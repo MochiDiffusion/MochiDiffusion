@@ -21,6 +21,10 @@ struct MochiDiffusionApp: App {
     @State private var notificationController: NotificationController
     @State private var quickLook: QuickLookState
     @State private var quicklookURL: URL?
+    /// Owned here so the thumbnail cache lives as long as the app rather than as long
+    /// as whichever view happened to ask first.
+    private let thumbnailProvider = GalleryThumbnailProvider()
+    private let fullImageProvider = GalleryFullImageProvider()
     private let updaterController: SPUStandardUpdaterController
 
     init() {
@@ -97,6 +101,8 @@ struct MochiDiffusionApp: App {
         .environment(store)
         .environment(focusCon)
         .environment(quickLook)
+        .environment(\.galleryThumbnailProvider, thumbnailProvider)
+        .environment(\.galleryFullImageProvider, fullImageProvider)
         .commands {
             AppCommands(updater: updaterController.updater)
             FileCommands(galleryController: galleryController, store: store)
