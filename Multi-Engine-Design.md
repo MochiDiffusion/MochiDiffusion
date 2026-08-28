@@ -1021,7 +1021,7 @@ Confidence labels are honest signals about how much these should be trusted.
 | 4a | Constraints model; `plan` as the sole resolution point; request carries resolved values | none | **done** |
 | 4b | Sidebar driven from constraints; size swap routed through the engine | unsupported controls hide; step count stops lying | **done** |
 | 5 | Engine picker, `EngineSettingsStore`, per-engine selected model, Settings restructure, coalesced discovery (§7). Shared `ModelDir`; **no** per-engine model directories | the feature as described | **done** |
-| 6 | OpenAI engine. Decisions settled in §13.2 (D1–D10): joint size limits, streamed previews, idle timeout, refusal-is-not-an-error, one call per image, png-then-re-encode, keyless availability check, static model list | first hosted engine | **decided, not started** |
+| 6 | OpenAI engine. Decisions settled in §13.2 (D1–D10). **Landed:** `EngineModel.url` dropped (`d5a06dd`), `SizeLimits` joint size bounds (`eda3fa2`), idle timeout and `requestExpired` (`649f5b4`); D3 withdrawn as needing no code. **Remaining:** quality constraint, Keychain (D8), the client and engine (D2, D6, D7, D9) with the rest of the error taxonomy | first hosted engine | **in progress** |
 | 6.5 | Metadata fields resolved by `plan` rather than declared per model; scheduler carried as an opaque string (§6.5) | imported images stop misreporting the scheduler | sketch |
 | 7 | MediaGenerationKit prototype, then local/remote integration | | direction only |
 | 8 | Declarative long-tail options | | direction only |
@@ -1745,14 +1745,34 @@ hosted engine is not preview-less, and `showGenerationPreview` maps cleanly: req
 Progress is honest too. `partial_image_index` has no total, but *we* choose the total, so
 `Progress(step: index, stepCount: requested)` is accurate rather than invented.
 
-#### D3 — Indeterminate progress is still needed, but only for one window
+#### D3 — Withdrawn: indeterminate progress needs no code
 
-With D2 the indeterminate case shrinks to the wait before the first partial arrives, plus
-whenever previews are off. The representation already exists — `Status.running(nil)` — and
-the real defect is that all three renderers (`GalleryToolbarView`, `GalleryPreviewView`,
-`JobQueueView`) test `if case .running(let p) = state, let p, p.stepCount > 0` and fall
-through otherwise, so `.running(nil)` draws nothing and the UI looks idle while a job is in
-flight. Decision: render an indeterminate spinner. Three view sites, no new state.
+**Withdrawn on inspection, 2026-08-27.** The decision was to render an indeterminate spinner
+for `Status.running(nil)`, on the grounds that all three renderers test
+`if case .running(let p) = state, let p, p.stepCount > 0` and fall through, so a job in
+flight would draw nothing. The premise is accurate. The conclusion does not follow, because
+nothing has to emit `.running(nil)` in the first place:
+
+- `GalleryToolbarView` **already** draws an indeterminate circular `ProgressView` for
+  `.loading`.
+- `JobQueueView` **already** has a `.loading(stage)` branch that shows the stage message.
+- `GalleryPreviewView` only overlays a preview image, and with D2's partial images the
+  progress it overlays is determinate anyway.
+- Nothing anywhere gates *behaviour* on `.loading` versus `.running` — no button disabling,
+  no queue logic. Checked: the distinction is those three render sites and nothing else.
+
+So the honest sequence for a hosted engine is `.state(.loading("Generating…"))` until the
+first partial image arrives, then `.progress(step: index, stepCount: requested)`.
+`.running(nil)` is simply never emitted, and the fact that it draws nothing stops mattering.
+
+`Status.running(Progress?)` keeps its optional payload. Nothing is gained by removing it and
+a later engine may want it.
+
+**The general lesson, since this is the third:** D7's output-format mismatch and the
+unreachable branch in `SizeLimits.applyingRatio` went the same way. A decision reached by
+reading the *shape* of the code — "the renderers ignore this case", "the formats do not
+line up" — is worth re-checking against what the code actually does before implementing it.
+All three were correct about the shape and wrong about the consequence.
 
 #### D4 — An idle timeout, not a wall-clock budget
 
@@ -1775,12 +1795,48 @@ What is unambiguously wrong is a stream that stops producing events. Decision: b
   class — a failure path that leaves the queue unable to start again — and it is the single
   most important thing to get right here.
 
+**Implemented in `649f5b4`**, with three refinements the decision did not anticipate:
+
+- **Enforcement lives in the queue, not the runtime.** The *value* is on
+  `GenerationEngineRuntime.idleTimeout` as decided, with local runtimes inheriting `nil` from
+  a protocol extension. But the queue owns the request lifecycle and the drain, so it is the
+  only place that can guarantee the release above. Runtimes declare; the queue enforces.
+- **Expiry is a sibling of `cancel()`, not a flag beside it.** "Its own terminal state" turned
+  out to need a shared *mechanism*: a runtime only polls `isCancelled`, and a stalled request
+  needs the same `iris_request_cancel()` poke a cancelled one does. So `cancel()` and
+  `expire()` both route through one `stop(because:)`, `StopReason` distinguishes the outcome,
+  and the first reason wins.
+- **The expiry check must run before the runtime's own outcome.** A runtime that notices the
+  stop returns *normally*, so checking afterwards would make an expiry indistinguishable from
+  success — the UI would go quietly `.ready` having produced nothing. This is the one part
+  that is easy to get wrong and silent when wrong.
+
+Two details worth keeping: results count as activity even though they are not events, since a
+run producing one image a minute is working rather than stalled; and the watchdog sleeps for
+exactly the time remaining rather than polling, so a long generation that keeps reporting
+costs one wake-up per reported event.
+
+The drain-release guarantee is pinned by `IdleTimeoutQueueTests.drainSurvivesAnExpiry`, and
+the pin was verified by removing the expiry check — which fails both expiry tests and leaves
+the heartbeat test passing.
+
 #### D5 — A refusal is not an error
 
 `GenerationError` is entirely filesystem-shaped (`imageDirectoryNoAccess`,
 `modelDirectoryNoAccess`, `noModelsFound`, `pipelineNotAvailable`,
 `requestedModelNotFound`). It gains hosted cases: authentication failure, rate limit,
 transient service error, request expired.
+
+**Split across two increments, deliberately.** `requestExpired` landed with the timeout in
+`649f5b4`, because the timeout produces it. The other three are deferred to the client
+increment: nothing throws them until an HTTP response can be mapped onto them, and enum cases
+with no producer are guesses at a shape we are about to be told. Matching them to real
+responses beats inventing them now — which is also why there is no `rateLimited(retryAfter:)`
+yet, since whether the service supplies that value is a question the client answers.
+
+The *principle* needs no code and is already available: `updateStatus(.ready(message))` is
+exactly how "Couldn't load <model>" surfaces a non-error message against a request, and it is
+what a refusal will use.
 
 A content-policy refusal is **not** among them. The call succeeded and the service told us
 something; routing that through `.error` makes a normal outcome look like a malfunction.
