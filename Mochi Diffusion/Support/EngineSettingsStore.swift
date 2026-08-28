@@ -110,12 +110,22 @@ import SwiftUI
     {
         let outcome = EngineSelectionMigration.selection(
             previousSelection: previousSelection,
-            existingEngine: selectedEngine,
+            alreadyInItsSlot: previousSelection.map {
+                selectedModel(for: $0.engine) == $0
+            } ?? false,
             discovered: discovered
         )
         if case .migrated(let id) = outcome {
-            selectedEngine = id.engine
+            // The model slot is always filled: that is the migration's actual job,
+            // and it is what makes the old selection reappear when the user next
+            // switches to that engine.
             setSelectedModel(id, for: id.engine)
+            // The engine is only *adopted* if none is chosen. Overwriting it would
+            // move a user off whatever they are working in, which is a worse
+            // surprise than their old model waiting where they left it.
+            if selectedEngine == nil {
+                selectedEngine = id.engine
+            }
         }
         return outcome
     }
@@ -141,7 +151,7 @@ import SwiftUI
 /// Delete both once the migration window closes.
 nonisolated enum EngineSelectionMigration {
     enum Outcome: Equatable, Sendable {
-        /// `SelectedEngine` is already set, so this has run.
+        /// The Phase 2 selection is already recorded against its own engine.
         case alreadyMigrated
         /// No Phase 2 selection to migrate.
         case nothingToMigrate
@@ -165,16 +175,26 @@ nonisolated enum EngineSelectionMigration {
     /// real ones. A stale waypoint is not a choice, so leaving `SelectedEngine`
     /// unset — and letting the controller pick the first model as it always has —
     /// is the right outcome.
+    ///
+    /// - Parameter alreadyInItsSlot: whether the Phase 2 selection is already
+    ///   recorded against its own engine — which is what "this has run" means.
+    ///
+    ///   It used to mean "some engine is selected", and that signal is not the
+    ///   migration's to read: `restoreSelection` persists a fallback engine, so an
+    ///   unresolved legacy selection plus a ready hosted engine meant the fallback
+    ///   claimed the migration was done and the user's pre-engine model was never
+    ///   recovered. The migration deliberately retries across passes, and only its
+    ///   own result may end that.
     static func selection(
         previousSelection: ModelID?,
-        existingEngine: EngineID?,
+        alreadyInItsSlot: Bool,
         discovered: [ModelID]
     ) -> Outcome {
-        if existingEngine != nil {
-            return .alreadyMigrated
-        }
         guard let previousSelection else {
             return .nothingToMigrate
+        }
+        if alreadyInItsSlot {
+            return .alreadyMigrated
         }
         guard discovered.contains(previousSelection) else {
             return .unresolvable

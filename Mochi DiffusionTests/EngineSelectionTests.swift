@@ -109,22 +109,39 @@ struct EngineSettingsStoreTests {
 struct EngineSelectionMigrationTests {
     private let klein = ModelID(engine: .iris, key: "klein")
 
-    @Test("An existing engine selection means the migration has already run")
+    /// "Already run" is the selection being in its own engine's slot — the
+    /// migration's own result. It used to be "some engine is selected", which
+    /// `restoreSelection`'s fallback could set, so a fallback could claim the
+    /// migration was finished when it had not started.
+    @Test("The selection already being in its slot means the migration has run")
     func alreadyMigrated() {
         let outcome = EngineSelectionMigration.selection(
             previousSelection: klein,
-            existingEngine: .coreMLStableDiffusion,
+            alreadyInItsSlot: true,
             discovered: [klein]
         )
 
         #expect(outcome == .alreadyMigrated)
     }
 
+    /// The reported bug, as a decision. A fallback engine having been persisted
+    /// must not end the migration: the legacy selection is still owed a slot.
+    @Test("Another engine being selected does not end the migration")
+    func fallbackEngineDoesNotEndTheMigration() {
+        let outcome = EngineSelectionMigration.selection(
+            previousSelection: klein,
+            alreadyInItsSlot: false,
+            discovered: [klein]
+        )
+
+        #expect(outcome == .migrated(klein))
+    }
+
     @Test("No previous selection is nothing to migrate")
     func nothingToMigrate() {
         let outcome = EngineSelectionMigration.selection(
             previousSelection: nil,
-            existingEngine: nil,
+            alreadyInItsSlot: false,
             discovered: [klein]
         )
 
@@ -135,7 +152,7 @@ struct EngineSelectionMigrationTests {
     func migratesDiscoveredSelection() {
         let outcome = EngineSelectionMigration.selection(
             previousSelection: klein,
-            existingEngine: nil,
+            alreadyInItsSlot: false,
             discovered: [klein, ModelID(engine: .coreMLStableDiffusion, key: "sd15")]
         )
 
@@ -149,7 +166,7 @@ struct EngineSelectionMigrationTests {
     func doesNotMigrateUnresolvableSelection() {
         let outcome = EngineSelectionMigration.selection(
             previousSelection: klein,
-            existingEngine: nil,
+            alreadyInItsSlot: false,
             discovered: [ModelID(engine: .coreMLStableDiffusion, key: "sd15")]
         )
 
@@ -161,7 +178,7 @@ struct EngineSelectionMigrationTests {
         // Nothing was written, so a later pass with the model present migrates it.
         let later = EngineSelectionMigration.selection(
             previousSelection: klein,
-            existingEngine: nil,
+            alreadyInItsSlot: false,
             discovered: [klein]
         )
 

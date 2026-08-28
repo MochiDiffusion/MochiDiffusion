@@ -56,6 +56,19 @@ struct ModelSelectionPersistenceTests {
         )
     }
 
+    /// The shipped list with a key already stored, so the hosted engine is `.ready`
+    /// and can become the fallback.
+    private func makeKeyedShippedController() -> GenerationController {
+        let secrets = InMemorySecretStore([OpenAIImageEngine.secretAccount: "sk-test"])
+        return GenerationController(
+            configStore: configStore,
+            modelRepository: ModelRepository(),
+            imageRepository: ImageRepository(),
+            engineRegistry: EngineRegistry(secrets: secrets),
+            startsObserving: false
+        )
+    }
+
     /// The shipped list, whose hosted engine has no key in a test.
     private func makeShippedController() -> GenerationController {
         GenerationController(
@@ -240,6 +253,44 @@ struct ModelSelectionPersistenceTests {
         // different problems into one sentence.
         #expect(message.contains("Couldn't read the models folder"))
         #expect(!message.contains("No models found"))
+    }
+
+    /// A ready hosted engine used to be able to end the Phase 2 migration without
+    /// performing it. `restoreSelection` persists a fallback engine, and the
+    /// migration read "some engine is selected" as "this has already run" — so a
+    /// legacy selection whose model was temporarily missing was never recovered.
+    ///
+    /// The migration deliberately retries across passes, and only its own result
+    /// may end that.
+    @Test("A hosted fallback does not strand the legacy selection")
+    func hostedFallbackDoesNotStrandTheLegacyMigration() async throws {
+        // A pre-engine selection whose model is not there yet.
+        let legacy = modelDir.appending(path: "a-model")
+        tempDefaults.defaults.set(legacy, forKey: ConfigStore.Key.legacyModelId)
+
+        let controller = makeKeyedShippedController()
+        await controller.loadModels()
+
+        // The hosted engine is the only usable one, so it became the fallback —
+        // which is what used to claim the migration was finished.
+        #expect(controller.selectedEngine == .openAI)
+        #expect(controller.configStore.selectedModel == nil)
+
+        // The folder comes back.
+        try makeSDModelFixture(at: legacy)
+        await controller.loadModels()
+
+        // Recovered into its own engine's slot rather than reported as already
+        // migrated and dropped.
+        #expect(
+            controller.engineSettings.selectedModel(for: .coreMLStableDiffusion)
+                == ModelID(engine: .coreMLStableDiffusion, key: "a-model"))
+        // And the user was not yanked off the engine they were working in. The old
+        // model is waiting where they left it.
+        #expect(controller.selectedEngine == .openAI)
+
+        controller.selectEngine(.coreMLStableDiffusion)
+        #expect(controller.currentModelId?.key == "a-model")
     }
 
     /// The reason registering a hosted engine needed care. It always has a model,
