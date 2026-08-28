@@ -49,6 +49,17 @@ nonisolated enum GenerationEvent: Sendable {
 /// `@unchecked Sendable` is sound because every mutable field is guarded by this
 /// type's own lock.
 nonisolated final class GenerationSession: @unchecked Sendable {
+    /// Why a session stopped early.
+    ///
+    /// Both stop the work the same way — the runtime polls ``isCancelled`` — but
+    /// they are not the same outcome and the queue reports them differently. A
+    /// cancellation is what the user asked for; an expiry is a failure they did
+    /// not, and for a hosted service it may still be billed.
+    enum StopReason: Sendable, Equatable {
+        case cancelled
+        case expired
+    }
+
     let requestID: GenerationRequest.ID
 
     /// Progress, phase and preview events for this request.
@@ -61,11 +72,17 @@ nonisolated final class GenerationSession: @unchecked Sendable {
 
     private let lock = NSLock()
     private var continuation: AsyncStream<GenerationEvent>.Continuation?
-    private var isCancelledFlag = false
+    private var stopReasonValue: StopReason?
     private var cancellationHandlers: [@Sendable () -> Void] = []
+    /// When this session last showed a sign of life. Read by the idle watchdog,
+    /// which is why it lives here rather than in the queue: events arrive on
+    /// whatever thread the engine is running on, and the queue cannot observe
+    /// them synchronously.
+    private var lastActivity: ContinuousClock.Instant
 
     init(requestID: GenerationRequest.ID) {
         self.requestID = requestID
+        lastActivity = ContinuousClock.now
         var escapedContinuation: AsyncStream<GenerationEvent>.Continuation?
         events = AsyncStream(bufferingPolicy: .bufferingNewest(64)) { continuation in
             escapedContinuation = continuation
@@ -78,7 +95,34 @@ nonisolated final class GenerationSession: @unchecked Sendable {
     var isCancelled: Bool {
         lock.lock()
         defer { lock.unlock() }
-        return isCancelledFlag
+        return stopReasonValue != nil
+    }
+
+    /// Why the session stopped, or `nil` if it has not. The queue reads this to
+    /// tell a cancellation from an expiry; a runtime only needs ``isCancelled``.
+    var stopReason: StopReason? {
+        lock.lock()
+        defer { lock.unlock() }
+        return stopReasonValue
+    }
+
+    /// How long since the last event, result, or start. The idle watchdog's
+    /// only input.
+    var idleDuration: Duration {
+        lock.lock()
+        defer { lock.unlock() }
+        return ContinuousClock.now - lastActivity
+    }
+
+    /// Records a sign of life.
+    ///
+    /// Called for every event, and by whoever delivers a result — results do not
+    /// travel as events (see ``GenerationEvent``), and a run that is producing
+    /// images one per minute is working, not stalled.
+    func noteActivity() {
+        lock.lock()
+        lastActivity = ContinuousClock.now
+        lock.unlock()
     }
 
     /// Requests cancellation. Idempotent, and returns whether this call was the
@@ -86,12 +130,30 @@ nonisolated final class GenerationSession: @unchecked Sendable {
     /// cancelling twice.
     @discardableResult
     func cancel() -> Bool {
+        stop(because: .cancelled)
+    }
+
+    /// Stops the session because it went quiet for too long.
+    ///
+    /// Deliberately a sibling of ``cancel()`` rather than a flag beside it: the
+    /// stopping mechanism has to be identical — the same handlers fire, so a C
+    /// library still gets its poke — while the reason has to be distinguishable,
+    /// because the queue reports an expiry as a failure and a cancellation as the
+    /// user's own doing.
+    @discardableResult
+    func expire() -> Bool {
+        stop(because: .expired)
+    }
+
+    /// First reason wins. A user cancelling a request that has already expired,
+    /// or the reverse, does not re-run the handlers or change what is reported.
+    private func stop(because reason: StopReason) -> Bool {
         lock.lock()
-        if isCancelledFlag {
+        if stopReasonValue != nil {
             lock.unlock()
             return false
         }
-        isCancelledFlag = true
+        stopReasonValue = reason
         let handlers = cancellationHandlers
         cancellationHandlers = []
         lock.unlock()
@@ -113,11 +175,12 @@ nonisolated final class GenerationSession: @unchecked Sendable {
     /// only when `iris_request_cancel()` sets the library's flag, and the runtime
     /// cannot call it from inside that call.
     ///
-    /// Runs immediately if the session is already cancelled, so registration
-    /// cannot race past a cancel that already happened.
+    /// Runs immediately if the session has already stopped, so registration
+    /// cannot race past a stop that already happened. Expiry counts: a stalled
+    /// hosted request needs the same poke a cancelled one does.
     func onCancel(_ handler: @escaping @Sendable () -> Void) {
         lock.lock()
-        if isCancelledFlag {
+        if stopReasonValue != nil {
             lock.unlock()
             handler()
             return
@@ -133,6 +196,7 @@ nonisolated final class GenerationSession: @unchecked Sendable {
     func emit(_ event: GenerationEvent) {
         lock.lock()
         let continuation = continuation
+        lastActivity = ContinuousClock.now
         lock.unlock()
         continuation?.yield(event)
     }

@@ -216,6 +216,14 @@ actor GenerationService {
                 // happen on both the success and failure paths, and `defer` cannot
                 // await. The outcome is held and rethrown afterwards so the
                 // existing per-error handling below still sees it.
+                // Started here rather than at enqueue: the clock bounds the gap
+                // between signs of life *while running*, and on a serial queue a
+                // hosted request can sit behind a long local one for minutes.
+                // Starting it earlier would expire a whole queue at once.
+                session.noteActivity()
+                let watchdog = runtime.idleTimeout.map {
+                    Self.startIdleWatchdog(session: session, timeout: $0)
+                }
                 let outcome: Result<Void, any Error>
                 do {
                     try await runtime.run(
@@ -223,6 +231,10 @@ actor GenerationService {
                         session: session,
                         onResult: { [weak self] result in
                             guard let self else { return }
+                            // A result is a sign of life that is not an event, so
+                            // a run producing one image a minute is working rather
+                            // than stalled.
+                            session.noteActivity()
                             let filenameWithoutExtension = await self.nextFilename(
                                 for: result.metadata
                             )
@@ -250,12 +262,20 @@ actor GenerationService {
                 } catch {
                     outcome = .failure(error)
                 }
+                watchdog?.cancel()
                 // Finish the stream rather than cancelling the drain, so events
                 // already emitted are still applied, then wait for the drain to
                 // end. Past this point no event from this request can be in
                 // flight, which is what lets the next request reuse the UI state.
                 session.close()
                 await forwarding.value
+                // Checked before the runtime's own outcome. A runtime that notices
+                // the stop returns normally, so without this an expiry would be
+                // indistinguishable from success and the UI would go quietly
+                // `.ready` having produced nothing.
+                if session.stopReason == .expired {
+                    throw GenerationError.requestExpired
+                }
                 try outcome.get()
                 // The terminal state belongs here rather than to the runtime, so a
                 // dropped event cannot leave the UI stuck mid-generation.
@@ -263,6 +283,14 @@ actor GenerationService {
                     await updateStatus(.ready(nil))
                 }
                 restoreReadyAfterCancel = true
+            } catch GenerationError.requestExpired {
+                logger.error("\(request.displayName) stopped responding; gave up waiting.")
+                await updateStatus(
+                    .error(
+                        "Stopped waiting for \(request.displayName): no response for too "
+                            + "long. A remote service may still finish and charge for this image."
+                    )
+                )
             } catch GenerationError.requestedModelNotFound {
                 logger.error("Couldn't load \(request.displayName) because it doesn't exist.")
                 await updateStatus(
@@ -291,6 +319,36 @@ actor GenerationService {
                 request.id,
                 restoreReadyAfterCancel: restoreReadyAfterCancel
             )
+        }
+    }
+
+    /// Expires `session` once it has been quiet for `timeout`.
+    ///
+    /// Sleeps for exactly the time remaining rather than polling: every wake-up
+    /// either expires the session or learns a newer deadline from it, so a long
+    /// generation that keeps reporting costs one wake-up per reported event
+    /// rather than one per interval.
+    ///
+    /// `static`, and holds no reference to the queue, so a watchdog cannot keep
+    /// the actor alive and needs no actor hop to read the clock — `idleDuration`
+    /// is lock-guarded precisely so this can stay synchronous.
+    private static func startIdleWatchdog(
+        session: GenerationSession,
+        timeout: Duration
+    ) -> Task<Void, Never> {
+        Task {
+            while !Task.isCancelled {
+                let idle = session.idleDuration
+                guard idle < timeout else {
+                    session.expire()
+                    return
+                }
+                do {
+                    try await Task.sleep(for: timeout - idle)
+                } catch {
+                    return
+                }
+            }
         }
     }
 

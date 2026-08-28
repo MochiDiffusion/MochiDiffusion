@@ -188,6 +188,28 @@ nonisolated protocol GenerationEngineRuntime: Sendable {
         session: GenerationSession,
         onResult: @escaping @Sendable (GenerationResult) async throws -> Void
     ) async throws
+
+    /// How long this runtime may go without emitting an event or a result before
+    /// the queue gives up on it. `nil` — the default — means never.
+    ///
+    /// The value belongs to the runtime because it is a property of the
+    /// *transport*, not of the model, the engine, or anything a user should tune.
+    /// Enforcement belongs to the queue, which owns the request lifecycle and the
+    /// drain, and is therefore the only place that can guarantee an expiry
+    /// releases the drain exactly as a completion does.
+    ///
+    /// A bound on the *gap between* signs of life rather than on total duration:
+    /// a large, high-quality generation may legitimately run for minutes, so any
+    /// wall-clock budget loose enough to allow it is too loose to catch a hang.
+    ///
+    /// Local runtimes leave this `nil` deliberately. A wedged Core ML load is a
+    /// bug to fix, and any bound generous enough for a slow 9B Klein generation
+    /// would never fire.
+    var idleTimeout: Duration? { get }
+}
+
+nonisolated extension GenerationEngineRuntime {
+    var idleTimeout: Duration? { nil }
 }
 
 /// The immutable half of an engine: what it is, what models it has, and — from
