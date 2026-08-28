@@ -154,7 +154,7 @@ struct QueueLivenessTests {
         ]
     )
     func requestRunsFromAnyUIState(state: GenerationState.Status) async throws {
-        await MainActor.run { GenerationState.shared.state = state }
+        await MainActor.run { GenerationState.shared.report(state) }
         let signal = RunSignal()
         let service = makeService(signal: signal)
 
@@ -170,7 +170,7 @@ struct QueueLivenessTests {
     /// is why it is not the regression pin.
     @Test("An error part-way through a batch does not stop the rest of it")
     func errorMidBatchDoesNotStopTheRest() async throws {
-        await MainActor.run { GenerationState.shared.state = .ready(nil) }
+        await MainActor.run { GenerationState.shared.report(.ready(nil)) }
         let signal = RunSignal()
         let service = makeService(signal: signal)
 
@@ -179,7 +179,7 @@ struct QueueLivenessTests {
 
         // Whatever the first request left behind — here forced, since the fake
         // runtime cannot fail — must not stop the second.
-        await MainActor.run { GenerationState.shared.state = .error("left over") }
+        await MainActor.run { GenerationState.shared.report(.error("left over")) }
 
         await service.enqueue(makeRequest(prompt: "second"))
         await signal.wait(untilRuns: 2)
@@ -198,7 +198,7 @@ struct QueueLivenessTests {
     /// known gap rather than a test that implies coverage it does not have.
     @Test("Back-to-back requests both run")
     func backToBackRequestsBothRun() async throws {
-        await MainActor.run { GenerationState.shared.state = .ready(nil) }
+        await MainActor.run { GenerationState.shared.report(.ready(nil)) }
         let signal = RunSignal()
         let service = makeService(signal: signal)
 
@@ -214,7 +214,7 @@ struct QueueLivenessTests {
 
     @Test("A successful drain leaves the UI ready")
     func drainRestoresReady() async throws {
-        await MainActor.run { GenerationState.shared.state = .error("an earlier failure") }
+        await MainActor.run { GenerationState.shared.report(.error("an earlier failure")) }
         let signal = RunSignal()
         let service = makeService(signal: signal)
 

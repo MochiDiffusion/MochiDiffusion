@@ -299,9 +299,10 @@ actor GenerationService {
             } catch GenerationError.refused(let reason) {
                 // Reported through `.ready` rather than `.error`: the call
                 // succeeded and the service declined, so this is news rather than
-                // a malfunction (D5). Both render the same banner today, so the
-                // difference is the register the message is written in and the
-                // state the queue is left in, not the presentation.
+                // a malfunction (D5). The difference is the register the message
+                // is written in and the state the queue is left in, not the
+                // presentation — a request that produced no image is reported
+                // either way.
                 logger.info("\(request.displayName) declined the prompt: \(reason)")
                 await updateStatus(.ready(reason))
             } catch GenerationError.authenticationFailed {
@@ -397,7 +398,7 @@ actor GenerationService {
 
     private func updateGenerationState(_ status: GenerationState.Status) async {
         await MainActor.run {
-            GenerationState.shared.state = status
+            GenerationState.shared.report(status)
         }
     }
 
@@ -439,7 +440,7 @@ actor GenerationService {
         _ progress: GenerationState.Progress
     ) async {
         await MainActor.run {
-            GenerationState.shared.state = .running(progress)
+            GenerationState.shared.report(.running(progress))
         }
     }
 

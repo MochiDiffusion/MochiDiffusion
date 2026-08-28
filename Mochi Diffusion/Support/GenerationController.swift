@@ -353,6 +353,12 @@ final class GenerationController {
 
     func generate() async {
         guard let request = buildGenerationRequest() else { return }
+        // Asking again is a new attempt, so it forgets what was dismissed during
+        // the last one. The boundary is here rather than at the start of a drain
+        // because the folder check below fails *before* anything is enqueued: with
+        // no drain to reset it, dismissing this error once would suppress it for
+        // every later click, and Generate would go silent with nothing queued.
+        GenerationState.shared.noteBatchStarted()
         // Both engines write through ImageRepository, so an unwritable images
         // folder should surface before the job is queued rather than after it runs.
         do {

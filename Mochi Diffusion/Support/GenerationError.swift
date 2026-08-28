@@ -33,6 +33,9 @@ nonisolated enum GenerationError: Error, Equatable {
     ///
     /// An `Error` because it ends the request, but not one the user should see as
     /// a failure: the call succeeded and the service answered. The queue reports
-    /// it through `.ready(message)` rather than the red `.error` banner.
+    /// it through `.ready(message)` rather than `.error`, which changes the
+    /// register the message is written in and the state the queue is left in —
+    /// not whether the user is told. No image was made either way, so it raises
+    /// the same alert.
     case refused(String)
 }

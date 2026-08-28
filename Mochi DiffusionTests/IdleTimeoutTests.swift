@@ -247,7 +247,7 @@ extension QueueLivenessTests {
 
     @Test("A runtime that goes quiet is given up on and reported")
     func stalledRuntimeExpires() async throws {
-        await MainActor.run { GenerationState.shared.state = .ready(nil) }
+        await MainActor.run { GenerationState.shared.report(.ready(nil)) }
         let started = RunSignal()
         let service = makeTimedService {
             StallingRuntime(started: started, timeout: .milliseconds(300))
@@ -273,7 +273,7 @@ extension QueueLivenessTests {
     /// reached by a different route.
     @Test("A request enqueued after an expiry still runs")
     func drainSurvivesAnExpiry() async throws {
-        await MainActor.run { GenerationState.shared.state = .ready(nil) }
+        await MainActor.run { GenerationState.shared.report(.ready(nil)) }
         let started = RunSignal()
         let service = makeTimedService {
             StallingRuntime(started: started, timeout: .milliseconds(300))
@@ -297,7 +297,7 @@ extension QueueLivenessTests {
     /// wall-clock budget would fail this; an idle bound must not.
     @Test("A runtime reporting steadily is not given up on")
     func heartbeatingRuntimeSurvives() async throws {
-        await MainActor.run { GenerationState.shared.state = .ready(nil) }
+        await MainActor.run { GenerationState.shared.report(.ready(nil)) }
         let started = RunSignal()
         let service = makeTimedService {
             HeartbeatRuntime(
