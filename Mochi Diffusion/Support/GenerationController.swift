@@ -57,8 +57,8 @@ final class GenerationController {
         }
     }
 
-    /// Every registered engine, for the picker. Unconfigured engines and engines
-    /// with no models are included on purpose (§8).
+    /// Every registered engine, including unconfigured ones and ones with no
+    /// models. The picker filters; Settings lists all of them.
     var engines: [AnyGenerationEngine] {
         engineRegistry.allEngines
     }
@@ -122,8 +122,8 @@ final class GenerationController {
     /// Switches engine, restoring the model that engine was last using.
     ///
     /// An engine with no models leaves the selection empty rather than borrowing
-    /// another engine's model: silently generating with a model from an engine the
-    /// user did not pick is worse than an empty picker that says why (§8).
+    /// another engine's model, so nothing generates with a model the user did not
+    /// pick.
     func selectEngine(_ engine: EngineID) {
         guard engine != engineSettings.selectedEngine else { return }
         engineSettings.selectedEngine = engine
@@ -217,90 +217,78 @@ final class GenerationController {
         loadGeneration += 1
         let generation = loadGeneration
         logger.info("Started loading model directory at: \"\(self.configStore.modelDir)\"")
-        do {
-            let modelDirectoryURL = ModelRepository.modelDirectoryURL(
-                fromPath: configStore.modelDir
-            )
-            let controlNetDirectoryURL = ModelRepository.controlNetDirectoryURL(
-                fromPath: configStore.controlNetDir)
+        let modelDirectoryURL = ModelRepository.modelDirectoryURL(
+            fromPath: configStore.modelDir
+        )
+        let controlNetDirectoryURL = ModelRepository.controlNetDirectoryURL(
+            fromPath: configStore.controlNetDir)
 
-            let settings = EngineSettings(
-                modelDirectory: modelDirectoryURL,
-                controlNetDirectory: controlNetDirectoryURL
-            )
-            // One aggregate pass: availability and discovery gathered together, so
-            // this cannot pair one engine's availability with another pass's models.
-            let refresh = await engineRegistry.refresh(settings: settings)
+        let settings = EngineSettings(
+            modelDirectory: modelDirectoryURL,
+            controlNetDirectory: controlNetDirectoryURL
+        )
+        // One aggregate pass: availability and discovery gathered together, so
+        // this cannot pair one engine's availability with another pass's models.
+        let refresh = await engineRegistry.refresh(settings: settings)
 
-            // The two guards that make a refresh abandonable. `loadModels` is
-            // started by the initial load, two folder monitors and two debounced
-            // settings paths, and `@MainActor` serialises the *mutations* without
-            // preventing reentrancy across the await above. Without the epoch, a
-            // pass for the previous models folder could finish after a newer pass
-            // and overwrite its models, availability and selection.
-            guard generation == loadGeneration else {
-                logger.info("Discarding a superseded model load")
-                return
-            }
-            guard !isShutDown else { return }
-
-            engineAvailability = refresh.availability
-            let discoveries = refresh.discoveries
-            let discoveredModels = refresh.models
-            // Assigned before the check below, so a pass that finds nothing empties
-            // the picker instead of leaving the previous pass's models on screen.
-            self.models = discoveredModels
-            discoveryMessage = Self.discoveryMessage(
-                failures: discoveries.failures,
-                engines: engines,
-                foundModels: !discoveredModels.isEmpty,
-                modelDir: configStore.modelDir
-            )
-            guard !discoveredModels.isEmpty else {
-                currentModelId = nil
-                return
-            }
-
-            // Two migrations, in order, both idempotent. The first recovers the
-            // engine for a pre-engine `Model` URL by matching what discovery just
-            // found; the second turns that single selection into an engine plus a
-            // per-engine model. A user upgrading across both arrives with the model
-            // they had selected still selected.
-            configStore.migrateSelectedModelIfNeeded(discovered: self.models.map(\.id))
-            engineSettings.migrateSelectedEngineIfNeeded(
-                from: configStore.selectedModel,
-                discovered: self.models.map(\.id)
-            )
-
-            logger.info("Found \(self.models.count) model(s)")
-            restoreSelection()
-        } catch {
-            // Nothing above throws any more: a discovery problem is reported by
-            // `discoveryMessage`, and per-engine failures never propagate out of
-            // the registry. Kept so an unexpected throw empties the selection
-            // rather than leaving a model that may no longer be there.
-            logger.error("Loading models failed unexpectedly: \(error)")
-            currentModelId = nil
+        // The two guards that make a refresh abandonable. `loadModels` is
+        // started by the initial load, two folder monitors and two debounced
+        // settings paths, and `@MainActor` serialises the *mutations* without
+        // preventing reentrancy across the await above. Without the epoch, a
+        // pass for the previous models folder could finish after a newer pass
+        // and overwrite its models, availability and selection.
+        guard generation == loadGeneration else {
+            logger.info("Discarding a superseded model load")
+            return
         }
+        guard !isShutDown else { return }
+
+        engineAvailability = refresh.availability
+        let discoveries = refresh.discoveries
+        let discoveredModels = refresh.models
+        // Assigned before the check below, so a pass that finds nothing empties
+        // the picker instead of leaving the previous pass's models on screen.
+        self.models = discoveredModels
+        discoveryMessage = Self.discoveryMessage(
+            failures: discoveries.failures,
+            engines: engines,
+            foundModels: !discoveredModels.isEmpty,
+            modelDir: configStore.modelDir
+        )
+        guard !discoveredModels.isEmpty else {
+            currentModelId = nil
+            return
+        }
+
+        // Two migrations, in order, both idempotent. The first recovers the
+        // engine for a pre-engine `Model` URL by matching what discovery just
+        // found; the second turns that single selection into an engine plus a
+        // per-engine model. A user upgrading across both arrives with the model
+        // they had selected still selected.
+        configStore.migrateSelectedModelIfNeeded(discovered: self.models.map(\.id))
+        engineSettings.migrateSelectedEngineIfNeeded(
+            from: configStore.selectedModel,
+            discovered: self.models.map(\.id)
+        )
+
+        logger.info("Found \(self.models.count) model(s)")
+        restoreSelection()
     }
 
     /// What to tell the user about the discovery pass, or `nil` when there is
     /// nothing to say.
     ///
-    /// Owned by the controller rather than pushed into `GenerationState`, which is
-    /// the fix for §15's open item. Discovery and generation are different
-    /// subjects, and routing the first through the second meant a discovery
-    /// problem and a generation error shared one banner and overwrote each other.
+    /// Owned by the controller rather than pushed into `GenerationState`: discovery
+    /// and generation are different subjects, and sharing one banner means they
+    /// overwrite each other.
     ///
-    /// Reported **per engine**, which is what makes a hosted engine safe to ship.
-    /// The old message fired only when the *combined* model list was empty, so an
-    /// engine that always has a model — any hosted one — silenced it permanently
-    /// and a broken models folder became invisible.
+    /// Reported per engine. A message that fired only when the combined model list
+    /// was empty would be silenced permanently by any hosted engine, since one
+    /// always has a model, hiding a broken models folder.
     ///
-    /// Availability is deliberately not reported here. "Add an API key" is not a
-    /// problem with this pass, it is a standing fact about an engine, and the
-    /// picker already says it next to the engine's name. A banner repeating it on
-    /// every launch would be noise.
+    /// Availability is not reported here: "Add an API key" is a standing fact about
+    /// an engine rather than a problem with this pass, and the picker already says it
+    /// next to the engine's name.
     nonisolated static func discoveryMessage(
         failures: [(engine: EngineID, error: any Error)],
         engines: [AnyGenerationEngine],
@@ -549,11 +537,9 @@ final class GenerationController {
     /// Selects a model by display name, which is all a pre-engine image recorded.
     ///
     /// Prefers the engine already selected, so a name two engines both offer does
-    /// not move the user off the engine they are working in. Failing that, a
-    /// single unambiguous match elsewhere is taken — refusing would leave the
-    /// menu command appearing to do nothing, which is worse than switching. If
-    /// several engines offer the name, the selection is left alone rather than
-    /// guessed at.
+    /// not move the user off the engine they are working in. Failing that, a single
+    /// unambiguous match elsewhere is taken. If several engines offer the name, the
+    /// selection is left alone.
     func setModel(_ modelName: String) {
         let matches = models.filter { $0.name == modelName }
         guard !matches.isEmpty else { return }

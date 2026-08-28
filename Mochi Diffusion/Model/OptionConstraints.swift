@@ -193,15 +193,13 @@ nonisolated enum SizeConstraint: Sendable, Equatable {
 /// Rules that constrain a size's dimensions *together*, which per-dimension
 /// bounds cannot express.
 ///
-/// The two local engines need none of these: a Core ML model's size is pinned,
-/// and Iris takes any multiple of 16 within its range. A hosted model does — the
-/// OpenAI image API accepts an arbitrary `WIDTHxHEIGHT` on a 16px grid but also
-/// caps how elongated it may be and how many pixels it may total (§13.2, D1 of
-/// `Multi-Engine-Design.md`).
+/// The local engines need none of these: a Core ML model's size is pinned, and Iris
+/// takes any multiple of 16 within its range. A hosted model does — the OpenAI image
+/// API accepts an arbitrary `WIDTHxHEIGHT` on a 16px grid, but also caps how
+/// elongated it may be and how many pixels it may total.
 ///
-/// This is why the size vocabulary grew limits rather than an `aspectRatios`
-/// case: the API takes pixels, not ratios. Only the *legality* of a pair is
-/// jointly constrained.
+/// Limits rather than an `aspectRatios` case, because the API takes pixels, not
+/// ratios: only the legality of a pair is jointly constrained.
 nonisolated struct SizeLimits: Sendable, Equatable {
     /// Largest permitted long-edge ÷ short-edge. `nil` for no cap.
     var maxAspectRatio: Double?
@@ -261,11 +259,10 @@ nonisolated struct SizeLimits: Sendable, Equatable {
 
     /// Brings an over-elongated size into the ratio cap by reducing its long edge.
     ///
-    /// Reducing the long edge is always sufficient, and never needs a fallback
-    /// that grows the short one: both edges are already inside `bounds`, and a
-    /// cap of at least 1 means `short × maxRatio >= short >= bounds.lowerBound`,
-    /// so the permitted long edge cannot fall below the floor. An earlier draft
-    /// had that fallback; it was unreachable.
+    /// Reducing the long edge is always sufficient, and never needs a fallback that
+    /// grows the short one: both edges are already inside `bounds`, and a cap of at
+    /// least 1 means `short × maxRatio >= short >= bounds.lowerBound`, so the
+    /// permitted long edge cannot fall below the floor.
     private static func applyingRatio(
         _ maxRatio: Double, width: Int, height: Int, bounds: ClosedRange<Int>, step: Int
     ) -> (Int, Int) {

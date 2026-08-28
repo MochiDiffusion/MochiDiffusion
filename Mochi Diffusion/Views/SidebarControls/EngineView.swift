@@ -7,16 +7,10 @@ import SwiftUI
 
 /// Picks the generation engine, which filters the model picker below it.
 ///
-/// Only engines that can actually be generated with are offered, plus whichever is
-/// selected. Listing every registered engine put unusable options on the surface a
-/// user looks at for every generation, and most people use one or two — Settings ▸
-/// Engines lists all of them, and that is where an engine is discovered and
-/// configured.
+/// Offers only engines that can be generated with, plus whichever is selected.
+/// Settings ▸ Engines lists every engine, and is where one is configured.
 ///
-/// When none is usable the picker holds a placeholder rather than going empty. It
-/// is plainly not an engine, so it can come and go without looking like something
-/// was taken away; a real engine disappearing is the thing that would be
-/// inexplicable.
+/// A placeholder holds the picker when none is usable, rather than going empty.
 struct EngineView: View {
     @Environment(GenerationController.self) private var controller: GenerationController
 
@@ -26,9 +20,8 @@ struct EngineView: View {
 
         Picker("", selection: engineSelection) {
             if controller.pickerEngines.isEmpty {
-                // Tagged `nil` so it is selected on its own: nothing is chosen in
-                // this state, and `restoreSelection` deliberately leaves it that
-                // way rather than picking an engine that cannot run.
+                // Tagged `nil`, which is what `restoreSelection` leaves the
+                // selection as when no engine can run.
                 Text(verbatim: Self.placeholderLabel).tag(EngineID?.none)
             }
             ForEach(controller.pickerEngines) { engine in
@@ -38,10 +31,9 @@ struct EngineView: View {
         .labelsHidden()
         .disabled(controller.pickerEngines.isEmpty)
 
-        // One caption line is held open whether or not there is a reason to show,
-        // so an engine that reports one does not push the model picker below it
-        // down. A hidden placeholder rather than an empty string, whose height
-        // SwiftUI does not promise.
+        // One caption line held open either way, so a reason appearing does not
+        // push the model picker down. A hidden placeholder rather than an empty
+        // string, whose height SwiftUI does not promise.
         ZStack(alignment: .topLeading) {
             Text(verbatim: "0")
                 .font(.caption)

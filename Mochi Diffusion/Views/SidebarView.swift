@@ -25,11 +25,10 @@ struct SidebarView: View {
                     ModelView()
                     Spacer().frame(height: 6)
                 }
-                // Whole sections a model may not support are gated here rather
-                // than inside each view, so the divider and spacing go with them
-                // instead of leaving a gap. Individual rows within a section are
-                // never gated: they stay in place and show a disabled field, so
-                // the controls below them do not move when the model changes.
+                // Whole sections are gated here rather than inside each view, so a
+                // hidden section takes its divider and spacing with it. Individual
+                // rows are never gated: they show a disabled field instead, so the
+                // controls below them do not move when the model changes.
                 if controller.currentConstraints.startingImage.isSupported {
                     Group {
                         StartingImageView()

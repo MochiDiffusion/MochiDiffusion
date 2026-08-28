@@ -8,10 +8,8 @@ import Foundation
 
 /// A model offered by the OpenAI image API.
 ///
-/// No `url`: `EngineModel` deliberately says nothing about where a model lives,
-/// which is what lets a hosted model exist at all. `name` doubles as the API's
-/// model identifier, and is also the `ModelID.key`, so an image's recorded
-/// `modelKey` names the model exactly.
+/// `name` doubles as the API's model identifier, and is also the `ModelID.key`, so
+/// an image's recorded `modelKey` names the model exactly.
 nonisolated struct OpenAIImageModel: EngineModel {
     let id: ModelID
     let name: String
@@ -28,16 +26,13 @@ nonisolated struct OpenAIImageModel: EngineModel {
 
 /// Image generation through the OpenAI API.
 ///
-/// The credential is taken at construction with **no default**, so the compiler
-/// requires production to pass the Keychain store and a test to pass its own. An
-/// earlier draft carried it on `EngineSettings`; that put it out of reach of the
-/// runtime, which needs it at generation time and is built by `makeRuntime()`
-/// without settings. The descriptor is the one place that can hand it to both
-/// `availability` and the runtime, so it is the one place that holds it.
+/// The credential store is taken at construction with no default, so every
+/// construction site has to choose one. It lives on the descriptor because that is
+/// the only place that can hand it to both `availability` and the runtime, which
+/// `makeRuntime()` builds without settings.
 ///
-/// The key never enters the payload. A payload rides in a `GenerationRequest`,
-/// which is queued, logged and inspected, and §13.1 keeps credentials out of all
-/// three. The runtime holds the store and reads the key when it runs.
+/// The key never enters the payload: a payload rides in a `GenerationRequest`, which
+/// is queued, logged and inspected. The runtime reads the key when it runs.
 nonisolated struct OpenAIImageEngine: GenerationEngineDescriptor {
     typealias Model = OpenAIImageModel
     typealias Payload = OpenAIGenerationPayload
@@ -70,15 +65,13 @@ nonisolated struct OpenAIImageEngine: GenerationEngineDescriptor {
         return .ready
     }
 
-    /// A hand-maintained list, per D9 of `Multi-Engine-Design.md`: `/v1/models`
-    /// returns everything the account can see and does not mark which models can
-    /// generate images, so it cannot drive a picker.
+    /// A hand-maintained list. `/v1/models` returns everything the account can see
+    /// and does not mark which models generate images, so it cannot drive a picker.
     ///
-    /// Deliberately one entry. Every model here needs its own verified
-    /// constraints, and shipping a second with guessed limits would be worse than
-    /// omitting it — a wrong `SizeConstraint` produces requests the service
-    /// rejects, or silently corrects sizes the user could have had. Add models by
-    /// reading the current documentation, not by pattern-matching this one.
+    /// One entry, because every model here needs its own verified constraints: a
+    /// wrong `SizeConstraint` produces requests the service rejects, or silently
+    /// corrects sizes the user could have had. Add models by reading the current
+    /// documentation, not by pattern-matching this one.
     ///
     /// Ignores the models folder entirely, so an unreadable local directory
     /// cannot make this engine look broken.
@@ -141,7 +134,7 @@ nonisolated struct OpenAIImageEngine: GenerationEngineDescriptor {
 // MARK: - The model list
 
 nonisolated extension OpenAIImageEngine {
-    /// Limits read from the image generation guide on 2026-08-27 (§13.2).
+    /// Limits read from the image generation guide on 2026-08-27.
     ///
     /// The per-dimension floor is derived rather than quoted: the guide gives a
     /// total-pixel minimum and a 3:1 ratio cap but no per-edge minimum, and the
@@ -168,10 +161,9 @@ nonisolated extension OpenAIImageEngine {
             startingImage: .unsupported,
             controlNet: .unsupported,
             quality: .oneOf([.auto, .low, .medium, .high]),
-            // Ours to choose, not the API's: D6 sends one request per image, so
-            // this bounds our own loop. Deliberately tighter than the local
-            // engines' 1...100 and with no room above it, because every image
-            // here is billed and a mistyped 500 should not be accepted.
+            // Ours to choose, not the API's: one request is sent per image, so this
+            // bounds our own loop. Tighter than the local engines' 1...100, with no
+            // room above it, because every image here is billed.
             numberOfImages: .range(1...10, step: 1),
             promptTokenLimit: nil
         ),

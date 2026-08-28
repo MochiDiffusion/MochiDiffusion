@@ -19,18 +19,14 @@ nonisolated struct GenerationRequest: Sendable, Identifiable {
     let id = UUID()
 
     let modelID: ModelID
-    /// The model's name, for the queue. A plain field rather than something
-    /// derived from `payload`, so the queue never has to know which engine
-    /// produced the request.
+    /// The model's name, for the queue.
     let displayName: String
     let metadataFields: Set<MetadataField>
 
     /// Engine-typed, produced by `GenerationEngineDescriptor.plan(draft:model:)`.
     ///
-    /// The one concession in this design: the queue is heterogeneous, so the
-    /// payload's type is erased and the owning generator downcasts it. A mismatch
-    /// is an internal invariant failure naming both ids, never a user-facing
-    /// configuration error. Neither the queue UI nor the gallery may look inside.
+    /// The queue is heterogeneous, so the type is erased here and the owning runtime
+    /// downcasts it. Neither the queue UI nor the gallery may look inside.
     let payload: any Sendable
 
     let prompt: String
@@ -41,10 +37,8 @@ nonisolated struct GenerationRequest: Sendable, Identifiable {
 
     let startingImageData: Data?
     let startingImageName: String?
-    /// Scaled guide images, alongside `startingImageData` rather than inside the
-    /// payload: the queue shows them as thumbnails and restores them to the
-    /// sidebar, and duplicating them in both places would be worse than one
-    /// field only one engine currently fills.
+    /// Scaled guide images. Here rather than in the payload because the queue shows
+    /// them as thumbnails and restores them to the sidebar.
     let controlNetImageData: [Data]
     let controlNetNames: [String]
     let controlNetImageNames: [String]

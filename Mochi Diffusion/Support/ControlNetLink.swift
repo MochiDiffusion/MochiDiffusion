@@ -7,32 +7,26 @@ import Foundation
 
 /// Keeps `<model>/controlnet` pointing at the configured ControlNet folder.
 ///
-/// Apple's `StableDiffusionPipeline(resourcesAt:controlNet:)` resolves bundles
-/// relative to the model directory, so a model that generates with ControlNet
-/// needs them reachable from inside its own folder. Mochi keeps one shared folder
-/// and links it in.
+/// `StableDiffusionPipeline(resourcesAt:controlNet:)` resolves bundles relative to
+/// the model directory, so a model generating with ControlNet needs them reachable
+/// from inside its own folder. Mochi keeps one shared folder and links it in.
 ///
-/// Called by the runtime for the one model it is about to load, rather than during
-/// discovery: linking every capable model on every folder-change event would mean
-/// writing to the user's models folder from a read path.
+/// Called by the runtime for the model it is about to load, so nothing writes to
+/// the user's models folder during discovery.
 nonisolated enum ControlNetLink {
     private static let componentName = "controlnet"
 
     /// Points `<modelURL>/controlnet` at `configured` if it does not already, and
-    /// returns the location ControlNet bundles will actually be loaded from.
+    /// returns the location ControlNet bundles will be loaded from.
     ///
-    /// The returned value belongs in the pipeline cache key. A key that omits it
-    /// cannot tell two folders holding same-named bundles apart, so a pipeline
-    /// loaded from the previous folder would be reused for as long as the app ran.
+    /// The returned value belongs in the pipeline cache key: without it, two
+    /// folders holding same-named bundles are indistinguishable and a pipeline
+    /// loaded from the previous folder would be reused for the life of the process.
     ///
     /// **A real directory is never replaced.** `ml-stable-diffusion` loads from
-    /// `<model>/controlnet` whether or not that is a link, so someone who does not
-    /// use Mochi's shared folder may keep their own bundles there. Replacing a
-    /// directory means deleting it and everything in it, so an existing directory
-    /// is treated as a deliberate override and left alone — its path is returned,
-    /// which is where the pipeline will read from.
-    ///
-    /// Only a symlink is ever removed, and only after being confirmed to be one.
+    /// `<model>/controlnet` whether or not it is a link, so a user may keep their
+    /// own bundles there; an existing directory is treated as a deliberate
+    /// override and its path returned. Only a confirmed symlink is ever removed.
     @discardableResult
     static func resolve(configured: URL, in modelURL: URL) -> String {
         let link = modelURL.appending(component: componentName)
@@ -40,10 +34,9 @@ nonisolated enum ControlNetLink {
         let destination = configured.path(percentEncoded: false)
         let fileManager = FileManager.default
 
-        // Deliberately `attributesOfItem`, which reports on the link itself rather
-        // than following it. `fileExists` follows, so a symlink to a missing
-        // folder reads as absent and a symlink to a real one is
-        // indistinguishable from a directory.
+        // `attributesOfItem` reports on the link itself; `fileExists` follows it,
+        // so a symlink to a missing folder would read as absent and one to a real
+        // folder would be indistinguishable from a directory.
         let existingType =
             (try? fileManager.attributesOfItem(atPath: linkPath))?[.type] as? FileAttributeType
 

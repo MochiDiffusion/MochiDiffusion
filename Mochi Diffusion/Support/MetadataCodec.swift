@@ -11,11 +11,12 @@ import Foundation
 /// imported image claims.
 ///
 /// Version 2 separates fields with newlines and escapes the separator inside
-/// values, so arbitrary prompts, filenames and future free-text fields survive
-/// a round trip. Version 1 — every image written before this type existed —
-/// joined fields with `"; "` and escaped nothing, so any value containing that
-/// sequence was silently truncated on import. Legacy captions are still read
-/// with version 1 rules; they are simply not repairable.
+/// values, so arbitrary prompts, filenames and future free-text fields survive a
+/// round trip.
+///
+/// Version 1 joined fields with `"; "` and escaped nothing, so any value containing
+/// that sequence was truncated on import. Such captions are still read with version
+/// 1 rules; they are not repairable.
 nonisolated enum MetadataCodec {
     /// Bumped only when the encoding rules change, never with the app version.
     /// The app version continues to travel in `Metadata.generator`, which gates
@@ -146,11 +147,9 @@ nonisolated enum MetadataCodec {
         return version
     }
 
-    /// Splits on the first colon without arithmetic that can run past the end
-    /// of the field. The previous implementation offset two characters past the
-    /// colon and trapped on a recognised key with a bare trailing colon — for
-    /// example a caption ending `"…; Model:"` — because the bounds check came
-    /// after the offset that violated them.
+    /// Splits on the first colon, without index arithmetic that can run past the
+    /// end of the field: a recognised key with a bare trailing colon — a caption
+    /// ending `"…; Model:"` — must parse rather than trap.
     private static func splitRawKeyAndValue(_ field: String) -> (key: String, value: String)? {
         guard let separatorIndex = field.firstIndex(of: ":") else { return nil }
         let key = String(field[field.startIndex..<separatorIndex])

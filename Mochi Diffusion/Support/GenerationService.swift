@@ -156,17 +156,12 @@ actor GenerationService {
 
     /// Drains the queue until it is empty.
     ///
-    /// Deliberately does not consult `GenerationState`. It used to return unless
-    /// the state was `.ready`, which stranded work permanently: nothing outside
-    /// this actor ever restores `.ready`, so once a failure left `.error` — an
-    /// unwritable images folder, say — every later request was appended to a queue
-    /// no drain would ever start. The guard could not serve its apparent purpose
-    /// either, since `startProcessingIfNeeded` already refuses to start a second
-    /// drain while one is running, and that is the only way the state can be
-    /// `.loading` or `.running` here. Queue readiness is not a UI status.
+    /// Must not gate on `GenerationState`: nothing outside this actor restores
+    /// `.ready`, so a failure that left `.error` would strand every later request in
+    /// a queue no drain would start. Queue readiness is not a UI status.
     ///
-    /// A stale `.error` heals on its own: the first thing a started request does is
-    /// report `.loading`.
+    /// A stale `.error` heals on its own, since the first thing a started request
+    /// does is report `.loading`.
     private func processQueue() async {
         defer { processingTask = nil }
 
@@ -224,8 +219,7 @@ actor GenerationService {
                 }
 
                 // One task drains the session's events in order, for the whole
-                // request. Previously each callback spawned its own task, so two
-                // progress updates had no defined order between them.
+                // request, so two progress updates cannot be applied out of order.
                 let forwarding = Task { [weak self] in
                     for await event in session.events {
                         await self?.apply(event, for: request.id)
@@ -236,8 +230,8 @@ actor GenerationService {
                 // await. The outcome is held and rethrown afterwards so the
                 // existing per-error handling below still sees it.
                 // Started here rather than at enqueue: the clock bounds the gap
-                // between signs of life *while running*, and on a serial queue a
-                // hosted request can sit behind a long local one for minutes.
+                // between signs of life while running, and on a serial queue a
+                // request can sit behind a long one for minutes.
                 // Starting it earlier would expire a whole queue at once.
                 session.noteActivity()
                 let watchdog = runtime.idleTimeout(for: request).map {

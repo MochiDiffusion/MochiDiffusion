@@ -7,14 +7,8 @@ import Foundation
 
 /// The network, narrowed to what a streaming hosted engine needs.
 ///
-/// Lines rather than bytes, because a server-sent-event body is line-oriented and
-/// a fake that yields canned lines is far easier to write — and to read — than one
-/// yielding bytes. `URLSession.AsyncBytes` already offers `.lines`, so the real
-/// implementation loses nothing.
-///
-/// A protocol so the runtime is testable without a network. Nothing in the test
-/// suite may make a request: a suite that talks to a paid service is one nobody
-/// can run offline, and one that occasionally bills.
+/// Lines rather than bytes, because a server-sent-event body is line-oriented.
+/// A protocol so a runtime can be exercised without making a request.
 nonisolated protocol HTTPSession: Sendable {
     func lines(
         for request: URLRequest

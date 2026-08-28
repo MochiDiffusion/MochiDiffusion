@@ -121,8 +121,8 @@ nonisolated struct CoreMLStableDiffusionEngine: GenerationEngineDescriptor {
     /// orientation, which is how converted sets are named in practice —
     /// `foo_512x768` beside `foo_768x512`.
     ///
-    /// A naming heuristic, deliberately kept inside the engine: how one engine's
-    /// model files are named is not something the sidebar should know.
+    /// A naming heuristic, kept inside the engine: how one engine's model files are
+    /// named is not something the sidebar should know.
     func model(forSize size: CGSize, among candidates: [SDModel], current: SDModel) -> SDModel? {
         func orientation(width: Double, height: Double) -> Int {
             if width > height { return 1 }

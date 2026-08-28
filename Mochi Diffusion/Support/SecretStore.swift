@@ -9,16 +9,12 @@ import os
 
 /// Where an engine's credential lives.
 ///
-/// A protocol rather than a concrete Keychain type for one reason that matters:
-/// the real store writes to the user's login keychain, and a test suite must
-/// never do that. Production injects ``KeychainSecretStore``; tests inject their
-/// own.
+/// A protocol because the real store writes to the user's login keychain, which
+/// nothing but the app may do.
 ///
-/// The split between ``hasSecret(for:)`` and ``secret(for:)`` is the point of the
-/// design, not convenience. `availability` runs on every discovery pass, so it
-/// must be able to answer "is a key configured?" without fetching the secret —
-/// reading one can prompt, and a credential fetch has no business on the
-/// discovery path.
+/// `hasSecret(for:)` and `secret(for:)` are separate deliberately: `availability`
+/// runs on every discovery pass and must answer "is a key configured?" without
+/// fetching the secret, since reading one can prompt.
 nonisolated protocol SecretStore: Sendable {
     /// Whether a secret exists, without reading it.
     func hasSecret(for account: String) -> Bool
@@ -28,12 +24,10 @@ nonisolated protocol SecretStore: Sendable {
     func setSecret(_ secret: String?, for account: String) throws
 }
 
-/// A store with nothing in it that cannot be written to.
+/// A store with nothing in it that cannot be written to: an engine whose key has
+/// never been entered.
 ///
-/// Not a default anywhere — an engine that needs a credential takes one with no
-/// default, so the compiler requires production to pass the Keychain store and a
-/// test to pass its own. This exists for the case a test wants to describe
-/// explicitly: an engine whose key has never been entered.
+/// Never a default parameter, so every construction site has to choose a store.
 nonisolated struct NoSecretStore: SecretStore {
     func hasSecret(for account: String) -> Bool { false }
     func secret(for account: String) -> String? { nil }
@@ -50,9 +44,8 @@ nonisolated enum SecretStoreError: Error, Equatable {
 
 /// Generic-password items in the user's login keychain, one per engine.
 nonisolated struct KeychainSecretStore: SecretStore {
-    /// Fixed rather than derived from the bundle identifier, so a debug build and
-    /// a release build read the same item and a rename does not orphan a key the
-    /// user already entered.
+    /// Fixed rather than derived from the bundle identifier, so debug and release
+    /// builds read the same item and a rename cannot orphan a stored key.
     static let defaultService = "MochiDiffusion.EngineSecrets"
 
     private let service: String
@@ -62,13 +55,8 @@ nonisolated struct KeychainSecretStore: SecretStore {
         self.service = service
     }
 
-    /// Asks only whether the item exists: no return keys in the query and a `nil`
-    /// result pointer, so the Keychain hands back a status and nothing else.
-    ///
-    /// Verified against the framework rather than assumed — `errSecItemNotFound`
-    /// when absent, `errSecSuccess` when present, no data either way. Preferable
-    /// to requesting attributes with `kSecReturnData: false`, which returns a
-    /// dictionary to discard.
+    /// Asks only whether the item exists: no return keys and a `nil` result
+    /// pointer, so the Keychain hands back a status and no data.
     func hasSecret(for account: String) -> Bool {
         var query = baseQuery(for: account)
         query[kSecMatchLimit as String] = kSecMatchLimitOne

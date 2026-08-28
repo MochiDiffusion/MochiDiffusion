@@ -12,22 +12,20 @@ import Foundation
 /// The engine is not recoverable from the URL, so it has to be recovered some
 /// other way.
 ///
-/// It is recovered by matching against the models **discovery actually found**,
-/// rather than by re-running recognition. Calling the model initialisers directly
-/// would tie the outcome to live recognition rules: relaxing Klein's required-file
-/// list would silently change which engine a legacy URL migrated to, and since
-/// users upgrade at different times, two identical preferences would migrate
-/// differently depending on which version each user landed on. Matching discovered
-/// models means the migration agrees with the list the user is about to see.
+/// It is recovered by matching against the models discovery actually found, not
+/// by re-running recognition. Calling the model initialisers would tie the outcome
+/// to live recognition rules, so relaxing them later would change which engine a
+/// legacy URL migrates to — and users upgrade at different times, so identical
+/// preferences would migrate differently.
 ///
-/// Deciding and persisting are separate so the decision can be tested as a pure
-/// function. `ConfigStore.migrateSelectedModelIfNeeded(discovered:)` applies it.
+/// Deciding and persisting are separate, so the decision is a pure function.
+/// `ConfigStore.migrateSelectedModelIfNeeded(discovered:)` applies it.
 ///
 /// Delete this type once the migration window closes.
 nonisolated enum PreferenceMigration {
     /// Migration never fails destructively. Worst case the selection is left
-    /// unset and the app picks the first model — exactly what it already does for
-    /// a selection that no longer resolves.
+    /// unset and the app picks the first model, as it does for any selection that
+    /// no longer resolves.
     enum Outcome: Equatable, Sendable {
         /// An engine-qualified selection is already present.
         case alreadyMigrated
@@ -40,15 +38,11 @@ nonisolated enum PreferenceMigration {
 
     /// Engines that could have produced a legacy selection, most-preferred first.
     ///
-    /// This ordering is the only frozen thing here, and it reproduces the sniff
-    /// order `ModelRepository.load` used when the legacy format was written —
-    /// Klein first, then Core ML — because that order is what decided which kind
-    /// of model the user was actually looking at.
-    ///
-    /// Engines absent from this list are ignored as candidates, so an engine added
-    /// in a later phase can never claim an old selection just because it happens
-    /// to expose a model with the same key. That is what makes the outcome stable
-    /// no matter when a given user upgrades.
+    /// Frozen: it reproduces the sniff order in use when the legacy format was
+    /// written — Klein first, then Core ML — which is what decided the kind of
+    /// model the user was looking at. An engine absent from this list is never a
+    /// candidate, so a newly added one cannot claim an old selection merely by
+    /// exposing a model with the same key.
     static let legacyEnginePreference: [EngineID] = [.iris, .coreMLStableDiffusion]
 
     /// Decides what the engine-qualified selection should become.
@@ -57,9 +51,9 @@ nonisolated enum PreferenceMigration {
     ///   - legacyURL: the old `Model` preference, if any.
     ///   - existing: the current engine-qualified selection, if any. Its presence
     ///     is what makes this idempotent.
-    ///   - discovered: the ids of every model discovery just found. The legacy URL
-    ///     is absolute and may be spelled differently from the models root
-    ///     configured now, which is why only its last component is used.
+    ///   - discovered: the ids of every model discovery just found. Only the legacy
+    ///     URL's last component is compared, since it is absolute and may be spelled
+    ///     differently from the models root configured now.
     static func selectedModel(
         legacyURL: URL?,
         existing: ModelID?,

@@ -6,17 +6,11 @@
 import Foundation
 
 /// Failures in the generation pipeline that are not specific to one engine.
-///
-/// Previously nested in `SDImageGenerator` while being thrown and caught by the
-/// queue, the controller and model discovery — none of which are Core ML. Lifted
-/// out so a hosted engine does not have to reach into a local engine's namespace
-/// to report that the images folder is unwritable.
 nonisolated enum GenerationError: Error, Equatable {
     case imageDirectoryNoAccess
     /// The runtime went quiet for longer than its `idleTimeout` and the queue
-    /// stopped waiting. Distinct from cancellation, which is the user's doing,
-    /// and reported honestly: a remote service may still finish and bill for work
-    /// we stopped waiting for.
+    /// stopped waiting. Distinct from cancellation, which is the user's doing. A
+    /// remote service may still finish, and bill, after this.
     case requestExpired
     case modelDirectoryNoAccess
     case modelSubDirectoriesNoAccess
@@ -37,10 +31,8 @@ nonisolated enum GenerationError: Error, Equatable {
     case malformedResponse
     /// The service declined to make the image on content-policy grounds.
     ///
-    /// An `Error` because it ends the request, but **not** an error the user sees
-    /// as one: the call succeeded and the service told us something. The queue
-    /// reports it through `.ready(message)`, the same channel as "Couldn't load
-    /// <model>", rather than the red banner an `.error` produces. See D5 of
-    /// `Multi-Engine-Design.md`.
+    /// An `Error` because it ends the request, but not one the user should see as
+    /// a failure: the call succeeded and the service answered. The queue reports
+    /// it through `.ready(message)` rather than the red `.error` banner.
     case refused(String)
 }

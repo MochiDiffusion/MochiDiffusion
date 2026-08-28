@@ -91,6 +91,10 @@ struct PreviewOwnershipTests {
 /// ahead of it — so a request cancelled during that wait used to take its turn and
 /// run `iris_metal_init` and `iris_load_dir` before reaching the first cancellation
 /// check, holding the process-global lease against work that was still wanted.
+///
+/// `.serialized` because both tests take `IrisSingleFlight.shared`, and one asserts
+/// the lease is free afterwards. Run in parallel they race against each other.
+@Suite(.serialized)
 struct IrisCancelledWaiterTests {
     private func makeRequest() -> GenerationRequest {
         GenerationRequest(

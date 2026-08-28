@@ -15,9 +15,9 @@ import SwiftUI
 /// `access`/`withMutation` boilerplate `ConfigStore` needs — only because
 /// `@AppStorage` is `@ObservationIgnored` — is not needed here.
 ///
-/// `ConfigStore` keeps everything genuinely global. That includes `ModelDir` and
-/// `ControlNetDir`: one shared models folder is a settled decision (§7 of
-/// `Multi-Engine-Design.md`), so there is no per-engine path to store.
+/// `ConfigStore` keeps everything genuinely global, including `ModelDir` and
+/// `ControlNetDir`: the engines share one models folder, so there is no per-engine
+/// path to store.
 @MainActor
 @Observable final class EngineSettingsStore {
     nonisolated enum Key {
@@ -100,10 +100,10 @@ import SwiftUI
         }
     }
 
-    /// Applies the Phase 2 → Phase 5 selection migration, if it has not run.
+    /// Applies the selection migration, if it has not run.
     ///
-    /// Written through the properties above rather than straight to
-    /// `UserDefaults`, so observers see the change.
+    /// Written through the properties above rather than straight to `UserDefaults`,
+    /// so observers see the change.
     @discardableResult
     func migrateSelectedEngineIfNeeded(from previousSelection: ModelID?, discovered: [ModelID])
         -> EngineSelectionMigration.Outcome
@@ -131,60 +131,48 @@ import SwiftUI
     }
 }
 
-/// One-time migration of the Phase 2 selection into the Phase 5 layout.
+/// One-time migration of a single `SelectedModel` into `SelectedEngine` plus one
+/// key per engine, so switching engines and back does not lose the model in use.
 ///
-/// Phase 2 stored one engine-qualified `SelectedModel`, because there was no
-/// engine picker and therefore only ever one selection. Phase 5 remembers a model
-/// per engine, so switching engines and back does not lose the model you were
-/// using, which needs `SelectedEngine` plus one key per engine.
+/// A second step rather than part of `PreferenceMigration`: a user coming from
+/// before engines existed runs both in order, the legacy `Model` URL becoming a
+/// `SelectedModel` and that becoming an engine plus a per-engine key. Folding them
+/// together would repeat the discovery-matching only the first step needs.
 ///
-/// Deliberately a second step rather than an extension of `PreferenceMigration`.
-/// A user coming from before engines existed runs both, in order: the legacy
-/// `Model` URL becomes a `SelectedModel` by matching what discovery found, and
-/// that `SelectedModel` then becomes an engine plus a per-engine key. Folding the
-/// two together would mean repeating the discovery-matching that only the first
-/// step needs.
-///
-/// `SelectedModel` is therefore left in place and still written by
-/// `PreferenceMigration` — it is a migration waypoint now, not the live value.
+/// `SelectedModel` is left in place and still written by `PreferenceMigration`; it
+/// is a waypoint now, not the live value.
 ///
 /// Delete both once the migration window closes.
 nonisolated enum EngineSelectionMigration {
     enum Outcome: Equatable, Sendable {
-        /// The Phase 2 selection is already recorded against its own engine.
+        /// The selection is already recorded against its own engine.
         case alreadyMigrated
-        /// No Phase 2 selection to migrate.
+        /// Nothing to migrate.
         case nothingToMigrate
-        /// The Phase 2 selection names nothing discovery found, so there is no
-        /// engine worth recording. Retried on the next pass, since the models
-        /// folder may simply have been unavailable.
+        /// The selection names nothing discovery found, so there is no engine worth
+        /// recording. Retried on the next pass, since the models folder may have
+        /// been temporarily unavailable.
         case unresolvable
         case migrated(ModelID)
     }
 
     /// Decides what the engine-scoped selection should become.
     ///
-    /// Migrates only a selection that resolves to a model discovery actually
-    /// found. The Phase 2 value is already engine-qualified, so unlike the legacy
-    /// URL there is nothing to *resolve* — but writing it through unchecked would
-    /// set `SelectedEngine` to an engine with no models, and the controller
-    /// deliberately keeps a chosen engine even when it is empty (§8). An upgrading
-    /// user would land on an empty sidebar with no way to see why.
+    /// Migrates only a selection that resolves to a model discovery actually found.
+    /// The value is already engine-qualified, so there is nothing to resolve — but
+    /// writing it through unchecked would set `SelectedEngine` to an engine with no
+    /// models, and the controller keeps a chosen engine even when it is empty. An
+    /// upgrading user would land on an empty sidebar with no way to see why.
     ///
-    /// §8 is about engines the user *chose*, through a picker that only offers
-    /// real ones. A stale waypoint is not a choice, so leaving `SelectedEngine`
-    /// unset — and letting the controller pick the first model as it always has —
-    /// is the right outcome.
+    /// That rule is about engines the user chose through the picker. A stale
+    /// waypoint is not a choice, so leaving `SelectedEngine` unset and letting the
+    /// controller pick the first model is the right outcome.
     ///
-    /// - Parameter alreadyInItsSlot: whether the Phase 2 selection is already
-    ///   recorded against its own engine — which is what "this has run" means.
-    ///
-    ///   It used to mean "some engine is selected", and that signal is not the
-    ///   migration's to read: `restoreSelection` persists a fallback engine, so an
-    ///   unresolved legacy selection plus a ready hosted engine meant the fallback
-    ///   claimed the migration was done and the user's pre-engine model was never
-    ///   recovered. The migration deliberately retries across passes, and only its
-    ///   own result may end that.
+    /// - Parameter alreadyInItsSlot: whether the selection is already recorded
+    ///   against its own engine, which is what "this has run" means. Not "some
+    ///   engine is selected": `restoreSelection` persists a fallback engine, which
+    ///   would end a migration that had never started. Only the migration's own
+    ///   result may end its retries.
     static func selection(
         previousSelection: ModelID?,
         alreadyInItsSlot: Bool,

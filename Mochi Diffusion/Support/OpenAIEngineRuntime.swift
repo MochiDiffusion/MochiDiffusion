@@ -9,10 +9,9 @@ import UniformTypeIdentifiers
 
 /// Runs a generation against the OpenAI image API.
 ///
-/// Streams, and not only for previews. A non-streaming call produces no sign of
-/// life until it returns, which would turn ``idleTimeout`` into exactly the
-/// wall-clock budget D4 rejected. Partial images are what make an idle bound
-/// meaningful, so streaming is load-bearing rather than a nicety.
+/// Streams, and not only for previews: a non-streaming call gives no sign of life
+/// until it returns, which would make `idleTimeout` a wall-clock budget rather than
+/// an idle one. Partial images are the heartbeat that makes the bound meaningful.
 nonisolated final class OpenAIEngineRuntime: GenerationEngineRuntime {
     private static let endpoint = URL(string: "https://api.openai.com/v1/images/generations")!
     /// The most the API accepts. Requested only when previews are on.
@@ -35,16 +34,13 @@ nonisolated final class OpenAIEngineRuntime: GenerationEngineRuntime {
     /// silence means the stream has stopped even though a high-quality 3840x2160
     /// image can legitimately take minutes to finish.
     ///
-    /// With `partial_images: 0` the only event is the final one, so there is
-    /// nothing to reset an idle clock and the same number would quietly become a
-    /// *total* budget — expiring a slow-but-healthy generation and throwing away
-    /// the image it was about to return. So that case gets an explicitly generous
-    /// total budget instead, and is documented as being one.
+    /// With `partial_images: 0` the only event is the final one, so nothing resets
+    /// an idle clock and the same number would become a total budget, expiring a slow
+    /// but healthy generation. That case gets an explicitly generous total budget.
     ///
-    /// The alternative — always requesting partials purely as heartbeats and
-    /// discarding them — was rejected. It fetches full-size images for a user who
-    /// asked not to receive them, and it assumes streamed partials do not affect
-    /// billing, which is not something we have confirmed.
+    /// Requesting partials purely as heartbeats and discarding them would fetch
+    /// full-size images for a user who asked not to receive them, and assumes
+    /// streamed partials do not affect billing, which is unconfirmed.
     static let streamingIdleTimeout = Duration.seconds(60)
     static let nonStreamingTotalTimeout = Duration.seconds(300)
 
@@ -86,9 +82,9 @@ nonisolated final class OpenAIEngineRuntime: GenerationEngineRuntime {
         let inFlight = TaskHandle()
         generationSession.onCancel { inFlight.cancel() }
 
-        // One request per image, per D6. Cancelling after the second of five
-        // should cost two images rather than five, results reach the gallery as
-        // they arrive, and partial-image previews are per-request.
+        // One request per image: cancelling after the second of five costs two
+        // rather than five, results reach the gallery as they arrive, and
+        // partial-image previews are per-request.
         for index in 0..<request.numberOfImages {
             if generationSession.isCancelled { return }
 
@@ -208,11 +204,11 @@ nonisolated final class OpenAIEngineRuntime: GenerationEngineRuntime {
             "model": payload.apiModel,
             "prompt": request.prompt,
             "size": "\(Int(payload.size.width))x\(Int(payload.size.height))",
-            // One image per call, per D6.
+            // One image per call; the loop above handles the count.
             "n": 1,
-            // Always PNG. Lossless, and it is re-encoded anyway: Mochi embeds its
-            // own metadata, which the service's bytes cannot carry, so the user's
-            // chosen output type is applied on the way to disk (D7).
+            // Always PNG: lossless, and re-encoded anyway, since Mochi embeds its
+            // own metadata and applies the user's chosen output type on the way to
+            // disk.
             "output_format": "png",
             "stream": true,
             "partial_images": payload.wantsPreviews ? Self.maxPartialImages : 0,
@@ -336,12 +332,9 @@ nonisolated final class OpenAIEngineRuntime: GenerationEngineRuntime {
 
     /// Maps a failed response onto something the user can act on.
     ///
-    /// The status code carries most of it. A refusal is distinguished by the
-    /// error's own code, which is **not** verified against the live API — the
-    /// documentation read for §13.2 does not enumerate error codes. Treated as a
-    /// widening rather than a claim: an unrecognised 400 is reported as a service
-    /// failure with the message the API supplied, which is honest and actionable
-    /// either way.
+    /// The status code carries most of it. A refusal is distinguished by the error's
+    /// own code, which is not verified against the live API, so an unrecognised 400
+    /// is reported as a service failure carrying the message the API supplied.
     static func error(
         for response: HTTPURLResponse,
         lines: AsyncThrowingStream<String, any Error>

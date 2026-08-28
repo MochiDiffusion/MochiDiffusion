@@ -8,20 +8,15 @@ import Foundation
 /// Process-wide gate around the Iris C library, which allows one generation at a
 /// time whatever the queue above it does.
 ///
-/// **Making the runtime an actor does not achieve this.** Actors are reentrant at
-/// every suspension point, and `IrisEngineRuntime.run(request:session:onResult:)`
-/// suspends four times — twice on the embedding cache, once encoding image data,
-/// once delivering a result. A second call can enter during any of them and call
-/// `iris_clear_cancel()`, install its own callback route and load a second context
-/// while the first still owns one. Two runtime instances can overlap for the same
-/// reason: the C library's callback slots and cancel flag are per process, not per
-/// instance.
+/// The library's callback slots and cancel flag are per process, not per instance,
+/// so actor isolation on the runtime is not sufficient: actors are reentrant at
+/// every suspension point, and `IrisEngineRuntime.run` suspends several times. A
+/// second call entering during one of them would clear the cancel flag, install
+/// its own callback route, and load a second context while the first still holds
+/// one. Whoever holds the lease owns the library until they give it back.
 ///
-/// Whoever holds the lease owns the C library until they give it back, so the
-/// guarantee does not depend on how many requests the queue above chooses to run.
-///
-/// Deliberately not a lock: waiting on one would block a cooperative-pool thread
-/// for the length of another generation, where waiting for a lease suspends.
+/// An actor rather than a lock, so waiting suspends instead of blocking a
+/// cooperative-pool thread for the length of another generation.
 actor IrisSingleFlight {
     static let shared = IrisSingleFlight()
 

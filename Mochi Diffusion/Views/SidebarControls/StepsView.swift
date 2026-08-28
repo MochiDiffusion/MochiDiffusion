@@ -26,9 +26,8 @@ struct StepsView: View {
                 strictUpperBound: !steps.allowsValuesAboveBounds
             )
         } else if let pinned = steps.resolved(Int(configStore.steps)) {
-            // Shown disabled rather than hidden: a distilled model always
-            // takes four steps, and seeing that explains the behaviour better
-            // than the row disappearing does.
+            // Disabled rather than hidden, so a pinned value is visible: a
+            // distilled model always takes four steps.
             PinnedValueField(text: String(pinned))
         } else {
             UnsupportedValueField()

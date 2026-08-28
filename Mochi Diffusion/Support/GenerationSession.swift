@@ -8,19 +8,16 @@ import Foundation
 
 /// Progress reported while a request runs, other than its results.
 ///
-/// Every case here is lossy: a superseded progress step or preview frame has no
-/// value, so all three share one stream and one stale-delivery checkpoint.
+/// Every case is lossy — a superseded step or preview frame has no value — so all
+/// three share one stream and one stale-delivery checkpoint.
 ///
-/// Results are deliberately not among them. A result must never be dropped, it
-/// applies back-pressure — the caller writes each file before the engine produces
-/// the next image — and a failed write has to fail the generation, which needs a
-/// call that can throw back into the generation loop. Results are also emitted
-/// from the generation loop rather than from a C callback, so they cannot arrive
-/// late. See `GenerationEngineRuntime.run(request:session:onResult:)`.
+/// Results are not among them: a result must never be dropped, it applies
+/// back-pressure, and a failed write has to fail the generation. See
+/// `GenerationEngineRuntime.run(request:session:onResult:)`.
 nonisolated enum GenerationEvent: Sendable {
-    /// A phase label such as "Loading model…". Informational only: the terminal
-    /// `.ready` and `.error` states belong to whoever ran the session, so losing
-    /// one of these cannot strand the UI.
+    /// A phase label such as "Loading model…". Informational only — the terminal
+    /// `.ready` and `.error` states belong to whoever ran the session — so losing
+    /// one cannot strand the UI.
     case state(GenerationState.Status)
     case progress(GenerationState.Progress)
     /// `nil` clears the preview.
@@ -30,31 +27,23 @@ nonisolated enum GenerationEvent: Sendable {
 /// One queued request's cancellation flag and event route.
 ///
 /// Created by whoever runs the request, handed to the engine runtime, and closed
-/// when the request finishes. Its identity is the request's, so an event or a
-/// cancel can always be checked against the request it was meant for.
+/// when the request finishes. Its identity is the request's, so an event or a cancel
+/// can be checked against the request it was meant for.
 ///
-/// Lock-protected rather than an actor, for two reasons:
+/// Lock-protected rather than an actor, because it has to work from two places an
+/// actor cannot serve. The generation callbacks are synchronous — Core ML's progress
+/// handler and the Iris C step callbacks run on the thread holding the generation
+/// call, with nothing to await into — and cancelling must not queue behind
+/// generating, which an actor-isolated call would.
 ///
-/// - **The generation callbacks are synchronous.** Core ML's progress handler
-///   returns `Bool` to continue or stop, and the Iris C step callbacks return
-///   `Void`, both on the thread running generation. They must read cancellation
-///   and emit progress without awaiting, because there is nothing to await into:
-///   the generation call that invoked them holds the thread.
-/// - **Cancelling must not queue behind generating.** A runtime that runs a
-///   blocking `generateImages` on its own actor executor cannot accept a call
-///   until generation returns, so an actor-isolated `cancel` would compile and
-///   never arrive. Keeping the flag on a value the canceller already holds means
-///   cancelling never touches the runtime.
-///
-/// `@unchecked Sendable` is sound because every mutable field is guarded by this
-/// type's own lock.
+/// `@unchecked Sendable` is sound because every mutable field is guarded by the
+/// lock below.
 nonisolated final class GenerationSession: @unchecked Sendable {
     /// Why a session stopped early.
     ///
-    /// Both stop the work the same way — the runtime polls ``isCancelled`` — but
-    /// they are not the same outcome and the queue reports them differently. A
-    /// cancellation is what the user asked for; an expiry is a failure they did
-    /// not, and for a hosted service it may still be billed.
+    /// Both stop the work the same way — the runtime polls `isCancelled` — but the
+    /// queue reports them differently: a cancellation is what the user asked for, an
+    /// expiry is a failure they did not, and a hosted service may still bill for it.
     enum StopReason: Sendable, Equatable {
         case cancelled
         case expired
@@ -64,20 +53,18 @@ nonisolated final class GenerationSession: @unchecked Sendable {
 
     /// Progress, phase and preview events for this request.
     ///
-    /// Bounded: previews are full-size images, so an unbounded buffer in front of
-    /// a suspended consumer would grow without limit. The bound is generous
-    /// enough that nothing is dropped in practice, and every event is lossy if it
-    /// were.
+    /// Bounded, because previews are full-size images and an unbounded buffer in
+    /// front of a suspended consumer would grow without limit. Every event is lossy,
+    /// so dropping the oldest is safe.
     let events: AsyncStream<GenerationEvent>
 
     private let lock = NSLock()
     private var continuation: AsyncStream<GenerationEvent>.Continuation?
     private var stopReasonValue: StopReason?
     private var cancellationHandlers: [@Sendable () -> Void] = []
-    /// When this session last showed a sign of life. Read by the idle watchdog,
-    /// which is why it lives here rather than in the queue: events arrive on
-    /// whatever thread the engine is running on, and the queue cannot observe
-    /// them synchronously.
+    /// When this session last showed a sign of life. Lives here rather than in the
+    /// queue because events arrive on whatever thread the engine is running on, and
+    /// the watchdog reads it synchronously.
     private var lastActivity: ContinuousClock.Instant
 
     init(requestID: GenerationRequest.ID) {
@@ -116,9 +103,8 @@ nonisolated final class GenerationSession: @unchecked Sendable {
 
     /// Records a sign of life.
     ///
-    /// Called for every event, and by whoever delivers a result — results do not
-    /// travel as events (see ``GenerationEvent``), and a run that is producing
-    /// images one per minute is working, not stalled.
+    /// Called for every event, and by whoever delivers a result: results do not
+    /// travel as events, and a run producing one image a minute is working.
     func noteActivity() {
         lock.lock()
         lastActivity = ContinuousClock.now
@@ -169,15 +155,13 @@ nonisolated final class GenerationSession: @unchecked Sendable {
     /// Registers work to run the moment cancellation is requested, on the
     /// cancelling thread.
     ///
-    /// Polling `isCancelled` suffices for an engine whose loop asks between
-    /// steps, as Core ML's progress handler does. It does not for one that must be
-    /// interrupted from outside: Iris runs its loop inside a C call that stops
-    /// only when `iris_request_cancel()` sets the library's flag, and the runtime
-    /// cannot call it from inside that call.
+    /// Polling `isCancelled` is enough for a loop that asks between steps, as Core
+    /// ML's progress handler does, but not for one that must be interrupted from
+    /// outside: Iris runs inside a C call that stops only when
+    /// `iris_request_cancel()` sets the library's flag.
     ///
-    /// Runs immediately if the session has already stopped, so registration
-    /// cannot race past a stop that already happened. Expiry counts: a stalled
-    /// hosted request needs the same poke a cancelled one does.
+    /// Runs immediately if the session has already stopped, so registration cannot
+    /// race past it. Expiry counts, since a stalled request needs the same poke.
     func onCancel(_ handler: @escaping @Sendable () -> Void) {
         lock.lock()
         if stopReasonValue != nil {

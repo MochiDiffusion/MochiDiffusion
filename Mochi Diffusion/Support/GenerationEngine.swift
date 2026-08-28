@@ -9,9 +9,9 @@ import Foundation
 
 /// What a local engine needs to find its models.
 ///
-/// Both local engines share one models directory, which is why this is a single
-/// struct rather than per-engine settings. `controlNetDirectory` is meaningful
-/// only to Core ML Stable Diffusion; other engines are handed it and ignore it.
+/// One struct rather than per-engine settings, because the local engines share one
+/// models directory. `controlNetDirectory` is meaningful only to Core ML Stable
+/// Diffusion; other engines are handed it and ignore it.
 nonisolated struct EngineSettings: Sendable {
     var modelDirectory: URL
     var controlNetDirectory: URL
@@ -19,23 +19,19 @@ nonisolated struct EngineSettings: Sendable {
 
 /// One discovery pass, with the work that does not vary by engine done once.
 ///
-/// Every local engine scans the same models folder — a single shared `ModelDir` is
-/// a settled decision, not a transitional state (§7 of `Multi-Engine-Design.md`) —
-/// so enumerating it per engine meant one full `contentsOfDirectory` plus a
-/// symlink-resolving filter per engine, on every folder-change event. The
-/// enumeration is shared here instead.
+/// Every local engine scans the same models folder, so the enumeration is shared
+/// rather than repeated per engine on every folder-change event.
 ///
-/// Recognition is *not* shared, and cannot be: each engine decides what a
-/// directory is by its own rules. Sniffing therefore still costs one pass per
-/// engine over the same children. Only the enumeration is deduplicated.
+/// Recognition is not shared and cannot be: each engine decides what a directory
+/// is by its own rules, so sniffing still costs one pass per engine over the same
+/// children.
 nonisolated struct ModelDiscoveryContext: Sendable {
     let settings: EngineSettings
 
-    /// Deliberately a `Result` rather than an array: an unreadable models folder
-    /// must fail only the engines that looked at it. A hosted engine never calls
-    /// ``localModelDirectories()``, so a missing local folder cannot take its
-    /// models down with it — which is the failure isolation §5.5 is about, applied
-    /// one level lower.
+    /// A `Result` rather than an array, so an unreadable models folder fails only
+    /// the engines that looked at it. A hosted engine never calls
+    /// `localModelDirectories()`, so a missing local folder cannot take its models
+    /// down with it.
     private let localDirectories: Result<[URL], any Error>
 
     init(settings: EngineSettings, fileSystem: FileSystemStore = FileSystemStore()) {
@@ -45,20 +41,17 @@ nonisolated struct ModelDiscoveryContext: Sendable {
 
     /// The direct children of the models folder, filtered to directories.
     ///
-    /// Throws whatever enumeration threw, so an engine reports an unreadable
-    /// folder exactly as it did when it enumerated for itself.
+    /// Throws whatever enumeration threw.
     func localModelDirectories() throws -> [URL] {
         try localDirectories.get()
     }
 }
 
-/// Everything the sidebar currently holds, handed to an engine so it can decide
-/// what its own generation needs.
+/// Everything the sidebar holds, handed to an engine so it can decide what its own
+/// generation needs.
 ///
-/// `Sendable` because `CGImage` is: it is an immutable reference type, and the
-/// generation callbacks already hand one across actor boundaries. `plan` is
-/// synchronous and `nonisolated`, so it runs in the caller's isolation — the main
-/// actor — and produces a `Sendable` plan for the queue.
+/// `plan` is synchronous and `nonisolated`, so it runs in the caller's isolation —
+/// the main actor — and produces a `Sendable` plan for the queue.
 nonisolated struct GenerationDraft: Sendable {
     var prompt: String
     var negativePrompt: String
@@ -96,11 +89,8 @@ nonisolated struct ControlNetDraft: Sendable {
 /// recorded, plus its own payload.
 ///
 /// Generic over the payload so the compiler enforces that an engine's `plan`
-/// returns *that engine's* payload type. Erasing it here instead would let an
-/// engine return the wrong payload with no diagnostic, surfacing only when a
-/// runtime unwrapped it — by which point the queue has dequeued the request and
-/// published it as current. `erased()` widens it once, at the boundary where the
-/// heterogeneous queue needs it.
+/// returns that engine's payload type. `erased()` widens it once, at the boundary
+/// where the heterogeneous queue needs it.
 nonisolated struct GenerationPlan<Payload: Sendable>: Sendable {
     var payload: Payload
     /// The size that will actually be produced.
@@ -109,16 +99,12 @@ nonisolated struct GenerationPlan<Payload: Sendable>: Sendable {
     var controlNetImageData: [Data]
     var controlNetNames: [String]
     var controlNetImageNames: [String]
-    /// `nil` where the model does not use the option at all, which is what lets
-    /// the queue hide a row rather than print a number that had no effect.
+    /// `nil` where the model does not use the option at all, so the queue hides a
+    /// row rather than printing a number that had no effect. A hosted engine has no
+    /// concept of `stepCount` or `scheduler`, which is why those are optional too.
     ///
-    /// `stepCount` and `scheduler` are among them because a hosted engine has no
-    /// concept of either. They were non-optional through Phase 5, so an engine
-    /// without them had to coerce a value that `metadataFields` then kept off
-    /// screen — invisible rather than harmless, which is the shape of the bug
-    /// Phase 4 removed one layer up. A runtime that does use these reads the
-    /// resolved value from its own payload, as it already does for `strength` and
-    /// `guidanceScale`.
+    /// A runtime that does use one of these reads the resolved value from its own
+    /// payload.
     var stepCount: Int?
     var scheduler: Scheduler?
     var strength: Float?
@@ -156,10 +142,6 @@ nonisolated extension GenerationPlan {
 }
 
 /// Whether an engine can be used, and if not, why — in words a picker can show.
-///
-/// Carries a user-facing reason so an unconfigured engine can be listed with an
-/// explanation rather than hidden: a backend that only appears once it is already
-/// configured is one nobody discovers.
 nonisolated enum EngineAvailability: Sendable, Equatable {
     case ready
     /// Reachable, but the user has to do something first.
@@ -168,18 +150,16 @@ nonisolated enum EngineAvailability: Sendable, Equatable {
     case unreachable(String)
 }
 
-/// The stateful half of an engine: it runs one request at a time and owns
-/// whatever that costs — a loaded multi-gigabyte pipeline, a C context, a network
-/// session.
+/// The stateful half of an engine: it runs one request at a time and owns whatever
+/// that costs — a loaded multi-gigabyte pipeline, a C context, a network session.
 ///
-/// Deliberately has no `cancel` method. Cancellation lives on the
-/// `GenerationSession` the caller already holds, because a runtime that blocks
-/// its executor inside a synchronous generation call cannot accept one until that
-/// call returns — an actor-isolated `cancel` would compile and never arrive.
+/// Has no `cancel` method. Cancellation lives on the `GenerationSession` the caller
+/// already holds, because a runtime blocking its executor inside a synchronous
+/// generation call cannot accept an isolated call until that call returns.
 ///
-/// Results are an awaited throwing callback rather than an event, because the
-/// caller writes each image to disk before the engine produces the next one, and
-/// a failed write has to stop the generation.
+/// Results are an awaited throwing callback rather than an event: the caller writes
+/// each image to disk before the engine produces the next, and a failed write has
+/// to stop the generation.
 nonisolated protocol GenerationEngineRuntime: Sendable {
     /// Runs `request` to completion, or until `session` is cancelled.
     ///
@@ -195,34 +175,25 @@ nonisolated protocol GenerationEngineRuntime: Sendable {
     /// How long this runtime may go without emitting an event or a result before
     /// the queue gives up on it. `nil` — the default — means never.
     ///
-    /// A function of the request because the bound depends on what the request
-    /// asked for. A hosted runtime that requested streamed partial images has a
-    /// heartbeat and can be held to a tight *idle* bound; one that did not has no
-    /// intermediate events at all, so the same number would silently become a
-    /// *total* budget and kill a legitimately slow generation. Which it is has to
-    /// be decided per request, not per runtime.
+    /// A bound on the gap between signs of life, not on total duration: a large
+    /// generation may legitimately run for minutes, so any wall-clock budget loose
+    /// enough to allow one is too loose to catch a hang.
     ///
-    /// The value belongs to the runtime because it is a property of the
-    /// *transport*, not of the model, the engine, or anything a user should tune.
-    /// Enforcement belongs to the queue, which owns the request lifecycle and the
-    /// drain, and is therefore the only place that can guarantee an expiry
-    /// releases the drain exactly as a completion does.
+    /// Per request, because the bound depends on what the request asked for: a
+    /// hosted runtime streaming partial images has a heartbeat and can be held to a
+    /// tight idle bound, while one with no intermediate events at all would see the
+    /// same number become a total budget.
     ///
-    /// A bound on the *gap between* signs of life rather than on total duration:
-    /// a large, high-quality generation may legitimately run for minutes, so any
-    /// wall-clock budget loose enough to allow it is too loose to catch a hang.
-    ///
-    /// Local runtimes leave this `nil` deliberately. A wedged Core ML load is a
-    /// bug to fix, and any bound generous enough for a slow 9B Klein generation
-    /// would never fire.
+    /// The queue enforces it, since it owns the request lifecycle and can guarantee
+    /// an expiry releases the drain exactly as a completion does. Local runtimes
+    /// leave this `nil`.
     func idleTimeout(for request: GenerationRequest) -> Duration?
 
-    /// Whether stopping this runtime leaves work running somewhere we cannot
-    /// reach. `false` — the default — for anything that runs in this process.
+    /// Whether stopping this runtime leaves work running somewhere we cannot reach.
+    /// `false` — the default — for anything in this process.
     ///
-    /// A hosted service may well finish an image we stopped waiting for, and bill
-    /// for it. §13.1 asks the UI to be honest about that rather than implying a
-    /// cancel is free.
+    /// A hosted service may finish an image we stopped waiting for, and bill for it,
+    /// so the UI says so rather than implying a cancel is free.
     var cancellationMayLeaveWorkBilled: Bool { get }
 }
 
@@ -231,22 +202,21 @@ nonisolated extension GenerationEngineRuntime {
     var cancellationMayLeaveWorkBilled: Bool { false }
 }
 
-/// The immutable half of an engine: what it is, what models it has, and — from
-/// the next step — how it turns the UI's draft into a request payload.
+/// The immutable half of an engine: what it is, what models it has, and how it
+/// turns the UI's draft into a request payload.
 ///
 /// Separate from `GenerationEngineRuntime`, which owns loaded pipelines and the
 /// active generation, so the UI can read engine and model facts without an actor
 /// hop to something holding a multi-gigabyte pipeline.
 ///
-/// Engines never consult each other. Each applies only its own recognition rules
-/// to its own configured source, and identity is engine-qualified, so two engines
-/// recognising the same directory both return a model and stay distinguishable.
-/// There is no ownership arbitration anywhere.
+/// Engines never consult each other. Each applies only its own recognition rules to
+/// its own source, and identity is engine-qualified, so two engines recognising the
+/// same directory both return a model and stay distinguishable. There is no
+/// ownership arbitration.
 nonisolated protocol GenerationEngineDescriptor: Sendable {
     associatedtype Model: EngineModel
-    /// What this engine's generation needs beyond the values every engine
-    /// reports. Associated so the engine, its models and its payload stay a
-    /// checked triple rather than three things that happen to line up.
+    /// What this engine's generation needs beyond the values every engine reports.
+    /// Associated, so the engine, its models and its payload stay a checked triple.
     associatedtype Payload: Sendable
 
     static var id: EngineID { get }
@@ -254,12 +224,11 @@ nonisolated protocol GenerationEngineDescriptor: Sendable {
 
     func availability(_ settings: EngineSettings) async -> EngineAvailability
 
-    /// Every model this engine can generate with, in whatever order it finds
-    /// them. Callers order the combined list.
+    /// Every model this engine can generate with, in whatever order it finds them.
+    /// Callers order the combined list.
     ///
-    /// A local engine should take its candidate directories from
-    /// `context.localModelDirectories()` rather than enumerating for itself, so
-    /// one pass costs one enumeration however many engines are registered.
+    /// A local engine takes its candidate directories from
+    /// `context.localModelDirectories()` rather than enumerating for itself.
     func discoverModels(_ context: ModelDiscoveryContext) async throws -> [Model]
 
     /// Resolves the sidebar's draft into the values this engine will actually use.
@@ -289,19 +258,15 @@ nonisolated protocol GenerationEngineDescriptor: Sendable {
 
     /// Makes the runtime that executes this engine's requests.
     ///
-    /// Called once per engine and the result reused, so a loaded pipeline
-    /// survives between requests exactly as it did when the queue held the
-    /// generators itself. Separate from the descriptor so reading a model's name
-    /// never touches the thing holding the pipeline.
+    /// Called once per engine and the result reused, so a loaded pipeline survives
+    /// between requests.
     func makeRuntime() -> any GenerationEngineRuntime
 }
 
 /// Type-erased engine, so a heterogeneous registry can hold them.
 ///
-/// Closure-based rather than a wrapper class: each engine stays fully typed
-/// internally, and the erasure is one initialiser rather than a parallel
-/// hierarchy. `discoverModels` widens to `[any EngineModel]` here because the
-/// combined model list is heterogeneous by definition.
+/// `discoverModels` widens to `[any EngineModel]` here, since the combined model
+/// list is heterogeneous by definition.
 nonisolated struct AnyGenerationEngine: Sendable, Identifiable {
     let id: EngineID
     let displayName: String
@@ -321,9 +286,8 @@ nonisolated struct AnyGenerationEngine: Sendable, Identifiable {
         _availability = { await engine.availability($0) }
         _discoverModels = { try await engine.discoverModels($0) }
         _plan = { draft, model in
-            // The one place a model is matched back to its engine's concrete
-            // type. A mismatch means a model reached the wrong engine, which is
-            // a wiring bug rather than anything a user did.
+            // The one place a model is matched back to its engine's concrete type.
+            // A mismatch is a wiring bug, not something a user did.
             guard let typed = model as? Engine.Model else {
                 throw EngineError.modelDoesNotBelongToEngine(
                     model: model.id, engine: Engine.id)
