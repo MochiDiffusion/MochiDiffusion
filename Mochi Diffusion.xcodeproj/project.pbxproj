@@ -52,7 +52,7 @@
 		036BFC26294B9F7600D8AD04 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 036BFC25294B9F7600D8AD04 /* Assets.xcassets */; };
 		036BFC29294B9F7600D8AD04 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 036BFC28294B9F7600D8AD04 /* Preview Assets.xcassets */; };
 		0373FF5429A9165600C0180F /* AppCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0373FF5329A9165600C0180F /* AppCommands.swift */; };
-		0380934329AD504600EDBC8E /* StartingImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0380934229AD504600EDBC8E /* InputImagesView.swift */; };
+		0380934329AD504600EDBC8E /* InputImagesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0380934229AD504600EDBC8E /* InputImagesView.swift */; };
 		0386DF8B2950D29400CA4CEB /* InspectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0386DF8A2950D29400CA4CEB /* InspectorView.swift */; };
 		0386DF8D2950F25500CA4CEB /* GalleryToolbarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0386DF8C2950F25500CA4CEB /* GalleryToolbarView.swift */; };
 		0388DEB0297B00FC008B1C1C /* CompactSlider in Frameworks */ = {isa = PBXBuildFile; productRef = 0388DEAF297B00FC008B1C1C /* CompactSlider */; };
@@ -77,6 +77,7 @@
 		73F2FE036E51455A99DBC80B /* GenerationRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E790ECE28024A119CB77474 /* GenerationRequest.swift */; };
 		C0DEC0DEC0DEC0DEC0DE0002 /* MetadataCodec.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DEC0DEC0DEC0DEC0DE0001 /* MetadataCodec.swift */; };
 		AA3000000000000000000098 /* IrisReferenceImageSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1100000000000000000098 /* IrisReferenceImageSupport.swift */; };
+		AA3000000000000000000097 /* StartingImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1100000000000000000097 /* StartingImageView.swift */; };
 		AA4000000000000000000002 /* PreferenceMigration.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA4000000000000000000001 /* PreferenceMigration.swift */; };
 		AA50000000000000000001102 /* GenerationEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA50000000000000000001101 /* GenerationEngine.swift */; };
 		AA50000000000000000001942 /* IrisSingleFlight.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA50000000000000000001941 /* IrisSingleFlight.swift */; };
@@ -220,6 +221,7 @@
 		0E790ECE28024A119CB77474 /* GenerationRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationRequest.swift; sourceTree = "<group>"; };
 		C0DEC0DEC0DEC0DEC0DE0001 /* MetadataCodec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetadataCodec.swift; sourceTree = "<group>"; };
 		AA1100000000000000000098 /* IrisReferenceImageSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IrisReferenceImageSupport.swift; sourceTree = "<group>"; };
+		AA1100000000000000000097 /* StartingImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartingImageView.swift; sourceTree = "<group>"; };
 		AA4000000000000000000001 /* PreferenceMigration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferenceMigration.swift; sourceTree = "<group>"; };
 		AA50000000000000000001101 /* GenerationEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationEngine.swift; sourceTree = "<group>"; };
 		AA50000000000000000001941 /* IrisSingleFlight.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IrisSingleFlight.swift; sourceTree = "<group>"; };
@@ -372,6 +374,7 @@
 			children = (
 				03D280F1294FD60E00C7D184 /* PromptView.swift */,
 				0380934229AD504600EDBC8E /* InputImagesView.swift */,
+				AA1100000000000000000097 /* StartingImageView.swift */,
 				035EDFF2295A1FBF00080D18 /* NumberOfImagesView.swift */,
 				035EDFF7295A216500080D18 /* StepsView.swift */,
 				AA50000000000000000002071 /* QualityView.swift */,
@@ -782,7 +785,8 @@
 				AA50000000000000000002072 /* QualityView.swift in Sources */,
 				03061E6229AB9C06009AA2A2 /* FocusController.swift in Sources */,
 				C1220FC02AFB122F007E5055 /* ImageWellView.swift in Sources */,
-				0380934329AD504600EDBC8E /* StartingImageView.swift in Sources */,
+				0380934329AD504600EDBC8E /* InputImagesView.swift in Sources */,
+				AA3000000000000000000097 /* StartingImageView.swift in Sources */,
 				0EF066A162A2D255BF7624D3 /* ComputeUnitPreference.swift in Sources */,
 				463715C52EA79FC4AF642B78 /* GenerationController.swift in Sources */,
 				73F2FE036E51455A99DBC80B /* GenerationRequest.swift in Sources */,

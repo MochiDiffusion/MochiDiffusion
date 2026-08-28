@@ -58,9 +58,12 @@ nonisolated struct GenerationDraft: Sendable {
     /// The size typed into the sidebar. An engine may override it; a Core ML
     /// model with a fixed input size does.
     var configuredSize: CGSize
-    /// Every image the sidebar currently holds, in the order the user added them.
-    /// An engine takes as many as its `InputImagesConstraint` allows and decides
-    /// what they mean.
+    /// The image to denoise from, for a model that does img2img. Distinct from
+    /// `inputImages` rather than the first of them: it is scaled to the output size
+    /// and carries `strength`.
+    var startingImage: InputImage?
+    /// Images the model attends to as references, in the order the user added them.
+    /// An engine takes as many as its `InputImagesConstraint` allows.
     var inputImages: [InputImage]
     var controlNets: [ControlNetDraft]
     var strength: Float
@@ -97,9 +100,14 @@ nonisolated struct GenerationPlan<Payload: Sendable>: Sendable {
     var payload: Payload
     /// The size that will actually be produced.
     var size: CGSize
-    /// The input images this engine will actually use, already scaled and encoded,
-    /// truncated to what the model accepts. Ordered: Core ML denoises from the
-    /// first, and a reference list is positional.
+    /// The images this engine will actually send, already cropped, scaled and
+    /// encoded, truncated to what the model accepts.
+    ///
+    /// A starting image, when the model has one, is element zero, and
+    /// `startingImageName` is non-nil exactly then — so a runtime that declared both
+    /// can tell its denoising origin from its references. The convention is only
+    /// ever written and read by the same engine, which is why it stays here rather
+    /// than becoming a second array.
     var inputImageData: [Data]
     var controlNetImageData: [Data]
     var controlNetNames: [String]

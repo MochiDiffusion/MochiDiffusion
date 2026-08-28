@@ -343,18 +343,18 @@ struct GenerationRequestBuilderTests {
         #expect(request.modelID.engine == .iris)
     }
 
-    @Test("Klein records the starting image as an input image, not a starting image")
+    @Test("Klein records references, and no starting image")
     func kleinRecordsInputImages() async throws {
         try makeKleinModelFixture(at: modelDir.appending(path: "klein-model"))
         configStore.width = 512
         configStore.height = 512
         let controller = try await makeControllerSelecting("klein-model")
-        controller.setStartingImage(image: makeCGImage(width: 40, height: 20), filename: "in.png")
+        controller.addInputImage(image: makeCGImage(width: 40, height: 20), filename: "in.png")
 
         let request = try #require(controller.buildGenerationRequest())
 
-        // The same sidebar state lands in a different field per engine: Core ML
-        // records a starting image, Iris an input image.
+        // Klein declares no starting image at all, so that field stays empty
+        // whatever the sidebar holds.
         #expect(request.startingImageName == nil)
         #expect(request.inputImageNames == ["in.png"])
         let data = try #require(request.inputImageData.first)
@@ -422,7 +422,7 @@ struct GenerationRequestBuilderTests {
         }
     }
 
-    @Test("A Core ML model takes only the first image, however many are held")
+    @Test("A Core ML model sends its starting image and ignores references")
     func coreMLTakesOneImage() async throws {
         try makeSDModelFixture(
             at: modelDir.appending(path: "sd-model"),
@@ -430,14 +430,54 @@ struct GenerationRequestBuilderTests {
         )
         let controller = try await makeControllerSelecting("sd-model")
         controller.setStartingImage(image: makeCGImage(width: 40, height: 20), filename: "one.png")
-        // Refused at the cap rather than replacing what is there.
+        // Refused outright: this model declares no input images, so the reference
+        // section is not even shown for it.
         controller.addInputImage(image: makeCGImage(width: 40, height: 20), filename: "two.png")
+        #expect(controller.inputImages.isEmpty)
 
         let request = try #require(controller.buildGenerationRequest())
 
         #expect(request.inputImageData.count == 1)
         #expect(request.startingImageName == "one.png")
         #expect(request.inputImageNames.isEmpty)
+    }
+
+    /// The two sections hold different state, so switching to a model that reads the
+    /// other one would leave a chosen picture stranded in a section that is no longer
+    /// shown — looking like the app forgot it.
+    @Test("A picture moves between the two sections when the model changes")
+    func imagesMoveWhenConstraintsChange() async throws {
+        try makeSDModelFixture(at: modelDir.appending(path: "sd-model"))
+        try makeKleinModelFixture(at: modelDir.appending(path: "klein-model"))
+        let controller = try await makeControllerSelecting("sd-model")
+        controller.setStartingImage(image: makeCGImage(), filename: "carried.png")
+
+        // Core ML → Klein: a denoising origin becomes a reference.
+        controller.setModel("klein-model")
+        #expect(controller.startingImage == nil)
+        #expect(controller.inputImages.count == 1)
+        #expect(controller.inputImages.first?.name == "carried.png")
+
+        // Klein → Core ML: a single reference becomes the denoising origin again.
+        controller.setModel("sd-model")
+        #expect(controller.inputImages.isEmpty)
+        #expect(controller.startingImage?.name == "carried.png")
+    }
+
+    @Test("Several references are dropped rather than guessed at when only one fits")
+    func severalReferencesDoNotBecomeAStartingImage() async throws {
+        try makeSDModelFixture(at: modelDir.appending(path: "sd-model"))
+        try makeKleinModelFixture(at: modelDir.appending(path: "klein-model"))
+        let controller = try await makeControllerSelecting("klein-model")
+        controller.addInputImage(image: makeCGImage(), filename: "a.png")
+        controller.addInputImage(image: makeCGImage(), filename: "b.png")
+
+        controller.setModel("sd-model")
+
+        // Two references have no unambiguous denoising origin, so neither is
+        // promoted. Picking one would be a guess about which the user meant.
+        #expect(controller.inputImages.isEmpty)
+        #expect(controller.startingImage == nil)
     }
 
     @Test("Klein never carries ControlNet state")

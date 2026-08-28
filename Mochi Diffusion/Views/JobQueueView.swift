@@ -249,28 +249,31 @@ private struct InfoPopoverView: View {
 
             controller.currentModelId = request.modelID
 
-            // Every image the request carried, not just the first: a queued job
-            // may have used several, and restoring one of them would silently
-            // change what the user is about to regenerate.
+            // Every image the request carried, not just the first: a queued job may
+            // have used several, and restoring one would silently change what the
+            // user is about to regenerate.
             //
-            // Names come from whichever vocabulary the engine recorded — Core ML
-            // fills `startingImageName`, a reference-taking engine fills
-            // `inputImageNames` — and are matched positionally against the images
-            // that had one.
-            let restoredNames =
-                request.startingImageName.map { [$0] } ?? request.inputImageNames
-            let restored = request.inputImageData.enumerated().compactMap {
-                index, data -> InputImage? in
-                guard let image = decodeImage(from: data) else { return nil }
-                return InputImage(
-                    image: image,
-                    name: index < restoredNames.count ? restoredNames[index] : nil
-                )
+            // `startingImageName` is non-nil exactly when element zero is a
+            // denoising origin rather than a reference, which is how the two are
+            // told apart and put back in the right section. A request may carry
+            // both, so this restores the origin *and* whatever follows it.
+            var images = request.inputImageData.compactMap(decodeImage(from:))
+
+            if let startingName = request.startingImageName, !images.isEmpty {
+                controller.setStartingImage(image: images.removeFirst(), filename: startingName)
+                if let strength = effectiveStrength {
+                    configStore.strength = Double(strength)
+                }
+            } else {
+                await controller.unsetStartingImage()
             }
-            controller.setInputImages(restored)
-            if !restored.isEmpty, let strength = effectiveStrength {
-                configStore.strength = Double(strength)
-            }
+
+            let names = request.inputImageNames
+            controller.setInputImages(
+                images.enumerated().map { index, image in
+                    InputImage(image: image, name: names[safe: index])
+                }
+            )
 
             if let controlNetName = request.controlNetNames.first,
                 let controlNetImage = decodeImage(from: request.controlNetImageData.first)

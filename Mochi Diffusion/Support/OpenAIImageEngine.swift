@@ -158,6 +158,7 @@ nonisolated extension OpenAIImageEngine {
             steps: .unsupported,
             guidanceScale: .unsupported,
             scheduler: .unsupported,
+            startingImage: .unsupported,
             inputImages: .unsupported,
             controlNet: .unsupported,
             quality: .oneOf([.auto, .low, .medium, .high]),

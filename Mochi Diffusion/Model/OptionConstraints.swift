@@ -302,21 +302,53 @@ nonisolated struct SizeLimits: Sendable, Equatable {
     }
 }
 
-/// How many input images a model accepts, and what it does with them.
+/// Whether a model denoises from an image, and how far from it it may go.
 ///
-/// The strength range is nested rather than a sibling because strength is
-/// meaningless without an input image — and because Iris takes images but ignores
-/// strength entirely, which a pair of independent flags could express as the
-/// nonsensical "strength but no image".
+/// A *starting image* is one image the generation begins from — img2img. It is a
+/// different thing from an input image, not a special case of one: it is scaled to
+/// the output size because that is what will happen to it, exactly one of them
+/// means anything, and `strength` says how much of it to keep.
 ///
-/// `maxCount` is the model's own limit, not a UI preference: Core ML denoises from
-/// exactly one image, `iris_multiref` accepts up to four references for Klein, and
-/// a hosted API states its own cap. Exceeding it is not a thing to render a warning
-/// about — `resolved(_:)` drops the extras before the request is built, the same as
-/// every other constraint.
+/// Strength is nested rather than a sibling so "strength but nothing to apply it
+/// to" cannot be expressed.
+nonisolated enum StartingImageConstraint: Sendable, Equatable {
+    case unsupported
+    case supported(strength: DoubleConstraint)
+
+    var isSupported: Bool {
+        if case .supported = self { return true }
+        return false
+    }
+
+    var strength: DoubleConstraint {
+        if case .supported(let strength) = self { return strength }
+        return .unsupported
+    }
+
+    /// Drops the image when the model does not denoise from one.
+    func resolved(_ requested: InputImage?) -> InputImage? {
+        isSupported ? requested : nil
+    }
+}
+
+/// How many images a model attends to as references.
+///
+/// An *input image* is not a denoising origin. It is conditioning the model looks
+/// at while generating, several are meaningful, order is positional, and there is
+/// no strength to apply — which is why this carries no strength at all rather than
+/// an unsupported one.
+///
+/// `maxCount` is the model's own limit, not a UI preference: `iris_multiref`
+/// accepts up to four references for Klein, and a hosted API states its own cap.
+/// Exceeding it is not something to warn about — `resolved(_:)` drops the extras
+/// before the request is built, the same as every other constraint.
+///
+/// Independent of ``StartingImageConstraint`` on purpose. A model may support
+/// either, both, or neither: Draw Things does img2img *and* moodboard conditioning
+/// at once, and an enum with a case per kind could not say so.
 nonisolated enum InputImagesConstraint: Sendable, Equatable {
     case unsupported
-    case supported(maxCount: Int, strength: DoubleConstraint)
+    case supported(maxCount: Int)
 
     var isSupported: Bool {
         if case .supported = self { return true }
@@ -326,28 +358,19 @@ nonisolated enum InputImagesConstraint: Sendable, Equatable {
     /// How many images the model will take. Zero when unsupported, so callers can
     /// compare against a count without unwrapping.
     var maxCount: Int {
-        if case .supported(let maxCount, _) = self { return max(0, maxCount) }
+        if case .supported(let maxCount) = self { return max(0, maxCount) }
         return 0
-    }
-
-    /// Whether the model takes more than one, which is what decides between an
-    /// "add another" affordance and a single well.
-    var acceptsMultiple: Bool { maxCount > 1 }
-
-    var strength: DoubleConstraint {
-        if case .supported(_, let strength) = self { return strength }
-        return .unsupported
     }
 
     /// Truncates `requested` to what the model accepts, keeping the leading
     /// entries.
     ///
-    /// Order matters to the engines — Core ML denoises from the first, and a
-    /// reference list is positional — so this keeps the front of the list rather
-    /// than any other subset. Dropping from the end matches what the sidebar
-    /// shows: the images a user added first are the ones they meant most.
+    /// Order matters — a reference list is positional — so this keeps the front of
+    /// the list rather than any other subset. Dropping from the end matches what
+    /// the sidebar shows: the images a user added first are the ones they meant
+    /// most.
     func resolved(_ requested: [InputImage]) -> [InputImage] {
-        guard case .supported(let maxCount, _) = self, maxCount > 0 else { return [] }
+        guard case .supported(let maxCount) = self, maxCount > 0 else { return [] }
         guard requested.count > maxCount else { return requested }
         return Array(requested.prefix(maxCount))
     }
@@ -434,6 +457,9 @@ nonisolated struct OptionConstraints: Sendable {
     var steps: IntConstraint
     var guidanceScale: DoubleConstraint
     var scheduler: ChoiceConstraint<Scheduler>
+    /// Independent of `inputImages`: a model may denoise from an image, attend to
+    /// references, do both, or neither.
+    var startingImage: StartingImageConstraint
     var inputImages: InputImagesConstraint
     var controlNet: ControlNetConstraint
     /// Hosted vocabulary; the local engines declare `.unsupported`.
@@ -456,7 +482,8 @@ nonisolated struct OptionConstraints: Sendable {
         steps: .range(1...50, step: 1, acceptsBeyondUpperBound: true),
         guidanceScale: .range(1...20, step: nil),
         scheduler: .oneOf(Scheduler.allCases),
-        inputImages: .supported(maxCount: 1, strength: .range(0...1, step: nil)),
+        startingImage: .supported(strength: .range(0...1, step: nil)),
+        inputImages: .supported(maxCount: 1),
         controlNet: .unsupported,
         quality: .unsupported,
         numberOfImages: .range(1...100, step: 1, acceptsBeyondUpperBound: true),

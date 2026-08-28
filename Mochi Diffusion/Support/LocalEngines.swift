@@ -55,7 +55,7 @@ nonisolated struct CoreMLStableDiffusionEngine: GenerationEngineDescriptor {
         let size = constraints.size.resolved(draft.configuredSize)
         let stepCount = constraints.steps.resolved(draft.stepCount)
         let scheduler = constraints.scheduler.resolved(draft.scheduler)
-        let strength = constraints.inputImages.strength
+        let strength = constraints.startingImage.strength
             .resolved(Double(draft.strength))
             .map(Float.init)
         let guidanceScale = constraints.guidanceScale
@@ -65,7 +65,9 @@ nonisolated struct CoreMLStableDiffusionEngine: GenerationEngineDescriptor {
             constraints.numberOfImages.resolved(draft.numberOfImages) ?? draft.numberOfImages
         let quality = constraints.quality.resolved(draft.quality)
         let computeUnit = draft.computeUnitPreference.computeUnits(forModel: model)
-        let inputs = constraints.inputImages.prepared(draft.inputImages, scaledTo: size)
+        // Core ML denoises from one image and attends to no references, so only the
+        // starting-image constraint is consulted.
+        let inputs = constraints.startingImage.prepared(draft.startingImage, scaledTo: size)
 
         var controlNetNames: [String] = []
         var controlNetImageNames: [String] = []
@@ -249,16 +251,15 @@ nonisolated struct IrisEngine: GenerationEngineDescriptor {
             controlNetImageNames: [],
             stepCount: stepCount,
             scheduler: scheduler,
-            // Klein ignores both: a distilled model has no guidance, and an input
-            // image is a reference rather than a denoising origin.
-            strength: constraints.inputImages.strength.resolved(Double(draft.strength))
+            // Klein has neither: a distilled model has no guidance, and it declares
+            // no starting image, so there is no strength to resolve.
+            strength: constraints.startingImage.strength.resolved(Double(draft.strength))
                 .map(Float.init),
             guidanceScale: constraints.guidanceScale.resolved(Double(draft.guidanceScale))
                 .map(Float.init),
             numberOfImages: numberOfImages,
             mlComputeUnit: nil,
-            // Iris records references rather than a denoising origin, so the same
-            // sidebar list lands in a different field.
+            // References, so nothing lands in the starting-image field.
             startingImageName: nil,
             inputImageNames: inputs.names
         )

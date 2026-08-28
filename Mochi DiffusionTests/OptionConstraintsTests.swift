@@ -386,19 +386,35 @@ struct OptionConstraintsTests {
         #expect(offered.resolved(.discreteFlowScheduler) == .pndmScheduler)
     }
 
-    // MARK: - Input images and ControlNet
+    // MARK: - Starting image, input images and ControlNet
 
-    /// Nesting strength inside the input-images constraint is what makes
-    /// "strength but no image" unrepresentable. Iris is the case that needs it: it
-    /// takes images and ignores strength.
-    @Test("Strength is unreachable without an input image")
-    func strengthRequiresInputImage() {
-        #expect(InputImagesConstraint.unsupported.strength == .unsupported)
-        #expect(!InputImagesConstraint.unsupported.isSupported)
+    /// Nesting strength inside the starting-image constraint is what makes
+    /// "strength but nothing to apply it to" unrepresentable.
+    @Test("Strength is unreachable without a starting image")
+    func strengthRequiresStartingImage() {
+        #expect(StartingImageConstraint.unsupported.strength == .unsupported)
+        #expect(!StartingImageConstraint.unsupported.isSupported)
+        #expect(StartingImageConstraint.unsupported.resolved(makeInputImage()) == nil)
 
-        let inputImageOnly = InputImagesConstraint.supported(maxCount: 1, strength: .unsupported)
-        #expect(inputImageOnly.isSupported)
-        #expect(inputImageOnly.strength.resolved(0.5) == nil)
+        let supported = StartingImageConstraint.supported(strength: .range(0...1, step: nil))
+        #expect(supported.isSupported)
+        #expect(supported.strength.resolved(0.5) == 0.5)
+    }
+
+    /// The two are independent, so all four combinations are expressible. Draw
+    /// Things does img2img and moodboard conditioning at once, which an enum with a
+    /// case per kind could not say.
+    @Test("A starting image and input images are declared separately")
+    func startingImageAndInputImagesAreIndependent() {
+        // Both at once, which the previous single-enum shape could not express.
+        let both = OptionConstraints.unconstrained
+        #expect(both.startingImage.isSupported)
+        #expect(both.inputImages.isSupported)
+
+        // References only, and therefore no strength.
+        #expect(!IrisFluxKleinModel.constraints.startingImage.isSupported)
+        #expect(IrisFluxKleinModel.constraints.inputImages.isSupported)
+        #expect(!IrisFluxKleinModel.constraints.startingImage.strength.isSupported)
     }
 
     @Test("An unsupported constraint accepts nothing and counts zero")
@@ -406,18 +422,7 @@ struct OptionConstraintsTests {
         let constraint = InputImagesConstraint.unsupported
 
         #expect(constraint.maxCount == 0)
-        #expect(!constraint.acceptsMultiple)
         #expect(constraint.resolved([makeInputImage(), makeInputImage()]).isEmpty)
-    }
-
-    @Test("Only a constraint that takes more than one is multiple")
-    func acceptsMultipleFollowsMaxCount() {
-        #expect(
-            !InputImagesConstraint.supported(maxCount: 1, strength: .unsupported)
-                .acceptsMultiple)
-        #expect(
-            InputImagesConstraint.supported(maxCount: 2, strength: .unsupported)
-                .acceptsMultiple)
     }
 
     /// The front of the list, not any other subset: order is meaningful to the
@@ -428,7 +433,7 @@ struct OptionConstraintsTests {
         let first = makeInputImage(name: "first.png")
         let second = makeInputImage(name: "second.png")
         let third = makeInputImage(name: "third.png")
-        let constraint = InputImagesConstraint.supported(maxCount: 2, strength: .unsupported)
+        let constraint = InputImagesConstraint.supported(maxCount: 2)
 
         #expect(constraint.resolved([first, second, third]) == [first, second])
         #expect(constraint.resolved([first]) == [first])
@@ -442,7 +447,7 @@ struct OptionConstraintsTests {
         let named = makeInputImage(name: "kept.png")
         let unnamed = makeInputImage(name: nil)
         let dropped = makeInputImage(name: "dropped.png")
-        let constraint = InputImagesConstraint.supported(maxCount: 2, strength: .unsupported)
+        let constraint = InputImagesConstraint.supported(maxCount: 2)
 
         let prepared = constraint.prepared(
             [named, unnamed, dropped],
@@ -508,7 +513,7 @@ struct ModelVisibilityTests {
         #expect(!constraints.supportsNegativePrompt)
         #expect(!constraints.guidanceScale.isSupported)
         #expect(!constraints.controlNet.isSupported)
-        #expect(!constraints.inputImages.strength.isSupported)
+        #expect(!constraints.startingImage.strength.isSupported)
         // Shown, but disabled: seeing "4" explains the model better than an
         // absent row does.
         #expect(constraints.steps.isSupported)
@@ -516,7 +521,7 @@ struct ModelVisibilityTests {
         #expect(!constraints.scheduler.isEditable)
         // Images are accepted as references, up to what `iris_multiref` takes.
         #expect(constraints.inputImages.isSupported)
-        #expect(constraints.inputImages.acceptsMultiple)
+        #expect(constraints.inputImages.isSupported)
         #expect(constraints.inputImages.maxCount == IrisEngine.maxReferenceImages)
     }
 
@@ -566,7 +571,7 @@ struct ModelVisibilityTests {
         #expect(constraints.numberOfImages.allowsValuesAboveBounds)
         #expect(constraints.steps.resolved(75) == 75)
         #expect(constraints.guidanceScale.bounds == 1...20)
-        #expect(constraints.inputImages.strength.bounds == 0...1)
+        #expect(constraints.startingImage.strength.bounds == 0...1)
         #expect(constraints.numberOfImages.bounds == 1...100)
         #expect(constraints.scheduler.options == Scheduler.allCases)
     }

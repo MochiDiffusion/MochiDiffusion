@@ -11,15 +11,12 @@ import SwiftUI
 /// wells rather than a fixed row of empty ones, wells shaped to their image's
 /// aspect ratio, a per-image crop popover, and the reference-budget warning.
 ///
-/// The one addition is `strengthControl`. The prototype only ever showed this
-/// section for Iris, which ignores strength; here a Core ML model uses the same
-/// control for its denoising origin, so strength appears when the model's
-/// constraint says it means something.
+/// References only, with no strength: that belongs to `StartingImageView`, which
+/// is a separate section shown by its own constraint. A model may declare either,
+/// both, or neither.
 struct InputImagesView: View {
     @Environment(GenerationController.self) private var controller: GenerationController
-    @Environment(ConfigStore.self) private var configStore: ConfigStore
     @State private var isBudgetWarningPopoverShown = false
-    @State private var isStrengthInfoPopoverShown = false
 
     private let wellHeight: CGFloat = 90
 
@@ -40,8 +37,11 @@ struct InputImagesView: View {
     var body: some View {
         ZStack(alignment: .topTrailing) {
             VStack(alignment: .leading, spacing: 8) {
-                Text(sectionLabel)
-                    .sidebarLabelFormat()
+                Text(
+                    "Input Images",
+                    comment: "Label for setting one or more input reference images"
+                )
+                .sidebarLabelFormat()
 
                 VStack(alignment: .leading, spacing: 8) {
                     ForEach(0..<visibleWellCount, id: \.self) { index in
@@ -68,72 +68,6 @@ struct InputImagesView: View {
             }
         }
 
-        if strengthConstraint.isSupported {
-            strengthControl
-        }
-    }
-
-    /// "Starting Image" for a model that denoises from one, "Input Images" for one
-    /// that attends to several. Strength is the distinction: it only means something
-    /// for a denoising origin.
-    private var sectionLabel: String {
-        if controller.currentConstraints.inputImages.acceptsMultiple {
-            return String(
-                localized: "Input Images",
-                comment: "Label for setting one or more input reference images"
-            )
-        }
-        return String(
-            localized: "Starting Image",
-            comment: "Label for setting the starting image (commonly known as image2image)"
-        )
-    }
-
-    private var strengthConstraint: DoubleConstraint {
-        controller.currentConstraints.inputImages.strength
-    }
-
-    /// Core ML's denoising strength. Absent from the prototype, which was written
-    /// for Iris, and unchanged from the control it replaces.
-    @ViewBuilder private var strengthControl: some View {
-        @Bindable var configStore = configStore
-
-        HStack {
-            Text(
-                "Strength",
-                comment: "Label for starting image strength slider control"
-            )
-            .sidebarLabelFormat()
-
-            Spacer()
-
-            Button {
-                isStrengthInfoPopoverShown.toggle()
-            } label: {
-                Image(systemName: "info.circle")
-                    .foregroundColor(Color.secondary)
-            }
-            .buttonStyle(PlainButtonStyle())
-            .popover(isPresented: $isStrengthInfoPopoverShown, arrowEdge: .top) {
-                Text(
-                    """
-                    Strength controls how closely the generated image resembles the starting image.
-                    Use lower values to generate images that look similar to the starting image.
-                    Use higher values to allow more creative freedom.
-
-                    The size of the starting image must match the output image size of the current model.
-                    """
-                )
-                .padding()
-            }
-        }
-        if let bounds = strengthConstraint.bounds {
-            MochiSlider(value: $configStore.strength, bounds: bounds, step: 0.05)
-        } else if let pinned = strengthConstraint.resolved(configStore.strength) {
-            PinnedValueField(text: pinned.formatted(.number.precision(.fractionLength(2))))
-        } else {
-            UnsupportedValueField()
-        }
     }
 
     private struct IrisBudgetWarningPopover: View {

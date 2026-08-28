@@ -32,7 +32,13 @@ final class GenerationController {
     /// ``discoveryMessage(failures:engines:foundModels:modelDir:)``.
     private(set) var discoveryMessage: String?
     private(set) var controlNet: [String] = []
-    /// The images the sidebar is holding, in the order the user added them.
+    /// The image to denoise from, for a model that does img2img.
+    ///
+    /// Separate state from `inputImages`, not the first of it. The two mean
+    /// different things to a model and are edited by different sidebar sections, and
+    /// a model may declare either, both, or neither.
+    private(set) var startingImage: InputImage?
+    /// The reference images the sidebar is holding, in the order the user added them.
     ///
     /// Kept whole regardless of what the selected model accepts, so switching to a
     /// model that takes fewer does not throw away images the user chose. `plan`
@@ -59,6 +65,7 @@ final class GenerationController {
             // controller reads off one engine's concrete type.
             controlNet = model.constraints.controlNet.names
             currentControlNets = []
+            reconcileImagesWithConstraints()
         }
     }
 
@@ -379,20 +386,37 @@ final class GenerationController {
         await GenerationService.shared.enqueue(request)
     }
 
-    /// Replaces the whole list with one image.
-    ///
-    /// The single-image entry point, kept for the drops and menu commands that mean
-    /// "use this one". Adding to a list is ``addInputImage(image:filename:)``.
+    // MARK: - Starting image
+
     func setStartingImage(image: CGImage, filename: String? = nil) {
-        inputImages = [
-            InputImage(
-                image: image,
-                name: filename?.normalizedFilename ?? consumePendingSelectedImageFilename()
-            )
-        ]
+        startingImage = InputImage(
+            image: image,
+            name: filename?.normalizedFilename ?? consumePendingSelectedImageFilename()
+        )
     }
 
-    /// How many images the selected model will take.
+    func unsetStartingImage() async {
+        startingImage = nil
+    }
+
+    func selectStartingImage() async {
+        guard let image = await selectImage() else { return }
+        setStartingImage(image: image)
+    }
+
+    func selectStartingImage(sdi: SDImage) async {
+        guard let image = sdi.image else { return }
+        let filename = URL(fileURLWithPath: sdi.path).lastPathComponent
+        setStartingImage(image: image, filename: filename)
+    }
+
+    func setStartingImageEdit(_ edit: IrisReferenceImageEdit) {
+        startingImage?.edit = edit.clamped()
+    }
+
+    // MARK: - Input images
+
+    /// How many reference images the selected model will take.
     var maxInputImageCount: Int {
         currentConstraints.inputImages.maxCount
     }
@@ -453,27 +477,43 @@ final class GenerationController {
         inputImages.remove(at: index)
     }
 
-    func selectStartingImage() async {
-        guard let image = await selectImage() else { return }
-        setStartingImage(image: image)
-    }
-
-    func selectStartingImage(sdi: SDImage) async {
-        guard let image = sdi.image else { return }
-        let filename = URL(fileURLWithPath: sdi.path).lastPathComponent
-        setStartingImage(image: image, filename: filename)
-    }
-
-    /// Adds a gallery image to the list, for "Set as Input Image" on a model that
-    /// takes several.
+    /// Adds a gallery image to the reference list, for "Set as Input Image".
     func addInputImage(sdi: SDImage) async {
         guard let image = sdi.image else { return }
         let filename = URL(fileURLWithPath: sdi.path).lastPathComponent
         addInputImage(image: image, filename: filename)
     }
 
-    func unsetStartingImage() async {
-        inputImages = []
+    /// Moves images between the two sections when the selected model changes what it
+    /// accepts.
+    ///
+    /// Called from `currentModelId.didSet`. Without it, choosing a picture on a Core
+    /// ML model and switching to Klein would leave it in a section the new model does
+    /// not read, looking like the app forgot it. Moving it is better than discarding
+    /// it and better than leaving it stranded — the user chose that picture, and both
+    /// sections are asking the same question of it.
+    ///
+    /// Only ever moves a single image, and only into an empty destination, so nothing
+    /// is silently reordered or dropped.
+    private func reconcileImagesWithConstraints() {
+        let constraints = currentConstraints
+
+        if !constraints.startingImage.isSupported, let stranded = startingImage {
+            startingImage = nil
+            if constraints.inputImages.isSupported, inputImages.isEmpty {
+                inputImages = [stranded]
+            }
+        }
+
+        if !constraints.inputImages.isSupported, !inputImages.isEmpty {
+            let stranded = inputImages
+            inputImages = []
+            if constraints.startingImage.isSupported, startingImage == nil,
+                stranded.count == 1
+            {
+                startingImage = stranded[0]
+            }
+        }
     }
 
     // MARK: - Per-image crop
@@ -781,6 +821,7 @@ final class GenerationController {
             prompt: configStore.prompt,
             negativePrompt: configStore.negativePrompt,
             configuredSize: CGSize(width: configStore.width, height: configStore.height),
+            startingImage: startingImage,
             inputImages: inputImages,
             controlNets: currentControlNets.map {
                 ControlNetDraft(name: $0.name, image: $0.image, imageName: $0.imageFilename)

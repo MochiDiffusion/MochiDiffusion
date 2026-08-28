@@ -8,15 +8,16 @@ import Foundation
 nonisolated struct IrisFluxKleinModel: EngineModel {
     /// FLUX.2 Klein is distilled: four steps on the flow-match scheduler, and no
     /// classifier-free guidance, so there is no negative prompt or guidance scale
-    /// to offer. It accepts a starting image but treats it as an input image
-    /// rather than a denoising origin, so strength has no meaning.
+    /// to offer. It attends to images as references rather than denoising from
+    /// one, so it declares input images and no starting image at all.
     static let constraints = OptionConstraints(
         supportsNegativePrompt: false,
         size: .freeform(range: 64...1_792, step: 16),
         steps: .pinned(distilledStepCount),
         guidanceScale: .unsupported,
         scheduler: .pinned(.discreteFlowScheduler),
-        inputImages: .supported(maxCount: IrisEngine.maxReferenceImages, strength: .unsupported),
+        startingImage: .unsupported,
+        inputImages: .supported(maxCount: IrisEngine.maxReferenceImages),
         controlNet: .unsupported,
         quality: .unsupported,
         numberOfImages: .range(1...100, step: 1, acceptsBeyondUpperBound: true),

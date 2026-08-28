@@ -134,3 +134,22 @@ nonisolated extension InputImagesConstraint {
         prepared(requested) { image, _ in image.scaledAndCroppedTo(size: size) }
     }
 }
+
+nonisolated extension StartingImageConstraint {
+    /// Crops, scales to `size` and encodes the starting image, or produces nothing
+    /// when the model does not denoise from one.
+    ///
+    /// Always scaled to the output size, unlike a reference: a denoising origin has
+    /// to match the latent it seeds.
+    func prepared(_ requested: InputImage?, scaledTo size: CGSize)
+        -> InputImagesConstraint.Prepared
+    {
+        guard let image = resolved(requested) else {
+            return InputImagesConstraint.Prepared(data: [], names: [])
+        }
+        // Reuses the reference path's crop/encode/name pairing so a starting image
+        // cannot record a name for pixels that failed to encode either.
+        return InputImagesConstraint.supported(maxCount: 1)
+            .prepared([image]) { cropped, _ in cropped.scaledAndCroppedTo(size: size) }
+    }
+}
