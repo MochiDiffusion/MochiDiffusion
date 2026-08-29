@@ -1,24 +1,28 @@
 # Gallery Work and `temp/MochiDiffusion` Carry-Over
 
-**Status:** open. Working document for the `feature/multi-image-and-gallery` branch.
+**Status:** open carry-over record. The `feature/multi-image-and-gallery` branch merged
+into `develop` at `4a4ea94`; the architecture is landed, but the review on 2026-08-29
+found integration regressions and additional prototype work worth adapting.
 **Created:** 2026-08-28
-**Delete this file** when the branch merges — it is a handoff, not a design record.
-Anything here that turns out to be a durable decision belongs in a commit message, a
-code comment, or [Engine-Future-Work.md](Engine-Future-Work.md).
+
+**Last reviewed:** 2026-08-29
+
+This is no longer a branch handoff. Delete it when every accepted carry-over item below
+has either landed or moved to a durable design record such as
+[Engine-Future-Work.md](Engine-Future-Work.md).
 
 ## 0. Orientation
 
-This branch does two unrelated things, in order: **multi-image input support** (done)
-and **gallery memory/performance work** (not started). Both draw on a 6.1 prototype
-at `~/temp/MochiDiffusion`, a plain working-tree copy with no git history that
-predates the whole engine refactor. Nothing there merges; everything is
-adapt-the-idea.
+`~/temp/MochiDiffusion` is a plain working-tree snapshot of the unfinished 6.1 work,
+with no Git history. It predates the engine refactor, so nothing there merges directly:
+adapt the behaviour to the current ownership, identity and constraint model.
 
-**Standing instruction for anything pulled from that copy:** be functionally as
-similar as possible. The implementation may differ where the codebases have drifted,
-but **UI elements should be copied closely** rather than reinterpreted. An earlier
-attempt rewrote `InputImagesView` from scratch and lost its design; the correction is
-in commit `a97f25f`.
+**Standing instruction for anything pulled from that copy:** preserve its behaviour and
+UI closely where those still fit. An earlier rewrite of `InputImagesView` lost the
+prototype's design; `a97f25f` is the corrected port.
+
+**LoRA remains explicitly excluded.** `Flux2LoraLibrary`, `LoraNotesStore`, `LoraView`,
+and the `.lora`/`.loraStrength` metadata fields are not carry-over candidates.
 
 ### Build and verify
 
@@ -30,194 +34,212 @@ xcodebuild test -project "Mochi Diffusion.xcodeproj" -scheme "Mochi Diffusion" -
 swift format lint -p -r ./
 ```
 
-Both must be clean before anything merges. At the time of writing: **521 test-case
-executions, 0 failures**, no compiler warnings.
+Both must be clean after a change. No build or test run was made for the 2026-08-29
+read-only assessment.
 
-**Worktree gotcha:** `iris.c` is a **git submodule** (`antirez/iris.c`), and a build
-phase clones it. A fresh worktree needs `git submodule update --init --recursive` or
-the build fails with a confusing clone error. Do *not* symlink it from the main
-checkout — that blocks the clone and breaks the build in a different way.
+**Worktree gotcha:** `iris.c` is a Git submodule (`antirez/iris.c`), and a build phase
+clones it. A fresh worktree needs `git submodule update --init --recursive`; do not
+symlink it from another checkout.
 
-### Commits so far on this branch
+## 1. Landed from the prototype
 
-| | |
-|---|---|
-| `89a00ea` | Input images become a list; `InputImagesConstraint` gains `maxCount`; `prepared(_:resize:)` pairs data with names in one pass |
-| `a0da0dc` | Klein takes up to four references via `iris_multiref`; no budget fitting yet |
-| `a97f25f` | Ports the prototype's `InputImagesView`, `ImageWellView`, crop popover and reference-budget estimator; budget fitting restored, scoped to Iris |
-| `a3ccde3` | Splits `StartingImageConstraint` from `InputImagesConstraint`; two independent constraints, two views, two controller stores |
+### Multi-image and Iris UI
 
-## 1. Task: inject `ImageGallery` (do this first)
+- `89a00ea` — input images become a list; `InputImagesConstraint` gains `maxCount`.
+- `a0da0dc` — Klein takes up to four references through `iris_multiref`.
+- `a97f25f` — prototype `InputImagesView`, `ImageWellView`, crop popover and reference
+  budget estimator.
+- `a3ccde3` — starting images and reference images become separate constraints, views
+  and controller stores.
 
-A mechanical refactor with **no behaviour change**, worth doing before the thumbnail
-work because it is what makes gallery loading testable — and gallery loading is
-exactly what the thumbnail work changes.
+Also landed: `IrisReferenceImageSupport`, `CropSelectionView`, multi-file drops, the
+overlay remove button, `normalizedRGBA8Image()`, and model-specific
+`attentionHeadCount` discovery.
 
-`ImageGallery.shared` is reached from 37 sites:
+### Gallery ownership and memory architecture
 
-| File | Sites | Notes |
-|---|---|---|
-| `Support/GalleryController.swift` | 16 | the main one; the prototype injected here |
-| `Support/GenerationController.swift` | 14 | mostly `selected()` for copy-to-prompt |
-| `Support/GenerationService.swift` | 3 | `images.endIndex`, `setCurrentGenerating`, `clearCurrentGenerating` |
-| `Support/Functions.swift` | 1 | `updateMetadata` |
-| `Views/AppView.swift` | 1 | `.environment(ImageGallery.shared)` — the real injection point |
-| `Views/InspectorView.swift` | 1 | `#Preview` only |
-| `Views/GalleryToolbarView.swift` | 1 | `#Preview` only |
+- `80143a6` — injects the gallery into its consumers.
+- `ff00aec` — records image dimensions without requiring decoded pixels.
+- `dca4479` — renders the grid from on-demand thumbnails.
+- `c87fa79` — removes the `ImageGallery` and `GenerationService` singletons.
 
-Shape, following the prototype (its `GalleryController` has 21 `imageGallery`
-references and its `GenerationController` takes one too, both with a convenience init
-for production):
+The central design is complete:
 
-```swift
-init(configStore: ConfigStore, imageGallery: ImageGallery, …)
-convenience init(configStore: ConfigStore, …)   // passes ImageGallery.shared
-```
+- `ImageRecord.imageData` is optional: present for a fresh generation result and absent
+  for a disk scan.
+- `GalleryThumbnailProvider` is an actor with `NSCache`, in-flight request coalescing,
+  ImageIO downsampling, and rendered-geometry/display-scale size buckets.
+- `GalleryFullImageProvider` loads the few full-size images that are actually needed.
+- Both providers are app-owned and injected through the SwiftUI environment.
+- Production code has no `ImageGallery.shared` access.
+- Gallery loading and provider behaviour have dedicated tests.
 
-Same seam pattern the project already uses for `ConfigStore(store:)`,
-`EngineRegistry(engines:)`, `SecretStore` and `HTTPSession`.
+## 2. Gallery integration still to finish
 
-**The trap:** a half-finished injection *compiles*. Leftover `ImageGallery.shared`
-calls stay valid, so nothing fails loudly. Finish by checking the count is zero
-outside `AppView` and the two `#Preview` blocks:
+The memory architecture deliberately leaves `sdi.image == nil` for images loaded from
+disk. The 2026-08-29 review found two consumers that still assume it is resident.
 
-```bash
-grep -rn "ImageGallery.shared" "Mochi Diffusion"
-```
+### Inspector full-image and related-image loading
 
-`GenerationService` is an actor and reaches the gallery through `MainActor.run`, so it
-needs the reference handed in rather than captured — check that it does not end up
-holding a main-actor object across an isolation boundary.
+`InspectorView` enters its entire content only when the selected `SDImage` has a resident
+`CGImage`. A disk-loaded selection therefore displays **No Info**, and its starting,
+ControlNet and reference-image previews cannot resolve either.
 
-Worth adding once the seam exists: a `GalleryController` test that loads from a
-scratch directory into its own `ImageGallery`. `ControllerLifecycleTests` is the only
-file that touches `GalleryController` today and it only covers shutdown.
+Adapt the prototype's implementation:
 
-## 2. Task: gallery thumbnail architecture
+- Inject `GalleryFullImageProvider` into the Inspector.
+- Load the selected image asynchronously while keeping the metadata visible.
+- Resolve related filenames case- and diacritic-insensitively against the injected
+  gallery, then load those records through the same provider.
+- Key the load task to selection and relevant gallery/path changes so stale work cannot
+  replace a newer selection.
 
-The largest remaining user-facing win, and independent of the engine layer.
+Add coverage for selecting a path-backed image whose `image` is nil and for resolving a
+related image by filename.
 
-### The problem
+### Set as Starting Image / Set as Input Image
 
-`ImageRecord` carries `var imageData: Data`, and `Functions.createSDImage(from:)`
-decodes a **full-size `CGImage` per gallery entry**. A decoded 1024×1024 image is
-about 4 MB, so a few hundred gallery images is gigabytes resident. The prototype's
-`ImageRecord` has no `imageData` field at all: the gallery load path never decodes,
-and thumbnails are read from disk on demand.
+`GenerationController.selectStartingImage(sdi:)` and `addInputImage(sdi:)` currently
+guard on `sdi.image`, so both silently do nothing for disk-loaded gallery entries.
+The context menu and Image command also always choose **Set as Starting Image**, even
+when the current model accepts references instead.
 
-Note the engine work *added* `imageData` (for inserting generation results), so
-relative to where the prototype was heading, this repo moved the wrong way.
+Adapt the prototype's `selectReferenceImage(sdi:)` behaviour to current constraints:
 
-### What to port
+- Load the image through the app-owned `GalleryFullImageProvider`.
+- If `currentConstraints.inputImages` is supported, add it as a reference.
+- Otherwise, if `currentConstraints.startingImage` is supported, use it as the starting
+  image.
+- Disable or omit the action if the model supports neither.
+- Preserve the gallery filename in the corresponding metadata field.
 
-Both live at the top of the prototype's `Views/GalleryItemView.swift`:
+Wire the context menu and keyboard command to that one operation and test both the Iris
+and Core ML destinations with a path-backed image.
 
-- **`GalleryThumbnailProvider`** — an actor with an `NSCache` (`countLimit: 256`) and
-  an in-flight request dictionary so scrolling does not spawn duplicate decodes of the
-  same path. Thumbnails via `CGImageSourceCreateThumbnailAtIndex` with
-  `kCGImageSourceCreateThumbnailFromImageAlways`, `…WithTransform`, and
-  `kCGImageSourceShouldCache: false`.
-- **`GalleryFullImageProvider`** — full images on demand, for QuickLook and sharing.
+## 3. Generation restoration
 
-Both are handed to views through environment keys (`\.galleryThumbnailProvider`), and
-constructed once in `MochiDiffusionApp`.
+### Keep the idea; redesign the implementation
 
-The sizing detail is the careful part and should be copied exactly:
-`GalleryItemView.thumbnailPixelSize(for:)` takes the **actual rendered geometry ×
-`displayScale`**, rounds up into 32px buckets and clamps to 64…1024. The bucketing is
-what keeps the cache key stable across small window resizes instead of thrashing on
-every point of drag.
+The prototype's `GenerationConfigRestorer` unifies:
 
-### The four call sites that assume `sdi.image` is resident
+- copying all options from a gallery image; and
+- copying all options from a queued request.
 
-These are what breaks when the image is no longer decoded at load:
+Those remain unrelated paths here: `GenerationController.copyToPrompt(_:)` restores only
+scalar gallery metadata, while `JobQueueView.copyOptionsToSidebar()` contains model,
+starting-image, reference-image and ControlNet reconstruction inline.
 
-| Site | What it needs |
-|---|---|
-| `Views/GalleryItemView.swift:75` | the thumbnail — the main change |
-| `Views/GalleryToolbarView.swift:71` | share sheet; prefers `sdi.path`, falls back to the image |
-| `Support/QuickLookState.swift:44` | the prototype prefers the path and only materialises an image when there is none |
-| `Views/GalleryView.swift:97` | drag-out; already prefers `sdi.path` and falls back to a temp file |
+Keep these behaviours:
 
-### Decide before starting: does `ImageRecord.imageData` survive?
+- Resolve an exact source model by `ModelID`, with display-name fallback only for legacy
+  images.
+- Select the destination model before deciding which options apply.
+- Intersect the source image's `presentFields` with what the destination model accepts.
+- Gate through `OptionConstraints`, not `metadataFields`: recording an option and
+  accepting one are distinct contracts.
+- Restore starting and reference images into their separate sections.
+- Resolve gallery filenames against the injected gallery and load them through
+  `GalleryFullImageProvider`; queued requests already carry their encoded pixels.
+- Restore queued values from the request, because they were already resolved by `plan`.
+- Keep a missing source model from clearing the current selection or enabling every
+  source field.
 
-The open question from the discussion, unresolved:
+Do not port `GenerationConfigEditing` mechanically. Prefer a deterministic value-type
+restore plan, with a small `@MainActor` application layer for controller/store mutation
+and an asynchronous image-resolution phase. The restorer should decide whether a field
+applies, but it must not become a second value-normalization point: `plan` remains the
+single place model constraints resolve a draft.
 
-- It is what forces the full decode on the gallery load path.
-- But it is *also* how a freshly generated result reaches the gallery, where the bytes
-  are already in hand and re-reading from disk would be wasteful.
+Known limits that tests and UI must state honestly:
 
-So the likely answer is **`imageData: Data?`** — populated for generation results, nil
-for disk-loaded records — rather than removing it. Settle this first, because it
-decides whether the change is contained to rendering or reaches into the insert path
-too.
+- Saved image metadata does not currently record starting-image strength.
+- It does not carry enough ControlNet identity to reconstruct a gallery source fully.
+- Scheduler restoration is entangled with the engine-scoped scheduler work in
+  `Engine-Future-Work.md`; do not silently restore an unknown sampler as DPM-Solver++.
 
-## 3. Remaining `temp/MochiDiffusion` carry-over
+The prototype's 421-line test file is useful as a behavioural inventory, not as code to
+copy. Rewrite coverage around `ModelID`, `OptionConstraints`, missing models, the two
+image sections, path-backed gallery images, and queued request payload-independent fields.
 
-Already landed, for reference: `IrisReferenceImageSupport` (crop, processor, budget
-estimator), `CropSelectionView` and the crop popover, the `InputImagesView` layout,
-`StartingImageView`, `ImageWellView`'s multi-file drop and overlay remove button,
-`normalizedRGBA8Image()`, and `attentionHeadCount`.
+## 4. Core ML safety and pipeline caching
 
-### `GenerationConfigRestorer` + `GenerationConfigEditing`
+This is a live defect, not only a missing test.
 
-One restorer for both "copy options from a gallery image" and "copy options from a
-queued request", which are still two unrelated paths here
-(`GenerationController.copy*ToPrompt` and `JobQueueView.copyOptionsToSidebar`). Came
-with 421 lines of tests in the prototype.
+`CoreMLEngineRuntime.loadPipelineIfNeeded` omits safety state from its cache key and
+constructs every SD 1.5 pipeline with `disableSafety: true`. The per-request generation
+configuration cannot enable a checker that was excluded when the pipeline was built.
 
-Two ideas worth keeping even if none of the code is:
+Adapt the prototype's `makePipelineLoadOptions` idea:
 
-- **`compatibleRestoreMetadataFields`** intersects the source's fields with the
-  *destination model's*, so restoring a Core ML image's options while a Klein model is
-  selected does not push values that model ignores.
-- **It restores the images**, resolving `startingImage` and `inputImages` filenames
-  against the gallery. `copyToPrompt` here still restores only numbers and text — copy
-  options from an img2img result today and you get the seed and steps but not the
-  picture.
+- For SD 1.5, derive the constructor-time `disableSafety` value from the resolved Core ML
+  payload, include it in the cache identity, and pass it to `StableDiffusionPipeline`.
+- For SDXL and SD3, keep constructor-time safety out of the key because those pipelines
+  use the per-request setting.
+- Keep the existing model, ControlNet/link location, compute-unit and memory inputs in
+  the same cache identity.
 
-**Do it better than the prototype:** intersect against the destination model's
-**`OptionConstraints`** (what it can accept) rather than its `metadataFields` (what it
-records). That distinction did not exist when the prototype was written.
+Adapt the prototype's two `SDImageGeneratorTests` and add a third assertion that changing
+the toggle does not invalidate an SDXL/SD3 key unnecessarily.
 
-This got *more* valuable in `a3ccde3`: with two image sections, a restorer has to put
-each image back in the right one, and `JobQueueView` now does that inline. That logic
-wants to live in the restorer.
+## 5. Output filenames and image-directory handling — implemented 2026-08-29
 
-The prototype's version is unfinished — `case .scheduler` is commented out, with TODOs
-for starting-image strength and ControlNet.
+The earlier carry-over list understated this as `ImageRepository.imageCount(imageDir:)`.
+The useful prototype work is the surrounding filename and destination handling.
 
-### Pipeline-cache invalidation test
+Filename construction is now shared by generation and `SDImage` export paths. Prompt text
+is reduced to a bounded, human-readable filename component; path punctuation cannot become
+a directory traversal, and blank or punctuation-only prompts use `Image` as a stable
+fallback.
 
-The prototype's `SDImageGeneratorTests` is 44 lines, two tests, pinning that flipping
-the safety toggle invalidates the cached SD 1.5 pipeline. `CoreMLEngineRuntime` still
-caches a loaded pipeline and has no test suite of its own — and safety became a Core
-ML-scoped setting in Phase 5, so the interaction changed since.
+`ImageRepository` also treats caller-supplied names as filename components and owns
+collision allocation. Generation writes and Save All preserve an existing file and choose
+`-2`, `-3`, … suffixes. Allocation and writing are synchronous operations on the repository
+actor, so concurrent app writes cannot choose the same candidate. This deliberately makes
+the gallery-derived numeric count presentation only rather than relying on it for
+uniqueness.
 
-### Trivia
+All repository operations now resolve an empty image-directory setting consistently,
+including import and folder synchronization. The default location is injectable for tests.
+Coverage includes prompt sanitization and fallback, the length cap, repository path
+containment, duplicate and concurrent writes, Save All collisions, and default-directory
+writes and imports.
 
-`ImageRepository.imageCount(imageDir:)` and `SDImage.transferFileURL()` — extractions
-of logic this repo does inline. Take or leave.
+## 6. Low-priority carry-over
 
-### Deliberately skipped
+### `SDImage.transferFileURL()`
 
-- **All Lora**: `Flux2LoraLibrary`, `LoraNotesStore`, `LoraView`, and the
-  `.lora`/`.loraStrength` metadata fields. Excluded by decision, not oversight.
-- **The `NotificationService` static-enum refactor.** This repo already handles
-  notification authorization, and converting to static methods would make it *less*
-  injectable — which matters, because `NotificationController.shared` having no seam is
-  the recorded reason the queue-teardown race cannot be pinned by a test. If you touch
-  it, inject a protocol instead.
-- **Anything capability-flag-shaped** (`supportsInputImages`,
-  `GenerationCapabilitiesTests`). Superseded by `OptionConstraints`.
+Optional cleanup. Its path-first behaviour already exists inline in gallery drag-out and
+Quick Look: return the existing file when there is one, otherwise materialise a resident
+image in a temporary PNG. Port it only if centralising that duplication is useful. The two
+prototype tests are worthwhile if it is ported.
 
-## 4. Also queued, unrelated to the gallery
+### Gallery regression tests
 
-**OpenAI input images.** The engine declares `inputImages: .unsupported` today, which
-is honest: input images go to `/v1/images/edits`, which takes a multipart form rather
-than the JSON streaming body `OpenAIEngineRuntime` currently builds. So this is a new
-request path, not a raised number. The constraint layer already expresses what it
-needs — `inputImages: .supported(maxCount:)` with no starting image, since the edits
-endpoint takes references and no strength. Re-verify that against current API
-documentation when implementing; §13.2 of the closed design doc records what was read
-in August 2026, and the model list there is deliberately hand-maintained.
+The prototype also had tests that a generated result inserts a resident image without
+losing its saved path, that repeated full-image requests use the cache, and that transfer
+URLs prefer the original file. Current coverage handles most of the surrounding design,
+but these are reasonable additions when their code paths are next touched.
+
+## 7. Deliberately skipped or superseded
+
+- **All LoRA work:** excluded by decision, not oversight.
+- **`NotificationService` as a static enum:** do not port. Static methods are less
+  injectable; if notification delivery is touched, introduce a protocol seam instead.
+- **`GenerationCapabilities` and capability flags:** superseded by per-model
+  `OptionConstraints`.
+- **`SDImageGenerator`, `IrisFluxKleinImageGenerator`, `GenerationPipeline`, and their
+  cancellation/update bridges:** superseded by engine descriptors/runtimes,
+  `GenerationSession`, typed payload ownership and `IrisSingleFlight`.
+- **`MessageBanner`:** superseded by separate discovery reporting and generation-outcome
+  alerts.
+
+No other non-LoRA prototype area stood out after comparing the source and test inventories.
+
+## 8. Unrelated future item retained from the branch handoff
+
+**OpenAI input images.** The engine declares `inputImages: .unsupported`, which is honest:
+the edits endpoint takes a multipart form rather than the JSON streaming body
+`OpenAIEngineRuntime` currently builds. This requires a separate request path, not merely a
+higher constraint count. Re-verify the current API before implementing it; the model list
+and endpoint details recorded in the closed multi-engine design were intentionally
+hand-maintained.
