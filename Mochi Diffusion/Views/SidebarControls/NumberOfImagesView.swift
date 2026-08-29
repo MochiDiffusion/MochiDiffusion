@@ -31,9 +31,3 @@ struct NumberOfImagesView: View {
         }
     }
 }
-
-#Preview {
-    NumberOfImagesView()
-        .environment(GenerationController(configStore: ConfigStore()))
-        .environment(ConfigStore())
-}

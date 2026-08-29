@@ -176,6 +176,43 @@ nonisolated func makeKleinModelFixture(
     }
 }
 
+// MARK: - Controllers
+
+/// Builds a `GenerationController` with a gallery and a queue of its own.
+///
+/// `GenerationController.init` requires both on purpose: there is no
+/// `ImageGallery.shared` any more, so a default would have to be a *fresh* gallery,
+/// and a production call site that forgot to pass one would silently generate into a
+/// gallery nobody is showing. Making it required means the compiler asks.
+///
+/// Tests almost always want throwaway instances, so they ask here instead of
+/// repeating the pair at every call site — and each test getting its own of both is
+/// what lets these suites run in parallel.
+@MainActor
+func makeTestGenerationController(
+    configStore: ConfigStore,
+    modelRepository: ModelRepository = ModelRepository(),
+    imageRepository: ImageRepository = ImageRepository(),
+    imageGallery: ImageGallery = ImageGallery(),
+    engineRegistry: EngineRegistry = EngineRegistry(),
+    engineSettings: EngineSettingsStore? = nil,
+    startsObserving: Bool = true
+) -> GenerationController {
+    GenerationController(
+        configStore: configStore,
+        modelRepository: modelRepository,
+        imageRepository: imageRepository,
+        imageGallery: imageGallery,
+        generationService: GenerationService(
+            engineRegistry: engineRegistry,
+            imageGallery: imageGallery
+        ),
+        engineRegistry: engineRegistry,
+        engineSettings: engineSettings,
+        startsObserving: startsObserving
+    )
+}
+
 // MARK: - Images
 
 nonisolated func makeCGImage(width: Int = 8, height: Int = 8) -> CGImage {

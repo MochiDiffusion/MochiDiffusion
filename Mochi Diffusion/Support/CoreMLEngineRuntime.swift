@@ -273,7 +273,7 @@ actor CoreMLEngineRuntime: GenerationEngineRuntime {
         var resolvedControlNets: [String] = []
 
         if let size = model.inputSize {
-            if let data = request.startingImageData {
+            if let data = request.inputImageData.first {
                 startingImage = CGImage.fromData(data)?.scaledAndCroppedTo(size: size)
             }
 

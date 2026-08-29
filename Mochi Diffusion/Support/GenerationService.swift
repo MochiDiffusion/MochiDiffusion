@@ -14,13 +14,15 @@ actor GenerationService {
         var current: GenerationRequest?
     }
 
-    /// The one place the real credential store is wired in. The initialiser's
-    /// default is deliberately the keychain-free registry, so a test that does not
-    /// pass one cannot reach the user's keychain.
-    static let shared = GenerationService(
-        engineRegistry: EngineRegistry(secrets: KeychainSecretStore())
-    )
-
+    /// The gallery this queue numbers output against and publishes previews to.
+    ///
+    /// Storing a `@MainActor` type in an actor is sound — global-actor isolation
+    /// makes it `Sendable`, and every use below still goes through `MainActor.run`.
+    /// Injected so the suites that drive this queue can each have their own gallery:
+    /// two separately serialized suites are serial within themselves but not against
+    /// each other, which is how a shared singleton produces a flake that passes alone
+    /// and fails in a full run.
+    private let imageGallery: ImageGallery
     private var logger = Logger()
     private var queue: [GenerationRequest] = []
     private var current: GenerationRequest?
@@ -59,11 +61,13 @@ actor GenerationService {
     init(
         imageRepository: ImageRepository = ImageRepository(),
         modelRepository: ModelRepository = ModelRepository(),
-        engineRegistry: EngineRegistry = EngineRegistry()
+        engineRegistry: EngineRegistry = EngineRegistry(),
+        imageGallery: ImageGallery
     ) {
         self.imageRepository = imageRepository
         self.modelRepository = modelRepository
         self.engineRegistry = engineRegistry
+        self.imageGallery = imageGallery
     }
 
     /// Latest-state stream: only the newest snapshot matters, so a suspended UI
@@ -206,7 +210,7 @@ actor GenerationService {
                 let outputDirectory = try await imageRepository.ensureOutputDirectory(
                     imageDir: request.imageDir
                 )
-                nextImageIndex = await MainActor.run { ImageGallery.shared.images.endIndex + 1 }
+                nextImageIndex = await MainActor.run { imageGallery.images.endIndex + 1 }
 
                 if isCancelRequested(for: request.id) {
                     restoreReadyAfterCancel = true
@@ -524,7 +528,7 @@ actor GenerationService {
         owner: GenerationRequest.ID
     ) async {
         await MainActor.run {
-            ImageGallery.shared.setCurrentGenerating(image: image, owner: owner)
+            imageGallery.setCurrentGenerating(image: image, owner: owner)
         }
     }
 
@@ -532,7 +536,7 @@ actor GenerationService {
     /// cannot erase a preview the next has already put up.
     private func clearCurrentGeneratingImage(owner: GenerationRequest.ID) async {
         await MainActor.run {
-            ImageGallery.shared.clearCurrentGenerating(owner: owner)
+            imageGallery.clearCurrentGenerating(owner: owner)
         }
     }
 

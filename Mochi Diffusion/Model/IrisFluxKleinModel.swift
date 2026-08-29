@@ -8,15 +8,16 @@ import Foundation
 nonisolated struct IrisFluxKleinModel: EngineModel {
     /// FLUX.2 Klein is distilled: four steps on the flow-match scheduler, and no
     /// classifier-free guidance, so there is no negative prompt or guidance scale
-    /// to offer. It accepts a starting image but treats it as an input image
-    /// rather than a denoising origin, so strength has no meaning.
+    /// to offer. It attends to images as references rather than denoising from
+    /// one, so it declares input images and no starting image at all.
     static let constraints = OptionConstraints(
         supportsNegativePrompt: false,
         size: .freeform(range: 64...1_792, step: 16),
         steps: .pinned(distilledStepCount),
         guidanceScale: .unsupported,
         scheduler: .pinned(.discreteFlowScheduler),
-        startingImage: .supported(strength: .unsupported),
+        startingImage: .unsupported,
+        inputImages: .supported(maxCount: IrisEngine.maxReferenceImages),
         controlNet: .unsupported,
         quality: .unsupported,
         numberOfImages: .range(1...100, step: 1, acceptsBeyondUpperBound: true),
@@ -37,8 +38,17 @@ nonisolated struct IrisFluxKleinModel: EngineModel {
         .steps,
     ]
 
+    /// Fallback when the transformer config cannot be read. Klein's own value; a
+    /// wrong head count only misestimates the reference budget, so guessing is
+    /// better than refusing to load the model.
+    static let defaultAttentionHeadCount = 24
+
     let url: URL
     let name: String
+    /// Read from `transformer/config.json`. Attention memory grows with the square
+    /// of the sequence length *times* the head count, so this is what makes the
+    /// reference budget a real estimate rather than a guess.
+    let attentionHeadCount: Int
 
     var id: ModelID { ModelID(engine: .iris, key: ModelID.localKey(for: url)) }
     var tokenizerModelDir: URL? { url.appending(path: "tokenizer") }
@@ -49,7 +59,28 @@ nonisolated struct IrisFluxKleinModel: EngineModel {
         guard isIrisFluxKleinModelDirectory(url) else { return nil }
         self.url = url
         self.name = name
+        self.attentionHeadCount = readAttentionHeadCount(from: url)
     }
+}
+
+nonisolated private func readAttentionHeadCount(from modelURL: URL) -> Int {
+    let configURL = modelURL.appending(components: "transformer", "config.json")
+    guard
+        let data = try? Data(contentsOf: configURL),
+        let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+    else {
+        return IrisFluxKleinModel.defaultAttentionHeadCount
+    }
+
+    if let value = json["num_attention_heads"] as? Int, value > 0 {
+        return value
+    }
+
+    if let value = json["num_attention_heads"] as? NSNumber, value.intValue > 0 {
+        return value.intValue
+    }
+
+    return IrisFluxKleinModel.defaultAttentionHeadCount
 }
 
 nonisolated private func isIrisFluxKleinModelDirectory(_ url: URL) -> Bool {

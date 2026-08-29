@@ -386,19 +386,94 @@ struct OptionConstraintsTests {
         #expect(offered.resolved(.discreteFlowScheduler) == .pndmScheduler)
     }
 
-    // MARK: - Starting image and ControlNet
+    // MARK: - Starting image, input images and ControlNet
 
     /// Nesting strength inside the starting-image constraint is what makes
-    /// "strength but no starting image" unrepresentable. Iris is the case that
-    /// needs it: it takes a starting image and ignores strength.
+    /// "strength but nothing to apply it to" unrepresentable.
     @Test("Strength is unreachable without a starting image")
     func strengthRequiresStartingImage() {
         #expect(StartingImageConstraint.unsupported.strength == .unsupported)
         #expect(!StartingImageConstraint.unsupported.isSupported)
+        #expect(StartingImageConstraint.unsupported.resolved(makeInputImage()) == nil)
 
-        let inputImageOnly = StartingImageConstraint.supported(strength: .unsupported)
-        #expect(inputImageOnly.isSupported)
-        #expect(inputImageOnly.strength.resolved(0.5) == nil)
+        let supported = StartingImageConstraint.supported(strength: .range(0...1, step: nil))
+        #expect(supported.isSupported)
+        #expect(supported.strength.resolved(0.5) == 0.5)
+    }
+
+    /// The two are independent, so all four combinations are expressible. Draw
+    /// Things does img2img and moodboard conditioning at once, which an enum with a
+    /// case per kind could not say.
+    @Test("A starting image and input images are declared separately")
+    func startingImageAndInputImagesAreIndependent() {
+        // Both at once, which the previous single-enum shape could not express.
+        let both = OptionConstraints.unconstrained
+        #expect(both.startingImage.isSupported)
+        #expect(both.inputImages.isSupported)
+
+        // References only, and therefore no strength.
+        #expect(!IrisFluxKleinModel.constraints.startingImage.isSupported)
+        #expect(IrisFluxKleinModel.constraints.inputImages.isSupported)
+        #expect(!IrisFluxKleinModel.constraints.startingImage.strength.isSupported)
+    }
+
+    @Test("An unsupported constraint accepts nothing and counts zero")
+    func unsupportedInputImagesTakesNothing() {
+        let constraint = InputImagesConstraint.unsupported
+
+        #expect(constraint.maxCount == 0)
+        #expect(constraint.resolved([makeInputImage(), makeInputImage()]).isEmpty)
+    }
+
+    /// The front of the list, not any other subset: order is meaningful to the
+    /// engines — Core ML denoises from the first — and the images a user added first
+    /// are the ones they meant most.
+    @Test("Extra images are dropped from the end")
+    func resolvedKeepsLeadingImages() {
+        let first = makeInputImage(name: "first.png")
+        let second = makeInputImage(name: "second.png")
+        let third = makeInputImage(name: "third.png")
+        let constraint = InputImagesConstraint.supported(maxCount: 2)
+
+        #expect(constraint.resolved([first, second, third]) == [first, second])
+        #expect(constraint.resolved([first]) == [first])
+        #expect(constraint.resolved([]).isEmpty)
+    }
+
+    /// A guard against metadata that claims an image the request never carried.
+    /// Data and names come out of one pass precisely so they cannot disagree.
+    @Test("Preparing truncates and names only what survives")
+    func preparedPairsDataWithNames() {
+        let named = makeInputImage(name: "kept.png")
+        let unnamed = makeInputImage(name: nil)
+        let dropped = makeInputImage(name: "dropped.png")
+        let constraint = InputImagesConstraint.supported(maxCount: 2)
+
+        let prepared = constraint.prepared(
+            [named, unnamed, dropped],
+            scaledTo: CGSize(width: 16, height: 16)
+        )
+
+        // Two images, because the third is past the cap.
+        #expect(prepared.data.count == 2)
+        // One name, because the second image never had one — and crucially *not*
+        // "dropped.png", whose image was not sent.
+        #expect(prepared.names == ["kept.png"])
+    }
+
+    @Test("An unsupported constraint prepares nothing even when handed images")
+    func preparedRespectsUnsupported() {
+        let prepared = InputImagesConstraint.unsupported.prepared(
+            [makeInputImage(name: "ignored.png")],
+            scaledTo: CGSize(width: 16, height: 16)
+        )
+
+        #expect(prepared.data.isEmpty)
+        #expect(prepared.names.isEmpty)
+    }
+
+    private func makeInputImage(name: String? = nil) -> InputImage {
+        InputImage(image: makeCGImage(), name: name)
     }
 
     @Test("ControlNet carries the names the model can actually use")
@@ -444,8 +519,10 @@ struct ModelVisibilityTests {
         #expect(constraints.steps.isSupported)
         #expect(!constraints.steps.isEditable)
         #expect(!constraints.scheduler.isEditable)
-        // A starting image is still accepted, as an input image.
-        #expect(constraints.startingImage.isSupported)
+        // Images are accepted as references, up to what `iris_multiref` takes.
+        #expect(constraints.inputImages.isSupported)
+        #expect(constraints.inputImages.isSupported)
+        #expect(constraints.inputImages.maxCount == IrisEngine.maxReferenceImages)
     }
 
     @Test("A fixed-size Core ML model shows its size read-only")

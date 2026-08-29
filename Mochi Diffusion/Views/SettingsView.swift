@@ -670,10 +670,3 @@ struct SettingsView: View {
         return url
     }
 }
-
-#Preview {
-    SettingsView()
-        .environment(ConfigStore())
-        .environment(GenerationController(configStore: ConfigStore()))
-        .environment(NotificationController.shared)
-}

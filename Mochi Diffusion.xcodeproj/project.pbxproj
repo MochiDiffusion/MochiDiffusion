@@ -32,6 +32,7 @@
 		03173C132999E2B500B03456 /* EngineModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03173C122999E2B500B03456 /* EngineModel.swift */; };
 		AA3000000000000000000001 /* EngineIdentity.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1100000000000000000001 /* EngineIdentity.swift */; };
 		AA3000000000000000000031 /* OptionConstraints.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1100000000000000000031 /* OptionConstraints.swift */; };
+		AA3000000000000000000099 /* InputImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1100000000000000000099 /* InputImage.swift */; };
 		AA50000000000000000002032 /* ImageQuality.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA50000000000000000002031 /* ImageQuality.swift */; };
 		03173C18299B3C1300B03456 /* ImageGallery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03173C17299B3C1300B03456 /* ImageGallery.swift */; };
 		0352E2A5294E2591003FBF25 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 0352E2A4294E2591003FBF25 /* Sparkle */; };
@@ -50,7 +51,7 @@
 		036BFC26294B9F7600D8AD04 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 036BFC25294B9F7600D8AD04 /* Assets.xcassets */; };
 		036BFC29294B9F7600D8AD04 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 036BFC28294B9F7600D8AD04 /* Preview Assets.xcassets */; };
 		0373FF5429A9165600C0180F /* AppCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0373FF5329A9165600C0180F /* AppCommands.swift */; };
-		0380934329AD504600EDBC8E /* StartingImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0380934229AD504600EDBC8E /* StartingImageView.swift */; };
+		0380934329AD504600EDBC8E /* InputImagesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0380934229AD504600EDBC8E /* InputImagesView.swift */; };
 		0386DF8B2950D29400CA4CEB /* InspectorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0386DF8A2950D29400CA4CEB /* InspectorView.swift */; };
 		0386DF8D2950F25500CA4CEB /* GalleryToolbarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0386DF8C2950F25500CA4CEB /* GalleryToolbarView.swift */; };
 		0388DEB0297B00FC008B1C1C /* CompactSlider in Frameworks */ = {isa = PBXBuildFile; productRef = 0388DEAF297B00FC008B1C1C /* CompactSlider */; };
@@ -74,6 +75,9 @@
 		71D315162B2A584E007FFDEB /* NotificationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71D315152B2A584E007FFDEB /* NotificationController.swift */; };
 		73F2FE036E51455A99DBC80B /* GenerationRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E790ECE28024A119CB77474 /* GenerationRequest.swift */; };
 		C0DEC0DEC0DEC0DEC0DE0002 /* MetadataCodec.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DEC0DEC0DEC0DEC0DE0001 /* MetadataCodec.swift */; };
+		AA3000000000000000000098 /* IrisReferenceImageSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1100000000000000000098 /* IrisReferenceImageSupport.swift */; };
+		AA80000000000000000000012 /* GalleryImageProviders.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA80000000000000000000011 /* GalleryImageProviders.swift */; };
+		AA3000000000000000000097 /* StartingImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1100000000000000000097 /* StartingImageView.swift */; };
 		AA4000000000000000000002 /* PreferenceMigration.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA4000000000000000000001 /* PreferenceMigration.swift */; };
 		AA50000000000000000001102 /* GenerationEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA50000000000000000001101 /* GenerationEngine.swift */; };
 		AA50000000000000000001942 /* IrisSingleFlight.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA50000000000000000001941 /* IrisSingleFlight.swift */; };
@@ -125,6 +129,8 @@
 		AA50000000000000000001972 /* EngineSelectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA50000000000000000001971 /* EngineSelectionTests.swift */; };
 		AA5000000000000000002048 /* FailureReportingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA5000000000000000002047 /* FailureReportingTests.swift */; };
 		AA50000000000000000001982 /* QueueLivenessTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA50000000000000000001981 /* QueueLivenessTests.swift */; };
+		AA70000000000000000000012 /* GalleryLoadingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA70000000000000000000011 /* GalleryLoadingTests.swift */; };
+		AA70000000000000000000022 /* GalleryImageProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA70000000000000000000021 /* GalleryImageProviderTests.swift */; };
 		AA50000000000000000001992 /* GenerationOwnershipTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA50000000000000000001991 /* GenerationOwnershipTests.swift */; };
 		AA50000000000000000002002 /* IdleTimeoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA50000000000000000002001 /* IdleTimeoutTests.swift */; };
 		AA50000000000000000002022 /* SecretStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA50000000000000000002021 /* SecretStoreTests.swift */; };
@@ -165,6 +171,7 @@
 		03173C122999E2B500B03456 /* EngineModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngineModel.swift; sourceTree = "<group>"; };
 		AA1100000000000000000001 /* EngineIdentity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngineIdentity.swift; sourceTree = "<group>"; };
 		AA1100000000000000000031 /* OptionConstraints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionConstraints.swift; sourceTree = "<group>"; };
+		AA1100000000000000000099 /* InputImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputImage.swift; sourceTree = "<group>"; };
 		AA50000000000000000002031 /* ImageQuality.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageQuality.swift; sourceTree = "<group>"; };
 		03173C17299B3C1300B03456 /* ImageGallery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageGallery.swift; sourceTree = "<group>"; };
 		031AC9D3296881F500F95E4B /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -193,7 +200,7 @@
 		03732B72296948360042C8B1 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
 		0373FF5329A9165600C0180F /* AppCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCommands.swift; sourceTree = "<group>"; };
 		0377877D297892B6002E3926 /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/Localizable.strings; sourceTree = "<group>"; };
-		0380934229AD504600EDBC8E /* StartingImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartingImageView.swift; sourceTree = "<group>"; };
+		0380934229AD504600EDBC8E /* InputImagesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputImagesView.swift; sourceTree = "<group>"; };
 		0386DF8A2950D29400CA4CEB /* InspectorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InspectorView.swift; sourceTree = "<group>"; };
 		0386DF8C2950F25500CA4CEB /* GalleryToolbarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryToolbarView.swift; sourceTree = "<group>"; };
 		038994DB2985D111007F5A61 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -215,6 +222,9 @@
 		03F75CEC2979B3910071CD1C /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		0E790ECE28024A119CB77474 /* GenerationRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationRequest.swift; sourceTree = "<group>"; };
 		C0DEC0DEC0DEC0DEC0DE0001 /* MetadataCodec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetadataCodec.swift; sourceTree = "<group>"; };
+		AA1100000000000000000098 /* IrisReferenceImageSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IrisReferenceImageSupport.swift; sourceTree = "<group>"; };
+		AA80000000000000000000011 /* GalleryImageProviders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryImageProviders.swift; sourceTree = "<group>"; };
+		AA1100000000000000000097 /* StartingImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartingImageView.swift; sourceTree = "<group>"; };
 		AA4000000000000000000001 /* PreferenceMigration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferenceMigration.swift; sourceTree = "<group>"; };
 		AA50000000000000000001101 /* GenerationEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationEngine.swift; sourceTree = "<group>"; };
 		AA50000000000000000001941 /* IrisSingleFlight.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IrisSingleFlight.swift; sourceTree = "<group>"; };
@@ -274,6 +284,8 @@
 		AA50000000000000000001971 /* EngineSelectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngineSelectionTests.swift; sourceTree = "<group>"; };
 		AA5000000000000000002047 /* FailureReportingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FailureReportingTests.swift; sourceTree = "<group>"; };
 		AA50000000000000000001981 /* QueueLivenessTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueueLivenessTests.swift; sourceTree = "<group>"; };
+		AA70000000000000000000011 /* GalleryLoadingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryLoadingTests.swift; sourceTree = "<group>"; };
+		AA70000000000000000000021 /* GalleryImageProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryImageProviderTests.swift; sourceTree = "<group>"; };
 		AA50000000000000000001991 /* GenerationOwnershipTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationOwnershipTests.swift; sourceTree = "<group>"; };
 		AA50000000000000000002001 /* IdleTimeoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdleTimeoutTests.swift; sourceTree = "<group>"; };
 		AA50000000000000000002021 /* SecretStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecretStoreTests.swift; sourceTree = "<group>"; };
@@ -341,6 +353,8 @@
 				03173C102999D83600B03456 /* CoreMLEngineRuntime.swift */,
 				52F2A312D80E8D81A88D7636 /* ImageRepository.swift */,
 				C0DEC0DEC0DEC0DEC0DE0001 /* MetadataCodec.swift */,
+				AA1100000000000000000098 /* IrisReferenceImageSupport.swift */,
+				AA80000000000000000000011 /* GalleryImageProviders.swift */,
 				AA4000000000000000000001 /* PreferenceMigration.swift */,
 				AA50000000000000000001101 /* GenerationEngine.swift */,
 				AA50000000000000000001941 /* IrisSingleFlight.swift */,
@@ -366,7 +380,8 @@
 			isa = PBXGroup;
 			children = (
 				03D280F1294FD60E00C7D184 /* PromptView.swift */,
-				0380934229AD504600EDBC8E /* StartingImageView.swift */,
+				0380934229AD504600EDBC8E /* InputImagesView.swift */,
+				AA1100000000000000000097 /* StartingImageView.swift */,
 				035EDFF2295A1FBF00080D18 /* NumberOfImagesView.swift */,
 				035EDFF7295A216500080D18 /* StepsView.swift */,
 				AA50000000000000000002071 /* QualityView.swift */,
@@ -461,6 +476,7 @@
 				03173C122999E2B500B03456 /* EngineModel.swift */,
 				AA1100000000000000000001 /* EngineIdentity.swift */,
 				AA1100000000000000000031 /* OptionConstraints.swift */,
+				AA1100000000000000000099 /* InputImage.swift */,
 				AA50000000000000000002031 /* ImageQuality.swift */,
 				BF3689662F3086B2006501CE /* IrisFluxKleinModel.swift */,
 				D7B03F1F29D42F9900DF89DD /* SDModelAttentionType.swift */,
@@ -512,6 +528,8 @@
 				AA50000000000000000001971 /* EngineSelectionTests.swift */,
 				AA5000000000000000002047 /* FailureReportingTests.swift */,
 				AA50000000000000000001981 /* QueueLivenessTests.swift */,
+				AA70000000000000000000011 /* GalleryLoadingTests.swift */,
+				AA70000000000000000000021 /* GalleryImageProviderTests.swift */,
 				AA50000000000000000001991 /* GenerationOwnershipTests.swift */,
 				AA50000000000000000002001 /* IdleTimeoutTests.swift */,
 				AA50000000000000000002021 /* SecretStoreTests.swift */,
@@ -755,6 +773,7 @@
 				03173C132999E2B500B03456 /* EngineModel.swift in Sources */,
 				AA3000000000000000000001 /* EngineIdentity.swift in Sources */,
 				AA3000000000000000000031 /* OptionConstraints.swift in Sources */,
+				AA3000000000000000000099 /* InputImage.swift in Sources */,
 				AA50000000000000000002032 /* ImageQuality.swift in Sources */,
 				0352E2B1294EA30D003FBF25 /* Extensions.swift in Sources */,
 				C1F0A1A42D0E6B6A00C0BEEF /* FileSystemStore.swift in Sources */,
@@ -774,11 +793,14 @@
 				AA50000000000000000002072 /* QualityView.swift in Sources */,
 				03061E6229AB9C06009AA2A2 /* FocusController.swift in Sources */,
 				C1220FC02AFB122F007E5055 /* ImageWellView.swift in Sources */,
-				0380934329AD504600EDBC8E /* StartingImageView.swift in Sources */,
+				0380934329AD504600EDBC8E /* InputImagesView.swift in Sources */,
+				AA3000000000000000000097 /* StartingImageView.swift in Sources */,
 				0EF066A162A2D255BF7624D3 /* ComputeUnitPreference.swift in Sources */,
 				463715C52EA79FC4AF642B78 /* GenerationController.swift in Sources */,
 				73F2FE036E51455A99DBC80B /* GenerationRequest.swift in Sources */,
 				C0DEC0DEC0DEC0DEC0DE0002 /* MetadataCodec.swift in Sources */,
+				AA3000000000000000000098 /* IrisReferenceImageSupport.swift in Sources */,
+				AA80000000000000000000012 /* GalleryImageProviders.swift in Sources */,
 				AA4000000000000000000002 /* PreferenceMigration.swift in Sources */,
 				AA50000000000000000001102 /* GenerationEngine.swift in Sources */,
 				AA50000000000000000001942 /* IrisSingleFlight.swift in Sources */,
@@ -824,6 +846,8 @@
 				AA50000000000000000001972 /* EngineSelectionTests.swift in Sources */,
 				AA5000000000000000002048 /* FailureReportingTests.swift in Sources */,
 				AA50000000000000000001982 /* QueueLivenessTests.swift in Sources */,
+				AA70000000000000000000012 /* GalleryLoadingTests.swift in Sources */,
+				AA70000000000000000000022 /* GalleryImageProviderTests.swift in Sources */,
 				AA50000000000000000001992 /* GenerationOwnershipTests.swift in Sources */,
 				AA50000000000000000002002 /* IdleTimeoutTests.swift in Sources */,
 				AA50000000000000000002022 /* SecretStoreTests.swift in Sources */,

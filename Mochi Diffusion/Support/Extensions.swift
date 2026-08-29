@@ -51,6 +51,42 @@ extension NSImage {
 }
 
 extension CGImage {
+    /// Redraws into 8-bit premultiplied sRGB.
+    ///
+    /// A fallback for encoding: `pngData()` can fail on an image whose colour
+    /// space or bit depth the PNG destination will not take — a 16-bit or CMYK
+    /// source dragged in from another app. Redrawing costs one copy and makes the
+    /// encode succeed rather than dropping the image.
+    nonisolated func normalizedRGBA8Image() -> CGImage? {
+        let width = self.width
+        let height = self.height
+        guard width > 0, height > 0 else { return nil }
+
+        let colorSpace = CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB()
+        let bitmapInfo = CGBitmapInfo(
+            rawValue: CGImageAlphaInfo.premultipliedLast.rawValue
+                | CGBitmapInfo.byteOrder32Big.rawValue
+        )
+
+        guard
+            let context = CGContext(
+                data: nil,
+                width: width,
+                height: height,
+                bitsPerComponent: 8,
+                bytesPerRow: width * 4,
+                space: colorSpace,
+                bitmapInfo: bitmapInfo.rawValue
+            )
+        else {
+            return nil
+        }
+
+        context.interpolationQuality = .high
+        context.draw(self, in: CGRect(x: 0, y: 0, width: width, height: height))
+        return context.makeImage()
+    }
+
     nonisolated func pngData() -> Data? {
         guard
             let data = CFDataCreateMutable(nil, 0),

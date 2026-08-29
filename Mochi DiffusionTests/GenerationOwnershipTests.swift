@@ -17,71 +17,70 @@ import Testing
 /// result applied late erased a preview belonging to a generation still running.
 ///
 /// `.serialized` because `ImageGallery` is a main-actor singleton.
+/// No longer `.serialized`: each test gets its own gallery, so these cannot see
+/// each other's preview state. They shared `ImageGallery.shared` before, which is
+/// what made serialisation necessary.
 @MainActor
-@Suite(.serialized)
 struct PreviewOwnershipTests {
     private let first = UUID()
     private let second = UUID()
-
-    init() {
-        ImageGallery.shared.clearCurrentGenerating()
-    }
+    private let gallery = ImageGallery()
 
     @Test("A preview is shown and cleared by its owner")
     func ownerClearsItsOwnPreview() {
         let image = makeCGImage()
-        ImageGallery.shared.setCurrentGenerating(image: image, owner: first)
-        #expect(ImageGallery.shared.currentGeneratingImage != nil)
+        gallery.setCurrentGenerating(image: image, owner: first)
+        #expect(gallery.currentGeneratingImage != nil)
 
-        ImageGallery.shared.clearCurrentGenerating(owner: first)
+        gallery.clearCurrentGenerating(owner: first)
 
-        #expect(ImageGallery.shared.currentGeneratingImage == nil)
+        #expect(gallery.currentGeneratingImage == nil)
     }
 
     /// The defect. A finished request's teardown must not erase the preview of the
     /// one that has already started.
     @Test("A clear from another request leaves the preview alone")
     func clearFromAnotherRequestIsIgnored() {
-        ImageGallery.shared.setCurrentGenerating(image: makeCGImage(), owner: second)
+        gallery.setCurrentGenerating(image: makeCGImage(), owner: second)
 
-        ImageGallery.shared.clearCurrentGenerating(owner: first)
+        gallery.clearCurrentGenerating(owner: first)
 
-        #expect(ImageGallery.shared.currentGeneratingImage != nil)
+        #expect(gallery.currentGeneratingImage != nil)
     }
 
     /// The full ordering the bug needed: the next request takes the slot, and only
     /// then does the previous request's result get applied.
     @Test("A late result cannot erase the next request's preview")
     func lateResultDoesNotEraseNextPreview() {
-        ImageGallery.shared.setCurrentGenerating(image: makeCGImage(), owner: first)
-        ImageGallery.shared.setCurrentGenerating(image: makeCGImage(), owner: second)
+        gallery.setCurrentGenerating(image: makeCGImage(), owner: first)
+        gallery.setCurrentGenerating(image: makeCGImage(), owner: second)
 
         // `first`'s result is applied now, after `second` has taken the slot.
-        ImageGallery.shared.clearCurrentGenerating(owner: first)
+        gallery.clearCurrentGenerating(owner: first)
 
-        #expect(ImageGallery.shared.currentGeneratingImage != nil)
+        #expect(gallery.currentGeneratingImage != nil)
 
-        ImageGallery.shared.clearCurrentGenerating(owner: second)
+        gallery.clearCurrentGenerating(owner: second)
 
-        #expect(ImageGallery.shared.currentGeneratingImage == nil)
+        #expect(gallery.currentGeneratingImage == nil)
     }
 
     /// Teardown that is ending generation altogether, rather than finishing one
     /// request, still clears whatever is there.
     @Test("An unscoped clear takes the preview whoever owns it")
     func unscopedClearAlwaysClears() {
-        ImageGallery.shared.setCurrentGenerating(image: makeCGImage(), owner: second)
+        gallery.setCurrentGenerating(image: makeCGImage(), owner: second)
 
-        ImageGallery.shared.clearCurrentGenerating()
+        gallery.clearCurrentGenerating()
 
-        #expect(ImageGallery.shared.currentGeneratingImage == nil)
+        #expect(gallery.currentGeneratingImage == nil)
     }
 
     @Test("Clearing an unowned preview is harmless")
     func clearingWhenNothingIsShownIsHarmless() {
-        ImageGallery.shared.clearCurrentGenerating(owner: first)
+        gallery.clearCurrentGenerating(owner: first)
 
-        #expect(ImageGallery.shared.currentGeneratingImage == nil)
+        #expect(gallery.currentGeneratingImage == nil)
     }
 }
 
@@ -109,7 +108,7 @@ struct IrisCancelledWaiterTests {
             prompt: "a cat",
             negativePrompt: "",
             size: CGSize(width: 64, height: 64),
-            startingImageData: nil,
+            inputImageData: [],
             startingImageName: nil,
             controlNetImageData: [],
             controlNetNames: [],

@@ -48,7 +48,7 @@ struct JobQueueView: View {
             VStack {
                 if let currentGeneration = controller.currentGeneration {
                     JobView(request: currentGeneration, progress: progressData) {
-                        Task { await GenerationService.shared.stopCurrentGeneration() }
+                        Task { await controller.stopCurrentGeneration() }
                     }
                     .onAppear {
                         updateProgressData()
@@ -249,17 +249,31 @@ private struct InfoPopoverView: View {
 
             controller.currentModelId = request.modelID
 
-            if let startingImage = decodeImage(from: request.startingImageData) {
-                controller.setStartingImage(
-                    image: startingImage,
-                    filename: request.startingImageName
-                )
+            // Every image the request carried, not just the first: a queued job may
+            // have used several, and restoring one would silently change what the
+            // user is about to regenerate.
+            //
+            // `startingImageName` is non-nil exactly when element zero is a
+            // denoising origin rather than a reference, which is how the two are
+            // told apart and put back in the right section. A request may carry
+            // both, so this restores the origin *and* whatever follows it.
+            var images = request.inputImageData.compactMap(decodeImage(from:))
+
+            if let startingName = request.startingImageName, !images.isEmpty {
+                controller.setStartingImage(image: images.removeFirst(), filename: startingName)
                 if let strength = effectiveStrength {
                     configStore.strength = Double(strength)
                 }
             } else {
                 await controller.unsetStartingImage()
             }
+
+            let names = request.inputImageNames
+            controller.setInputImages(
+                images.enumerated().map { index, image in
+                    InputImage(image: image, name: names[safe: index])
+                }
+            )
 
             if let controlNetName = request.controlNetNames.first,
                 let controlNetImage = decodeImage(from: request.controlNetImageData.first)
@@ -370,7 +384,7 @@ private struct InfoPopoverView: View {
                             showCopyToPromptOption: false
                         )
                     }
-                    if let startingImage = decodeImage(from: request.startingImageData) {
+                    if let startingImage = decodeImage(from: request.inputImageData.first) {
                         InfoGridRow(
                             type: LocalizedStringKey("Starting Image"),
                             image: startingImage,

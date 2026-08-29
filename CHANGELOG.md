@@ -1,5 +1,9 @@
 # Unreleased
 
+- Added support for several input images at once
+  - FLUX.2 Klein models accept up to four reference images
+  - The sidebar keeps every image you chose when you switch to a model that takes fewer, and marks the ones that will not be used
+- Changed the gallery to draw from thumbnails rather than holding every image full-size in memory
 - Fixed an engine whose models could not be read reporting "No models found", which sent you looking for missing models when the folder was the problem
 - Fixed a finished image's generation preview being cleared out from under the next image in the queue
 - Fixed the model list occasionally reverting to an older models folder's contents when the folder was changed twice in quick succession

@@ -85,7 +85,7 @@ struct QueueLivenessTests {
             GenerationPlan(
                 payload: Payload(),
                 size: CGSize(width: 64, height: 64),
-                startingImageData: nil,
+                inputImageData: [],
                 controlNetImageData: [],
                 controlNetNames: [],
                 controlNetImageNames: [],
@@ -114,7 +114,7 @@ struct QueueLivenessTests {
             prompt: prompt,
             negativePrompt: "",
             size: CGSize(width: 64, height: 64),
-            startingImageData: nil,
+            inputImageData: [],
             startingImageName: nil,
             controlNetImageData: [],
             controlNetNames: [],
@@ -138,7 +138,9 @@ struct QueueLivenessTests {
         GenerationService(
             engineRegistry: EngineRegistry(engines: [
                 AnyGenerationEngine(SignallingEngine(signal: signal))
-            ])
+            ]),
+            // Its own gallery, so this suite cannot disturb another's.
+            imageGallery: ImageGallery()
         )
     }
 

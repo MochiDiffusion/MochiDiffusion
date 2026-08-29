@@ -24,6 +24,16 @@ final class GenerationController {
     private let modelRepository: ModelRepository
     private let engineRegistry: EngineRegistry
     private let imageRepository: ImageRepository
+    /// The gallery finished images are inserted into, and the one "copy to sidebar"
+    /// reads its selection from. Injected for the same reason as
+    /// `GalleryController.imageGallery`.
+    private let imageGallery: ImageGallery
+    /// The queue this controller submits to and observes.
+    ///
+    /// Injected rather than reached for as a singleton, which is what lets the
+    /// gallery singleton go: the service holds a gallery, so as long as it built
+    /// itself it needed a globally reachable one to hold.
+    private let generationService: GenerationService
     private(set) var generationQueue = [GenerationRequest]()
     private(set) var currentGeneration: GenerationRequest?
     private(set) var models = [any EngineModel]()
@@ -32,8 +42,19 @@ final class GenerationController {
     /// ``discoveryMessage(failures:engines:foundModels:modelDir:)``.
     private(set) var discoveryMessage: String?
     private(set) var controlNet: [String] = []
-    var startingImage: CGImage?
-    var startingImageFilename: String?
+    /// The image to denoise from, for a model that does img2img.
+    ///
+    /// Separate state from `inputImages`, not the first of it. The two mean
+    /// different things to a model and are edited by different sidebar sections, and
+    /// a model may declare either, both, or neither.
+    private(set) var startingImage: InputImage?
+    /// The reference images the sidebar is holding, in the order the user added them.
+    ///
+    /// Kept whole regardless of what the selected model accepts, so switching to a
+    /// model that takes fewer does not throw away images the user chose. `plan`
+    /// truncates to the model's `maxCount` when the request is built, and the
+    /// sidebar marks the ones that will not be used.
+    private(set) var inputImages: [InputImage] = []
     var numberOfImages = 1.0
     var seed: UInt32 = 0
 
@@ -54,6 +75,7 @@ final class GenerationController {
             // controller reads off one engine's concrete type.
             controlNet = model.constraints.controlNet.names
             currentControlNets = []
+            reconcileImagesWithConstraints()
         }
     }
 
@@ -185,6 +207,8 @@ final class GenerationController {
         configStore: ConfigStore,
         modelRepository: ModelRepository = ModelRepository(),
         imageRepository: ImageRepository = ImageRepository(),
+        imageGallery: ImageGallery,
+        generationService: GenerationService,
         engineRegistry: EngineRegistry = EngineRegistry(),
         engineSettings: EngineSettingsStore? = nil,
         startsObserving: Bool = true
@@ -193,6 +217,8 @@ final class GenerationController {
         self.modelRepository = modelRepository
         self.engineRegistry = engineRegistry
         self.imageRepository = imageRepository
+        self.imageGallery = imageGallery
+        self.generationService = generationService
         // Defaulted from the registry rather than by the caller, so the store only
         // ever loads selections for engines that actually exist.
         self.engineSettings =
@@ -366,24 +392,31 @@ final class GenerationController {
                 imageDir: request.imageDir
             )
         } catch ImageRepositoryError.imageDirectoryNoAccess(let path) {
-            await GenerationService.shared.updateStatus(
+            await generationService.updateStatus(
                 .error("Couldn't access images folder at: \(path)")
             )
             return
         } catch {
-            await GenerationService.shared.updateStatus(
+            await generationService.updateStatus(
                 .error("Couldn't access images folder.")
             )
             return
         }
 
-        await GenerationService.shared.enqueue(request)
+        await generationService.enqueue(request)
     }
 
+    // MARK: - Starting image
+
     func setStartingImage(image: CGImage, filename: String? = nil) {
-        startingImage = image
-        startingImageFilename =
-            filename?.normalizedFilename ?? consumePendingSelectedImageFilename()
+        startingImage = InputImage(
+            image: image,
+            name: filename?.normalizedFilename ?? consumePendingSelectedImageFilename()
+        )
+    }
+
+    func unsetStartingImage() async {
+        startingImage = nil
     }
 
     func selectStartingImage() async {
@@ -397,9 +430,168 @@ final class GenerationController {
         setStartingImage(image: image, filename: filename)
     }
 
-    func unsetStartingImage() async {
-        startingImage = nil
-        startingImageFilename = nil
+    func setStartingImageEdit(_ edit: IrisReferenceImageEdit) {
+        startingImage?.edit = edit.clamped()
+    }
+
+    // MARK: - Input images
+
+    /// How many reference images the selected model will take.
+    var maxInputImageCount: Int {
+        currentConstraints.inputImages.maxCount
+    }
+
+    /// Appends an image, up to what the selected model accepts.
+    ///
+    /// Refuses silently at the cap rather than dropping the oldest: a user who has
+    /// filled the list and adds another is more likely to have miscounted than to
+    /// want their first image replaced.
+    func addInputImage(image: CGImage, filename: String? = nil) {
+        guard maxInputImageCount > 0, inputImages.count < maxInputImageCount else { return }
+        inputImages.append(
+            InputImage(
+                image: image,
+                name: filename?.normalizedFilename ?? consumePendingSelectedImageFilename()
+            )
+        )
+    }
+
+    func setInputImages(_ images: [InputImage]) {
+        inputImages = images
+    }
+
+    /// Sets the image at `index`, appending when the list is not that long yet.
+    ///
+    /// Indexed rather than keyed by id because the sidebar shows an empty well past
+    /// the last image — the slot exists before anything is in it.
+    ///
+    /// Replacing keeps the entry's id, so its row does not animate out and back in,
+    /// and drops its old name: the previous filename no longer describes the new
+    /// picture, and keeping it would put a wrong name in the image's metadata.
+    func setInputImage(image: CGImage, at index: Int, filename: String? = nil) {
+        let name = filename?.normalizedFilename ?? consumePendingSelectedImageFilename()
+        guard index >= 0, index < maxInputImageCount else { return }
+
+        if index < inputImages.count {
+            inputImages[index].image = image
+            inputImages[index].name = name
+            // A new picture invalidates a crop dragged out against the old one.
+            inputImages[index].edit = .identity
+        } else if index == inputImages.count {
+            inputImages.append(InputImage(image: image, name: name))
+        }
+    }
+
+    /// Fills consecutive slots from `index`, for a multi-file drop.
+    ///
+    /// Extras past the model's limit are dropped rather than wrapping around to the
+    /// front, so dropping six files on a four-image model keeps the first four.
+    func setInputImages(_ dropped: [ImageWellView.DroppedImage], startingAt index: Int) {
+        for (offset, item) in dropped.enumerated() {
+            setInputImage(image: item.image, at: index + offset, filename: item.filename)
+        }
+    }
+
+    func unsetInputImage(at index: Int) {
+        guard inputImages.indices.contains(index) else { return }
+        inputImages.remove(at: index)
+    }
+
+    /// Adds a gallery image to the reference list, for "Set as Input Image".
+    func addInputImage(sdi: SDImage) async {
+        guard let image = sdi.image else { return }
+        let filename = URL(fileURLWithPath: sdi.path).lastPathComponent
+        addInputImage(image: image, filename: filename)
+    }
+
+    /// Moves images between the two sections when the selected model changes what it
+    /// accepts.
+    ///
+    /// Called from `currentModelId.didSet`. Without it, choosing a picture on a Core
+    /// ML model and switching to Klein would leave it in a section the new model does
+    /// not read, looking like the app forgot it. Moving it is better than discarding
+    /// it and better than leaving it stranded — the user chose that picture, and both
+    /// sections are asking the same question of it.
+    ///
+    /// Only ever moves a single image, and only into an empty destination, so nothing
+    /// is silently reordered or dropped.
+    private func reconcileImagesWithConstraints() {
+        let constraints = currentConstraints
+
+        if !constraints.startingImage.isSupported, let stranded = startingImage {
+            startingImage = nil
+            if constraints.inputImages.isSupported, inputImages.isEmpty {
+                inputImages = [stranded]
+            }
+        }
+
+        if !constraints.inputImages.isSupported, !inputImages.isEmpty {
+            let stranded = inputImages
+            inputImages = []
+            if constraints.startingImage.isSupported, startingImage == nil,
+                stranded.count == 1
+            {
+                startingImage = stranded[0]
+            }
+        }
+    }
+
+    // MARK: - Per-image crop
+
+    func inputImageEdit(at index: Int) -> IrisReferenceImageEdit? {
+        inputImages[safe: index]?.edit
+    }
+
+    func setInputImageEdit(_ edit: IrisReferenceImageEdit, at index: Int) {
+        guard inputImages.indices.contains(index) else { return }
+        inputImages[index].edit = edit.clamped()
+    }
+
+    func resetInputImageEdit(at index: Int) {
+        setInputImageEdit(.identity, at: index)
+    }
+
+    /// The cropped image, for the well's preview.
+    func editedInputImage(at index: Int) -> CGImage? {
+        inputImages[safe: index]?.edited
+    }
+
+    func editedInputImageSize(at index: Int) -> CGSize? {
+        inputImages[safe: index]?.editedSize
+    }
+
+    /// What will actually be sent, cropped and fitted the way the request will
+    /// fit it. Shown in the crop popover's preview so the estimate is not a
+    /// separate calculation from the one that runs.
+    func preprocessedInputImage(at index: Int) -> CGImage? {
+        guard let cropped = editedInputImage(at: index) else { return nil }
+        guard let target = predictedInputImageSize(at: index) else { return cropped }
+        return IrisReferenceImageProcessor.resizedAndCroppedToTokenGrid(cropped, to: target)
+            ?? cropped
+    }
+
+    /// The size the model's own budget leaves for this image, or `nil` when the
+    /// engine has no budget to fit — every engine but Iris.
+    func predictedInputImageSize(at index: Int) -> CGSize? {
+        irisReferenceBudgetReport?.predictedReferenceSizes[safe: index]
+    }
+
+    /// Iris's attention budget for the current references, or `nil` for any other
+    /// engine or when there are no references.
+    ///
+    /// Computed through `IrisEngine.budgetReport`, the same call `plan` makes, so
+    /// the warning the sidebar shows and the sizes the request uses cannot drift
+    /// apart.
+    var irisReferenceBudgetReport: IrisReferenceBudgetReport? {
+        guard let model = currentModel as? IrisFluxKleinModel else { return nil }
+        return IrisEngine.budgetReport(
+            for: inputImages,
+            model: model,
+            outputSize: currentConstraints.size.resolved(
+                CGSize(width: configStore.width, height: configStore.height)
+            ),
+            constraint: currentConstraints.inputImages
+        )
     }
 
     func setControlNet(name: String) async {
@@ -480,12 +672,12 @@ final class GenerationController {
     }
 
     func copyToPrompt() {
-        guard let sdi = ImageGallery.shared.selected() else { return }
+        guard let sdi = imageGallery.selected() else { return }
         copyToPrompt(sdi)
     }
 
     func copyToPrompt(_ sdi: SDImage) {
-        let metadataFields = ImageGallery.shared.metadataFields(for: sdi.id)
+        let metadataFields = imageGallery.metadataFields(for: sdi.id)
 
         if metadataFields.contains(.prompt) {
             configStore.prompt = sdi.prompt
@@ -515,12 +707,12 @@ final class GenerationController {
     }
 
     func copyPromptToPrompt() {
-        guard let sdi = ImageGallery.shared.selected() else { return }
+        guard let sdi = imageGallery.selected() else { return }
         configStore.prompt = sdi.prompt
     }
 
     func copyModelToPrompt() {
-        guard let sdi = ImageGallery.shared.selected() else { return }
+        guard let sdi = imageGallery.selected() else { return }
         selectModel(named: sdi.model, engine: sdi.engine, key: sdi.modelKey)
     }
 
@@ -562,7 +754,7 @@ final class GenerationController {
     }
 
     func copySizeToPrompt() {
-        guard let sdi = ImageGallery.shared.selected() else { return }
+        guard let sdi = imageGallery.selected() else { return }
         setSize(width: sdi.width, height: sdi.height)
     }
 
@@ -608,27 +800,27 @@ final class GenerationController {
     }
 
     func copyNegativePromptToPrompt() {
-        guard let sdi = ImageGallery.shared.selected() else { return }
+        guard let sdi = imageGallery.selected() else { return }
         configStore.negativePrompt = sdi.negativePrompt
     }
 
     func copySchedulerToPrompt() {
-        guard let sdi = ImageGallery.shared.selected() else { return }
+        guard let sdi = imageGallery.selected() else { return }
         configStore.scheduler = sdi.scheduler
     }
 
     func copySeedToPrompt() {
-        guard let sdi = ImageGallery.shared.selected() else { return }
+        guard let sdi = imageGallery.selected() else { return }
         seed = sdi.seed
     }
 
     func copyStepsToPrompt() {
-        guard let sdi = ImageGallery.shared.selected() else { return }
+        guard let sdi = imageGallery.selected() else { return }
         configStore.steps = Double(sdi.steps)
     }
 
     func copyGuidanceScaleToPrompt() {
-        guard let sdi = ImageGallery.shared.selected() else { return }
+        guard let sdi = imageGallery.selected() else { return }
         configStore.guidanceScale = sdi.guidanceScale
     }
 
@@ -650,7 +842,7 @@ final class GenerationController {
             negativePrompt: configStore.negativePrompt,
             configuredSize: CGSize(width: configStore.width, height: configStore.height),
             startingImage: startingImage,
-            startingImageName: startingImageFilename,
+            inputImages: inputImages,
             controlNets: currentControlNets.map {
                 ControlNetDraft(name: $0.name, image: $0.image, imageName: $0.imageFilename)
             },
@@ -688,7 +880,7 @@ final class GenerationController {
             prompt: draft.prompt,
             negativePrompt: draft.negativePrompt,
             size: plan.size,
-            startingImageData: plan.startingImageData,
+            inputImageData: plan.inputImageData,
             startingImageName: plan.startingImageName,
             controlNetImageData: plan.controlNetImageData,
             controlNetNames: plan.controlNetNames,
@@ -734,8 +926,11 @@ final class GenerationController {
 
     private func observeGenerationService() {
         generationUpdatesTask?.cancel()
-        generationUpdatesTask = Task { [weak self] in
-            let stream = await GenerationService.shared.updates()
+        // The service is captured alongside the weak self, not read through it: the
+        // loop must be able to reach the stream without resurrecting a controller
+        // that has gone away.
+        generationUpdatesTask = Task { [weak self, service = generationService] in
+            let stream = await service.updates()
             for await snapshot in stream {
                 guard let self else { return }
                 self.apply(snapshot)
@@ -745,8 +940,8 @@ final class GenerationController {
 
     private func observeGenerationResults() {
         generationResultsTask?.cancel()
-        generationResultsTask = Task { [weak self] in
-            let stream = await GenerationService.shared.results()
+        generationResultsTask = Task { [weak self, service = generationService] in
+            let stream = await service.results()
             for await result in stream {
                 guard let self else { return }
                 self.apply(result)
@@ -760,15 +955,15 @@ final class GenerationController {
     }
 
     private func apply(_ result: GenerationResult) {
-        let shouldAnimateInsert = ImageGallery.shared.currentGeneratingImage == nil
+        let shouldAnimateInsert = imageGallery.currentGeneratingImage == nil
         defer {
             // Scoped to the request that produced this result. Results arrive on
             // their own channel and can be applied after the next request has put
             // its first preview up; clearing unconditionally erased it.
             if let requestID = result.requestID {
-                ImageGallery.shared.clearCurrentGenerating(owner: requestID)
+                imageGallery.clearCurrentGenerating(owner: requestID)
             } else {
-                ImageGallery.shared.clearCurrentGenerating()
+                imageGallery.clearCurrentGenerating()
             }
         }
         guard let url = result.imageURL else { return }
@@ -802,15 +997,23 @@ final class GenerationController {
             imageData: result.imageData
         )
         guard let sdi = createSDImage(from: record) else { return }
-        ImageGallery.shared.add(
+        imageGallery.add(
             sdi,
             metadataFields: metadata.metadataFields,
             animate: shouldAnimateInsert
         )
     }
 
+    /// Stops the running generation.
+    ///
+    /// Here rather than the view reaching for the queue itself, so the controller
+    /// stays the one thing that knows which queue it is talking to.
+    func stopCurrentGeneration() async {
+        await generationService.stopCurrentGeneration()
+    }
+
     func removeQueued(_ id: GenerationRequest.ID) async {
-        await GenerationService.shared.removeQueued(id: id)
+        await generationService.removeQueued(id: id)
     }
 
     private func observeModelDir() {

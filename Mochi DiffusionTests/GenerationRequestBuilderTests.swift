@@ -38,7 +38,7 @@ struct GenerationRequestBuilderTests {
     /// model load. A stray reload reassigns `currentModelId`, whose `didSet`
     /// clears `currentControlNets`, which would empty state these tests just set.
     private func makeController() -> GenerationController {
-        GenerationController(
+        makeTestGenerationController(
             configStore: configStore,
             modelRepository: ModelRepository(),
             imageRepository: ImageRepository(),
@@ -200,7 +200,7 @@ struct GenerationRequestBuilderTests {
 
         let request = try #require(controller.buildGenerationRequest())
 
-        let data = try #require(request.startingImageData)
+        let data = try #require(request.inputImageData.first)
         #expect(pixelSize(of: data) == CGSize(width: 512, height: 768))
         #expect(request.startingImageName == "start.png")
         // Core ML SD records a starting image; the Iris path records input images.
@@ -218,7 +218,7 @@ struct GenerationRequestBuilderTests {
 
         let request = try #require(controller.buildGenerationRequest())
 
-        let data = try #require(request.startingImageData)
+        let data = try #require(request.inputImageData.first)
         #expect(pixelSize(of: data) == CGSize(width: 320, height: 448))
     }
 
@@ -231,7 +231,7 @@ struct GenerationRequestBuilderTests {
         let request = try #require(controller.buildGenerationRequest())
 
         #expect(request.startingImageName == nil)
-        #expect(request.startingImageData != nil)
+        #expect(request.inputImageData.count == 1)
     }
 
     // MARK: - ControlNet
@@ -343,26 +343,141 @@ struct GenerationRequestBuilderTests {
         #expect(request.modelID.engine == .iris)
     }
 
-    @Test("Klein records the starting image as an input image, not a starting image")
+    @Test("Klein records references, and no starting image")
     func kleinRecordsInputImages() async throws {
         try makeKleinModelFixture(at: modelDir.appending(path: "klein-model"))
         configStore.width = 512
         configStore.height = 512
         let controller = try await makeControllerSelecting("klein-model")
-        controller.setStartingImage(image: makeCGImage(width: 40, height: 20), filename: "in.png")
+        controller.addInputImage(image: makeCGImage(width: 40, height: 20), filename: "in.png")
 
         let request = try #require(controller.buildGenerationRequest())
 
-        // The same sidebar state lands in a different field per engine: Core ML
-        // records a starting image, Iris an input image.
+        // Klein declares no starting image at all, so that field stays empty
+        // whatever the sidebar holds.
         #expect(request.startingImageName == nil)
         #expect(request.inputImageNames == ["in.png"])
-        let data = try #require(request.startingImageData)
-        #expect(pixelSize(of: data) == CGSize(width: 512, height: 512))
+        let data = try #require(request.inputImageData.first)
+        // A reference keeps its own resolution, snapped to the 16px token grid —
+        // 40x20 becomes 32x16 — rather than being scaled up to the output size.
+        // Iris attends to references as tokens, so enlarging one would spend
+        // attention budget on pixels the source never had.
+        #expect(pixelSize(of: data) == CGSize(width: 32, height: 16))
         // Klein models declare no fixed input size, so the configured size
         // reaches the request — and unlike Core ML, the Iris generator actually
         // uses it as the generation dimensions.
         #expect(request.size == CGSize(width: 512, height: 512))
+    }
+
+    @Test("Klein carries several references, up to what iris_multiref takes")
+    func kleinCarriesSeveralReferences() async throws {
+        try makeKleinModelFixture(at: modelDir.appending(path: "klein-model"))
+        configStore.width = 512
+        configStore.height = 512
+        let controller = try await makeControllerSelecting("klein-model")
+
+        // One more than the library accepts, to pin the truncation rather than
+        // only the happy path.
+        for index in 0..<(IrisEngine.maxReferenceImages + 1) {
+            controller.addInputImage(
+                image: makeCGImage(width: 40, height: 20),
+                filename: "ref\(index).png"
+            )
+        }
+        // The sidebar keeps them all; the request takes what the model accepts.
+        #expect(controller.inputImages.count == IrisEngine.maxReferenceImages)
+
+        let request = try #require(controller.buildGenerationRequest())
+
+        #expect(request.inputImageData.count == IrisEngine.maxReferenceImages)
+        #expect(request.inputImageNames == ["ref0.png", "ref1.png", "ref2.png", "ref3.png"])
+        #expect(request.startingImageName == nil)
+        // Grid-normalized, not upscaled to the output size. These are small enough
+        // that the attention budget leaves them alone.
+        for data in request.inputImageData {
+            #expect(pixelSize(of: data) == CGSize(width: 32, height: 16))
+        }
+    }
+
+    /// The budget is Iris's alone. Four large references against a large output
+    /// exceed what attention can hold, and the estimator shrinks them to fit rather
+    /// than letting the generation die.
+    @Test("Large references are shrunk to fit the attention budget")
+    func largeReferencesAreFittedToBudget() async throws {
+        try makeKleinModelFixture(at: modelDir.appending(path: "klein-model"))
+        configStore.width = 1_792
+        configStore.height = 1_792
+        let controller = try await makeControllerSelecting("klein-model")
+        for _ in 0..<IrisEngine.maxReferenceImages {
+            controller.addInputImage(image: makeCGImage(width: 1_792, height: 1_792))
+        }
+
+        let report = try #require(controller.irisReferenceBudgetReport)
+        let request = try #require(controller.buildGenerationRequest())
+
+        // Every reference came in at the maximum dimension and had to give ground.
+        #expect(report.predictedReferenceSizes.allSatisfy { $0.width < 1_792 })
+        for (index, data) in request.inputImageData.enumerated() {
+            #expect(pixelSize(of: data) == report.predictedReferenceSizes[index])
+        }
+    }
+
+    @Test("A Core ML model sends its starting image and ignores references")
+    func coreMLTakesOneImage() async throws {
+        try makeSDModelFixture(
+            at: modelDir.appending(path: "sd-model"),
+            inputSize: CGSize(width: 512, height: 512)
+        )
+        let controller = try await makeControllerSelecting("sd-model")
+        controller.setStartingImage(image: makeCGImage(width: 40, height: 20), filename: "one.png")
+        // Refused outright: this model declares no input images, so the reference
+        // section is not even shown for it.
+        controller.addInputImage(image: makeCGImage(width: 40, height: 20), filename: "two.png")
+        #expect(controller.inputImages.isEmpty)
+
+        let request = try #require(controller.buildGenerationRequest())
+
+        #expect(request.inputImageData.count == 1)
+        #expect(request.startingImageName == "one.png")
+        #expect(request.inputImageNames.isEmpty)
+    }
+
+    /// The two sections hold different state, so switching to a model that reads the
+    /// other one would leave a chosen picture stranded in a section that is no longer
+    /// shown — looking like the app forgot it.
+    @Test("A picture moves between the two sections when the model changes")
+    func imagesMoveWhenConstraintsChange() async throws {
+        try makeSDModelFixture(at: modelDir.appending(path: "sd-model"))
+        try makeKleinModelFixture(at: modelDir.appending(path: "klein-model"))
+        let controller = try await makeControllerSelecting("sd-model")
+        controller.setStartingImage(image: makeCGImage(), filename: "carried.png")
+
+        // Core ML → Klein: a denoising origin becomes a reference.
+        controller.setModel("klein-model")
+        #expect(controller.startingImage == nil)
+        #expect(controller.inputImages.count == 1)
+        #expect(controller.inputImages.first?.name == "carried.png")
+
+        // Klein → Core ML: a single reference becomes the denoising origin again.
+        controller.setModel("sd-model")
+        #expect(controller.inputImages.isEmpty)
+        #expect(controller.startingImage?.name == "carried.png")
+    }
+
+    @Test("Several references are dropped rather than guessed at when only one fits")
+    func severalReferencesDoNotBecomeAStartingImage() async throws {
+        try makeSDModelFixture(at: modelDir.appending(path: "sd-model"))
+        try makeKleinModelFixture(at: modelDir.appending(path: "klein-model"))
+        let controller = try await makeControllerSelecting("klein-model")
+        controller.addInputImage(image: makeCGImage(), filename: "a.png")
+        controller.addInputImage(image: makeCGImage(), filename: "b.png")
+
+        controller.setModel("sd-model")
+
+        // Two references have no unambiguous denoising origin, so neither is
+        // promoted. Picking one would be a guess about which the user meant.
+        #expect(controller.inputImages.isEmpty)
+        #expect(controller.startingImage == nil)
     }
 
     @Test("Klein never carries ControlNet state")

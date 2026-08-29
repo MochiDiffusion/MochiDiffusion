@@ -38,9 +38,3 @@ struct GuidanceScaleView: View {
         }
     }
 }
-
-#Preview {
-    GuidanceScaleView()
-        .environment(GenerationController(configStore: ConfigStore()))
-        .environment(ConfigStore())
-}

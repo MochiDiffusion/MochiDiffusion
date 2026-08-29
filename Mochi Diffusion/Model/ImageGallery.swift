@@ -19,11 +19,12 @@ enum ImagesSortType: String {
 @MainActor
 @Observable public final class ImageGallery {
 
-    static let shared = ImageGallery()
-
     private let imageRepository: ImageRepository
 
-    init(imageRepository: ImageRepository = ImageRepository()) {
+    /// `nonisolated` because constructing a gallery only initialises stored
+    /// properties, so it needs no main actor — and `MochiDiffusionApp.init` and
+    /// `GenerationService`, both nonisolated, are the things that build one.
+    nonisolated init(imageRepository: ImageRepository = ImageRepository()) {
         self.imageRepository = imageRepository
     }
 

@@ -7,14 +7,36 @@
 
 import SwiftUI
 
+/// The image a generation denoises from — img2img.
+///
+/// Distinct from `InputImagesView`, and shown by its own constraint. There is
+/// exactly one of these, it is scaled to the output size because that is what will
+/// happen to it, and `strength` says how much of it survives. None of that is true
+/// of a reference image.
+///
+/// The well passes the resolved output size, so the preview crops the way the
+/// request will crop. `InputImagesView` passes `nil` for the same reason inverted:
+/// a reference keeps its own resolution.
 struct StartingImageView: View {
     @Environment(GenerationController.self) private var controller: GenerationController
     @Environment(ConfigStore.self) private var configStore: ConfigStore
     @State private var isInfoPopoverShown = false
 
-    var body: some View {
-        @Bindable var configStore = configStore
+    private let wellSize: CGFloat = 112.5
 
+    private var constraint: StartingImageConstraint {
+        controller.currentConstraints.startingImage
+    }
+
+    /// The size the model will produce, which is the size the image will be cropped
+    /// to.
+    private var targetSize: CGSize {
+        controller.currentConstraints.size.resolved(
+            CGSize(width: configStore.width, height: configStore.height)
+        )
+    }
+
+    var body: some View {
         Text(
             "Starting Image",
             comment: "Label for setting the starting image (commonly known as image2image)"
@@ -23,11 +45,14 @@ struct StartingImageView: View {
 
         HStack(alignment: .top) {
             ImageWellView(
-                image: controller.startingImage,
-                size: controller.currentConstraints.size.resolved(
-                    CGSize(width: configStore.width, height: configStore.height)
-                ),
-                selectImage: controller.selectImage
+                image: controller.startingImage?.edited,
+                size: targetSize,
+                selectImage: controller.selectImage,
+                removeImage: controller.unsetStartingImage,
+                removeHelp: String(
+                    localized: "Remove starting image",
+                    comment: "Tooltip for the button clearing the starting image"
+                )
             ) { image in
                 if let image {
                     await controller.setStartingImage(image: image)
@@ -35,28 +60,12 @@ struct StartingImageView: View {
                     await controller.unsetStartingImage()
                 }
             }
-            .frame(width: 90, height: 90)
-
-            Spacer()
-
-            VStack(alignment: .trailing) {
-                HStack {
-                    Button {
-                        Task { await controller.selectStartingImage() }
-                    } label: {
-                        Image(systemName: "photo")
-                    }
-
-                    Button {
-                        Task { await controller.unsetStartingImage() }
-                    } label: {
-                        Image(systemName: "xmark")
-                    }
-                }
-            }
+            .frame(width: wellSize, height: wellSize)
         }
 
-        strengthControl
+        if constraint.strength.isSupported {
+            strengthControl
+        }
     }
 
     @ViewBuilder private var strengthControl: some View {
@@ -91,25 +100,14 @@ struct StartingImageView: View {
                 .padding()
             }
         }
-        if let bounds = strengthConstraint.bounds {
+        // Bounds from the constraint rather than a literal 0...1, so a model that
+        // accepts a narrower range gets a slider that matches it.
+        if let bounds = constraint.strength.bounds {
             MochiSlider(value: $configStore.strength, bounds: bounds, step: 0.05)
-        } else if let pinned = strengthConstraint.resolved(configStore.strength) {
+        } else if let pinned = constraint.strength.resolved(configStore.strength) {
             PinnedValueField(text: pinned.formatted(.number.precision(.fractionLength(2))))
         } else {
             UnsupportedValueField()
         }
     }
-
-    /// Iris takes a starting image but treats it as an input image, so strength
-    /// has no meaning there. The row is still shown, disabled, so the sections
-    /// below it do not move when the engine changes.
-    private var strengthConstraint: DoubleConstraint {
-        controller.currentConstraints.startingImage.strength
-    }
-}
-
-#Preview {
-    StartingImageView()
-        .environment(GenerationController(configStore: ConfigStore()))
-        .environment(ConfigStore())
 }

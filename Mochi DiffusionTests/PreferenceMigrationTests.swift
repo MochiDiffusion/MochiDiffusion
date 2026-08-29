@@ -278,7 +278,7 @@ struct ConfigStoreMigrationTests {
         let store = makeStore()
         store.modelDir = modelDir.path(percentEncoded: false)
 
-        let controller = GenerationController(
+        let controller = makeTestGenerationController(
             configStore: store,
             modelRepository: ModelRepository(),
             imageRepository: ImageRepository(),

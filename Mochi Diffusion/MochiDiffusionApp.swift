@@ -21,28 +21,44 @@ struct MochiDiffusionApp: App {
     @State private var notificationController: NotificationController
     @State private var quickLook: QuickLookState
     @State private var quicklookURL: URL?
+    /// Owned here so the thumbnail cache lives as long as the app rather than as long
+    /// as whichever view happened to ask first.
+    private let thumbnailProvider = GalleryThumbnailProvider()
+    private let fullImageProvider = GalleryFullImageProvider()
     private let updaterController: SPUStandardUpdaterController
 
     init() {
         let configStore = ConfigStore()
         let focusController = FocusController()
+        // The app owns the one gallery and the one queue, and hands them to
+        // everything that needs them. Neither has a `.shared`, so there is no way
+        // for code elsewhere to reach a different one by accident.
+        let imageGallery = ImageGallery()
+        // The one place the real credential store is wired in. The registry
+        // initialiser default is keychain-free, so a test that does not pass one
+        // cannot reach the user's keychain.
+        let generationService = GenerationService(
+            engineRegistry: EngineRegistry(secrets: KeychainSecretStore()),
+            imageGallery: imageGallery
+        )
         self._configStore = State(initialValue: configStore)
         self._generationController = State(
-            // The other place the real credential store is wired in; the
-            // initialiser's default is keychain-free so tests stay off it.
             initialValue: GenerationController(
                 configStore: configStore,
+                imageGallery: imageGallery,
+                generationService: generationService,
                 engineRegistry: EngineRegistry(secrets: KeychainSecretStore())
             )
         )
         self._galleryController = State(
             initialValue: GalleryController(
                 configStore: configStore,
+                imageGallery: imageGallery,
                 focusController: focusController
             )
         )
         self._generationState = .init(wrappedValue: .shared)
-        self._store = .init(wrappedValue: .shared)
+        self._store = .init(wrappedValue: imageGallery)
         self._focusCon = .init(wrappedValue: focusController)
         self._notificationController = .init(wrappedValue: .shared)
         self._quickLook = State(initialValue: QuickLookState())
@@ -92,6 +108,8 @@ struct MochiDiffusionApp: App {
         .environment(store)
         .environment(focusCon)
         .environment(quickLook)
+        .environment(\.galleryThumbnailProvider, thumbnailProvider)
+        .environment(\.galleryFullImageProvider, fullImageProvider)
         .commands {
             AppCommands(updater: updaterController.updater)
             FileCommands(galleryController: galleryController, store: store)

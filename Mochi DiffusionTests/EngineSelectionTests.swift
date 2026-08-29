@@ -212,7 +212,7 @@ struct EnginePickerTests {
     private func makeController(
         engineRegistry: EngineRegistry = EngineRegistry()
     ) -> GenerationController {
-        GenerationController(
+        makeTestGenerationController(
             configStore: configStore,
             engineRegistry: engineRegistry,
             startsObserving: false
@@ -736,7 +736,7 @@ struct RefreshOrderingTests {
     }
 
     private func makeController(_ registry: EngineRegistry) -> GenerationController {
-        GenerationController(
+        makeTestGenerationController(
             configStore: configStore,
             engineRegistry: registry,
             startsObserving: false

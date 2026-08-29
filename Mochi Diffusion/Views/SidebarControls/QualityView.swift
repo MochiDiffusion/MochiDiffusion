@@ -38,9 +38,3 @@ struct QualityView: View {
         }
     }
 }
-
-#Preview {
-    QualityView()
-        .environment(GenerationController(configStore: ConfigStore()))
-        .environment(ConfigStore())
-}

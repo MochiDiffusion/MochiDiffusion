@@ -26,9 +26,13 @@ nonisolated func finderTagColorNumberToString(_ tagColorNumber: Int) -> String {
     }
 }
 
-// zero for clear all tags
-func setFinderTagColorNumber(_ sdi: SDImage, colorNumber: Int) {
-    var url = URL(fileURLWithPath: sdi.path)
+/// Writes a Finder label onto the file. Zero clears every tag.
+///
+/// Only the filesystem half. Telling the gallery lives on
+/// `GalleryController.setFinderTagColorNumber(_:colorNumber:)`, which has the
+/// gallery to tell — this used to reach for the singleton from a free function.
+nonisolated func writeFinderTagColorNumber(_ path: String, colorNumber: Int) {
+    var url = URL(fileURLWithPath: path)
     var rv = URLResourceValues()
     rv.labelNumber = colorNumber
     do {
@@ -36,13 +40,6 @@ func setFinderTagColorNumber(_ sdi: SDImage, colorNumber: Int) {
     } catch {
         print(error.localizedDescription)
     }
-    Task { @MainActor in
-        ImageGallery.shared.updateMetadata(sdi, colorNumber: colorNumber)
-    }
-}
-
-func clearFinderTags(_ sdi: SDImage) {
-    setFinderTagColorNumber(sdi, colorNumber: 0)
 }
 
 nonisolated func getFinderTagColorNumber(_ url: URL) -> Int {
@@ -55,6 +52,16 @@ nonisolated func getFinderTagColorNumber(_ url: URL) -> Int {
     return finderTagColorNumber
 }
 
+/// Decodes a full-size image from a file.
+///
+/// `CGImageSourceCreateWithURL` rather than reading the bytes first, so ImageIO can
+/// map the file instead of the caller holding a second full copy in memory.
+nonisolated func cgImageFromFileURL(_ url: URL) -> CGImage? {
+    guard let cgImageSource = CGImageSourceCreateWithURL(url as CFURL, nil) else { return nil }
+    let imageIndex = CGImageSourceGetPrimaryImageIndex(cgImageSource)
+    return CGImageSourceCreateImageAtIndex(cgImageSource, imageIndex, nil)
+}
+
 nonisolated func createImageRecordFromURL(_ url: URL) -> ImageRecord? {
     guard
         let attr = try? FileManager.default.attributesOfItem(
@@ -65,8 +72,10 @@ nonisolated func createImageRecordFromURL(_ url: URL) -> ImageRecord? {
     let finderTagColorNumber = getFinderTagColorNumber(url)
 
     guard let dateModified = maybeDateModified else { return nil }
-    guard let data = try? Data(contentsOf: url) else { return nil }
-    guard let cgImageSource = CGImageSourceCreateWithData(data as CFData, nil) else { return nil }
+    // From the URL, not from bytes read into memory. Only the properties are wanted
+    // here, and reading the whole file to get them cost a full copy per gallery
+    // image on every load.
+    guard let cgImageSource = CGImageSourceCreateWithURL(url as CFURL, nil) else { return nil }
     guard let properties = CGImageSourceCopyPropertiesAtIndex(cgImageSource, 0, nil) else {
         return nil
     }
@@ -103,7 +112,10 @@ nonisolated func createImageRecordFromURL(_ url: URL) -> ImageRecord? {
         generatedDate: dateModified,
         path: url.path(percentEncoded: false),
         finderTagColorNumber: finderTagColorNumber,
-        imageData: data
+        // Nil: a gallery image is rendered from a thumbnail read off disk, and the
+        // few things needing real pixels ask GalleryFullImageProvider. Only a
+        // freshly generated result arrives with its bytes already in hand.
+        imageData: nil
     )
 
     let parsed = MetadataCodec.decode(infoString)
@@ -128,24 +140,35 @@ nonisolated func createImageRecordFromURL(_ url: URL) -> ImageRecord? {
     return record
 }
 
+/// Builds the gallery's model of an image from a record.
+///
+/// Decodes only when the record carries bytes — a generation result, whose pixels
+/// are already in hand. A record loaded from disk leaves `image` nil, and the view
+/// asks `GalleryThumbnailProvider` for something the right size instead.
 @MainActor
 func createSDImage(from record: ImageRecord) -> SDImage? {
-    guard let cgImageSource = CGImageSourceCreateWithData(record.imageData as CFData, nil) else {
-        return nil
-    }
-    let imageIndex = CGImageSourceGetPrimaryImageIndex(cgImageSource)
-    guard let cgImage = CGImageSourceCreateImageAtIndex(cgImageSource, imageIndex, nil) else {
-        return nil
+    var cgImage: CGImage?
+    if let data = record.imageData {
+        guard let source = CGImageSourceCreateWithData(data as CFData, nil) else { return nil }
+        let imageIndex = CGImageSourceGetPrimaryImageIndex(source)
+        guard let decoded = CGImageSourceCreateImageAtIndex(source, imageIndex, nil) else {
+            return nil
+        }
+        cgImage = decoded
     }
 
-    let aspectRatio = Double(cgImage.width) / Double(cgImage.height)
+    // From the record, which read it off the file's properties without decoding.
+    let width = record.width > 0 ? record.width : (cgImage?.width ?? 0)
+    let height = record.height > 0 ? record.height : (cgImage?.height ?? 0)
     var sdi = SDImage(
         id: record.id,
         image: cgImage,
-        aspectRatio: CGFloat(aspectRatio),
+        aspectRatio: height > 0 ? CGFloat(Double(width) / Double(height)) : 0,
         generatedDate: record.generatedDate,
         path: record.path
     )
+    sdi.width = width
+    sdi.height = height
     sdi.prompt = record.prompt
     sdi.negativePrompt = record.negativePrompt
     sdi.model = record.model

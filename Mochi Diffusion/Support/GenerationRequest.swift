@@ -35,7 +35,13 @@ nonisolated struct GenerationRequest: Sendable, Identifiable {
     /// into the sidebar — a Core ML model with a fixed input size overrides it.
     let size: CGSize
 
-    let startingImageData: Data?
+    /// Scaled input images, in the order the engine will use them. Here rather than
+    /// in the payload because the queue shows them as thumbnails and restores them
+    /// to the sidebar.
+    let inputImageData: [Data]
+    /// Set when the engine records its first input image as a *starting* image —
+    /// Core ML's img2img — rather than as references. `inputImageNames` carries the
+    /// reference-list spelling. One sidebar list, two metadata vocabularies.
     let startingImageName: String?
     /// Scaled guide images. Here rather than in the payload because the queue shows
     /// them as thumbnails and restores them to the sidebar.

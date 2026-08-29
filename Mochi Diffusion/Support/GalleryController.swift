@@ -15,6 +15,13 @@ final class GalleryController {
     private let logger = Logger()
     var configStore: ConfigStore
     var isLoading = true
+    /// The gallery this controller loads into.
+    ///
+    /// Injected rather than reached for as `ImageGallery.shared`, so a test can give
+    /// this controller its own gallery instead of mutating the one the app is
+    /// showing. `loadImages()` replaces the whole contents, which is not something a
+    /// test suite can do to a shared singleton and still run in parallel.
+    private let imageGallery: ImageGallery
     private let imageRepository: ImageRepository
     private let focusController: FocusController
 
@@ -29,10 +36,12 @@ final class GalleryController {
 
     init(
         configStore: ConfigStore,
+        imageGallery: ImageGallery,
         imageRepository: ImageRepository = ImageRepository(),
         focusController: FocusController
     ) {
         self.configStore = configStore
+        self.imageGallery = imageGallery
         self.imageRepository = imageRepository
         self.focusController = focusController
         initialLoadTask = Task { [weak self] in
@@ -63,7 +72,7 @@ final class GalleryController {
 
             logger.info("Found \(count) image(s)")
 
-            ImageGallery.shared.replaceAll(imagesAndMetadata)
+            imageGallery.replaceAll(imagesAndMetadata)
         } catch ImageRepositoryError.imageDirectoryNoAccess(let path) {
             logger.error("Couldn't access images directory at: \"\(path)\"")
         } catch {
@@ -72,41 +81,55 @@ final class GalleryController {
     }
 
     func select(_ id: SDImage.ID) async {
-        ImageGallery.shared.select(id)
+        imageGallery.select(id)
         focusController.removeAllFocus()
     }
 
     func selectPrevious() async {
-        guard let previous = ImageGallery.shared.imageBefore(ImageGallery.shared.selectedId) else {
+        guard let previous = imageGallery.imageBefore(imageGallery.selectedId) else {
             return
         }
         await select(previous)
     }
 
     func selectNext() async {
-        guard let next = ImageGallery.shared.imageAfter(ImageGallery.shared.selectedId) else {
+        guard let next = imageGallery.imageAfter(imageGallery.selectedId) else {
             return
         }
         await select(next)
     }
 
     func removeImage(_ sdi: SDImage) async {
-        if sdi.id == ImageGallery.shared.selectedId {
-            if let previous = ImageGallery.shared.imageBefore(sdi.id, wrap: false) {
+        if sdi.id == imageGallery.selectedId {
+            if let previous = imageGallery.imageBefore(sdi.id, wrap: false) {
                 /// Move selection to the left, if possible.
                 await select(previous)
-            } else if let next = ImageGallery.shared.imageAfter(sdi.id, wrap: false) {
+            } else if let next = imageGallery.imageAfter(sdi.id, wrap: false) {
                 /// When deleting the first image, move selection to the right.
                 await select(next)
             }
         }
 
-        ImageGallery.shared.remove(sdi)
+        imageGallery.remove(sdi)
         await imageRepository.delete(path: sdi.path, moveToTrash: configStore.useTrash)
     }
 
+    /// Sets a Finder label on the image's file and tells the gallery. Zero clears
+    /// every tag.
+    ///
+    /// Here rather than as a free function because the second half needs a gallery
+    /// to tell, and a free function had nothing to reach for but the singleton.
+    func setFinderTagColorNumber(_ sdi: SDImage, colorNumber: Int) {
+        writeFinderTagColorNumber(sdi.path, colorNumber: colorNumber)
+        imageGallery.updateMetadata(sdi, colorNumber: colorNumber)
+    }
+
+    func clearFinderTags(_ sdi: SDImage) {
+        setFinderTagColorNumber(sdi, colorNumber: 0)
+    }
+
     func removeCurrentImage() async {
-        guard let sdi = ImageGallery.shared.selected() else { return }
+        guard let sdi = imageGallery.selected() else { return }
         await removeImage(sdi)
     }
 
@@ -136,7 +159,7 @@ final class GalleryController {
             }
         }
         let succeeded = imagesAndMetadata.count
-        ImageGallery.shared.add(imagesAndMetadata)
+        imageGallery.add(imagesAndMetadata)
         isLoading = false
 
         let alert = NSAlert()
@@ -153,7 +176,7 @@ final class GalleryController {
     }
 
     func saveAll() async {
-        if ImageGallery.shared.images.isEmpty { return }
+        if imageGallery.images.isEmpty { return }
         let panel = NSOpenPanel()
         panel.allowedContentTypes = [.image]
         panel.canCreateDirectories = true
@@ -169,7 +192,7 @@ final class GalleryController {
         guard let selectedURL = panel.url else { return }
         let type = UTType.fromString(configStore.imageType)
 
-        let images = ImageGallery.shared.images
+        let images = imageGallery.images
         var exportRequests: [ImageExportRequest] = []
         exportRequests.reserveCapacity(images.count)
         for (index, sdi) in images.enumerated() {
@@ -259,7 +282,7 @@ final class GalleryController {
 
     private func syncImages() async {
         let imageDir = imageDirectoryPath()
-        let existingPaths = ImageGallery.shared.allImages.compactMap { sdi in
+        let existingPaths = imageGallery.allImages.compactMap { sdi in
             sdi.path.isEmpty ? nil : sdi.path
         }
 
@@ -274,14 +297,14 @@ final class GalleryController {
                     (image: image, metadataFields: record.metadataFields)
                 }
             }
-            ImageGallery.shared.add(additions)
+            imageGallery.add(additions)
         }
 
         if !result.removals.isEmpty {
-            let removals = ImageGallery.shared.allImages.filter {
+            let removals = imageGallery.allImages.filter {
                 result.removals.contains($0.path)
             }
-            ImageGallery.shared.remove(removals)
+            imageGallery.remove(removals)
         }
     }
 }

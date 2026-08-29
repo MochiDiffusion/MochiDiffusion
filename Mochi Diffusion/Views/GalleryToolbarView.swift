@@ -68,9 +68,10 @@ struct GalleryToolbarView: View {
             .tag(ImagesSortType.newestFirst)
         }
 
-        if let sdi = store.selected(), let img = sdi.image {
-            let imageView = Image(img, scale: 1, label: Text(verbatim: sdi.prompt))
-
+        // Gated on there being a selection, not on its pixels being in memory. A
+        // gallery image loaded from disk has no decoded image, and Remove and Save
+        // As never needed one.
+        if let sdi = store.selected() {
             Button {
                 Task { await galleryController.removeCurrentImage() }
             } label: {
@@ -100,8 +101,7 @@ struct GalleryToolbarView: View {
                 }
                 .help("Save As...")
             }
-            ShareLink(item: imageView, preview: SharePreview(sdi.prompt, image: imageView))
-                .help("Share...")
+            shareLink(for: sdi)
         } else {
             disabledToolbarActionView
         }
@@ -125,8 +125,34 @@ struct GalleryToolbarView: View {
             .frame(height: 40)
     }
 
-    @ViewBuilder
-    private var disabledToolbarActionView: some View {
+    /// Shares the file when there is one, and the pixels when there is not.
+    ///
+    /// The file is the better thing to share regardless — it carries the image's
+    /// metadata, which an `Image` rendered from a `CGImage` does not — and it is the
+    /// only option for a gallery image that was never decoded.
+    @ViewBuilder private func shareLink(for sdi: SDImage) -> some View {
+        if !sdi.path.isEmpty {
+            ShareLink(item: URL(fileURLWithPath: sdi.path, isDirectory: false))
+                .help("Share...")
+        } else if let image = sdi.image {
+            let imageView = Image(image, scale: 1, label: Text(verbatim: sdi.prompt))
+            ShareLink(item: imageView, preview: SharePreview(sdi.prompt, image: imageView))
+                .help("Share...")
+        } else {
+            Button {
+                // noop
+            } label: {
+                Label {
+                    Text("Share...", comment: "Toolbar button to show the system share sheet")
+                } icon: {
+                    Image(systemName: "square.and.arrow.up")
+                }
+            }
+            .disabled(true)
+        }
+    }
+
+    @ViewBuilder private var disabledToolbarActionView: some View {
         Button {
             // noop
         } label: {
@@ -171,19 +197,4 @@ struct GalleryToolbarView: View {
         }
         .disabled(true)
     }
-}
-
-#Preview {
-    let focusController = FocusController()
-    GalleryToolbarView(isShowingInspector: .constant(true))
-        .environment(GenerationState.shared)
-        .environment(ImageGallery.shared)
-        .environment(ConfigStore())
-        .environment(GenerationController(configStore: ConfigStore()))
-        .environment(
-            GalleryController(
-                configStore: ConfigStore(),
-                focusController: focusController
-            )
-        )
 }
