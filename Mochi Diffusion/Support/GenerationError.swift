@@ -24,6 +24,9 @@ nonisolated enum GenerationError: Error, Equatable {
     case authenticationFailed
     /// Asked to slow down. Not fatal to the queue: the next request may succeed.
     case rateLimited
+    /// The credential authenticated, but the account cannot spend more API
+    /// credits (or has reached its billing limit).
+    case insufficientQuota
     /// The service answered, unhappily. Carries what it said, because a hosted
     /// failure the user cannot see the text of is one they cannot act on.
     case serviceFailure(String)

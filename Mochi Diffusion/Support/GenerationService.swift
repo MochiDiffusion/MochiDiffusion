@@ -323,6 +323,13 @@ actor GenerationService {
                 await updateStatus(
                     .ready("\(request.displayName) is rate limiting requests. Try again shortly.")
                 )
+            } catch GenerationError.insufficientQuota {
+                logger.info("\(request.displayName) has insufficient API credits.")
+                await updateStatus(
+                    .error(
+                        "OpenAI account has insufficient API credits. Add credits in OpenAI billing settings."
+                    )
+                )
             } catch GenerationError.serviceFailure(let message) {
                 logger.error("\(request.displayName) failed: \(message)")
                 await updateStatus(.error(message))

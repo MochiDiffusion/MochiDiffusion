@@ -160,6 +160,27 @@ struct OpenAIRuntimeTests {
         #expect(await classify(429) as? GenerationError == .rateLimited)
     }
 
+    @Test(
+        "An exhausted quota is distinct from request throttling",
+        arguments: [
+            "credit_balance_exhausted", "insufficient_quota", "billing_hard_limit_reached",
+        ]
+    )
+    func classifiesInsufficientQuota(code: String) async {
+        let body = "{\"error\":{\"code\":\"\(code)\",\"message\":\"No credits.\"}}"
+
+        #expect(await classify(429, body: body) as? GenerationError == .insufficientQuota)
+    }
+
+    @Test("The broader insufficient-quota type is a fallback when no code is supplied")
+    func classifiesInsufficientQuotaType() async {
+        let body =
+            "{\"error\":{\"code\":null,\"type\":\"insufficient_quota\","
+            + "\"message\":\"No credits.\"}}"
+
+        #expect(await classify(429, body: body) as? GenerationError == .insufficientQuota)
+    }
+
     /// The distinction D5 is about: the call succeeded and the service declined,
     /// so this must not read as a malfunction.
     @Test(

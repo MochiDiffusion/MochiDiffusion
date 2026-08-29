@@ -210,6 +210,7 @@ nonisolated final class OpenAIEngineRuntime: GenerationEngineRuntime {
             // own metadata and applies the user's chosen output type on the way to
             // disk.
             "output_format": "png",
+            "moderation": "low",
             "stream": true,
             "partial_images": payload.wantsPreviews ? Self.maxPartialImages : 0,
         ]
@@ -357,6 +358,9 @@ nonisolated final class OpenAIEngineRuntime: GenerationEngineRuntime {
         case 401, 403:
             return GenerationError.authenticationFailed
         case 429:
+            if isInsufficientQuota(code: parsed.code, type: parsed.type) {
+                return GenerationError.insufficientQuota
+            }
             return GenerationError.rateLimited
         case 400 where isRefusal(parsed.code):
             return GenerationError.refused(message)
@@ -371,17 +375,29 @@ nonisolated final class OpenAIEngineRuntime: GenerationEngineRuntime {
             || code.contains("safety")
     }
 
+    private static func isInsufficientQuota(code: String?, type: String?) -> Bool {
+        if let code = code?.lowercased() {
+            return code == "credit_balance_exhausted" || code == "insufficient_quota"
+                || code == "billing_hard_limit_reached"
+        }
+        return type?.lowercased() == "insufficient_quota"
+    }
+
     /// Not private: ``OpenAICredentialCheck`` reports the same service's failures
     /// and there is one place the API's error envelope is understood.
-    static func errorFields(in body: String) -> (code: String?, message: String?) {
+    static func errorFields(in body: String) -> (code: String?, type: String?, message: String?) {
         guard
             let data = body.data(using: .utf8),
             let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
             let error = object["error"] as? [String: Any]
         else {
-            return (nil, nil)
+            return (nil, nil, nil)
         }
-        return (error["code"] as? String, error["message"] as? String)
+        return (
+            error["code"] as? String,
+            error["type"] as? String,
+            error["message"] as? String
+        )
     }
 }
 
