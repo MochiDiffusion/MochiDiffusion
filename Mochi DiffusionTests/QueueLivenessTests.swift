@@ -138,7 +138,9 @@ struct QueueLivenessTests {
         GenerationService(
             engineRegistry: EngineRegistry(engines: [
                 AnyGenerationEngine(SignallingEngine(signal: signal))
-            ])
+            ]),
+            // Its own gallery, so this suite cannot disturb another's.
+            imageGallery: ImageGallery()
         )
     }
 

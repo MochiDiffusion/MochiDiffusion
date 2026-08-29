@@ -28,6 +28,12 @@ final class GenerationController {
     /// reads its selection from. Injected for the same reason as
     /// `GalleryController.imageGallery`.
     private let imageGallery: ImageGallery
+    /// The queue this controller submits to and observes.
+    ///
+    /// Injected rather than reached for as a singleton, which is what lets the
+    /// gallery singleton go: the service holds a gallery, so as long as it built
+    /// itself it needed a globally reachable one to hold.
+    private let generationService: GenerationService
     private(set) var generationQueue = [GenerationRequest]()
     private(set) var currentGeneration: GenerationRequest?
     private(set) var models = [any EngineModel]()
@@ -201,7 +207,8 @@ final class GenerationController {
         configStore: ConfigStore,
         modelRepository: ModelRepository = ModelRepository(),
         imageRepository: ImageRepository = ImageRepository(),
-        imageGallery: ImageGallery = .shared,
+        imageGallery: ImageGallery,
+        generationService: GenerationService,
         engineRegistry: EngineRegistry = EngineRegistry(),
         engineSettings: EngineSettingsStore? = nil,
         startsObserving: Bool = true
@@ -211,6 +218,7 @@ final class GenerationController {
         self.engineRegistry = engineRegistry
         self.imageRepository = imageRepository
         self.imageGallery = imageGallery
+        self.generationService = generationService
         // Defaulted from the registry rather than by the caller, so the store only
         // ever loads selections for engines that actually exist.
         self.engineSettings =
@@ -378,18 +386,18 @@ final class GenerationController {
                 imageDir: request.imageDir
             )
         } catch ImageRepositoryError.imageDirectoryNoAccess(let path) {
-            await GenerationService.shared.updateStatus(
+            await generationService.updateStatus(
                 .error("Couldn't access images folder at: \(path)")
             )
             return
         } catch {
-            await GenerationService.shared.updateStatus(
+            await generationService.updateStatus(
                 .error("Couldn't access images folder.")
             )
             return
         }
 
-        await GenerationService.shared.enqueue(request)
+        await generationService.enqueue(request)
     }
 
     // MARK: - Starting image
@@ -912,8 +920,11 @@ final class GenerationController {
 
     private func observeGenerationService() {
         generationUpdatesTask?.cancel()
-        generationUpdatesTask = Task { [weak self] in
-            let stream = await GenerationService.shared.updates()
+        // The service is captured alongside the weak self, not read through it: the
+        // loop must be able to reach the stream without resurrecting a controller
+        // that has gone away.
+        generationUpdatesTask = Task { [weak self, service = generationService] in
+            let stream = await service.updates()
             for await snapshot in stream {
                 guard let self else { return }
                 self.apply(snapshot)
@@ -923,8 +934,8 @@ final class GenerationController {
 
     private func observeGenerationResults() {
         generationResultsTask?.cancel()
-        generationResultsTask = Task { [weak self] in
-            let stream = await GenerationService.shared.results()
+        generationResultsTask = Task { [weak self, service = generationService] in
+            let stream = await service.results()
             for await result in stream {
                 guard let self else { return }
                 self.apply(result)
@@ -987,8 +998,16 @@ final class GenerationController {
         )
     }
 
+    /// Stops the running generation.
+    ///
+    /// Here rather than the view reaching for the queue itself, so the controller
+    /// stays the one thing that knows which queue it is talking to.
+    func stopCurrentGeneration() async {
+        await generationService.stopCurrentGeneration()
+    }
+
     func removeQueued(_ id: GenerationRequest.ID) async {
-        await GenerationService.shared.removeQueued(id: id)
+        await generationService.removeQueued(id: id)
     }
 
     private func observeModelDir() {

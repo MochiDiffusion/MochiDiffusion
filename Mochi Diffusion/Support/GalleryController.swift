@@ -51,21 +51,6 @@ final class GalleryController {
         observeImageDir()
     }
 
-    /// The app's gallery. Production has exactly one, and this is where that fact
-    /// lives rather than being restated at every call site.
-    convenience init(
-        configStore: ConfigStore,
-        imageRepository: ImageRepository = ImageRepository(),
-        focusController: FocusController
-    ) {
-        self.init(
-            configStore: configStore,
-            imageGallery: .shared,
-            imageRepository: imageRepository,
-            focusController: focusController
-        )
-    }
-
     func load() async {
         isLoading = true
         await loadImages()

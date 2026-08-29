@@ -111,9 +111,3 @@ struct StartingImageView: View {
         }
     }
 }
-
-#Preview {
-    StartingImageView()
-        .environment(GenerationController(configStore: ConfigStore()))
-        .environment(ConfigStore())
-}

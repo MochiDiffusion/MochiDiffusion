@@ -77,11 +77,3 @@ struct SidebarView: View {
         }
     }
 }
-
-#Preview {
-    SidebarView()
-        .environment(GenerationController(configStore: ConfigStore()))
-        .environment(ConfigStore())
-        .environment(FocusController())
-        .environment(GenerationState.shared)
-}

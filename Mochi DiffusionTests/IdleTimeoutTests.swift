@@ -233,7 +233,8 @@ extension QueueLivenessTests {
         GenerationService(
             engineRegistry: EngineRegistry(engines: [
                 AnyGenerationEngine(TimedEngine(makeIt: runtime))
-            ])
+            ]),
+            imageGallery: ImageGallery()
         )
     }
 

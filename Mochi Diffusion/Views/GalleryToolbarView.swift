@@ -198,18 +198,3 @@ struct GalleryToolbarView: View {
         .disabled(true)
     }
 }
-
-#Preview {
-    let focusController = FocusController()
-    GalleryToolbarView(isShowingInspector: .constant(true))
-        .environment(GenerationState.shared)
-        .environment(ImageGallery.shared)
-        .environment(ConfigStore())
-        .environment(GenerationController(configStore: ConfigStore()))
-        .environment(
-            GalleryController(
-                configStore: ConfigStore(),
-                focusController: focusController
-            )
-        )
-}

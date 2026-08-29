@@ -22,7 +22,7 @@ struct ControllerLifecycleTests {
         weak var weakController: GenerationController?
 
         do {
-            let controller = GenerationController(
+            let controller = makeTestGenerationController(
                 configStore: ConfigStore(store: defaults.defaults),
                 startsObserving: true
             )
@@ -44,6 +44,7 @@ struct ControllerLifecycleTests {
         do {
             let controller = GalleryController(
                 configStore: ConfigStore(store: defaults.defaults),
+                imageGallery: ImageGallery(),
                 focusController: FocusController()
             )
             weakController = controller
@@ -67,7 +68,8 @@ struct ControllerLifecycleTests {
         weak var weakController: GenerationController?
 
         do {
-            let controller = GenerationController(configStore: configStore, startsObserving: true)
+            let controller = makeTestGenerationController(
+                configStore: configStore, startsObserving: true)
             weakController = controller
             controller.shutdown()
             configStore.modelDir = "/tmp/mochi-somewhere-else"
@@ -87,6 +89,7 @@ struct ControllerLifecycleTests {
         do {
             let controller = GalleryController(
                 configStore: configStore,
+                imageGallery: ImageGallery(),
                 focusController: FocusController()
             )
             weakController = controller
@@ -101,7 +104,7 @@ struct ControllerLifecycleTests {
     @Test("Shutting down twice is harmless")
     func shutdownIsIdempotent() {
         let defaults = TempDefaults()
-        let controller = GenerationController(
+        let controller = makeTestGenerationController(
             configStore: ConfigStore(store: defaults.defaults),
             startsObserving: true
         )

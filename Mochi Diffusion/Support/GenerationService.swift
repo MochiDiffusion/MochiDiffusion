@@ -14,13 +14,6 @@ actor GenerationService {
         var current: GenerationRequest?
     }
 
-    /// The one place the real credential store is wired in. The initialiser's
-    /// default is deliberately the keychain-free registry, so a test that does not
-    /// pass one cannot reach the user's keychain.
-    static let shared = GenerationService(
-        engineRegistry: EngineRegistry(secrets: KeychainSecretStore())
-    )
-
     /// The gallery this queue numbers output against and publishes previews to.
     ///
     /// Storing a `@MainActor` type in an actor is sound — global-actor isolation
@@ -69,7 +62,7 @@ actor GenerationService {
         imageRepository: ImageRepository = ImageRepository(),
         modelRepository: ModelRepository = ModelRepository(),
         engineRegistry: EngineRegistry = EngineRegistry(),
-        imageGallery: ImageGallery = .shared
+        imageGallery: ImageGallery
     ) {
         self.imageRepository = imageRepository
         self.modelRepository = modelRepository

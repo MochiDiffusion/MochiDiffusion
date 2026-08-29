@@ -90,9 +90,3 @@ struct ControlNetView: View {
         }
     }
 }
-
-#Preview {
-    ControlNetView()
-        .environment(GenerationController(configStore: ConfigStore()))
-        .environment(ConfigStore())
-}

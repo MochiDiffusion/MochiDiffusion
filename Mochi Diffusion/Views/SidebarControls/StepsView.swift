@@ -64,9 +64,3 @@ struct UnsupportedValueField: View {
             }
     }
 }
-
-#Preview {
-    StepsView()
-        .environment(GenerationController(configStore: ConfigStore()))
-        .environment(ConfigStore())
-}

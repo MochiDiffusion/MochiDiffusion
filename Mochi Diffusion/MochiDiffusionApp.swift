@@ -30,16 +30,23 @@ struct MochiDiffusionApp: App {
     init() {
         let configStore = ConfigStore()
         let focusController = FocusController()
-        // Named once and handed to everything that needs it, rather than three
-        // places independently reaching for `.shared` and happening to agree.
-        let imageGallery = ImageGallery.shared
+        // The app owns the one gallery and the one queue, and hands them to
+        // everything that needs them. Neither has a `.shared`, so there is no way
+        // for code elsewhere to reach a different one by accident.
+        let imageGallery = ImageGallery()
+        // The one place the real credential store is wired in. The registry
+        // initialiser default is keychain-free, so a test that does not pass one
+        // cannot reach the user's keychain.
+        let generationService = GenerationService(
+            engineRegistry: EngineRegistry(secrets: KeychainSecretStore()),
+            imageGallery: imageGallery
+        )
         self._configStore = State(initialValue: configStore)
         self._generationController = State(
-            // The other place the real credential store is wired in; the
-            // initialiser's default is keychain-free so tests stay off it.
             initialValue: GenerationController(
                 configStore: configStore,
                 imageGallery: imageGallery,
+                generationService: generationService,
                 engineRegistry: EngineRegistry(secrets: KeychainSecretStore())
             )
         )

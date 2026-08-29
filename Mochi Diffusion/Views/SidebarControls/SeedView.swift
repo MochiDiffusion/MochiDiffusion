@@ -51,9 +51,3 @@ extension Formatter {
         return formatter
     }()
 }
-
-#Preview {
-    SeedView()
-        .environment(GenerationController(configStore: ConfigStore()))
-        .environment(FocusController())
-}

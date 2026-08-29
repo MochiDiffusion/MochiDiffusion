@@ -48,7 +48,7 @@ struct JobQueueView: View {
             VStack {
                 if let currentGeneration = controller.currentGeneration {
                     JobView(request: currentGeneration, progress: progressData) {
-                        Task { await GenerationService.shared.stopCurrentGeneration() }
+                        Task { await controller.stopCurrentGeneration() }
                     }
                     .onAppear {
                         updateProgressData()

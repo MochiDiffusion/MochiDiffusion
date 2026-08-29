@@ -200,11 +200,3 @@ struct PromptView: View {
         }
     }
 }
-
-#Preview {
-    PromptView()
-        .environment(GenerationController(configStore: ConfigStore()))
-        .environment(ConfigStore())
-        .environment(FocusController())
-        .environment(GenerationState.shared)
-}

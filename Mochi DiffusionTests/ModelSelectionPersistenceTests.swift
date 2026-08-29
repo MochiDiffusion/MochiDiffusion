@@ -43,11 +43,14 @@ struct ModelSelectionPersistenceTests {
     /// including it would mean every assertion about an empty picker was really an
     /// assertion about the shipped engine list. `hostedEngineIsNotAutoSelected`
     /// covers the interaction deliberately.
-    private func makeController() -> GenerationController {
-        GenerationController(
+    private func makeController(imageGallery: ImageGallery = ImageGallery())
+        -> GenerationController
+    {
+        makeTestGenerationController(
             configStore: configStore,
             modelRepository: ModelRepository(),
             imageRepository: ImageRepository(),
+            imageGallery: imageGallery,
             engineRegistry: EngineRegistry(engines: [
                 AnyGenerationEngine(IrisEngine()),
                 AnyGenerationEngine(CoreMLStableDiffusionEngine()),
@@ -60,7 +63,7 @@ struct ModelSelectionPersistenceTests {
     /// and can become the fallback.
     private func makeKeyedShippedController() -> GenerationController {
         let secrets = InMemorySecretStore([OpenAIImageEngine.secretAccount: "sk-test"])
-        return GenerationController(
+        return makeTestGenerationController(
             configStore: configStore,
             modelRepository: ModelRepository(),
             imageRepository: ImageRepository(),
@@ -71,7 +74,7 @@ struct ModelSelectionPersistenceTests {
 
     /// The shipped list, whose hosted engine has no key in a test.
     private func makeShippedController() -> GenerationController {
-        GenerationController(
+        makeTestGenerationController(
             configStore: configStore,
             modelRepository: ModelRepository(),
             imageRepository: ImageRepository(),
@@ -265,7 +268,10 @@ struct ModelSelectionPersistenceTests {
         recorded: String, expected: ImageQuality
     ) async throws {
         try makeSDModelFixture(at: modelDir.appending(path: "a-model"))
-        let controller = makeController()
+        // The controller reads its selection from the gallery it was given, so the
+        // test has to populate that one rather than a global.
+        let gallery = ImageGallery()
+        let controller = makeController(imageGallery: gallery)
         await controller.loadModels()
         // The value the sidebar is left holding when the metadata says nothing we
         // understand.
@@ -273,8 +279,8 @@ struct ModelSelectionPersistenceTests {
 
         var image = SDImage(image: makeCGImage(), aspectRatio: 1, path: "")
         image.quality = recorded
-        ImageGallery.shared.replaceAll([(image: image, metadataFields: [.quality])])
-        ImageGallery.shared.select(image.id)
+        gallery.replaceAll([(image: image, metadataFields: [.quality])])
+        gallery.select(image.id)
 
         controller.copyToPrompt(image)
 

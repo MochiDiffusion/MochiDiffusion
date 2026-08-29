@@ -38,7 +38,7 @@ struct GenerationRequestBuilderTests {
     /// model load. A stray reload reassigns `currentModelId`, whose `didSet`
     /// clears `currentControlNets`, which would empty state these tests just set.
     private func makeController() -> GenerationController {
-        GenerationController(
+        makeTestGenerationController(
             configStore: configStore,
             modelRepository: ModelRepository(),
             imageRepository: ImageRepository(),

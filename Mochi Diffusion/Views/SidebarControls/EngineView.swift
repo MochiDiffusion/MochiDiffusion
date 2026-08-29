@@ -109,8 +109,3 @@ struct EngineView: View {
         }
     }
 }
-
-#Preview {
-    EngineView()
-        .environment(GenerationController(configStore: ConfigStore()))
-}
