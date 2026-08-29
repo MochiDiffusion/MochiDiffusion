@@ -56,9 +56,15 @@ enum ImageRepositoryError: Error {
 
 actor ImageRepository {
     private let fileSystem: FileSystemStore
+    private let defaultImageDirectoryURL: URL
 
-    init(fileSystem: FileSystemStore = FileSystemStore()) {
+    init(
+        fileSystem: FileSystemStore = FileSystemStore(),
+        defaultImageDirectoryURL: URL? = nil
+    ) {
         self.fileSystem = fileSystem
+        self.defaultImageDirectoryURL =
+            defaultImageDirectoryURL ?? Self.imageDirectoryURL(fromPath: "")
     }
 
     nonisolated static func imageDirectoryURL(fromPath directory: String) -> URL {
@@ -69,7 +75,7 @@ actor ImageRepository {
     }
 
     func load(imageDir: String) throws -> [ImageRecord] {
-        let directoryURL = Self.imageDirectoryURL(fromPath: imageDir)
+        let directoryURL = resolvedImageDirectoryURL(fromPath: imageDir)
         do {
             try fileSystem.ensureDirectoryExists(directoryURL)
         } catch {
@@ -96,10 +102,16 @@ actor ImageRepository {
     func importImages(from urls: [URL], imageDir: String) -> ([ImageRecord], Int) {
         var records: [ImageRecord] = []
         var failed = 0
+        let destinationDirectory: URL
+
+        do {
+            destinationDirectory = try ensureOutputDirectory(imageDir: imageDir)
+        } catch {
+            return (records, urls.count)
+        }
 
         for url in urls {
-            var importedURL = URL(fileURLWithPath: imageDir, isDirectory: true)
-            importedURL.append(path: url.lastPathComponent)
+            let importedURL = destinationDirectory.appending(path: url.lastPathComponent)
             do {
                 try fileSystem.copyItem(at: url, to: importedURL)
             } catch {
@@ -140,15 +152,16 @@ actor ImageRepository {
         imageDir: String,
         imageType: String,
     ) -> URL? {
-        var pathURL = URL(fileURLWithPath: imageDir, isDirectory: true)
-        pathURL.append(path: filenameWithoutExtension)
-
+        let directoryURL = resolvedImageDirectoryURL(fromPath: imageDir)
+        let filename = safeFilenameComponent(filenameWithoutExtension)
+        let pathURL = directoryURL.appending(path: filename)
         let type = UTType.fromString(imageType)
-        return saveImageData(imageData, pathWithoutExtension: pathURL, type: type)
+        let availablePathURL = nextAvailablePathWithoutExtension(for: pathURL, type: type)
+        return saveImageData(imageData, pathWithoutExtension: availablePathURL, type: type)
     }
 
     func ensureOutputDirectory(imageDir: String) throws -> URL {
-        let directoryURL = Self.imageDirectoryURL(fromPath: imageDir)
+        let directoryURL = resolvedImageDirectoryURL(fromPath: imageDir)
         do {
             try fileSystem.ensureDirectoryExists(directoryURL)
         } catch {
@@ -168,13 +181,15 @@ actor ImageRepository {
 
     func exportAllImages(_ images: [ImageExportRequest], to directory: URL, type: UTType) {
         for request in images {
-            let url = directory.appending(path: request.filenameWithoutExtension)
-            _ = saveImageData(request.imageData, pathWithoutExtension: url, type: type)
+            let filename = safeFilenameComponent(request.filenameWithoutExtension)
+            let url = directory.appending(path: filename)
+            let availableURL = nextAvailablePathWithoutExtension(for: url, type: type)
+            _ = saveImageData(request.imageData, pathWithoutExtension: availableURL, type: type)
         }
     }
 
     func syncImages(imageDir: String, existingPaths: [String]) -> ImageSyncResult {
-        let directoryURL = URL(fileURLWithPath: imageDir, isDirectory: true)
+        let directoryURL = resolvedImageDirectoryURL(fromPath: imageDir)
         guard
             let fileList = try? fileSystem.contentsOfDirectory(at: directoryURL).map({
                 $0.lastPathComponent
@@ -189,7 +204,7 @@ actor ImageRepository {
 
         for filePath in fileList {
             if !existingSet.contains(where: { URL(filePath: $0).lastPathComponent == filePath }) {
-                let fileURL = URL(filePath: imageDir).appending(component: filePath)
+                let fileURL = directoryURL.appending(component: filePath)
                 if let record = createImageRecordFromURL(fileURL) {
                     additions.append(record)
                 }
@@ -203,6 +218,53 @@ actor ImageRepository {
         }
 
         return ImageSyncResult(additions: additions, removals: removals)
+    }
+
+    /// Resolves the persisted empty-string spelling in one place, so load, import,
+    /// generation and folder synchronization all mean the same directory.
+    private func resolvedImageDirectoryURL(fromPath directory: String) -> URL {
+        guard !directory.isEmpty else { return defaultImageDirectoryURL }
+        return URL(fileURLWithPath: directory, isDirectory: true)
+    }
+
+    /// Defense in depth for callers that already hand the repository a filename.
+    /// Prompt sanitization happens earlier, but no repository operation may interpret
+    /// a supplied filename as a relative or absolute path.
+    private func safeFilenameComponent(_ filename: String) -> String {
+        let component = URL(fileURLWithPath: filename).lastPathComponent
+        guard !component.isEmpty, component != ".", component != ".." else {
+            return "Image"
+        }
+        return component
+    }
+
+    /// Chooses a path without replacing an existing file.
+    ///
+    /// This check and the subsequent write happen without a suspension point on the
+    /// repository actor, so two app writes cannot select the same candidate. An
+    /// external process can still race the filesystem between the check and write;
+    /// handling that would require an exclusive-create primitive rather than `Data`.
+    private func nextAvailablePathWithoutExtension(
+        for pathWithoutExtension: URL,
+        type: UTType
+    ) -> URL {
+        let initialURL = pathWithoutExtension.appendingPathExtension(for: type)
+        guard fileSystem.fileExists(initialURL) else {
+            return pathWithoutExtension
+        }
+
+        let directory = pathWithoutExtension.deletingLastPathComponent()
+        let baseName = pathWithoutExtension.lastPathComponent
+        var suffix = 2
+
+        while true {
+            let candidatePath = directory.appending(path: "\(baseName)-\(suffix)")
+            let candidateURL = candidatePath.appendingPathExtension(for: type)
+            if !fileSystem.fileExists(candidateURL) {
+                return candidatePath
+            }
+            suffix += 1
+        }
     }
 
     private func saveImageData(

@@ -52,6 +52,43 @@ nonisolated func getFinderTagColorNumber(_ url: URL) -> Int {
     return finderTagColorNumber
 }
 
+/// Turns a prompt into the human-readable part of an image filename.
+///
+/// A prompt is content, not a path. In particular, `/` and `..` must not become
+/// components interpreted relative to the configured images directory. Keep letters,
+/// numbers, spaces, underscores and hyphens; replace everything else with a single
+/// space so removing punctuation does not accidentally join words.
+nonisolated func sanitizedImageFilenameBase(from prompt: String) -> String? {
+    let replacedInvalidCharacters = prompt.replacingOccurrences(
+        of: #"[^[:alnum:] _-]+"#,
+        with: " ",
+        options: .regularExpression
+    )
+    let collapsedWhitespace = replacedInvalidCharacters.replacingOccurrences(
+        of: #"\s+"#,
+        with: " ",
+        options: .regularExpression
+    )
+    let trimmed = collapsedWhitespace.trimmingCharacters(
+        in: CharacterSet.whitespacesAndNewlines.union(CharacterSet(charactersIn: "._-"))
+    )
+    guard !trimmed.isEmpty else { return nil }
+    return String(trimmed.prefix(70))
+}
+
+/// Builds the filename shared by generation, Save As and Save All.
+nonisolated func imageFilenameWithoutExtension(
+    prompt: String,
+    seed: UInt32,
+    count: Int? = nil
+) -> String {
+    let base = sanitizedImageFilenameBase(from: prompt) ?? "Image"
+    if let count {
+        return "\(base).\(count).\(seed)"
+    }
+    return "\(base).\(seed)"
+}
+
 /// Decodes a full-size image from a file.
 ///
 /// `CGImageSourceCreateWithURL` rather than reading the bytes first, so ImageIO can

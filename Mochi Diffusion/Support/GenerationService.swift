@@ -483,15 +483,11 @@ actor GenerationService {
     private func nextFilename(for metadata: GenerationMetadata) async -> String {
         let count = nextImageIndex
         nextImageIndex += 1
-        return filenameWithoutExtension(prompt: metadata.prompt, seed: metadata.seed, count: count)
-    }
-
-    private func filenameWithoutExtension(prompt: String, seed: UInt32, count: Int) -> String {
-        guard !prompt.isEmpty else {
-            return "\(count).\(seed)"
-        }
-        let trimmed = String(prompt.prefix(70)).trimmingCharacters(in: .whitespacesAndNewlines)
-        return "\(trimmed).\(count).\(seed)"
+        return imageFilenameWithoutExtension(
+            prompt: metadata.prompt,
+            seed: metadata.seed,
+            count: count
+        )
     }
 
     private func snapshot() -> Snapshot {

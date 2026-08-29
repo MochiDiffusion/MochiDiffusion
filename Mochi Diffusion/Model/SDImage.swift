@@ -64,11 +64,11 @@ struct SDImage: Identifiable, Hashable {
 
 extension SDImage {
     func filenameWithoutExtension() -> String {
-        "\(String(prompt.prefix(70)).trimmingCharacters(in: .whitespacesAndNewlines)).\(seed)"
+        imageFilenameWithoutExtension(prompt: prompt, seed: seed)
     }
 
     func filenameWithoutExtension(count: Int) -> String {
-        "\(String(prompt.prefix(70)).trimmingCharacters(in: .whitespacesAndNewlines)).\(count).\(seed)"
+        imageFilenameWithoutExtension(prompt: prompt, seed: seed, count: count)
     }
 
     @MainActor

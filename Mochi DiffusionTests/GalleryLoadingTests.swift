@@ -5,6 +5,7 @@
 
 import Foundation
 import Testing
+import UniformTypeIdentifiers
 
 @testable import Mochi_Diffusion
 
@@ -165,5 +166,194 @@ struct GalleryLoadingTests {
         controller.clearFinderTags(try #require(gallery.images.first))
         #expect(gallery.images.first?.finderTagColorNumber == 0)
         controller.shutdown()
+    }
+}
+
+/// Filename and destination rules owned by `ImageRepository`.
+@MainActor
+struct ImageRepositoryTests {
+    let temp: TempDirectory
+
+    init() throws {
+        temp = try TempDirectory()
+    }
+
+    @Test("Prompt filenames contain content, never path components")
+    func promptFilenamesAreSanitized() {
+        #expect(
+            imageFilenameWithoutExtension(
+                prompt: "../../folder/cat: portrait?",
+                seed: 42,
+                count: 3
+            ) == "folder cat portrait.3.42"
+        )
+        #expect(
+            imageFilenameWithoutExtension(
+                prompt: "a\n\tcat   portrait",
+                seed: 9
+            ) == "a cat portrait.9"
+        )
+        #expect(
+            imageFilenameWithoutExtension(
+                prompt: " ._-/// ",
+                seed: 7
+            ) == "Image.7"
+        )
+    }
+
+    @Test("Prompt filename bases are capped at seventy characters")
+    func promptFilenameBaseIsCapped() throws {
+        let base = try #require(
+            sanitizedImageFilenameBase(from: String(repeating: "a", count: 100))
+        )
+
+        #expect(base.count == 70)
+    }
+
+    @Test("SDImage uses the shared sanitized filename rules")
+    func sdImageUsesSharedFilenameRules() {
+        var image = SDImage()
+        image.prompt = "../a/cat?"
+        image.seed = 11
+
+        #expect(image.filenameWithoutExtension() == "a cat.11")
+        #expect(image.filenameWithoutExtension(count: 4) == "a cat.4.11")
+    }
+
+    @Test("Writing the same name twice preserves the first file")
+    func duplicateWritesChooseAvailablePaths() async throws {
+        let directory = try temp.subdirectory("images")
+        let repository = ImageRepository()
+
+        let first = try #require(
+            await repository.writeImage(
+                filenameWithoutExtension: "A cat.1.42",
+                imageData: Data([1]),
+                imageDir: directory.path(percentEncoded: false),
+                imageType: "png"
+            )
+        )
+        let second = try #require(
+            await repository.writeImage(
+                filenameWithoutExtension: "A cat.1.42",
+                imageData: Data([2]),
+                imageDir: directory.path(percentEncoded: false),
+                imageType: "png"
+            )
+        )
+
+        #expect(first.lastPathComponent == "A cat.1.42.png")
+        #expect(second.lastPathComponent == "A cat.1.42-2.png")
+        #expect(try Data(contentsOf: first) == Data([1]))
+        #expect(try Data(contentsOf: second) == Data([2]))
+    }
+
+    @Test("Concurrent writes receive distinct paths")
+    func concurrentWritesAreSerialized() async throws {
+        let directory = try temp.subdirectory("concurrent-images")
+        let repository = ImageRepository()
+
+        let urls = await withTaskGroup(of: URL?.self) { group in
+            for byte in UInt8(0)..<8 {
+                group.addTask {
+                    await repository.writeImage(
+                        filenameWithoutExtension: "same-name",
+                        imageData: Data([byte]),
+                        imageDir: directory.path(percentEncoded: false),
+                        imageType: "png"
+                    )
+                }
+            }
+
+            var urls: [URL] = []
+            for await url in group {
+                if let url {
+                    urls.append(url)
+                }
+            }
+            return urls
+        }
+
+        #expect(urls.count == 8)
+        #expect(Set(urls).count == 8)
+    }
+
+    @Test("Repository filenames cannot escape their destination")
+    func repositoryAcceptsOnlyFilenameComponents() async throws {
+        let directory = try temp.subdirectory("safe-images")
+        let repository = ImageRepository()
+
+        let url = try #require(
+            await repository.writeImage(
+                filenameWithoutExtension: "../../outside",
+                imageData: Data([1]),
+                imageDir: directory.path(percentEncoded: false),
+                imageType: "png"
+            )
+        )
+
+        #expect(url.deletingLastPathComponent() == directory)
+        #expect(url.lastPathComponent == "outside.png")
+    }
+
+    @Test("An empty image directory resolves to the injected default")
+    func emptyDirectoryUsesDefaultForWrites() async throws {
+        let defaultDirectory = temp.appending("default-images")
+        let repository = ImageRepository(defaultImageDirectoryURL: defaultDirectory)
+        _ = try await repository.ensureOutputDirectory(imageDir: "")
+
+        let url = try #require(
+            await repository.writeImage(
+                filenameWithoutExtension: "default-location",
+                imageData: Data([1]),
+                imageDir: "",
+                imageType: "png"
+            )
+        )
+
+        #expect(url.deletingLastPathComponent().pathComponents == defaultDirectory.pathComponents)
+    }
+
+    @Test("Import uses the same default directory as gallery loading")
+    func importUsesDefaultDirectory() async throws {
+        let incomingDirectory = try temp.subdirectory("incoming")
+        let source = incomingDirectory.appending(path: "one.png")
+        try writePNG(
+            caption: MetadataCodec.encode([
+                (.includeInImage, "a cat"),
+                (.generator, "Mochi Diffusion 6.0"),
+            ]),
+            to: source
+        )
+        let defaultDirectory = temp.appending("default-imports")
+        let repository = ImageRepository(defaultImageDirectoryURL: defaultDirectory)
+
+        let (records, failed) = await repository.importImages(from: [source], imageDir: "")
+
+        #expect(failed == 0)
+        #expect(records.count == 1)
+        #expect(records.first?.path == defaultDirectory.appending(path: "one.png").path)
+    }
+
+    @Test("Save All does not replace an existing export")
+    func exportChoosesAvailablePath() async throws {
+        let directory = try temp.subdirectory("exports")
+        let original = directory.appending(path: "A cat.1.42.png")
+        try Data([1]).write(to: original)
+        let repository = ImageRepository()
+
+        await repository.exportAllImages(
+            [
+                ImageExportRequest(
+                    filenameWithoutExtension: "A cat.1.42",
+                    imageData: Data([2])
+                )
+            ],
+            to: directory,
+            type: .png
+        )
+
+        #expect(try Data(contentsOf: original) == Data([1]))
+        #expect(try Data(contentsOf: directory.appending(path: "A cat.1.42-2.png")) == Data([2]))
     }
 }
