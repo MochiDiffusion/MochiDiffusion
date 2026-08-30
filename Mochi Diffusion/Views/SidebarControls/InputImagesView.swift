@@ -158,6 +158,7 @@ private struct InputImageRow: View {
                 setImages: { dropped in
                     await controller.setInputImages(dropped, startingAt: index)
                 },
+                maximumDropCount: controller.maxInputImageCount - index,
                 removeImage: {
                     await controller.unsetInputImage(at: index)
                 },
@@ -195,9 +196,11 @@ private struct InputImageRow: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
 
-                    Text("Estimated final: \(format(predictedSize))")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    if let predictedSize {
+                        Text("Estimated final: \(format(predictedSize))")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
                 } else {
                     Text("Drop or select an image")
                         .font(.caption)
@@ -293,11 +296,11 @@ private struct InputImageEditPopover: View {
                 )
                 .frame(height: 240)
 
-                Text(
-                    "Estimated final size: \(format(controller.predictedInputImageSize(at: index)))"
-                )
-                .font(.caption)
-                .foregroundStyle(.secondary)
+                if let predictedSize = controller.predictedInputImageSize(at: index) {
+                    Text("Estimated final size: \(format(predictedSize))")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
             } else {
                 Text("No image selected.")
                     .foregroundStyle(.secondary)

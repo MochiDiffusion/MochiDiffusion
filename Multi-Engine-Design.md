@@ -1598,6 +1598,10 @@ shape, which is why they can be made now.
   `image_generation.completed` carries the final image plus a `usage` breakdown of input,
   output and total tokens. No error event is documented.
 - **Response:** base64 image data, not a URL.
+- **Image references:** one or more images go to `/v1/images/edits` as repeated multipart
+  `image[]` fields. Edit streaming uses `image_edit.partial_image` and
+  `image_edit.completed` events. `gpt-image-2` always processes image inputs at high
+  fidelity; the current guide does not state a maximum reference count.
 - **`revised_prompt`** is documented on the Responses API image tool. It was *not* confirmed
   on the Images API response. Verify before adding the metadata field.
 
@@ -1794,8 +1798,31 @@ This is also where `EngineModel.url` being non-optional bites — see §6.
 - **Discovery messages still share the generation banner** (§15's open item). This is the
   phase where it stops being cosmetic, since a hosted engine produces availability messages
   and generation errors in roughly equal number. Fix it in Phase 6, not after.
-- **`moderation: low`** is not exposed. It is an account-policy decision, not a per-image
-  one, and it belongs in Settings if anywhere.
+- **Moderation is not exposed as a per-image option.** A later explicit product decision set
+  every OpenAI request to `moderation: low`; it remains engine policy rather than a sidebar
+  control.
+
+#### D11 — OpenAI reference images reuse the shared input-image path
+
+`gpt-image-2` accepts references, so its model declares `inputImages` and the existing
+progressively revealed sidebar wells are shared with Klein. The service documentation does
+not state a count maximum, but Mochi deliberately caps the model at **16**. This is an app
+safety limit: a multi-file drop must stop loading at the remaining slot count, so selecting
+hundreds of files cannot make the app decode all of them before truncating the request.
+
+The pixel path stays engine-specific:
+
+- User cropping remains shared and is applied before planning.
+- OpenAI receives each cropped image as PNG at its native cropped resolution. It does not
+  inherit Iris's attention-budget fitting or token-grid normalization.
+- Iris alone shows its budget warning and estimated final reference size. For OpenAI the
+  sidebar shows the original and cropped sizes without an inapplicable estimate.
+
+The runtime uses `/v1/images/generations` with its existing JSON body when the request has no
+references, and `/v1/images/edits` with repeated multipart `image[]` parts when it does. The
+same preview and completion path accepts both the `image_generation.*` and `image_edit.*`
+event families. Input filenames are recorded through `.inputImages` metadata; generated
+multipart filenames are transport-only because pasted inputs may not have source names.
 
 ### 13.3 Draw Things / MediaGenerationKit — moved
 

@@ -16,6 +16,7 @@ struct ImageWellView: View {
     let heightModifier: Double
     let selectImage: () async -> CGImage?
     let setImages: (@Sendable ([DroppedImage]) async -> Void)?
+    let maximumDropCount: Int?
     let removeImage: (@Sendable () async -> Void)?
     let removeHelp: String?
     let setImage: @Sendable (CGImage?) async -> Void
@@ -25,6 +26,7 @@ struct ImageWellView: View {
         size: CGSize?,
         selectImage: @escaping () async -> CGImage?,
         setImages: (@Sendable ([DroppedImage]) async -> Void)? = nil,
+        maximumDropCount: Int? = nil,
         removeImage: (@Sendable () async -> Void)? = nil,
         removeHelp: String? = nil,
         setImage: @escaping @Sendable (CGImage?) async -> Void
@@ -40,6 +42,7 @@ struct ImageWellView: View {
         }
         self.selectImage = selectImage
         self.setImages = setImages
+        self.maximumDropCount = maximumDropCount
         self.removeImage = removeImage
         self.removeHelp = removeHelp
         self.setImage = setImage
@@ -151,9 +154,12 @@ struct ImageWellView: View {
 
     private func loadDroppedImages(from providers: [NSItemProvider]) async -> [DroppedImage] {
         var droppedImages: [DroppedImage] = []
-        droppedImages.reserveCapacity(providers.count)
+        let providersToLoad =
+            maximumDropCount.map { Array(providers.prefix(max(0, $0))) }
+            ?? providers
+        droppedImages.reserveCapacity(providersToLoad.count)
 
-        for provider in providers {
+        for provider in providersToLoad {
             if let dropped = await loadDroppedImage(from: provider) {
                 droppedImages.append(dropped)
             }

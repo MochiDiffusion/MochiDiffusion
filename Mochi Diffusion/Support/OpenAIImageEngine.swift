@@ -87,6 +87,10 @@ nonisolated struct OpenAIImageEngine: GenerationEngineDescriptor {
         let quality = constraints.quality.resolved(draft.quality)
         let numberOfImages =
             constraints.numberOfImages.resolved(draft.numberOfImages) ?? draft.numberOfImages
+        // Reference images keep their cropped native resolution. Iris's fitting
+        // is an engine-specific attention-budget workaround; the hosted API has
+        // no equivalent local budget for us to predict or enforce.
+        let inputs = constraints.inputImages.prepared(draft.inputImages) { _, _ in nil }
 
         return GenerationPlan(
             payload: OpenAIGenerationPayload(
@@ -100,10 +104,7 @@ nonisolated struct OpenAIImageEngine: GenerationEngineDescriptor {
                 wantsPreviews: draft.showGenerationPreview
             ),
             size: size,
-            // Generations only in this version. Input images go to the edits
-            // endpoint, which takes its own multipart form, and `inputImages` is
-            // declared unsupported so the sidebar does not offer any.
-            inputImageData: [],
+            inputImageData: inputs.data,
             controlNetImageData: [],
             controlNetNames: [],
             controlNetImageNames: [],
@@ -118,7 +119,7 @@ nonisolated struct OpenAIImageEngine: GenerationEngineDescriptor {
             numberOfImages: numberOfImages,
             mlComputeUnit: nil,
             startingImageName: nil,
-            inputImageNames: []
+            inputImageNames: inputs.names
         )
     }
 
@@ -134,6 +135,11 @@ nonisolated struct OpenAIImageEngine: GenerationEngineDescriptor {
 // MARK: - The model list
 
 nonisolated extension OpenAIImageEngine {
+    /// An app safety limit, not a documented service limit. It bounds multi-file
+    /// drops and is high enough to exercise substantial reference sets without
+    /// claiming Mochi can safely ingest an arbitrary selection.
+    static let maxInputImages = 16
+
     /// Limits read from the image generation guide on 2026-08-27.
     ///
     /// The per-dimension floor is derived rather than quoted: the guide gives a
@@ -159,7 +165,7 @@ nonisolated extension OpenAIImageEngine {
             guidanceScale: .unsupported,
             scheduler: .unsupported,
             startingImage: .unsupported,
-            inputImages: .unsupported,
+            inputImages: .supported(maxCount: maxInputImages),
             controlNet: .unsupported,
             quality: .oneOf([.auto, .low, .medium, .high]),
             // Ours to choose, not the API's: one request is sent per image, so this
@@ -176,7 +182,7 @@ nonisolated extension OpenAIImageEngine {
         // documented on the Responses API image tool rather than this endpoint,
         // and an unverified metadata key is a permanent export contract for a
         // guess.
-        metadataFields: [.prompt, .model, .engine, .modelKey, .size, .quality]
+        metadataFields: [.prompt, .model, .engine, .modelKey, .size, .quality, .inputImages]
     )
 }
 

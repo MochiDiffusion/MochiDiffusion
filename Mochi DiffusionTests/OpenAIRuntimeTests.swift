@@ -29,7 +29,9 @@ struct OpenAIRuntimeTests {
     private func request(
         numberOfImages: Int = 1,
         previews: Bool = false,
-        quality: ImageQuality = .auto
+        quality: ImageQuality = .auto,
+        inputImageData: [Data] = [],
+        inputImageNames: [String] = []
     ) -> GenerationRequest {
         GenerationRequest(
             modelID: ModelID(engine: OpenAIImageEngine.id, key: "gpt-image-2"),
@@ -44,12 +46,12 @@ struct OpenAIRuntimeTests {
             prompt: "a cat",
             negativePrompt: "",
             size: CGSize(width: 1_024, height: 1_024),
-            inputImageData: [],
+            inputImageData: inputImageData,
             startingImageName: nil,
             controlNetImageData: [],
             controlNetNames: [],
             controlNetImageNames: [],
-            inputImageNames: [],
+            inputImageNames: inputImageNames,
             strength: nil,
             stepCount: nil,
             guidanceScale: nil,
@@ -71,6 +73,15 @@ struct OpenAIRuntimeTests {
 
     private var completed: String {
         "data: {\"type\":\"image_generation.completed\",\"b64_json\":\"\(base64PNG())\"}"
+    }
+
+    private func editPartial(index: Int) -> String {
+        "data: {\"type\":\"image_edit.partial_image\",\"partial_image_index\":\(index),"
+            + "\"b64_json\":\"\(base64PNG())\"}"
+    }
+
+    private var editCompleted: String {
+        "data: {\"type\":\"image_edit.completed\",\"b64_json\":\"\(base64PNG())\"}"
     }
 
     /// Collects a session's events without racing the run that produces them.
@@ -106,6 +117,19 @@ struct OpenAIRuntimeTests {
         #expect(event.type == "image_generation.completed")
         #expect(event.partialIndex == nil)
         #expect(event.image != nil)
+    }
+
+    @Test("Edit events use the same decoded stream representation")
+    func parsesEditEvents() throws {
+        let partialEvent = try #require(
+            OpenAIEngineRuntime.event(from: editPartial(index: 1)))
+        let completedEvent = try #require(OpenAIEngineRuntime.event(from: editCompleted))
+
+        #expect(partialEvent.type == "image_edit.partial_image")
+        #expect(partialEvent.partialIndex == 1)
+        #expect(partialEvent.image != nil)
+        #expect(completedEvent.type == "image_edit.completed")
+        #expect(completedEvent.image != nil)
     }
 
     /// Everything a server-sent-event body contains besides data lines. Ignoring
@@ -251,10 +275,50 @@ struct OpenAIRuntimeTests {
         #expect(body["stream"] as? Bool == true)
         #expect(body["partial_images"] as? Int == 3)
         #expect(body["quality"] as? String == "high")
+        #expect(body["moderation"] as? String == "low")
+        #expect(http.lastRequest?.url?.path == "/v1/images/generations")
         // The credential goes in a header, never the body.
         #expect(!body.keys.contains("api_key"))
         let authorization = http.lastRequest?.value(forHTTPHeaderField: "Authorization")
         #expect(authorization == "Bearer sk-test")
+    }
+
+    @Test("References use the multipart edits endpoint and retain metadata names")
+    func inputImagesUseEditsEndpoint() async throws {
+        let first = makeCGImage(width: 12, height: 8).pngData()!
+        let second = makeCGImage(width: 8, height: 12).pngData()!
+        let http = FakeHTTPSession(body: [editPartial(index: 0), editCompleted])
+        let generationSession = GenerationSession(requestID: UUID())
+        let results = ResultCollector()
+
+        try await runtime(session: http).run(
+            request: request(
+                previews: true,
+                quality: .high,
+                inputImageData: [first, second],
+                inputImageNames: ["first.png", "second.png"]
+            ),
+            session: generationSession,
+            onResult: { await results.add($0) }
+        )
+
+        let sent = try #require(http.lastRequest)
+        let contentType = try #require(sent.value(forHTTPHeaderField: "Content-Type"))
+        let body = try #require(sent.httpBody)
+        let bodyText = String(decoding: body, as: UTF8.self)
+
+        #expect(sent.url?.path == "/v1/images/edits")
+        #expect(contentType.hasPrefix("multipart/form-data; boundary="))
+        #expect(bodyText.contains("name=\"model\"\r\n\r\ngpt-image-2\r\n"))
+        #expect(bodyText.contains("name=\"prompt\"\r\n\r\na cat\r\n"))
+        #expect(bodyText.contains("name=\"moderation\"\r\n\r\nlow\r\n"))
+        #expect(bodyText.components(separatedBy: "name=\"image[]\"").count - 1 == 2)
+        #expect(body.range(of: first) != nil)
+        #expect(body.range(of: second) != nil)
+
+        let saved = await results.all
+        #expect(saved.count == 1)
+        #expect(saved[0].metadata.inputImages == ["first.png", "second.png"])
     }
 
     /// `auto` is the service's own default, so sending it says nothing.

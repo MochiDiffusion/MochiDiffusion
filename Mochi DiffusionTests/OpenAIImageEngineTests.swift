@@ -94,15 +94,14 @@ struct OpenAIImageEngineTests {
         size: CGSize = CGSize(width: 1_024, height: 1_024),
         quality: ImageQuality = .auto,
         numberOfImages: Int = 1,
-        previews: Bool = false
+        previews: Bool = false,
+        inputImages: [InputImage] = []
     ) -> GenerationDraft {
         GenerationDraft(
             prompt: "a cat",
             negativePrompt: "blurry",
             configuredSize: size,
-            // Deliberately non-empty: this engine declares `inputImages`
-            // unsupported, so the plan must drop them rather than pass them on.
-            inputImages: [InputImage(image: makeCGImage(), name: "start.png")],
+            inputImages: inputImages,
             controlNets: [],
             strength: 0.5,
             stepCount: 23,
@@ -180,7 +179,7 @@ struct OpenAIImageEngineTests {
     func metadataFieldsAreHonest() {
         let fields = OpenAIImageEngine.gptImage2.metadataFields
 
-        #expect(fields == [.prompt, .model, .engine, .modelKey, .size, .quality])
+        #expect(fields == [.prompt, .model, .engine, .modelKey, .size, .quality, .inputImages])
         #expect(!fields.contains(.seed))
         #expect(!fields.contains(.steps))
         #expect(!fields.contains(.scheduler))
@@ -200,12 +199,46 @@ struct OpenAIImageEngineTests {
         #expect(plan.strength == nil)
         #expect(plan.guidanceScale == nil)
         #expect(plan.mlComputeUnit == nil)
-        // A starting image was set too, and is dropped rather than sent: this
-        // version uses the generations endpoint only.
         #expect(plan.inputImageData.isEmpty)
         #expect(plan.startingImageName == nil)
         #expect(plan.inputImageNames.isEmpty)
         #expect(plan.controlNetImageData.isEmpty)
+    }
+
+    @Test("Planning keeps cropped references at native resolution")
+    func planCarriesCroppedReferences() throws {
+        let input = InputImage(
+            image: makeCGImage(width: 40, height: 20),
+            name: "reference.png",
+            edit: IrisReferenceImageEdit(cropLeftFraction: 0.25)
+        )
+
+        let plan = try engine().plan(
+            draft: draft(inputImages: [input]),
+            model: OpenAIImageEngine.gptImage2
+        )
+
+        #expect(plan.inputImageNames == ["reference.png"])
+        #expect(plan.inputImageData.count == 1)
+        #expect(pixelSize(of: plan.inputImageData[0]) == CGSize(width: 30, height: 20))
+        #expect(plan.startingImageName == nil)
+    }
+
+    @Test("The app limits OpenAI reference images to sixteen")
+    func planLimitsInputImages() throws {
+        let inputs = (0...OpenAIImageEngine.maxInputImages).map { index in
+            InputImage(image: makeCGImage(), name: "reference-\(index).png")
+        }
+
+        let plan = try engine().plan(
+            draft: draft(inputImages: inputs),
+            model: OpenAIImageEngine.gptImage2
+        )
+
+        #expect(OpenAIImageEngine.gptImage2.constraints.inputImages.maxCount == 16)
+        #expect(plan.inputImageData.count == 16)
+        #expect(plan.inputImageNames.count == 16)
+        #expect(plan.inputImageNames.last == "reference-15.png")
     }
 
     @Test(

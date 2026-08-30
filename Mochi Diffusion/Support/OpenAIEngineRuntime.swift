@@ -13,7 +13,10 @@ import UniformTypeIdentifiers
 /// until it returns, which would make `idleTimeout` a wall-clock budget rather than
 /// an idle one. Partial images are the heartbeat that makes the bound meaningful.
 nonisolated final class OpenAIEngineRuntime: GenerationEngineRuntime {
-    private static let endpoint = URL(string: "https://api.openai.com/v1/images/generations")!
+    private static let generationsEndpoint = URL(
+        string: "https://api.openai.com/v1/images/generations"
+    )!
+    private static let editsEndpoint = URL(string: "https://api.openai.com/v1/images/edits")!
     /// The most the API accepts. Requested only when previews are on.
     private static let maxPartialImages = 3
 
@@ -168,7 +171,7 @@ nonisolated final class OpenAIEngineRuntime: GenerationEngineRuntime {
             guard let event = Self.event(from: line) else { continue }
 
             switch event.type {
-            case "image_generation.partial_image":
+            case "image_generation.partial_image", "image_edit.partial_image":
                 guard payload.wantsPreviews, let image = event.image else { continue }
                 // `partial_image_index` carries no total, but we chose the total,
                 // so this progress is measured rather than invented.
@@ -182,7 +185,7 @@ nonisolated final class OpenAIEngineRuntime: GenerationEngineRuntime {
                     )
                 )
                 generationSession.emit(.preview(image))
-            case "image_generation.completed":
+            case "image_generation.completed", "image_edit.completed":
                 guard let image = event.image else { throw GenerationError.malformedResponse }
                 finished = image
             case "error":
@@ -210,7 +213,7 @@ nonisolated final class OpenAIEngineRuntime: GenerationEngineRuntime {
         payload: OpenAIGenerationPayload,
         apiKey: String
     ) throws -> URLRequest {
-        var body: [String: Any] = [
+        var fields: [String: Any] = [
             "model": payload.apiModel,
             "prompt": request.prompt,
             "size": "\(Int(payload.size.width))x\(Int(payload.size.height))",
@@ -227,16 +230,69 @@ nonisolated final class OpenAIEngineRuntime: GenerationEngineRuntime {
         // `auto` is the service's own default, so sending it says nothing. Omitted
         // rather than sent, to keep the request to what was actually chosen.
         if payload.quality != .auto {
-            body["quality"] = payload.quality.rawValue
+            fields["quality"] = payload.quality.rawValue
         }
 
-        var urlRequest = URLRequest(url: Self.endpoint)
+        var urlRequest = URLRequest(
+            url: request.inputImageData.isEmpty ? Self.generationsEndpoint : Self.editsEndpoint
+        )
         urlRequest.httpMethod = "POST"
-        urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
         urlRequest.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
         urlRequest.setValue("text/event-stream", forHTTPHeaderField: "Accept")
-        urlRequest.httpBody = try JSONSerialization.data(withJSONObject: body)
+
+        if request.inputImageData.isEmpty {
+            urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            urlRequest.httpBody = try JSONSerialization.data(withJSONObject: fields)
+        } else {
+            let boundary = "MochiDiffusion-\(UUID().uuidString)"
+            urlRequest.setValue(
+                "multipart/form-data; boundary=\(boundary)",
+                forHTTPHeaderField: "Content-Type"
+            )
+            urlRequest.httpBody = Self.multipartBody(
+                fields: fields,
+                images: request.inputImageData,
+                boundary: boundary
+            )
+        }
         return urlRequest
+    }
+
+    /// The edits endpoint takes repeated `image[]` parts. Filenames are transport
+    /// labels only; source names are kept separately in request metadata because
+    /// pasted images may have none and that list is not positionally aligned.
+    private static func multipartBody(
+        fields: [String: Any],
+        images: [Data],
+        boundary: String
+    ) -> Data {
+        var body = Data()
+
+        for key in fields.keys.sorted() {
+            guard let value = fields[key] else { continue }
+            append("--\(boundary)\r\n", to: &body)
+            append("Content-Disposition: form-data; name=\"\(key)\"\r\n\r\n", to: &body)
+            append("\(value)\r\n", to: &body)
+        }
+
+        for (index, image) in images.enumerated() {
+            append("--\(boundary)\r\n", to: &body)
+            append(
+                "Content-Disposition: form-data; name=\"image[]\"; "
+                    + "filename=\"input-\(index + 1).png\"\r\n",
+                to: &body
+            )
+            append("Content-Type: image/png\r\n\r\n", to: &body)
+            body.append(image)
+            append("\r\n", to: &body)
+        }
+
+        append("--\(boundary)--\r\n", to: &body)
+        return body
+    }
+
+    private static func append(_ string: String, to data: inout Data) {
+        data.append(contentsOf: string.utf8)
     }
 
     // MARK: - Results
@@ -258,7 +314,7 @@ nonisolated final class OpenAIEngineRuntime: GenerationEngineRuntime {
             quality: request.quality?.rawValue ?? "",
             startingImage: "",
             controlNetImage: "",
-            inputImages: [],
+            inputImages: request.inputImageNames,
             scheduler: .dpmSolverMultistepScheduler,
             mlComputeUnit: nil,
             seed: request.seed,
@@ -296,6 +352,7 @@ nonisolated final class OpenAIEngineRuntime: GenerationEngineRuntime {
         sdi.engine = metadata.engine
         sdi.modelKey = metadata.modelKey
         sdi.quality = metadata.quality
+        sdi.inputImages = metadata.inputImages
         sdi.seed = metadata.seed
         sdi.generatedDate = metadata.generatedDate
         return await sdi.imageData(
