@@ -1633,7 +1633,9 @@ hosted engine is not preview-less, and `showGenerationPreview` maps cleanly: req
 `useDenoisedIntermediates` already performs for Iris.
 
 Progress is honest too. `partial_image_index` has no total, but *we* choose the total, so
-`Progress(step: index, stepCount: requested)` is accurate rather than invented.
+`Progress(step: index, stepCount: requested, kind: .preview)` is accurate rather than
+invented. The kind matters to presentation: these are “Preview 1/3”, not Core ML diffusion
+steps.
 
 #### D3 — Withdrawn: indeterminate progress needs no code
 
@@ -1651,8 +1653,11 @@ nothing has to emit `.running(nil)` in the first place:
 - Nothing anywhere gates *behaviour* on `.loading` versus `.running` — no button disabling,
   no queue logic. Checked: the distinction is those three render sites and nothing else.
 
-So the honest sequence for a hosted engine is `.state(.loading("Generating…"))` until the
-first partial image arrives, then `.progress(step: index, stepCount: requested)`.
+So the honest sequence for this hosted engine is
+`.state(.loading("Generating with OpenAI..."))` until the first partial image arrives, then
+`.progress(step: index, stepCount: requested, kind: .preview)`. The queue's nil-stage
+fallback is now the engine-neutral “Preparing generation...”; Core ML owns the first-load
+message that previously served as that fallback for every engine.
 `.running(nil)` is simply never emitted, and the fact that it draws nothing stops mattering.
 
 `Status.running(Progress?)` keeps its optional payload. Nothing is gained by removing it and

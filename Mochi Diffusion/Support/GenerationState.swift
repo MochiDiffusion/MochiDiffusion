@@ -9,6 +9,11 @@ import Observation
 @MainActor
 @Observable
 final class GenerationState {
+    nonisolated enum ProgressKind: Sendable, Equatable {
+        case step
+        case preview
+    }
+
     /// `nonisolated` because these are pure data that cross isolation on every
     /// generation. Nested in a `@MainActor` type and with
     /// `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor`, their members were
@@ -19,6 +24,29 @@ final class GenerationState {
     nonisolated struct Progress: Sendable, Equatable {
         let step: Int
         let stepCount: Int
+        let kind: ProgressKind
+
+        init(step: Int, stepCount: Int, kind: ProgressKind = .step) {
+            self.step = step
+            self.stepCount = stepCount
+            self.kind = kind
+        }
+
+        var localizedLabel: String {
+            let current = step + 1
+            switch kind {
+            case .step:
+                return String(
+                    localized: "Step \(current)/\(stepCount)",
+                    comment: "Progress through a model's generation steps"
+                )
+            case .preview:
+                return String(
+                    localized: "Preview \(current)/\(stepCount)",
+                    comment: "Progress through partial preview images from a hosted service"
+                )
+            }
+        }
     }
 
     nonisolated enum Status: Sendable, Equatable {

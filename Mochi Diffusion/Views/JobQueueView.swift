@@ -20,14 +20,13 @@ struct JobQueueView: View {
         {
             let step = progress.step + 1
             let stepValue = Double(step) / Double(progress.stepCount)
-            let progressLabel = "Step \(step)/\(progress.stepCount)"
-            progressData = (stepValue, progressLabel)
+            progressData = (stepValue, progress.localizedLabel)
         } else if case .loading(let stage) = generationState.state {
             let progressLabel =
                 stage
                 ?? String(
-                    localized: "Loading the model for the first time may take a few minutes",
-                    comment: "Text displayed when the model is being loaded"
+                    localized: "Preparing generation...",
+                    comment: "Fallback text displayed while an engine prepares a generation"
                 )
             progressData = (-1, progressLabel)
         } else if case .canceling(let stage) = generationState.state {

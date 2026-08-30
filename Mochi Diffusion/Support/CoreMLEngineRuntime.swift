@@ -122,7 +122,16 @@ actor CoreMLEngineRuntime: GenerationEngineRuntime {
         let hash = hasher.finalize()
         guard hash != currentPipelineHash else { return }
 
-        session.emit(.state(.loading(nil)))
+        session.emit(
+            .state(
+                .loading(
+                    String(
+                        localized: "Loading the model for the first time may take a few minutes",
+                        comment: "Text displayed while a local Core ML model is being loaded"
+                    )
+                )
+            )
+        )
         let configuration = MLModelConfiguration()
         configuration.computeUnits = computeUnit
 
@@ -161,7 +170,16 @@ actor CoreMLEngineRuntime: GenerationEngineRuntime {
         guard let pipeline else {
             throw GenerationError.pipelineNotAvailable
         }
-        session.emit(.state(.loading(nil)))
+        session.emit(
+            .state(
+                .loading(
+                    String(
+                        localized: "Preparing generation...",
+                        comment: "Text displayed while Core ML prepares a generation"
+                    )
+                )
+            )
+        )
 
         var pipelineConfig = StableDiffusionPipeline.Configuration(prompt: config.prompt)
         pipelineConfig.negativePrompt = config.negativePrompt

@@ -21,7 +21,6 @@ struct GalleryPreviewView: View {
             {
                 let step = progress.step + 1
                 let stepValue = Double(step) / Double(progress.stepCount)
-                let progressLabel = "Step \(step)/\(progress.stepCount)"
 
                 VStack(alignment: .leading) {
                     HStack {
@@ -31,7 +30,7 @@ struct GalleryPreviewView: View {
                             .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 4))
                     }
                     Spacer()
-                    ProgressView(progressLabel, value: stepValue, total: 1)
+                    ProgressView(progress.localizedLabel, value: stepValue, total: 1)
                         .padding(8)
                         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 8))
                 }

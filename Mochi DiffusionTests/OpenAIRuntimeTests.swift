@@ -316,6 +316,19 @@ struct OpenAIRuntimeTests {
         // is what we asked for.
         #expect(progress.map(\.step) == [0, 1])
         #expect(progress.allSatisfy { $0.stepCount == 3 })
+        #expect(progress.allSatisfy { $0.kind == .preview })
+        #expect(
+            events.contains {
+                if case .state(.loading(let message)) = $0 {
+                    return message
+                        == String(
+                            localized: "Generating with OpenAI...",
+                            comment: "Text displayed while waiting for OpenAI image generation"
+                        )
+                }
+                return false
+            }
+        )
 
         let saved = await results.all
         #expect(saved.count == 1)

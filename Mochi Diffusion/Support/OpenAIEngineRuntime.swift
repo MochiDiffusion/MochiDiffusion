@@ -67,7 +67,16 @@ nonisolated final class OpenAIEngineRuntime: GenerationEngineRuntime {
             throw GenerationError.authenticationFailed
         }
 
-        generationSession.emit(.state(.loading(nil)))
+        generationSession.emit(
+            .state(
+                .loading(
+                    String(
+                        localized: "Generating with OpenAI...",
+                        comment: "Text displayed while waiting for OpenAI image generation"
+                    )
+                )
+            )
+        )
 
         // Registered once, cancelling whichever image is in flight.
         //
@@ -167,7 +176,8 @@ nonisolated final class OpenAIEngineRuntime: GenerationEngineRuntime {
                     .progress(
                         GenerationState.Progress(
                             step: event.partialIndex ?? 0,
-                            stepCount: partialsRequested
+                            stepCount: partialsRequested,
+                            kind: .preview
                         )
                     )
                 )
