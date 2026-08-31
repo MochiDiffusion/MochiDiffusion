@@ -19,65 +19,6 @@ struct GalleryView: View {
     private var previewLeadsGrid: Bool { store.sortType == .newestFirst }
 
     var body: some View {
-        VStack(spacing: 0) {
-            if !store.images.isEmpty || store.currentGeneratingImage != nil {
-                galleryView
-            } else {
-                emptyGalleryView
-            }
-        }
-        .background(
-            Image("GalleryBackground")
-                .resizable(resizingMode: .tile)
-        )
-        .navigationTitle(
-            store.filters.isEmpty
-                ? "Mochi Diffusion"
-                : String(
-                    localized: "Filtering: \(store.filters.humanReadable())",
-                    comment: "Window title bar label displaying the searched text"
-                )
-        )
-        .navigationSubtitle("\(store.images.count) image(s)")
-        // A request that ended without an image is an event, and gets an alert
-        // whether or not the cause was a malfunction. What does *not* get one is
-        // the standing condition the banner used to share: an unreadable models
-        // folder is still true after the alert is dismissed, and `EngineView`
-        // already states it per engine beside the picker used to fix it.
-        .alert(
-            String(
-                localized: "Couldn't generate images",
-                comment: "Title of the alert shown when a generation produces no image"
-            ),
-            isPresented: isShowingOutcomeAlert
-        ) {
-            Button {
-                generationState.clearUnreportedOutcomes()
-            } label: {
-                Text("OK", comment: "Button that dismisses the generation outcome alert")
-            }
-        } message: {
-            // Blank line between them: these are separate outcomes, not a
-            // paragraph, and a batch can end more than one way.
-            Text(verbatim: generationState.unreportedOutcomes.joined(separator: "\n\n"))
-        }
-    }
-
-    /// Reads as presented while anything is unreported, so an outcome arriving
-    /// while the alert is up joins the one already on screen rather than queueing
-    /// another behind it. Dismissing clears the lot.
-    private var isShowingOutcomeAlert: Binding<Bool> {
-        Binding(
-            get: { !generationState.unreportedOutcomes.isEmpty },
-            set: { isPresented in
-                guard !isPresented else { return }
-                generationState.clearUnreportedOutcomes()
-            }
-        )
-    }
-
-    @ViewBuilder
-    private var galleryView: some View {
         ScrollViewReader { proxy in
             ScrollView {
                 LazyVGrid(columns: gridColumns, spacing: 16) {
@@ -144,44 +85,48 @@ struct GalleryView: View {
                 proxy.scrollTo(selectedId)
             }
         }
+        .background(
+            Image("GalleryBackground")
+                .resizable(resizingMode: .tile)
+        )
+        .navigationTitle(
+            store.filters.isEmpty
+                ? "Mochi Diffusion"
+                : String(
+                    localized: "Filtering: \(store.filters.humanReadable())",
+                    comment: "Window title bar label displaying the searched text"
+                )
+        )
+        .navigationSubtitle("\(store.images.count) image(s)")
+        .alert(
+            String(
+                localized: "Couldn't generate images",
+                comment: "Title of the alert shown when a generation produces no image"
+            ),
+            isPresented: isShowingOutcomeAlert
+        ) {
+            Button {
+                generationState.clearUnreportedOutcomes()
+            } label: {
+                Text("OK")
+            }
+        } message: {
+            // Blank line between them: these are separate outcomes, not a
+            // paragraph, and a batch can end more than one way.
+            Text(verbatim: generationState.unreportedOutcomes.joined(separator: "\n\n"))
+        }
     }
 
-    @ViewBuilder
-    private var emptyGalleryView: some View {
-        // `Color.clear` before, which said nothing at all: no models and no images
-        // meant an empty window. The reason belongs here as well as in the engine
-        // picker's caption, because there is room for it here and an empty gallery
-        // is where a user with nothing to generate from ends up looking.
-        if let discoveryMessage = controller.discoveryMessage {
-            ContentUnavailableView {
-                Label {
-                    Text(
-                        "Check your models folder",
-                        comment: "Empty gallery title when model discovery reported a problem"
-                    )
-                } icon: {
-                    Image(systemName: "exclamationmark.triangle")
-                }
-            } description: {
-                Text(verbatim: discoveryMessage)
+    /// An outcome arriving while the alert is up joins the one already on screen rather than
+    /// queueing another behind it. Dismissing clears the lot.
+    private var isShowingOutcomeAlert: Binding<Bool> {
+        Binding(
+            get: { !generationState.unreportedOutcomes.isEmpty },
+            set: { isPresented in
+                guard !isPresented else { return }
+                generationState.clearUnreportedOutcomes()
             }
-        } else {
-            ContentUnavailableView {
-                Label {
-                    Text(
-                        "No Images",
-                        comment: "Empty gallery title before anything has been generated"
-                    )
-                } icon: {
-                    Image(systemName: "photo.on.rectangle.angled")
-                }
-            } description: {
-                Text(
-                    "Images you generate will appear here.",
-                    comment: "Empty gallery description before anything has been generated"
-                )
-            }
-        }
+        )
     }
 
     @ViewBuilder
