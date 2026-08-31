@@ -21,8 +21,7 @@ struct MochiDiffusionApp: App {
     @State private var notificationController: NotificationController
     @State private var quickLook: QuickLookState
     @State private var quicklookURL: URL?
-    /// Owned here so the thumbnail cache lives as long as the app rather than as long
-    /// as whichever view happened to ask first.
+
     private let thumbnailProvider = GalleryThumbnailProvider()
     private let fullImageProvider = GalleryFullImageProvider()
     private let updaterController: SPUStandardUpdaterController
@@ -30,13 +29,7 @@ struct MochiDiffusionApp: App {
     init() {
         let configStore = ConfigStore()
         let focusController = FocusController()
-        // The app owns the one gallery and the one queue, and hands them to
-        // everything that needs them. Neither has a `.shared`, so there is no way
-        // for code elsewhere to reach a different one by accident.
         let imageGallery = ImageGallery()
-        // The one place the real credential store is wired in. The registry
-        // initialiser default is keychain-free, so a test that does not pass one
-        // cannot reach the user's keychain.
         let generationService = GenerationService(
             engineRegistry: EngineRegistry(secrets: KeychainSecretStore()),
             imageGallery: imageGallery

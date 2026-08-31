@@ -5,8 +5,6 @@
 
 import Foundation
 
-/// Identifies a generation engine. Persisted, so a shipped raw value is never
-/// renamed.
 nonisolated struct EngineID: RawRepresentable, Hashable, Codable, Sendable {
     let rawValue: String
 }
@@ -23,12 +21,10 @@ nonisolated extension EngineID {
 
 /// Identifies a model within an engine.
 ///
-/// Qualifying by engine lets two engines expose the same directory without
-/// arbitration, and lets a hosted engine name a model that has no URL.
+/// For a local engine, `key` is the name of a direct child of the model directory.
+/// For a hosted engine, `key` is the API's own model name.
 nonisolated struct ModelID: Hashable, Codable, Sendable {
     let engine: EngineID
-    /// For a local engine, the name of a direct child of the engine's model
-    /// directory. For a hosted engine, the API's own model name.
     let key: String
 }
 
@@ -62,8 +58,7 @@ nonisolated extension ModelID {
 // MARK: - Local keys
 
 nonisolated extension ModelID {
-    /// The key for a model directory that discovery returned: its last path
-    /// component.
+    /// The key for a model directory that discovery returned: its last path component.
     ///
     /// Discovery only enumerates direct children, so the last component is the
     /// whole relative path. Computing one against the models root instead breaks

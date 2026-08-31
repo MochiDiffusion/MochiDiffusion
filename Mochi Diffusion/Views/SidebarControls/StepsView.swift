@@ -26,8 +26,7 @@ struct StepsView: View {
                 strictUpperBound: !steps.allowsValuesAboveBounds
             )
         } else if let pinned = steps.resolved(Int(configStore.steps)) {
-            // Disabled rather than hidden, so a pinned value is visible: a
-            // distilled model always takes four steps.
+            // Disabled rather than hidden, so a pinned value is visible
             PinnedValueField(text: String(pinned))
         } else {
             UnsupportedValueField()
@@ -49,9 +48,7 @@ struct PinnedValueField: View {
 
 /// A placeholder for an option the model does not have at all.
 ///
-/// Holds the row open so the controls below it keep their positions when the
-/// selected model changes, and reads as "not applicable" rather than showing a
-/// number the model would ignore.
+/// Holds the row open so the controls below it keep their positions when the selected model changes
 struct UnsupportedValueField: View {
     var body: some View {
         PinnedValueField(text: "\u{2014}")
