@@ -71,27 +71,4 @@ nonisolated extension ModelID {
     static func localKey(for url: URL) -> String {
         url.lastPathComponent
     }
-
-    /// Whether `key` could have come from `localKey(for:)`.
-    ///
-    /// The escape check: a key is a single path component, so it cannot traverse
-    /// out of the models directory. Enforced here rather than at derivation, since
-    /// the dangerous direction is a persisted or imported key becoming a path.
-    static func isValidLocalKey(_ key: String) -> Bool {
-        if key.isEmpty { return false }
-        if key == "." || key == ".." { return false }
-        if key.contains("/") { return false }
-        if key.contains("\0") { return false }
-        return true
-    }
-
-    /// Resolves a local key back to a directory under `root`, or `nil` when the
-    /// key is not one discovery could have produced.
-    ///
-    /// Case-sensitive. On a case-insensitive volume, changing a model directory's
-    /// case loses the selection, as any other rename does.
-    static func localURL(forKey key: String, under root: URL) -> URL? {
-        guard isValidLocalKey(key) else { return nil }
-        return root.appending(path: key, directoryHint: .isDirectory)
-    }
 }

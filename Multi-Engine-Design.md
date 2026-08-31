@@ -152,10 +152,11 @@ pinned by `EngineIdentityTests`):**
   models. Discovery only enumerates direct children, so the last component *is* the whole
   relative path. It also drops the trailing slash that enumeration adds for real
   directories but not for symlinks.
-- **Traversal is rejected on resolution, not derivation.** `isValidLocalKey` requires a
-  single non-empty path component that is not `.` or `..`, and `localURL(forKey:under:)`
-  refuses anything else. The dangerous direction is a persisted or imported key being
-  turned back into a path to read, so that is where the check lives.
+- **Persisted and imported keys are identifiers, not paths.** They are matched against the
+  models returned by discovery and are never appended to the models root. An unknown,
+  malformed or stale key therefore selects no model rather than granting filesystem access.
+  If a future feature needs to turn a key into a path, it must introduce and test validation
+  at that new trust boundary instead of treating `ModelID` itself as filesystem authority.
 - **Symlinks are preserved as written.** A symlinked model is keyed by the name visible in
   the models folder, which is the name the user sees and the only one stable against the
   link's target moving.

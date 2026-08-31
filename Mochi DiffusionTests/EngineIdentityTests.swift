@@ -8,9 +8,8 @@ import Testing
 
 @testable import Mochi_Diffusion
 
-/// `ModelID.key` is persisted data, so its derivation, traversal, symlink and
-/// case-sensitivity rules are pinned here rather than left to whatever `URL`
-/// happens to do.
+/// `ModelID.key` is persisted data, so its path-spelling, symlink, and case-sensitivity
+/// behavior is pinned here rather than left to whatever `URL` happens to do.
 struct ModelIDKeyTests {
 
     // MARK: - Derivation
@@ -74,72 +73,6 @@ struct ModelIDKeyTests {
 
         #expect(discovered.count == 1)
         #expect(ModelID.localKey(for: try #require(discovered.first)) == "linked-model")
-    }
-
-    // MARK: - Validation
-
-    @Test(
-        "A key naming anything but a direct child is rejected",
-        arguments: [
-            "",
-            ".",
-            "..",
-            "../sibling",
-            "../../etc/passwd",
-            "sub/model",
-            "/absolute",
-            "trailing/",
-            "with\0null",
-        ]
-    )
-    func invalidKeysAreRejected(key: String) {
-        #expect(!ModelID.isValidLocalKey(key))
-        #expect(ModelID.localURL(forKey: key, under: URL(fileURLWithPath: "/models")) == nil)
-    }
-
-    @Test(
-        "An ordinary directory name is accepted",
-        arguments: [
-            "sd-model",
-            "sd-1.5_512x512",
-            "model with spaces",
-            "модель",
-            "モデル",
-            "..leading-dots",
-            "-leading-dash",
-        ]
-    )
-    func validKeysAreAccepted(key: String) {
-        #expect(ModelID.isValidLocalKey(key))
-    }
-
-    // MARK: - Resolution
-
-    @Test("A valid key resolves to a directory under the configured root")
-    func validKeyResolvesUnderRoot() throws {
-        let root = URL(fileURLWithPath: "/models", isDirectory: true)
-
-        let url = try #require(ModelID.localURL(forKey: "sd-model", under: root))
-
-        #expect(url.path(percentEncoded: false) == "/models/sd-model/")
-    }
-
-    @Test("A key round-trips from a discovered URL back to the same directory")
-    func keyRoundTripsThroughDiscovery() throws {
-        let temp = try TempDirectory()
-        let models = try temp.subdirectory("models")
-        let modelURL = models.appending(path: "sd-model")
-        try FileManager.default.createDirectory(at: modelURL, withIntermediateDirectories: true)
-
-        let discovered = try #require(FileSystemStore().subDirectories(in: models).first)
-        let key = ModelID.localKey(for: discovered)
-        let resolved = try #require(ModelID.localURL(forKey: key, under: models))
-
-        // Resolution reconstructs a usable path even though it will not be
-        // byte-identical to the discovered URL, which is the whole point of not
-        // comparing URLs.
-        #expect(FileManager.default.fileExists(atPath: resolved.path(percentEncoded: false)))
-        #expect(resolved.lastPathComponent == discovered.lastPathComponent)
     }
 
     // MARK: - Identity semantics
