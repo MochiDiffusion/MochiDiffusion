@@ -55,6 +55,61 @@ struct InfoGridRow: View {
     }
 }
 
+/// The inspector's content is available as soon as an image is selected.
+///
+/// Full-size pixels are deliberately absent from gallery entries loaded at launch;
+/// they are a preview concern, not a prerequisite for showing metadata.
+@MainActor
+struct InspectorSelection {
+    let image: SDImage
+    let metadataFields: Set<MetadataField>
+
+    init?(gallery: ImageGallery) {
+        guard let image = gallery.selected() else { return nil }
+        self.image = image
+        self.metadataFields = gallery.metadataFields(for: image.id)
+    }
+}
+
+private struct InspectorPreviewView: View {
+    @Environment(\.galleryFullImageProvider) private var fullImageProvider
+
+    let sdi: SDImage
+
+    @State private var loadedImage: CGImage?
+    @State private var loadedImageID: SDImage.ID?
+
+    private var previewImage: CGImage? {
+        sdi.image ?? (loadedImageID == sdi.id ? loadedImage : nil)
+    }
+
+    var body: some View {
+        Group {
+            if let image = previewImage {
+                Image(image, scale: 1, label: Text(verbatim: String(sdi.prompt)))
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .padding(4)
+                    .shadow(color: image.averageColor ?? .black, radius: 16)
+                    .padding()
+            } else {
+                ProgressView()
+                    .frame(maxWidth: .infinity, minHeight: 120)
+                    .padding()
+            }
+        }
+        .task(id: sdi.id) {
+            loadedImage = nil
+            loadedImageID = nil
+            guard sdi.image == nil else { return }
+            guard let image = await fullImageProvider.image(for: sdi) else { return }
+            guard !Task.isCancelled else { return }
+            loadedImage = image
+            loadedImageID = sdi.id
+        }
+    }
+}
+
 struct InspectorView: View {
     @Environment(ImageGallery.self) private var store: ImageGallery
     @Environment(GenerationController.self) private var controller: GenerationController
@@ -75,17 +130,13 @@ struct InspectorView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            if let sdi = store.selected(), let img = sdi.image {
-                let metadataFields = store.metadataFields(for: sdi.id)
+            if let selection = InspectorSelection(gallery: store) {
+                let sdi = selection.image
+                let metadataFields = selection.metadataFields
                 let inputImageNames = sdi.inputImages.filter {
                     !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
                 }
-                Image(img, scale: 1, label: Text(verbatim: String(sdi.prompt)))
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .padding(4)
-                    .shadow(color: sdi.image?.averageColor ?? .black, radius: 16)
-                    .padding()
+                InspectorPreviewView(sdi: sdi)
 
                 ScrollView(.vertical) {
                     Grid(alignment: .leading, horizontalSpacing: 4) {

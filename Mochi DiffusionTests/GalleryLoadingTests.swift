@@ -121,6 +121,33 @@ struct GalleryLoadingTests {
         controller.shutdown()
     }
 
+    @Test("A disk-backed selection exposes metadata to the inspector")
+    func diskBackedSelectionHasInspectorMetadata() async throws {
+        try writePNG(
+            caption: MetadataCodec.encode([
+                (.includeInImage, "a cat wearing a hat"),
+                (.model, "test-model"),
+                (.seed, "123"),
+                (.generator, "Mochi Diffusion 6.0"),
+            ]),
+            to: imageDir.appending(path: "one.png")
+        )
+        let gallery = ImageGallery()
+        let controller = makeController(gallery: gallery)
+
+        await controller.loadImages()
+        let loaded = try #require(gallery.images.first)
+        #expect(loaded.image == nil)
+        gallery.select(loaded.id)
+
+        let selection = try #require(InspectorSelection(gallery: gallery))
+        #expect(selection.image.prompt == "a cat wearing a hat")
+        #expect(selection.image.model == "test-model")
+        #expect(selection.image.seed == 123)
+        #expect(selection.metadataFields == [.prompt, .model, .seed])
+        controller.shutdown()
+    }
+
     /// Save As, Save All and Copy all go through `imageData`, and would each have
     /// silently produced nothing once gallery images stopped being decoded.
     @Test("Re-encoding loads the file when no pixels are resident")
