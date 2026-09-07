@@ -22,7 +22,7 @@ struct ImageCommands: Commands {
                 Button {
                     Task { await generationController.generate() }
                 } label: {
-                    if case .ready = generationState.state {
+                    if !generationController.hasGenerationWork {
                         Text(
                             "Generate",
                             comment: "Button to generate image"
@@ -35,7 +35,7 @@ struct ImageCommands: Commands {
                     }
                 }
                 .keyboardShortcut("G", modifiers: .command)
-                .disabled(configStore.selectedModel == nil)
+                .disabled(generationController.currentModelId == nil)
             }
             Section {
                 Button {

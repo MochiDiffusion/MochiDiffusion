@@ -80,7 +80,7 @@ import UserNotifications
         return settings.authorizationStatus
     }
 
-    func sendQueueEmptyNotification() async {
+    func sendImagesReadyNotification(count: Int) async {
         // if the user has notifications turned on in our app's settings window,
         // we still need to fetch the latest authorization status
         // from UserNotificationCenter in case they turned it off there
@@ -91,7 +91,9 @@ import UserNotifications
         guard sendNotification, currentAuthStatus == .authorized else { return }
         let content = UNMutableNotificationContent()
         content.title = "Mochi Diffusion"
-        content.body = String(localized: "Your images are ready!")
+        content.body =
+            count == 1
+            ? String(localized: "1 image saved.") : String(localized: "\(count) images saved.")
         content.sound = playNotificationSound ? .default : nil
         try? await notificationCenter.add(
             .init(

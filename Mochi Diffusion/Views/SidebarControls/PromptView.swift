@@ -177,7 +177,7 @@ struct PromptView: View {
             Button {
                 Task { await controller.generate() }
             } label: {
-                if case .ready = generationState.state {
+                if !controller.hasGenerationWork {
                     Text(
                         "Generate",
                         comment: "Button to generate image"

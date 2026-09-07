@@ -45,6 +45,8 @@ actor GenerationService {
     private var runtimes: [EngineID: any GenerationEngineRuntime] = [:]
     private var nextImageIndex = 1
     private var didEmitResultForCurrentRequest = false
+    private var savedImageCount = 0
+    private let notifyImagesReady: @Sendable (Int) async -> Void
     /// Whether a preview frame has been applied since the last result was emitted.
     ///
     /// Results and events travel on separate channels, since results need
@@ -62,12 +64,16 @@ actor GenerationService {
         imageRepository: ImageRepository = ImageRepository(),
         modelRepository: ModelRepository = ModelRepository(),
         engineRegistry: EngineRegistry = EngineRegistry(),
-        imageGallery: ImageGallery
+        imageGallery: ImageGallery,
+        notifyImagesReady: @escaping @Sendable (Int) async -> Void = { count in
+            await NotificationController.shared.sendImagesReadyNotification(count: count)
+        }
     ) {
         self.imageRepository = imageRepository
         self.modelRepository = modelRepository
         self.engineRegistry = engineRegistry
         self.imageGallery = imageGallery
+        self.notifyImagesReady = notifyImagesReady
     }
 
     /// Latest-state stream: only the newest snapshot matters, so a suspended UI
@@ -174,13 +180,16 @@ actor GenerationService {
         // drain of its own, and without re-checking here this task would then
         // clear `processingTask` and leave it queued.
         while !queue.isEmpty {
+            savedImageCount = 0
             await drainQueue()
 
             current = nil
             cancelingCurrentID = nil
             currentSession = nil
             broadcastSnapshot()
-            await NotificationController.shared.sendQueueEmptyNotification()
+            if savedImageCount > 0 {
+                await notifyImagesReady(savedImageCount)
+            }
         }
     }
 
@@ -519,6 +528,7 @@ actor GenerationService {
     }
 
     private func emitResultForCurrentRequest(_ result: GenerationResult) {
+        savedImageCount += 1
         didEmitResultForCurrentRequest = true
         didApplyPreviewSinceResult = false
         for continuation in resultContinuations.values {

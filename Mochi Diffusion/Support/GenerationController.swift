@@ -36,6 +36,7 @@ final class GenerationController {
     private let generationService: GenerationService
     private(set) var generationQueue = [GenerationRequest]()
     private(set) var currentGeneration: GenerationRequest?
+    var hasGenerationWork: Bool { currentGeneration != nil || !generationQueue.isEmpty }
     private(set) var models = [any EngineModel]()
     /// What the last discovery pass has to report, if anything. Rendered beside
     /// the generation banner rather than through it — see
