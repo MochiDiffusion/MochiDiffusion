@@ -264,13 +264,16 @@ struct SettingsView: View {
     /// there is no per-engine path to show here.
     @ViewBuilder
     private var enginesView: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            ForEach(controller.engines) { engine in
-                Text(verbatim: engine.displayName)
-                    .font(.headline)
-                settings(for: engine.id)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                ForEach(controller.engines) { engine in
+                    Text(verbatim: engine.displayName)
+                        .font(.headline)
+                    settings(for: engine.id)
+                }
             }
         }
+        .frame(height: 560)
     }
 
     /// One engine's settings.
@@ -284,6 +287,8 @@ struct SettingsView: View {
         @Bindable var configStore = configStore
 
         switch engine {
+        case .drawThings:
+            DrawThingsSettingsView()
         case .coreMLStableDiffusion:
             GroupBox {
                 VStack(alignment: .leading) {

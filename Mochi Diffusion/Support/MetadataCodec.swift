@@ -45,6 +45,7 @@ nonisolated enum MetadataCodec {
         var startingImage: String?
         var controlNetImage: String?
         var inputImages: [String] = []
+        var loras: [LoRASelection] = []
         var scheduler: Scheduler?
         var mlComputeUnit: MLComputeUnits?
         var seed: UInt32?
@@ -213,6 +214,15 @@ nonisolated enum MetadataCodec {
             }
         case .seed:
             parsed.seed = UInt32(value)
+        case .loras:
+            if let selections = try? JSONDecoder().decode(
+                [LoRASelection].self, from: Data(value.utf8)),
+                selections.allSatisfy({ !$0.file.isEmpty && $0.weight.isFinite })
+            {
+                parsed.loras = selections
+            } else {
+                parsed.presentFields.remove(.loras)
+            }
         case .steps:
             parsed.steps = Int(value)
         case .guidanceScale:
@@ -244,6 +254,7 @@ nonisolated enum MetadataCodec {
         case .startingImage: return .startingImage
         case .controlNetImage: return .controlNetImage
         case .inputImages: return .inputImages
+        case .loras: return .loras
         case .scheduler: return .scheduler
         case .mlComputeUnit: return .mlComputeUnit
         case .seed: return .seed

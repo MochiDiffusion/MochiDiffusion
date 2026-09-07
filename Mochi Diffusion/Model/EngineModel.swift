@@ -18,11 +18,19 @@ nonisolated enum MetadataField: String, CaseIterable, Sendable {
     case startingImage
     case controlNetImage
     case inputImages
+    case loras
     case scheduler
     case mlComputeUnit
     case seed
     case steps
     case guidanceScale
+}
+
+/// A server's LoRA filename and the weight used for an image, retained in metadata.
+nonisolated struct LoRASelection: Codable, Equatable, Sendable, Identifiable {
+    var file: String
+    var weight: Float
+    var id: String { file }
 }
 
 /// A model a particular engine can generate with.

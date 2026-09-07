@@ -83,7 +83,7 @@ struct EngineView: View {
         guard !controller.pickerEngines.isEmpty else {
             return String(
                 localized:
-                    "No engine is ready. Add models to your models folder, or an API key in Settings.",
+                    "No engine is ready. Configure an engine in Settings, or add models to your models folder.",
                 comment: "Shown under the engine picker when no engine can be used"
             )
         }

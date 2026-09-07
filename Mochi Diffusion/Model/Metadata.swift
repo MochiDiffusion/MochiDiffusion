@@ -15,6 +15,7 @@ enum Metadata: String, CaseIterable {
     case startingImage = "Starting Image"
     case controlNetImage = "ControlNet Image"
     case inputImages = "Input Images"
+    case loras = "LoRAs"
     case includeInImage = "Include in Image"
     case excludeFromImage = "Exclude from Image"
     case scheduler = "Scheduler"

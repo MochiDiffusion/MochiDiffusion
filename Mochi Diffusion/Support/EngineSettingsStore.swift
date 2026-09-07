@@ -36,6 +36,14 @@ import SwiftUI
 
     private let store: UserDefaults
 
+    var drawThings: DrawThingsConnection {
+        didSet {
+            if let data = try? JSONEncoder().encode(drawThings) {
+                store.set(data, forKey: Key.options(.drawThings))
+            }
+        }
+    }
+
     /// Observed, so the sidebar's engine picker updates when it changes.
     private var selectedEngineID: EngineID?
     /// Model selections by engine, read once at init and written through on
@@ -51,6 +59,10 @@ import SwiftUI
     ///     rather than resurrected.
     init(store: UserDefaults = .standard, engines: [EngineID]) {
         self.store = store
+        drawThings =
+            store.data(forKey: Key.options(.drawThings))
+            .flatMap { try? JSONDecoder().decode(DrawThingsConnection.self, from: $0) }
+            ?? DrawThingsConnection()
         selectedEngineID = store.string(forKey: Key.selectedEngine).map(EngineID.init(rawValue:))
         selectedModels = [:]
         for engine in engines {

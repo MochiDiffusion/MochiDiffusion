@@ -58,9 +58,11 @@ final class GenerationController {
     private(set) var inputImages: [InputImage] = []
     var numberOfImages = 1.0
     var seed: UInt32 = 0
+    var drawThingsLoRAs: [LoRASelection] = []
 
     var currentModelId: ModelID? {
         didSet {
+            if oldValue != currentModelId { drawThingsLoRAs = [] }
             guard let model = models.first(where: { $0.id == self.currentModelId }) else {
                 // Selecting nothing — an engine with no models — has to clear the
                 // ControlNet state too. Leaving it would offer the previous
@@ -77,6 +79,13 @@ final class GenerationController {
             controlNet = model.constraints.controlNet.names
             currentControlNets = []
             reconcileImagesWithConstraints()
+            if let model = model as? DrawThingsModel {
+                drawThingsLoRAs.removeAll { selection in
+                    !model.loras.contains {
+                        $0.file == selection.file && $0.weightRange.contains(selection.weight)
+                    }
+                }
+            }
         }
     }
 
@@ -252,7 +261,8 @@ final class GenerationController {
 
         let settings = EngineSettings(
             modelDirectory: modelDirectoryURL,
-            controlNetDirectory: controlNetDirectoryURL
+            controlNetDirectory: controlNetDirectoryURL,
+            drawThings: engineSettings.drawThings
         )
         // One aggregate pass: availability and discovery gathered together, so
         // this cannot pair one engine's availability with another pass's models.
@@ -275,7 +285,11 @@ final class GenerationController {
         let discoveredModels = refresh.models
         // Assigned before the check below, so a pass that finds nothing empties
         // the picker instead of leaving the previous pass's models on screen.
+        let previousConnection = (currentModel as? DrawThingsModel)?.connection
         self.models = discoveredModels
+        if previousConnection != (currentModel as? DrawThingsModel)?.connection {
+            drawThingsLoRAs = []
+        }
         discoveryMessage = Self.discoveryMessage(
             failures: discoveries.failures,
             engines: engines,
@@ -705,6 +719,13 @@ final class GenerationController {
         if metadataFields.contains(.quality), let quality = ImageQuality(sdi.quality) {
             configStore.quality = quality
         }
+        if metadataFields.contains(.loras), let model = currentModel as? DrawThingsModel,
+            sdi.engine == model.id.engine.rawValue, sdi.modelKey == model.id.key
+        {
+            drawThingsLoRAs = sdi.loras.filter { selection in
+                model.loras.contains { $0.file == selection.file }
+            }
+        }
     }
 
     func copyPromptToPrompt() {
@@ -862,7 +883,8 @@ final class GenerationController {
             imageType: configStore.imageType,
             controlNetDirectory: ModelRepository.controlNetDirectoryURL(
                 fromPath: configStore.controlNetDir
-            )
+            ),
+            loras: drawThingsLoRAs
         )
 
         let plan: GenerationPlan<any Sendable>
@@ -870,6 +892,7 @@ final class GenerationController {
             plan = try engine.plan(draft: draft, model: model)
         } catch {
             logger.error("\(engine.id.rawValue) could not plan a generation: \(error)")
+            GenerationState.shared.report(.error(error.localizedDescription))
             return nil
         }
 
@@ -995,7 +1018,8 @@ final class GenerationController {
             generatedDate: metadata.generatedDate,
             path: url.path(percentEncoded: false),
             finderTagColorNumber: 0,
-            imageData: result.imageData
+            imageData: result.imageData,
+            loras: metadata.loras
         )
         guard let sdi = createSDImage(from: record) else { return }
         imageGallery.add(

@@ -31,6 +31,7 @@ struct SidebarView: View {
                         Divider().frame(height: 16)
                     }
                 }
+                DrawThingsLoRAView()
                 if controller.currentConstraints.inputImages.isSupported {
                     Group {
                         InputImagesView()

@@ -205,6 +205,14 @@ struct InspectorView: View {
                                 )
                             }
                         }
+                        if metadataFields.contains(.loras), !sdi.loras.isEmpty {
+                            InfoGridRow(
+                                type: LocalizedStringKey(Metadata.loras.rawValue),
+                                text: sdi.loras.map { "\($0.file) (\($0.weight))" }.joined(
+                                    separator: "\n"),
+                                showCopyToPromptOption: false
+                            )
+                        }
                         if metadataFields.contains(.prompt) {
                             InfoGridRow(
                                 type: LocalizedStringKey(Metadata.includeInImage.rawValue),

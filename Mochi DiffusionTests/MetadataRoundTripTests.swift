@@ -119,6 +119,20 @@ struct MetadataRoundTripTests {
         #expect(record.height == 16)
     }
 
+    @Test("LoRA filenames and weights survive image export, import and gallery reconstruction")
+    func lorasRoundTrip() async throws {
+        var image = Self.makeImage()
+        image.loras = [
+            LoRASelection(file: "style; painted, blue\n\\.ckpt", weight: -0.75),
+            LoRASelection(file: "detail.ckpt", weight: 1.25),
+        ]
+        let record = try #require(await roundTrip(image, fields: [.loras]))
+        #expect(record.loras == image.loras)
+        #expect(createSDImage(from: record)?.loras == image.loras)
+        #expect(record.metadataFields == [.loras])
+        #expect(MetadataCodec.decode("Metadata Version: 2\nLoRAs: invalid").presentFields.isEmpty)
+    }
+
     @Test("A restricted field set omits everything it does not declare")
     func restrictedFieldSetOmitsOtherFields() async throws {
         let sdi = Self.makeImage()

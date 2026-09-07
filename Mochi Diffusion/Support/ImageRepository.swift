@@ -38,6 +38,7 @@ struct ImageRecord: Sendable, Identifiable {
     /// gallery cost gigabytes, and the grid renders from `GalleryThumbnailProvider`
     /// instead.
     var imageData: Data?
+    var loras: [LoRASelection] = []
 }
 
 struct ImageExportRequest: Sendable {

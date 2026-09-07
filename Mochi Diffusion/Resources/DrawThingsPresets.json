@@ -1,0 +1,2122 @@
+[
+  {
+    "configuration": {
+      "batchCount": 1,
+      "seedMode": 2,
+      "sampler": 10,
+      "strength": 1,
+      "sharpness": 0,
+      "tiledDecoding": false,
+      "batchSize": 1,
+      "tiledDiffusion": false,
+      "guidanceScale": 1,
+      "loras": [
+
+      ],
+      "controls": [
+
+      ],
+      "clipSkip": 1,
+      "maskBlur": 1.5,
+      "shift": 3,
+      "resolutionDependentShift": false,
+      "preserveOriginalAfterInpaint": true,
+      "model": "krea_2_turbo_q8p.ckpt",
+      "steps": 8,
+      "upscalerScaleFactor": 0,
+      "maskBlurOutset": 0,
+      "hiresFix": false,
+      "teaCache": false,
+      "causalInference": 0,
+      "teaCacheThreshold": 0.2,
+      "teaCacheStart": 5,
+      "teaCacheEnd": -1,
+      "teaCacheMaxSkipSteps": 3
+    },
+    "name": "Krea 2 Turbo",
+    "version": "krea_2"
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "seedMode": 2,
+      "sampler": 10,
+      "strength": 1,
+      "sharpness": 0,
+      "tiledDecoding": false,
+      "batchSize": 1,
+      "tiledDiffusion": false,
+      "guidanceScale": 3.5,
+      "loras": [
+
+      ],
+      "controls": [
+
+      ],
+      "clipSkip": 1,
+      "maskBlur": 1.5,
+      "resolutionDependentShift": true,
+      "preserveOriginalAfterInpaint": true,
+      "model": "krea_2_raw_q8p.ckpt",
+      "steps": 52,
+      "upscalerScaleFactor": 0,
+      "maskBlurOutset": 0,
+      "hiresFix": false,
+      "teaCache": false,
+      "causalInference": 0,
+      "teaCacheThreshold": 0.2,
+      "teaCacheStart": 5,
+      "teaCacheEnd": -1,
+      "teaCacheMaxSkipSteps": 3
+    },
+    "name": "Krea 2 Raw"
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "seedMode": 2,
+      "sampler": 10,
+      "strength": 1,
+      "sharpness": 0,
+      "tiledDecoding": false,
+      "batchSize": 1,
+      "tiledDiffusion": false,
+      "guidanceScale": 7,
+      "loras": [
+
+      ],
+      "controls": [
+
+      ],
+      "clipSkip": 1,
+      "maskBlur": 1.5,
+      "shift": 1,
+      "resolutionDependentShift": false,
+      "zeroNegativePrompt": true,
+      "expandPromptToJson": true,
+      "preserveOriginalAfterInpaint": true,
+      "model": "ideogram_4_q8p.ckpt",
+      "steps": 48,
+      "upscalerScaleFactor": 0,
+      "maskBlurOutset": 0,
+      "hiresFix": false,
+      "teaCache": false,
+      "causalInference": 0,
+      "teaCacheThreshold": 0.2,
+      "teaCacheStart": 5,
+      "teaCacheEnd": -1,
+      "teaCacheMaxSkipSteps": 3
+    },
+    "name": "Ideogram 4",
+    "version": "ideogram_4"
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "seedMode": 2,
+      "sampler": 10,
+      "strength": 1,
+      "sharpness": 0,
+      "tiledDecoding": false,
+      "batchSize": 1,
+      "tiledDiffusion": false,
+      "guidanceScale": 1,
+      "loras": [
+
+      ],
+      "controls": [
+
+      ],
+      "clipSkip": 1,
+      "maskBlur": 1.5,
+      "shift": 1,
+      "resolutionDependentShift": false,
+      "zeroNegativePrompt": true,
+      "expandPromptToJson": true,
+      "preserveOriginalAfterInpaint": true,
+      "model": "ideogram_4_instant_q8p.ckpt",
+      "steps": 8,
+      "upscalerScaleFactor": 0,
+      "maskBlurOutset": 0,
+      "hiresFix": false,
+      "teaCache": false,
+      "causalInference": 0,
+      "teaCacheThreshold": 0.2,
+      "teaCacheStart": 5,
+      "teaCacheEnd": -1,
+      "teaCacheMaxSkipSteps": 3
+    },
+    "name": "Ideogram 4 Instant"
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "seedMode": 2,
+      "sampler": 10,
+      "strength": 1,
+      "sharpness": 0,
+      "tiledDecoding": false,
+      "batchSize": 1,
+      "tiledDiffusion": false,
+      "guidanceScale": 1,
+      "loras": [
+
+      ],
+      "controls": [
+
+      ],
+      "clipSkip": 1,
+      "maskBlur": 1.5,
+      "shift": 1,
+      "resolutionDependentShift": false,
+      "zeroNegativePrompt": true,
+      "expandPromptToJson": true,
+      "preserveOriginalAfterInpaint": true,
+      "model": "ideogram_4_fast_q8p.ckpt",
+      "steps": 20,
+      "upscalerScaleFactor": 0,
+      "maskBlurOutset": 0,
+      "hiresFix": false,
+      "teaCache": false,
+      "causalInference": 0,
+      "teaCacheThreshold": 0.2,
+      "teaCacheStart": 5,
+      "teaCacheEnd": -1,
+      "teaCacheMaxSkipSteps": 3
+    },
+    "name": "Ideogram 4 Fast"
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "seedMode": 2,
+      "sampler": 17,
+      "strength": 1,
+      "sharpness": 0,
+      "tiledDecoding": false,
+      "batchSize": 1,
+      "tiledDiffusion": false,
+      "guidanceScale": 1,
+      "loras": [
+
+      ],
+      "controls": [
+
+      ],
+      "clipSkip": 1,
+      "maskBlur": 1.5,
+      "shift": 4,
+      "resolutionDependentShift": false,
+      "preserveOriginalAfterInpaint": true,
+      "model": "ernie_image_turbo_q6p.ckpt",
+      "steps": 8,
+      "upscalerScaleFactor": 0,
+      "maskBlurOutset": 0,
+      "hiresFix": false,
+      "teaCache": false,
+      "causalInference": 0,
+      "teaCacheThreshold": 0.2,
+      "teaCacheStart": 5,
+      "teaCacheEnd": -1,
+      "teaCacheMaxSkipSteps": 3
+    },
+    "name": "ERNIE Image Turbo 1.0",
+    "version": "ernie_image",
+    "negative": " "
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "seedMode": 2,
+      "sampler": 17,
+      "strength": 1,
+      "sharpness": 0,
+      "tiledDecoding": false,
+      "batchSize": 1,
+      "tiledDiffusion": false,
+      "guidanceScale": 4,
+      "loras": [
+
+      ],
+      "controls": [
+
+      ],
+      "clipSkip": 1,
+      "maskBlur": 1.5,
+      "resolutionDependentShift": true,
+      "preserveOriginalAfterInpaint": true,
+      "model": "ernie_image_q6p.ckpt",
+      "steps": 30,
+      "upscalerScaleFactor": 0,
+      "maskBlurOutset": 0,
+      "hiresFix": false,
+      "teaCache": false,
+      "causalInference": 0,
+      "teaCacheThreshold": 0.2,
+      "teaCacheStart": 5,
+      "teaCacheEnd": -1,
+      "teaCacheMaxSkipSteps": 3
+    },
+    "name": "ERNIE Image Base 1.0",
+    "negative": ""
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "batchSize": 1,
+      "clipSkip": 2,
+      "controls": [
+
+      ],
+      "guidanceScale": 4,
+      "height": 1024,
+      "hiresFix": false,
+      "loras": [
+
+      ],
+      "maskBlur": 2.5,
+      "maskBlurOutset": 0,
+      "model": "anima_base_1.0_f16.ckpt",
+      "resolutionDependentShift": true,
+      "sampler": 16,
+      "seedMode": 2,
+      "separateClipL": false,
+      "separateOpenClipG": false,
+      "sharpness": 0,
+      "steps": 30,
+      "strength": 1,
+      "teaCache": false,
+      "t5TextEncoder": true,
+      "tiledDecoding": false,
+      "tiledDiffusion": false,
+      "upscalerScaleFactor": 0,
+      "width": 1024,
+      "teaCacheThreshold": 0.3,
+      "teaCacheStart": 5,
+      "teaCacheEnd": -1,
+      "teaCacheMaxSkipSteps": 3
+    },
+    "name": "Anima Base 1.0",
+    "version": "cosmos2.5_2b",
+    "negative": "worst quality, low quality, score_1, score_2, score_3, artist name"
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "batchSize": 1,
+      "clipSkip": 2,
+      "controls": [
+
+      ],
+      "guidanceScale": 4,
+      "height": 1024,
+      "hiresFix": false,
+      "loras": [
+
+      ],
+      "maskBlur": 2.5,
+      "maskBlurOutset": 0,
+      "model": "anima_aesthetic_1.1_f16.ckpt",
+      "resolutionDependentShift": true,
+      "sampler": 16,
+      "seedMode": 2,
+      "separateClipL": false,
+      "separateOpenClipG": false,
+      "sharpness": 0,
+      "steps": 30,
+      "strength": 1,
+      "teaCache": false,
+      "t5TextEncoder": true,
+      "tiledDecoding": false,
+      "tiledDiffusion": false,
+      "upscalerScaleFactor": 0,
+      "width": 1024,
+      "teaCacheThreshold": 0.3,
+      "teaCacheStart": 5,
+      "teaCacheEnd": -1,
+      "teaCacheMaxSkipSteps": 3
+    },
+    "name": "Anima Aesthetic 1.1",
+    "negative": "worst quality, low quality, score_1, score_2, score_3, artist name"
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "seedMode": 2,
+      "sampler": 17,
+      "strength": 1,
+      "sharpness": 0,
+      "tiledDecoding": false,
+      "batchSize": 1,
+      "tiledDiffusion": false,
+      "guidanceScale": 4,
+      "loras": [
+
+      ],
+      "controls": [
+
+      ],
+      "clipSkip": 1,
+      "maskBlur": 1.5,
+      "shift": 2,
+      "preserveOriginalAfterInpaint": true,
+      "model": "qwen_image_2512_q6p.ckpt",
+      "steps": 30,
+      "upscalerScaleFactor": 0,
+      "maskBlurOutset": 0,
+      "hiresFix": false,
+      "teaCache": false,
+      "causalInference": 0,
+      "teaCacheThreshold": 0.2,
+      "teaCacheStart": 5,
+      "teaCacheEnd": -1,
+      "teaCacheMaxSkipSteps": 3
+    },
+    "name": "Qwen Image 2512",
+    "version": "qwen_image",
+    "negative": "低分辨率，低画质，肢体畸形，手指畸形，画面过饱和，蜡像感，人脸无细节，过度光滑，画面具有AI感。构图混乱。文字模糊，扭曲。"
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "seedMode": 2,
+      "sampler": 17,
+      "strength": 1,
+      "sharpness": 0,
+      "tiledDecoding": false,
+      "batchSize": 1,
+      "tiledDiffusion": false,
+      "guidanceScale": 4,
+      "loras": [
+
+      ],
+      "controls": [
+
+      ],
+      "clipSkip": 1,
+      "maskBlur": 1.5,
+      "shift": 2,
+      "preserveOriginalAfterInpaint": true,
+      "model": "qwen_image_edit_2511_q6p.ckpt",
+      "steps": 30,
+      "upscalerScaleFactor": 0,
+      "maskBlurOutset": 0,
+      "hiresFix": false,
+      "teaCache": false,
+      "causalInference": 0,
+      "teaCacheThreshold": 0.2,
+      "teaCacheStart": 5,
+      "teaCacheEnd": -1,
+      "teaCacheMaxSkipSteps": 3
+    },
+    "name": "Qwen Image Edit 2511",
+    "negative": " "
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "seedMode": 2,
+      "sampler": 17,
+      "strength": 1,
+      "sharpness": 0,
+      "tiledDecoding": false,
+      "batchSize": 1,
+      "tiledDiffusion": false,
+      "guidanceScale": 1,
+      "loras": [
+
+      ],
+      "controls": [
+
+      ],
+      "clipSkip": 1,
+      "maskBlur": 1.5,
+      "shift": 3,
+      "resolutionDependentShift": false,
+      "preserveOriginalAfterInpaint": true,
+      "model": "z_image_turbo_1.0_q6p.ckpt",
+      "steps": 8,
+      "upscalerScaleFactor": 0,
+      "maskBlurOutset": 0,
+      "hiresFix": false,
+      "teaCache": false,
+      "causalInference": 0,
+      "teaCacheThreshold": 0.2,
+      "teaCacheStart": 5,
+      "teaCacheEnd": -1,
+      "teaCacheMaxSkipSteps": 3
+    },
+    "name": "Z Image Turbo 1.0",
+    "version": "z_image",
+    "negative": " "
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "seedMode": 2,
+      "sampler": 17,
+      "strength": 1,
+      "sharpness": 0,
+      "tiledDecoding": false,
+      "batchSize": 1,
+      "tiledDiffusion": false,
+      "guidanceScale": 4,
+      "loras": [
+
+      ],
+      "controls": [
+
+      ],
+      "clipSkip": 1,
+      "maskBlur": 1.5,
+      "resolutionDependentShift": true,
+      "preserveOriginalAfterInpaint": true,
+      "model": "z_image_1.0_q6p.ckpt",
+      "steps": 30,
+      "upscalerScaleFactor": 0,
+      "maskBlurOutset": 0,
+      "hiresFix": false,
+      "teaCache": false,
+      "causalInference": 0,
+      "teaCacheThreshold": 0.2,
+      "teaCacheStart": 5,
+      "teaCacheEnd": -1,
+      "teaCacheMaxSkipSteps": 3
+    },
+    "name": "Z Image Base 1.0",
+    "negative": ""
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "batchSize": 1,
+      "clipSkip": 2,
+      "controls": [
+
+      ],
+      "guidanceScale": 1,
+      "height": 1024,
+      "hiresFix": false,
+      "loras": [
+
+      ],
+      "maskBlur": 2.5,
+      "maskBlurOutset": 0,
+      "model": "flux_2_klein_9b_kv_q6p.ckpt",
+      "resolutionDependentShift": false,
+      "sampler": 16,
+      "seedMode": 2,
+      "separateClipL": false,
+      "separateOpenClipG": false,
+      "sharpness": 0,
+      "shift": 3,
+      "speedUpWithGuidanceEmbed": true,
+      "steps": 4,
+      "strength": 1,
+      "teaCache": false,
+      "t5TextEncoder": true,
+      "tiledDecoding": false,
+      "tiledDiffusion": false,
+      "upscalerScaleFactor": 0,
+      "width": 1024,
+      "teaCacheThreshold": 0.3,
+      "teaCacheStart": 5,
+      "teaCacheEnd": -1,
+      "teaCacheMaxSkipSteps": 3
+    },
+    "name": "FLUX.2 [klein] 9B KV"
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "batchSize": 1,
+      "clipSkip": 2,
+      "controls": [
+
+      ],
+      "guidanceScale": 1,
+      "height": 1024,
+      "hiresFix": false,
+      "loras": [
+
+      ],
+      "maskBlur": 2.5,
+      "maskBlurOutset": 0,
+      "model": "flux_2_klein_9b_q6p.ckpt",
+      "resolutionDependentShift": false,
+      "sampler": 16,
+      "seedMode": 2,
+      "separateClipL": false,
+      "separateOpenClipG": false,
+      "sharpness": 0,
+      "shift": 3,
+      "speedUpWithGuidanceEmbed": true,
+      "steps": 4,
+      "strength": 1,
+      "teaCache": false,
+      "t5TextEncoder": true,
+      "tiledDecoding": false,
+      "tiledDiffusion": false,
+      "upscalerScaleFactor": 0,
+      "width": 1024,
+      "teaCacheThreshold": 0.3,
+      "teaCacheStart": 5,
+      "teaCacheEnd": -1,
+      "teaCacheMaxSkipSteps": 3
+    },
+    "name": "FLUX.2 [klein] 9B",
+    "version": "flux2_9b"
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "batchSize": 1,
+      "clipSkip": 2,
+      "controls": [
+
+      ],
+      "guidanceScale": 4,
+      "height": 1024,
+      "hiresFix": false,
+      "loras": [
+
+      ],
+      "maskBlur": 2.5,
+      "maskBlurOutset": 0,
+      "model": "flux_2_klein_base_9b_q6p.ckpt",
+      "resolutionDependentShift": true,
+      "sampler": 16,
+      "seedMode": 2,
+      "separateClipL": false,
+      "separateOpenClipG": false,
+      "sharpness": 0,
+      "steps": 30,
+      "strength": 1,
+      "teaCache": false,
+      "t5TextEncoder": true,
+      "tiledDecoding": false,
+      "tiledDiffusion": false,
+      "upscalerScaleFactor": 0,
+      "width": 1024,
+      "teaCacheThreshold": 0.3,
+      "teaCacheStart": 5,
+      "teaCacheEnd": -1,
+      "teaCacheMaxSkipSteps": 3
+    },
+    "name": "FLUX.2 [klein] 9B Base",
+    "negative": ""
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "batchSize": 1,
+      "clipSkip": 2,
+      "controls": [
+
+      ],
+      "guidanceScale": 1,
+      "height": 1024,
+      "hiresFix": false,
+      "loras": [
+
+      ],
+      "maskBlur": 2.5,
+      "maskBlurOutset": 0,
+      "model": "flux_2_klein_4b_q6p.ckpt",
+      "resolutionDependentShift": false,
+      "sampler": 16,
+      "seedMode": 2,
+      "separateClipL": false,
+      "separateOpenClipG": false,
+      "sharpness": 0,
+      "shift": 3,
+      "speedUpWithGuidanceEmbed": true,
+      "steps": 4,
+      "strength": 1,
+      "teaCache": false,
+      "t5TextEncoder": true,
+      "tiledDecoding": false,
+      "tiledDiffusion": false,
+      "upscalerScaleFactor": 0,
+      "width": 1024,
+      "teaCacheThreshold": 0.3,
+      "teaCacheStart": 5,
+      "teaCacheEnd": -1,
+      "teaCacheMaxSkipSteps": 3
+    },
+    "name": "FLUX.2 [klein] 4B",
+    "version": "flux2_4b"
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "batchSize": 1,
+      "clipSkip": 2,
+      "controls": [
+
+      ],
+      "guidanceScale": 4,
+      "height": 1024,
+      "hiresFix": false,
+      "loras": [
+
+      ],
+      "maskBlur": 2.5,
+      "maskBlurOutset": 0,
+      "model": "flux_2_klein_base_4b_q6p.ckpt",
+      "resolutionDependentShift": true,
+      "sampler": 16,
+      "seedMode": 2,
+      "separateClipL": false,
+      "separateOpenClipG": false,
+      "sharpness": 0,
+      "steps": 30,
+      "strength": 1,
+      "teaCache": false,
+      "t5TextEncoder": true,
+      "tiledDecoding": false,
+      "tiledDiffusion": false,
+      "upscalerScaleFactor": 0,
+      "width": 1024,
+      "teaCacheThreshold": 0.3,
+      "teaCacheStart": 5,
+      "teaCacheEnd": -1,
+      "teaCacheMaxSkipSteps": 3
+    },
+    "name": "FLUX.2 [klein] 4B Base",
+    "negative": ""
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "seedMode": 2,
+      "height": 768,
+      "sampler": 19,
+      "strength": 1,
+      "sharpness": 0,
+      "tiledDecoding": false,
+      "batchSize": 1,
+      "tiledDiffusion": false,
+      "guidanceScale": 1,
+      "loras": [
+
+      ],
+      "controls": [
+
+      ],
+      "clipSkip": 1,
+      "maskBlur": 1.5,
+      "shift": 5,
+      "preserveOriginalAfterInpaint": true,
+      "width": 1280,
+      "model": "ltx_2.3_22b_distilled_q8p.ckpt",
+      "steps": 8,
+      "numFrames": 121,
+      "upscalerScaleFactor": 0,
+      "maskBlurOutset": 0,
+      "hiresFix": true,
+      "teaCache": false,
+      "causalInference": 0,
+      "hiresFixStrength": 0.7,
+      "hiresFixHeight": 384,
+      "hiresFixWidth": 640,
+      "compressionArtifactsQuality": 43.1,
+      "compressionArtifacts": "disabled"
+    },
+    "name": "LTX-2.3 22B [distilled] 720p"
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "seedMode": 2,
+      "height": 768,
+      "sampler": 17,
+      "strength": 1,
+      "sharpness": 0,
+      "tiledDecoding": false,
+      "batchSize": 1,
+      "tiledDiffusion": false,
+      "guidanceScale": 5,
+      "loras": [
+
+      ],
+      "controls": [
+
+      ],
+      "clipSkip": 1,
+      "maskBlur": 1.5,
+      "shift": 5,
+      "preserveOriginalAfterInpaint": true,
+      "width": 1280,
+      "model": "ltx_2.3_22b_dev_q8p.ckpt",
+      "steps": 30,
+      "numFrames": 121,
+      "upscalerScaleFactor": 0,
+      "maskBlurOutset": 0,
+      "hiresFix": true,
+      "teaCache": false,
+      "causalInference": 0,
+      "hiresFixStrength": 0.7,
+      "hiresFixHeight": 384,
+      "hiresFixWidth": 640,
+      "compressionArtifactsQuality": 43.1,
+      "compressionArtifacts": "disabled"
+    },
+    "name": "LTX-2.3 22B [dev] 720p",
+    "version": "ltx2",
+    "negative": "worst quality, inconsistent motion, blurry, jittery, distorted"
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "seedMode": 2,
+      "height": 768,
+      "sampler": 19,
+      "strength": 1,
+      "sharpness": 0,
+      "tiledDecoding": false,
+      "batchSize": 1,
+      "tiledDiffusion": false,
+      "guidanceScale": 1,
+      "loras": [
+
+      ],
+      "controls": [
+
+      ],
+      "clipSkip": 1,
+      "maskBlur": 1.5,
+      "shift": 5,
+      "preserveOriginalAfterInpaint": true,
+      "width": 1280,
+      "model": "ltx_2_19b_distilled_q8p.ckpt",
+      "steps": 8,
+      "numFrames": 121,
+      "upscalerScaleFactor": 0,
+      "maskBlurOutset": 0,
+      "hiresFix": false,
+      "teaCache": false,
+      "causalInference": 0,
+      "compressionArtifactsQuality": 43.1,
+      "compressionArtifacts": "h264"
+    },
+    "name": "LTX-2 19B [distilled] 720p"
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "seedMode": 2,
+      "height": 768,
+      "sampler": 17,
+      "strength": 1,
+      "sharpness": 0,
+      "tiledDecoding": false,
+      "batchSize": 1,
+      "tiledDiffusion": false,
+      "guidanceScale": 5,
+      "loras": [
+
+      ],
+      "controls": [
+
+      ],
+      "clipSkip": 1,
+      "maskBlur": 1.5,
+      "shift": 5,
+      "preserveOriginalAfterInpaint": true,
+      "width": 1280,
+      "model": "ltx_2_19b_dev_q8p.ckpt",
+      "steps": 30,
+      "numFrames": 121,
+      "upscalerScaleFactor": 0,
+      "maskBlurOutset": 0,
+      "hiresFix": false,
+      "teaCache": false,
+      "causalInference": 0,
+      "compressionArtifactsQuality": 43.1,
+      "compressionArtifacts": "h264"
+    },
+    "name": "LTX-2 19B [dev] 720p",
+    "version": "ltx2",
+    "negative": "worst quality, inconsistent motion, blurry, jittery, distorted"
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "batchSize": 1,
+      "clipSkip": 2,
+      "controls": [
+
+      ],
+      "guidanceEmbed": 4.5,
+      "guidanceScale": 4.5,
+      "height": 1024,
+      "hiresFix": false,
+      "loras": [
+
+      ],
+      "maskBlur": 2.5,
+      "maskBlurOutset": 0,
+      "model": "flux_2_dev_q6p.ckpt",
+      "resolutionDependentShift": true,
+      "sampler": 16,
+      "seedMode": 2,
+      "separateClipL": false,
+      "separateOpenClipG": false,
+      "sharpness": 0,
+      "shift": 1,
+      "speedUpWithGuidanceEmbed": true,
+      "steps": 28,
+      "strength": 1,
+      "teaCache": false,
+      "t5TextEncoder": true,
+      "tiledDecoding": false,
+      "tiledDiffusion": false,
+      "upscalerScaleFactor": 0,
+      "width": 1024,
+      "teaCacheThreshold": 0.3,
+      "teaCacheStart": 5,
+      "teaCacheEnd": -1,
+      "teaCacheMaxSkipSteps": 3
+    },
+    "name": "FLUX.2 [dev]",
+    "version": "flux2"
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "seedMode": 2,
+      "height": 448,
+      "sampler": 17,
+      "strength": 1,
+      "sharpness": 0,
+      "tiledDecoding": false,
+      "batchSize": 1,
+      "tiledDiffusion": false,
+      "guidanceScale": 4,
+      "loras": [
+
+      ],
+      "controls": [
+
+      ],
+      "clipSkip": 1,
+      "maskBlur": 1.5,
+      "shift": 8,
+      "preserveOriginalAfterInpaint": true,
+      "width": 832,
+      "model": "wan_v2.2_a14b_hne_t2v_q6p_svd.ckpt",
+      "refinerModel": "wan_v2.2_a14b_lne_t2v_q6p_svd.ckpt",
+      "refinerStart": 0.125,
+      "steps": 30,
+      "numFrames": 81,
+      "upscalerScaleFactor": 0,
+      "maskBlurOutset": 0,
+      "hiresFix": false,
+      "teaCache": false,
+      "causalInference": 0,
+      "teaCacheThreshold": 0.2,
+      "teaCacheStart": 5,
+      "teaCacheEnd": -1,
+      "teaCacheMaxSkipSteps": 3
+    },
+    "name": "Wan v2.2 T2V 14B",
+    "negative": "色调艳丽，过曝，静态，细节模糊不清，字幕，风格，作品，画作，画面，静止，整体发灰，最差质量，低质量，JPEG压缩残留，丑陋的，残缺的，多余的手指，画得不好的手部，画得不好的脸部，畸形的，毁容的，形态畸形的肢体，手指融合，静止不动的画面，杂乱的背景，三条腿，背景人很多，倒着走"
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "seedMode": 2,
+      "height": 448,
+      "sampler": 17,
+      "strength": 1,
+      "sharpness": 0,
+      "tiledDecoding": false,
+      "batchSize": 1,
+      "tiledDiffusion": false,
+      "guidanceScale": 3.5,
+      "loras": [
+
+      ],
+      "controls": [
+
+      ],
+      "clipSkip": 1,
+      "maskBlur": 1.5,
+      "shift": 5,
+      "preserveOriginalAfterInpaint": true,
+      "width": 832,
+      "model": "wan_v2.2_a14b_hne_i2v_q6p_svd.ckpt",
+      "refinerModel": "wan_v2.2_a14b_lne_i2v_q6p_svd.ckpt",
+      "refinerStart": 0.1,
+      "steps": 30,
+      "numFrames": 81,
+      "upscalerScaleFactor": 0,
+      "maskBlurOutset": 0,
+      "hiresFix": false,
+      "teaCache": false,
+      "causalInference": 0,
+      "teaCacheThreshold": 0.2,
+      "teaCacheStart": 5,
+      "teaCacheEnd": -1,
+      "teaCacheMaxSkipSteps": 3
+    },
+    "name": "Wan v2.2 I2V 14B",
+    "negative": "色调艳丽，过曝，静态，细节模糊不清，字幕，风格，作品，画作，画面，静止，整体发灰，最差质量，低质量，JPEG压缩残留，丑陋的，残缺的，多余的手指，画得不好的手部，画得不好的脸部，畸形的，毁容的，形态畸形的肢体，手指融合，静止不动的画面，杂乱的背景，三条腿，背景人很多，倒着走"
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "seedMode": 2,
+      "sampler": 17,
+      "strength": 1,
+      "sharpness": 0,
+      "tiledDecoding": false,
+      "batchSize": 1,
+      "tiledDiffusion": false,
+      "guidanceScale": 1,
+      "loras": [
+        {
+          "mode": "all",
+          "file": "qwen_image_2512_lightning_4_step_v1.0_lora_f16.ckpt",
+          "weight": 1
+        }
+      ],
+      "controls": [
+
+      ],
+      "clipSkip": 1,
+      "maskBlur": 1.5,
+      "shift": 3,
+      "resolutionDependentShift": false,
+      "preserveOriginalAfterInpaint": true,
+      "model": "qwen_image_2512_q6p.ckpt",
+      "steps": 4,
+      "upscalerScaleFactor": 0,
+      "maskBlurOutset": 0,
+      "hiresFix": false,
+      "teaCache": false,
+      "causalInference": 0,
+      "teaCacheThreshold": 0.2,
+      "teaCacheStart": 5,
+      "teaCacheEnd": -1,
+      "teaCacheMaxSkipSteps": 3
+    },
+    "name": "Qwen Image 2512 with Lightning 4-Step v1.0",
+    "negative": "低分辨率，低画质，肢体畸形，手指畸形，画面过饱和，蜡像感，人脸无细节，过度光滑，画面具有AI感。构图混乱。文字模糊，扭曲。"
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "seedMode": 2,
+      "sampler": 17,
+      "strength": 1,
+      "sharpness": 0,
+      "tiledDecoding": false,
+      "batchSize": 1,
+      "tiledDiffusion": false,
+      "guidanceScale": 1,
+      "loras": [
+        {
+          "mode": "all",
+          "file": "qwen_image_edit_2511_lightning_4_step_v1.0_lora_f16.ckpt",
+          "weight": 1
+        }
+      ],
+      "controls": [
+
+      ],
+      "clipSkip": 1,
+      "maskBlur": 1.5,
+      "shift": 3,
+      "resolutionDependentShift": false,
+      "preserveOriginalAfterInpaint": true,
+      "model": "qwen_image_edit_2511_q6p.ckpt",
+      "steps": 4,
+      "upscalerScaleFactor": 0,
+      "maskBlurOutset": 0,
+      "hiresFix": false,
+      "teaCache": false,
+      "causalInference": 0,
+      "teaCacheThreshold": 0.2,
+      "teaCacheStart": 5,
+      "teaCacheEnd": -1,
+      "teaCacheMaxSkipSteps": 3
+    },
+    "name": "Qwen Image Edit 2511 with Lightning 4-Step v1.0",
+    "negative": " "
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "batchSize": 1,
+      "clipSkip": 2,
+      "controls": [
+
+      ],
+      "guidanceEmbed": 4.5,
+      "guidanceScale": 4.5,
+      "height": 1024,
+      "hiresFix": false,
+      "loras": [
+        {
+          "mode": "all",
+          "file": "flux_2_dev_turbo_lora_f16.ckpt",
+          "weight": 1
+        }
+      ],
+      "maskBlur": 2.5,
+      "maskBlurOutset": 0,
+      "model": "flux_2_dev_q6p.ckpt",
+      "resolutionDependentShift": false,
+      "sampler": 16,
+      "seedMode": 2,
+      "separateClipL": false,
+      "separateOpenClipG": false,
+      "sharpness": 0,
+      "shift": 3,
+      "speedUpWithGuidanceEmbed": true,
+      "steps": 4,
+      "strength": 1,
+      "teaCache": false,
+      "t5TextEncoder": true,
+      "tiledDecoding": false,
+      "tiledDiffusion": false,
+      "upscalerScaleFactor": 0,
+      "width": 1024,
+      "teaCacheThreshold": 0.3,
+      "teaCacheStart": 5,
+      "teaCacheEnd": -1,
+      "teaCacheMaxSkipSteps": 3
+    },
+    "name": "FLUX.2 [dev] with Turbo"
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "seedMode": 2,
+      "height": 448,
+      "sampler": 17,
+      "strength": 1,
+      "sharpness": 0,
+      "tiledDecoding": false,
+      "batchSize": 1,
+      "tiledDiffusion": false,
+      "guidanceScale": 1,
+      "loras": [
+        {
+          "mode": "base",
+          "file": "wan_v2.2_a14b_hne_t2v_lightning_v1.1_lora_f16.ckpt",
+          "weight": 1
+        },
+        {
+          "mode": "refiner",
+          "file": "wan_v2.2_a14b_lne_t2v_lightning_v1.1_lora_f16.ckpt",
+          "weight": 1
+        }
+      ],
+      "controls": [
+
+      ],
+      "clipSkip": 1,
+      "maskBlur": 1.5,
+      "shift": 5,
+      "preserveOriginalAfterInpaint": true,
+      "width": 832,
+      "model": "wan_v2.2_a14b_hne_t2v_q6p_svd.ckpt",
+      "refinerModel": "wan_v2.2_a14b_lne_t2v_q6p_svd.ckpt",
+      "refinerStart": 0.125,
+      "steps": 4,
+      "numFrames": 81,
+      "upscalerScaleFactor": 0,
+      "maskBlurOutset": 0,
+      "hiresFix": false,
+      "teaCache": false,
+      "causalInference": 0,
+      "teaCacheThreshold": 0.2,
+      "teaCacheStart": 5,
+      "teaCacheEnd": -1,
+      "teaCacheMaxSkipSteps": 3
+    },
+    "name": "Wan v2.2 T2V 14B with Lightning v1.1",
+    "negative": "色调艳丽，过曝，静态，细节模糊不清，字幕，风格，作品，画作，画面，静止，整体发灰，最差质量，低质量，JPEG压缩残留，丑陋的，残缺的，多余的手指，画得不好的手部，画得不好的脸部，畸形的，毁容的，形态畸形的肢体，手指融合，静止不动的画面，杂乱的背景，三条腿，背景人很多，倒着走"
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "seedMode": 2,
+      "height": 448,
+      "sampler": 17,
+      "strength": 1,
+      "sharpness": 0,
+      "tiledDecoding": false,
+      "batchSize": 1,
+      "tiledDiffusion": false,
+      "guidanceScale": 1,
+      "loras": [
+        {
+          "mode": "base",
+          "file": "wan_v2.2_a14b_hne_i2v_lightning_v1.0_lora_f16.ckpt",
+          "weight": 1
+        },
+        {
+          "mode": "refiner",
+          "file": "wan_v2.2_a14b_lne_i2v_lightning_v1.0_lora_f16.ckpt",
+          "weight": 1
+        }
+      ],
+      "controls": [
+
+      ],
+      "clipSkip": 1,
+      "maskBlur": 1.5,
+      "shift": 5,
+      "preserveOriginalAfterInpaint": true,
+      "width": 832,
+      "model": "wan_v2.2_a14b_hne_i2v_q6p_svd.ckpt",
+      "refinerModel": "wan_v2.2_a14b_lne_i2v_q6p_svd.ckpt",
+      "refinerStart": 0.1,
+      "steps": 4,
+      "numFrames": 81,
+      "upscalerScaleFactor": 0,
+      "maskBlurOutset": 0,
+      "hiresFix": false,
+      "teaCache": false,
+      "causalInference": 0,
+      "teaCacheThreshold": 0.2,
+      "teaCacheStart": 5,
+      "teaCacheEnd": -1,
+      "teaCacheMaxSkipSteps": 3
+    },
+    "name": "Wan v2.2 I2V 14B with Lightning v1.0",
+    "negative": "色调艳丽，过曝，静态，细节模糊不清，字幕，风格，作品，画作，画面，静止，整体发灰，最差质量，低质量，JPEG压缩残留，丑陋的，残缺的，多余的手指，画得不好的手部，画得不好的脸部，畸形的，毁容的，形态畸形的肢体，手指融合，静止不动的画面，杂乱的背景，三条腿，背景人很多，倒着走"
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "seedMode": 2,
+      "sampler": 17,
+      "strength": 1,
+      "sharpness": 0,
+      "tiledDecoding": false,
+      "batchSize": 1,
+      "tiledDiffusion": false,
+      "guidanceScale": 4,
+      "loras": [
+
+      ],
+      "controls": [
+
+      ],
+      "clipSkip": 1,
+      "maskBlur": 1.5,
+      "shift": 2,
+      "preserveOriginalAfterInpaint": true,
+      "model": "qwen_image_edit_2509_q6p.ckpt",
+      "steps": 30,
+      "upscalerScaleFactor": 0,
+      "maskBlurOutset": 0,
+      "hiresFix": false,
+      "teaCache": false,
+      "causalInference": 0,
+      "teaCacheThreshold": 0.2,
+      "teaCacheStart": 5,
+      "teaCacheEnd": -1,
+      "teaCacheMaxSkipSteps": 3
+    },
+    "name": "Qwen Image Edit 2509",
+    "negative": " "
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "seedMode": 2,
+      "sampler": 17,
+      "strength": 1,
+      "sharpness": 0,
+      "tiledDecoding": false,
+      "batchSize": 1,
+      "tiledDiffusion": false,
+      "guidanceScale": 4,
+      "loras": [
+
+      ],
+      "controls": [
+
+      ],
+      "clipSkip": 1,
+      "maskBlur": 1.5,
+      "shift": 2,
+      "preserveOriginalAfterInpaint": true,
+      "model": "qwen_image_1.0_q6p.ckpt",
+      "steps": 30,
+      "upscalerScaleFactor": 0,
+      "maskBlurOutset": 0,
+      "hiresFix": false,
+      "teaCache": false,
+      "causalInference": 0,
+      "teaCacheThreshold": 0.2,
+      "teaCacheStart": 5,
+      "teaCacheEnd": -1,
+      "teaCacheMaxSkipSteps": 3
+    },
+    "name": "Qwen Image 1.0",
+    "version": "qwen_image",
+    "negative": " "
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "seedMode": 2,
+      "sampler": 17,
+      "strength": 1,
+      "sharpness": 0,
+      "tiledDecoding": false,
+      "batchSize": 1,
+      "tiledDiffusion": false,
+      "guidanceScale": 4,
+      "loras": [
+
+      ],
+      "controls": [
+
+      ],
+      "clipSkip": 1,
+      "maskBlur": 1.5,
+      "shift": 2,
+      "preserveOriginalAfterInpaint": true,
+      "model": "qwen_image_edit_1.0_q6p.ckpt",
+      "steps": 30,
+      "upscalerScaleFactor": 0,
+      "maskBlurOutset": 0,
+      "hiresFix": false,
+      "teaCache": false,
+      "causalInference": 0,
+      "teaCacheThreshold": 0.2,
+      "teaCacheStart": 5,
+      "teaCacheEnd": -1,
+      "teaCacheMaxSkipSteps": 3
+    },
+    "name": "Qwen Image Edit 1.0",
+    "negative": " "
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "batchSize": 1,
+      "clipSkip": 2,
+      "controls": [
+
+      ],
+      "guidanceScale": 1,
+      "height": 1024,
+      "hiresFix": false,
+      "loras": [
+
+      ],
+      "maskBlur": 2.5,
+      "maskBlurOutset": 0,
+      "model": "hidream_i1_fast_q5p.ckpt",
+      "resolutionDependentShift": false,
+      "sampler": 10,
+      "seedMode": 2,
+      "separateClipL": false,
+      "separateOpenClipG": false,
+      "separateT5": false,
+      "sharpness": 0,
+      "shift": 3,
+      "steps": 16,
+      "strength": 1,
+      "teaCache": false,
+      "tiledDecoding": false,
+      "tiledDiffusion": false,
+      "upscalerScaleFactor": 0,
+      "width": 1024
+    },
+    "name": "HiDream-I1 [fast]"
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "batchSize": 1,
+      "clipSkip": 2,
+      "controls": [
+
+      ],
+      "guidanceScale": 1,
+      "height": 1024,
+      "hiresFix": false,
+      "loras": [
+
+      ],
+      "maskBlur": 2.5,
+      "maskBlurOutset": 0,
+      "model": "hidream_i1_dev_q5p.ckpt",
+      "resolutionDependentShift": false,
+      "sampler": 10,
+      "seedMode": 2,
+      "separateClipL": false,
+      "separateOpenClipG": false,
+      "separateT5": false,
+      "sharpness": 0,
+      "shift": 6,
+      "steps": 28,
+      "strength": 1,
+      "teaCache": false,
+      "tiledDecoding": false,
+      "tiledDiffusion": false,
+      "upscalerScaleFactor": 0,
+      "width": 1024
+    },
+    "name": "HiDream-I1 [dev]"
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "batchSize": 1,
+      "clipSkip": 2,
+      "controls": [
+
+      ],
+      "guidanceScale": 5,
+      "height": 1024,
+      "hiresFix": false,
+      "loras": [
+
+      ],
+      "maskBlur": 2.5,
+      "maskBlurOutset": 0,
+      "model": "hidream_i1_full_q5p.ckpt",
+      "resolutionDependentShift": false,
+      "sampler": 10,
+      "seedMode": 2,
+      "separateClipL": false,
+      "separateOpenClipG": false,
+      "separateT5": false,
+      "sharpness": 0,
+      "shift": 3,
+      "steps": 40,
+      "strength": 1,
+      "teaCache": false,
+      "tiledDecoding": false,
+      "tiledDiffusion": false,
+      "upscalerScaleFactor": 0,
+      "width": 1024,
+      "teaCacheThreshold": 0.25,
+      "teaCacheStart": 5,
+      "teaCacheEnd": -1,
+      "teaCacheMaxSkipSteps": 3
+    },
+    "name": "HiDream-I1 [full]",
+    "version": "hidream_i1"
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "batchSize": 1,
+      "clipSkip": 2,
+      "controls": [
+
+      ],
+      "guidanceEmbed": 3.5,
+      "guidanceScale": 4.5,
+      "height": 1024,
+      "hiresFix": false,
+      "loras": [
+
+      ],
+      "maskBlur": 2.5,
+      "maskBlurOutset": 0,
+      "model": "flux_1_schnell_q5p.ckpt",
+      "resolutionDependentShift": false,
+      "sampler": 10,
+      "seedMode": 2,
+      "separateClipL": false,
+      "separateOpenClipG": false,
+      "sharpness": 0,
+      "shift": 1,
+      "speedUpWithGuidanceEmbed": true,
+      "steps": 4,
+      "strength": 1,
+      "teaCache": false,
+      "t5TextEncoder": true,
+      "tiledDecoding": false,
+      "tiledDiffusion": false,
+      "upscalerScaleFactor": 0,
+      "width": 1024
+    },
+    "name": "FLUX.1 [schnell]"
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "batchSize": 1,
+      "clipSkip": 2,
+      "controls": [
+
+      ],
+      "guidanceEmbed": 4.5,
+      "guidanceScale": 4.5,
+      "height": 1024,
+      "hiresFix": false,
+      "loras": [
+
+      ],
+      "maskBlur": 2.5,
+      "maskBlurOutset": 0,
+      "model": "flux_1_dev_q5p.ckpt",
+      "resolutionDependentShift": true,
+      "sampler": 10,
+      "seedMode": 2,
+      "separateClipL": false,
+      "separateOpenClipG": false,
+      "sharpness": 0,
+      "shift": 1,
+      "speedUpWithGuidanceEmbed": true,
+      "steps": 28,
+      "strength": 1,
+      "teaCache": false,
+      "t5TextEncoder": true,
+      "tiledDecoding": false,
+      "tiledDiffusion": false,
+      "upscalerScaleFactor": 0,
+      "width": 1024,
+      "teaCacheThreshold": 0.3,
+      "teaCacheStart": 5,
+      "teaCacheEnd": -1,
+      "teaCacheMaxSkipSteps": 3
+    },
+    "name": "FLUX.1 [dev]",
+    "version": "flux1"
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "batchSize": 1,
+      "clipSkip": 2,
+      "controls": [
+
+      ],
+      "guidanceEmbed": 50,
+      "guidanceScale": 50,
+      "height": 1024,
+      "hiresFix": false,
+      "loras": [
+
+      ],
+      "maskBlur": 2.5,
+      "maskBlurOutset": 0,
+      "model": "flux_1_fill_dev_q5p.ckpt",
+      "resolutionDependentShift": true,
+      "sampler": 10,
+      "seedMode": 2,
+      "separateClipL": false,
+      "separateOpenClipG": false,
+      "sharpness": 0,
+      "shift": 1,
+      "speedUpWithGuidanceEmbed": true,
+      "steps": 28,
+      "strength": 1,
+      "teaCache": false,
+      "t5TextEncoder": true,
+      "tiledDecoding": false,
+      "tiledDiffusion": false,
+      "upscalerScaleFactor": 0,
+      "width": 1024
+    },
+    "name": "FLUX.1 Fill [dev]"
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "seedMode": 2,
+      "sampler": 17,
+      "strength": 1,
+      "sharpness": 0,
+      "tiledDecoding": false,
+      "batchSize": 1,
+      "tiledDiffusion": false,
+      "guidanceScale": 1,
+      "loras": [
+        {
+          "mode": "all",
+          "file": "qwen_image_1.0_lightning_4_step_v2.0_lora_f16.ckpt",
+          "weight": 1
+        }
+      ],
+      "controls": [
+
+      ],
+      "clipSkip": 1,
+      "maskBlur": 1.5,
+      "shift": 3,
+      "resolutionDependentShift": false,
+      "preserveOriginalAfterInpaint": true,
+      "model": "qwen_image_1.0_q6p.ckpt",
+      "steps": 4,
+      "upscalerScaleFactor": 0,
+      "maskBlurOutset": 0,
+      "hiresFix": false,
+      "teaCache": false,
+      "causalInference": 0,
+      "teaCacheThreshold": 0.2,
+      "teaCacheStart": 5,
+      "teaCacheEnd": -1,
+      "teaCacheMaxSkipSteps": 3
+    },
+    "name": "Qwen Image 1.0 with Lightning 4-Step v2.0",
+    "negative": " "
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "seedMode": 2,
+      "sampler": 17,
+      "strength": 1,
+      "sharpness": 0,
+      "tiledDecoding": false,
+      "batchSize": 1,
+      "tiledDiffusion": false,
+      "guidanceScale": 1,
+      "loras": [
+        {
+          "mode": "all",
+          "file": "qwen_image_1.0_lightning_8_step_v2.0_lora_f16.ckpt",
+          "weight": 1
+        }
+      ],
+      "controls": [
+
+      ],
+      "clipSkip": 1,
+      "maskBlur": 1.5,
+      "shift": 3,
+      "resolutionDependentShift": false,
+      "preserveOriginalAfterInpaint": true,
+      "model": "qwen_image_1.0_q6p.ckpt",
+      "steps": 8,
+      "upscalerScaleFactor": 0,
+      "maskBlurOutset": 0,
+      "hiresFix": false,
+      "teaCache": false,
+      "causalInference": 0,
+      "teaCacheThreshold": 0.2,
+      "teaCacheStart": 5,
+      "teaCacheEnd": -1,
+      "teaCacheMaxSkipSteps": 3
+    },
+    "name": "Qwen Image 1.0 with Lightning 8-Step v2.0",
+    "negative": " "
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "seedMode": 2,
+      "sampler": 17,
+      "strength": 1,
+      "sharpness": 0,
+      "tiledDecoding": false,
+      "batchSize": 1,
+      "tiledDiffusion": false,
+      "guidanceScale": 1,
+      "loras": [
+        {
+          "mode": "all",
+          "file": "qwen_image_edit_2509_lightning_4_step_v1.0_lora_f16.ckpt",
+          "weight": 1
+        }
+      ],
+      "controls": [
+
+      ],
+      "clipSkip": 1,
+      "maskBlur": 1.5,
+      "shift": 3,
+      "resolutionDependentShift": false,
+      "preserveOriginalAfterInpaint": true,
+      "model": "qwen_image_edit_2509_q6p.ckpt",
+      "steps": 4,
+      "upscalerScaleFactor": 0,
+      "maskBlurOutset": 0,
+      "hiresFix": false,
+      "teaCache": false,
+      "causalInference": 0,
+      "teaCacheThreshold": 0.2,
+      "teaCacheStart": 5,
+      "teaCacheEnd": -1,
+      "teaCacheMaxSkipSteps": 3
+    },
+    "name": "Qwen Image Edit 2509 with Lightning 4-Step v1.0",
+    "negative": " "
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "seedMode": 2,
+      "sampler": 17,
+      "strength": 1,
+      "sharpness": 0,
+      "tiledDecoding": false,
+      "batchSize": 1,
+      "tiledDiffusion": false,
+      "guidanceScale": 1,
+      "loras": [
+        {
+          "mode": "all",
+          "file": "qwen_image_edit_2509_lightning_8_step_v1.0_lora_f16.ckpt",
+          "weight": 1
+        }
+      ],
+      "controls": [
+
+      ],
+      "clipSkip": 1,
+      "maskBlur": 1.5,
+      "shift": 3,
+      "resolutionDependentShift": false,
+      "preserveOriginalAfterInpaint": true,
+      "model": "qwen_image_edit_2509_q6p.ckpt",
+      "steps": 8,
+      "upscalerScaleFactor": 0,
+      "maskBlurOutset": 0,
+      "hiresFix": false,
+      "teaCache": false,
+      "causalInference": 0,
+      "teaCacheThreshold": 0.2,
+      "teaCacheStart": 5,
+      "teaCacheEnd": -1,
+      "teaCacheMaxSkipSteps": 3
+    },
+    "name": "Qwen Image Edit 2509 with Lightning 8-Step v1.0",
+    "negative": " "
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "seedMode": 2,
+      "sampler": 17,
+      "strength": 1,
+      "sharpness": 0,
+      "tiledDecoding": false,
+      "batchSize": 1,
+      "tiledDiffusion": false,
+      "guidanceScale": 1,
+      "loras": [
+        {
+          "mode": "all",
+          "file": "qwen_image_edit_1.0_lightning_4_step_v1.0_lora_f16.ckpt",
+          "weight": 1
+        }
+      ],
+      "controls": [
+
+      ],
+      "clipSkip": 1,
+      "maskBlur": 1.5,
+      "shift": 3,
+      "resolutionDependentShift": false,
+      "preserveOriginalAfterInpaint": true,
+      "model": "qwen_image_edit_1.0_q6p.ckpt",
+      "steps": 4,
+      "upscalerScaleFactor": 0,
+      "maskBlurOutset": 0,
+      "hiresFix": false,
+      "teaCache": false,
+      "causalInference": 0,
+      "teaCacheThreshold": 0.2,
+      "teaCacheStart": 5,
+      "teaCacheEnd": -1,
+      "teaCacheMaxSkipSteps": 3
+    },
+    "name": "Qwen Image Edit 1.0 with Lightning 4-Step v1.0",
+    "negative": " "
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "seedMode": 2,
+      "sampler": 17,
+      "strength": 1,
+      "sharpness": 0,
+      "tiledDecoding": false,
+      "batchSize": 1,
+      "tiledDiffusion": false,
+      "guidanceScale": 1,
+      "loras": [
+        {
+          "mode": "all",
+          "file": "qwen_image_edit_1.0_lightning_8_step_v1.0_lora_f16.ckpt",
+          "weight": 1
+        }
+      ],
+      "controls": [
+
+      ],
+      "clipSkip": 1,
+      "maskBlur": 1.5,
+      "shift": 3,
+      "resolutionDependentShift": false,
+      "preserveOriginalAfterInpaint": true,
+      "model": "qwen_image_edit_1.0_q6p.ckpt",
+      "steps": 8,
+      "upscalerScaleFactor": 0,
+      "maskBlurOutset": 0,
+      "hiresFix": false,
+      "teaCache": false,
+      "causalInference": 0,
+      "teaCacheThreshold": 0.2,
+      "teaCacheStart": 5,
+      "teaCacheEnd": -1,
+      "teaCacheMaxSkipSteps": 3
+    },
+    "name": "Qwen Image Edit 1.0 with Lightning 8-Step v1.0",
+    "negative": " "
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "batchSize": 1,
+      "clipSkip": 2,
+      "controls": [
+
+      ],
+      "guidanceEmbed": 6,
+      "guidanceScale": 6,
+      "height": 512,
+      "hiresFix": false,
+      "loras": [
+
+      ],
+      "maskBlur": 2.5,
+      "maskBlurOutset": 0,
+      "model": "hunyuan_video_t2v_720p_q5p_svd.ckpt",
+      "resolutionDependentShift": false,
+      "sampler": 16,
+      "seedMode": 2,
+      "separateClipL": false,
+      "separateOpenClipG": false,
+      "sharpness": 0,
+      "shift": 7,
+      "speedUpWithGuidanceEmbed": true,
+      "steps": 30,
+      "strength": 1,
+      "teaCache": false,
+      "t5TextEncoder": true,
+      "tiledDecoding": false,
+      "tiledDiffusion": false,
+      "upscalerScaleFactor": 0,
+      "width": 960,
+      "numFrames": 129,
+      "teaCacheThreshold": 0.15,
+      "teaCacheStart": 5,
+      "teaCacheEnd": -1,
+      "teaCacheMaxSkipSteps": 3
+    },
+    "name": "Hunyuan Video T2V 720p",
+    "version": "hunyuan_video"
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "seedMode": 2,
+      "height": 448,
+      "sampler": 10,
+      "strength": 1,
+      "sharpness": 0,
+      "tiledDecoding": false,
+      "batchSize": 1,
+      "tiledDiffusion": false,
+      "guidanceScale": 5,
+      "loras": [
+
+      ],
+      "controls": [
+
+      ],
+      "clipSkip": 1,
+      "maskBlur": 1.5,
+      "shift": 5,
+      "preserveOriginalAfterInpaint": true,
+      "width": 832,
+      "model": "wan_v2.1_1.3b_480p_f16.ckpt",
+      "steps": 30,
+      "numFrames": 81,
+      "upscalerScaleFactor": 0,
+      "maskBlurOutset": 0,
+      "hiresFix": false,
+      "teaCache": false,
+      "causalInference": 0,
+      "teaCacheThreshold": 0.15,
+      "teaCacheStart": 5,
+      "teaCacheEnd": -1,
+      "teaCacheMaxSkipSteps": 3
+    },
+    "name": "Wan v2.1 T2V 1.3B 480p",
+    "negative": "色调艳丽，过曝，静态，细节模糊不清，字幕，风格，作品，画作，画面，静止，整体发灰，最差质量，低质量，JPEG压缩残留，丑陋的，残缺的，多余的手指，画得不好的手部，画得不好的脸部，畸形的，毁容的，形态畸形的肢体，手指融合，静止不动的画面，杂乱的背景，三条腿，背景人很多，倒着走"
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "seedMode": 2,
+      "height": 448,
+      "sampler": 10,
+      "strength": 1,
+      "sharpness": 0,
+      "tiledDecoding": false,
+      "batchSize": 1,
+      "tiledDiffusion": false,
+      "guidanceScale": 5,
+      "loras": [
+
+      ],
+      "controls": [
+
+      ],
+      "clipSkip": 1,
+      "maskBlur": 1.5,
+      "shift": 5,
+      "preserveOriginalAfterInpaint": true,
+      "width": 832,
+      "model": "wan_v2.1_14b_720p_q6p_svd.ckpt",
+      "steps": 30,
+      "numFrames": 81,
+      "upscalerScaleFactor": 0,
+      "maskBlurOutset": 0,
+      "hiresFix": false,
+      "teaCache": false,
+      "causalInference": 0,
+      "teaCacheThreshold": 0.2,
+      "teaCacheStart": 5,
+      "teaCacheEnd": -1,
+      "teaCacheMaxSkipSteps": 3
+    },
+    "name": "Wan v2.1 T2V 14B 720p",
+    "version": "wan_v2.1_14b",
+    "negative": "色调艳丽，过曝，静态，细节模糊不清，字幕，风格，作品，画作，画面，静止，整体发灰，最差质量，低质量，JPEG压缩残留，丑陋的，残缺的，多余的手指，画得不好的手部，画得不好的脸部，畸形的，毁容的，形态畸形的肢体，手指融合，静止不动的画面，杂乱的背景，三条腿，背景人很多，倒着走"
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "seedMode": 2,
+      "height": 448,
+      "sampler": 10,
+      "strength": 1,
+      "sharpness": 0,
+      "tiledDecoding": false,
+      "batchSize": 1,
+      "tiledDiffusion": false,
+      "guidanceScale": 5,
+      "loras": [
+
+      ],
+      "controls": [
+
+      ],
+      "clipSkip": 1,
+      "maskBlur": 1.5,
+      "shift": 3,
+      "preserveOriginalAfterInpaint": true,
+      "width": 832,
+      "model": "wan_v2.1_14b_i2v_480p_q6p_svd.ckpt",
+      "steps": 30,
+      "numFrames": 81,
+      "upscalerScaleFactor": 0,
+      "maskBlurOutset": 0,
+      "hiresFix": false,
+      "teaCache": false,
+      "causalInference": 0
+    },
+    "name": "Wan v2.1 I2V 14B 480p",
+    "negative": "色调艳丽，过曝，静态，细节模糊不清，字幕，风格，作品，画作，画面，静止，整体发灰，最差质量，低质量，JPEG压缩残留，丑陋的，残缺的，多余的手指，画得不好的手部，画得不好的脸部，畸形的，毁容的，形态畸形的肢体，手指融合，静止不动的画面，杂乱的背景，三条腿，背景人很多，倒着走"
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "seedMode": 2,
+      "height": 768,
+      "sampler": 10,
+      "strength": 1,
+      "sharpness": 0,
+      "tiledDecoding": false,
+      "batchSize": 1,
+      "tiledDiffusion": false,
+      "guidanceScale": 5,
+      "loras": [
+
+      ],
+      "controls": [
+
+      ],
+      "clipSkip": 1,
+      "maskBlur": 1.5,
+      "shift": 5,
+      "preserveOriginalAfterInpaint": true,
+      "width": 1280,
+      "model": "wan_v2.1_14b_i2v_720p_q6p_svd.ckpt",
+      "steps": 30,
+      "numFrames": 81,
+      "upscalerScaleFactor": 0,
+      "maskBlurOutset": 0,
+      "hiresFix": false,
+      "teaCache": false,
+      "causalInference": 0
+    },
+    "name": "Wan v2.1 I2V 14B 720p",
+    "negative": "色调艳丽，过曝，静态，细节模糊不清，字幕，风格，作品，画作，画面，静止，整体发灰，最差质量，低质量，JPEG压缩残留，丑陋的，残缺的，多余的手指，画得不好的手部，画得不好的脸部，畸形的，毁容的，形态畸形的肢体，手指融合，静止不动的画面，杂乱的背景，三条腿，背景人很多，倒着走"
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "batchSize": 1,
+      "clipSkip": 1,
+      "controls": [
+
+      ],
+      "guidanceScale": 5,
+      "height": 512,
+      "hiresFix": false,
+      "loras": [
+
+      ],
+      "maskBlur": 2.5,
+      "maskBlurOutset": 0,
+      "model": "sd_v1.5_f16.ckpt",
+      "resolutionDependentShift": false,
+      "sampler": 12,
+      "seedMode": 2,
+      "sharpness": 0,
+      "shift": 1,
+      "steps": 16,
+      "strength": 1,
+      "teaCache": false,
+      "tiledDecoding": false,
+      "tiledDiffusion": false,
+      "upscalerScaleFactor": 0,
+      "width": 512
+    },
+    "name": "Stable Diffusion v1.5",
+    "version": "v1"
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "batchSize": 1,
+      "clipSkip": 2,
+      "controls": [
+
+      ],
+      "guidanceScale": 5,
+      "height": 1024,
+      "hiresFix": false,
+      "loras": [
+
+      ],
+      "maskBlur": 2.5,
+      "maskBlurOutset": 0,
+      "model": "sd_xl_base_1.0_f16.ckpt",
+      "resolutionDependentShift": false,
+      "sampler": 12,
+      "seedMode": 2,
+      "sharpness": 0,
+      "shift": 1,
+      "steps": 16,
+      "strength": 1,
+      "teaCache": false,
+      "tiledDecoding": false,
+      "tiledDiffusion": false,
+      "upscalerScaleFactor": 0,
+      "width": 1024,
+      "aestheticScore": 6.0,
+      "targetImageWidth": 1024,
+      "cropLeft": 0,
+      "cropTop": 0,
+      "negativeOriginalImageHeight": 512,
+      "targetImageHeight": 1024,
+      "originalImageHeight": 1024,
+      "negativeAestheticScore": 2.5,
+      "originalImageWidth": 1024,
+      "zeroNegativePrompt": true,
+      "negativeOriginalImageWidth": 512
+    },
+    "name": "SDXL v1.0",
+    "version": "sdxl_base_v0.9"
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "batchSize": 1,
+      "clipSkip": 2,
+      "controls": [
+
+      ],
+      "guidanceEmbed": 1,
+      "guidanceScale": 6,
+      "height": 512,
+      "hiresFix": false,
+      "loras": [
+
+      ],
+      "maskBlur": 2.5,
+      "maskBlurOutset": 0,
+      "model": "skyreels_v1_hunyuan_t2v_q5p_svd.ckpt",
+      "resolutionDependentShift": false,
+      "sampler": 16,
+      "seedMode": 2,
+      "separateClipL": false,
+      "separateOpenClipG": false,
+      "sharpness": 0,
+      "shift": 7,
+      "speedUpWithGuidanceEmbed": false,
+      "steps": 30,
+      "strength": 1,
+      "teaCache": false,
+      "t5TextEncoder": true,
+      "tiledDecoding": false,
+      "tiledDiffusion": false,
+      "upscalerScaleFactor": 0,
+      "width": 960,
+      "numFrames": 97
+    },
+    "name": "SkyReels v1 Hunyuan T2V 544p",
+    "negative": "Aerial view, aerial view, overexposed, low quality, deformation, a poor composition, bad hands, bad teeth, bad eyes, bad limbs, distortion"
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "batchSize": 1,
+      "clipSkip": 2,
+      "controls": [
+
+      ],
+      "guidanceEmbed": 1,
+      "guidanceScale": 6,
+      "height": 960,
+      "hiresFix": false,
+      "loras": [
+
+      ],
+      "maskBlur": 2.5,
+      "maskBlurOutset": 0,
+      "model": "skyreels_v1_hunyuan_i2v_q5p_svd.ckpt",
+      "resolutionDependentShift": false,
+      "sampler": 16,
+      "seedMode": 2,
+      "separateClipL": false,
+      "separateOpenClipG": false,
+      "sharpness": 0,
+      "shift": 7,
+      "speedUpWithGuidanceEmbed": false,
+      "steps": 30,
+      "strength": 1,
+      "teaCache": false,
+      "t5TextEncoder": true,
+      "tiledDecoding": false,
+      "tiledDiffusion": false,
+      "upscalerScaleFactor": 0,
+      "width": 512,
+      "numFrames": 97
+    },
+    "name": "SkyReels v1 Hunyuan I2V 544p",
+    "negative": "Aerial view, aerial view, overexposed, low quality, deformation, a poor composition, bad hands, bad teeth, bad eyes, bad limbs, distortion"
+  }
+]

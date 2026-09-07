@@ -128,4 +128,5 @@ nonisolated struct GenerationMetadata: Sendable {
     let guidanceScale: Double
     let generatedDate: Date
     let metadataFields: Set<MetadataField>
+    var loras: [LoRASelection] = []
 }

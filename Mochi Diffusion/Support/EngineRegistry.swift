@@ -24,6 +24,7 @@ actor EngineRegistry {
             AnyGenerationEngine(IrisEngine()),
             AnyGenerationEngine(CoreMLStableDiffusionEngine()),
             AnyGenerationEngine(OpenAIImageEngine(secrets: secrets)),
+            AnyGenerationEngine(DrawThingsEngine(secrets: secrets)),
         ]
     }
 

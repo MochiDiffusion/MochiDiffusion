@@ -47,6 +47,7 @@ struct SDImage: Identifiable, Hashable {
     var startingImage = ""
     var controlNetImage = ""
     var inputImages: [String] = []
+    var loras: [LoRASelection] = []
     var scheduler = Scheduler.dpmSolverMultistepScheduler
     var mlComputeUnit: MLComputeUnits?
     var seed: UInt32 = 0
@@ -211,6 +212,9 @@ extension SDImage {
             // One line per image, so a filename may contain any character.
             pairs += inputImages.map { (key: Metadata.inputImages, value: $0) }
         }
+        if metadataFields.contains(.loras), let data = try? JSONEncoder().encode(loras) {
+            pairs.append((key: .loras, value: String(decoding: data, as: UTF8.self)))
+        }
         if metadataFields.contains(.scheduler) {
             pairs.append((.scheduler, scheduler.rawValue))
         }
@@ -257,6 +261,9 @@ extension SDImage {
         }
         if metadataFields.contains(.inputImages), !inputImages.isEmpty {
             append(.inputImages, value: inputImages.joined(separator: ", "))
+        }
+        if metadataFields.contains(.loras), !loras.isEmpty {
+            append(.loras, value: loras.map { "\($0.file) (\($0.weight))" }.joined(separator: ", "))
         }
         if metadataFields.contains(.prompt) {
             append(.includeInImage, value: prompt)

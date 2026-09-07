@@ -397,7 +397,8 @@ struct EngineRegistryTests {
 
         let discoveries = await registry.discoverAll(settings: settings)
 
-        #expect(Set(discoveries.map(\.engine)) == [.iris, .coreMLStableDiffusion, .openAI])
+        #expect(
+            Set(discoveries.map(\.engine)) == [.iris, .coreMLStableDiffusion, .openAI, .drawThings])
         // Two local models plus the hosted engine's one.
         #expect(discoveries.allModels.count == 3)
         #expect(discoveries.failures.isEmpty)

@@ -167,6 +167,7 @@ nonisolated func createImageRecordFromURL(_ url: URL) -> ImageRecord? {
     record.startingImage = parsed.startingImage ?? ""
     record.controlNetImage = parsed.controlNetImage ?? ""
     record.inputImages = parsed.inputImages
+    record.loras = parsed.loras
     record.scheduler = parsed.scheduler ?? .dpmSolverMultistepScheduler
     record.mlComputeUnit = parsed.mlComputeUnit
     record.seed = parsed.seed ?? 0
@@ -215,6 +216,7 @@ func createSDImage(from record: ImageRecord) -> SDImage? {
     sdi.startingImage = record.startingImage
     sdi.controlNetImage = record.controlNetImage
     sdi.inputImages = record.inputImages
+    sdi.loras = record.loras
     sdi.scheduler = record.scheduler
     sdi.mlComputeUnit = record.mlComputeUnit
     sdi.seed = record.seed

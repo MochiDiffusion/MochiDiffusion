@@ -388,7 +388,8 @@ struct EnginePickerTests {
         await controller.loadModels()
 
         // Every registered engine, which is what Settings ▸ Engines lists.
-        #expect(controller.engines.map(\.id) == [.iris, .coreMLStableDiffusion, .openAI])
+        #expect(
+            controller.engines.map(\.id) == [.iris, .coreMLStableDiffusion, .openAI, .drawThings])
         #expect(controller.engineAvailability[.iris] == .ready)
         #expect(controller.engineAvailability[.coreMLStableDiffusion] == .ready)
         // The default registry hands the hosted engine a store with nothing in it,
@@ -620,7 +621,10 @@ struct EngineRefreshTests {
 
         let refresh = await EngineRegistry().refresh(settings: settings)
 
-        #expect(refresh.discoveries.map(\.engine) == [.iris, .coreMLStableDiffusion, .openAI])
+        #expect(
+            refresh.discoveries.map(\.engine) == [
+                .iris, .coreMLStableDiffusion, .openAI, .drawThings,
+            ])
         // Sorted by name across engines, independent of completion order.
         #expect(refresh.models.map(\.name) == ["a-klein", "gpt-image-2", "z-coreml"])
     }

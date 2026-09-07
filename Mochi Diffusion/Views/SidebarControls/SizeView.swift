@@ -79,8 +79,6 @@ struct SizeView: View {
     }
 
     var body: some View {
-        @Bindable var configStore = configStore
-
         let size = controller.currentConstraints.size
 
         HStack(spacing: 12) {
@@ -91,7 +89,10 @@ struct SizeView: View {
                 )
                 if let bounds = size.bounds, let step = size.step {
                     NumericTextField(
-                        value: $configStore.width,
+                        value: Binding(
+                            get: { Int(resolvedSize.width) },
+                            set: { configStore.width = $0 }
+                        ),
                         bounds: bounds,
                         step: step
                     )
@@ -128,7 +129,10 @@ struct SizeView: View {
                 )
                 if let bounds = size.bounds, let step = size.step {
                     NumericTextField(
-                        value: $configStore.height,
+                        value: Binding(
+                            get: { Int(resolvedSize.height) },
+                            set: { configStore.height = $0 }
+                        ),
                         bounds: bounds,
                         step: step
                     )

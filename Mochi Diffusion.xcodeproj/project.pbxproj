@@ -23,6 +23,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		AA7400000000000000000001 /* DrawThingsLoRAView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA7400000000000000000002; };
 		030370312A2BECDD003D2F0C /* SDControlNet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 030370302A2BECDD003D2F0C /* SDControlNet.swift */; };
 		03061E6229AB9C06009AA2A2 /* FocusController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03061E6129AB9C06009AA2A2 /* FocusController.swift */; };
 		0307B0DA294D4AE500A9BD55 /* FileCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0307B0D9294D4AE500A9BD55 /* FileCommands.swift */; };
@@ -141,6 +142,15 @@
 		AA2000000000000000000090 /* GenerationSessionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000090 /* GenerationSessionTests.swift */; };
 		AA2000000000000000000003 /* ModelDiscoveryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000003 /* ModelDiscoveryTests.swift */; };
 		AA2000000000000000000004 /* ComputeUnitPreferenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000004 /* ComputeUnitPreferenceTests.swift */; };
+		AA7000000000000000000001 = {isa = PBXBuildFile; productRef = AA7000000000000000000002; };
+		AA7000000000000000000011 = {isa = PBXBuildFile; productRef = AA7000000000000000000012; };
+		AA7000000000000000000021 = {isa = PBXBuildFile; productRef = AA7000000000000000000022; };
+		AA7100000000000000000001 = {isa = PBXBuildFile; fileRef = AA7100000000000000000002; };
+		AA7100000000000000000011 = {isa = PBXBuildFile; fileRef = AA7100000000000000000012; };
+		AA7100000000000000000021 = {isa = PBXBuildFile; fileRef = AA7100000000000000000022; };
+		AA7100000000000000000031 = {isa = PBXBuildFile; fileRef = AA7100000000000000000032; };
+		AA7200000000000000000001 = {isa = PBXBuildFile; fileRef = AA7200000000000000000002; };
+		AA7300000000000000000001 = {isa = PBXBuildFile; fileRef = AA7300000000000000000002; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -161,6 +171,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		AA7400000000000000000002 /* DrawThingsLoRAView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrawThingsLoRAView.swift; sourceTree = "<group>"; };
 		030370302A2BECDD003D2F0C /* SDControlNet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDControlNet.swift; sourceTree = "<group>"; };
 		03061E6129AB9C06009AA2A2 /* FocusController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusController.swift; sourceTree = "<group>"; };
 		0307B0D9294D4AE500A9BD55 /* FileCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileCommands.swift; sourceTree = "<group>"; };
@@ -297,6 +308,12 @@
 		AA1000000000000000000003 /* ModelDiscoveryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelDiscoveryTests.swift; sourceTree = "<group>"; };
 		AA1000000000000000000004 /* ComputeUnitPreferenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComputeUnitPreferenceTests.swift; sourceTree = "<group>"; };
 		AA0000000000000000000002 /* Mochi DiffusionTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Mochi DiffusionTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA7100000000000000000002 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrawThingsEngine.swift; sourceTree = "<group>"; };
+		AA7100000000000000000012 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrawThingsTransport.swift; sourceTree = "<group>"; };
+		AA7100000000000000000022 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrawThingsSettingsView.swift; sourceTree = "<group>"; };
+		AA7100000000000000000032 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrawThingsPresets.swift; sourceTree = "<group>"; };
+		AA7200000000000000000002 = {isa = PBXFileReference; lastKnownFileType = text.json; path = ../Resources/DrawThingsPresets.json; sourceTree = "<group>"; };
+		AA7300000000000000000002 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrawThingsTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -307,6 +324,9 @@
 				BF3689632F2F4337006501CE /* MetalPerformanceShaders.framework in Frameworks */,
 				BF3689622F2F4329006501CE /* MetalPerformanceShadersGraph.framework in Frameworks */,
 				03ADC8B9299581AF00B2843F /* StableDiffusion in Frameworks */,
+				AA7000000000000000000001 /* DrawThingsClient in Frameworks */,
+				AA7000000000000000000011 /* GRPC in Frameworks */,
+				AA7000000000000000000021 /* NIO in Frameworks */,
 				0352E2A5294E2591003FBF25 /* Sparkle in Frameworks */,
 				0388DEB0297B00FC008B1C1C /* CompactSlider in Frameworks */,
 			);
@@ -363,6 +383,10 @@
 				AA50000000000000000002011 /* SecretStore.swift */,
 				AA5000000000000000002045 /* OpenAIEngineRuntime.swift */,
 				AA6000000000000000000011 /* OpenAICredentialCheck.swift */,
+				AA7100000000000000000002,
+				AA7100000000000000000012,
+				AA7100000000000000000032,
+				AA7200000000000000000002,
 				AA5000000000000000002043 /* OpenAIImageEngine.swift */,
 				AA5000000000000000002041 /* HTTPSession.swift */,
 				AA50000000000000000001911 /* GenerationError.swift */,
@@ -380,6 +404,7 @@
 			isa = PBXGroup;
 			children = (
 				03D280F1294FD60E00C7D184 /* PromptView.swift */,
+				AA7400000000000000000002 /* DrawThingsLoRAView.swift */,
 				0380934229AD504600EDBC8E /* InputImagesView.swift */,
 				AA1100000000000000000097 /* StartingImageView.swift */,
 				035EDFF2295A1FBF00080D18 /* NumberOfImagesView.swift */,
@@ -456,6 +481,7 @@
 				0386DF8C2950F25500CA4CEB /* GalleryToolbarView.swift */,
 				03D43B7729660A1300604911 /* GalleryView.swift */,
 				0386DF8A2950D29400CA4CEB /* InspectorView.swift */,
+				AA7100000000000000000022 /* DrawThingsSettingsView.swift */,
 				03B1ACA7295167B900302F54 /* SettingsView.swift */,
 				AA6000000000000000000021 /* APIKeySheet.swift */,
 				03EA52CD297B66C800CDF661 /* SidebarView.swift */,
@@ -535,6 +561,7 @@
 				AA50000000000000000002021 /* SecretStoreTests.swift */,
 				AA50000000000000000002051 /* OpenAIImageEngineTests.swift */,
 				AA6000000000000000000031 /* OpenAICredentialCheckTests.swift */,
+				AA7300000000000000000002,
 				AA50000000000000000002061 /* OpenAIRuntimeTests.swift */,
 				AA1000000000000000000091 /* ControlNetLinkTests.swift */,
 				AA1000000000000000000090 /* GenerationSessionTests.swift */,
@@ -564,6 +591,9 @@
 			);
 			name = "Mochi Diffusion";
 			packageProductDependencies = (
+				AA7000000000000000000002 /* DrawThingsClient */,
+				AA7000000000000000000012 /* GRPC */,
+				AA7000000000000000000022 /* NIO */,
 				0352E2A4294E2591003FBF25 /* Sparkle */,
 				0388DEAF297B00FC008B1C1C /* CompactSlider */,
 				03ADC8B8299581AF00B2843F /* StableDiffusion */,
@@ -659,6 +689,9 @@
 			);
 			mainGroup = 036BFC15294B9F7500D8AD04;
 			packageReferences = (
+				AA7000000000000000000023,
+				AA7000000000000000000013,
+				AA7000000000000000000003,
 				0352E2A3294E2591003FBF25 /* XCRemoteSwiftPackageReference "Sparkle" */,
 				0388DEAE297B00FC008B1C1C /* XCLocalSwiftPackageReference "CompactSlider" */,
 				03ADC8B7299581AF00B2843F /* XCRemoteSwiftPackageReference "ml-stable-diffusion" */,
@@ -679,6 +712,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AA7200000000000000000001,
 				036BFC29294B9F7600D8AD04 /* Preview Assets.xcassets in Resources */,
 				03F578642967CE9A003A815F /* Localizable.strings in Resources */,
 				0311C6BD2989E3EF0074BCAE /* Localizable.stringsdict in Resources */,
@@ -761,6 +795,7 @@
 				0373FF5429A9165600C0180F /* AppCommands.swift in Sources */,
 				9485F21C2CB97B53002623B7 /* FilterTextFieldView.swift in Sources */,
 				03D280F2294FD60E00C7D184 /* PromptView.swift in Sources */,
+				AA7400000000000000000001 /* DrawThingsLoRAView.swift in Sources */,
 				035EE000295A224900080D18 /* ModelView.swift in Sources */,
 				03E075792968A153003488F9 /* CircularProgressView.swift in Sources */,
 				BFE66B0E2F2AFD3700A8965C /* ConfigStore.swift in Sources */,
@@ -810,6 +845,10 @@
 				AA50000000000000000002012 /* SecretStore.swift in Sources */,
 				AA5000000000000000002046 /* OpenAIEngineRuntime.swift in Sources */,
 				AA6000000000000000000012 /* OpenAICredentialCheck.swift in Sources */,
+				AA7100000000000000000001,
+				AA7100000000000000000011,
+				AA7100000000000000000021,
+				AA7100000000000000000031,
 				AA5000000000000000002044 /* OpenAIImageEngine.swift in Sources */,
 				AA5000000000000000002042 /* HTTPSession.swift in Sources */,
 				AA50000000000000000001912 /* GenerationError.swift in Sources */,
@@ -853,6 +892,7 @@
 				AA50000000000000000002022 /* SecretStoreTests.swift in Sources */,
 				AA50000000000000000002052 /* OpenAIImageEngineTests.swift in Sources */,
 				AA6000000000000000000032 /* OpenAICredentialCheckTests.swift in Sources */,
+				AA7300000000000000000001,
 				AA50000000000000000002062 /* OpenAIRuntimeTests.swift in Sources */,
 				AA2000000000000000000091 /* ControlNetLinkTests.swift in Sources */,
 				AA2000000000000000000090 /* GenerationSessionTests.swift in Sources */,
@@ -1238,6 +1278,9 @@
 				kind = branch;
 			};
 		};
+		AA7000000000000000000003 = {isa = XCRemoteSwiftPackageReference; repositoryURL = "https://github.com/euphoriacyberware-ai/DT-gRPC-Swift-Client"; requirement = { kind = revision; revision = 2e44f4f99e742709eb90cfd96ff3fe10198421c1; }; };
+		AA7000000000000000000013 = {isa = XCRemoteSwiftPackageReference; repositoryURL = "https://github.com/grpc/grpc-swift.git"; requirement = { kind = upToNextMajorVersion; minimumVersion = 1.23.0; }; };
+		AA7000000000000000000023 = {isa = XCRemoteSwiftPackageReference; repositoryURL = "https://github.com/apple/swift-nio.git"; requirement = { kind = upToNextMajorVersion; minimumVersion = 2.65.0; }; };
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCLocalSwiftPackageReference section */
@@ -1263,6 +1306,9 @@
 			package = 03ADC8B7299581AF00B2843F /* XCRemoteSwiftPackageReference "ml-stable-diffusion" */;
 			productName = StableDiffusion;
 		};
+		AA7000000000000000000002 = {isa = XCSwiftPackageProductDependency; package = AA7000000000000000000003; productName = DrawThingsClient; };
+		AA7000000000000000000012 = {isa = XCSwiftPackageProductDependency; package = AA7000000000000000000013; productName = GRPC; };
+		AA7000000000000000000022 = {isa = XCSwiftPackageProductDependency; package = AA7000000000000000000023; productName = NIO; };
 /* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 036BFC16294B9F7500D8AD04 /* Project object */;
