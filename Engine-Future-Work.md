@@ -6,6 +6,11 @@ attached, not a plan.
 **Predecessor:** [Multi-Engine-Design.md](Multi-Engine-Design.md), closed the same day with
 Phases 0–6 delivered.
 
+**2026-09-06 prototype:** a minimal server-based Draw Things engine is now implemented.
+See [Draw-Things-Proof-of-Concept.md](Draw-Things-Proof-of-Concept.md) for setup, scope,
+validation, and build limitations. It uses the smaller DT gRPC client rather than MGK;
+the full integration and Phase 6.5 work below remain deferred.
+
 ## 0. How to use this document
 
 The multi-engine work shipped in six phases: engine-qualified identity, a per-engine
@@ -26,7 +31,7 @@ What is here:
 - **§5** is roughly four hundred lines of Draw Things / MediaGenerationKit research: license
   chain, dependency weight, the remote-catalog RPC, how its ~90-property configuration maps
   onto our constraint vocabulary, and what still has to be measured. It cost real effort and
-  none of it is in the code.
+  the prototype implements a narrow part of it; the remainder stays deferred.
 - **§6** sketches declarative long-tail options, which only Draw Things motivates.
 
 **Cross-reference convention.** §4 and §5 were moved here verbatim, so that their reasoning
@@ -356,7 +361,8 @@ actually leave them nil.
 
 ## 5. Draw Things / MediaGenerationKit
 
-**Research only; no code exists.** Moved verbatim from §13.3 of the closed record, including
+**Full integration research; a limited gRPC prototype now exists (linked above).**
+Moved verbatim from §13.3 of the closed record, including
 its build-first gate and its open unknowns. Two findings to carry in mind while reading:
 the dependency graph is a step change for this project, and the licensing conclusion was
 revised once already — read the license note at the revision you actually pin.
