@@ -660,7 +660,7 @@
 			mainGroup = 036BFC15294B9F7500D8AD04;
 			packageReferences = (
 				0352E2A3294E2591003FBF25 /* XCRemoteSwiftPackageReference "Sparkle" */,
-				0388DEAE297B00FC008B1C1C /* XCRemoteSwiftPackageReference "CompactSlider" */,
+				0388DEAE297B00FC008B1C1C /* XCLocalSwiftPackageReference "CompactSlider" */,
 				03ADC8B7299581AF00B2843F /* XCRemoteSwiftPackageReference "ml-stable-diffusion" */,
 			);
 			productRefGroup = 036BFC1F294B9F7500D8AD04 /* Products */;
@@ -1230,14 +1230,6 @@
 				minimumVersion = 2.0.0;
 			};
 		};
-		0388DEAE297B00FC008B1C1C /* XCRemoteSwiftPackageReference "CompactSlider" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/buh/CompactSlider.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.0;
-			};
-		};
 		03ADC8B7299581AF00B2843F /* XCRemoteSwiftPackageReference "ml-stable-diffusion" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/apple/ml-stable-diffusion";
@@ -1248,6 +1240,13 @@
 		};
 /* End XCRemoteSwiftPackageReference section */
 
+/* Begin XCLocalSwiftPackageReference section */
+		0388DEAE297B00FC008B1C1C /* XCLocalSwiftPackageReference "CompactSlider" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Vendor/CompactSlider;
+		};
+/* End XCLocalSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
 		0352E2A4294E2591003FBF25 /* Sparkle */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -1256,7 +1255,7 @@
 		};
 		0388DEAF297B00FC008B1C1C /* CompactSlider */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 0388DEAE297B00FC008B1C1C /* XCRemoteSwiftPackageReference "CompactSlider" */;
+			package = 0388DEAE297B00FC008B1C1C /* XCLocalSwiftPackageReference "CompactSlider" */;
 			productName = CompactSlider;
 		};
 		03ADC8B8299581AF00B2843F /* StableDiffusion */ = {
