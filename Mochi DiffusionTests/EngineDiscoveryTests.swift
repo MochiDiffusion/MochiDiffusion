@@ -361,7 +361,11 @@ struct EngineRegistryTests {
         // Both engines saw both directories and each recognised its own, which is
         // only possible if the shared enumeration reached both.
         #expect(
-            discoveries.allModels.map(\.name) == ["coreml-model", "gpt-image-2", "klein-model"])
+            discoveries.allModels.map(\.name)
+                == [
+                    "coreml-model", "gpt-image-2", "gpt-image-2.5-flare",
+                    "gpt-image-2.5-sunburst", "klein-model",
+                ])
         #expect(discoveries.failures.isEmpty)
     }
 
@@ -399,8 +403,8 @@ struct EngineRegistryTests {
 
         #expect(
             Set(discoveries.map(\.engine)) == [.iris, .coreMLStableDiffusion, .openAI, .drawThings])
-        // Two local models plus the hosted engine's one.
-        #expect(discoveries.allModels.count == 3)
+        // Two local models plus the hosted engine's three.
+        #expect(discoveries.allModels.count == 5)
         #expect(discoveries.failures.isEmpty)
     }
 
@@ -463,7 +467,12 @@ struct EngineRegistryTests {
         // One flat list ordered by name, regardless of which engine found what.
         // Case- and diacritic-insensitive, and the hosted model sorts among
         // the local ones like any other name.
-        #expect(models.map(\.name) == ["a-klein-model", "B-coreml-model", "gpt-image-2"])
+        #expect(
+            models.map(\.name)
+                == [
+                    "a-klein-model", "B-coreml-model", "gpt-image-2",
+                    "gpt-image-2.5-flare", "gpt-image-2.5-sunburst",
+                ])
     }
 
     /// Independent discovery makes duplicate names reachable, so the order of that
@@ -495,7 +504,7 @@ struct EngineRegistryTests {
 
         // Both, not one. This is what `kleinTakesPrecedenceOverCoreML` used to
         // assert the opposite of.
-        // Two local models plus the hosted engine's one.
-        #expect(models.count == 3)
+        // Two local models plus the hosted engine's three.
+        #expect(models.count == 5)
     }
 }

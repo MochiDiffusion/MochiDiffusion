@@ -322,7 +322,9 @@ struct OptionConstraintsTests {
         #expect(ImageQuality.low.rawValue == "low")
         #expect(ImageQuality.medium.rawValue == "medium")
         #expect(ImageQuality.high.rawValue == "high")
-        #expect(ImageQuality.allCases.count == 4)
+        #expect(ImageQuality.xhigh.rawValue == "xhigh")
+        #expect(ImageQuality.max.rawValue == "max")
+        #expect(ImageQuality.allCases.count == 6)
         // A label is free to be reworded or localized; an identifier is not.
         #expect(ImageQuality.auto.displayName != ImageQuality.auto.rawValue)
     }
@@ -338,6 +340,8 @@ struct OptionConstraintsTests {
             ("low", .low),
             ("medium", .medium),
             ("high", .high),
+            ("xhigh", .xhigh),
+            ("max", .max),
         ]
     )
     func recognisedQualityIsRead(recorded: String, expected: ImageQuality) {

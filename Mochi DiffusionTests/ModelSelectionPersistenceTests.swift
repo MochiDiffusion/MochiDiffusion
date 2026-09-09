@@ -338,7 +338,9 @@ struct ModelSelectionPersistenceTests {
         await controller.loadModels()
 
         // Present in the list and in the picker, saying why it cannot be used.
-        #expect(controller.models.map(\.name) == ["gpt-image-2"])
+        #expect(
+            controller.models.map(\.name)
+                == ["gpt-image-2", "gpt-image-2.5-flare", "gpt-image-2.5-sunburst"])
         #expect(
             controller.engineAvailability[.openAI]
                 == .needsConfiguration("Add an API key in Settings"))

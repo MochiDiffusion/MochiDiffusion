@@ -167,23 +167,36 @@ struct OpenAIImageEngineTests {
         let models = try await engine().discoverModels(
             ModelDiscoveryContext(settings: settings))
 
-        #expect(models.count == 1)
-        #expect(models[0].id == ModelID(engine: .init(rawValue: "openai"), key: "gpt-image-2"))
-        #expect(models[0].name == "gpt-image-2")
-        #expect(models[0].tokenizerModelDir == nil)
+        #expect(
+            models.map(\.id)
+                == [
+                    ModelID(engine: .openAI, key: "gpt-image-2"),
+                    ModelID(engine: .openAI, key: "gpt-image-2.5-flare"),
+                    ModelID(engine: .openAI, key: "gpt-image-2.5-sunburst"),
+                ])
+        #expect(
+            models.map(\.name)
+                == ["gpt-image-2", "gpt-image-2.5-flare", "gpt-image-2.5-sunburst"])
+        #expect(models.allSatisfy { $0.tokenizerModelDir == nil })
     }
 
     /// No seed: the service exposes none, so recording one would put a number in
     /// the metadata that had no effect on the image.
     @Test("The model records only what it actually has")
     func metadataFieldsAreHonest() {
-        let fields = OpenAIImageEngine.gptImage2.metadataFields
-
-        #expect(fields == [.prompt, .model, .engine, .modelKey, .size, .quality, .inputImages])
-        #expect(!fields.contains(.seed))
-        #expect(!fields.contains(.steps))
-        #expect(!fields.contains(.scheduler))
-        #expect(!fields.contains(.guidanceScale))
+        for model in [
+            OpenAIImageEngine.gptImage2,
+            OpenAIImageEngine.gptImage25Flare,
+            OpenAIImageEngine.gptImage25Sunburst,
+        ] {
+            let fields = model.metadataFields
+            #expect(
+                fields == [.prompt, .model, .engine, .modelKey, .size, .quality, .inputImages])
+            #expect(!fields.contains(.seed))
+            #expect(!fields.contains(.steps))
+            #expect(!fields.contains(.scheduler))
+            #expect(!fields.contains(.guidanceScale))
+        }
     }
 
     // MARK: - Planning
@@ -270,6 +283,19 @@ struct OpenAIImageEngineTests {
 
         #expect(plan.quality == .high)
         #expect(plan.payload.quality == .high)
+    }
+
+    @Test("GPT Image 2.5 offers its two additional quality levels")
+    func gptImage25OffersAdditionalQualities() throws {
+        for model in [OpenAIImageEngine.gptImage25Flare, OpenAIImageEngine.gptImage25Sunburst] {
+            #expect(model.constraints.quality.options == ImageQuality.allCases)
+
+            let plan = try engine().plan(draft: draft(quality: .max), model: model)
+            #expect(plan.quality == .max)
+            #expect(plan.payload.quality == .max)
+        }
+
+        #expect(OpenAIImageEngine.gptImage2.constraints.quality.resolved(.xhigh) == .auto)
     }
 
     @Test("A count above what the engine offers is brought down")

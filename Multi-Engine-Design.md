@@ -1567,12 +1567,15 @@ entitlement is required. Everything else needs work:
 
 ### 13.2 OpenAI — decided before Phase 6
 
-Researched 2026-08-27 against the live documentation, in the same spirit as the Phase 4
-decisions pass. Sources: the [image generation
+Researched 2026-08-27 and updated 2026-09-09 against the live documentation, in the same
+spirit as the Phase 4 decisions pass. Sources: the [image generation
 guide](https://developers.openai.com/api/docs/guides/image-generation), the [generation
 streaming events
 reference](https://developers.openai.com/api/reference/resources/images/generation-streaming-events),
-and the [gpt-image-2 model page](https://developers.openai.com/api/docs/models/gpt-image-2).
+the [gpt-image-2 model page](https://developers.openai.com/api/docs/models/gpt-image-2), and
+the model pages for [GPT Image 2.5
+Flare](https://developers.openai.com/api/docs/models/gpt-image-2.5-flare) and [GPT Image 2.5
+Sunburst](https://developers.openai.com/api/docs/models/gpt-image-2.5-sunburst).
 
 **Provenance caveat.** The numeric limits below were read out of the guide page by a
 summarising fetch, not transcribed from a table by hand. Treat the *shape* of each decision
@@ -1582,13 +1585,14 @@ shape, which is why they can be made now.
 
 #### Verified API surface
 
-- **Model:** `gpt-image-2` (dated alias `gpt-image-2-2026-04-21`, released 2026-04-21).
-  Earlier models — `gpt-image-1.5`, `gpt-image-1`, `gpt-image-1-mini` — still exist and had
-  narrower geometry.
+- **Models:** `gpt-image-2`, `gpt-image-2.5-flare`, and `gpt-image-2.5-sunburst`. The 2.5
+  models also have dated aliases ending in `-2026-09-08`. Earlier models —
+  `gpt-image-1.5`, `gpt-image-1`, `gpt-image-1-mini` — had narrower geometry.
 - **`size`:** an arbitrary `WIDTHxHEIGHT` string, or `auto`. Both edges multiples of 16;
   maximum edge 3840; long-edge-to-short-edge ratio at most 3:1; total pixels between
   655,360 and 8,294,400. Presets: 1024x1024, 1536x1024, 1024x1536, 2048x2048, 3840x2160.
-- **`quality`:** `low`, `medium`, `high`, `auto` (default).
+- **`quality`:** `gpt-image-2` offers `low`, `medium`, `high`, and `auto` (default). Both
+  2.5 models add `xhigh` and `max`.
 - **`output_format`:** `png` (default), `jpeg`, `webp`. `output_compression` 0–100 applies
   to jpeg and webp only.
 - **`background`:** `transparent`, `opaque`, `auto`.
@@ -1599,7 +1603,7 @@ shape, which is why they can be made now.
   `image_generation.completed` carries the final image plus a `usage` breakdown of input,
   output and total tokens. No error event is documented.
 - **Response:** base64 image data, not a URL.
-- **Image references:** one or more images go to `/v1/images/edits` as repeated multipart
+- **Image references:** all three models accept one or more images at `/v1/images/edits` as repeated multipart
   `image[]` fields. Edit streaming uses `image_edit.partial_image` and
   `image_edit.completed` events. `gpt-image-2` always processes image inputs at high
   fidelity; the current guide does not state a maximum reference count.

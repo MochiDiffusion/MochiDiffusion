@@ -149,9 +149,9 @@ Trimmed on 2026-08-28. Three items that were here are gone, resolved rather than
 
 - **Localization of the generation status messages** — out of scope for this work; owned
   elsewhere. Marked declined in the closed record rather than carried.
-- **The gpt-image-2 constraint numbers** — accepted as correct. They were read from the
-  image generation guide, and `OpenAIImageEngine.gptImage2` already carries the date and the
-  derivation of the one value that is computed rather than quoted.
+- **The GPT Image 2/2.5 constraint numbers** — accepted as correct. They were read from the
+  image generation guide, and `OpenAIImageEngine` carries the date and the derivation of the
+  one value that is computed rather than quoted.
 - **`OpenAIEngineRuntime`'s unused `logger`** — removed, with a comment recording why the
   runtime has no logging at all: everything it handles is the API key or derived from a
   response authenticated with it, and `GenerationService` already logs the sanitized

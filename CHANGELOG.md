@@ -1,5 +1,7 @@
 # Unreleased
 
+- Added GPT Image 2.5 Flare and Sunburst to the OpenAI engine
+  - Both models support Extra High and Maximum quality in addition to the existing quality choices
 - Added support for several input images at once
   - FLUX.2 Klein models accept up to four reference images
   - The sidebar keeps every image you chose when you switch to a model that takes fewer, and marks the ones that will not be used

@@ -17,6 +17,8 @@ nonisolated enum ImageQuality: String, CaseIterable, Sendable, Identifiable {
     case low
     case medium
     case high
+    case xhigh
+    case max
 
     var id: String { rawValue }
 
@@ -41,6 +43,10 @@ nonisolated enum ImageQuality: String, CaseIterable, Sendable, Identifiable {
             return String(localized: "Medium", comment: "Image quality")
         case .high:
             return String(localized: "High", comment: "Image quality")
+        case .xhigh:
+            return String(localized: "Extra High", comment: "Image quality")
+        case .max:
+            return String(localized: "Maximum", comment: "Image quality")
         }
     }
 }

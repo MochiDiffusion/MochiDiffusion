@@ -68,15 +68,15 @@ nonisolated struct OpenAIImageEngine: GenerationEngineDescriptor {
     /// A hand-maintained list. `/v1/models` returns everything the account can see
     /// and does not mark which models generate images, so it cannot drive a picker.
     ///
-    /// One entry, because every model here needs its own verified constraints: a
-    /// wrong `SizeConstraint` produces requests the service rejects, or silently
-    /// corrects sizes the user could have had. Add models by reading the current
-    /// documentation, not by pattern-matching this one.
+    /// Every entry has verified constraints: a wrong `SizeConstraint` produces
+    /// requests the service rejects, or silently corrects sizes the user could
+    /// have had. Add models by reading the current documentation, not by
+    /// pattern-matching an existing entry.
     ///
     /// Ignores the models folder entirely, so an unreadable local directory
     /// cannot make this engine look broken.
     func discoverModels(_ context: ModelDiscoveryContext) async throws -> [OpenAIImageModel] {
-        [Self.gptImage2]
+        [Self.gptImage2, Self.gptImage25Flare, Self.gptImage25Sunburst]
     }
 
     func plan(draft: GenerationDraft, model: OpenAIImageModel) throws
@@ -140,7 +140,8 @@ nonisolated extension OpenAIImageEngine {
     /// claiming Mochi can safely ingest an arbitrary selection.
     static let maxInputImages = 16
 
-    /// Limits read from the image generation guide on 2026-08-27.
+    /// Limits read from the image generation guide on 2026-09-09. GPT Image 2
+    /// and both GPT Image 2.5 variants share this geometry.
     ///
     /// The per-dimension floor is derived rather than quoted: the guide gives a
     /// total-pixel minimum and a 3:1 ratio cap but no per-edge minimum, and the
@@ -148,41 +149,65 @@ nonisolated extension OpenAIImageEngine {
     /// exactly three times it — `3s² >= 655_360`, so `s >= 468`, which is 480 on
     /// the 16px grid. A floor of 512 would have excluded legal sizes like
     /// 480x1440.
-    static let gptImage2 = OpenAIImageModel(
-        id: ModelID(engine: OpenAIImageEngine.id, key: "gpt-image-2"),
-        name: "gpt-image-2",
-        constraints: OptionConstraints(
-            supportsNegativePrompt: false,
-            size: .freeform(
-                range: 480...3_840,
-                step: 16,
-                limits: SizeLimits(
-                    maxAspectRatio: 3,
-                    pixelBounds: 655_360...8_294_400
-                )
+    private static func imageModel(
+        apiName: String,
+        qualities: [ImageQuality]
+    ) -> OpenAIImageModel {
+        OpenAIImageModel(
+            id: ModelID(engine: OpenAIImageEngine.id, key: apiName),
+            name: apiName,
+            constraints: OptionConstraints(
+                supportsNegativePrompt: false,
+                size: .freeform(
+                    range: 480...3_840,
+                    step: 16,
+                    limits: SizeLimits(
+                        maxAspectRatio: 3,
+                        pixelBounds: 655_360...8_294_400
+                    )
+                ),
+                steps: .unsupported,
+                guidanceScale: .unsupported,
+                scheduler: .unsupported,
+                startingImage: .unsupported,
+                inputImages: .supported(maxCount: maxInputImages),
+                controlNet: .unsupported,
+                quality: .oneOf(qualities),
+                // Ours to choose, not the API's: one request is sent per image,
+                // so this bounds our own loop. Tighter than the local engines'
+                // 1...100, with no room above it, because every image here is
+                // billed.
+                numberOfImages: .range(1...10, step: 1),
+                promptTokenLimit: nil
             ),
-            steps: .unsupported,
-            guidanceScale: .unsupported,
-            scheduler: .unsupported,
-            startingImage: .unsupported,
-            inputImages: .supported(maxCount: maxInputImages),
-            controlNet: .unsupported,
-            quality: .oneOf([.auto, .low, .medium, .high]),
-            // Ours to choose, not the API's: one request is sent per image, so this
-            // bounds our own loop. Tighter than the local engines' 1...100, with no
-            // room above it, because every image here is billed.
-            numberOfImages: .range(1...10, step: 1),
-            promptTokenLimit: nil
-        ),
-        // No `.seed`: the service exposes no seed, so recording one would put a
-        // number in the metadata that had no effect on the image. A seed is still
-        // generated for the output filename, which is all it is used for here.
-        //
-        // No `.revisedPrompt` either. The API may return a revision, but that is
-        // documented on the Responses API image tool rather than this endpoint,
-        // and an unverified metadata key is a permanent export contract for a
-        // guess.
-        metadataFields: [.prompt, .model, .engine, .modelKey, .size, .quality, .inputImages]
+            // No `.seed`: the service exposes no seed, so recording one would put
+            // a number in the metadata that had no effect on the image. A seed is
+            // still generated for the output filename, which is all it is used
+            // for here.
+            //
+            // No `.revisedPrompt` either. The API may return a revision, but that
+            // is documented on the Responses API image tool rather than this
+            // endpoint, and an unverified metadata key is a permanent export
+            // contract for a guess.
+            metadataFields: [
+                .prompt, .model, .engine, .modelKey, .size, .quality, .inputImages,
+            ]
+        )
+    }
+
+    static let gptImage2 = imageModel(
+        apiName: "gpt-image-2",
+        qualities: [.auto, .low, .medium, .high]
+    )
+
+    static let gptImage25Flare = imageModel(
+        apiName: "gpt-image-2.5-flare",
+        qualities: [.auto, .low, .medium, .high, .xhigh, .max]
+    )
+
+    static let gptImage25Sunburst = imageModel(
+        apiName: "gpt-image-2.5-sunburst",
+        qualities: [.auto, .low, .medium, .high, .xhigh, .max]
     )
 }
 

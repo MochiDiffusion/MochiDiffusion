@@ -277,8 +277,8 @@ struct EnginePickerTests {
         let controller = makeController()
         await controller.loadModels()
 
-        // Two local models plus the hosted engine's one.
-        #expect(controller.models.count == 3)
+        // Two local models plus the hosted engine's three.
+        #expect(controller.models.count == 5)
         // Scoped to the selected engine, so the hosted model is not among them.
         #expect(controller.visibleModels.map(\.name) == ["a-coreml"])
 
@@ -626,7 +626,12 @@ struct EngineRefreshTests {
                 .iris, .coreMLStableDiffusion, .openAI, .drawThings,
             ])
         // Sorted by name across engines, independent of completion order.
-        #expect(refresh.models.map(\.name) == ["a-klein", "gpt-image-2", "z-coreml"])
+        #expect(
+            refresh.models.map(\.name)
+                == [
+                    "a-klein", "gpt-image-2", "gpt-image-2.5-flare",
+                    "gpt-image-2.5-sunburst", "z-coreml",
+                ])
     }
 
     @Test("Availability and models arrive from the same pass")
@@ -637,7 +642,12 @@ struct EngineRefreshTests {
 
         #expect(refresh.availability[.coreMLStableDiffusion] == .ready)
         #expect(refresh.availability[.iris] == .ready)
-        #expect(refresh.models.map(\.name) == ["a-coreml", "gpt-image-2"])
+        #expect(
+            refresh.models.map(\.name)
+                == [
+                    "a-coreml", "gpt-image-2", "gpt-image-2.5-flare",
+                    "gpt-image-2.5-sunburst",
+                ])
         #expect(refresh.failures.isEmpty)
     }
 }

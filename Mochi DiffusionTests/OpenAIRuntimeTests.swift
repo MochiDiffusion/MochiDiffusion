@@ -31,14 +31,15 @@ struct OpenAIRuntimeTests {
         previews: Bool = false,
         quality: ImageQuality = .auto,
         inputImageData: [Data] = [],
-        inputImageNames: [String] = []
+        inputImageNames: [String] = [],
+        apiModel: String = "gpt-image-2"
     ) -> GenerationRequest {
         GenerationRequest(
-            modelID: ModelID(engine: OpenAIImageEngine.id, key: "gpt-image-2"),
-            displayName: "gpt-image-2",
+            modelID: ModelID(engine: OpenAIImageEngine.id, key: apiModel),
+            displayName: apiModel,
             metadataFields: OpenAIImageEngine.gptImage2.metadataFields,
             payload: OpenAIGenerationPayload(
-                apiModel: "gpt-image-2",
+                apiModel: apiModel,
                 size: CGSize(width: 1_024, height: 1_024),
                 quality: quality,
                 wantsPreviews: previews
@@ -281,6 +282,23 @@ struct OpenAIRuntimeTests {
         #expect(!body.keys.contains("api_key"))
         let authorization = http.lastRequest?.value(forHTTPHeaderField: "Authorization")
         #expect(authorization == "Bearer sk-test")
+    }
+
+    @Test(
+        "GPT Image 2.5 model names and qualities reach the API",
+        arguments: ["gpt-image-2.5-flare", "gpt-image-2.5-sunburst"]
+    )
+    func gptImage25ModelNamesReachAPI(apiModel: String) async throws {
+        let http = FakeHTTPSession(body: [completed])
+
+        try await runtime(session: http).run(
+            request: request(quality: .max, apiModel: apiModel),
+            session: GenerationSession(requestID: UUID()),
+            onResult: { _ in }
+        )
+
+        #expect(http.lastRequestBody?["model"] as? String == apiModel)
+        #expect(http.lastRequestBody?["quality"] as? String == "max")
     }
 
     @Test("References use the multipart edits endpoint and retain metadata names")
