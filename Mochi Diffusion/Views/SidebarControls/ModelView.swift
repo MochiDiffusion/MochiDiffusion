@@ -7,6 +7,7 @@
 
 import AppKit
 import CoreML
+import FilterablePicker
 import SwiftUI
 
 struct ModelView: View {
@@ -19,12 +20,12 @@ struct ModelView: View {
         Text("Model")
             .sidebarLabelFormat()
         HStack {
-            Picker("", selection: $controller.currentModelId) {
-                ForEach(controller.visibleModels, id: \.id) { model in
-                    Text(verbatim: model.name).tag(Optional(model.id))
-                }
-            }
-            .labelsHidden()
+            FilterablePicker(
+                String(localized: "Model"),
+                selection: $controller.currentModelId,
+                items: pickerModels,
+                title: \.name
+            )
 
             Button {
                 NSWorkspace.shared.open(URL(fileURLWithPath: configStore.modelDir))
@@ -34,4 +35,13 @@ struct ModelView: View {
             .help("Show models in Finder")
         }
     }
+
+    private var pickerModels: [PickerModel] {
+        controller.visibleModels.map { PickerModel(id: $0.id, name: $0.name) }
+    }
+}
+
+private struct PickerModel: Identifiable {
+    let id: ModelID?
+    let name: String
 }

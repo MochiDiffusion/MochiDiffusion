@@ -1,3 +1,4 @@
+import FilterablePicker
 import SwiftUI
 
 struct DrawThingsLoRAView: View {
@@ -9,20 +10,13 @@ struct DrawThingsLoRAView: View {
                 HStack {
                     Text("LoRAs").sidebarLabelFormat()
                     Spacer()
-                    Menu("Add LoRA") {
-                        ForEach(
-                            model.loras.filter { lora in
-                                !controller.drawThingsLoRAs.contains { $0.file == lora.file }
-                            }
-                        ) { lora in
-                            Button(lora.name) {
-                                controller.drawThingsLoRAs.append(
-                                    LoRASelection(file: lora.file, weight: lora.defaultWeight)
-                                )
-                            }
-                        }
-                    }
-                    .disabled(model.loras.count == controller.drawThingsLoRAs.count)
+                    FilterablePicker(
+                        String(localized: "Add LoRA"),
+                        selection: loraSelection(for: model),
+                        items: availableLoRAs(in: model),
+                        title: \.name
+                    )
+                    .frame(maxWidth: 160)
                 }
                 if model.loras.isEmpty {
                     Text("No compatible LoRAs published by this server.")
@@ -66,6 +60,28 @@ struct DrawThingsLoRAView: View {
             }
             Spacer().frame(height: 6)
         }
+    }
+
+    private func availableLoRAs(in model: DrawThingsModel) -> [DrawThingsLoRA] {
+        model.loras.filter { lora in
+            !controller.drawThingsLoRAs.contains { $0.file == lora.file }
+        }
+    }
+
+    /// The empty filename is not a real LoRA ID, so it leaves the add control
+    /// showing its label after each choice while the chosen LoRA moves below.
+    private func loraSelection(for model: DrawThingsModel) -> Binding<String> {
+        Binding(
+            get: { "" },
+            set: { file in
+                guard let lora = availableLoRAs(in: model).first(where: { $0.file == file }) else {
+                    return
+                }
+                controller.drawThingsLoRAs.append(
+                    LoRASelection(file: lora.file, weight: lora.defaultWeight)
+                )
+            }
+        )
     }
 
     private func weight(for lora: DrawThingsLoRA) -> Binding<Float> {
