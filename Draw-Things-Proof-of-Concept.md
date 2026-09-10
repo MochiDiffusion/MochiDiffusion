@@ -1,5 +1,13 @@
 # Draw Things proof of concept
 
+**Deferred from the next release, 2026-09-10.** Graham has postponed Draw Things because
+the prototype's supported paths do not yet establish the desired level of polish across
+edge cases. This document preserves setup, scope and evidence for that future work; it is
+not a release promise or a task list. Beads task `MochiDiffusion-fwu` covers preserving the
+prototype on a feature branch and removing its integration and exclusive dependencies from
+the release line. The code is still present pending that separation. Broader implementation
+work resumes only when Graham chooses; there is no target date.
+
 Implemented September 6, 2026. One **Draw Things** engine connects to the Draw Things
 application or a compatible standalone gRPC server, on this Mac or another LAN machine.
 It lists supported installed models and compatible LoRAs, accepts a prompt, seed and size, requests one still image,

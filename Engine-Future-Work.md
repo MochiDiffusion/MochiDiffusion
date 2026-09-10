@@ -1,201 +1,76 @@
-# Engine Work: Deferred and Future
+# Engine Research and Deferred Decisions
 
-**Status:** open, and nothing here is scheduled. This is a parking lot with reasoning
-attached, not a plan.
-**Created:** 2026-08-28
-**Predecessor:** [Multi-Engine-Design.md](Multi-Engine-Design.md), closed the same day with
-Phases 0–6 delivered.
+**Status: deferred research, reviewed 2026-09-10.** Nothing here is scheduled.
+The next release is tracked by Beads epic `MochiDiffusion-q73`; current architecture
+and scope live in [AGENTS.md](AGENTS.md). This file preserves reasoning that may be
+useful when Graham chooses to return to a feature. It is not a parallel backlog.
 
-**2026-09-06 prototype:** a minimal server-based Draw Things engine is now implemented.
-See [Draw-Things-Proof-of-Concept.md](Draw-Things-Proof-of-Concept.md) for setup, scope,
-validation, and build limitations. It uses the smaller DT gRPC client rather than MGK;
-the full integration and Phase 6.5 work below remain deferred.
+Draw Things is postponed in its entirety for this release, including the current
+gRPC prototype. [Draw-Things-Proof-of-Concept.md](Draw-Things-Proof-of-Concept.md)
+records its scope and validation. Beads task `MochiDiffusion-fwu` owns preserving
+that work on a feature branch and excluding its integration and exclusive dependencies
+from the release. This separation has not happened yet.
 
-## 0. How to use this document
+Musubi interoperability is also postponed. Epic `MochiDiffusion-e4v` and its unfinished
+children are deferred without a resume date. Its completed wire-contract spike and
+`Docs/MetadataWireContract.md` in the Musubi repository describe the later metadata
+direction. The release retains Mochi's existing codec and does not depend on that work.
 
-The multi-engine work shipped in six phases: engine-qualified identity, a per-engine
-descriptor and runtime, per-model option constraints driving the sidebar, an engine picker
-with per-engine settings, and a first hosted engine (OpenAI). That work is done and its
-record is closed. This document carries forward only what a future session would otherwise
-have to rediscover.
+## 0. Reading this research
 
-What is here:
+The multi-engine foundation was implemented on develop through phases 0–6; it has not
+yet been released as a whole. [Multi-Engine-Design.md](Multi-Engine-Design.md) is the
+closed historical record. Historical verification counts there and in the prototype
+record apply only to the revisions tested, not to today's release readiness.
 
-- **§1–2** orient a session that has never seen this codebase: the shape the engine layer
-  settled into, the invariants that hold it together, and what adding an engine actually
-  involves.
-- **§3** holds the one deferred item worth keeping — per-engine concurrency — plus two
-  standing warnings about code that looks wrong and is not.
-- **§4** specifies a change that was designed and deliberately not made (Phase 6.5). It is
-  a prerequisite for §5.
-- **§5** is roughly four hundred lines of Draw Things / MediaGenerationKit research: license
-  chain, dependency weight, the remote-catalog RPC, how its ~90-property configuration maps
-  onto our constraint vocabulary, and what still has to be measured. It cost real effort and
-  the prototype implements a narrow part of it; the remainder stays deferred.
-- **§6** sketches declarative long-tail options, which only Draw Things motivates.
+Sections 4–5 retain the earlier design/research, including alternatives and unresolved
+questions. Their imperative wording describes proposals at the time, not instructions to
+start implementation now. Section 4 must be reconciled with the later Musubi contract
+when metadata work resumes; it is not a second independent migration plan. Section 5
+mostly examines MGK, while the actual prototype uses a smaller gRPC client.
 
-**Cross-reference convention.** §4 and §5 were moved here verbatim, so that their reasoning
-is preserved exactly rather than paraphrased. Bare section references inside them — "§6",
-"§9.3", "§13.1", "D4" — point into
-[Multi-Engine-Design.md](Multi-Engine-Design.md), not into this document. References to
-sections of *this* document are written as "§5 of this document".
+**Cross-reference convention.** In the retained sections 4–5, bare references such as
+“§6”, “§9.3”, “§13.1” and “D4” point into
+[Multi-Engine-Design.md](Multi-Engine-Design.md). References to sections of this file
+say “of this document.” Numbering is retained to keep existing links intelligible.
 
-**Verification, unchanged from the closed record:**
+## 1. Current architecture
 
-```bash
-xcodebuild test -project "Mochi Diffusion.xcodeproj" -scheme "Mochi Diffusion" -destination "platform=macOS" -configuration Debug
-```
-
-```bash
-swift format lint -p -r ./
-```
-
-Both must be clean before anything merges. At close: 502 test-case executions, 0 failures,
-no compiler warnings. `AGENTS.md` describes the architecture as shipped and is current;
-read it before this document.
-
-## 1. Where the code stands
-
-### The pipeline, end to end
-
-The sidebar's live values become a `GenerationDraft`. The selected model's engine turns that
-draft into a `GenerationPlan<Payload>` — synchronously, resolving every option against the
-model's `OptionConstraints`. The plan is widened once by `erased()` into a
-`GenerationRequest` carrying resolved values plus an opaque `payload`, which
-`GenerationService` queues. At dequeue the engine's runtime runs it against a
-`GenerationSession` that owns cancellation and a bounded event stream. Results go to
-`ImageRepository`, then to the gallery with a per-image metadata field set.
-
-| Concern | Type | File |
-|---|---|---|
-| Identity | `EngineID`, `ModelID` | `Model/EngineIdentity.swift` |
-| Model facts | `EngineModel` | `Model/EngineModel.swift` |
-| Option limits | `OptionConstraints`, `SizeConstraint`, `IntConstraint`, `DoubleConstraint`, `ChoiceConstraint`, `SizeLimits` | `Model/OptionConstraints.swift` |
-| Engine, immutable half | `GenerationEngineDescriptor`, `AnyGenerationEngine` | `Support/GenerationEngine.swift` |
-| Engine, stateful half | `GenerationEngineRuntime` | `Support/GenerationEngine.swift` |
-| Per-request state | `GenerationSession`, `GenerationEvent` | `Support/GenerationSession.swift` |
-| Registry and discovery | `EngineRegistry` | `Support/EngineRegistry.swift` |
-| Queue | `GenerationService` | `Support/GenerationService.swift` |
-| Engines | `CoreMLStableDiffusionEngine`, `IrisEngine`, `OpenAIImageEngine` | `Support/LocalEngines.swift`, `Support/OpenAIImageEngine.swift` |
-| Runtimes | `CoreMLEngineRuntime`, `IrisEngineRuntime`, `OpenAIEngineRuntime` | same-named files |
-| Persistence | `ConfigStore` (global), `EngineSettingsStore` (per-engine) | `Support/` |
-| Credentials | `SecretStore`, `KeychainSecretStore` | `Support/SecretStore.swift` |
-| Metadata | `MetadataCodec` | `Support/MetadataCodec.swift` |
-
-### Invariants
-
-These are not style preferences. Each one was arrived at by breaking it first, and several
-have a test whose only job is to keep it true.
-
-1. **Engines never consult each other.** Each applies its own recognition rules to its own
-   source. Two engines may return the same directory; `ModelID` carries `EngineID`, so both
-   stay distinct. There is no ownership arbitration and no sniffer precedence anywhere.
-   Registration order is presentation order and nothing else.
-2. **`plan` is the sole resolution point**, and is synchronous, deterministic and
-   side-effect free. No network, no pipeline loading, no cache mutation.
-3. **Nothing after `plan` renegotiates a value.** Metadata is written from resolved values.
-   A runtime that substitutes its own number reintroduces the bug where the sidebar showed
-   one thing and the image recorded another.
-4. **The queue never looks inside `payload`.** `AnyGenerationEngine.accepts(payload:)` is
-   checked at enqueue, before the request is dequeued and published, because the queue
-   cannot un-publish it.
-5. **Discovery is per-engine and failure-isolated.** One engine's missing folder or absent
-   key must never empty another engine's model list.
-6. **No `@unchecked Sendable` justified by an external serialization assumption.** The two
-   that remain — `GenerationSession`, `IrisCallbackRouter` — are guarded by their own locks.
-   They are correct; do not "fix" them into actors (see §3).
-7. **Cancellation is request-scoped and synchronously readable** from a C or progress
-   callback. A runtime blocked inside a synchronous generate call cannot accept an
-   actor-isolated `cancel`, which is why the flag lives on the session.
-8. **Events are lossy; results are not.** Progress, phase and preview share one bounded
-   stream and one stale-delivery checkpoint. A result applies back-pressure and can throw.
-9. **Credentials never enter a payload, a log, or image metadata.** The runtime reads the
-   key at run time from a `SecretStore`.
-10. **Metadata is additive and lenient.** New keys are safe, unknown keys are skipped,
-    malformed input never traps, and an unrecognised *value* is never silently defaulted to
-    a known one.
+The duplicated architecture inventory has moved to [AGENTS.md](AGENTS.md).
+Use that orientation and the code for current ownership, engine registration, constraints,
+gallery loading, credentials and metadata. This research does not define runtime behavior.
 
 ## 2. Adding an engine
 
-In dependency order. Nothing here requires touching `GenerationService`, the queue, or any
-other engine — if it does, something has drifted from §1.
+No additional engine is required for the agreed release. The existing descriptor,
+planner, runtime and registry boundaries are documented in [AGENTS.md](AGENTS.md).
+When work resumes, create concrete tasks in Beads from the chosen product scope and
+then-current implementation; there is no standing checklist to complete here.
 
-1. **`EngineID` constant** in `Model/EngineIdentity.swift`. Persisted, so never rename a
-   shipped raw value.
-2. **A model type** conforming to `EngineModel`: `id`, `name`, `constraints`,
-   `metadataFields`, `tokenizerModelDir`. There is deliberately no `url` — hosted models
-   have no path.
-3. **`OptionConstraints`** for each model. Declare `.unsupported` for anything the engine
-   cannot honour; do not invent a plausible value. Unsupported hides the control, pinned
-   shows it disabled, editable is validated in `plan`.
-4. **A payload struct**, `Sendable`, carrying what the runtime needs and no credentials.
-5. **A descriptor** conforming to `GenerationEngineDescriptor`: `availability`,
-   `discoverModels`, `plan`, `makeRuntime`. `availability` runs on every discovery pass, so
-   it must be cheap and must not read a secret.
-6. **A runtime** conforming to `GenerationEngineRuntime`. Override `idleTimeout(for:)` if it
-   can hang — anything over a network can — and `cancellationMayLeaveWorkBilled` if
-   stopping does not stop the charge.
-7. **Register it** in `EngineRegistry.defaultEngines`.
-8. **Settings** section if it needs configuration, and a `SecretStore` account keyed on the
-   engine id if it needs a credential.
-9. **Tests**: discovery, `plan` resolution including clamping, payload ownership,
-   availability states. Fakes only — nothing in the suite may touch the network or the real
-   Keychain.
-10. **`CHANGELOG.md`** under `# Unreleased` if any of it is user-visible.
+## 3. Concurrency design note
 
-## 3. Deferred work and standing notes
+The queue is deliberately globally serial. A hosted request can hold local jobs behind it;
+runtime-specific timeout and cancellation policies bound failures but do not provide
+parallel execution. There is no universal 60-second timeout.
 
-Trimmed on 2026-08-28. Three items that were here are gone, resolved rather than deferred:
-
-- **Localization of the generation status messages** — out of scope for this work; owned
-  elsewhere. Marked declined in the closed record rather than carried.
-- **The GPT Image 2/2.5 constraint numbers** — accepted as correct. They were read from the
-  image generation guide, and `OpenAIImageEngine` carries the date and the derivation of the
-  one value that is computed rather than quoted.
-- **`OpenAIEngineRuntime`'s unused `logger`** — removed, with a comment recording why the
-  runtime has no logging at all: everything it handles is the API key or derived from a
-  response authenticated with it, and `GenerationService` already logs the sanitized
-  `GenerationError`.
-
-What remains is one piece of real work and two warnings.
-
-### Per-engine concurrency
-
-Moved from §11.7 of the closed record. The queue is globally serial, which is correct while
-one engine at a time is the common case. If concurrency is added, model it as runtime
-capacity rather than baking lanes into the registry protocol:
-
-- **Iris local:** one session, because the C library's callback slots and cancel flag are
-  per process. `IrisSingleFlight` already enforces this and is the pattern to copy.
-- **Core ML:** one session until pipeline thread-safety is established.
-- **OpenAI:** possibly several, subject to cancellation, cost and rate limits.
-- **MediaGenerationKit:** determine from documented guarantees and observed behaviour.
-
-The motivating complaint is that a hosted request holds the serial queue for its whole
-duration, so local jobs queue behind a network call. The idle watchdog bounds that at 60s of
-silence, so it is bounded rather than unbounded — which is why this stayed deferred.
-
-### Two things that look like bugs and are not
-
-Recorded so a future session does not "fix" them:
-
-- **`GenerationSession` and `IrisCallbackRouter` are `@unchecked Sendable`.** Both guard
-  every mutable field with their own lock. Converting either to an actor breaks cancellation:
-  a runtime blocked inside a synchronous generate call cannot accept an actor-isolated call,
-  and the Iris C callbacks are synchronous with nothing to await into.
-- **`EngineSettings.controlNetDirectory` is handed to every engine, including Iris, which
-  ignores it.** One shared models folder is a settled decision (§7), so there is no
-  per-engine path to scope it to. It is global by design.
+If concurrent execution becomes worth pursuing, model capacity at each runtime rather
+than baking lanes into the registry. Iris's process-wide C state still requires one lease
+(`IrisSingleFlight`); Core ML needs pipeline thread-safety evidence before allowing overlap.
+Hosted capacity would need cancellation, cost and rate-limit behavior considered together.
+This is a design constraint, not a next-release task.
 
 ## 4. Phase 6.5 — metadata fields resolved, not declared
 
-**Designed, deliberately not built.** Moved verbatim from §6.5 of the closed record. Not a
-prerequisite for anything shipped; a prerequisite for all of §5 of this document.
+**Historical design, not implemented as specified.** Retained from §6.5 of the closed
+record. The limited Draw Things prototype introduced no new sampler vocabulary and omitted
+sampler metadata; it therefore did not require this entire proposal. Both broader Draw
+Things work and Musubi are now postponed. When metadata work resumes, the later Musubi
+epic and wire contract own the implementation plan; reconcile the reasoning below with
+them instead of executing two migrations.
 
-**Not yet true.** This section specifies a change that has not been made. It is scoped as
-Phase 6.5 in §10 — deliberately after the OpenAI engine rather than inside it, because it
-alters `EngineModel` and `GenerationPlan` and Phase 6 is in flight. Nothing here is a
-prerequisite for OpenAI. All of it is a prerequisite for Draw Things (§13.3).
+**Original context, August 2026.** This proposal followed the OpenAI implementation and
+anticipated the broader catalog-driven Draw Things integration. The reasoning below is
+retained in that context, including descriptions of the code at the time.
 
 ### The problem Draw Things creates
 
@@ -774,19 +649,16 @@ localized labels.
 It is the wrong shape for the ~90-property surface §5 documents. The intended answer is a
 declarative `[OptionSpec]` bag alongside the typed fields, rendered by a generic form, with
 values in an `[OptionID: OptionValue]` dictionary persisted under
-`Engine.<id>.Options` — the key `EngineSettingsStore` already reserves and nothing writes.
+`Engine.<id>.Options`. That storage slot now holds the prototype's connection settings;
+it is not yet a general declarative option editor.
 
 Deliberately not the starting point. A fully declarative sidebar would cost the bespoke
 controls and straightforward localization, and no engine needed it until Draw Things. Add it
 when a concrete engine demonstrates the need, and keep the shared core typed.
 
-## 7. What is deliberately not here
+## 7. Planning boundary
 
-- **The closed record itself.** [Multi-Engine-Design.md](Multi-Engine-Design.md) keeps the
-  full history: what each phase built, where implementations deviated from the design and
-  why, two independent review triages with severity disagreements, and the decisions that
-  were reversed. Read it when you need to know *why* something is the way it is. This
-  document is only what is left to do.
-- **Anything shipped.** `AGENTS.md` describes the architecture as it exists.
-- **Estimates.** None of this is scheduled, and the closed record's §11.8 explains why no
-  day figures appear in either document.
+Concrete task status, acceptance criteria and dependencies live in Beads. This research
+adds no release obligations or schedule. Do not recreate abandoned Iris LoRA work or turn
+every unresolved research question into a ticket. Keep relevant reasoning here and choose
+implementation work only when Graham returns to it.

@@ -5,16 +5,21 @@ record of the multi-engine work — what was built, where implementations deviat
 design and why, which review findings were accepted and which were declined, and which
 decisions were later reversed. It is no longer updated.
 
-**Future work moved to [Engine-Future-Work.md](Engine-Future-Work.md):** Phase 6.5 (§6.5
-here), Draw Things / MediaGenerationKit (§13.3 here), declarative long-tail options, and the
-deferred polish list. Start there; come back here for the reasoning behind anything that
-already exists.
+**Current guidance:** start with [AGENTS.md](AGENTS.md) for the architecture and agreed
+release scope. Beads epic `MochiDiffusion-q73` owns the next-release work list. Draw Things
+and Musubi are explicitly postponed; closed phases or historical beads do not create new
+carry-over obligations.
+
+**Deferred research:** [Engine-Future-Work.md](Engine-Future-Work.md) preserves Phase 6.5,
+Draw Things / MediaGenerationKit and long-tail-option reasoning. It is not a release plan.
+The later Musubi epic owns metadata integration decisions when that work resumes.
 
 **Final revision:** 2026-08-28. Sections that were still forward-looking at close — §6.5 and
 §13.3 — are stubs pointing to their new home; every other section describes work that exists.
 
-**Reading this document.** Sections 1–9 and 11–15 describe the design as delivered. §10's
-phase table is the status of record. Where a section describes what was built, it says so.
+**Reading this document.** Sections 1–9 and 11–15 describe the design at close. §10's
+phase table records that historical milestone, not current release readiness.
+Where a section describes what was built, it says so.
 Where an earlier claim turned out wrong, the correction is inline rather than by deletion, so
 the reasoning stays reviewable — §14 and §15 record two independent review passes, including
 findings that were declined and why, and severity calls that disagreed with the reviewer.
@@ -67,7 +72,7 @@ and only really earns its keep in Phase 5.
 
 More of the seam is in place than a first read suggests:
 
-- `MochiModelConfig` ([Model/MochiModel.swift](Mochi%20Diffusion/Model/MochiModel.swift))
+- `MochiModelConfig` ([Model/MochiModel.swift at the pre-refactor revision](https://github.com/MochiDiffusion/MochiDiffusion/blob/e686551ee06cf0d9fc788d59f9282f9dea5e6dbd/Mochi%20Diffusion/Model/MochiModel.swift))
   already pairs capabilities with a per-model `metadataFields` set.
 - `MetadataField` already lets each model declare its own metadata contract, and the
   import path tracks "what was actually present" separately, so generated and imported
@@ -1170,8 +1175,8 @@ Two things the plan did not anticipate:
 ### 11.3 `@unchecked Sendable` policy (satisfied)
 
 The two generator conformances
-([Support/SDImageGenerator.swift](Mochi%20Diffusion/Support/SDImageGenerator.swift),
-[Support/IrisFluxKleinImageGenerator.swift](Mochi%20Diffusion/Support/IrisFluxKleinImageGenerator.swift))
+([Support/SDImageGenerator.swift at the pre-refactor revision](https://github.com/MochiDiffusion/MochiDiffusion/blob/e686551ee06cf0d9fc788d59f9282f9dea5e6dbd/Mochi%20Diffusion/Support/SDImageGenerator.swift),
+[Support/IrisFluxKleinImageGenerator.swift at the pre-refactor revision](https://github.com/MochiDiffusion/MochiDiffusion/blob/e686551ee06cf0d9fc788d59f9282f9dea5e6dbd/Mochi%20Diffusion/Support/IrisFluxKleinImageGenerator.swift))
 are justified today by a comment asserting that `GenerationService` serializes generation.
 That is an invariant the compiler cannot see and the per-engine-lane work would silently
 break.

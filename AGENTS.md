@@ -13,20 +13,44 @@
 - Pull requests are squash-merged and must pass the gated check-in (build + `swift format` lint).  
   Include a clear description of changes; for UI changes, attach a brief screenshot when helpful.
 
+Run `bd prime` at the start of a new session or after context compaction to load the Beads
+workflow primer before planning or tracking work.
+
+## Scope and Planning
+
+The next release keeps Core ML, Iris and OpenAI generation, the completed multi-engine
+foundation, multiple reference images/crop controls, and gallery memory improvements.
+Draw Things and Musubi interoperability are explicitly postponed by Graham. Draw Things
+is still present in this checkout pending separation; its prototype is to be preserved on
+a feature branch and excluded from the release, including its exclusive dependencies.
+The abandoned Iris LoRA experiments are not carry-over work.
+
+Beads owns task status, acceptance criteria and dependencies. `MochiDiffusion-q73` is the
+finite next-release epic; `MochiDiffusion-e4v` is the deferred Musubi epic. Use the existing
+database; do not create a replacement if access fails. Closed beads are historical and
+may describe abandoned work. They do not create obligations to restore it. Do not turn
+every research idea into a task or expand release scope without a concrete need.
+
+This file describes the current architecture. [Multi-Engine-Design.md](Multi-Engine-Design.md)
+is the closed record of phases 0–6, not the current work plan.
+[Engine-Future-Work.md](Engine-Future-Work.md) preserves deferred research and decisions;
+[Draw-Things-Proof-of-Concept.md](Draw-Things-Proof-of-Concept.md) records the prototype.
+Keep work lists in Beads rather than maintaining parallel Markdown checklists.
+
 ## High-Level Design Flow
 
-Multi-engine generation is an in-flight refactor. `Multi-Engine-Design.md` is the source of
-truth for what is built, what is decided, and what is deliberately deferred; §10's phase
-table is the status of record. This section is the orientation, not the detail.
+The multi-engine foundation is implemented. Current ownership and contracts follow.
 
 - Runtime ownership boundaries:
   - `ConfigStore` (`@MainActor`, `@Observable`) owns persisted input that is *global* —
     `modelDir`, `controlNetDir`, `prompt`, `steps`, `width`/`height`, `imageDir`,
-    `imageType`. Its `UserDefaults` store is injectable, so tests use an isolated suite.
+    `imageType`, and shared draft values such as `quality`. Its `UserDefaults` store is
+    injectable, so tests use an isolated suite.
   - `EngineSettingsStore` (`@MainActor`, `@Observable`) owns per-engine persisted values
     under dynamic `Engine.<id>.…` keys: the selected engine, and the model each engine was
-    last using. Separate from `ConfigStore` because `@AppStorage` binds one property to one
-    literal key and cannot express a key set that grows with the engine list.
+    last using. The dynamic options slot also holds the prototype's Draw Things connection.
+    Separate from `ConfigStore` because `@AppStorage` binds one property to one literal key
+    and cannot express a key set that grows with the engine list.
   - `GenerationController` (`@MainActor`, `@Observable`) owns the model list and the
     engine/model selection, builds a `GenerationDraft` from UI state, asks the selected
     engine to `plan` it, and enqueues the resulting `GenerationRequest`.
@@ -39,6 +63,8 @@ table is the status of record. This section is the orientation, not the detail.
     not consult `GenerationState`: queue readiness is not a UI status.
   - `GenerationState` (`@MainActor`) is the UI-facing status model
     (`ready`/`loading`/`running`/`error`).
+  - Discovery problems have their own `GenerationController.discoveryMessage`.
+    Generation outcomes are reported through alerts, separately from discovery.
   - Both controllers own their observation tasks and have a terminal `shutdown()`.
 
 - Engines:
@@ -50,7 +76,8 @@ table is the status of record. This section is the orientation, not the detail.
     engine, its models and its payload a compiler-checked triple. `AnyGenerationEngine`
     erases it for the registry and exposes `accepts(payload:)`.
   - `GenerationEngineRuntime` is the stateful half: it owns loaded pipelines and runs one
-    request against one session. `CoreMLEngineRuntime`, `IrisEngineRuntime`.
+    request against one session: `CoreMLEngineRuntime`, `IrisEngineRuntime`,
+    `OpenAIEngineRuntime`, and the deferred prototype's `DrawThingsRuntime`.
   - `EngineRegistry` (`actor`) holds the engines; `refresh(settings:)` gathers availability
     and discovery per engine, failure-isolated, so one engine's missing folder or absent API
     key cannot empty the model list for the others.
@@ -59,7 +86,11 @@ table is the status of record. This section is the orientation, not the detail.
     model. Registration order affects presentation order only — never ownership or validity.
   - One shared models folder is a settled decision. `ModelDiscoveryContext` enumerates it
     once per discovery pass and hands the same candidate list to every engine.
-  - Concrete engines live in `LocalEngines.swift`.
+  - Concrete descriptors live in `LocalEngines.swift`, `OpenAIImageEngine.swift`, and
+    the deferred prototype's `DrawThingsEngine.swift`; `EngineRegistry.shipped(secrets:)`
+    registers them. OpenAI availability requires a Keychain credential, and its model
+    catalog is hand-maintained. `EngineModel` requires no filesystem URL; its optional
+    `tokenizerModelDir` is nil for hosted/server models.
 
 - Options, and where they are resolved:
   - `OptionConstraints` describes what a **model** will honour — per model, not per engine,
@@ -74,9 +105,12 @@ table is the status of record. This section is the orientation, not the detail.
   - `GenerationPlan<Payload>` stays generic until `erased()` at the heterogeneous queue
     boundary.
   - Request fields are `Optional` where a model may not use the option at all — `strength`,
-    `stepCount`, `guidanceScale`, `scheduler`. A runtime that does use one reads the concrete
-    value from its own payload. Two copies exist by design; `GenerationRequestBuilderTests`
-    pins them equal.
+    `stepCount`, `guidanceScale`, `scheduler`, `quality`. A runtime that does use one reads
+    the concrete value from its own payload. Two copies exist by design;
+    `GenerationRequestBuilderTests` pins them equal.
+  - Starting images and reference inputs have separate constraints and controller state.
+    OpenAI and Iris accept reference lists; Core ML uses a denoising starting image.
+    `SizeLimits` bounds dimensions jointly for hosted models, and quality is a typed choice.
 
 - Concurrency defaults (project settings):
   - `SWIFT_VERSION = 6.0`
@@ -94,6 +128,9 @@ table is the status of record. This section is the orientation, not the detail.
     generating on a runtime actor's executor.
   - Results are **not** events. A result must never be dropped, it applies back-pressure,
     and a failed write has to fail the generation, so it stays a throwing call.
+  - Queue execution is globally serial. Runtimes can declare an idle timeout enforced by
+    the queue through the session; hosted transports also support cancellation/deadlines.
+    Timeout policy is runtime/request-specific, not a universal 60-second budget.
   - `IrisSingleFlight` (`actor`) is a process-wide lease around the Iris C library, whose
     callback slots and cancel flag are per process rather than per instance. An actor runtime
     is not sufficient: actors are reentrant at every suspension point.
@@ -112,6 +149,22 @@ table is the status of record. This section is the orientation, not the detail.
     display name alone.
   - Generated and imported images share one interpretation path
     (`createImageRecordFromURL`).
+  - Musubi is not integrated. Keep the current caption format for this release; broad
+    interoperability, per-output snapshot design and new container writers remain deferred.
+    `Scheduler` is still Core ML vocabulary. Unknown imported values must not be presented
+    or restored as a known default; the bounded correction is tracked in the release epic.
+
+- Gallery ownership and memory:
+  - `ImageGallery` and `GenerationService` are app-owned, not singletons.
+  - Disk scans produce path-backed records with dimensions and metadata, without resident
+    full-size pixels. Generation results may carry already-available encoded bytes.
+  - App-owned `GalleryThumbnailProvider` and `GalleryFullImageProvider` load pixels on
+    demand. The thumbnail actor caches and coalesces requests; consumers receive providers
+    through the environment. Do not reintroduce eager gallery-wide decoding.
+  - `InputImagesView` preserves the landed crop/reference-budget UI. There is no standing
+    requirement to port more code from an abandoned prototype.
+  - Filename construction is shared by generation/export, and `ImageRepository` owns
+    collision allocation. Gallery counts are presentation, not a uniqueness guarantee.
 
 - Filesystem observation flow:
   - `FolderMonitorService` (`actor`) exposes `AsyncStream<Void>` update streams keyed by
@@ -129,31 +182,14 @@ table is the status of record. This section is the orientation, not the detail.
   - Resolution: `OptionConstraintsTests`, `GenerationRequestBuilderTests`,
     `ComputeUnitPreferenceTests`.
   - Queue and concurrency: `QueueLivenessTests`, `GenerationSessionTests`,
-    `GenerationOwnershipTests`, `IrisSingleFlightTests`, `ControllerLifecycleTests`.
+    `GenerationOwnershipTests`, `IrisSingleFlightTests`, `ControllerLifecycleTests`,
+    `IdleTimeoutTests` and `FailureReportingTests`.
+  - Gallery: `GalleryLoadingTests`, `GalleryImageProviderTests`.
+  - Hosted engine and credentials: `OpenAIImageEngineTests`, `OpenAIRuntimeTests`,
+    `OpenAICredentialCheckTests`, `SecretStoreTests`.
   - Metadata: `MetadataCodecTests`, `MetadataRoundTripTests`.
   - Support: `ControlNetLinkTests`.
   - Fixtures are synthetic directories containing only the files the production sniffing
     code inspects, so no real model weights are required.
   - There are no `withKnownIssue` tests: the two defects that used one — prompt truncation
     on import, and an unreachable Iris fallback name — are fixed.
-
-### Potential improvements
-- `Scheduler` is a Core ML type serving as cross-engine vocabulary: `OptionConstraints.scheduler`
-  is a `ChoiceConstraint<Scheduler>`, so every engine has to express its sampler in an enum
-  that maps one-to-one onto `StableDiffusionScheduler`. It breaks as soon as a second engine
-  offers a real choice; the fix is an engine-scoped identifier. Related defect worth fixing
-  at the same time: an image naming a scheduler this build does not know imports as
-  DPM-Solver++ while `presentFields` still claims the field was present, so the Info panel
-  displays a scheduler the image never used.
-- `EngineModel.url` is non-optional and `tokenizerModelDir` exists on the protocol, both
-  because every model is currently a local directory. A hosted model has neither.
-- There is no `quality` constraint and no aspect-ratio `SizeConstraint` case; a hosted engine
-  with quality tiers or ratio-based geometry needs both.
-- Discovery problems are still reported through `GenerationService.updateStatus(.error:)`, so
-  a discovery message and a generation message share one banner and overwrite each other.
-- There is no request timeout. Local generation always finishes or is cancelled; a network
-  call can hang, and the queue is serial.
-- Queue concurrency is global and serial. If it is relaxed, model it as per-runtime capacity
-  (`IrisSingleFlight` is the pattern) rather than lanes in the registry protocol.
-- Evaluate `SWIFT_UPCOMING_FEATURE_NonisolatedNonsendingByDefault` after current Swift 6.0
-  strict-concurrency behavior remains stable across release builds.
