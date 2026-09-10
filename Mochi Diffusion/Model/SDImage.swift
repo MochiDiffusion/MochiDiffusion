@@ -54,7 +54,6 @@ struct SDImage: Identifiable, Hashable {
     var steps = 28
     var guidanceScale = 11.0
     var generatedDate = Date()
-    var isUpscaling = false
     var path = ""
     var finderTagColorNumber = 0
 
