@@ -15,16 +15,7 @@ struct SDImage: Identifiable, Hashable {
     var prompt = ""
     var negativePrompt = ""
     /// The pixel size, stored when known and otherwise taken from `image`.
-    ///
-    /// It used to be read off `image` alone, which tied every size reader — gallery
-    /// layout, the Info panel, the `Size:` metadata field — to a decoded image being
-    /// resident. That is the assumption the thumbnail work removes, so the size is
-    /// now a fact a caller can supply from a file's properties without decoding it.
-    ///
-    /// The fallback is what keeps that change additive. A generated image is built by
-    /// assigning `image` and nothing else, in three separate runtimes; without it,
-    /// every one of those would silently record `0x0` and the compiler would not say
-    /// a word, because these have defaults.
+    /// A generated image can be built by assigning `image` and nothing else
     nonisolated var width: Int {
         get { storedWidth > 0 ? storedWidth : (image?.width ?? 0) }
         set { storedWidth = newValue }
@@ -33,10 +24,8 @@ struct SDImage: Identifiable, Hashable {
         get { storedHeight > 0 ? storedHeight : (image?.height ?? 0) }
         set { storedHeight = newValue }
     }
-    /// Not `private`: that would make the synthesised memberwise initialiser private
-    /// too. Assign through `width`/`height`.
-    nonisolated var storedWidth = 0
-    nonisolated var storedHeight = 0
+    nonisolated private(set) var storedWidth = 0
+    nonisolated private(set) var storedHeight = 0
     var aspectRatio: CGFloat = 0.0
     var model = ""
     /// The engine's stable id and its own key for the model, as strings, so an
@@ -131,10 +120,8 @@ extension SDImage {
 
     /// Re-encodes the image with its metadata.
     ///
-    /// Loads the file when no decoded image is resident, which is now the normal
-    /// state for anything in the gallery: only a freshly generated image arrives with
-    /// its pixels. Without this, Save As, Save All and Copy would each silently
-    /// produce nothing for an image loaded from disk.
+    /// Loads the file when no decoded image is resident which is normal for anything read from disk
+    /// Only a freshly generated image arrives with its pixels.
     ///
     /// Deliberately re-encodes rather than copying the file, even though the file is
     /// usually identical: the caller chooses the type, so this is also the path that

@@ -21,9 +21,9 @@ enum ImagesSortType: String {
 
     private let imageRepository: ImageRepository
 
-    /// `nonisolated` because constructing a gallery only initialises stored
-    /// properties, so it needs no main actor — and `MochiDiffusionApp.init` and
-    /// `GenerationService`, both nonisolated, are the things that build one.
+    /// `nonisolated` is safe because `init` only initialises stored properties
+    /// `nonisolated` is needed because `init` is called by `MochiDiffusionApp.init`
+    /// and `GenerationService`, and both are nonisolated
     nonisolated init(imageRepository: ImageRepository = ImageRepository()) {
         self.imageRepository = imageRepository
     }

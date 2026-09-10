@@ -48,13 +48,6 @@ struct APIKeySheet: View {
             )
             .font(.headline)
 
-            Text(
-                "Mochi Diffusion sends your prompts to OpenAI with this key, and OpenAI bills your account for the images.",
-                comment: "Explains what an API key will be used for"
-            )
-            .helpTextFormat()
-            .fixedSize(horizontal: false, vertical: true)
-
             SecureField(
                 "",
                 text: $key,

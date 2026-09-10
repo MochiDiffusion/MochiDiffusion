@@ -420,14 +420,7 @@ struct SettingsView: View {
             GroupBox {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("API Key")
-
                     apiKeyRow
-
-                    Text(
-                        "The key is kept in your keychain. It is never written to image metadata, logs, or saved requests.",
-                        comment: "Explains where a hosted engine's API key is stored"
-                    )
-                    .helpTextFormat()
                 }
                 .padding(4)
             }

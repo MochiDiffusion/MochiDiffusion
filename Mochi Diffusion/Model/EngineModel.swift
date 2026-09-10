@@ -35,17 +35,13 @@ nonisolated struct LoRASelection: Codable, Equatable, Sendable, Identifiable {
 
 /// A model a particular engine can generate with.
 ///
-/// Says nothing about where the model is: a local model has a directory, a hosted
-/// one has only a name, so the concrete types carry their own `url` and generic
-/// callers do not ask.
+/// Local models have a directory, but hosted ones only a name,
+/// so the concrete types carry their own `url` and generic callers do not ask.
 nonisolated protocol EngineModel: Identifiable, Sendable {
     var id: ModelID { get }
     var name: String { get }
-    /// What this model will and will not honour. Per model, not per engine: a
-    /// Core ML model's size is fixed by how it was converted.
     var constraints: OptionConstraints { get }
-    /// Metadata keys this model embeds in generated images.
     var metadataFields: Set<MetadataField> { get }
-    /// `nil` means no local tokenizer, and so no prompt token count.
+    /// without a local tokenizer there is no prompt token count
     var tokenizerModelDir: URL? { get }
 }
