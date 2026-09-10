@@ -121,6 +121,7 @@
 		AA2000000000000000000002 /* MetadataRoundTripTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000002 /* MetadataRoundTripTests.swift */; };
 		AA2000000000000000000005 /* MetadataCodecTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000005 /* MetadataCodecTests.swift */; };
 		AA2000000000000000000006 /* GenerationRequestBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000006 /* GenerationRequestBuilderTests.swift */; };
+		AA7600000000000000000002 /* CoreMLPipelineCacheKeyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA7600000000000000000001 /* CoreMLPipelineCacheKeyTests.swift */; };
 		AA2000000000000000000007 /* ModelSelectionPersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000007 /* ModelSelectionPersistenceTests.swift */; };
 		AA2000000000000000000008 /* EngineIdentityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000008 /* EngineIdentityTests.swift */; };
 		AA2000000000000000000009 /* PreferenceMigrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000009 /* PreferenceMigrationTests.swift */; };
@@ -286,6 +287,7 @@
 		AA1000000000000000000002 /* MetadataRoundTripTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetadataRoundTripTests.swift; sourceTree = "<group>"; };
 		AA1000000000000000000005 /* MetadataCodecTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetadataCodecTests.swift; sourceTree = "<group>"; };
 		AA1000000000000000000006 /* GenerationRequestBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationRequestBuilderTests.swift; sourceTree = "<group>"; };
+		AA7600000000000000000001 /* CoreMLPipelineCacheKeyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreMLPipelineCacheKeyTests.swift; sourceTree = "<group>"; };
 		AA1000000000000000000007 /* ModelSelectionPersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelSelectionPersistenceTests.swift; sourceTree = "<group>"; };
 		AA1000000000000000000008 /* EngineIdentityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngineIdentityTests.swift; sourceTree = "<group>"; };
 		AA1000000000000000000009 /* PreferenceMigrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferenceMigrationTests.swift; sourceTree = "<group>"; };
@@ -546,6 +548,7 @@
 				AA1000000000000000000001 /* TestSupport.swift */,
 				AA1000000000000000000005 /* MetadataCodecTests.swift */,
 				AA1000000000000000000006 /* GenerationRequestBuilderTests.swift */,
+				AA7600000000000000000001 /* CoreMLPipelineCacheKeyTests.swift */,
 				AA1000000000000000000007 /* ModelSelectionPersistenceTests.swift */,
 				AA1000000000000000000008 /* EngineIdentityTests.swift */,
 				AA1000000000000000000009 /* PreferenceMigrationTests.swift */,
@@ -879,6 +882,7 @@
 				AA2000000000000000000001 /* TestSupport.swift in Sources */,
 				AA2000000000000000000005 /* MetadataCodecTests.swift in Sources */,
 				AA2000000000000000000006 /* GenerationRequestBuilderTests.swift in Sources */,
+				AA7600000000000000000002 /* CoreMLPipelineCacheKeyTests.swift in Sources */,
 				AA2000000000000000000007 /* ModelSelectionPersistenceTests.swift in Sources */,
 				AA2000000000000000000008 /* EngineIdentityTests.swift in Sources */,
 				AA2000000000000000000009 /* PreferenceMigrationTests.swift in Sources */,

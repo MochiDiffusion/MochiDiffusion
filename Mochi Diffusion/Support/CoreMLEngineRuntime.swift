@@ -33,6 +33,33 @@ nonisolated struct CoreMLGenerationConfig {
     let imageType: String
 }
 
+/// Every constructor input that determines whether the loaded Core ML pipeline
+/// can serve another request.
+nonisolated struct CoreMLPipelineCacheKey: Equatable {
+    let model: SDModel
+    let controlNet: [String]
+    let effectiveControlNetLocation: String?
+    let computeUnit: MLComputeUnits
+    let reduceMemory: Bool
+    let disableSafety: Bool?
+
+    init(
+        model: SDModel,
+        controlNet: [String],
+        effectiveControlNetLocation: String?,
+        computeUnit: MLComputeUnits,
+        reduceMemory: Bool,
+        disableSafety: Bool
+    ) {
+        self.model = model
+        self.controlNet = controlNet
+        self.effectiveControlNetLocation = effectiveControlNetLocation
+        self.computeUnit = computeUnit
+        self.reduceMemory = reduceMemory
+        self.disableSafety = model.type == .sd15 ? disableSafety : nil
+    }
+}
+
 /// Runs Core ML Stable Diffusion requests and owns the loaded pipeline between
 /// them.
 ///
@@ -48,7 +75,7 @@ nonisolated struct CoreMLGenerationConfig {
 /// `GenerationSession`, and the queue admits one request at a time.
 actor CoreMLEngineRuntime: GenerationEngineRuntime {
     private var pipeline: (any StableDiffusionPipelineProtocol)?
-    private var currentPipelineHash: Int?
+    private var currentPipelineKey: CoreMLPipelineCacheKey?
     private let modelRepository: ModelRepository
 
     init(modelRepository: ModelRepository = ModelRepository()) {
@@ -83,6 +110,7 @@ actor CoreMLEngineRuntime: GenerationEngineRuntime {
             controlNetDirectory: payload.controlNetDirectory,
             computeUnit: payload.computeUnit,
             reduceMemory: payload.reduceMemory,
+            disableSafety: payload.disableSafety,
             session: session
         )
 
@@ -98,6 +126,7 @@ actor CoreMLEngineRuntime: GenerationEngineRuntime {
         controlNetDirectory: URL,
         computeUnit: MLComputeUnits,
         reduceMemory: Bool,
+        disableSafety: Bool,
         session: GenerationSession
     ) throws {
         // Relinking happens *before* the cache check, and its result is part of
@@ -113,14 +142,15 @@ actor CoreMLEngineRuntime: GenerationEngineRuntime {
             )
         }
 
-        var hasher = Hasher()
-        hasher.combine(model)
-        hasher.combine(controlNet)
-        hasher.combine(effectiveControlNetLocation)
-        hasher.combine(computeUnit)
-        hasher.combine(reduceMemory)
-        let hash = hasher.finalize()
-        guard hash != currentPipelineHash else { return }
+        let cacheKey = CoreMLPipelineCacheKey(
+            model: model,
+            controlNet: controlNet,
+            effectiveControlNetLocation: effectiveControlNetLocation,
+            computeUnit: computeUnit,
+            reduceMemory: reduceMemory,
+            disableSafety: disableSafety
+        )
+        guard cacheKey != currentPipelineKey else { return }
 
         session.emit(
             .state(
@@ -153,12 +183,12 @@ actor CoreMLEngineRuntime: GenerationEngineRuntime {
                 resourcesAt: model.url,
                 controlNet: controlNet,
                 configuration: configuration,
-                disableSafety: true,
+                disableSafety: disableSafety,
                 reduceMemory: reduceMemory
             )
         }
 
-        currentPipelineHash = hash
+        currentPipelineKey = cacheKey
     }
 
     private func generate(
