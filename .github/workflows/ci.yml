@@ -26,6 +26,15 @@ jobs:
           -configuration Debug
           CODE_SIGNING_ALLOWED=NO | xcpretty && exit ${PIPESTATUS[0]}
 
+      - name: Test
+        run: >
+          xcodebuild test
+          -project "Mochi Diffusion.xcodeproj"
+          -scheme "Mochi Diffusion"
+          -destination "platform=macOS"
+          -configuration Debug
+          CODE_SIGNING_ALLOWED=NO | xcpretty && exit ${PIPESTATUS[0]}
+
       - name: Export Localizations
         run: >
           xcodebuild -exportLocalizations
