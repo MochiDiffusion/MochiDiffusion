@@ -102,18 +102,17 @@ nonisolated struct GenerationPlan<Payload: Sendable>: Sendable {
     var payload: Payload
     /// The size that will actually be produced.
     var size: CGSize
-    /// The images this engine will actually send, already cropped, scaled and
+    /// A denoising origin, kept separate from references so its role does not
+    /// depend on whether the user supplied a filename.
+    var startingImageData: Data?
+    /// The references this engine will actually send, already cropped, scaled and
     /// encoded, truncated to what the model accepts.
-    ///
-    /// A starting image, when the model has one, is element zero, and
-    /// `startingImageName` is non-nil exactly then — so a runtime that declared both
-    /// can tell its denoising origin from its references. The convention is only
-    /// ever written and read by the same engine, which is why it stays here rather
-    /// than becoming a second array.
     var inputImageData: [Data]
     var controlNetImageData: [Data]
     var controlNetNames: [String]
-    var controlNetImageNames: [String]
+    /// Positionally aligned with `controlNetImageData`; nil means the guide had
+    /// no source filename.
+    var controlNetImageNames: [String?]
     /// `nil` where the model does not use the option at all, so the queue hides a
     /// row rather than printing a number that had no effect. A hosted engine has no
     /// concept of `stepCount` or `scheduler`, which is why those are optional too.
@@ -130,7 +129,9 @@ nonisolated struct GenerationPlan<Payload: Sendable>: Sendable {
     /// Core ML records a starting image; Iris records input images. Same sidebar
     /// state, different field, so the engine decides which one it fills.
     var startingImageName: String?
-    var inputImageNames: [String]
+    /// Positionally aligned with `inputImageData`; nil means those pixels had no
+    /// source filename.
+    var inputImageNames: [String?]
 }
 
 nonisolated extension GenerationPlan {
@@ -139,6 +140,7 @@ nonisolated extension GenerationPlan {
         GenerationPlan<any Sendable>(
             payload: payload,
             size: size,
+            startingImageData: startingImageData,
             inputImageData: inputImageData,
             controlNetImageData: controlNetImageData,
             controlNetNames: controlNetNames,

@@ -314,7 +314,7 @@ nonisolated final class OpenAIEngineRuntime: GenerationEngineRuntime {
             quality: request.quality?.rawValue ?? "",
             startingImage: "",
             controlNetImage: "",
-            inputImages: request.inputImageNames,
+            inputImages: request.inputImageNames.compactMap { $0 },
             scheduler: .dpmSolverMultistepScheduler,
             mlComputeUnit: nil,
             seed: request.seed,

@@ -275,7 +275,8 @@ struct DrawThingsTests {
         return GenerationRequest(
             modelID: model.id, displayName: model.name, metadataFields: model.metadataFields,
             payload: plan.payload, prompt: "a cat", negativePrompt: "", size: plan.size,
-            inputImageData: [], startingImageName: nil, controlNetImageData: [],
+            startingImageData: nil, inputImageData: [], startingImageName: nil,
+            controlNetImageData: [],
             controlNetNames: [],
             controlNetImageNames: [], inputImageNames: [], strength: nil, stepCount: plan.stepCount,
             guidanceScale: plan.guidanceScale, scheduler: nil, quality: nil, mlComputeUnit: nil,

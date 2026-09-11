@@ -35,20 +35,25 @@ nonisolated struct GenerationRequest: Sendable, Identifiable {
     /// into the sidebar — a Core ML model with a fixed input size overrides it.
     let size: CGSize
 
-    /// Scaled input images, in the order the engine will use them. Here rather than
-    /// in the payload because the queue shows them as thumbnails and restores them
-    /// to the sidebar.
+    /// A scaled denoising origin. Separate from references so an unnamed starting
+    /// image remains a starting image when this request is copied back.
+    let startingImageData: Data?
+    /// Scaled reference images, in the order the engine will use them. Here rather
+    /// than in the payload because the queue shows them as thumbnails and restores
+    /// them to the sidebar.
     let inputImageData: [Data]
-    /// Set when the engine records its first input image as a *starting* image —
-    /// Core ML's img2img — rather than as references. `inputImageNames` carries the
-    /// reference-list spelling. One sidebar list, two metadata vocabularies.
+    /// The starting image's source filename, when it had one.
     let startingImageName: String?
     /// Scaled guide images. Here rather than in the payload because the queue shows
     /// them as thumbnails and restores them to the sidebar.
     let controlNetImageData: [Data]
     let controlNetNames: [String]
-    let controlNetImageNames: [String]
-    let inputImageNames: [String]
+    /// Positionally aligned with `controlNetImageData`; nil means the guide had
+    /// no source filename.
+    let controlNetImageNames: [String?]
+    /// Positionally aligned with `inputImageData`; nil means the corresponding
+    /// reference had no source filename.
+    let inputImageNames: [String?]
 
     /// Resolved by `plan`; `nil` when the model does not use it at all, so the
     /// queue can leave the row out rather than print a number that had no effect.

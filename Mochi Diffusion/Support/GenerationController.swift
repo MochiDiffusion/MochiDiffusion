@@ -9,6 +9,143 @@ import CoreML
 import SwiftUI
 import os
 
+private enum SidebarRestoreModel {
+    case exact(ModelID)
+    case legacyName(String)
+    /// Modern metadata that claims an engine-scoped identity but does not contain
+    /// a complete one. It must not fall back to a display name that another engine
+    /// may also offer.
+    case unavailable
+    case unspecified
+}
+
+private enum SidebarRestoreImage {
+    case encoded(Data, name: String?)
+    case galleryFilename(String)
+
+    var name: String? {
+        switch self {
+        case .encoded(_, let name): return name?.normalizedFilename
+        case .galleryFilename(let filename): return filename.normalizedFilename
+        }
+    }
+}
+
+private struct SidebarRestoreControlNet {
+    /// Nil for gallery metadata, which records the guide filename but not the
+    /// ControlNet bundle that interpreted it.
+    var name: String?
+    var image: SidebarRestoreImage
+}
+
+private struct SidebarRestoreSource {
+    var model: SidebarRestoreModel
+    var prompt: String?
+    var negativePrompt: String?
+    var size: CGSize?
+    var startingImage: SidebarRestoreImage?
+    var inputImages: [SidebarRestoreImage]
+    var controlNets: [SidebarRestoreControlNet]
+    var strength: Double?
+    var steps: Int?
+    var guidanceScale: Double?
+    var scheduler: Scheduler?
+    var quality: ImageQuality?
+    var computeUnits: MLComputeUnits?
+    var seed: UInt32?
+    var numberOfImages: Int?
+
+    init(galleryImage: SDImage, metadataFields: Set<MetadataField>) {
+        if metadataFields.contains(.engine) || metadataFields.contains(.modelKey) {
+            if !galleryImage.engine.isEmpty, !galleryImage.modelKey.isEmpty {
+                model = .exact(
+                    ModelID(
+                        engine: EngineID(rawValue: galleryImage.engine),
+                        key: galleryImage.modelKey
+                    )
+                )
+            } else {
+                model = .unavailable
+            }
+        } else if metadataFields.contains(.model), !galleryImage.model.isEmpty {
+            model = .legacyName(galleryImage.model)
+        } else {
+            model = .unspecified
+        }
+
+        prompt = metadataFields.contains(.prompt) ? galleryImage.prompt : nil
+        negativePrompt =
+            metadataFields.contains(.negativePrompt) ? galleryImage.negativePrompt : nil
+        size =
+            metadataFields.contains(.size)
+            ? CGSize(width: galleryImage.width, height: galleryImage.height) : nil
+        startingImage =
+            metadataFields.contains(.startingImage) && !galleryImage.startingImage.isEmpty
+            ? .galleryFilename(galleryImage.startingImage) : nil
+        inputImages =
+            metadataFields.contains(.inputImages)
+            ? galleryImage.inputImages.compactMap { filename in
+                filename.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                    ? nil : .galleryFilename(filename)
+            }
+            : []
+        controlNets =
+            metadataFields.contains(.controlNetImage) && !galleryImage.controlNetImage.isEmpty
+            ? [
+                SidebarRestoreControlNet(
+                    name: nil,
+                    image: .galleryFilename(galleryImage.controlNetImage)
+                )
+            ] : []
+        // Saved captions do not contain starting-image strength.
+        strength = nil
+        steps = metadataFields.contains(.steps) ? galleryImage.steps : nil
+        guidanceScale =
+            metadataFields.contains(.guidanceScale) ? galleryImage.guidanceScale : nil
+        scheduler = metadataFields.contains(.scheduler) ? galleryImage.scheduler : nil
+        quality =
+            metadataFields.contains(.quality) ? ImageQuality(galleryImage.quality) : nil
+        computeUnits =
+            metadataFields.contains(.mlComputeUnit) ? galleryImage.mlComputeUnit : nil
+        seed = metadataFields.contains(.seed) ? galleryImage.seed : nil
+        numberOfImages = nil
+    }
+
+    init(request: GenerationRequest) {
+        model = .exact(request.modelID)
+        prompt = request.metadataFields.contains(.prompt) ? request.prompt : nil
+        negativePrompt =
+            request.metadataFields.contains(.negativePrompt) ? request.negativePrompt : nil
+        size = request.size
+
+        if let startingImageData = request.startingImageData {
+            startingImage = .encoded(startingImageData, name: request.startingImageName)
+        } else {
+            startingImage = nil
+        }
+        inputImages = request.inputImageData.enumerated().map { index, data in
+            .encoded(data, name: request.inputImageNames[safe: index] ?? nil)
+        }
+        controlNets = request.controlNetImageData.enumerated().map { index, data in
+            SidebarRestoreControlNet(
+                name: request.controlNetNames[safe: index],
+                image: .encoded(
+                    data,
+                    name: request.controlNetImageNames[safe: index] ?? nil
+                )
+            )
+        }
+        strength = request.strength.map(Double.init)
+        steps = request.stepCount
+        guidanceScale = request.guidanceScale.map(Double.init)
+        scheduler = request.scheduler
+        quality = request.quality
+        computeUnits = request.mlComputeUnit
+        seed = request.metadataFields.contains(.seed) ? request.seed : nil
+        numberOfImages = request.numberOfImages
+    }
+}
+
 @MainActor
 @Observable
 final class GenerationController {
@@ -24,6 +161,7 @@ final class GenerationController {
     private let modelRepository: ModelRepository
     private let engineRegistry: EngineRegistry
     private let imageRepository: ImageRepository
+    private let fullImageProvider: GalleryFullImageProvider
     /// The gallery finished images are inserted into, and the one "copy to sidebar"
     /// reads its selection from. Injected for the same reason as
     /// `GalleryController.imageGallery`.
@@ -221,12 +359,14 @@ final class GenerationController {
         generationService: GenerationService,
         engineRegistry: EngineRegistry = EngineRegistry(),
         engineSettings: EngineSettingsStore? = nil,
+        fullImageProvider: GalleryFullImageProvider = GalleryFullImageProvider(),
         startsObserving: Bool = true
     ) {
         self.configStore = configStore
         self.modelRepository = modelRepository
         self.engineRegistry = engineRegistry
         self.imageRepository = imageRepository
+        self.fullImageProvider = fullImageProvider
         self.imageGallery = imageGallery
         self.generationService = generationService
         // Defaulted from the registry rather than by the caller, so the store only
@@ -686,46 +826,20 @@ final class GenerationController {
         return pendingSelectedImageFilename?.normalizedFilename
     }
 
-    func copyToPrompt() {
+    func copyToPrompt() async {
         guard let sdi = imageGallery.selected() else { return }
-        copyToPrompt(sdi)
+        await copyToPrompt(sdi)
     }
 
-    func copyToPrompt(_ sdi: SDImage) {
+    func copyToPrompt(_ sdi: SDImage) async {
         let metadataFields = imageGallery.metadataFields(for: sdi.id)
+        await restoreSidebar(
+            from: SidebarRestoreSource(galleryImage: sdi, metadataFields: metadataFields)
+        )
+    }
 
-        if metadataFields.contains(.prompt) {
-            configStore.prompt = sdi.prompt
-        }
-        if metadataFields.contains(.negativePrompt) {
-            configStore.negativePrompt = sdi.negativePrompt
-        }
-        if metadataFields.contains(.steps) {
-            configStore.steps = Double(sdi.steps)
-        }
-        if metadataFields.contains(.guidanceScale) {
-            configStore.guidanceScale = sdi.guidanceScale
-        }
-        if metadataFields.contains(.size) {
-            configStore.width = sdi.width
-            configStore.height = sdi.height
-        }
-        if metadataFields.contains(.seed) {
-            seed = sdi.seed
-        }
-        if metadataFields.contains(.scheduler) {
-            configStore.scheduler = sdi.scheduler
-        }
-        if metadataFields.contains(.quality), let quality = ImageQuality(sdi.quality) {
-            configStore.quality = quality
-        }
-        if metadataFields.contains(.loras), let model = currentModel as? DrawThingsModel,
-            sdi.engine == model.id.engine.rawValue, sdi.modelKey == model.id.key
-        {
-            drawThingsLoRAs = sdi.loras.filter { selection in
-                model.loras.contains { $0.file == selection.file }
-            }
-        }
+    func copyToPrompt(_ request: GenerationRequest) async {
+        await restoreSidebar(from: SidebarRestoreSource(request: request))
     }
 
     func copyPromptToPrompt() {
@@ -744,14 +858,140 @@ final class GenerationController {
     /// images carry only a display name, which two engines may both offer — see
     /// `setModel(_:)` for how that ambiguity is settled.
     func selectModel(named name: String, engine: String, key: String) {
-        if !engine.isEmpty, !key.isEmpty {
+        if !engine.isEmpty || !key.isEmpty {
+            guard !engine.isEmpty, !key.isEmpty else { return }
             let id = ModelID(engine: EngineID(rawValue: engine), key: key)
             if models.contains(where: { $0.id == id }) {
                 currentModelId = id
-                return
             }
+            return
         }
         setModel(name)
+    }
+
+    private func restoreSidebar(from source: SidebarRestoreSource) async {
+        selectModel(for: source.model)
+        guard let destinationModel = currentModel else { return }
+        let destinationModelID = destinationModel.id
+        let constraints = destinationModel.constraints
+
+        let restoredStartingImage =
+            constraints.startingImage.isSupported
+            ? await restoreImage(source.startingImage) : nil
+        var restoredInputImages: [InputImage] = []
+        if constraints.inputImages.isSupported {
+            for image in source.inputImages.prefix(constraints.inputImages.maxCount) {
+                if let restored = await restoreImage(image) {
+                    restoredInputImages.append(restored)
+                }
+            }
+        }
+
+        var restoredControlNets: [ControlNetInput] = []
+        if constraints.controlNet.isSupported {
+            for controlNet in source.controlNets {
+                if let name = controlNet.name, !constraints.controlNet.names.contains(name) {
+                    continue
+                }
+                guard let restored = await restoreImage(controlNet.image) else { continue }
+                restoredControlNets.append(
+                    ControlNetInput(
+                        name: controlNet.name,
+                        image: restored.image,
+                        imageFilename: restored.name
+                    )
+                )
+            }
+        }
+
+        // Loading a path-backed gallery image suspends. If the user selected a
+        // different model while it was loading, that newer choice owns the sidebar.
+        guard currentModelId == destinationModelID else { return }
+
+        apply(source, constrainedBy: constraints, to: destinationModel)
+        startingImage = restoredStartingImage
+        inputImages = restoredInputImages
+        currentControlNets = restoredControlNets
+    }
+
+    private func selectModel(for source: SidebarRestoreModel) {
+        switch source {
+        case .exact(let id):
+            if models.contains(where: { $0.id == id }) {
+                currentModelId = id
+            }
+        case .legacyName(let name):
+            setModel(name)
+        case .unavailable, .unspecified:
+            break
+        }
+    }
+
+    private func restoreImage(_ source: SidebarRestoreImage?) async -> InputImage? {
+        guard let source else { return nil }
+        let image: CGImage?
+        switch source {
+        case .encoded(let data, _):
+            image = CGImage.fromData(data)
+        case .galleryFilename(let filename):
+            guard let galleryImage = galleryImage(named: filename) else { return nil }
+            image = await fullImageProvider.image(for: galleryImage)
+        }
+        guard let image else { return nil }
+        return InputImage(image: image, name: source.name)
+    }
+
+    private func galleryImage(named filename: String) -> SDImage? {
+        guard let basename = filename.normalizedFilename, !basename.isEmpty else { return nil }
+        return imageGallery.allImages.first { image in
+            URL(fileURLWithPath: image.path).lastPathComponent.compare(
+                basename,
+                options: [.caseInsensitive, .diacriticInsensitive]
+            ) == .orderedSame
+        }
+    }
+
+    private func apply(
+        _ source: SidebarRestoreSource,
+        constrainedBy constraints: OptionConstraints,
+        to model: any EngineModel
+    ) {
+        if let prompt = source.prompt {
+            configStore.prompt = prompt
+        }
+        if constraints.supportsNegativePrompt, let negativePrompt = source.negativePrompt {
+            configStore.negativePrompt = negativePrompt
+        }
+        if let size = source.size {
+            configStore.width = Int(size.width)
+            configStore.height = Int(size.height)
+        }
+        if constraints.steps.isSupported, let steps = source.steps {
+            configStore.steps = Double(steps)
+        }
+        if constraints.guidanceScale.isSupported, let guidanceScale = source.guidanceScale {
+            configStore.guidanceScale = guidanceScale
+        }
+        if let scheduler = source.scheduler, constraints.scheduler.options.contains(scheduler) {
+            configStore.scheduler = scheduler
+        }
+        if let quality = source.quality, constraints.quality.options.contains(quality) {
+            configStore.quality = quality
+        }
+        if constraints.startingImage.strength.isSupported, let strength = source.strength {
+            configStore.strength = strength
+        }
+        if constraints.numberOfImages.isSupported, let numberOfImages = source.numberOfImages {
+            self.numberOfImages = Double(numberOfImages)
+        }
+        if let seed = source.seed {
+            self.seed = seed
+        }
+        if model.id.engine == .coreMLStableDiffusion,
+            let preference = source.computeUnits.flatMap(ComputeUnitPreference.init(exact:))
+        {
+            configStore.mlComputeUnitPreference = preference
+        }
     }
 
     /// Selects a model by display name, which is all a pre-engine image recorded.
@@ -904,6 +1144,7 @@ final class GenerationController {
             prompt: draft.prompt,
             negativePrompt: draft.negativePrompt,
             size: plan.size,
+            startingImageData: plan.startingImageData,
             inputImageData: plan.inputImageData,
             startingImageName: plan.startingImageName,
             controlNetImageData: plan.controlNetImageData,

@@ -70,7 +70,7 @@ nonisolated struct CoreMLStableDiffusionEngine: GenerationEngineDescriptor {
         let inputs = constraints.startingImage.prepared(draft.startingImage, scaledTo: size)
 
         var controlNetNames: [String] = []
-        var controlNetImageNames: [String] = []
+        var controlNetImageNames: [String?] = []
         var controlNetInputs: [Data] = []
         // Said as a constraint now, so the sidebar hides the control instead of
         // this quietly dropping what the user put in it. A freeform model has no
@@ -85,9 +85,7 @@ nonisolated struct CoreMLStableDiffusionEngine: GenerationEngineDescriptor {
                 else { continue }
                 controlNetNames.append(name)
                 controlNetInputs.append(data)
-                if let imageName = controlNet.imageName?.normalizedFilename {
-                    controlNetImageNames.append(imageName)
-                }
+                controlNetImageNames.append(controlNet.imageName?.normalizedFilename)
             }
         }
 
@@ -104,7 +102,8 @@ nonisolated struct CoreMLStableDiffusionEngine: GenerationEngineDescriptor {
                 scheduler: scheduler ?? draft.scheduler
             ),
             size: size,
-            inputImageData: inputs.data,
+            startingImageData: inputs.data.first,
+            inputImageData: [],
             controlNetImageData: controlNetInputs,
             controlNetNames: controlNetNames,
             controlNetImageNames: controlNetImageNames,
@@ -117,7 +116,7 @@ nonisolated struct CoreMLStableDiffusionEngine: GenerationEngineDescriptor {
             mlComputeUnit: computeUnit,
             // Core ML denoises from its one image, so it records a *starting*
             // image. Same sidebar list, different metadata vocabulary.
-            startingImageName: inputs.names.first,
+            startingImageName: inputs.names.first ?? nil,
             inputImageNames: []
         )
     }
@@ -245,6 +244,7 @@ nonisolated struct IrisEngine: GenerationEngineDescriptor {
                 scheduler: scheduler ?? draft.scheduler
             ),
             size: size,
+            startingImageData: nil,
             inputImageData: inputs.data,
             controlNetImageData: [],
             controlNetNames: [],

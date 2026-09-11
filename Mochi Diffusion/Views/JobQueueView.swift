@@ -217,74 +217,7 @@ private struct InfoPopoverView: View {
 
     func copyOptionsToSidebar() {
         Task {
-            if metadataFields.contains(.prompt) {
-                configStore.prompt = request.prompt
-            }
-            if metadataFields.contains(.negativePrompt) {
-                configStore.negativePrompt = request.negativePrompt
-            }
-            if metadataFields.contains(.size) {
-                configStore.width = Int(request.size.width)
-                configStore.height = Int(request.size.height)
-            }
-            if let stepCount = effectiveStepCount {
-                configStore.steps = Double(stepCount)
-            }
-            if let guidanceScale = effectiveGuidanceScale {
-                configStore.guidanceScale = Double(guidanceScale)
-            }
-            if metadataFields.contains(.seed) {
-                controller.seed = request.seed
-            }
-            if let scheduler = effectiveScheduler {
-                configStore.scheduler = scheduler
-            }
-            // The request carries a resolved `ImageQuality?` rather than a string,
-            // so there is nothing to recognise here — `nil` already means the model
-            // does not use it.
-            if let quality = request.quality {
-                configStore.quality = quality
-            }
-
-            controller.currentModelId = request.modelID
-
-            // Every image the request carried, not just the first: a queued job may
-            // have used several, and restoring one would silently change what the
-            // user is about to regenerate.
-            //
-            // `startingImageName` is non-nil exactly when element zero is a
-            // denoising origin rather than a reference, which is how the two are
-            // told apart and put back in the right section. A request may carry
-            // both, so this restores the origin *and* whatever follows it.
-            var images = request.inputImageData.compactMap(decodeImage(from:))
-
-            if let startingName = request.startingImageName, !images.isEmpty {
-                controller.setStartingImage(image: images.removeFirst(), filename: startingName)
-                if let strength = effectiveStrength {
-                    configStore.strength = Double(strength)
-                }
-            } else {
-                await controller.unsetStartingImage()
-            }
-
-            let names = request.inputImageNames
-            controller.setInputImages(
-                images.enumerated().map { index, image in
-                    InputImage(image: image, name: names[safe: index])
-                }
-            )
-
-            if let controlNetName = request.controlNetNames.first,
-                let controlNetImage = decodeImage(from: request.controlNetImageData.first)
-            {
-                await controller.setControlNet(name: controlNetName)
-                await controller.setControlNet(
-                    image: controlNetImage,
-                    filename: request.controlNetImageNames.first
-                )
-            } else {
-                await controller.unsetControlNet()
-            }
+            await controller.copyToPrompt(request)
         }
     }
 
@@ -383,7 +316,7 @@ private struct InfoPopoverView: View {
                             showCopyToPromptOption: false
                         )
                     }
-                    if let startingImage = decodeImage(from: request.inputImageData.first) {
+                    if let startingImage = decodeImage(from: request.startingImageData) {
                         InfoGridRow(
                             type: LocalizedStringKey("Starting Image"),
                             image: startingImage,

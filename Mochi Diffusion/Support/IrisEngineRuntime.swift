@@ -241,7 +241,7 @@ actor IrisEngineRuntime: GenerationEngineRuntime {
                 quality: "",
                 startingImage: "",
                 controlNetImage: "",
-                inputImages: request.inputImageNames,
+                inputImages: request.inputImageNames.compactMap { $0 },
                 scheduler: payload.scheduler,
                 mlComputeUnit: request.mlComputeUnit,
                 seed: seed,

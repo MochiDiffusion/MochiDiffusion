@@ -83,14 +83,10 @@ nonisolated extension InputImagesConstraint {
     /// record for it.
     struct Prepared: Sendable {
         var data: [Data]
-        /// The names of those images in `data` that had one.
-        ///
-        /// Not positionally aligned with `data`, and deliberately: an image dragged
-        /// in from another app has no filename, and the metadata contract is a list
-        /// of the files a generation used, not a slot per image. So this can be
-        /// shorter than `data` — never longer, and never naming an image that was
-        /// dropped.
-        var names: [String]
+        /// Positionally aligned with `data`, so an unnamed image cannot shift every
+        /// later filename onto the wrong set of pixels. Metadata writers compact
+        /// this list because the persisted format records names rather than slots.
+        var names: [String?]
     }
 
     /// Truncates to what the model accepts, applies each image's crop, hands it to
@@ -113,7 +109,7 @@ nonisolated extension InputImagesConstraint {
         resize: (CGImage, Int) -> CGImage?
     ) -> Prepared {
         var data: [Data] = []
-        var names: [String] = []
+        var names: [String?] = []
         for (index, input) in resolved(requested).enumerated() {
             let cropped = input.edited
             let sized = resize(cropped, index) ?? cropped
@@ -122,9 +118,7 @@ nonisolated extension InputImagesConstraint {
             guard let encoded = sized.pngData() ?? sized.normalizedRGBA8Image()?.pngData()
             else { continue }
             data.append(encoded)
-            if let name = input.name {
-                names.append(name)
-            }
+            names.append(input.name)
         }
         return Prepared(data: data, names: names)
     }

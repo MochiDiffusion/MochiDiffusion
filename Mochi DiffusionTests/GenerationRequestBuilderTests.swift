@@ -200,7 +200,7 @@ struct GenerationRequestBuilderTests {
 
         let request = try #require(controller.buildGenerationRequest())
 
-        let data = try #require(request.inputImageData.first)
+        let data = try #require(request.startingImageData)
         #expect(pixelSize(of: data) == CGSize(width: 512, height: 768))
         #expect(request.startingImageName == "start.png")
         // Core ML SD records a starting image; the Iris path records input images.
@@ -218,7 +218,7 @@ struct GenerationRequestBuilderTests {
 
         let request = try #require(controller.buildGenerationRequest())
 
-        let data = try #require(request.inputImageData.first)
+        let data = try #require(request.startingImageData)
         #expect(pixelSize(of: data) == CGSize(width: 320, height: 448))
     }
 
@@ -231,7 +231,8 @@ struct GenerationRequestBuilderTests {
         let request = try #require(controller.buildGenerationRequest())
 
         #expect(request.startingImageName == nil)
-        #expect(request.inputImageData.count == 1)
+        #expect(request.startingImageData != nil)
+        #expect(request.inputImageData.isEmpty)
     }
 
     // MARK: - ControlNet
@@ -313,11 +314,11 @@ struct GenerationRequestBuilderTests {
 
         let request = try #require(controller.buildGenerationRequest())
 
-        // Names and image names are appended to separate arrays, so a missing
-        // filename leaves them different lengths and positionally uncorrelated.
+        // The empty filename slot stays aligned with its guide pixels, so copying
+        // the queued request cannot attach a later filename to this image.
         #expect(request.controlNetImageData.count == 1)
         #expect(request.controlNetNames == ["canny"])
-        #expect(request.controlNetImageNames.isEmpty)
+        #expect(request.controlNetImageNames == [nil])
     }
 
     // MARK: - Iris FLUX.2 Klein
@@ -437,7 +438,8 @@ struct GenerationRequestBuilderTests {
 
         let request = try #require(controller.buildGenerationRequest())
 
-        #expect(request.inputImageData.count == 1)
+        #expect(request.startingImageData != nil)
+        #expect(request.inputImageData.isEmpty)
         #expect(request.startingImageName == "one.png")
         #expect(request.inputImageNames.isEmpty)
     }

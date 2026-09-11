@@ -17,6 +17,15 @@ nonisolated enum ComputeUnitPreference: String {
     case cpuAndNeuralEngine
     case all
 
+    init?(exact computeUnits: MLComputeUnits) {
+        switch computeUnits {
+        case .cpuAndGPU: self = .cpuAndGPU
+        case .cpuAndNeuralEngine: self = .cpuAndNeuralEngine
+        case .all: self = .all
+        default: return nil
+        }
+    }
+
     func computeUnits(forModel model: SDModel) -> MLComputeUnits {
         switch self {
         case .auto:

@@ -460,9 +460,9 @@ struct OptionConstraintsTests {
 
         // Two images, because the third is past the cap.
         #expect(prepared.data.count == 2)
-        // One name, because the second image never had one — and crucially *not*
-        // "dropped.png", whose image was not sent.
-        #expect(prepared.names == ["kept.png"])
+        // Names keep the same positions as their pixels. The unnamed second image
+        // has an explicit empty slot, and the dropped image contributes nothing.
+        #expect(prepared.names == ["kept.png", nil])
     }
 
     @Test("An unsupported constraint prepares nothing even when handed images")

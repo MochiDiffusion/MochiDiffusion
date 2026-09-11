@@ -321,7 +321,7 @@ actor CoreMLEngineRuntime: GenerationEngineRuntime {
         var resolvedControlNets: [String] = []
 
         if let size = model.inputSize {
-            if let data = request.inputImageData.first {
+            if let data = request.startingImageData {
                 startingImage = CGImage.fromData(data)?.scaledAndCroppedTo(size: size)
             }
 
@@ -339,8 +339,8 @@ actor CoreMLEngineRuntime: GenerationEngineRuntime {
             negativePrompt: request.negativePrompt,
             startingImage: startingImage,
             startingImageName: request.startingImageName ?? "",
-            controlNetImageName: request.controlNetImageNames.first ?? "",
-            inputImageNames: request.inputImageNames,
+            controlNetImageName: request.controlNetImageNames.first.flatMap { $0 } ?? "",
+            inputImageNames: request.inputImageNames.compactMap { $0 },
             controlNetInputs: controlNetInputs,
             model: model,
             mlComputeUnit: payload.computeUnit,

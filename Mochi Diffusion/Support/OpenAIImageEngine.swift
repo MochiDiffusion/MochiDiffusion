@@ -104,6 +104,7 @@ nonisolated struct OpenAIImageEngine: GenerationEngineDescriptor {
                 wantsPreviews: draft.showGenerationPreview
             ),
             size: size,
+            startingImageData: nil,
             inputImageData: inputs.data,
             controlNetImageData: [],
             controlNetNames: [],

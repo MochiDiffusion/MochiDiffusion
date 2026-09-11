@@ -16,6 +16,13 @@ import Testing
 /// fields with `"; "` and escaped nothing; those captions must keep parsing
 /// exactly as they did, since real user galleries are full of them.
 struct MetadataCodecTests {
+    @Test("An unknown scheduler is absent rather than the legacy default")
+    func unknownSchedulerIsNotPresentedAsKnown() {
+        let parsed = MetadataCodec.decode("Metadata Version: 2\nScheduler: Future Sampler")
+
+        #expect(parsed.scheduler == nil)
+        #expect(!parsed.presentFields.contains(.scheduler))
+    }
 
     // MARK: - Round trip
 

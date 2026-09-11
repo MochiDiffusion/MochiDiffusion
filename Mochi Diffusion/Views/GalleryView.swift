@@ -79,6 +79,9 @@ struct GalleryView: View {
                 }
                 .padding()
             }
+            // A legacy scrollbar can toggle the split view's minimum width by 17 points
+            // on every layout pass, causing AppKit to abort. Keep scrolling without it.
+            .scrollIndicators(.never)
             .onChange(of: store.selectedId) { _, selectedId in
                 guard let selectedId else { return }
                 guard store.images.contains(where: { $0.id == selectedId }) else { return }
@@ -162,7 +165,7 @@ struct GalleryView: View {
                 }
 
                 Button {
-                    controller.copyToPrompt(sdi)
+                    Task { await controller.copyToPrompt(sdi) }
                 } label: {
                     Text(
                         "Copy Options to Sidebar",

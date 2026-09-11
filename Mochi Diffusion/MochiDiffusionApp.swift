@@ -23,13 +23,15 @@ struct MochiDiffusionApp: App {
     @State private var quicklookURL: URL?
 
     private let thumbnailProvider = GalleryThumbnailProvider()
-    private let fullImageProvider = GalleryFullImageProvider()
+    private let fullImageProvider: GalleryFullImageProvider
     private let updaterController: SPUStandardUpdaterController
 
     init() {
         let configStore = ConfigStore()
         let focusController = FocusController()
         let imageGallery = ImageGallery()
+        let fullImageProvider = GalleryFullImageProvider()
+        self.fullImageProvider = fullImageProvider
         let generationService = GenerationService(
             engineRegistry: EngineRegistry(secrets: KeychainSecretStore()),
             imageGallery: imageGallery
@@ -40,7 +42,8 @@ struct MochiDiffusionApp: App {
                 configStore: configStore,
                 imageGallery: imageGallery,
                 generationService: generationService,
-                engineRegistry: EngineRegistry(secrets: KeychainSecretStore())
+                engineRegistry: EngineRegistry(secrets: KeychainSecretStore()),
+                fullImageProvider: fullImageProvider
             )
         )
         self._galleryController = State(

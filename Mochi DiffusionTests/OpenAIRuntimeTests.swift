@@ -31,7 +31,7 @@ struct OpenAIRuntimeTests {
         previews: Bool = false,
         quality: ImageQuality = .auto,
         inputImageData: [Data] = [],
-        inputImageNames: [String] = [],
+        inputImageNames: [String?] = [],
         apiModel: String = "gpt-image-2"
     ) -> GenerationRequest {
         GenerationRequest(
@@ -47,6 +47,7 @@ struct OpenAIRuntimeTests {
             prompt: "a cat",
             negativePrompt: "",
             size: CGSize(width: 1_024, height: 1_024),
+            startingImageData: nil,
             inputImageData: inputImageData,
             startingImageName: nil,
             controlNetImageData: [],
@@ -610,6 +611,7 @@ struct OpenAIRuntimeTests {
             prompt: "a cat",
             negativePrompt: "",
             size: CGSize(width: 64, height: 64),
+            startingImageData: nil,
             inputImageData: [],
             startingImageName: nil,
             controlNetImageData: [],

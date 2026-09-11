@@ -276,7 +276,7 @@ struct InspectorView: View {
 
                 HStack {
                     Button {
-                        controller.copyToPrompt()
+                        Task { await controller.copyToPrompt() }
                     } label: {
                         Text(
                             "Copy Options to Sidebar",

@@ -229,6 +229,9 @@ nonisolated enum MetadataCodec {
             parsed.guidanceScale = Double(value)
         case .scheduler:
             parsed.scheduler = Scheduler(rawValue: value)
+            if parsed.scheduler == nil {
+                parsed.presentFields.remove(.scheduler)
+            }
         case .mlComputeUnit:
             parsed.mlComputeUnit = MLComputeUnits.fromString(value)
         case .generator:

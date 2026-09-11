@@ -216,7 +216,8 @@ nonisolated struct DrawThingsEngine: GenerationEngineDescriptor {
                 loraSpecifications: try JSONSerialization.data(withJSONObject: specifications)
             ),
             size: size,
-            inputImageData: [], controlNetImageData: [], controlNetNames: [],
+            startingImageData: nil, inputImageData: [], controlNetImageData: [],
+            controlNetNames: [],
             controlNetImageNames: [],
             stepCount: Int(configuration.steps), scheduler: nil, strength: nil,
             guidanceScale: configuration.guidanceScale, quality: nil, numberOfImages: 1,
