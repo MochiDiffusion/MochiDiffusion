@@ -11,9 +11,19 @@ Icon
 
 ## User settings
 *.xcuserstate
-project.xcworkspace/
 xcuserdata/
-Mochi Diffusion.xcodeproj/xcshareddata/
+
+# Track only the shared app scheme and active Swift package lockfile.
+Mochi Diffusion.xcodeproj/xcshareddata/*
+!Mochi Diffusion.xcodeproj/xcshareddata/xcschemes/
+Mochi Diffusion.xcodeproj/xcshareddata/xcschemes/*
+!Mochi Diffusion.xcodeproj/xcshareddata/xcschemes/Mochi Diffusion.xcscheme
+Mochi Diffusion.xcodeproj/project.xcworkspace/*
+!Mochi Diffusion.xcodeproj/project.xcworkspace/xcshareddata/
+Mochi Diffusion.xcodeproj/project.xcworkspace/xcshareddata/*
+!Mochi Diffusion.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/
+Mochi Diffusion.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/*
+!Mochi Diffusion.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
 
 ## Obj-C/Swift specific
 *.hmap
