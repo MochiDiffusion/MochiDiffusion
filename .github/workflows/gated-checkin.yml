@@ -30,6 +30,7 @@ jobs:
       - name: Build and Analyze
         run: >
           xcodebuild clean build analyze
+          -disableAutomaticPackageResolution
           -project "Mochi Diffusion.xcodeproj"
           -scheme "Mochi Diffusion"
           CODE_SIGNING_ALLOWED=NO | xcpretty && exit ${PIPESTATUS[0]}
@@ -37,6 +38,7 @@ jobs:
       - name: Test
         run: >
           xcodebuild test
+          -disableAutomaticPackageResolution
           -project "Mochi Diffusion.xcodeproj"
           -scheme "Mochi Diffusion"
           -destination "platform=macOS"

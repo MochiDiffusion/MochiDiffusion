@@ -24,6 +24,7 @@ jobs:
           -project "Mochi Diffusion.xcodeproj"
           -scheme "Mochi Diffusion"
           -configuration Debug
+          -disableAutomaticPackageResolution
           CODE_SIGNING_ALLOWED=NO | xcpretty && exit ${PIPESTATUS[0]}
 
       - name: Test
@@ -33,6 +34,7 @@ jobs:
           -scheme "Mochi Diffusion"
           -destination "platform=macOS"
           -configuration Debug
+          -disableAutomaticPackageResolution
           CODE_SIGNING_ALLOWED=NO | xcpretty && exit ${PIPESTATUS[0]}
 
       - name: Export Localizations
@@ -43,6 +45,7 @@ jobs:
           -configuration Debug
           -localizationPath "./locale"
           -exportLanguage en
+          -disableAutomaticPackageResolution
           CODE_SIGNING_ALLOWED=NO | xcpretty && exit ${PIPESTATUS[0]}
 
       - name: Upload source locale artifact
