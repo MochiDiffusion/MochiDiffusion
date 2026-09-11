@@ -149,6 +149,11 @@ private struct SidebarRestoreSource {
 @MainActor
 @Observable
 final class GenerationController {
+    enum GalleryImageDestination: Equatable {
+        case inputImage
+        case startingImage
+    }
+
     struct ControlNetInput {
         var name: String?
         var image: CGImage?
@@ -200,7 +205,10 @@ final class GenerationController {
 
     var currentModelId: ModelID? {
         didSet {
-            if oldValue != currentModelId { drawThingsLoRAs = [] }
+            if oldValue != currentModelId {
+                drawThingsLoRAs = []
+                galleryImageLoadGeneration += 1
+            }
             guard let model = models.first(where: { $0.id == self.currentModelId }) else {
                 // Selecting nothing — an engine with no models — has to clear the
                 // ControlNet state too. Leaving it would offer the previous
@@ -328,6 +336,9 @@ final class GenerationController {
     private var controlNetDirDebounceTask: Task<Void, Never>?
     private var generationUpdatesTask: Task<Void, Never>?
     private var generationResultsTask: Task<Void, Never>?
+    /// Supersedes an older gallery image load when the user invokes the action
+    /// again before the first file has finished decoding.
+    private var galleryImageLoadGeneration = 0
     /// Stored, and capturing weakly, so `shutdown()` can reach it. An
     /// unreferenced `Task` capturing `self` strongly would keep the controller
     /// alive until the load finished, with no handle to cancel.
@@ -579,12 +590,6 @@ final class GenerationController {
         setStartingImage(image: image)
     }
 
-    func selectStartingImage(sdi: SDImage) async {
-        guard let image = sdi.image else { return }
-        let filename = URL(fileURLWithPath: sdi.path).lastPathComponent
-        setStartingImage(image: image, filename: filename)
-    }
-
     func setStartingImageEdit(_ edit: IrisReferenceImageEdit) {
         startingImage?.edit = edit.clamped()
     }
@@ -652,11 +657,49 @@ final class GenerationController {
         inputImages.remove(at: index)
     }
 
-    /// Adds a gallery image to the reference list, for "Set as Input Image".
-    func addInputImage(sdi: SDImage) async {
-        guard let image = sdi.image else { return }
+    /// Where the gallery's reuse action will put an image for the selected model.
+    ///
+    /// References take precedence for a model that supports both roles. A full
+    /// reference list disables the action rather than unexpectedly switching its
+    /// meaning to starting image or replacing one the user already chose.
+    var galleryImageDestination: GalleryImageDestination? {
+        guard currentModel != nil else { return nil }
+        let constraints = currentConstraints
+        if constraints.inputImages.isSupported {
+            return inputImages.count < constraints.inputImages.maxCount ? .inputImage : nil
+        }
+        return constraints.startingImage.isSupported ? .startingImage : nil
+    }
+
+    /// Loads a gallery image on demand and sends it to the role the selected model
+    /// accepts.
+    ///
+    /// The file read suspends outside this main-actor controller. Model changes and
+    /// newer gallery actions own the sidebar after that suspension, so an older
+    /// load is discarded rather than updating their destination.
+    func useGalleryImage(_ sdi: SDImage) async {
+        guard let modelID = currentModelId, let destination = galleryImageDestination else {
+            return
+        }
+        let destinationStartingImage = startingImage
+        let destinationInputImages = inputImages
+        galleryImageLoadGeneration += 1
+        let generation = galleryImageLoadGeneration
+        guard let image = await fullImageProvider.image(for: sdi) else { return }
+        guard generation == galleryImageLoadGeneration,
+            currentModelId == modelID,
+            galleryImageDestination == destination,
+            startingImage == destinationStartingImage,
+            inputImages == destinationInputImages
+        else { return }
+
         let filename = URL(fileURLWithPath: sdi.path).lastPathComponent
-        addInputImage(image: image, filename: filename)
+        switch destination {
+        case .inputImage:
+            addInputImage(image: image, filename: filename)
+        case .startingImage:
+            setStartingImage(image: image, filename: filename)
+        }
     }
 
     /// Moves images between the two sections when the selected model changes what it
@@ -942,13 +985,7 @@ final class GenerationController {
     }
 
     private func galleryImage(named filename: String) -> SDImage? {
-        guard let basename = filename.normalizedFilename, !basename.isEmpty else { return nil }
-        return imageGallery.allImages.first { image in
-            URL(fileURLWithPath: image.path).lastPathComponent.compare(
-                basename,
-                options: [.caseInsensitive, .diacriticInsensitive]
-            ) == .orderedSame
-        }
+        imageGallery.image(named: filename)
     }
 
     private func apply(

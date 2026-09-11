@@ -148,6 +148,22 @@ struct GalleryLoadingTests {
         controller.shutdown()
     }
 
+    @Test("Related images resolve by basename without case or accent sensitivity")
+    func relatedImageFilenameLookupIsForgiving() {
+        let gallery = ImageGallery()
+        let related = SDImage(
+            image: nil,
+            aspectRatio: 1,
+            path: imageDir.appending(path: "RÉFÉRENCE.PNG").path(percentEncoded: false)
+        )
+        gallery.replaceAll([(image: related, metadataFields: [])])
+
+        #expect(gallery.image(named: "reference.png")?.id == related.id)
+        #expect(gallery.image(named: "  RÉFÉRENCE.PNG  ")?.id == related.id)
+        #expect(gallery.image(named: "") == nil)
+        #expect(gallery.image(named: "missing.png") == nil)
+    }
+
     /// Save As, Save All and Copy all go through `imageData`, and would each have
     /// silently produced nothing once gallery images stopped being decoded.
     @Test("Re-encoding loads the file when no pixels are resident")

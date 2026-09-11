@@ -110,23 +110,51 @@ private struct InspectorPreviewView: View {
     }
 }
 
+/// A metadata relationship is useful before its pixels arrive, so the filename
+/// remains visible while the related gallery image loads. The path owns the task
+/// and the result: changing selection to a different relationship cancels the old
+/// work, and a late result cannot render for the newer path.
+private struct RelatedImageInfoGridRow: View {
+    @Environment(\.galleryFullImageProvider) private var fullImageProvider
+
+    let type: LocalizedStringKey
+    let filename: String
+    let galleryImage: SDImage?
+
+    @State private var loadedImage: CGImage?
+    @State private var loadedPath: String?
+
+    private var image: CGImage? {
+        if let residentImage = galleryImage?.image {
+            return residentImage
+        }
+        guard loadedPath == galleryImage?.path else { return nil }
+        return loadedImage
+    }
+
+    var body: some View {
+        InfoGridRow(
+            type: type,
+            text: image == nil ? filename : nil,
+            image: image,
+            showCopyToPromptOption: false
+        )
+        .task(id: galleryImage?.path) {
+            loadedImage = nil
+            loadedPath = nil
+            guard let galleryImage, galleryImage.image == nil else { return }
+            let path = galleryImage.path
+            guard let image = await fullImageProvider.image(for: galleryImage) else { return }
+            guard !Task.isCancelled, path == self.galleryImage?.path else { return }
+            loadedImage = image
+            loadedPath = path
+        }
+    }
+}
+
 struct InspectorView: View {
     @Environment(ImageGallery.self) private var store: ImageGallery
     @Environment(GenerationController.self) private var controller: GenerationController
-
-    private func imageFromGallery(named filename: String) -> CGImage? {
-        let trimmed = filename.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return nil }
-
-        return store.allImages.first {
-            let galleryFilename = URL(fileURLWithPath: $0.path).lastPathComponent
-            return galleryFilename.compare(
-                trimmed,
-                options: [.caseInsensitive, .diacriticInsensitive]
-            )
-                == .orderedSame
-        }?.image
-    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -170,21 +198,17 @@ struct InspectorView: View {
                             )
                         }
                         if metadataFields.contains(.startingImage), !sdi.startingImage.isEmpty {
-                            let image = imageFromGallery(named: sdi.startingImage)
-                            InfoGridRow(
+                            RelatedImageInfoGridRow(
                                 type: LocalizedStringKey(Metadata.startingImage.rawValue),
-                                text: image == nil ? sdi.startingImage : nil,
-                                image: image,
-                                showCopyToPromptOption: false
+                                filename: sdi.startingImage,
+                                galleryImage: store.image(named: sdi.startingImage)
                             )
                         }
                         if metadataFields.contains(.controlNetImage), !sdi.controlNetImage.isEmpty {
-                            let image = imageFromGallery(named: sdi.controlNetImage)
-                            InfoGridRow(
+                            RelatedImageInfoGridRow(
                                 type: LocalizedStringKey(Metadata.controlNetImage.rawValue),
-                                text: image == nil ? sdi.controlNetImage : nil,
-                                image: image,
-                                showCopyToPromptOption: false
+                                filename: sdi.controlNetImage,
+                                galleryImage: store.image(named: sdi.controlNetImage)
                             )
                         }
                         if metadataFields.contains(.inputImages), !inputImageNames.isEmpty {
@@ -192,16 +216,14 @@ struct InspectorView: View {
                                 Array(inputImageNames.enumerated()),
                                 id: \.offset
                             ) { index, name in
-                                let image = imageFromGallery(named: name)
                                 let label =
                                     inputImageNames.count == 1
                                     ? Metadata.inputImages.rawValue
                                     : "\(Metadata.inputImages.rawValue) \(index + 1)"
-                                InfoGridRow(
+                                RelatedImageInfoGridRow(
                                     type: LocalizedStringKey(label),
-                                    text: image == nil ? name : nil,
-                                    image: image,
-                                    showCopyToPromptOption: false
+                                    filename: name,
+                                    galleryImage: store.image(named: name)
                                 )
                             }
                         }

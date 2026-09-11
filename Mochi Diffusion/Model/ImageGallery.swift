@@ -211,6 +211,22 @@ enum ImagesSortType: String {
         allImages.first { $0.id == id }
     }
 
+    /// Finds a related gallery image by the basename recorded in image metadata.
+    ///
+    /// Metadata predates stable gallery IDs and intentionally stores only the
+    /// source filename. Filesystems and imported captions may disagree about case
+    /// or Unicode accents, so those differences do not make a valid relationship
+    /// disappear from the inspector.
+    func image(named filename: String) -> SDImage? {
+        guard let basename = filename.normalizedFilename else { return nil }
+        return allImages.first { image in
+            URL(fileURLWithPath: image.path).lastPathComponent.compare(
+                basename,
+                options: [.caseInsensitive, .diacriticInsensitive]
+            ) == .orderedSame
+        }
+    }
+
     func image(with index: Int) -> SDImage? {
         if allImages.isEmpty { return nil }
         if index < allImages.startIndex { return nil }

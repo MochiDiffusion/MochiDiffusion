@@ -174,10 +174,22 @@ struct GalleryView: View {
                 }
 
                 Button {
-                    Task { await controller.selectStartingImage(sdi: sdi) }
+                    Task { await controller.useGalleryImage(sdi) }
                 } label: {
-                    Text("Set as Starting Image")
+                    switch controller.galleryImageDestination {
+                    case .inputImage:
+                        Text(
+                            "Set as Input Image",
+                            comment: "Use a gallery image as a model reference input"
+                        )
+                    case .startingImage, .none:
+                        Text(
+                            "Set as Starting Image",
+                            comment: "Use a gallery image as an img2img starting image"
+                        )
+                    }
                 }
+                .disabled(controller.galleryImageDestination == nil)
             }
             Section {
                 Button {

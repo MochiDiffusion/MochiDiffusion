@@ -112,9 +112,16 @@ actor GalleryFullImageProvider {
 
     private let cache = NSCache<NSString, CachedImage>()
     private var inFlightRequests: [String: Task<CGImage?, Never>] = [:]
+    private let imageLoader: @Sendable (String) async -> CGImage?
 
-    init(countLimit: Int = 32) {
+    init(
+        countLimit: Int = 32,
+        imageLoader: @escaping @Sendable (String) async -> CGImage? = { path in
+            cgImageFromFileURL(URL(fileURLWithPath: path, isDirectory: false))
+        }
+    ) {
         cache.countLimit = countLimit
+        self.imageLoader = imageLoader
     }
 
     func image(for sdi: SDImage) async -> CGImage? {
@@ -135,8 +142,9 @@ actor GalleryFullImageProvider {
             return await request.value
         }
 
+        let imageLoader = imageLoader
         let request = Task(priority: .utility) {
-            cgImageFromFileURL(URL(fileURLWithPath: path, isDirectory: false))
+            await imageLoader(path)
         }
         inFlightRequests[path] = request
 

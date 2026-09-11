@@ -9,6 +9,33 @@ import Testing
 
 @testable import Mochi_Diffusion
 
+private actor ControlledImageLoader {
+    private var startedPaths: Set<String> = []
+    private var startWaiters: [String: [CheckedContinuation<Void, Never>]] = [:]
+    private var loadContinuations: [String: CheckedContinuation<CGImage?, Never>] = [:]
+
+    func load(_ path: String) async -> CGImage? {
+        startedPaths.insert(path)
+        for waiter in startWaiters.removeValue(forKey: path) ?? [] {
+            waiter.resume()
+        }
+        return await withCheckedContinuation { continuation in
+            loadContinuations[path] = continuation
+        }
+    }
+
+    func waitUntilStarted(_ path: String) async {
+        guard !startedPaths.contains(path) else { return }
+        await withCheckedContinuation { continuation in
+            startWaiters[path, default: []].append(continuation)
+        }
+    }
+
+    func finish(_ path: String, with image: CGImage?) {
+        loadContinuations.removeValue(forKey: path)?.resume(returning: image)
+    }
+}
+
 /// Pins the shared gallery/queue operation that turns recorded generation state
 /// back into a sidebar configuration.
 @MainActor
@@ -30,12 +57,16 @@ struct GenerationConfigRestorationTests {
         configStore.controlNetDir = controlNetDir.path(percentEncoded: false)
     }
 
-    private func makeController(gallery: ImageGallery = ImageGallery()) -> GenerationController {
+    private func makeController(
+        gallery: ImageGallery = ImageGallery(),
+        fullImageProvider: GalleryFullImageProvider = GalleryFullImageProvider()
+    ) -> GenerationController {
         let secrets = InMemorySecretStore([OpenAIImageEngine.secretAccount: "sk-test"])
         return makeTestGenerationController(
             configStore: configStore,
             imageGallery: gallery,
             engineRegistry: EngineRegistry(secrets: secrets),
+            fullImageProvider: fullImageProvider,
             startsObserving: false
         )
     }
@@ -45,6 +76,129 @@ struct GenerationConfigRestorationTests {
         on controller: GenerationController
     ) throws {
         controller.currentModelId = try #require(controller.models.first { $0.name == name }?.id)
+    }
+
+    @Test("A path-backed gallery image follows the selected model's image role")
+    func galleryReuseLoadsIntoSupportedRole() async throws {
+        try makeSDModelFixture(at: modelDir.appending(path: "core"))
+        let imageURL = temp.appending("reuse.png")
+        try writePNG(caption: "", to: imageURL, image: makeCGImage(width: 13, height: 7))
+        let galleryImage = SDImage(
+            image: nil,
+            aspectRatio: 13.0 / 7.0,
+            path: imageURL.path(percentEncoded: false)
+        )
+        let controller = makeController()
+        await controller.loadModels()
+
+        try selectModel("core", on: controller)
+        #expect(controller.galleryImageDestination == .startingImage)
+        await controller.useGalleryImage(galleryImage)
+        #expect(controller.startingImage?.name == "reuse.png")
+        #expect(controller.startingImage?.image.width == 13)
+        #expect(controller.startingImage?.image.height == 7)
+
+        try selectModel("gpt-image-2", on: controller)
+        controller.setInputImages([])
+        #expect(controller.galleryImageDestination == .inputImage)
+        await controller.useGalleryImage(galleryImage)
+        #expect(controller.startingImage == nil)
+        #expect(controller.inputImages.map(\.name) == ["reuse.png"])
+        #expect(controller.inputImages.first?.image.width == 13)
+        #expect(controller.inputImages.first?.image.height == 7)
+    }
+
+    @Test("Gallery reuse is unavailable without a destination or a free reference slot")
+    func galleryReuseAvailabilityFollowsConstraintsAndLimit() async throws {
+        let controller = makeController()
+        #expect(controller.galleryImageDestination == nil)
+
+        await controller.loadModels()
+        try selectModel("gpt-image-2", on: controller)
+        for index in 0..<controller.maxInputImageCount {
+            controller.addInputImage(
+                image: makeCGImage(),
+                filename: "reference-\(index).png"
+            )
+        }
+
+        #expect(controller.inputImages.count == controller.maxInputImageCount)
+        #expect(controller.galleryImageDestination == nil)
+    }
+
+    @Test("A model change supersedes an in-flight gallery reuse")
+    func galleryReuseDoesNotCrossModelChanges() async throws {
+        try makeSDModelFixture(at: modelDir.appending(path: "core"))
+        let loader = ControlledImageLoader()
+        let provider = GalleryFullImageProvider { path in
+            await loader.load(path)
+        }
+        let controller = makeController(fullImageProvider: provider)
+        await controller.loadModels()
+        try selectModel("core", on: controller)
+        let source = SDImage(image: nil, aspectRatio: 1, path: "/tmp/old.png")
+
+        let reuse = Task { await controller.useGalleryImage(source) }
+        await loader.waitUntilStarted("/tmp/old.png")
+        try selectModel("gpt-image-2", on: controller)
+        await loader.finish("/tmp/old.png", with: makeCGImage())
+        await reuse.value
+
+        #expect(controller.startingImage == nil)
+        #expect(controller.inputImages.isEmpty)
+    }
+
+    @Test("A newer gallery reuse supersedes an older path load")
+    func newerGalleryReuseWins() async throws {
+        try makeSDModelFixture(at: modelDir.appending(path: "core"))
+        let loader = ControlledImageLoader()
+        let provider = GalleryFullImageProvider { path in
+            await loader.load(path)
+        }
+        let controller = makeController(fullImageProvider: provider)
+        await controller.loadModels()
+        try selectModel("core", on: controller)
+        let first = SDImage(image: nil, aspectRatio: 1, path: "/tmp/first.png")
+        let second = SDImage(image: nil, aspectRatio: 1, path: "/tmp/second.png")
+
+        let firstReuse = Task { await controller.useGalleryImage(first) }
+        await loader.waitUntilStarted("/tmp/first.png")
+        let secondReuse = Task { await controller.useGalleryImage(second) }
+        await loader.waitUntilStarted("/tmp/second.png")
+        await loader.finish("/tmp/second.png", with: makeCGImage(width: 12, height: 8))
+        await secondReuse.value
+        await loader.finish("/tmp/first.png", with: makeCGImage(width: 8, height: 12))
+        await firstReuse.value
+
+        #expect(controller.startingImage?.name == "second.png")
+        #expect(controller.startingImage?.image.width == 12)
+        #expect(controller.startingImage?.image.height == 8)
+    }
+
+    @Test("A newer sidebar image supersedes an in-flight gallery reuse")
+    func galleryReuseDoesNotOverwriteNewerSidebarState() async throws {
+        try makeSDModelFixture(at: modelDir.appending(path: "core"))
+        let loader = ControlledImageLoader()
+        let provider = GalleryFullImageProvider { path in
+            await loader.load(path)
+        }
+        let controller = makeController(fullImageProvider: provider)
+        await controller.loadModels()
+        try selectModel("core", on: controller)
+        let galleryImage = SDImage(image: nil, aspectRatio: 1, path: "/tmp/gallery.png")
+
+        let reuse = Task { await controller.useGalleryImage(galleryImage) }
+        await loader.waitUntilStarted("/tmp/gallery.png")
+        controller.setStartingImage(
+            image: makeCGImage(width: 20, height: 10),
+            filename: "newer.png"
+        )
+        await loader.finish("/tmp/gallery.png", with: makeCGImage())
+        await reuse.value
+
+        #expect(controller.startingImage?.name == "newer.png")
+        #expect(controller.startingImage?.image.width == 20)
+        #expect(controller.startingImage?.image.height == 10)
     }
 
     @Test("A queued unnamed starting image keeps its role and ControlNet")

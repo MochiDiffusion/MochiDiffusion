@@ -63,15 +63,26 @@ struct ImageCommands: Commands {
             Section {
                 Button {
                     guard let sdi = store.selected() else { return }
-                    Task { await generationController.selectStartingImage(sdi: sdi) }
+                    Task { await generationController.useGalleryImage(sdi) }
                 } label: {
-                    Text(
-                        "Set as Starting Image",
-                        comment: "Set the current image as the starting image for img2img"
-                    )
+                    switch generationController.galleryImageDestination {
+                    case .inputImage:
+                        Text(
+                            "Set as Input Image",
+                            comment: "Use the selected gallery image as a model reference input"
+                        )
+                    case .startingImage, .none:
+                        Text(
+                            "Set as Starting Image",
+                            comment: "Set the current image as the starting image for img2img"
+                        )
+                    }
                 }
                 .keyboardShortcut("E", modifiers: .command)
-                .disabled(store.selected() == nil)
+                .disabled(
+                    store.selected() == nil
+                        || generationController.galleryImageDestination == nil
+                )
 
                 Button {
                     quickLook.toggle(image: store.selected())
