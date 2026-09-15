@@ -3,6 +3,7 @@
 //  Mochi DiffusionTests
 //
 
+import AppKit
 import Foundation
 import Testing
 
@@ -111,5 +112,83 @@ struct ControllerLifecycleTests {
 
         controller.shutdown()
         controller.shutdown()
+    }
+}
+
+@MainActor
+struct ModalPresentationTests {
+    private func window() -> NSWindow {
+        NSWindow(
+            contentRect: .zero,
+            styleMask: [.titled],
+            backing: .buffered,
+            defer: false
+        )
+    }
+
+    @Test("The main window is the preferred sheet presenter")
+    func prefersMainWindow() {
+        let main = window()
+        let key = window()
+
+        guard
+            case .sheet(let presenter) = ModalPresentation.mode(
+                mainWindow: main,
+                keyWindow: key,
+                orderedWindows: []
+            )
+        else {
+            Issue.record("Expected sheet presentation")
+            return
+        }
+        #expect(presenter === main)
+    }
+
+    @Test("A usable key window presents the sheet when there is no main window")
+    func usesKeyWindowFallback() {
+        let key = window()
+
+        guard
+            case .sheet(let presenter) = ModalPresentation.mode(
+                mainWindow: nil,
+                keyWindow: key,
+                orderedWindows: []
+            )
+        else {
+            Issue.record("Expected sheet presentation")
+            return
+        }
+        #expect(presenter === key)
+    }
+
+    @Test("An ordered app window presents the sheet when main and key are absent")
+    func usesOrderedWindowFallback() {
+        let ordered = window()
+
+        guard
+            case .sheet(let presenter) = ModalPresentation.mode(
+                mainWindow: nil,
+                keyWindow: nil,
+                orderedWindows: [ordered]
+            )
+        else {
+            Issue.record("Expected sheet presentation")
+            return
+        }
+        #expect(presenter === ordered)
+    }
+
+    @Test("No presenter uses application-modal fallback")
+    func usesApplicationModalFallback() {
+        guard
+            case .applicationModal = ModalPresentation.mode(
+                mainWindow: nil,
+                keyWindow: nil,
+                orderedWindows: []
+            )
+        else {
+            Issue.record("Expected application-modal presentation")
+            return
+        }
     }
 }

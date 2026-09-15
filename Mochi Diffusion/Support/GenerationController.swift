@@ -837,7 +837,7 @@ final class GenerationController {
             localized: "Choose image",
             comment: "Message text for choosing starting image or ControlNet image")
         panel.prompt = String(localized: "Select", comment: "OK button text for choose image panel")
-        let resp = await panel.beginSheetModal(for: NSApplication.shared.mainWindow!)
+        let resp = await ModalPresentation.present(panel)
         if resp != .OK {
             return nil
         }

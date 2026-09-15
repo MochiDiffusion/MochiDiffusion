@@ -8,6 +8,69 @@
 import AppKit
 import CoreML
 
+/// Presents AppKit panels as sheets when the app has a suitable window and as
+/// application-modal UI when it does not.
+///
+/// Menu commands can still run while the main window is closing or absent. The
+/// application-modal fallback keeps those commands deterministic without forcing
+/// every caller to guess which window is safe to unwrap.
+@MainActor
+enum ModalPresentation {
+    enum Mode {
+        case sheet(NSWindow)
+        case applicationModal
+    }
+
+    static func mode(
+        mainWindow: NSWindow?,
+        keyWindow: NSWindow?,
+        orderedWindows: [NSWindow]
+    ) -> Mode {
+        if let mainWindow {
+            return .sheet(mainWindow)
+        }
+        if let keyWindow {
+            return .sheet(keyWindow)
+        }
+        if let window = orderedWindows.first {
+            return .sheet(window)
+        }
+        return .applicationModal
+    }
+
+    static func present(
+        _ panel: NSSavePanel,
+        application: NSApplication = .shared
+    ) async -> NSApplication.ModalResponse {
+        switch mode(
+            mainWindow: application.mainWindow,
+            keyWindow: application.keyWindow,
+            orderedWindows: application.orderedWindows
+        ) {
+        case .sheet(let window):
+            return await panel.beginSheetModal(for: window)
+        case .applicationModal:
+            return panel.runModal()
+        }
+    }
+
+    static func present(
+        _ alert: NSAlert,
+        application: NSApplication = .shared
+    ) async {
+        switch mode(
+            mainWindow: application.mainWindow,
+            keyWindow: application.keyWindow,
+            orderedWindows: application.orderedWindows
+        ) {
+        case .sheet(let window):
+            await alert.beginSheetModal(for: window)
+        case .applicationModal:
+            alert.runModal()
+        }
+    }
+}
+
 nonisolated func compareVersion(_ thisVersion: String, _ compareTo: String) -> ComparisonResult {
     thisVersion.compare(compareTo, options: .numeric)
 }

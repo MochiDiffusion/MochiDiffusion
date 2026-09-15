@@ -97,7 +97,7 @@ extension SDImage {
         panel.nameFieldLabel = String(
             localized: "Image file name:", comment: "File name field label for save image panel")
         panel.nameFieldStringValue = filenameWithoutExtension()
-        let resp = await panel.beginSheetModal(for: NSApplication.shared.mainWindow!)
+        let resp = await ModalPresentation.present(panel)
         if resp != .OK {
             return
         }

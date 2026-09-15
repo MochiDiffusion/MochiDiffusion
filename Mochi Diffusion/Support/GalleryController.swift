@@ -142,7 +142,7 @@ final class GalleryController {
         panel.canChooseFiles = true
         panel.message = String(localized: "Choose generated images to import")
         panel.prompt = String(localized: "Import", comment: "OK button text for import image panel")
-        let resp = await panel.beginSheetModal(for: NSApplication.shared.mainWindow!)
+        let resp = await ModalPresentation.present(panel)
         if resp != .OK {
             return
         }
@@ -172,7 +172,7 @@ final class GalleryController {
         }
         alert.alertStyle = .informational
         alert.addButton(withTitle: "OK")
-        await alert.beginSheetModal(for: NSApplication.shared.mainWindow!)
+        await ModalPresentation.present(alert)
     }
 
     func saveAll() async {
@@ -184,7 +184,7 @@ final class GalleryController {
         panel.canChooseFiles = false
         panel.message = String(localized: "Choose a folder to save all images")
         panel.prompt = String(localized: "Save")
-        let resp = await panel.beginSheetModal(for: NSApplication.shared.mainWindow!)
+        let resp = await ModalPresentation.present(panel)
         if resp != .OK {
             return
         }
