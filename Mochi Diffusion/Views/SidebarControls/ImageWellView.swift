@@ -19,7 +19,7 @@ struct ImageWellView: View {
     let maximumDropCount: Int?
     let removeImage: (@Sendable () async -> Void)?
     let removeHelp: String?
-    let setImage: @Sendable (CGImage?) async -> Void
+    let setImage: @Sendable (DroppedImage) async -> Void
 
     init(
         image: CGImage? = nil,
@@ -29,7 +29,7 @@ struct ImageWellView: View {
         maximumDropCount: Int? = nil,
         removeImage: (@Sendable () async -> Void)? = nil,
         removeHelp: String? = nil,
-        setImage: @escaping @Sendable (CGImage?) async -> Void
+        setImage: @escaping @Sendable (DroppedImage) async -> Void
     ) {
         self.image = image
         if let width = size?.width, let height = size?.height {
@@ -53,7 +53,9 @@ struct ImageWellView: View {
             Button {
                 Task {
                     guard let selectedImage = await selectImage() else { return }
-                    await setImage(selectedImage)
+                    // The picker stores its selected filename on the controller;
+                    // nil here means the image well must not invent another one.
+                    await setImage((image: selectedImage, filename: nil))
                 }
             } label: {
                 GeometryReader { proxy in
@@ -111,7 +113,7 @@ struct ImageWellView: View {
                     await setImages(dropped)
                 } else {
                     guard let first = dropped.first else { return }
-                    await self.setImage(first.image)
+                    await self.setImage(first)
                 }
             }
 
@@ -167,7 +169,7 @@ struct ImageWellView: View {
         return droppedImages
     }
 
-    private func loadDroppedImage(from provider: NSItemProvider) async -> DroppedImage? {
+    func loadDroppedImage(from provider: NSItemProvider) async -> DroppedImage? {
         if provider.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier),
             let url = await loadURL(from: provider)
         {

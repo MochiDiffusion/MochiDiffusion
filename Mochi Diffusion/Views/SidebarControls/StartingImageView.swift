@@ -53,12 +53,11 @@ struct StartingImageView: View {
                     localized: "Remove starting image",
                     comment: "Tooltip for the button clearing the starting image"
                 )
-            ) { image in
-                if let image {
-                    await controller.setStartingImage(image: image)
-                } else {
-                    await controller.unsetStartingImage()
-                }
+            ) { dropped in
+                await controller.setStartingImage(
+                    image: dropped.image,
+                    filename: dropped.filename
+                )
             }
             .frame(width: wellSize, height: wellSize)
         }

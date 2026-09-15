@@ -7,6 +7,7 @@ import CoreGraphics
 import CoreML
 import Foundation
 import Testing
+import UniformTypeIdentifiers
 
 @testable import Mochi_Diffusion
 
@@ -43,6 +44,19 @@ struct GenerationRequestBuilderTests {
             modelRepository: ModelRepository(),
             imageRepository: ImageRepository(),
             startsObserving: false
+        )
+    }
+
+    private func makeImageWell() -> ImageWellView {
+        ImageWellView(size: nil, selectImage: { nil }, setImage: { _ in })
+    }
+
+    private func parsedSourceMetadata(from request: GenerationRequest) -> MetadataCodec.Parsed {
+        var image = SDImage(image: makeCGImage(), aspectRatio: 1, path: "")
+        image.startingImage = request.startingImageName ?? ""
+        image.controlNetImage = request.controlNetImageNames.first.flatMap { $0 } ?? ""
+        return MetadataCodec.decode(
+            image.metadata(including: [.startingImage, .controlNetImage])
         )
     }
 
@@ -205,6 +219,7 @@ struct GenerationRequestBuilderTests {
         #expect(request.startingImageName == "start.png")
         // Core ML SD records a starting image; the Iris path records input images.
         #expect(request.inputImageNames.isEmpty)
+        #expect(parsedSourceMetadata(from: request).startingImage == "start.png")
     }
 
     @Test("A starting image is scaled to the configured size when the model has none")
@@ -254,6 +269,7 @@ struct GenerationRequestBuilderTests {
 
         #expect(request.controlNetNames == ["canny"])
         #expect(request.controlNetImageNames == ["c.png"])
+        #expect(parsedSourceMetadata(from: request).controlNetImage == "c.png")
         let data = try #require(request.controlNetImageData.first)
         #expect(pixelSize(of: data) == CGSize(width: 512, height: 512))
     }
@@ -319,6 +335,34 @@ struct GenerationRequestBuilderTests {
         #expect(request.controlNetImageData.count == 1)
         #expect(request.controlNetNames == ["canny"])
         #expect(request.controlNetImageNames == [nil])
+        #expect(parsedSourceMetadata(from: request).controlNetImage == nil)
+    }
+
+    // MARK: - Image well drops
+
+    @Test("A Finder drop carries only its source basename")
+    func finderDropCarriesBasename() async throws {
+        let imageURL = temp.appending("finder-source.png")
+        let data = try #require(makeCGImage().pngData())
+        try data.write(to: imageURL)
+        let provider = NSItemProvider(object: imageURL as NSURL)
+
+        let dropped = try #require(await makeImageWell().loadDroppedImage(from: provider))
+
+        #expect(dropped.filename == "finder-source.png")
+    }
+
+    @Test("A non-file image provider carries no invented filename")
+    func nonFileDropHasNoFilename() async throws {
+        let data = try #require(makeCGImage().pngData())
+        let provider = NSItemProvider(
+            item: data as NSData,
+            typeIdentifier: UTType.image.identifier
+        )
+
+        let dropped = try #require(await makeImageWell().loadDroppedImage(from: provider))
+
+        #expect(dropped.filename == nil)
     }
 
     // MARK: - Iris FLUX.2 Klein

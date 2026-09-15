@@ -163,12 +163,12 @@ private struct InputImageRow: View {
                     await controller.unsetInputImage(at: index)
                 },
                 removeHelp: "Remove input image"
-            ) { image in
-                if let image {
-                    await controller.setInputImage(image: image, at: index)
-                } else {
-                    await controller.unsetInputImage(at: index)
-                }
+            ) { dropped in
+                await controller.setInputImage(
+                    image: dropped.image,
+                    at: index,
+                    filename: dropped.filename
+                )
             }
             .aspectRatio(imageAspectRatio, contentMode: .fit)
             .frame(

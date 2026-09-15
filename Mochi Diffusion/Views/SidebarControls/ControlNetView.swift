@@ -23,12 +23,11 @@ struct ControlNetView: View {
                     CGSize(width: configStore.width, height: configStore.height)
                 ),
                 selectImage: controller.selectImage
-            ) { image in
-                if let image {
-                    await controller.setControlNet(image: image)
-                } else {
-                    await controller.unsetControlNet()
-                }
+            ) { dropped in
+                await controller.setControlNet(
+                    image: dropped.image,
+                    filename: dropped.filename
+                )
             }
             .frame(width: 90, height: 90)
             .disabled(controller.controlNet.isEmpty)
