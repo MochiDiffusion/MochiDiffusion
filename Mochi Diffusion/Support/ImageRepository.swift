@@ -56,6 +56,8 @@ enum ImageRepositoryError: Error {
 }
 
 actor ImageRepository {
+    private static let supportedImageExtensions: Set<String> = ["png", "jpg", "jpeg", "heic"]
+
     private let fileSystem: FileSystemStore
     private let defaultImageDirectoryURL: URL
 
@@ -89,7 +91,7 @@ actor ImageRepository {
         let imageURLs =
             items
             .filter { $0.isFileURL }
-            .filter { ["png", "jpg", "jpeg", "heic"].contains($0.pathExtension) }
+            .filter(Self.isSupportedImageFile)
 
         var records: [ImageRecord] = []
         for url in imageURLs {
@@ -112,7 +114,7 @@ actor ImageRepository {
         }
 
         for url in urls {
-            guard var record = createImageRecordFromURL(url) else {
+            guard Self.isSupportedImageFile(url), var record = createImageRecordFromURL(url) else {
                 failed += 1
                 continue
             }
@@ -194,9 +196,9 @@ actor ImageRepository {
     func syncImages(imageDir: String, existingPaths: [String]) -> ImageSyncResult {
         let directoryURL = resolvedImageDirectoryURL(fromPath: imageDir)
         guard
-            let fileList = try? fileSystem.contentsOfDirectory(at: directoryURL).map({
-                $0.lastPathComponent
-            })
+            let fileList = try? fileSystem.contentsOfDirectory(at: directoryURL)
+                .filter(Self.isSupportedImageFile)
+                .map(\.lastPathComponent)
         else {
             return ImageSyncResult(additions: [], removals: [])
         }
@@ -221,6 +223,10 @@ actor ImageRepository {
         }
 
         return ImageSyncResult(additions: additions, removals: removals)
+    }
+
+    private static func isSupportedImageFile(_ url: URL) -> Bool {
+        supportedImageExtensions.contains(url.pathExtension.lowercased())
     }
 
     /// Resolves the persisted empty-string spelling in one place, so load, import,

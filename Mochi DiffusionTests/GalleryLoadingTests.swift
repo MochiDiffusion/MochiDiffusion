@@ -231,6 +231,27 @@ struct ImageRepositoryTests {
         )
     }
 
+    @Test(
+        "Loading recognizes supported extensions regardless of case",
+        arguments: ["PNG", "JPG", "JPEG", "HEIC"]
+    )
+    func loadingAcceptsUppercaseExtensions(_ pathExtension: String) async throws {
+        let directory = try temp.subdirectory("uppercase-\(pathExtension)")
+        let source = directory.appending(path: "one.\(pathExtension)")
+        try writeImportableImage(to: source)
+        let repository = ImageRepository()
+
+        let records = try await repository.load(
+            imageDir: directory.path(percentEncoded: false)
+        )
+
+        #expect(records.count == 1)
+        #expect(
+            records.first.map { URL(filePath: $0.path).lastPathComponent }
+                == source.lastPathComponent
+        )
+    }
+
     @Test("Prompt filenames contain content, never path components")
     func promptFilenamesAreSanitized() {
         #expect(
@@ -380,6 +401,50 @@ struct ImageRepositoryTests {
         #expect(failed == 0)
         #expect(records.count == 1)
         #expect(records.first?.path == defaultDirectory.appending(path: "one.png").path)
+    }
+
+    @Test("An uppercase import remains visible after reload")
+    func uppercaseImportSurvivesReload() async throws {
+        let incomingDirectory = try temp.subdirectory("uppercase-incoming")
+        let supportedSource = incomingDirectory.appending(path: "supported.PNG")
+        let unsupportedSource = incomingDirectory.appending(path: "unsupported.TIFF")
+        try writeImportableImage(to: supportedSource, prompt: "supported")
+        try writeImportableImage(to: unsupportedSource, prompt: "unsupported")
+        let destination = try temp.subdirectory("uppercase-destination")
+        let unsupportedDestination = destination.appending(path: "unsupported.TIFF")
+        let repository = ImageRepository()
+
+        let (imported, failed) = await repository.importImages(
+            from: [supportedSource, unsupportedSource],
+            imageDir: destination.path(percentEncoded: false)
+        )
+        let reloaded = try await repository.load(
+            imageDir: destination.path(percentEncoded: false)
+        )
+
+        #expect(imported.count == 1)
+        #expect(imported.first?.prompt == "supported")
+        #expect(failed == 1)
+        #expect(reloaded.count == 1)
+        #expect(reloaded.first.map { URL(filePath: $0.path).lastPathComponent } == "supported.PNG")
+        #expect(!FileManager.default.fileExists(atPath: unsupportedDestination.path))
+    }
+
+    @Test("Folder sync accepts uppercase extensions without adding new formats")
+    func syncUsesSupportedExtensionsCaseInsensitively() async throws {
+        let directory = try temp.subdirectory("uppercase-sync")
+        try writeImportableImage(to: directory.appending(path: "supported.HEIC"))
+        try writeImportableImage(to: directory.appending(path: "unsupported.TIFF"))
+        let repository = ImageRepository()
+
+        let result = await repository.syncImages(
+            imageDir: directory.path(percentEncoded: false),
+            existingPaths: []
+        )
+
+        #expect(result.additions.count == 1)
+        #expect(result.additions.first?.path.hasSuffix("supported.HEIC") == true)
+        #expect(result.removals.isEmpty)
     }
 
     @Test("Invalid imports leave no copy in the image directory")
