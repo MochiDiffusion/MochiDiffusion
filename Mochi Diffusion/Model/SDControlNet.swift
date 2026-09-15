@@ -6,6 +6,9 @@
 //
 
 import Foundation
+import os.log
+
+nonisolated private let logger = Logger()
 
 nonisolated struct SDControlNet {
     let name: String
@@ -31,23 +34,23 @@ nonisolated private func identifyControlNetSize(_ url: URL) -> CGSize? {
     let metadataURL = url.appendingPathComponent("metadata.json")
 
     guard let jsonData = try? Data(contentsOf: metadataURL) else {
-        print("Error: Could not read data from \(metadataURL)")
+        logger.warning("Could not read ControlNet metadata at '\(metadataURL)'")
         return nil
     }
 
     guard let jsonArray = (try? JSONSerialization.jsonObject(with: jsonData)) as? [[String: Any]]
     else {
-        print("Error: Could not parse JSON data")
+        logger.warning("Could not parse ControlNet metadata at '\(metadataURL)'")
         return nil
     }
 
     guard let jsonItem = jsonArray.first else {
-        print("Error: JSON array is empty")
+        logger.warning("ControlNet metadata is empty at '\(metadataURL)'")
         return nil
     }
 
     guard let inputSchema = jsonItem["inputSchema"] as? [[String: Any]] else {
-        print("Error: Missing 'inputSchema' in JSON")
+        logger.warning("ControlNet metadata has no input schema at '\(metadataURL)'")
         return nil
     }
 
@@ -56,30 +59,22 @@ nonisolated private func identifyControlNetSize(_ url: URL) -> CGSize? {
             ($0["name"] as? String) == "controlnet_cond"
         })
     else {
-        print("Error: 'controlnet_cond' not found in 'inputSchema'")
+        logger.warning("ControlNet metadata has no controlnet_cond input at '\(metadataURL)'")
         return nil
     }
 
     guard let shapeString = controlnetCond["shape"] as? String else {
-        print("Error: 'shape' not found in 'controlnet_cond'")
+        logger.warning("ControlNet metadata has no controlnet_cond shape at '\(metadataURL)'")
         return nil
     }
 
-    let shapeIntArray =
-        shapeString
-        .trimmingCharacters(in: CharacterSet(charactersIn: "[]"))
-        .components(separatedBy: ", ")
-        .compactMap { Int($0.trimmingCharacters(in: .whitespaces)) }
-
-    guard shapeIntArray.count >= 4 else {
-        print("Error: 'shape' does not have enough elements")
+    guard let size = CoreMLMetadataShape.imageSize(from: shapeString) else {
+        logger.warning(
+            "Unsupported ControlNet input shape '\(shapeString)' at '\(metadataURL)'"
+        )
         return nil
     }
-
-    let width = shapeIntArray[3]
-    let height = shapeIntArray[2]
-
-    return CGSize(width: width, height: height)
+    return size
 }
 
 nonisolated private func identifyControlNetAttentionType(_ url: URL) -> SDModelAttentionType? {
@@ -100,7 +95,7 @@ nonisolated private func identifyControlNetAttentionType(_ url: URL) -> SDModelA
         return metadatas[0].mlProgramOperationTypeHistogram["Ios16.einsum"] != nil
             ? .splitEinsum : .original
     } catch {
-        print("Failed to parse model metadata at '\(metadataURL)': \(error)")
+        logger.warning("Failed to parse ControlNet metadata at '\(metadataURL)': \(error)")
         return nil
     }
 }

@@ -59,6 +59,7 @@ nonisolated func makeSDModelFixture(
     at url: URL,
     attention: SDModelAttentionType = .original,
     inputSize: CGSize? = CGSize(width: 512, height: 512),
+    inputShape: String? = nil,
     unetName: String = "Unet.mlmodelc",
     extraUnetInputs: [String] = []
 ) throws {
@@ -76,11 +77,13 @@ nonisolated func makeSDModelFixture(
         to: url.appending(components: unetName, "metadata.json")
     )
 
-    if let inputSize {
+    if let shape = inputShape
+        ?? inputSize.map({ "[1, 3, \(Int($0.height)), \(Int($0.width))]" })
+    {
         try writeFile(
             """
             [{"inputSchema": [{"name": "z", \
-            "shape": "[1, 3, \(Int(inputSize.height)), \(Int(inputSize.width))]"}]}]
+            "shape": "\(shape)"}]}]
             """,
             to: url.appending(components: "VAEEncoder.mlmodelc", "metadata.json")
         )
@@ -90,14 +93,16 @@ nonisolated func makeSDModelFixture(
 nonisolated func makeControlNetFixture(
     at url: URL,
     size: CGSize = CGSize(width: 512, height: 512),
+    shape: String? = nil,
     attention: SDModelAttentionType = .original
 ) throws {
     let histogram = attention == .splitEinsum ? #"{"Ios16.einsum": 1}"# : #"{"Ios16.add": 1}"#
+    let shape = shape ?? "[1, 3, \(Int(size.height)), \(Int(size.width))]"
     try writeFile(
         """
         [{"mlProgramOperationTypeHistogram": \(histogram), \
         "inputSchema": [{"name": "controlnet_cond", \
-        "shape": "[1, 3, \(Int(size.height)), \(Int(size.width))]"}]}]
+        "shape": "\(shape)"}]}]
         """,
         to: url.appending(path: "metadata.json")
     )

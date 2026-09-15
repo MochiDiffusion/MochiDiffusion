@@ -76,6 +76,31 @@ struct SDModelDiscoveryTests {
         #expect(model.inputSize == nil)
     }
 
+    @Test(
+        "Malformed VAE encoder shapes reject the model",
+        arguments: [
+            "[1, 3]",
+            "[1, 3, height, 768]",
+            "[1, 3, 512, 768, 1]",
+            "[1, 3, 0, 768]",
+        ]
+    )
+    func rejectsMalformedVAEEncoderShape(shape: String) throws {
+        let url = try temp.subdirectory(UUID().uuidString)
+        try makeSDModelFixture(at: url, inputSize: nil, inputShape: shape)
+
+        #expect(SDModel(url: url, name: "model", controlNet: []) == nil)
+    }
+
+    @Test("A valid VAE encoder shape does not require spaces after commas")
+    func acceptsCompactVAEEncoderShape() throws {
+        let url = try temp.subdirectory("compact-shape")
+        try makeSDModelFixture(at: url, inputSize: nil, inputShape: "[1,3,512,768]")
+
+        let model = try #require(SDModel(url: url, name: "model", controlNet: []))
+        #expect(model.inputSize == CGSize(width: 768, height: 512))
+    }
+
     @Test("ControlNets are offered only when size and attention both match")
     func filtersControlNetsBySizeAndAttention() throws {
         let controlNetDir = try temp.subdirectory("controlnet")
@@ -117,6 +142,31 @@ struct SDModelDiscoveryTests {
 
         let model = try #require(SDModel(url: modelDir, name: "model", controlNet: [controlNet]))
         #expect(model.controlNet.isEmpty)
+    }
+
+    @Test(
+        "Malformed ControlNet shapes reject the ControlNet",
+        arguments: [
+            "[1, 3]",
+            "[invalid, 1, 3, 512, 768]",
+            "[1, 3, 512, 768, 1]",
+            "[1, 3, -512, 768]",
+        ]
+    )
+    func rejectsMalformedControlNetShape(shape: String) throws {
+        let url = temp.url.appending(path: "\(UUID().uuidString).mlmodelc")
+        try makeControlNetFixture(at: url, shape: shape)
+
+        #expect(SDControlNet(url: url) == nil)
+    }
+
+    @Test("A valid ControlNet shape does not require spaces after commas")
+    func acceptsCompactControlNetShape() throws {
+        let url = temp.url.appending(path: "compact.mlmodelc")
+        try makeControlNetFixture(at: url, shape: "[1,3,512,768]")
+
+        let controlNet = try #require(SDControlNet(url: url))
+        #expect(controlNet.size == CGSize(width: 768, height: 512))
     }
 }
 

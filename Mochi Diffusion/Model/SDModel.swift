@@ -10,6 +10,33 @@ import os.log
 
 nonisolated private let logger = Logger()
 
+/// Reads the fixed NCHW image shape emitted in compiled Core ML metadata.
+///
+/// Requiring every dimension to parse avoids shifting the height and width when
+/// metadata contains an unexpected token. Core ML image inputs used here have
+/// exactly four positive dimensions: batch, channels, height and width.
+nonisolated enum CoreMLMetadataShape {
+    static func imageSize(from shape: String) -> CGSize? {
+        let shape = shape.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard shape.first == "[", shape.last == "]" else { return nil }
+
+        let components = shape.dropFirst().dropLast().split(
+            separator: ",",
+            omittingEmptySubsequences: false
+        )
+        guard components.count == 4 else { return nil }
+
+        let dimensions = components.compactMap {
+            Int(String($0).trimmingCharacters(in: .whitespacesAndNewlines))
+        }
+        guard dimensions.count == components.count, dimensions.allSatisfy({ $0 > 0 }) else {
+            return nil
+        }
+
+        return CGSize(width: dimensions[3], height: dimensions[2])
+    }
+}
+
 nonisolated struct SDModel: EngineModel {
     enum ModelType: Sendable {
         case sdxl
@@ -83,7 +110,15 @@ nonisolated struct SDModel: EngineModel {
             type = .sd15
         }
 
-        let size = identifyInputSize(url)
+        let size: CGSize?
+        switch identifyInputSize(url) {
+        case .freeform:
+            size = nil
+        case .fixed(let fixedSize):
+            size = fixedSize
+        case .invalid:
+            return nil
+        }
 
         self.url = url
         self.name = name
@@ -201,23 +236,42 @@ nonisolated private func unetMetadataURL(from url: URL) -> URL? {
     }
 }
 
-nonisolated private func identifyInputSize(_ url: URL) -> CGSize? {
+nonisolated private enum InputSizeIdentification {
+    case freeform
+    case fixed(CGSize)
+    case invalid
+}
+
+nonisolated private func identifyInputSize(_ url: URL) -> InputSizeIdentification {
     let encoderMetadataURL = url.appending(path: "VAEEncoder.mlmodelc").appending(
         path: "metadata.json")
-    if let jsonData = try? Data(contentsOf: encoderMetadataURL),
-        let jsonArray = try? JSONSerialization.jsonObject(with: jsonData) as? [[String: Any]],
-        let jsonItem = jsonArray.first,
-        let inputSchema = jsonItem["inputSchema"] as? [[String: Any]],
-        let controlnetCond = inputSchema.first,
-        let shapeString = controlnetCond["shape"] as? String
-    {
-        let shapeIntArray = shapeString.trimmingCharacters(in: CharacterSet(charactersIn: "[]"))
-            .components(separatedBy: ", ")
-            .compactMap { Int($0.trimmingCharacters(in: .whitespaces)) }
-        let width = shapeIntArray[3]
-        let height = shapeIntArray[2]
-        return CGSize(width: width, height: height)
-    } else {
-        return nil
+    guard FileManager.default.fileExists(atPath: encoderMetadataURL.path(percentEncoded: false))
+    else {
+        return .freeform
+    }
+
+    do {
+        let jsonData = try Data(contentsOf: encoderMetadataURL)
+        guard
+            let jsonArray = try JSONSerialization.jsonObject(with: jsonData) as? [[String: Any]],
+            let jsonItem = jsonArray.first,
+            let inputSchema = jsonItem["inputSchema"] as? [[String: Any]],
+            let encoderInput = inputSchema.first,
+            let shapeString = encoderInput["shape"] as? String
+        else {
+            logger.warning("Unsupported VAE encoder metadata at '\(encoderMetadataURL)'")
+            return .invalid
+        }
+
+        guard let size = CoreMLMetadataShape.imageSize(from: shapeString) else {
+            logger.warning(
+                "Unsupported VAE encoder input shape '\(shapeString)' at '\(encoderMetadataURL)'"
+            )
+            return .invalid
+        }
+        return .fixed(size)
+    } catch {
+        logger.warning("Failed to parse model metadata at '\(encoderMetadataURL)': \(error)")
+        return .invalid
     }
 }
