@@ -112,6 +112,11 @@ actor ImageRepository {
         }
 
         for url in urls {
+            guard var record = createImageRecordFromURL(url) else {
+                failed += 1
+                continue
+            }
+
             let importedURL = destinationDirectory.appending(path: url.lastPathComponent)
             do {
                 try fileSystem.copyItem(at: url, to: importedURL)
@@ -119,10 +124,7 @@ actor ImageRepository {
                 failed += 1
                 continue
             }
-            guard let record = createImageRecordFromURL(importedURL) else {
-                failed += 1
-                continue
-            }
+            record.path = importedURL.path(percentEncoded: false)
             records.append(record)
         }
 

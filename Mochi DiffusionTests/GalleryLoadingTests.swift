@@ -221,6 +221,16 @@ struct ImageRepositoryTests {
         temp = try TempDirectory()
     }
 
+    private func writeImportableImage(to url: URL, prompt: String = "a cat") throws {
+        try writePNG(
+            caption: MetadataCodec.encode([
+                (.includeInImage, prompt),
+                (.generator, "Mochi Diffusion 6.0"),
+            ]),
+            to: url
+        )
+    }
+
     @Test("Prompt filenames contain content, never path components")
     func promptFilenamesAreSanitized() {
         #expect(
@@ -361,13 +371,7 @@ struct ImageRepositoryTests {
     func importUsesDefaultDirectory() async throws {
         let incomingDirectory = try temp.subdirectory("incoming")
         let source = incomingDirectory.appending(path: "one.png")
-        try writePNG(
-            caption: MetadataCodec.encode([
-                (.includeInImage, "a cat"),
-                (.generator, "Mochi Diffusion 6.0"),
-            ]),
-            to: source
-        )
+        try writeImportableImage(to: source)
         let defaultDirectory = temp.appending("default-imports")
         let repository = ImageRepository(defaultImageDirectoryURL: defaultDirectory)
 
@@ -376,6 +380,56 @@ struct ImageRepositoryTests {
         #expect(failed == 0)
         #expect(records.count == 1)
         #expect(records.first?.path == defaultDirectory.appending(path: "one.png").path)
+    }
+
+    @Test("Invalid imports leave no copy in the image directory")
+    func invalidImportsAreNotCopied() async throws {
+        let incomingDirectory = try temp.subdirectory("invalid-incoming")
+        let source = incomingDirectory.appending(path: "invalid.png")
+        try writePNG(caption: "Include in Image: a cat", to: source)
+        let destination = try temp.subdirectory("invalid-destination")
+        let invalidDestination = destination.appending(path: "invalid.png")
+        let repository = ImageRepository()
+
+        let (records, failed) = await repository.importImages(
+            from: [source],
+            imageDir: destination.path(percentEncoded: false)
+        )
+
+        #expect(records.isEmpty)
+        #expect(failed == 1)
+        #expect(!FileManager.default.fileExists(atPath: invalidDestination.path))
+    }
+
+    @Test("Mixed imports preserve collisions and report accurate counts")
+    func mixedImportsPreserveExistingFiles() async throws {
+        let incomingDirectory = try temp.subdirectory("mixed-incoming")
+        let validSource = incomingDirectory.appending(path: "valid.png")
+        let invalidSource = incomingDirectory.appending(path: "invalid.png")
+        let collisionSource = incomingDirectory.appending(path: "collision.png")
+        try writeImportableImage(to: validSource, prompt: "valid")
+        try writePNG(caption: "Include in Image: invalid", to: invalidSource)
+        try writeImportableImage(to: collisionSource, prompt: "replacement")
+
+        let destination = try temp.subdirectory("mixed-destination")
+        let validDestination = destination.appending(path: "valid.png")
+        let invalidDestination = destination.appending(path: "invalid.png")
+        let existingURL = destination.appending(path: "collision.png")
+        let existingData = Data([1, 2, 3])
+        try existingData.write(to: existingURL)
+        let repository = ImageRepository()
+
+        let (records, failed) = await repository.importImages(
+            from: [validSource, invalidSource, collisionSource],
+            imageDir: destination.path(percentEncoded: false)
+        )
+
+        #expect(records.count == 1)
+        #expect(records.first?.prompt == "valid")
+        #expect(failed == 2)
+        #expect(FileManager.default.fileExists(atPath: validDestination.path))
+        #expect(!FileManager.default.fileExists(atPath: invalidDestination.path))
+        #expect(try Data(contentsOf: existingURL) == existingData)
     }
 
     @Test("Save All does not replace an existing export")
