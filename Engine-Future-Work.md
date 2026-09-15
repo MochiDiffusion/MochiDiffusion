@@ -9,7 +9,8 @@ Draw Things is postponed in its entirety for this release, including the current
 gRPC prototype. [Draw-Things-Proof-of-Concept.md](Draw-Things-Proof-of-Concept.md)
 records its scope and validation. Beads task `MochiDiffusion-fwu` owns preserving
 that work on a feature branch and excluding its integration and exclusive dependencies
-from the release. This separation has not happened yet.
+from the release. The prototype is preserved on branch `codex/draw-things-prototype` at
+`e18663b3877bd42fac9fe169063a052b567a4f8a`.
 
 Musubi interoperability is also postponed. Epic `MochiDiffusion-e4v` and its unfinished
 children are deferred without a resume date. Its completed wire-contract spike and

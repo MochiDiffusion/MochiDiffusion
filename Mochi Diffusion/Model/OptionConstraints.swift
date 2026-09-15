@@ -344,8 +344,8 @@ nonisolated enum StartingImageConstraint: Sendable, Equatable {
 /// before the request is built, the same as every other constraint.
 ///
 /// Independent of ``StartingImageConstraint`` on purpose. A model may support
-/// either, both, or neither: Draw Things does img2img *and* moodboard conditioning
-/// at once, and an enum with a case per kind could not say so.
+/// either, both, or neither, so an enum with a case per kind could not describe
+/// the complete capability space.
 nonisolated enum InputImagesConstraint: Sendable, Equatable {
     case unsupported
     case supported(maxCount: Int)

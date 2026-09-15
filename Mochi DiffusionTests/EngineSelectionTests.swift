@@ -271,6 +271,23 @@ struct EnginePickerTests {
         #expect(controller.currentModel?.name == "a-coreml")
     }
 
+    @Test("A stale selection for a removed engine falls back to a shipped engine")
+    func removedEngineSelectionFallsBack() async throws {
+        try makeSDModelFixture(at: modelDir.appending(path: "a-coreml"))
+        tempDefaults.defaults.set(
+            "drawthings", forKey: EngineSettingsStore.Key.selectedEngine)
+        let controller = makeController()
+
+        await controller.loadModels()
+
+        #expect(controller.selectedEngine == .coreMLStableDiffusion)
+        #expect(controller.currentModel?.name == "a-coreml")
+        #expect(
+            tempDefaults.defaults.string(forKey: EngineSettingsStore.Key.selectedEngine)
+                == EngineID.coreMLStableDiffusion.rawValue
+        )
+    }
+
     @Test("The model picker shows only the selected engine's models")
     func visibleModelsAreScopedToTheEngine() async throws {
         try makeMixedFolder()
@@ -381,15 +398,15 @@ struct EnginePickerTests {
         #expect(controller.currentControlNets.isEmpty)
     }
 
-    @Test("Every registered engine is listed, including the empty one")
+    @Test("Settings lists exactly the engines included in the release")
     func allEnginesAreListed() async throws {
         try makeSDModelFixture(at: modelDir.appending(path: "a-coreml"))
         let controller = makeController()
         await controller.loadModels()
 
-        // Every registered engine, which is what Settings ▸ Engines lists.
-        #expect(
-            controller.engines.map(\.id) == [.iris, .coreMLStableDiffusion, .openAI, .drawThings])
+        // Every registered engine, which is what Settings ▸ Engines lists. Keep
+        // this exact so a deferred engine cannot return to the release unnoticed.
+        #expect(controller.engines.map(\.id) == [.iris, .coreMLStableDiffusion, .openAI])
         #expect(controller.engineAvailability[.iris] == .ready)
         #expect(controller.engineAvailability[.coreMLStableDiffusion] == .ready)
         // The default registry hands the hosted engine a store with nothing in it,
@@ -623,7 +640,7 @@ struct EngineRefreshTests {
 
         #expect(
             refresh.discoveries.map(\.engine) == [
-                .iris, .coreMLStableDiffusion, .openAI, .drawThings,
+                .iris, .coreMLStableDiffusion, .openAI,
             ])
         // Sorted by name across engines, independent of completion order.
         #expect(

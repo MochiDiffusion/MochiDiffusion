@@ -21,8 +21,9 @@ workflow primer before planning or tracking work.
 The next release keeps Core ML, Iris and OpenAI generation, the completed multi-engine
 foundation, multiple reference images/crop controls, and gallery memory improvements.
 Draw Things and Musubi interoperability are explicitly postponed by Graham. Draw Things
-is still present in this checkout pending separation; its prototype is to be preserved on
-a feature branch and excluded from the release, including its exclusive dependencies.
+is preserved on branch `codex/draw-things-prototype` at
+`e18663b3877bd42fac9fe169063a052b567a4f8a` and excluded from the release, including its
+exclusive dependencies.
 The abandoned Iris LoRA experiments are not carry-over work.
 
 Beads owns task status, acceptance criteria and dependencies. `MochiDiffusion-q73` is the
@@ -48,9 +49,8 @@ The multi-engine foundation is implemented. Current ownership and contracts foll
     injectable, so tests use an isolated suite.
   - `EngineSettingsStore` (`@MainActor`, `@Observable`) owns per-engine persisted values
     under dynamic `Engine.<id>.…` keys: the selected engine, and the model each engine was
-    last using. The dynamic options slot also holds the prototype's Draw Things connection.
-    Separate from `ConfigStore` because `@AppStorage` binds one property to one literal key
-    and cannot express a key set that grows with the engine list.
+    last using. Separate from `ConfigStore` because `@AppStorage` binds one property to one
+    literal key and cannot express a key set that grows with the engine list.
   - `GenerationController` (`@MainActor`, `@Observable`) owns the model list and the
     engine/model selection, builds a `GenerationDraft` from UI state, asks the selected
     engine to `plan` it, and enqueues the resulting `GenerationRequest`.
@@ -80,8 +80,8 @@ The multi-engine foundation is implemented. Current ownership and contracts foll
     engine, its models and its payload a compiler-checked triple. `AnyGenerationEngine`
     erases it for the registry and exposes `accepts(payload:)`.
   - `GenerationEngineRuntime` is the stateful half: it owns loaded pipelines and runs one
-    request against one session: `CoreMLEngineRuntime`, `IrisEngineRuntime`,
-    `OpenAIEngineRuntime`, and the deferred prototype's `DrawThingsRuntime`.
+    request against one session: `CoreMLEngineRuntime`, `IrisEngineRuntime`, and
+    `OpenAIEngineRuntime`.
   - `EngineRegistry` (`actor`) holds the engines; `refresh(settings:)` gathers availability
     and discovery per engine, failure-isolated, so one engine's missing folder or absent API
     key cannot empty the model list for the others.
@@ -90,11 +90,10 @@ The multi-engine foundation is implemented. Current ownership and contracts foll
     model. Registration order affects presentation order only — never ownership or validity.
   - One shared models folder is a settled decision. `ModelDiscoveryContext` enumerates it
     once per discovery pass and hands the same candidate list to every engine.
-  - Concrete descriptors live in `LocalEngines.swift`, `OpenAIImageEngine.swift`, and
-    the deferred prototype's `DrawThingsEngine.swift`; `EngineRegistry.shipped(secrets:)`
-    registers them. OpenAI availability requires a Keychain credential, and its model
-    catalog is hand-maintained. `EngineModel` requires no filesystem URL; its optional
-    `tokenizerModelDir` is nil for hosted/server models.
+  - Concrete descriptors live in `LocalEngines.swift` and `OpenAIImageEngine.swift`;
+    `EngineRegistry.shipped(secrets:)` registers them. OpenAI availability requires a
+    Keychain credential, and its model catalog is hand-maintained. `EngineModel` requires no
+    filesystem URL; its optional `tokenizerModelDir` is nil for hosted/server models.
 
 - Options, and where they are resolved:
   - `OptionConstraints` describes what a **model** will honour — per model, not per engine,

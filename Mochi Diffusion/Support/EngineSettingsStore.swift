@@ -26,23 +26,9 @@ import SwiftUI
         static func selectedModel(_ engine: EngineID) -> String {
             "Engine.\(engine.rawValue).SelectedModel"
         }
-
-        /// Reserved for engine-specific values that are not a model selection —
-        /// a host, a quality default. Nothing writes it yet; hosted engines will.
-        static func options(_ engine: EngineID) -> String {
-            "Engine.\(engine.rawValue).Options"
-        }
     }
 
     private let store: UserDefaults
-
-    var drawThings: DrawThingsConnection {
-        didSet {
-            if let data = try? JSONEncoder().encode(drawThings) {
-                store.set(data, forKey: Key.options(.drawThings))
-            }
-        }
-    }
 
     /// Observed, so the sidebar's engine picker updates when it changes.
     private var selectedEngineID: EngineID?
@@ -59,10 +45,6 @@ import SwiftUI
     ///     rather than resurrected.
     init(store: UserDefaults = .standard, engines: [EngineID]) {
         self.store = store
-        drawThings =
-            store.data(forKey: Key.options(.drawThings))
-            .flatMap { try? JSONDecoder().decode(DrawThingsConnection.self, from: $0) }
-            ?? DrawThingsConnection()
         selectedEngineID = store.string(forKey: Key.selectedEngine).map(EngineID.init(rawValue:))
         selectedModels = [:]
         for engine in engines {

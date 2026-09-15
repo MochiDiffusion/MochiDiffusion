@@ -15,7 +15,6 @@ import Foundation
 nonisolated struct EngineSettings: Sendable {
     var modelDirectory: URL
     var controlNetDirectory: URL
-    var drawThings: DrawThingsConnection = DrawThingsConnection()
 }
 
 /// One discovery pass, with the work that does not vary by engine done once.
@@ -83,7 +82,6 @@ nonisolated struct GenerationDraft: Sendable {
     /// Where the shared ControlNet bundles live. Only Core ML Stable Diffusion
     /// reads it.
     var controlNetDirectory: URL
-    var loras: [LoRASelection] = []
 }
 
 nonisolated struct ControlNetDraft: Sendable {

@@ -287,8 +287,6 @@ struct SettingsView: View {
         @Bindable var configStore = configStore
 
         switch engine {
-        case .drawThings:
-            DrawThingsSettingsView()
         case .coreMLStableDiffusion:
             GroupBox {
                 VStack(alignment: .leading) {
