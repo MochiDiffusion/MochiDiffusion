@@ -1,61 +1,39 @@
 # Unreleased
 
-- Added GPT Image 2.5 Flare and Sunburst to the OpenAI engine
-  - Both models support Extra High and Maximum quality in addition to the existing quality choices
-- Added support for several input images at once
-  - FLUX.2 Klein models accept up to four reference images
-  - The sidebar keeps every image you chose when you switch to a model that takes fewer, and marks the ones that will not be used
-- Changed the gallery to draw from thumbnails rather than holding every image full-size in memory
-- Fixed an engine whose models could not be read reporting "No models found", which sent you looking for missing models when the folder was the problem
+### Features
+
+- Added support for multiple input/reference images with FLUX.2 Klein models
+  - Each reference can be cropped, previewed, and reset independently
+  - A warning shows when large references will be resized to fit Iris's attention budget
+
+### Refactors and improvements
+
+- Changed the gallery to draw from thumbnails rather than holding full-size images in memory
+- Only show generation options the selected model actually uses
+- Starting/input images are stored in metadata and shown in InspectorView if available in gallery
+- Changed Copy Options to Sidebar for gallery images and queued jobs to use one consistent restore path
+- Changed the swap width/height button to be disabled, rather than removed, for a fixed-size model with no matching portrait or landscape version; the width and height fields keep their spacing either way
+- Replaced modal error/warning banners with alert windows
+
+### Bug fixes
+
+- Fixed malformed Core ML model or ControlNet shape metadata potentially crashing model discovery
 - Fixed a finished image's generation preview being cleared out from under the next image in the queue
+- Fixed generation progress occasionally jumping backwards, and a finished image's progress or preview appearing against the next queued image
 - Fixed the model list occasionally reverting to an older models folder's contents when the folder was changed twice in quick succession
 - Fixed queued images never generating after an earlier failure
   - Once a generation failed in a way that left an error showing — an images folder that could not be written to, for example — every image queued afterwards was accepted and silently never started, until the app was relaunched
-- Fixed copying an image's options to the sidebar not restoring its quality
-  - A quality this version does not recognise now leaves your current selection alone rather than resetting it
-- Fixed cancelling or timing out a hosted generation not actually stopping it
-  - A service that accepted the request and then went quiet would hold the queue indefinitely, blocking every image behind it, and keep a billable request open
-- Fixed a hosted generation with previews turned off being given up on after a minute
-  - Without previews there are no progress updates to show it is still working, so a slow but healthy generation was abandoned and its finished image discarded
-- Added OpenAI image generation as an engine
-  - Requires an API key, entered under Settings → Engines. It is kept in your keychain and is never written to image metadata, logs, or saved requests
-  - Sizes are flexible rather than fixed: any multiple of 16 up to 3840 a side, no more elongated than 3:1, within the service's pixel limits. A size outside them is corrected rather than rejected
-  - Generation previews appear as the service streams partial images
-  - Each image is a separate request, so cancelling part-way through a batch does not pay for the rest
-  - A prompt the service declines is reported as a message rather than an error, because nothing malfunctioned
-- Added a Quality option to the sidebar, for engines that offer one
-  - Shown as unused for Core ML Stable Diffusion and Iris, neither of which has an equivalent
-- Changed a problem reading the models folder to appear in its own message
-  - It used to share one banner with generation errors, so whichever happened last hid the other
-- Added an Engine picker to the sidebar, above the model picker
-  - The model picker shows only the selected engine's models, and each engine remembers the model it was last using
-  - Only engines you can actually generate with are listed. Every engine is always shown in Settings → Engines, which is where you set one up
-- Added an Engines tab to Settings
-  - ControlNet Folder, Reduce Memory Usage, ML Compute Unit, and Filter Inappropriate Images moved there, under Core ML Stable Diffusion; none of them ever affected any other engine
-- Changed the model list to empty itself when the models folder cannot be read, instead of continuing to show models that are no longer there
-  - The selected engine and model are remembered across the failure, so restoring the folder restores the selection
-- Changed the sidebar to show only the options the selected model actually uses
-  - FLUX.2 Klein models no longer offer Exclude from Image or ControlNet, both of which were previously accepted and ignored
-  - Guidance Scale and starting image Strength are shown as disabled for a model that has no use for them, instead of being accepted and ignored
-  - Step count and scheduler are shown as the fixed values a distilled model uses, instead of controls whose value was overridden
-- Changed the sidebar to keep its controls in the same places as the selected engine and model change
-  - Include in Image grows into the space where Exclude from Image would be, so nothing below the prompt moves and the Engine picker no longer jumps out from under the pointer that just changed it
-  - An option a model does not use keeps its row, disabled, instead of disappearing and pulling everything below it up
-  - Typing into an empty prompt no longer nudges the sidebar down as the token count appears
-- Changed the swap width/height button to be disabled, rather than removed, for a fixed-size model with no matching portrait or landscape version; the width and height fields keep their spacing either way
 - Fixed the Scheduler setting offering schedulers a distilled model cannot use; it now shows the one such a model always uses
-- Added the generating engine to image metadata and the Info panel
-  - Images also record which engine's model made them, so copying a model from an image selects that exact model even when two engines offer the same name
 - Fixed the job queue showing the sidebar's image size instead of the size a fixed-size Core ML model will actually produce
-- Fixed generation progress occasionally jumping backwards, and a finished image's progress or preview appearing against the next one in the queue
 - Fixed the last preview frame of a finished generation sometimes staying on screen and being carried into the next queued image
 - Fixed changing the ControlNet folder having no effect until the app was restarted, and sometimes not even then
-- Changed ControlNet linking to happen when a ControlNet model loads, instead of writing a link into every capable model's folder each time the models folder changed
+- Fixed Filter Inappropriate Images not changing how Stable Diffusion 1.5 pipelines were constructed or reused
+- Fixed Finder-dropped starting, reference, and ControlNet images losing their filenames in saved metadata
+- Fixed uppercase image extensions disappearing from the gallery after relaunch
+- Fixed invalid imports leaving unusable copies in the Images folder or disturbing an existing file with the same name
+- Fixed Settings folder pickers mishandling paths containing spaces or Unicode, and opening the wrong location for an empty setting
+- Fixed Import, Save As, Save All, and image-picker actions potentially crashing when no main window was available
 - Fixed a crash when importing an image whose metadata ended with an empty field
-- Fixed prompts and filenames containing semicolons being cut short when importing an image
-- Fixed input image filenames containing commas being split into separate filenames
-- Changed the image metadata format so that any prompt text survives a round trip
-  - Images generated by this version do not appear in the gallery of Mochi Diffusion 6.0 or earlier
 
 # [v6.0](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v6.0) - 28 Feb 2026
 
@@ -64,13 +42,13 @@
    - Step count is fixed at 4, and Guidance Scale, Exclude from Image, & ControlNet are ignored
    - The starting image is used as an input image, so starting image strength has no effect
 - Added Set as Starting Image to the Image menu ([@jupdike](https://github.com/jupdike))
-- Added ability to copy an image's model & size to the sidebar from the Info panel ([@gdbing](https://github.com/gdbing))
-- Added Turkish translation
-- Changed sidebar to show the model selector above the starting image ([@gdbing](https://github.com/gdbing))
-- Removed Convert to High Resolution upscaling (RealESRGAN) ([@gdbing](https://github.com/gdbing))
-- Removed option to generate images without saving them to disk ([@gdbing](https://github.com/gdbing))
+- Added ability to copy an image's model & size to the sidebar from the Info panel
+- Changed sidebar to show the model selector above the starting image
+- Removed Convert to High Resolution upscaling (RealESRGAN)
+- Removed option to generate images without saving them to disk
 - Updated system requirements to macOS 15.6
 - Updated translations
+- Added Turkish translation
 - Rewrote image generation & gallery internals for Swift 6 strict concurrency, moving generation to an actor based queue ([@gdbing](https://github.com/gdbing))
 
 
