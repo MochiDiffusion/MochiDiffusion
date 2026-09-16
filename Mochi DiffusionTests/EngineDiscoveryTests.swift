@@ -362,10 +362,7 @@ struct EngineRegistryTests {
         // only possible if the shared enumeration reached both.
         #expect(
             discoveries.allModels.map(\.name)
-                == [
-                    "coreml-model", "gpt-image-2", "gpt-image-2.5-flare",
-                    "gpt-image-2.5-sunburst", "klein-model",
-                ])
+                == ["coreml-model", "klein-model"])
         #expect(discoveries.failures.isEmpty)
     }
 
@@ -393,18 +390,27 @@ struct EngineRegistryTests {
         #expect(discoveries.failures.map(\.engine) == [.coreMLStableDiffusion])
     }
 
-    @Test("Discovery covers every registered engine")
-    func discoversAllEngines() async throws {
+    @Test("The stable release registers only local engines")
+    func stableReleaseRegistersOnlyLocalEngines() async throws {
         try makeSDModelFixture(at: modelDir.appending(path: "coreml-model"))
         try makeKleinModelFixture(at: modelDir.appending(path: "klein-model"))
         let registry = EngineRegistry()
 
         let discoveries = await registry.discoverAll(settings: settings)
 
-        #expect(Set(discoveries.map(\.engine)) == [.iris, .coreMLStableDiffusion, .openAI])
-        // Two local models plus the hosted engine's three.
-        #expect(discoveries.allModels.count == 5)
+        #expect(registry.engineIDs == [.iris, .coreMLStableDiffusion])
+        #expect(registry.engine(.openAI) == nil)
+        #expect(Set(discoveries.map(\.engine)) == [.iris, .coreMLStableDiffusion])
+        #expect(discoveries.allModels.count == 2)
         #expect(discoveries.failures.isEmpty)
+    }
+
+    @Test("The OpenAI beta composition remains available explicitly")
+    func openAIBetaRemainsAvailable() {
+        let registry = EngineRegistry.openAIBeta(secrets: NoSecretStore())
+
+        #expect(registry.engineIDs == [.iris, .coreMLStableDiffusion, .openAI])
+        #expect(registry.engine(.openAI) != nil)
     }
 
     /// The behaviour the old loader could not express: it threw one error for the
@@ -464,14 +470,7 @@ struct EngineRegistryTests {
         let models = await EngineRegistry().discoverAll(settings: settings).allModels
 
         // One flat list ordered by name, regardless of which engine found what.
-        // Case- and diacritic-insensitive, and the hosted model sorts among
-        // the local ones like any other name.
-        #expect(
-            models.map(\.name)
-                == [
-                    "a-klein-model", "B-coreml-model", "gpt-image-2",
-                    "gpt-image-2.5-flare", "gpt-image-2.5-sunburst",
-                ])
+        #expect(models.map(\.name) == ["a-klein-model", "B-coreml-model"])
     }
 
     /// Independent discovery makes duplicate names reachable, so the order of that
@@ -503,7 +502,6 @@ struct EngineRegistryTests {
 
         // Both, not one. This is what `kleinTakesPrecedenceOverCoreML` used to
         // assert the opposite of.
-        // Two local models plus the hosted engine's three.
-        #expect(models.count == 5)
+        #expect(models.count == 2)
     }
 }

@@ -12,19 +12,28 @@ import os
 /// separately, so a missing folder or an absent API key cannot empty the model list
 /// for everything else.
 actor EngineRegistry {
-    /// The engines the app ships, in registration order. That order decides only
-    /// where an engine appears in a list — never which engine owns a model, and
-    /// never whether a model is valid.
-    ///
-    /// A function rather than a stored list, because the hosted engine needs a
-    /// credential store and the caller chooses which one.
-    /// - Parameter secrets: where the hosted engine reads its credential.
-    static func shipped(secrets: any SecretStore) -> [AnyGenerationEngine] {
+    /// The engines in the stable release, in registration order. That order decides
+    /// only where an engine appears in a list — never which engine owns a model,
+    /// and never whether a model is valid.
+    static var shipped: [AnyGenerationEngine] {
         [
             AnyGenerationEngine(IrisEngine()),
             AnyGenerationEngine(CoreMLStableDiffusionEngine()),
-            AnyGenerationEngine(OpenAIImageEngine(secrets: secrets)),
         ]
+    }
+
+    /// The preserved hosted-generation composition for a future experimental beta.
+    ///
+    /// Keeping the opt-in here makes restoring the beta a composition-root change;
+    /// the stable app cannot reach a credential store or hosted runtime accidentally.
+    static func openAIBeta(
+        secrets: any SecretStore,
+        fileSystem: FileSystemStore = FileSystemStore()
+    ) -> EngineRegistry {
+        EngineRegistry(
+            engines: shipped + [AnyGenerationEngine(OpenAIImageEngine(secrets: secrets))],
+            fileSystem: fileSystem
+        )
     }
 
     /// One engine's discovery result, kept whole so a caller can report a failure
@@ -49,16 +58,10 @@ actor EngineRegistry {
         self.fileSystem = fileSystem
     }
 
-    /// The shipped engine list.
-    ///
-    /// `secrets` defaults to a store holding nothing, so the hosted engine is
-    /// present but reports "no key configured" and never queries the keychain.
-    /// Production passes the real store.
-    init(
-        secrets: any SecretStore = NoSecretStore(),
-        fileSystem: FileSystemStore = FileSystemStore()
-    ) {
-        self.init(engines: EngineRegistry.shipped(secrets: secrets), fileSystem: fileSystem)
+    /// The stable release engine list. Hosted generation must be opted into through
+    /// `openAIBeta(secrets:fileSystem:)`.
+    init(fileSystem: FileSystemStore = FileSystemStore()) {
+        self.init(engines: EngineRegistry.shipped, fileSystem: fileSystem)
     }
 
     nonisolated var engineIDs: [EngineID] {

@@ -31,9 +31,10 @@ struct MochiDiffusionApp: App {
         let focusController = FocusController()
         let imageGallery = ImageGallery()
         let fullImageProvider = GalleryFullImageProvider()
+        let engineRegistry = EngineRegistry()
         self.fullImageProvider = fullImageProvider
         let generationService = GenerationService(
-            engineRegistry: EngineRegistry(secrets: KeychainSecretStore()),
+            engineRegistry: engineRegistry,
             imageGallery: imageGallery
         )
         self._configStore = State(initialValue: configStore)
@@ -42,7 +43,7 @@ struct MochiDiffusionApp: App {
                 configStore: configStore,
                 imageGallery: imageGallery,
                 generationService: generationService,
-                engineRegistry: EngineRegistry(secrets: KeychainSecretStore()),
+                engineRegistry: engineRegistry,
                 fullImageProvider: fullImageProvider
             )
         )

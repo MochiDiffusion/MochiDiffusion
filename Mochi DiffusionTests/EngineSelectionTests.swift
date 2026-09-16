@@ -294,9 +294,8 @@ struct EnginePickerTests {
         let controller = makeController()
         await controller.loadModels()
 
-        // Two local models plus the hosted engine's three.
-        #expect(controller.models.count == 5)
-        // Scoped to the selected engine, so the hosted model is not among them.
+        #expect(controller.models.count == 2)
+        // Scoped to the selected engine, so the Iris model is not among them.
         #expect(controller.visibleModels.map(\.name) == ["a-coreml"])
 
         controller.selectEngine(.iris)
@@ -406,18 +405,13 @@ struct EnginePickerTests {
 
         // Every registered engine, which is what Settings ▸ Engines lists. Keep
         // this exact so a deferred engine cannot return to the release unnoticed.
-        #expect(controller.engines.map(\.id) == [.iris, .coreMLStableDiffusion, .openAI])
+        #expect(controller.engines.map(\.id) == [.iris, .coreMLStableDiffusion])
         #expect(controller.engineAvailability[.iris] == .ready)
         #expect(controller.engineAvailability[.coreMLStableDiffusion] == .ready)
-        // The default registry hands the hosted engine a store with nothing in it,
-        // so this is the same answer on every machine and no keychain is queried.
-        #expect(
-            controller.engineAvailability[.openAI]
-                == .needsConfiguration("Add an API key in Settings"))
+        #expect(controller.engineAvailability[.openAI] == nil)
 
-        // The sidebar offers only what can be generated with. Iris is `.ready` —
-        // the folder exists — but has no Klein model in it, and the hosted engine
-        // has a model but no key, so neither is offered.
+        // Iris is `.ready` because the folder exists, but it has no Klein model in
+        // it, so the sidebar offers only Core ML.
         #expect(controller.pickerEngines.map(\.id) == [.coreMLStableDiffusion])
         #expect(controller.isUsable(.coreMLStableDiffusion))
         #expect(!controller.isUsable(.iris))
@@ -640,15 +634,11 @@ struct EngineRefreshTests {
 
         #expect(
             refresh.discoveries.map(\.engine) == [
-                .iris, .coreMLStableDiffusion, .openAI,
+                .iris, .coreMLStableDiffusion,
             ])
         // Sorted by name across engines, independent of completion order.
         #expect(
-            refresh.models.map(\.name)
-                == [
-                    "a-klein", "gpt-image-2", "gpt-image-2.5-flare",
-                    "gpt-image-2.5-sunburst", "z-coreml",
-                ])
+            refresh.models.map(\.name) == ["a-klein", "z-coreml"])
     }
 
     @Test("Availability and models arrive from the same pass")
@@ -659,12 +649,7 @@ struct EngineRefreshTests {
 
         #expect(refresh.availability[.coreMLStableDiffusion] == .ready)
         #expect(refresh.availability[.iris] == .ready)
-        #expect(
-            refresh.models.map(\.name)
-                == [
-                    "a-coreml", "gpt-image-2", "gpt-image-2.5-flare",
-                    "gpt-image-2.5-sunburst",
-                ])
+        #expect(refresh.models.map(\.name) == ["a-coreml"])
         #expect(refresh.failures.isEmpty)
     }
 }

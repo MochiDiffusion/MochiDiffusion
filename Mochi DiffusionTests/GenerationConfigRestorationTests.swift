@@ -65,7 +65,7 @@ struct GenerationConfigRestorationTests {
         return makeTestGenerationController(
             configStore: configStore,
             imageGallery: gallery,
-            engineRegistry: EngineRegistry(secrets: secrets),
+            engineRegistry: EngineRegistry.openAIBeta(secrets: secrets),
             fullImageProvider: fullImageProvider,
             startsObserving: false
         )

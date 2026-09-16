@@ -59,9 +59,9 @@ struct ModelSelectionPersistenceTests {
         )
     }
 
-    /// The shipped list with a key already stored, so the hosted engine is `.ready`
-    /// and can become the fallback.
-    private func makeKeyedShippedController(
+    /// The preserved beta list with a key already stored, so the hosted engine is
+    /// `.ready` and can become the fallback.
+    private func makeKeyedBetaController(
         imageGallery: ImageGallery = ImageGallery()
     ) -> GenerationController {
         let secrets = InMemorySecretStore([OpenAIImageEngine.secretAccount: "sk-test"])
@@ -70,18 +70,18 @@ struct ModelSelectionPersistenceTests {
             modelRepository: ModelRepository(),
             imageRepository: ImageRepository(),
             imageGallery: imageGallery,
-            engineRegistry: EngineRegistry(secrets: secrets),
+            engineRegistry: EngineRegistry.openAIBeta(secrets: secrets),
             startsObserving: false
         )
     }
 
-    /// The shipped list, whose hosted engine has no key in a test.
-    private func makeShippedController() -> GenerationController {
+    /// The preserved beta list, whose hosted engine has no key in a test.
+    private func makeBetaController() -> GenerationController {
         makeTestGenerationController(
             configStore: configStore,
             modelRepository: ModelRepository(),
             imageRepository: ImageRepository(),
-            engineRegistry: EngineRegistry(),
+            engineRegistry: EngineRegistry.openAIBeta(secrets: NoSecretStore()),
             startsObserving: false
         )
     }
@@ -273,7 +273,7 @@ struct ModelSelectionPersistenceTests {
         // The controller reads its selection from the gallery it was given, so the
         // test has to populate that one rather than a global.
         let gallery = ImageGallery()
-        let controller = makeKeyedShippedController(imageGallery: gallery)
+        let controller = makeKeyedBetaController(imageGallery: gallery)
         await controller.loadModels()
         // The value the sidebar is left holding when the metadata says nothing we
         // understand.
@@ -307,7 +307,7 @@ struct ModelSelectionPersistenceTests {
         let legacy = modelDir.appending(path: "a-model")
         tempDefaults.defaults.set(legacy, forKey: ConfigStore.Key.legacyModelId)
 
-        let controller = makeKeyedShippedController()
+        let controller = makeKeyedBetaController()
         await controller.loadModels()
 
         // The hosted engine is the only usable one, so it became the fallback —
@@ -341,7 +341,7 @@ struct ModelSelectionPersistenceTests {
     func hostedEngineIsNotAutoSelected() async throws {
         seedSelection(ModelID(engine: .coreMLStableDiffusion, key: "gone"))
 
-        let controller = makeShippedController()
+        let controller = makeBetaController()
         await controller.loadModels()
 
         // Present in the list and in the picker, saying why it cannot be used.
@@ -367,7 +367,7 @@ struct ModelSelectionPersistenceTests {
         // Sorts after "gpt-image-2", so name order alone would pick the hosted one.
         try makeSDModelFixture(at: modelDir.appending(path: "z-model"))
 
-        let controller = makeShippedController()
+        let controller = makeBetaController()
         await controller.loadModels()
 
         #expect(controller.currentModelId?.engine == .coreMLStableDiffusion)
