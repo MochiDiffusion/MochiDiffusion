@@ -352,6 +352,25 @@ struct GenerationRequestBuilderTests {
         #expect(dropped.filename == "finder-source.png")
     }
 
+    @Test("A serialized file URL drop carries its source basename")
+    func serializedFileURLDropCarriesBasename() async throws {
+        let imageURL = temp.appending("serialized-source.png")
+        let data = try #require(makeCGImage().pngData())
+        try data.write(to: imageURL)
+        let provider = NSItemProvider()
+        provider.registerDataRepresentation(
+            forTypeIdentifier: UTType.fileURL.identifier,
+            visibility: .all
+        ) { completion in
+            completion(imageURL.dataRepresentation, nil)
+            return nil
+        }
+
+        let dropped = try #require(await makeImageWell().loadDroppedImage(from: provider))
+
+        #expect(dropped.filename == "serialized-source.png")
+    }
+
     @Test("A non-file image provider carries no invented filename")
     func nonFileDropHasNoFilename() async throws {
         let data = try #require(makeCGImage().pngData())
@@ -359,6 +378,43 @@ struct GenerationRequestBuilderTests {
             item: data as NSData,
             typeIdentifier: UTType.image.identifier
         )
+
+        let dropped = try #require(await makeImageWell().loadDroppedImage(from: provider))
+
+        #expect(dropped.filename == nil)
+    }
+
+    @Test("A non-file image provider keeps its suggested basename")
+    func nonFileDropCarriesSuggestedBasename() async throws {
+        let data = try #require(makeCGImage().pngData())
+        let provider = NSItemProvider(
+            item: data as NSData,
+            typeIdentifier: UTType.image.identifier
+        )
+        provider.suggestedName = "/provider/path/reference-source.png"
+
+        let dropped = try #require(await makeImageWell().loadDroppedImage(from: provider))
+
+        #expect(dropped.filename == "reference-source.png")
+    }
+
+    @Test("A gallery drag keeps its real basename through the image well")
+    func galleryDropCarriesBasename() async throws {
+        let imageURL = temp.appending("gallery-source.png")
+        let data = try #require(makeCGImage().pngData())
+        try data.write(to: imageURL)
+        let galleryImage = SDImage(image: nil, aspectRatio: 1, path: imageURL.path)
+        let provider = GalleryView.dragProvider(for: galleryImage)
+
+        #expect(provider.suggestedName == "gallery-source.png")
+        let dropped = try #require(await makeImageWell().loadDroppedImage(from: provider))
+        #expect(dropped.filename == "gallery-source.png")
+    }
+
+    @Test("A pathless gallery drag does not publish a temporary filename")
+    func pathlessGalleryDropHasNoFilename() async throws {
+        let galleryImage = SDImage(image: makeCGImage(), aspectRatio: 1, path: "")
+        let provider = GalleryView.dragProvider(for: galleryImage)
 
         let dropped = try #require(await makeImageWell().loadDroppedImage(from: provider))
 

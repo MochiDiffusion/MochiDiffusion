@@ -52,21 +52,7 @@ struct GalleryView: View {
                                 }
                             )
                             .onDrag {
-                                if !sdi.path.isEmpty {
-                                    return NSItemProvider(
-                                        object: URL(fileURLWithPath: sdi.path) as NSURL)
-                                }
-
-                                if let cgImage = sdi.image {
-                                    let nsImage = NSImage(
-                                        cgImage: cgImage,
-                                        size: CGSize(width: sdi.width, height: sdi.height))
-                                    if let tempURL = try? nsImage.temporaryFileURL() {
-                                        return NSItemProvider(object: tempURL as NSURL)
-                                    }
-                                }
-
-                                return NSItemProvider()
+                                Self.dragProvider(for: sdi)
                             }
                             .contextMenu {
                                 GalleryItemContextMenuView(sdi: sdi)
@@ -118,6 +104,32 @@ struct GalleryView: View {
             // paragraph, and a batch can end more than one way.
             Text(verbatim: generationState.unreportedOutcomes.joined(separator: "\n\n"))
         }
+    }
+
+    /// Uses ordinary file-transfer metadata for gallery drags so the receiving
+    /// image well can preserve the public basename without a Mochi-specific ID.
+    /// `suggestedName` is redundant for a well-behaved file-URL consumer, but
+    /// some drag destinations ask for image data instead and retain only this
+    /// standard piece of provenance.
+    static func dragProvider(for sdi: SDImage) -> NSItemProvider {
+        if !sdi.path.isEmpty {
+            let url = URL(fileURLWithPath: sdi.path)
+            let provider = NSItemProvider(object: url as NSURL)
+            provider.suggestedName = url.lastPathComponent
+            return provider
+        }
+
+        if let cgImage = sdi.image {
+            let nsImage = NSImage(
+                cgImage: cgImage,
+                size: CGSize(width: sdi.width, height: sdi.height))
+            // With no real path there is no public source filename. Offer image
+            // data directly so an internal drop does not mistake Mochi's
+            // temporary transfer filename for provenance.
+            return NSItemProvider(object: nsImage)
+        }
+
+        return NSItemProvider()
     }
 
     /// An outcome arriving while the alert is up joins the one already on screen rather than

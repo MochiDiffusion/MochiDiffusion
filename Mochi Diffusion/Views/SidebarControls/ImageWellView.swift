@@ -100,7 +100,7 @@ struct ImageWellView: View {
                 removeButton
             }
         }
-        .onDrop(of: [.fileURL, .image], isTargeted: nil) { providers in
+        .onDrop(of: [.fileURL], isTargeted: nil) { providers in
             guard !providers.isEmpty else {
                 return false
             }
@@ -188,18 +188,67 @@ struct ImageWellView: View {
             let image = NSImage(data: data),
             let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil)
         {
-            return (image: cgImage, filename: nil)
+            return (image: cgImage, filename: suggestedFilename(from: provider))
         }
 
         return nil
     }
 
+    /// A suggested name is provenance only when the provider supplied one. Strip
+    /// any path components before it reaches metadata; a transfer provider may
+    /// expose a path-like string, but Mochi's public contract is a basename.
+    private func suggestedFilename(from provider: NSItemProvider) -> String? {
+        guard let suggestedName = provider.suggestedName?.normalizedFilename else {
+            return nil
+        }
+        return URL(fileURLWithPath: suggestedName).lastPathComponent.normalizedFilename
+    }
+
     private func loadURL(from provider: NSItemProvider) async -> URL? {
+        if let url = await loadFileURLItem(from: provider) {
+            return url
+        }
+
+        return await loadURLObject(from: provider)
+    }
+
+    private func loadFileURLItem(from provider: NSItemProvider) async -> URL? {
+        await withCheckedContinuation { continuation in
+            provider.loadItem(
+                forTypeIdentifier: UTType.fileURL.identifier,
+                options: nil
+            ) { item, _ in
+                continuation.resume(returning: Self.fileURL(from: item))
+            }
+        }
+    }
+
+    private func loadURLObject(from provider: NSItemProvider) async -> URL? {
         await withCheckedContinuation { continuation in
             _ = provider.loadObject(ofClass: URL.self) { url, _ in
                 continuation.resume(returning: url)
             }
         }
+    }
+
+    /// A live SwiftUI drag may serialize an `NSURL` provider into the standard
+    /// `public.file-url` data representation. Decode that representation rather
+    /// than falling through to anonymous image pixels and losing provenance.
+    nonisolated private static func fileURL(from item: NSSecureCoding?) -> URL? {
+        let url: URL?
+        switch item {
+        case let value as URL:
+            url = value
+        case let value as Data:
+            url = URL(dataRepresentation: value, relativeTo: nil)
+        case let value as String:
+            url = URL(string: value)
+        default:
+            url = nil
+        }
+
+        guard let url, url.isFileURL else { return nil }
+        return url
     }
 
     private func loadData(from provider: NSItemProvider) async -> Data? {

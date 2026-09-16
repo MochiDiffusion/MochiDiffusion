@@ -36,19 +36,22 @@ struct InfoGridRow: View {
                 Text("")
             }
 
-            if let image = image {
-                Image(image, scale: 4, label: Text(type))
-                    .resizable()
-                    .aspectRatio(
-                        CGSize(width: image.width, height: image.height), contentMode: .fit
-                    )
-                    .frame(
-                        height: image.height >= image.width
-                            ? 90 : 90 * Double(image.height) / Double(image.width))
-            } else if let text = text {
-                Text(text)
-                    .selectableTextFormat()
-                    .frame(maxWidth: .infinity, alignment: .leading)
+            VStack(alignment: .leading, spacing: 6) {
+                if let text = text {
+                    Text(text)
+                        .selectableTextFormat()
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                if let image = image {
+                    Image(image, scale: 4, label: Text(type))
+                        .resizable()
+                        .aspectRatio(
+                            CGSize(width: image.width, height: image.height), contentMode: .fit
+                        )
+                        .frame(
+                            height: image.height >= image.width
+                                ? 90 : 90 * Double(image.height) / Double(image.width))
+                }
             }
         }
         Spacer().frame(height: 12)
@@ -115,13 +118,15 @@ private struct InspectorPreviewView: View {
 /// and the result: changing selection to a different relationship cancels the old
 /// work, and a late result cannot render for the newer path.
 private struct RelatedImageInfoGridRow: View {
-    @Environment(\.galleryFullImageProvider) private var fullImageProvider
+    @Environment(\.galleryThumbnailProvider) private var thumbnailProvider
+    @Environment(GenerationController.self) private var controller
 
     let type: LocalizedStringKey
     let filename: String
     let galleryImage: SDImage?
+    let allowsReuse: Bool
 
-    @State private var loadedImage: CGImage?
+    @State private var loadedThumbnail: CGImage?
     @State private var loadedPath: String?
 
     private var image: CGImage? {
@@ -129,26 +134,41 @@ private struct RelatedImageInfoGridRow: View {
             return residentImage
         }
         guard loadedPath == galleryImage?.path else { return nil }
-        return loadedImage
+        return loadedThumbnail
+    }
+
+    private var canReuse: Bool {
+        allowsReuse && galleryImage != nil && controller.galleryImageDestination != nil
     }
 
     var body: some View {
         InfoGridRow(
             type: type,
-            text: image == nil ? filename : nil,
+            text: filename,
             image: image,
-            showCopyToPromptOption: false
+            showCopyToPromptOption: canReuse,
+            callback: reuseImage
         )
         .task(id: galleryImage?.path) {
-            loadedImage = nil
+            loadedThumbnail = nil
             loadedPath = nil
             guard let galleryImage, galleryImage.image == nil else { return }
             let path = galleryImage.path
-            guard let image = await fullImageProvider.image(for: galleryImage) else { return }
+            guard
+                let image = await thumbnailProvider.thumbnail(
+                    for: path,
+                    maxPixelSize: 180
+                )
+            else { return }
             guard !Task.isCancelled, path == self.galleryImage?.path else { return }
-            loadedImage = image
+            loadedThumbnail = image
             loadedPath = path
         }
+    }
+
+    private func reuseImage() {
+        guard canReuse, let galleryImage else { return }
+        Task { await controller.useGalleryImage(galleryImage) }
     }
 }
 
@@ -201,14 +221,16 @@ struct InspectorView: View {
                             RelatedImageInfoGridRow(
                                 type: LocalizedStringKey(Metadata.startingImage.rawValue),
                                 filename: sdi.startingImage,
-                                galleryImage: store.image(named: sdi.startingImage)
+                                galleryImage: store.image(named: sdi.startingImage),
+                                allowsReuse: true
                             )
                         }
                         if metadataFields.contains(.controlNetImage), !sdi.controlNetImage.isEmpty {
                             RelatedImageInfoGridRow(
                                 type: LocalizedStringKey(Metadata.controlNetImage.rawValue),
                                 filename: sdi.controlNetImage,
-                                galleryImage: store.image(named: sdi.controlNetImage)
+                                galleryImage: store.image(named: sdi.controlNetImage),
+                                allowsReuse: false
                             )
                         }
                         if metadataFields.contains(.inputImages), !inputImageNames.isEmpty {
@@ -223,7 +245,8 @@ struct InspectorView: View {
                                 RelatedImageInfoGridRow(
                                     type: LocalizedStringKey(label),
                                     filename: name,
-                                    galleryImage: store.image(named: name)
+                                    galleryImage: store.image(named: name),
+                                    allowsReuse: true
                                 )
                             }
                         }
