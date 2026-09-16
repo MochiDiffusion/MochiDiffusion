@@ -451,14 +451,14 @@ struct EnginePickerTests {
         #expect(controller.currentControlNets.isEmpty)
     }
 
-    @Test("Settings lists exactly the engines included in the release")
+    @Test("The preserved engine surface lists every registered engine")
     func allEnginesAreListed() async throws {
         try makeSDModelFixture(at: modelDir.appending(path: "a-coreml"))
         let controller = makeController()
         await controller.loadModels()
 
-        // Every registered engine, which is what Settings ▸ Engines lists. Keep
-        // this exact so a deferred engine cannot return to the release unnoticed.
+        // Every registered engine for the preserved beta surface. Keep this exact
+        // so a deferred engine cannot return to the stable release unnoticed.
         #expect(controller.engines.map(\.id) == [.iris, .coreMLStableDiffusion])
         #expect(controller.engineAvailability[.iris] == .ready)
         #expect(controller.engineAvailability[.coreMLStableDiffusion] == .ready)

@@ -247,7 +247,7 @@ final class GenerationController {
     }
 
     /// Every registered engine, including unconfigured ones and ones with no
-    /// models. The picker filters; Settings lists all of them.
+    /// models. Preserved for the dormant explicit-engine beta surface.
     var engines: [AnyGenerationEngine] {
         engineRegistry.allEngines
     }
@@ -312,11 +312,8 @@ final class GenerationController {
 
     /// The engines the sidebar picker offers.
     ///
-    /// Not every registered engine. Most people use one or two, and a mode switch
-    /// that lists modes you cannot enter is noise on the surface you look at for
-    /// every generation — which only gets worse as engines are added. Settings ▸
-    /// Engines lists all of them unconditionally, and that is where an engine is
-    /// meant to be discovered and configured.
+    /// Not every registered engine. Preserved for the dormant explicit-engine
+    /// beta surface, where unavailable engines can be configured separately.
     ///
     /// The selected engine is always included, even when it stops being usable.
     /// `restoreSelection` deliberately keeps a chosen engine whose models have

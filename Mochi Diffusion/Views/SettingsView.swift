@@ -33,15 +33,12 @@ nonisolated enum SettingsDirectory {
 
 struct SettingsView: View {
     @Environment(ConfigStore.self) private var configStore: ConfigStore
-    /// Held here rather than injected: this is the only view that writes a
-    /// credential, and the store is a stateless handle to the keychain.
+    // Preserved for the dormant engine settings surface. The stable Settings
+    // tabs do not instantiate or render its API-key row.
     private let secrets = KeychainSecretStore()
-    /// Asks OpenAI about the stored key when this pane appears, so a revoked key
-    /// is reported here rather than at generation time.
     private let credentialCheck = OpenAICredentialCheck()
     private let logger = Logger()
     @State private var apiKeyState = APIKeyState.absent
-    /// Bumped when a key is stored or removed, which restarts the check.
     @State private var apiKeyRevision = 0
     @State private var isEnteringAPIKey = false
     /// Needed because the scheduler is a per-model option shown in a
@@ -74,17 +71,6 @@ struct SettingsView: View {
                             )
                         } icon: {
                             Image(systemName: "photo")
-                        }
-                    }
-                enginesView
-                    .tabItem {
-                        Label {
-                            Text(
-                                "Engines",
-                                comment: "Settings tab header label"
-                            )
-                        } icon: {
-                            Image(systemName: "cpu")
                         }
                     }
                 notificationsView
@@ -190,6 +176,35 @@ struct SettingsView: View {
 
             GroupBox {
                 VStack(alignment: .leading) {
+                    Text("ControlNet Folder")
+
+                    HStack {
+                        TextField("", text: $configStore.controlNetDir)
+                            .disableAutocorrection(true)
+                            .textFieldStyle(.roundedBorder)
+
+                        Button {
+                            guard
+                                let url = showOpenPanel(
+                                    from: SettingsDirectory.controlNet.url(
+                                        fromPath: configStore.controlNetDir
+                                    )
+                                )
+                            else { return }
+                            configStore.controlNetDir = url.path(percentEncoded: false)
+                        } label: {
+                            Image(systemName: "magnifyingglass.circle.fill")
+                                .foregroundColor(Color.secondary)
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        .help("Open in Finder")
+                    }
+                }
+                .padding(4)
+            }
+
+            GroupBox {
+                VStack(alignment: .leading) {
                     HStack {
                         Text("Move Images to Trash")
 
@@ -203,6 +218,27 @@ struct SettingsView: View {
                     Text(
                         "If option is turned off, removed images are permanently deleted. Applies to imported and generated images.",
                         comment: "Help text for Move Images to Trash setting"
+                    )
+                    .helpTextFormat()
+                }
+                .padding(4)
+            }
+
+            GroupBox {
+                VStack(alignment: .leading) {
+                    HStack {
+                        Text("Reduce Memory Usage")
+
+                        Spacer()
+
+                        Toggle("", isOn: $configStore.reduceMemory)
+                            .labelsHidden()
+                            .toggleStyle(.switch)
+                            .controlSize(.small)
+                    }
+                    Text(
+                        "Reduce memory usage further at the cost of speed.",
+                        comment: "Help text for Reduce Memory Usage setting"
                     )
                     .helpTextFormat()
                 }
@@ -272,12 +308,91 @@ struct SettingsView: View {
                     }
                 }
                 .padding(4)
+
+                Divider()
+
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Text("ML Compute Unit")
+
+                        Spacer()
+
+                        Picker("", selection: $configStore.mlComputeUnitPreference) {
+                            Text(
+                                "Auto (Recommended)",
+                                comment:
+                                    "Option to use the CPU + Neural Engine for split-einsum models, and CPU + GPU for original models"
+                            )
+                            .tag(ComputeUnitPreference.auto)
+                            Text("CPU & Neural Engine")
+                                .tag(ComputeUnitPreference.cpuAndNeuralEngine)
+                            Text("CPU & GPU")
+                                .tag(ComputeUnitPreference.cpuAndGPU)
+                            Text(
+                                "All",
+                                comment:
+                                    "Option to use all CPU, GPU, & Neural Engine for compute unit"
+                            )
+                            .tag(ComputeUnitPreference.all)
+                        }
+                        .labelsHidden()
+                        .fixedSize()
+                    }
+
+                    Text(
+                        "**Auto** selects the most appropriate configuration for the selected model.",
+                        comment: "Explanation for the 'Auto' ML Compute Unit option"
+                    )
+                    .helpTextFormat()
+
+                    Text(
+                        "**CPU & Neural Engine** provides a good balance between speed and low memory usage, but only works with split-einsum models.",
+                        comment: "Explanation for the 'CPU & NE' ML Compute Unit option"
+                    )
+                    .helpTextFormat()
+
+                    Text(
+                        "**CPU & GPU** is compatible with all models and may be faster on M1 Max, Ultra and later, but will use more memory.",
+                        comment: "Explanation for the 'CPU & GPU' ML Compute Unit option"
+                    )
+                    .helpTextFormat()
+
+                    Divider()
+
+                    Text(
+                        "Manually selecting an incompatible ML Compute Unit may cause poor performance or crash."
+                    )
+                    .helpTextFormat()
+                }
+                .padding(4)
+            }
+
+            GroupBox {
+                VStack(alignment: .leading) {
+                    HStack {
+                        Text("Filter Inappropriate Images")
+
+                        Spacer()
+
+                        Toggle("", isOn: $configStore.safetyChecker)
+                            .labelsHidden()
+                            .toggleStyle(.switch)
+                            .controlSize(.small)
+                    }
+                    Text(
+                        "Uses the model's safety checker module. This does not guarantee that all inappropriate images will be filtered.",
+                        comment: "Help text for Filter Inappropriate Images setting"
+                    )
+                    .helpTextFormat()
+                }
+                .padding(4)
             }
 
         }
     }
 
-    /// Settings that belong to one engine rather than to the app.
+    /// The dormant beta settings surface. It remains compiled, but no stable
+    /// Settings tab renders it.
     ///
     /// `ControlNetDir`, `ReduceMemory`, `MLComputeUnitPreference` and
     /// `SafetyChecker` used to sit in General and Image, presented as global while

@@ -37,21 +37,23 @@ struct SidebarView: View {
                     SizeView()
                     Spacer().frame(height: 6)
                 }
-                Group {
-                    NumberOfImagesView()
-                    Spacer().frame(height: 6)
+                if controller.currentConstraints.numberOfImages.isSupported {
+                    Group {
+                        NumberOfImagesView()
+                        Spacer().frame(height: 6)
+                    }
                 }
-                Group {
-                    QualityView()
-                    Spacer().frame(height: 6)
+                if controller.currentConstraints.steps.isSupported {
+                    Group {
+                        StepsView()
+                        Spacer().frame(height: 6)
+                    }
                 }
-                Group {
-                    StepsView()
-                    Spacer().frame(height: 6)
-                }
-                Group {
-                    GuidanceScaleView()
-                    Spacer().frame(height: 6)
+                if controller.currentConstraints.guidanceScale.isSupported {
+                    Group {
+                        GuidanceScaleView()
+                        Spacer().frame(height: 6)
+                    }
                 }
                 Group {
                     SeedView()

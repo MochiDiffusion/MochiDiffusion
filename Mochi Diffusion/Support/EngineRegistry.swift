@@ -69,7 +69,7 @@ actor EngineRegistry {
     }
 
     /// Every engine, in registration order, including ones that are unconfigured or
-    /// have no models. Settings lists all of these; the sidebar picker filters.
+    /// have no models. Preserved for the dormant explicit-engine beta surface.
     nonisolated var allEngines: [AnyGenerationEngine] {
         engines
     }

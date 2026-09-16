@@ -5,10 +5,8 @@
 
 import SwiftUI
 
-/// Picks the generation engine, which filters the model picker below it.
-///
-/// Offers only engines that can be generated with, plus whichever is selected.
-/// Settings ▸ Engines lists every engine, and is where one is configured.
+/// The dormant beta control for choosing a generation engine. It remains compiled
+/// so the explicit-engine surface can return without rebuilding its behavior.
 ///
 /// A placeholder holds the picker when none is usable, rather than going empty.
 struct EngineView: View {
