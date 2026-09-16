@@ -13,15 +13,26 @@
 - Pull requests are squash-merged and must pass the gated check-in (build + `swift format` lint).  
   Include a clear description of changes; for UI changes, attach a brief screenshot when helpful.
 
+## Localization
+
+- Never directly edit non-English text, including translated READMEs and app localization
+  resources. Translation work is done through Crowdin; review and merge the resulting Crowdin
+  pull requests instead.
+
 Run `bd prime` at the start of a new session or after context compaction to load the Beads
 workflow primer before planning or tracking work.
 
 ## Scope and Planning
 
-The next release keeps Core ML, Iris and OpenAI generation, the completed multi-engine
-foundation, multiple reference images/crop controls, and gallery memory improvements.
-Draw Things and Musubi interoperability are explicitly postponed by Graham. Draw Things
-is preserved on branch `codex/draw-things-prototype` at
+The next release is a minor stability and workflow release. It ships Core ML and Iris through
+one combined model picker, keeps the completed multi-engine foundation underneath, and includes
+multiple reference images/crop controls and gallery memory improvements. The explicit engine
+picker, engine-oriented settings UI and OpenAI hosted generation are excluded from this stable
+release surface. Preserve the OpenAI implementation and multi-engine contracts where practical
+for a later experimental beta rather than rolling back the architecture wholesale.
+
+Draw Things and Musubi interoperability are explicitly postponed by Graham. Draw Things is
+preserved on branch `codex/draw-things-prototype` at
 `e18663b3877bd42fac9fe169063a052b567a4f8a` and excluded from the release, including its
 exclusive dependencies.
 The abandoned Iris LoRA experiments are not carry-over work.
