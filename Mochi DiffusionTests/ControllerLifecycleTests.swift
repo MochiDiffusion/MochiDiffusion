@@ -192,3 +192,41 @@ struct ModalPresentationTests {
         }
     }
 }
+
+struct SettingsDirectoryTests {
+    @Test(
+        "Stored directory paths become file URLs without changing their text",
+        arguments: [
+            SettingsDirectory.images,
+            SettingsDirectory.models,
+            SettingsDirectory.controlNet,
+        ]
+    )
+    func storedPathBecomesFileURL(directory: SettingsDirectory) {
+        let path = "/Volumes/External Drive/モデル/Control Net"
+
+        let url = directory.url(fromPath: path)
+
+        #expect(url.isFileURL)
+        #expect(url.hasDirectoryPath)
+        #expect(url.pathComponents == URL(fileURLWithPath: path).pathComponents)
+    }
+
+    @Test("Empty settings open each repository's default directory")
+    func emptyPathUsesRepositoryDefaults() {
+        let home = FileManager.default.homeDirectoryForCurrentUser
+
+        #expect(
+            SettingsDirectory.images.url(fromPath: "")
+                == home.appending(path: "MochiDiffusion/images", directoryHint: .isDirectory)
+        )
+        #expect(
+            SettingsDirectory.models.url(fromPath: "")
+                == home.appending(path: "MochiDiffusion/models", directoryHint: .isDirectory)
+        )
+        #expect(
+            SettingsDirectory.controlNet.url(fromPath: "")
+                == home.appending(path: "MochiDiffusion/controlnet", directoryHint: .isDirectory)
+        )
+    }
+}

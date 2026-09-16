@@ -11,6 +11,26 @@ import UniformTypeIdentifiers
 import UserNotifications
 import os
 
+/// Resolves the settings window's stored directory strings exactly as the
+/// corresponding repository does. In particular, an empty preference opens the
+/// folder the app will actually use rather than an unrelated process directory.
+nonisolated enum SettingsDirectory {
+    case images
+    case models
+    case controlNet
+
+    func url(fromPath path: String) -> URL {
+        switch self {
+        case .images:
+            ImageRepository.imageDirectoryURL(fromPath: path)
+        case .models:
+            ModelRepository.modelDirectoryURL(fromPath: path)
+        case .controlNet:
+            ModelRepository.controlNetDirectoryURL(fromPath: path)
+        }
+    }
+}
+
 struct SettingsView: View {
     @Environment(ConfigStore.self) private var configStore: ConfigStore
     /// Held here rather than injected: this is the only view that writes a
@@ -101,7 +121,11 @@ struct SettingsView: View {
 
                         Button {
                             guard
-                                let url = showOpenPanel(from: URL(string: configStore.imageDir))
+                                let url = showOpenPanel(
+                                    from: SettingsDirectory.images.url(
+                                        fromPath: configStore.imageDir
+                                    )
+                                )
                             else { return }
                             configStore.imageDir = url.path(percentEncoded: false)
                         } label: {
@@ -146,7 +170,11 @@ struct SettingsView: View {
 
                         Button {
                             guard
-                                let url = showOpenPanel(from: URL(string: configStore.modelDir))
+                                let url = showOpenPanel(
+                                    from: SettingsDirectory.models.url(
+                                        fromPath: configStore.modelDir
+                                    )
+                                )
                             else { return }
                             configStore.modelDir = url.path(percentEncoded: false)
                         } label: {
@@ -300,7 +328,9 @@ struct SettingsView: View {
                         Button {
                             guard
                                 let url = showOpenPanel(
-                                    from: URL(string: configStore.controlNetDir)
+                                    from: SettingsDirectory.controlNet.url(
+                                        fromPath: configStore.controlNetDir
+                                    )
                                 )
                             else { return }
                             configStore.controlNetDir = url.path(percentEncoded: false)
