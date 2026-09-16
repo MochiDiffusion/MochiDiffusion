@@ -190,14 +190,13 @@ private struct InputImageRow: View {
                                 .frame(width: 340)
                         }
                         .help("Crop input image")
+
+                        Text(format(editedSize))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
                     }
-
-                    Text("Edited: \(format(editedSize))")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-
-                    if let predictedSize {
-                        Text("Estimated final: \(format(predictedSize))")
+                    if let predictedSize, predictedSize != editedSize {
+                        Text("Constrained to: \(format(predictedSize))")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
