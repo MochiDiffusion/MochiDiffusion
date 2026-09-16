@@ -47,10 +47,6 @@ struct GenerationRequestBuilderTests {
         )
     }
 
-    private func makeImageWell() -> ImageWellView {
-        ImageWellView(size: nil, selectImage: { nil }, setImage: { _ in })
-    }
-
     private func parsedSourceMetadata(from request: GenerationRequest) -> MetadataCodec.Parsed {
         var image = SDImage(image: makeCGImage(), aspectRatio: 1, path: "")
         image.startingImage = request.startingImageName ?? ""
@@ -340,66 +336,50 @@ struct GenerationRequestBuilderTests {
 
     // MARK: - Image well drops
 
-    @Test("A Finder drop carries only its source basename")
-    func finderDropCarriesBasename() async throws {
-        let imageURL = temp.appending("finder-source.png")
+    @Test("An original image file carries only its source basename")
+    func originalImageFileCarriesBasename() throws {
         let data = try #require(makeCGImage().pngData())
-        try data.write(to: imageURL)
-        let provider = NSItemProvider(object: imageURL as NSURL)
-
-        let dropped = try #require(await makeImageWell().loadDroppedImage(from: provider))
-
-        #expect(dropped.filename == "finder-source.png")
-    }
-
-    @Test("A serialized file URL drop carries its source basename")
-    func serializedFileURLDropCarriesBasename() async throws {
-        let imageURL = temp.appending("serialized-source.png")
-        let data = try #require(makeCGImage().pngData())
-        try data.write(to: imageURL)
-        let provider = NSItemProvider()
-        provider.registerDataRepresentation(
-            forTypeIdentifier: UTType.fileURL.identifier,
-            visibility: .all
-        ) { completion in
-            completion(imageURL.dataRepresentation, nil)
-            return nil
-        }
-
-        let dropped = try #require(await makeImageWell().loadDroppedImage(from: provider))
-
-        #expect(dropped.filename == "serialized-source.png")
-    }
-
-    @Test("A non-file image provider carries no invented filename")
-    func nonFileDropHasNoFilename() async throws {
-        let data = try #require(makeCGImage().pngData())
-        let provider = NSItemProvider(
-            item: data as NSData,
-            typeIdentifier: UTType.image.identifier
+        let transfer = ImageDropTransfer(
+            storage: .imageFile(
+                data: data,
+                filename: "file-source.png",
+                isOriginal: true
+            )
         )
 
-        let dropped = try #require(await makeImageWell().loadDroppedImage(from: provider))
+        let dropped = try #require(ImageWellView.droppedImage(from: transfer))
+
+        #expect(dropped.filename == "file-source.png")
+    }
+
+    @Test("A copied image file carries no untrusted temporary filename")
+    func copiedImageFileHasNoFilename() throws {
+        let data = try #require(makeCGImage().pngData())
+        let transfer = ImageDropTransfer(
+            storage: .imageFile(
+                data: data,
+                filename: ".com.apple.Foundation.NSItemProvider.tmp",
+                isOriginal: false
+            )
+        )
+
+        let dropped = try #require(ImageWellView.droppedImage(from: transfer))
 
         #expect(dropped.filename == nil)
     }
 
-    @Test("A non-file image provider keeps its suggested basename")
-    func nonFileDropCarriesSuggestedBasename() async throws {
+    @Test("An image-data transfer carries no invented filename")
+    func imageDataTransferHasNoFilename() throws {
         let data = try #require(makeCGImage().pngData())
-        let provider = NSItemProvider(
-            item: data as NSData,
-            typeIdentifier: UTType.image.identifier
-        )
-        provider.suggestedName = "/provider/path/reference-source.png"
+        let transfer = ImageDropTransfer(storage: .imageData(data))
 
-        let dropped = try #require(await makeImageWell().loadDroppedImage(from: provider))
+        let dropped = try #require(ImageWellView.droppedImage(from: transfer))
 
-        #expect(dropped.filename == "reference-source.png")
+        #expect(dropped.filename == nil)
     }
 
-    @Test("A gallery drag keeps its real basename through the image well")
-    func galleryDropCarriesBasename() async throws {
+    @Test("A path-backed gallery drag publishes its real basename")
+    func galleryDragPublishesBasename() throws {
         let imageURL = temp.appending("gallery-source.png")
         let data = try #require(makeCGImage().pngData())
         try data.write(to: imageURL)
@@ -407,18 +387,16 @@ struct GenerationRequestBuilderTests {
         let provider = GalleryView.dragProvider(for: galleryImage)
 
         #expect(provider.suggestedName == "gallery-source.png")
-        let dropped = try #require(await makeImageWell().loadDroppedImage(from: provider))
-        #expect(dropped.filename == "gallery-source.png")
+        #expect(provider.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier))
     }
 
     @Test("A pathless gallery drag does not publish a temporary filename")
-    func pathlessGalleryDropHasNoFilename() async throws {
+    func pathlessGalleryDropHasNoFilename() {
         let galleryImage = SDImage(image: makeCGImage(), aspectRatio: 1, path: "")
         let provider = GalleryView.dragProvider(for: galleryImage)
 
-        let dropped = try #require(await makeImageWell().loadDroppedImage(from: provider))
-
-        #expect(dropped.filename == nil)
+        #expect(provider.suggestedName == nil)
+        #expect(provider.hasItemConformingToTypeIdentifier(UTType.image.identifier))
     }
 
     // MARK: - Iris FLUX.2 Klein

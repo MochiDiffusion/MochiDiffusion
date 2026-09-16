@@ -8,6 +8,41 @@
 import SwiftUI
 import UniformTypeIdentifiers
 
+/// Imports a file-backed image when possible so its basename can survive.
+/// Image bytes remain an anonymous fallback for sources such as browsers and Photos.
+struct ImageDropTransfer: Transferable {
+    enum Storage: Sendable {
+        case imageFile(data: Data, filename: String?, isOriginal: Bool)
+        case imageData(Data)
+    }
+
+    let storage: Storage
+
+    nonisolated static var transferRepresentation: some TransferRepresentation {
+        FileRepresentation(
+            importedContentType: .image,
+            shouldAttemptToOpenInPlace: true
+        ) { received in
+            // A received file is only guaranteed to exist inside this closure.
+            // Keep its bytes and whether macOS gave us the actual source file;
+            // only an original file has trustworthy basename provenance.
+            let data = try Data(contentsOf: received.file)
+            let filename = received.file.lastPathComponent.normalizedFilename
+            return Self(
+                storage: .imageFile(
+                    data: data,
+                    filename: filename,
+                    isOriginal: received.isOriginalFile
+                )
+            )
+        }
+
+        DataRepresentation(importedContentType: .image) { data in
+            Self(storage: .imageData(data))
+        }
+    }
+}
+
 struct ImageWellView: View {
     typealias DroppedImage = (image: CGImage, filename: String?)
 
@@ -100,15 +135,16 @@ struct ImageWellView: View {
                 removeButton
             }
         }
-        .onDrop(of: [.fileURL], isTargeted: nil) { providers in
-            guard !providers.isEmpty else {
+        .dropDestination(for: ImageDropTransfer.self) { transfers, _ in
+            let transfersToLoad =
+                maximumDropCount.map { Array(transfers.prefix(max(0, $0))) }
+                ?? transfers
+            let dropped = transfersToLoad.compactMap(Self.droppedImage(from:))
+            guard !dropped.isEmpty else {
                 return false
             }
 
             Task {
-                let dropped = await loadDroppedImages(from: providers)
-                guard !dropped.isEmpty else { return }
-
                 if let setImages {
                     await setImages(dropped)
                 } else {
@@ -119,6 +155,25 @@ struct ImageWellView: View {
 
             return true
         }
+    }
+
+    nonisolated static func droppedImage(
+        from transfer: ImageDropTransfer
+    ) -> DroppedImage? {
+        switch transfer.storage {
+        case .imageFile(let data, let filename, let isOriginal):
+            guard let image = decodedImage(from: data) else { return nil }
+            return (image: image, filename: isOriginal ? filename : nil)
+
+        case .imageData(let data):
+            guard let image = decodedImage(from: data) else { return nil }
+            return (image: image, filename: nil)
+        }
+    }
+
+    nonisolated private static func decodedImage(from data: Data) -> CGImage? {
+        guard let image = NSImage(data: data) else { return nil }
+        return image.cgImage(forProposedRect: nil, context: nil, hints: nil)
     }
 
     private var removeButtonLabel: some View {
@@ -154,110 +209,4 @@ struct ImageWellView: View {
         }
     }
 
-    private func loadDroppedImages(from providers: [NSItemProvider]) async -> [DroppedImage] {
-        var droppedImages: [DroppedImage] = []
-        let providersToLoad =
-            maximumDropCount.map { Array(providers.prefix(max(0, $0))) }
-            ?? providers
-        droppedImages.reserveCapacity(providersToLoad.count)
-
-        for provider in providersToLoad {
-            if let dropped = await loadDroppedImage(from: provider) {
-                droppedImages.append(dropped)
-            }
-        }
-        return droppedImages
-    }
-
-    func loadDroppedImage(from provider: NSItemProvider) async -> DroppedImage? {
-        if provider.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier),
-            let url = await loadURL(from: provider)
-        {
-            guard let imageSource = CGImageSourceCreateWithURL(url as CFURL, nil) else {
-                return nil
-            }
-            let imageIndex = CGImageSourceGetPrimaryImageIndex(imageSource)
-            guard let cgImage = CGImageSourceCreateImageAtIndex(imageSource, imageIndex, nil) else {
-                return nil
-            }
-            return (image: cgImage, filename: url.lastPathComponent)
-        }
-
-        if provider.hasItemConformingToTypeIdentifier(UTType.image.identifier),
-            let data = await loadData(from: provider),
-            let image = NSImage(data: data),
-            let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil)
-        {
-            return (image: cgImage, filename: suggestedFilename(from: provider))
-        }
-
-        return nil
-    }
-
-    /// A suggested name is provenance only when the provider supplied one. Strip
-    /// any path components before it reaches metadata; a transfer provider may
-    /// expose a path-like string, but Mochi's public contract is a basename.
-    private func suggestedFilename(from provider: NSItemProvider) -> String? {
-        guard let suggestedName = provider.suggestedName?.normalizedFilename else {
-            return nil
-        }
-        return URL(fileURLWithPath: suggestedName).lastPathComponent.normalizedFilename
-    }
-
-    private func loadURL(from provider: NSItemProvider) async -> URL? {
-        if let url = await loadFileURLItem(from: provider) {
-            return url
-        }
-
-        return await loadURLObject(from: provider)
-    }
-
-    private func loadFileURLItem(from provider: NSItemProvider) async -> URL? {
-        await withCheckedContinuation { continuation in
-            provider.loadItem(
-                forTypeIdentifier: UTType.fileURL.identifier,
-                options: nil
-            ) { item, _ in
-                continuation.resume(returning: Self.fileURL(from: item))
-            }
-        }
-    }
-
-    private func loadURLObject(from provider: NSItemProvider) async -> URL? {
-        await withCheckedContinuation { continuation in
-            _ = provider.loadObject(ofClass: URL.self) { url, _ in
-                continuation.resume(returning: url)
-            }
-        }
-    }
-
-    /// A live SwiftUI drag may serialize an `NSURL` provider into the standard
-    /// `public.file-url` data representation. Decode that representation rather
-    /// than falling through to anonymous image pixels and losing provenance.
-    nonisolated private static func fileURL(from item: NSSecureCoding?) -> URL? {
-        let url: URL?
-        switch item {
-        case let value as URL:
-            url = value
-        case let value as Data:
-            url = URL(dataRepresentation: value, relativeTo: nil)
-        case let value as String:
-            url = URL(string: value)
-        default:
-            url = nil
-        }
-
-        guard let url, url.isFileURL else { return nil }
-        return url
-    }
-
-    private func loadData(from provider: NSItemProvider) async -> Data? {
-        await withCheckedContinuation { continuation in
-            _ = provider.loadDataRepresentation(forTypeIdentifier: UTType.image.identifier) {
-                data,
-                _ in
-                continuation.resume(returning: data)
-            }
-        }
-    }
 }
