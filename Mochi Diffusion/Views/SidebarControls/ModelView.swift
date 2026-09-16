@@ -23,7 +23,7 @@ struct ModelView: View {
             FilterablePicker(
                 String(localized: "Model"),
                 selection: $controller.currentModelId,
-                items: pickerModels,
+                items: controller.modelPickerItems,
                 title: \.name
             )
 
@@ -36,12 +36,4 @@ struct ModelView: View {
         }
     }
 
-    private var pickerModels: [PickerModel] {
-        controller.visibleModels.map { PickerModel(id: $0.id, name: $0.name) }
-    }
-}
-
-private struct PickerModel: Identifiable {
-    let id: ModelID?
-    let name: String
 }

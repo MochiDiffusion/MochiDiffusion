@@ -18,10 +18,6 @@ struct SidebarView: View {
                     Divider().frame(height: 16)
                 }
                 Group {
-                    EngineView()
-                    Spacer().frame(height: 6)
-                }
-                Group {
                     ModelView()
                     Spacer().frame(height: 6)
                 }

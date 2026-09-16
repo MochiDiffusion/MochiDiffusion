@@ -210,11 +210,13 @@ struct EnginePickerTests {
     }
 
     private func makeController(
-        engineRegistry: EngineRegistry = EngineRegistry()
+        engineRegistry: EngineRegistry = EngineRegistry(),
+        modelSelectionMode: GenerationController.ModelSelectionMode = .engineScoped
     ) -> GenerationController {
         makeTestGenerationController(
             configStore: configStore,
             engineRegistry: engineRegistry,
+            modelSelectionMode: modelSelectionMode,
             startsObserving: false
         )
     }
@@ -261,7 +263,7 @@ struct EnginePickerTests {
     @Test("With nothing persisted, the first model's engine is selected")
     func firstModelDecidesTheEngine() async throws {
         try makeMixedFolder()
-        let controller = makeController()
+        let controller = makeController(modelSelectionMode: .combined)
 
         await controller.loadModels()
 
@@ -276,7 +278,7 @@ struct EnginePickerTests {
         try makeSDModelFixture(at: modelDir.appending(path: "a-coreml"))
         tempDefaults.defaults.set(
             "drawthings", forKey: EngineSettingsStore.Key.selectedEngine)
-        let controller = makeController()
+        let controller = makeController(modelSelectionMode: .combined)
 
         await controller.loadModels()
 
@@ -301,6 +303,58 @@ struct EnginePickerTests {
         controller.selectEngine(.iris)
 
         #expect(controller.visibleModels.map(\.name) == ["b-klein"])
+    }
+
+    @Test("The stable model picker combines every engine's models")
+    func combinedPickerShowsEveryModel() async throws {
+        try makeMixedFolder()
+        let controller = makeController(modelSelectionMode: .combined)
+
+        await controller.loadModels()
+
+        #expect(controller.modelPickerItems.map(\.name) == ["a-coreml", "b-klein"])
+        #expect(
+            controller.modelPickerItems.compactMap(\.id).map(\.engine)
+                == [.coreMLStableDiffusion, .iris]
+        )
+    }
+
+    @Test("Only colliding model names include their engine")
+    func combinedPickerDisambiguatesCollisions() async throws {
+        let ambiguous = modelDir.appending(path: "ambiguous")
+        try makeKleinModelFixture(at: ambiguous)
+        try makeSDModelFixture(at: ambiguous)
+        try makeSDModelFixture(at: modelDir.appending(path: "unique"))
+        let controller = makeController(modelSelectionMode: .combined)
+
+        await controller.loadModels()
+
+        #expect(
+            controller.modelPickerItems.map(\.name)
+                == [
+                    "ambiguous — Core ML Stable Diffusion",
+                    "ambiguous — Iris",
+                    "unique",
+                ]
+        )
+    }
+
+    @Test("Choosing a combined model selects its engine implicitly")
+    func combinedPickerSelectsEngineImplicitly() async throws {
+        try makeMixedFolder()
+        let controller = makeController(modelSelectionMode: .combined)
+        await controller.loadModels()
+
+        controller.setStartingImage(image: makeCGImage(), filename: "start.png")
+        let item = try #require(controller.modelPickerItems.first { $0.name == "b-klein" })
+        let iris = try #require(item.id)
+        controller.currentModelId = iris
+
+        #expect(controller.selectedEngine == .iris)
+        #expect(controller.currentConstraints.inputImages.isSupported)
+        #expect(!controller.currentConstraints.startingImage.isSupported)
+        #expect(controller.startingImage == nil)
+        #expect(controller.inputImages.map(\.name) == ["start.png"])
     }
 
     @Test("Switching engine selects that engine's first model")

@@ -149,6 +149,21 @@ private struct SidebarRestoreSource {
 @MainActor
 @Observable
 final class GenerationController {
+    /// How model restoration treats the preserved per-engine selection.
+    ///
+    /// The stable app uses one combined picker. The engine-scoped mode keeps the
+    /// old picker's empty-engine semantics intact so that surface can be restored
+    /// for a future beta without rebuilding its selection behavior.
+    enum ModelSelectionMode {
+        case combined
+        case engineScoped
+    }
+
+    struct ModelPickerItem: Identifiable, Equatable {
+        let id: ModelID?
+        let name: String
+    }
+
     enum GalleryImageDestination: Equatable {
         case inputImage
         case startingImage
@@ -167,6 +182,7 @@ final class GenerationController {
     private let engineRegistry: EngineRegistry
     private let imageRepository: ImageRepository
     private let fullImageProvider: GalleryFullImageProvider
+    private let modelSelectionMode: ModelSelectionMode
     /// The gallery finished images are inserted into, and the one "copy to sidebar"
     /// reads its selection from. Injected for the same reason as
     /// `GalleryController.imageGallery`.
@@ -215,6 +231,10 @@ final class GenerationController {
                 currentControlNets = []
                 return
             }
+            // The stable UI has one combined picker, so its last exact selection
+            // is global. Keep the per-engine copy too: a future explicit-engine
+            // beta can return to each engine's remembered model.
+            configStore.selectedModel = model.id
             engineSettings.selectedEngine = model.id.engine
             engineSettings.setSelectedModel(model.id, for: model.id.engine)
             // From the constraint rather than a downcast: which ControlNets a
@@ -241,6 +261,33 @@ final class GenerationController {
 
     var selectedEngine: EngineID? {
         engineSettings.selectedEngine
+    }
+
+    /// Every model shown by the stable release's combined picker.
+    ///
+    /// Discovery has already sorted the models. Names stay untouched unless two
+    /// models collide under the same case- and diacritic-insensitive comparison
+    /// used by that sort, in which case the engine name distinguishes them.
+    var modelPickerItems: [ModelPickerItem] {
+        let collisionCounts = Dictionary(grouping: models) { model in
+            model.name.folding(
+                options: [.caseInsensitive, .diacriticInsensitive],
+                locale: nil
+            )
+        }.mapValues(\.count)
+        let engineNames = Dictionary(uniqueKeysWithValues: engines.map { ($0.id, $0.displayName) })
+
+        return models.map { model in
+            let key = model.name.folding(
+                options: [.caseInsensitive, .diacriticInsensitive],
+                locale: nil
+            )
+            guard collisionCounts[key, default: 0] > 1 else {
+                return ModelPickerItem(id: model.id, name: model.name)
+            }
+            let engineName = engineNames[model.id.engine] ?? model.id.engine.rawValue
+            return ModelPickerItem(id: model.id, name: "\(model.name) — \(engineName)")
+        }
     }
 
     /// The models the model picker shows: the selected engine's own.
@@ -362,6 +409,7 @@ final class GenerationController {
         engineRegistry: EngineRegistry = EngineRegistry(),
         engineSettings: EngineSettingsStore? = nil,
         fullImageProvider: GalleryFullImageProvider = GalleryFullImageProvider(),
+        modelSelectionMode: ModelSelectionMode = .combined,
         startsObserving: Bool = true
     ) {
         self.configStore = configStore
@@ -369,6 +417,7 @@ final class GenerationController {
         self.engineRegistry = engineRegistry
         self.imageRepository = imageRepository
         self.fullImageProvider = fullImageProvider
+        self.modelSelectionMode = modelSelectionMode
         self.imageGallery = imageGallery
         self.generationService = generationService
         // Defaulted from the registry rather than by the caller, so the store only
@@ -443,10 +492,28 @@ final class GenerationController {
         // found; the second turns that single selection into an engine plus a
         // per-engine model. A user upgrading across both arrives with the model
         // they had selected still selected.
-        configStore.migrateSelectedModelIfNeeded(discovered: self.models.map(\.id))
+        let discoveredIDs = self.models.map(\.id)
+        let globalMigration = configStore.migrateSelectedModelIfNeeded(discovered: discoveredIDs)
+        var engineMigrationSelection = configStore.selectedModel
+        // The combined picker now writes its live selection to `SelectedModel`.
+        // If a hosted beta model was the only runnable fallback before an old
+        // local model reappeared, that live value must not strand the older URL
+        // migration. Recover the legacy local identity solely for its per-engine
+        // slot; do not replace the model the user is currently using.
+        if globalMigration == .alreadyMigrated,
+            let current = configStore.selectedModel,
+            !PreferenceMigration.legacyEnginePreference.contains(current.engine),
+            case .migrated(let legacySelection) = PreferenceMigration.selectedModel(
+                legacyURL: configStore.legacyModelId,
+                existing: nil,
+                discovered: discoveredIDs
+            )
+        {
+            engineMigrationSelection = legacySelection
+        }
         engineSettings.migrateSelectedEngineIfNeeded(
-            from: configStore.selectedModel,
-            discovered: self.models.map(\.id)
+            from: engineMigrationSelection,
+            discovered: discoveredIDs
         )
 
         logger.info("Found \(self.models.count) model(s)")
@@ -490,33 +557,35 @@ final class GenerationController {
         )
     }
 
-    /// Picks the engine and model to show after a discovery pass.
+    /// Picks the exact model to show after a discovery pass.
     ///
-    /// A persisted engine is kept even when it has no models, so the picker can
-    /// say why rather than moving the user to an engine they did not choose. With
-    /// no engine persisted — a first launch, or a selection whose engine is no
-    /// longer registered — the first engine that actually has a model is chosen,
-    /// in registration order, so the sidebar is never pointlessly empty.
+    /// The active engine's remembered model comes first when upgrading from the
+    /// explicit-engine UI, because the older global preference may be a stale
+    /// migration value. Once selected, `currentModelId.didSet` writes both stores,
+    /// so the global selection is authoritative on later combined-picker launches.
+    /// A missing selection falls back to the first runnable model in the registry's
+    /// deterministic combined ordering.
     private func restoreSelection() {
-        if let engine = engineSettings.selectedEngine, engines.contains(where: { $0.id == engine })
+        if modelSelectionMode == .engineScoped,
+            let engine = engineSettings.selectedEngine,
+            engines.contains(where: { $0.id == engine })
         {
             currentModelId = rememberedOrFirstModel(for: engine)
             return
         }
-        // The engine of the first model in the combined list, not the first engine
-        // in registration order. `models` is sorted by name, so this lands on the
-        // same model the app picked before engines were selectable; going by
-        // registration order would instead make Iris the default for any mixed
-        // folder, which is arbitrary and would change what a fresh install opens
-        // with.
-        //
-        // Restricted to engines that are `.ready`, which matters as soon as a
-        // hosted engine ships. It always has a model, so without this an empty
-        // local folder would land on an engine with no API key — and because
-        // assigning `currentModelId` persists it, that would overwrite the
-        // selection the user had and not give it back when their folder returned.
-        // Selecting nothing is better: the picker still lists every engine with
-        // its reason.
+
+        let activeEngineSelection = engineSettings.selectedEngine.flatMap {
+            engineSettings.selectedModel(for: $0)
+        }
+        for selection in [activeEngineSelection, configStore.selectedModel].compactMap({ $0 }) {
+            if models.contains(where: { $0.id == selection }),
+                engineAvailability[selection.engine] == .ready
+            {
+                currentModelId = selection
+                return
+            }
+        }
+
         guard
             let firstModel = models.first(where: {
                 engineAvailability[$0.id.engine] == .ready
@@ -525,8 +594,7 @@ final class GenerationController {
             currentModelId = nil
             return
         }
-        engineSettings.selectedEngine = firstModel.id.engine
-        currentModelId = rememberedOrFirstModel(for: firstModel.id.engine)
+        currentModelId = firstModel.id
     }
 
     func generate() async {

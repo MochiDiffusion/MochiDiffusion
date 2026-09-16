@@ -30,7 +30,7 @@ import SwiftUI
 
     private let store: UserDefaults
 
-    /// Observed, so the sidebar's engine picker updates when it changes.
+    /// Observed for the preserved explicit-engine UI and its tests.
     private var selectedEngineID: EngineID?
     /// Model selections by engine, read once at init and written through on
     /// change. Held as one dictionary rather than a property per engine because
@@ -133,8 +133,8 @@ import SwiftUI
 /// `SelectedModel` and that becoming an engine plus a per-engine key. Folding them
 /// together would repeat the discovery-matching only the first step needs.
 ///
-/// `SelectedModel` is left in place and still written by `PreferenceMigration`; it
-/// is a waypoint now, not the live value.
+/// `SelectedModel` remains the combined picker's live global selection. This
+/// migration also seeds the per-engine copy used by the preserved beta surface.
 ///
 /// Delete both once the migration window closes.
 nonisolated enum EngineSelectionMigration {

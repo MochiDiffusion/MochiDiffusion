@@ -71,6 +71,7 @@ struct ModelSelectionPersistenceTests {
             imageRepository: ImageRepository(),
             imageGallery: imageGallery,
             engineRegistry: EngineRegistry.openAIBeta(secrets: secrets),
+            modelSelectionMode: .engineScoped,
             startsObserving: false
         )
     }
@@ -82,6 +83,7 @@ struct ModelSelectionPersistenceTests {
             modelRepository: ModelRepository(),
             imageRepository: ImageRepository(),
             engineRegistry: EngineRegistry.openAIBeta(secrets: NoSecretStore()),
+            modelSelectionMode: .engineScoped,
             startsObserving: false
         )
     }
@@ -98,9 +100,8 @@ struct ModelSelectionPersistenceTests {
         )
     }
 
-    /// The live selection as persisted: the selected engine, and the model that
-    /// engine remembers. Since Phase 5 this is `EngineSettingsStore`'s, not
-    /// `ConfigStore.selectedModel` — which is now only a migration waypoint.
+    /// The per-engine copy of the live selection, preserved for the future
+    /// explicit-engine surface alongside `ConfigStore.selectedModel`.
     private func persistedSelection(_ controller: GenerationController) -> ModelID? {
         guard let engine = controller.engineSettings.selectedEngine else { return nil }
         return controller.engineSettings.selectedModel(for: engine)
@@ -134,6 +135,7 @@ struct ModelSelectionPersistenceTests {
         #expect(controller.currentModel?.name == "a-model")
         // Persisted as a side effect of currentModelId's didSet, so the next
         // launch restores rather than re-picks.
+        #expect(configStore.selectedModel == controller.currentModelId)
         #expect(persistedSelection(controller) == controller.currentModelId)
     }
 
@@ -189,6 +191,7 @@ struct ModelSelectionPersistenceTests {
 
         #expect(controller.currentModel?.name == "a-model")
         // The stale key is replaced rather than left to fail again next launch.
+        #expect(configStore.selectedModel == controller.currentModelId)
         #expect(persistedSelection(controller) == controller.currentModelId)
     }
 
@@ -199,6 +202,8 @@ struct ModelSelectionPersistenceTests {
         await first.loadModels()
         let target = try #require(first.models.first { $0.name == "b-model" })
         first.currentModelId = target.id
+
+        #expect(configStore.selectedModel == target.id)
 
         // A new controller reading the same store is what a relaunch looks like.
         let second = makeController()
@@ -214,6 +219,10 @@ struct ModelSelectionPersistenceTests {
         let first = makeController()
         await first.loadModels()
         first.currentModelId = try #require(first.models.first { $0.name == "b-klein" }).id
+
+        #expect(
+            configStore.selectedModel == ModelID(engine: .iris, key: "b-klein")
+        )
 
         let second = makeController()
         await second.loadModels()
@@ -313,7 +322,7 @@ struct ModelSelectionPersistenceTests {
         // The hosted engine is the only usable one, so it became the fallback —
         // which is what used to claim the migration was finished.
         #expect(controller.selectedEngine == .openAI)
-        #expect(controller.configStore.selectedModel == nil)
+        #expect(controller.configStore.selectedModel?.engine == .openAI)
 
         // The folder comes back.
         try makeSDModelFixture(at: legacy)
@@ -463,12 +472,14 @@ struct ModelSelectionPersistenceTests {
         let controller = makeController()
         await controller.loadModels()
         let persisted = persistedSelection(controller)
+        let global = configStore.selectedModel
 
         controller.currentModelId = ModelID(engine: .coreMLStableDiffusion, key: "not-a-model")
 
         // didSet only writes through when the id resolves to a known model, so
         // currentModelId and the persisted value disagree here.
         #expect(persistedSelection(controller) == persisted)
+        #expect(configStore.selectedModel == global)
         #expect(controller.currentModel == nil)
     }
 

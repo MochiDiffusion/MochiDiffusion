@@ -202,6 +202,7 @@ func makeTestGenerationController(
     engineRegistry: EngineRegistry = EngineRegistry(),
     engineSettings: EngineSettingsStore? = nil,
     fullImageProvider: GalleryFullImageProvider = GalleryFullImageProvider(),
+    modelSelectionMode: GenerationController.ModelSelectionMode = .combined,
     startsObserving: Bool = true
 ) -> GenerationController {
     GenerationController(
@@ -216,6 +217,7 @@ func makeTestGenerationController(
         engineRegistry: engineRegistry,
         engineSettings: engineSettings,
         fullImageProvider: fullImageProvider,
+        modelSelectionMode: modelSelectionMode,
         startsObserving: startsObserving
     )
 }

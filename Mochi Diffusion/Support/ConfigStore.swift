@@ -190,7 +190,8 @@ import UniformTypeIdentifiers
         }
     }
 
-    /// The engine-qualified selected model, or `nil` when nothing is selected.
+    /// The combined picker's last engine-qualified model, or `nil` when none has
+    /// ever been selected.
     ///
     /// One `"engine:key"` string rather than two keys, so writing a selection is a
     /// single `UserDefaults` write and cannot be torn into a valid-looking hybrid
