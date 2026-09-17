@@ -20,43 +20,26 @@
 
 ![Screenshot](.github/images/screenshot.png)
 
+Mochi Diffusion is a native macOS app for generating images locally using [Apple's Core ML Stable Diffusion implementation](https://github.com/apple/ml-stable-diffusion) to achieve maximum performance and speed with reduced memory requirements, and the [Iris](https://github.com/antirez/iris.c) pipeline for running FLUX.2 (Klein) models with native Metal GPU acceleration
+
 ## Features
 
-- [Apple's Core ML Stable Diffusion implementation](https://github.com/apple/ml-stable-diffusion) to achieve maximum performance and speed on Apple Silicon based Macs while reducing memory requirements
-- Extremely fast and memory efficient (~150MB with Neural Engine)
-- Runs well on all Apple Silicon Macs by fully utilizing Neural Engine
 - Generate images locally and completely offline
-- Generate images based on an existing image (commonly known as Image2Image)
-- Generate images using ControlNet
 - Generated images are saved with prompt info inside EXIF metadata (view in Finder's Get Info window)
 - Built-in gallery with import/save/sync support
-- Use custom Stable Diffusion Core ML models
-- No worries about pickled models
 - macOS native app using SwiftUI
-- [Iris](https://github.com/antirez/iris.c) FLUX.2 (Klein) pipeline support
 
 ## Downloads
 
-[Latest version](https://github.com/MochiDiffusion/MochiDiffusion/releases)
-
-[Community models](https://huggingface.co/coreml-community#models)
-
-[ControlNet models](https://huggingface.co/coreml-community/ControlNet-Models-For-Core-ML/tree/main/CN)
-
-[Stable Diffusion 1.5 with ControlNet](https://huggingface.co/coreml-community/coreml-stable-diffusion-v1-5_cn/tree/main/split_einsum)
-
-[FLUX.2-klein-4B (distilled)](https://huggingface.co/black-forest-labs/FLUX.2-klein-4B)
-
-[FLUX.2-klein-9B (distilled)](https://huggingface.co/black-forest-labs/FLUX.2-klein-9B)
-
-When using a model for the very first time, it may take up to 2 minutes for the Neural Engine to compile a cached version. Afterwards, subsequent generations will be much faster.
-
-## Compute Unit
-
-- `CPU & Neural Engine` provides a good balance between speed and low memory usage
-- `CPU & GPU` may be faster on M1 Max, Ultra and later but will use more memory
-
-Depending on the option chosen, you will need to use the correct model version (see Models section for details).
+- Mochi Diffusion
+    - [Latest version](https://github.com/MochiDiffusion/MochiDiffusion/releases)
+- Core ML Stable Diffusion
+    - [Community models](https://huggingface.co/coreml-community#models)
+    - [ControlNet models](https://huggingface.co/coreml-community/ControlNet-Models-For-Core-ML/tree/main/CN)
+    - [Stable Diffusion 1.5 with ControlNet](https://huggingface.co/coreml-community/coreml-stable-diffusion-v1-5_cn/tree/main/split_einsum)
+- FLUX.2 Klein
+    - [FLUX.2-klein-4B (distilled)](https://huggingface.co/black-forest-labs/FLUX.2-klein-4B)
+    - [FLUX.2-klein-9B (distilled)](https://huggingface.co/black-forest-labs/FLUX.2-klein-9B)
 
 ## Models
 
@@ -64,12 +47,26 @@ You will need Core ML Stable Diffusion or FLUX.2 Klein models in order to use Mo
 
 ### Core ML Stable Diffusion
 
+Mochi Diffusion uses Stable Diffusion models which have been specially converted (Core ML) to run on Apple hardware. The advantage of this is that they are extremely fast and memory efficient, especially on Apple Silicon Macs with Neural Engine. The downside is that each model can only generate images of a fixed size which is baked in during the conversion.
+
+Stable Diffusion allows generating images based on another “starting image”, or with ControlNet
+
+#### Compute Unit
+
+- `CPU & Neural Engine` provides a good balance between speed and low memory usage
+- `CPU & GPU` may be faster on M1 Max, Ultra and later but will use more memory
+
+Depending on the option chosen, you will need to use the correct model version.
+
+#### Usage
+
 1. [Convert](https://github.com/MochiDiffusion/MochiDiffusion/wiki/How-to-convert-Stable-Diffusion-models-to-Core-ML) or download Core ML models
-    - `split_einsum` version is compatible with all compute unit options including Neural Engine
-    - `original` version is only compatible with `CPU & GPU` option
+   - `split_einsum` version is compatible with all compute unit options including Neural Engine
+   - `original` version is only compatible with `CPU & GPU` option
 2. By default, the app's model folder will be created under your home directory. This location can be customized under Settings
 3. In the model folder, create a new folder with the name you'd like displayed in the app then move or extract the converted models here
 4. Your directory structure should look like this:
+
 ```
 <Home Directory>/
 └── MochiDiffusion/
@@ -85,13 +82,20 @@ You will need Core ML Stable Diffusion or FLUX.2 Klein models in order to use Mo
         └── ...
 ```
 
+When using a model for the very first time, it may take up to 2 minutes for the Neural Engine to compile a cached version. Afterwards, subsequent generations will be much faster.
+
 ### FLUX.2 Klein
 
 No conversion is required for FLUX.2 Klein models.
 
-1. Download the text_encode, tokenizer, transformer, and vae for a FLUX.2 Klein model from the [Downloads](#downloads) links above (or use [`download_model.sh`](https://github.com/antirez/iris.c/blob/main/download_model.sh))
+Klein can use up to 4 “input images” in generations. Due to pipeline constraints, it may be necessary to constrain input image dimensions to fit the attention budget. Mochi will automatically resize inputs and indicate the new sizes in the UI.
+
+#### Usage
+
+1. Download `text_encoder`, `tokenizer`, `transformer`, and `vae` for a FLUX.2 Klein model from the [Downloads](#downloads) links above (or use [`download_model.sh`](https://github.com/antirez/iris.c/blob/main/download_model.sh))
 2. Place in MochiDiffusion's model folder
 3. Your directory structure should look like this:
+
 ```
 <Home Directory>/
 └── MochiDiffusion/
@@ -104,6 +108,7 @@ No conversion is required for FLUX.2 Klein models.
         ├── ...
         └── ...        
 ```
+
 (see [iris.c issue #12](https://github.com/antirez/iris.c/issues/12)) for specific guidance for flux-klein-4b)
 
 ## Compatibility
@@ -114,7 +119,7 @@ No conversion is required for FLUX.2 Klein models.
 
 ## Building From Source
 
-The project now supports `SharedXcodeSettings` for local overrides to keep per-developer signing state out of the project file.
+The project supports `SharedXcodeSettings` for local overrides to keep per-developer signing state out of the project file.
 
 Create a sibling `SharedXcodeSettings/DeveloperSettings.xcconfig` next to this repository:
 
@@ -138,7 +143,7 @@ PRODUCT_BUNDLE_IDENTIFIER = com.example.Mochi-Diffusion
 
 ## Privacy
 
-All generation happens locally and absolutely nothing is sent to the cloud.
+Mochi Diffusion doesn’t collect any data or telemetry. All generation happens locally and absolutely nothing is sent to the cloud.
 
 ## Contributing
 
