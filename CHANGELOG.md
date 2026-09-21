@@ -1,12 +1,12 @@
-# Unreleased
+# [v6.1](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v6.1) - 21 Sept 2026
 
-### Features
+## Features
 
 - Added support for multiple input/reference images with FLUX.2 Klein models
   - Each reference can be cropped, previewed, and reset independently
   - A warning shows when large references will be resized to fit Iris's attention budget
 
-### Refactors and improvements
+## Refactors and improvements
 
 - Changed the gallery to draw from thumbnails rather than holding full-size images in memory
 - Only show generation options the selected model actually uses
@@ -14,26 +14,6 @@
 - Changed Copy Options to Sidebar for gallery images and queued jobs to use one consistent restore path
 - Changed the swap width/height button to be disabled, rather than removed, for a fixed-size model with no matching portrait or landscape version; the width and height fields keep their spacing either way
 - Replaced modal error/warning banners with alert windows
-
-### Bug fixes
-
-- Fixed malformed Core ML model or ControlNet shape metadata potentially crashing model discovery
-- Fixed a finished image's generation preview being cleared out from under the next image in the queue
-- Fixed generation progress occasionally jumping backwards, and a finished image's progress or preview appearing against the next queued image
-- Fixed the model list occasionally reverting to an older models folder's contents when the folder was changed twice in quick succession
-- Fixed queued images never generating after an earlier failure
-  - Once a generation failed in a way that left an error showing — an images folder that could not be written to, for example — every image queued afterwards was accepted and silently never started, until the app was relaunched
-- Fixed the Scheduler setting offering schedulers a distilled model cannot use; it now shows the one such a model always uses
-- Fixed the job queue showing the sidebar's image size instead of the size a fixed-size Core ML model will actually produce
-- Fixed the last preview frame of a finished generation sometimes staying on screen and being carried into the next queued image
-- Fixed changing the ControlNet folder having no effect until the app was restarted, and sometimes not even then
-- Fixed Filter Inappropriate Images not changing how Stable Diffusion 1.5 pipelines were constructed or reused
-- Fixed Finder-dropped starting, reference, and ControlNet images losing their filenames in saved metadata
-- Fixed uppercase image extensions disappearing from the gallery after relaunch
-- Fixed invalid imports leaving unusable copies in the Images folder or disturbing an existing file with the same name
-- Fixed Settings folder pickers mishandling paths containing spaces or Unicode, and opening the wrong location for an empty setting
-- Fixed Import, Save As, Save All, and image-picker actions potentially crashing when no main window was available
-- Fixed a crash when importing an image whose metadata ended with an empty field
 
 # [v6.0](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v6.0) - 28 Feb 2026
 
