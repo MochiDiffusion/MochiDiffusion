@@ -120,8 +120,8 @@ extension SDImage {
 
     /// Re-encodes the image with its metadata.
     ///
-    /// Loads the file when no decoded image is resident which is normal for anything read from disk
-    /// Only a freshly generated image arrives with its pixels.
+    /// Loads the file when no decoded image is resident which is normal for anything
+    /// read from disk, only a freshly generated image arrives with its pixels.
     ///
     /// Deliberately re-encodes rather than copying the file, even though the file is
     /// usually identical: the caller chooses the type, so this is also the path that

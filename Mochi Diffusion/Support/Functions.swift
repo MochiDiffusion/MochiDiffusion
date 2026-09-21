@@ -115,7 +115,7 @@ nonisolated func getFinderTagColorNumber(_ url: URL) -> Int {
     return finderTagColorNumber
 }
 
-/// Turns a prompt into the human-readable part of an image filename.
+/// Turns a prompt into part of an image filename.
 ///
 /// A prompt is content, not a path. In particular, `/` and `..` must not become
 /// components interpreted relative to the configured images directory. Keep letters,

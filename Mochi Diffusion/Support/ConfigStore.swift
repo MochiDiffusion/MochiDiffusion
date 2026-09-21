@@ -333,9 +333,7 @@ import UniformTypeIdentifiers
         }
     }
 
-    /// Global rather than per-engine: only a hosted model honours it, and a user
-    /// who prefers drafts probably prefers them from whichever engine offers the
-    /// choice.
+    /// Global rather than per-engine; only a hosted model honours it
     var quality: ImageQuality {
         get {
             access(keyPath: \.quality)

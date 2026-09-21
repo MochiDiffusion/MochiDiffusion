@@ -316,3 +316,12 @@ nonisolated extension String {
         return trimmed.isEmpty ? nil : trimmed
     }
 }
+
+nonisolated extension Array {
+    /// The element at `index`, or `nil` when it is out of bounds.
+    ///
+    /// Used where two lists are expected to line up and a mismatch should degrade rather than trap.
+    subscript(safe index: Int) -> Element? {
+        indices.contains(index) ? self[index] : nil
+    }
+}

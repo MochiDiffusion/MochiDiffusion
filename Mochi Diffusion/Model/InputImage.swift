@@ -6,26 +6,16 @@
 import CoreGraphics
 import Foundation
 
-/// One image handed to a generation as input.
-///
-/// What an engine *does* with it varies, and the difference is real rather than
-/// cosmetic. Core ML Stable Diffusion treats a single image as a denoising start
-/// and applies `strength` to it; Iris and the hosted engines treat images as
-/// references attended to during generation, with no strength. Both are one list
-/// in the sidebar, and each engine decides how to use and record what it is given.
+/// One image handed to a generation as input, either as starting or reference image.
 ///
 /// `id` is stable per entry rather than derived from the image, so a list can hold
-/// the same picture twice and reordering does not confuse SwiftUI. `CGImage` is not
-/// `Equatable`, so equality is identity plus name — enough for the UI, and not a
-/// claim about pixels.
+/// the same picture twice and reordering does not confuse SwiftUI.
 nonisolated struct InputImage: Sendable, Identifiable {
     let id: UUID
     var image: CGImage
-    /// The filename this came from, when it came from one. Recorded in metadata so
-    /// an image can say what it was made from.
+    /// The filename, when available
     var name: String?
-    /// The crop the user dragged out in the sidebar, as fractions of each edge.
-    /// `.identity` is the whole image.
+    /// The crop, as fractions of each edge. `.identity` is the whole image.
     var edit: IrisReferenceImageEdit
 
     init(
@@ -54,27 +44,6 @@ nonisolated struct InputImage: Sendable, Identifiable {
 nonisolated extension InputImage: Equatable {
     static func == (lhs: InputImage, rhs: InputImage) -> Bool {
         lhs.id == rhs.id && lhs.name == rhs.name && lhs.edit == rhs.edit
-    }
-}
-
-nonisolated extension Array {
-    /// The element at `index`, or `nil` when it is out of bounds.
-    ///
-    /// Used where two lists are expected to line up — input images and the sizes
-    /// predicted for them — and a mismatch should degrade rather than trap.
-    subscript(safe index: Int) -> Element? {
-        indices.contains(index) ? self[index] : nil
-    }
-}
-
-nonisolated extension [InputImage] {
-    /// The names present, in order, skipping entries that never had one.
-    ///
-    /// Metadata records only the images it can name. An image pasted or dragged
-    /// from another app has no filename, and inventing one would put a lie in the
-    /// image rather than leaving a gap.
-    var names: [String] {
-        compactMap(\.name)
     }
 }
 

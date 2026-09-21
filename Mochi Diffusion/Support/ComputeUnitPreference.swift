@@ -7,10 +7,6 @@
 
 import CoreML
 
-/// `nonisolated` because it is a pure mapping from a preference and a model's
-/// attention type to a compute unit. It was main-actor-isolated only by the
-/// project's default isolation, never by need; the Core ML engine resolves it
-/// inside `plan`, which is nonisolated.
 nonisolated enum ComputeUnitPreference: String {
     case auto
     case cpuAndGPU
