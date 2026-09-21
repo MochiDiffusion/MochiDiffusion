@@ -1064,7 +1064,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "Mochi Diffusion/MochiDiffusion.entitlements";
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 6.0;
+				CURRENT_PROJECT_VERSION = 6.1;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Mochi Diffusion/Preview Content\"";
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -1080,7 +1080,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.6;
-				MARKETING_VERSION = 6.0;
+				MARKETING_VERSION = 6.1;
 				OTHER_LDFLAGS = "$(BUILD_DIR)/vendor/iris/$(CONFIGURATION)/libiris_mps.a";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
@@ -1100,7 +1100,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "Mochi Diffusion/MochiDiffusion.entitlements";
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 6.0;
+				CURRENT_PROJECT_VERSION = 6.1;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Mochi Diffusion/Preview Content\"";
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -1116,7 +1116,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.6;
-				MARKETING_VERSION = 6.0;
+				MARKETING_VERSION = 6.1;
 				OTHER_LDFLAGS = "$(BUILD_DIR)/vendor/iris/$(CONFIGURATION)/libiris_mps.a";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
