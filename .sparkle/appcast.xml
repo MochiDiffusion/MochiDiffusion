@@ -5,6 +5,29 @@
     <language>en</language>
 
     <item>
+      <title>v6.1</title>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion</link>
+      <sparkle:shortVersionString>6.1</sparkle:shortVersionString>
+      <sparkle:version>891</sparkle:version>
+      <sparkle:minimumSystemVersion>15.6</sparkle:minimumSystemVersion>
+      <sparkle:fullReleaseNotesLink>https://github.com/MochiDiffusion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <pubDate>Mon, 21 Sep 2026 23:55:11 +0000</pubDate>
+      <enclosure
+        url="https://github.com/MochiDiffusion/MochiDiffusion/releases/download/v6.1/MochiDiffusion_6.1.dmg"
+        sparkle:edSignature="fb1CICWVriM57wD8r46w2XTRlYA3e8s7TtQVnWkeDQmtcLGT1LqLXzUXt1gBoSfqEG7xMUYNFBFosXLWT+RiDQ=="
+        length="4326478"
+        type="application/octet-stream" />
+      <description><![CDATA[
+      <ul>
+      <li>Add support for multiple reference images</li>
+      <li>Reduce gallery memory usage</li>
+      <li>only show model relevant options in UI</li>
+      </ul>
+      ]]>
+      </description>
+    </item>
+
+    <item>
       <title>v6.0</title>
       <link>https://github.com/MochiDiffusion/MochiDiffusion</link>
       <sparkle:version>6.0</sparkle:version>
