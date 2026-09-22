@@ -170,7 +170,7 @@ No comment provided by engineer. */
 "Include in Image" = "画像に含める";
 /* en.lproj/Localizable.strings
 Loading the model for the first time may take a few minutes
-Text displayed when the model is being loaded */
+Text displayed while a local Core ML model is being loaded */
 "Loading the model for the first time may take a few minutes" = "初めてモデルを読み込む際には数分かかることがあります";
 /* en.lproj/Localizable.strings
 Loading...
@@ -250,6 +250,7 @@ No comment provided by engineer. */
 "Release Notes" = "リリースノート";
 /* en.lproj/Localizable.strings
 Remove
+Button to delete a stored API key
 Remove image from the gallery
 Toolbar button to remove the selected image */
 "Remove" = "消去";
@@ -300,7 +301,8 @@ Help text for Send Notifications setting */
 "Send notification when images are ready." = "画像の準備ができたら通知します。";
 /* en.lproj/Localizable.strings
 Set as Starting Image
-Set the current image as the starting image for img2img */
+Set the current image as the starting image for img2img
+Use a gallery image as an img2img starting image */
 "Set as Starting Image" = "元画像に設定";
 /* en.lproj/Localizable.strings
 Share...
@@ -374,10 +376,6 @@ No comment provided by engineer. */
 Width:
 Label for image width picker */
 "Width:" = "幅:";
-/* en.lproj/Localizable.strings
-Your images are ready!
-No comment provided by engineer. */
-"Your images are ready!" = "画像の準備ができました！";
 /* en.lproj/Localizable.strings
 random
 No comment provided by engineer. */
