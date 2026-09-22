@@ -64,6 +64,7 @@ struct GalleryView: View {
                     }
                 }
                 .padding()
+                .background(GalleryScrollbarConfiguration())
             }
             .onChange(of: store.selectedId) { _, selectedId in
                 guard let selectedId else { return }
@@ -317,6 +318,36 @@ struct GalleryView: View {
                     )
                 }
             }
+        }
+    }
+}
+
+/// Keep a legacy scrollbar's gutter allocated even when the gallery briefly fits.
+/// Otherwise AppKit can alternate the viewport width by one scrollbar during
+/// split-view layout, repeatedly invalidating SwiftUI's size constraints.
+private struct GalleryScrollbarConfiguration: NSViewRepresentable {
+    func makeNSView(context: Context) -> ConfigurationView {
+        ConfigurationView()
+    }
+
+    func updateNSView(_ nsView: ConfigurationView, context: Context) {
+        nsView.configureScrollView()
+    }
+
+    final class ConfigurationView: NSView {
+        override func viewDidMoveToWindow() {
+            super.viewDidMoveToWindow()
+            configureScrollView()
+        }
+
+        override func viewDidMoveToSuperview() {
+            super.viewDidMoveToSuperview()
+            configureScrollView()
+        }
+
+        func configureScrollView() {
+            guard let scrollView = enclosingScrollView else { return }
+            scrollView.autohidesScrollers = false
         }
     }
 }
