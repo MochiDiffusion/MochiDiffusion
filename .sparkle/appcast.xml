@@ -5,6 +5,27 @@
     <language>en</language>
 
     <item>
+      <title>v6.1.1</title>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion</link>
+      <sparkle:shortVersionString>6.1.1</sparkle:shortVersionString>
+      <sparkle:version>898</sparkle:version>
+      <sparkle:minimumSystemVersion>15.6</sparkle:minimumSystemVersion>
+      <sparkle:fullReleaseNotesLink>https://github.com/MochiDiffusion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <pubDate>Tue, 22 Sep 2026 06:43:36 +0000</pubDate>
+      <enclosure
+        url="https://github.com/MochiDiffusion/MochiDiffusion/releases/download/v6.1.1/MochiDiffusion_6.1.1.dmg"
+        sparkle:edSignature="EWHRkY0aWhKsgO/bO5DWlstfNHqz7grzDcRZdbMJypJ//ChUkN1ibzGQTaHDeQSDEfye/5jG6Y4fwKEnsDtEAA=="
+        length="4328203"
+        type="application/octet-stream" />
+      <description><![CDATA[
+      <ul>
+      <li>Fix SwiftUI layout crash
+      </ul>
+      ]]>
+      </description>
+    </item>
+
+    <item>
       <title>v6.1</title>
       <link>https://github.com/MochiDiffusion/MochiDiffusion</link>
       <sparkle:shortVersionString>6.1</sparkle:shortVersionString>
