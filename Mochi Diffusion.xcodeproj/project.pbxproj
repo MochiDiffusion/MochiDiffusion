@@ -576,7 +576,7 @@
 				036BFC1A294B9F7500D8AD04 /* Sources */,
 				036BFC1B294B9F7500D8AD04 /* Frameworks */,
 				036BFC1C294B9F7500D8AD04 /* Resources */,
-				F1A2B3C4D5E6F70809101114 /* Set Build Version */,
+				F1A2B3C4D5E6F70809101114 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -759,7 +759,7 @@
 			shellPath = /bin/sh;
 			shellScript = "set -euo pipefail\n\"${SRCROOT}/scripts/build_iris_lib.sh\"\n";
 		};
-		F1A2B3C4D5E6F70809101114 /* Set Build Version */ = {
+		F1A2B3C4D5E6F70809101114 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
@@ -1103,7 +1103,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.6;
-				MARKETING_VERSION = 6.1;
+				MARKETING_VERSION = 6.1.1;
 				OTHER_LDFLAGS = "$(BUILD_DIR)/vendor/iris/$(CONFIGURATION)/libiris_mps.a";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
@@ -1139,7 +1139,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.6;
-				MARKETING_VERSION = 6.1;
+				MARKETING_VERSION = 6.1.1;
 				OTHER_LDFLAGS = "$(BUILD_DIR)/vendor/iris/$(CONFIGURATION)/libiris_mps.a";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
