@@ -213,6 +213,7 @@ No comment provided by engineer. */
 "Release Notes" = "Докладно про реліз";
 /* en.lproj/Localizable.strings
 Remove
+Button to delete a stored API key
 Remove image from the gallery
 Toolbar button to remove the selected image */
 "Remove" = "Вилучити";
@@ -255,7 +256,8 @@ Select previous image in Gallery */
 "Select Previous" = "Обрати попереднє";
 /* en.lproj/Localizable.strings
 Set as Starting Image
-Set the current image as the starting image for img2img */
+Set the current image as the starting image for img2img
+Use a gallery image as an img2img starting image */
 "Set as Starting Image" = "Встановити як початкове зображення";
 /* en.lproj/Localizable.strings
 Share...
