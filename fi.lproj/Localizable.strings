@@ -109,6 +109,7 @@ No comment provided by engineer. */
 "Release Notes" = "Julkaisutiedot";
 /* en.lproj/Localizable.strings
 Remove
+Button to delete a stored API key
 Remove image from the gallery
 Toolbar button to remove the selected image */
 "Remove" = "Poista";
