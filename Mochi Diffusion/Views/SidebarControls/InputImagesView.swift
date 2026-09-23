@@ -36,7 +36,7 @@ struct InputImagesView: View {
 
     var body: some View {
         ZStack(alignment: .topTrailing) {
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading) {
                 Text(
                     "Input Images",
                     comment: "Label for setting one or more input reference images"
@@ -200,11 +200,6 @@ private struct InputImageRow: View {
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
-                } else {
-                    Text("Drop or select an image")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .padding(.top, 4)
                 }
             }
 

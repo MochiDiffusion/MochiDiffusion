@@ -22,7 +22,7 @@ struct StartingImageView: View {
     @Environment(ConfigStore.self) private var configStore: ConfigStore
     @State private var isInfoPopoverShown = false
 
-    private let wellSize: CGFloat = 112.5
+    private let wellSize: CGFloat = 90
 
     private var constraint: StartingImageConstraint {
         controller.currentConstraints.startingImage
@@ -43,7 +43,12 @@ struct StartingImageView: View {
         )
         .sidebarLabelFormat()
 
-        HStack(alignment: .top) {
+        // Strength sits beside the well rather than beneath it. The row is already
+        // as tall as the well, so the section keeps one height whether or not the
+        // model has a strength, and the controls below it hold their positions when
+        // the model changes. It also matches `InputImageRow`, which puts its
+        // per-image controls in the same place.
+        HStack(alignment: .top, spacing: 8) {
             ImageWellView(
                 image: controller.startingImage?.edited,
                 size: targetSize,
@@ -60,53 +65,57 @@ struct StartingImageView: View {
                 )
             }
             .frame(width: wellSize, height: wellSize)
-        }
 
-        if constraint.strength.isSupported {
             strengthControl
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 
     @ViewBuilder private var strengthControl: some View {
         @Bindable var configStore = configStore
 
-        HStack {
-            Text(
-                "Strength",
-                comment: "Label for starting image strength slider control"
-            )
-            .sidebarLabelFormat()
-
-            Spacer()
-
-            Button {
-                self.isInfoPopoverShown.toggle()
-            } label: {
-                Image(systemName: "info.circle")
-                    .foregroundColor(Color.secondary)
-            }
-            .buttonStyle(PlainButtonStyle())
-            .popover(isPresented: self.$isInfoPopoverShown, arrowEdge: .top) {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack(spacing: 4) {
                 Text(
-                    """
-                    Strength controls how closely the generated image resembles the starting image.
-                    Use lower values to generate images that look similar to the starting image.
-                    Use higher values to allow more creative freedom.
-
-                    The size of the starting image must match the output image size of the current model.
-                    """
+                    "Strength",
+                    comment: "Label for starting image strength slider control"
                 )
-                .padding()
+                .sidebarLabelFormat()
+
+                Button {
+                    self.isInfoPopoverShown.toggle()
+                } label: {
+                    Image(systemName: "info.circle")
+                        .foregroundColor(Color.secondary)
+                }
+                .buttonStyle(PlainButtonStyle())
+                .popover(isPresented: self.$isInfoPopoverShown, arrowEdge: .top) {
+                    Text(
+                        """
+                        Strength controls how closely the generated image resembles the starting image.
+                        Use lower values to generate images that look similar to the starting image.
+                        Use higher values to allow more creative freedom.
+
+                        The size of the starting image must match the output image size of the current model.
+                        """
+                    )
+                    .padding()
+                }
+
+                Spacer()
             }
-        }
-        // Bounds from the constraint rather than a literal 0...1, so a model that
-        // accepts a narrower range gets a slider that matches it.
-        if let bounds = constraint.strength.bounds {
-            MochiSlider(value: $configStore.strength, bounds: bounds, step: 0.05)
-        } else if let pinned = constraint.strength.resolved(configStore.strength) {
-            PinnedValueField(text: pinned.formatted(.number.precision(.fractionLength(2))))
-        } else {
-            UnsupportedValueField()
+
+            // Bounds from the constraint rather than a literal 0...1, so a model that
+            // accepts a narrower range gets a slider that matches it. A model with no
+            // strength at all falls through to the placeholder rather than dropping the
+            // row, so the section does not change shape.
+            if let bounds = constraint.strength.bounds {
+                MochiSlider(value: $configStore.strength, bounds: bounds, step: 0.05)
+            } else if let pinned = constraint.strength.resolved(configStore.strength) {
+                PinnedValueField(text: pinned.formatted(.number.precision(.fractionLength(2))))
+            } else {
+                UnsupportedValueField()
+            }
         }
     }
 }

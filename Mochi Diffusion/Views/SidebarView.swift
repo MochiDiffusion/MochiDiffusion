@@ -5,67 +5,91 @@
 //  Created by Joshua Park on 1/20/23.
 //
 
+import AppKit
 import SwiftUI
 
 struct SidebarView: View {
     @Environment(GenerationController.self) private var controller: GenerationController
 
+    /// With the "Always show" scrollbar setting, the scroller occupies a real gutter, but only
+    /// while the content overflows. The sidebar crosses that threshold whenever a section is
+    /// added or removed, which reflows every control inside it. Reserving the gutter at all
+    /// times keeps the content width constant. Overlay scrollers take no space, so the gutter
+    /// is zero for them and nothing changes.
+    @State private var scrollerStyle = NSScroller.preferredScrollerStyle
+
+    private var scrollerGutter: CGFloat {
+        scrollerStyle == .legacy
+            ? NSScroller.scrollerWidth(for: .regular, scrollerStyle: .legacy)
+            : 0
+    }
+
     var body: some View {
-        ScrollView(.vertical) {
-            VStack(alignment: .leading, spacing: 6) {
-                Group {
-                    PromptView()
-                    Divider().frame(height: 16)
-                }
-                Group {
-                    ModelView()
-                    Spacer().frame(height: 6)
-                }
-                if controller.currentConstraints.startingImage.isSupported {
+        GeometryReader { proxy in
+            ScrollView(.vertical) {
+                VStack(alignment: .leading, spacing: 6) {
                     Group {
-                        StartingImageView()
+                        PromptView()
                         Divider().frame(height: 16)
                     }
-                }
-                if controller.currentConstraints.inputImages.isSupported {
                     Group {
-                        InputImagesView()
+                        ModelView()
+                        Spacer().frame(height: 6)
+                    }
+                    Group {
+                        SizeView()
+                        Spacer().frame(height: 6)
+                    }
+                    if controller.currentConstraints.startingImage.isSupported {
+                        Group {
+                            StartingImageView()
+                            Divider().frame(height: 16)
+                        }
+                    }
+                    if controller.currentConstraints.inputImages.isSupported {
+                        Group {
+                            InputImagesView()
+                            Divider().frame(height: 16)
+                        }
+                    }
+                    if controller.currentConstraints.numberOfImages.isSupported {
+                        Group {
+                            NumberOfImagesView()
+                            Spacer().frame(height: 6)
+                        }
+                    }
+                    if controller.currentConstraints.steps.isSupported {
+                        Group {
+                            StepsView()
+                            Spacer().frame(height: 6)
+                        }
+                    }
+                    if controller.currentConstraints.guidanceScale.isSupported {
+                        Group {
+                            GuidanceScaleView()
+                            Spacer().frame(height: 6)
+                        }
+                    }
+                    Group {
+                        SeedView()
                         Divider().frame(height: 16)
                     }
-                }
-                Group {
-                    SizeView()
-                    Spacer().frame(height: 6)
-                }
-                if controller.currentConstraints.numberOfImages.isSupported {
-                    Group {
-                        NumberOfImagesView()
-                        Spacer().frame(height: 6)
+                    if controller.currentConstraints.controlNet.isSupported {
+                        Group {
+                            ControlNetView()
+                        }
                     }
                 }
-                if controller.currentConstraints.steps.isSupported {
-                    Group {
-                        StepsView()
-                        Spacer().frame(height: 6)
-                    }
-                }
-                if controller.currentConstraints.guidanceScale.isSupported {
-                    Group {
-                        GuidanceScaleView()
-                        Spacer().frame(height: 6)
-                    }
-                }
-                Group {
-                    SeedView()
-                    Divider().frame(height: 16)
-                }
-                if controller.currentConstraints.controlNet.isSupported {
-                    Group {
-                        ControlNetView()
-                    }
-                }
+                .padding([.horizontal, .bottom])
+                .frame(width: max(0, proxy.size.width - scrollerGutter), alignment: .leading)
             }
-            .padding([.horizontal, .bottom])
+        }
+        .onReceive(
+            NotificationCenter.default.publisher(
+                for: NSScroller.preferredScrollerStyleDidChangeNotification
+            )
+        ) { _ in
+            scrollerStyle = NSScroller.preferredScrollerStyle
         }
     }
 }

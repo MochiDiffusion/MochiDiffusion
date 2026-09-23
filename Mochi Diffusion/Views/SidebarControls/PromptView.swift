@@ -172,8 +172,6 @@ struct PromptView: View {
                 )
             }
 
-            Spacer().frame(height: 2)
-
             Button {
                 Task { await controller.generate() }
             } label: {
