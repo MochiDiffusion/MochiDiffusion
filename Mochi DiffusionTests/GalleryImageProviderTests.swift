@@ -146,4 +146,59 @@ struct GalleryImageProviderTests {
         #expect(image.width == 512)
         #expect(image.height == 256)
     }
+
+    // MARK: - The synchronous cache peek
+
+    /// What a rebuilt `LazyVGrid` cell relies on: its `@State` thumbnail is gone, and
+    /// an `await` to fetch a resident image is long enough to paint a spinner.
+    @Test("A cached thumbnail can be read without suspending")
+    func cachedThumbnailIsAvailableSynchronously() async throws {
+        let path = try writeImage("recycled.png", width: 512, height: 256)
+        let provider = GalleryThumbnailProvider()
+
+        // Nothing loaded yet, so nothing to hand back.
+        #expect(provider.cachedThumbnail(for: path, maxPixelSize: 64) == nil)
+
+        let loaded = try #require(await provider.thumbnail(for: path, maxPixelSize: 64))
+        let peeked = try #require(provider.cachedThumbnail(for: path, maxPixelSize: 64))
+
+        // The same object the async path returned, not a second decode.
+        #expect(peeked === loaded)
+    }
+
+    @Test("The peek is keyed by size, like the cache it reads")
+    func cachedThumbnailIsSizeSpecific() async throws {
+        let path = try writeImage("sized.png", width: 512, height: 256)
+        let provider = GalleryThumbnailProvider()
+
+        _ = await provider.thumbnail(for: path, maxPixelSize: 64)
+
+        #expect(provider.cachedThumbnail(for: path, maxPixelSize: 64) != nil)
+        // A resize that crosses a bucket is a miss, and must load rather than
+        // hand back an image at the wrong resolution.
+        #expect(provider.cachedThumbnail(for: path, maxPixelSize: 128) == nil)
+    }
+
+    @Test(
+        "A peek with nothing to look up is a miss",
+        arguments: [("", 64), ("/nonexistent/image.png", 64), ("/tmp/image.png", 0)]
+    )
+    func cachedThumbnailRejectsEmptyLookups(path: String, maxPixelSize: Int) {
+        let provider = GalleryThumbnailProvider()
+
+        #expect(provider.cachedThumbnail(for: path, maxPixelSize: maxPixelSize) == nil)
+    }
+
+    @Test("Invalidating clears what the peek can see")
+    func invalidateClearsThePeek() async throws {
+        let path = try writeImage("dropped.png", width: 512, height: 256)
+        let provider = GalleryThumbnailProvider()
+
+        _ = await provider.thumbnail(for: path, maxPixelSize: 64)
+        #expect(provider.cachedThumbnail(for: path, maxPixelSize: 64) != nil)
+
+        await provider.invalidate()
+
+        #expect(provider.cachedThumbnail(for: path, maxPixelSize: 64) == nil)
+    }
 }

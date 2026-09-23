@@ -19,7 +19,7 @@ struct GalleryItemView: View {
                 // `sdi.image` is the fallback rather than the source: it is set only
                 // for a freshly generated image, whose pixels are already in hand.
                 // Everything loaded from disk arrives here as a thumbnail.
-                if let image = thumbnail ?? sdi.image {
+                if let image = displayedImage(for: geometry.size) {
                     Image(image, scale: 1, label: Text(verbatim: String(sdi.seed)))
                         .resizable()
                         .aspectRatio(contentMode: .fit)
@@ -44,6 +44,22 @@ struct GalleryItemView: View {
                 await loadThumbnail(for: geometry.size)
             }
         }
+    }
+
+    /// What to draw right now, preferring anything available without suspending.
+    ///
+    /// The cache read matters when this cell has just been rebuilt by `LazyVGrid`
+    /// after being scrolled or resized out of view: `thumbnail` is `@State` and died
+    /// with the old view, and waiting for `loadThumbnail` to round-trip through the
+    /// provider actor is long enough to paint a spinner over an image that is still
+    /// in memory.
+    private func displayedImage(for size: CGSize) -> CGImage? {
+        if let thumbnail { return thumbnail }
+        let cached = thumbnailProvider.cachedThumbnail(
+            for: sdi.path,
+            maxPixelSize: thumbnailPixelSize(for: size)
+        )
+        return cached ?? sdi.image
     }
 
     /// Re-requests only when the image or the bucketed size changes, so a drag that

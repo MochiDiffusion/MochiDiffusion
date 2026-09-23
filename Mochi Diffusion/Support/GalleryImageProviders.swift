@@ -21,7 +21,10 @@ import SwiftUI
 /// of identical requests, and without it each would decode its own copy.
 actor GalleryThumbnailProvider {
     /// `NSCache` needs a class, and `CGImage` is not one.
-    private final class CachedThumbnail {
+    ///
+    /// Immutable, and `CGImage` is itself `Sendable`, so instances cross isolation
+    /// domains safely.
+    private final class CachedThumbnail: @unchecked Sendable {
         let image: CGImage
 
         init(_ image: CGImage) {
@@ -29,7 +32,11 @@ actor GalleryThumbnailProvider {
         }
     }
 
-    private let cache = NSCache<NSString, CachedThumbnail>()
+    /// `nonisolated(unsafe)` because `NSCache` does its own locking, which is what
+    /// the project's `@unchecked Sendable` policy requires: the type guards its own
+    /// mutable state rather than relying on callers being serialized. That lets
+    /// `cachedThumbnail(for:maxPixelSize:)` read it without an actor hop.
+    nonisolated(unsafe) private let cache = NSCache<NSString, CachedThumbnail>()
     private var inFlightRequests: [String: Task<CGImage?, Never>] = [:]
 
     init(countLimit: Int = 256) {
@@ -63,6 +70,22 @@ actor GalleryThumbnailProvider {
         return image
     }
 
+    /// What is already cached, read synchronously.
+    ///
+    /// A `LazyVGrid` cell scrolled or resized out of the render window is destroyed
+    /// and rebuilt with fresh `@State`, losing the thumbnail it was showing. Going
+    /// back through the actor costs an `await` even when the image is resident, and
+    /// that suspension is long enough to paint a `ProgressView` — the blanking seen
+    /// along the bottom edge of the gallery during a window resize. Reading the
+    /// cache directly lets a recycled cell draw its image in the same layout pass.
+    ///
+    /// Returns nil on a miss; the asynchronous path is unchanged and still loads.
+    nonisolated func cachedThumbnail(for path: String, maxPixelSize: Int) -> CGImage? {
+        guard !path.isEmpty, maxPixelSize > 0 else { return nil }
+        let key = cacheKey(for: path, maxPixelSize: maxPixelSize)
+        return cache.object(forKey: key as NSString)?.image
+    }
+
     /// Drops what is cached for a path, for a file that changed or went away.
     ///
     /// Size-agnostic: the cache is keyed by path *and* size, so clearing one entry
@@ -72,7 +95,7 @@ actor GalleryThumbnailProvider {
         cache.removeAllObjects()
     }
 
-    private func cacheKey(for path: String, maxPixelSize: Int) -> String {
+    nonisolated private func cacheKey(for path: String, maxPixelSize: Int) -> String {
         "\(path)#\(maxPixelSize)"
     }
 
