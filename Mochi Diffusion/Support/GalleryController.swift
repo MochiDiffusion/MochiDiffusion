@@ -197,7 +197,13 @@ final class GalleryController {
         exportRequests.reserveCapacity(images.count)
         for (index, sdi) in images.enumerated() {
             let count = index + 1
-            guard let data = await sdi.imageData(type) else { continue }
+            // The fields this image actually recorded, not every field Mochi can
+            // write. An imported image that carried only a prompt must not gain a
+            // scheduler and step count on the way out.
+            let metadataFields = imageGallery.metadataFields(for: sdi.id)
+            guard let data = await sdi.imageData(type, metadataFields: metadataFields) else {
+                continue
+            }
             exportRequests.append(
                 ImageExportRequest(
                     filenameWithoutExtension: sdi.filenameWithoutExtension(count: count),
@@ -212,7 +218,10 @@ final class GalleryController {
     func copyImage(_ sdi: SDImage) async {
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
-        guard let imageData = await sdi.imageData(.png) else { return }
+        let metadataFields = imageGallery.metadataFields(for: sdi.id)
+        guard let imageData = await sdi.imageData(.png, metadataFields: metadataFields) else {
+            return
+        }
         guard let image = NSImage(data: imageData) else { return }
         pasteboard.writeObjects([image])
     }

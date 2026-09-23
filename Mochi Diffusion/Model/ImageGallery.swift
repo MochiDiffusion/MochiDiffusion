@@ -191,7 +191,12 @@ enum ImagesSortType: String {
         Task { @MainActor in
             let url = URL(fileURLWithPath: sdi.path, isDirectory: false)
             let type = UTType.fromString(url.pathExtension.lowercased())
-            guard let data = await sdi.imageData(type) else { return }
+            // Rewriting the file must not turn SDImage's generation defaults into
+            // claims about how this image was made.
+            let metadataFields = self.metadataFields(for: sdi.id)
+            guard let data = await sdi.imageData(type, metadataFields: metadataFields) else {
+                return
+            }
             guard
                 let savedURL = await imageRepository.saveUpdatedImage(
                     path: sdi.path,
