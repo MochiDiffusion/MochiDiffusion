@@ -36,6 +36,10 @@ struct GalleryItemView: View {
                     .frame(maxHeight: .infinity, alignment: .bottom)
                     .padding(8)
             }
+            // Pins the cell to the geometry's size so the loaded and loading states
+            // cannot resolve differently. GeometryReader already proposes exactly
+            // this, so it is defensive rather than load-bearing.
+            .frame(width: geometry.size.width, height: geometry.size.height)
             .task(id: requestID(for: geometry.size)) {
                 await loadThumbnail(for: geometry.size)
             }
@@ -68,9 +72,21 @@ struct GalleryItemView: View {
         guard sdi.image == nil else { return }
         let maxPixelSize = thumbnailPixelSize(for: size)
         guard maxPixelSize > 0, !sdi.path.isEmpty else { return }
-        thumbnail = await thumbnailProvider.thumbnail(
+        let image = await thumbnailProvider.thumbnail(
             for: sdi.path,
             maxPixelSize: maxPixelSize
         )
+        // Never assign nil: a failed read must not blank a thumbnail already on
+        // screen.
+        guard let image else { return }
+        // Resizing cancels this task whenever the size bucket moves, but the
+        // provider decodes in an unstructured Task that does not inherit
+        // cancellation, so a cancelled task still returns a usable thumbnail for a
+        // slightly stale size. Show it while the cell has nothing at all — during a
+        // drag that is the difference between an image and a spinner — and
+        // otherwise let the live task's result win, so a late arrival cannot
+        // replace the right size with the wrong one.
+        guard !Task.isCancelled || thumbnail == nil else { return }
+        thumbnail = image
     }
 }
