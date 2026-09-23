@@ -283,6 +283,7 @@ struct GenerationConfigRestorationTests {
         controller.setStartingImage(image: makeCGImage(), filename: "stale.png")
         configStore.steps = 19
         configStore.scheduler = .pndmScheduler
+        configStore.guidanceScale = 11
         await controller.copyToPrompt(source)
 
         #expect(controller.currentModelId == source.modelID)
@@ -290,8 +291,12 @@ struct GenerationConfigRestorationTests {
         #expect(controller.inputImages.map(\.name) == [nil, "second.png"])
         #expect(configStore.width == Int(source.size.width))
         #expect(configStore.height == Int(source.size.height))
-        #expect(configStore.steps == Double(try #require(source.stepCount)))
-        #expect(configStore.scheduler == source.scheduler)
+        // Klein pins both, so the sidebar keeps what the user had. Copying them in
+        // could not change the reproduction — the model pins them either way — and
+        // would only overwrite the values waiting for the Core ML model.
+        #expect(configStore.steps == 19)
+        #expect(configStore.scheduler == .pndmScheduler)
+        #expect(configStore.guidanceScale == 11)
         #expect(controller.seed == source.seed)
         #expect(controller.numberOfImages == Double(source.numberOfImages))
 

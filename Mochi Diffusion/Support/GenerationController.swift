@@ -1030,22 +1030,36 @@ final class GenerationController {
             configStore.width = Int(size.width)
             configStore.height = Int(size.height)
         }
-        if constraints.steps.isSupported, let steps = source.steps {
+        // `isEditable`, not `isSupported`: the question is whether this value was
+        // ever the user's to choose. A pinned value is a function of the model,
+        // and the model is restored too, so copying it in can never change the
+        // reproduction — it can only overwrite the value the user had for some
+        // other model they select next. Copying options from a distilled Klein
+        // image used to leave the sidebar at four steps and guidance 1.0, which
+        // then silently applied to a Core ML model.
+        //
+        // The single-value actions below (`copyStepsToPrompt` and friends) stay
+        // unconditional: there the user pointed at one number and asked for it.
+        if constraints.steps.isEditable, let steps = source.steps {
             configStore.steps = Double(steps)
         }
-        if constraints.guidanceScale.isSupported, let guidanceScale = source.guidanceScale {
+        if constraints.guidanceScale.isEditable, let guidanceScale = source.guidanceScale {
             configStore.guidanceScale = guidanceScale
         }
-        if let scheduler = source.scheduler, constraints.scheduler.options.contains(scheduler) {
+        if constraints.scheduler.isEditable, let scheduler = source.scheduler,
+            constraints.scheduler.options.contains(scheduler)
+        {
             configStore.scheduler = scheduler
         }
-        if let quality = source.quality, constraints.quality.options.contains(quality) {
+        if constraints.quality.isEditable, let quality = source.quality,
+            constraints.quality.options.contains(quality)
+        {
             configStore.quality = quality
         }
-        if constraints.startingImage.strength.isSupported, let strength = source.strength {
+        if constraints.startingImage.strength.isEditable, let strength = source.strength {
             configStore.strength = strength
         }
-        if constraints.numberOfImages.isSupported, let numberOfImages = source.numberOfImages {
+        if constraints.numberOfImages.isEditable, let numberOfImages = source.numberOfImages {
             self.numberOfImages = Double(numberOfImages)
         }
         if let seed = source.seed {
