@@ -51,6 +51,11 @@ struct SDImage: Identifiable, Hashable {
     }
 }
 
+nonisolated enum SDImageError: Error, Equatable {
+    /// No file to copy and the resident pixels could not be encoded.
+    case encodingFailed
+}
+
 extension SDImage {
     func filenameWithoutExtension() -> String {
         imageFilenameWithoutExtension(prompt: prompt, seed: seed)
@@ -85,11 +90,43 @@ extension SDImage {
         return url
     }
 
+    /// The file URL this image was read from or written to, when it has one.
+    ///
+    /// A freshly generated image that has not reached the images folder yet has no
+    /// path and therefore no source file to copy.
+    nonisolated var sourceURL: URL? {
+        path.isEmpty ? nil : URL(fileURLWithPath: path, isDirectory: false)
+    }
+
+    /// The formats the gallery can hold, and therefore the ones Save As can reproduce.
+    /// Mirrors `ImageRepository.supportedImageExtensions`.
+    nonisolated static let savableTypes: Set<UTType> = [.png, .jpeg, .heic]
+
+    /// The image's own content type, taken from the file it came from.
+    ///
+    /// Save As deliberately does not let the user choose a different one. The output
+    /// format is a single documented preference in Settings, which is what generation
+    /// and Save All already use; offering a second, invisible choice here only made
+    /// the saved bytes disagree with the saved name.
+    ///
+    /// Resolved through the system's extension mapping rather than `UTType.fromString`,
+    /// which knows only each type's single preferred extension and so reports an
+    /// imported `.jpg` as PNG. That helper still serves the import paths, where a
+    /// PNG fallback is a reasonable guess; here it would mislabel bytes being copied.
+    nonisolated var contentType: UTType {
+        guard
+            let sourceURL,
+            let type = UTType(filenameExtension: sourceURL.pathExtension.lowercased()),
+            Self.savableTypes.contains(type)
+        else { return .png }
+        return type
+    }
+
     @MainActor
     /// Display save image dialog.
     func saveAs() async {
         let panel = NSSavePanel()
-        panel.allowedContentTypes = [.png, .jpeg, .heic]
+        panel.allowedContentTypes = [contentType]
         panel.canCreateDirectories = true
         panel.isExtensionHidden = false
         panel.title = String(localized: "Save Image", comment: "Header text for save image panel")
@@ -103,19 +140,30 @@ extension SDImage {
         }
 
         guard let url = panel.url else { return }
-        let ext = url.pathExtension.lowercased()
-        let type = UTType.fromString(ext)
-
-        guard let data = await imageData(type) else {
-            NSLog("*** Failed to create image data")
-            return
-        }
 
         do {
-            try data.write(to: url)
+            try await writeCopy(to: url)
         } catch {
             NSLog("*** Error saving image file: \(error.localizedDescription)")
         }
+    }
+
+    /// Writes this image to `destination` keeping the type and bytes it already has.
+    ///
+    /// Copies the source file whenever it is readable, so the saved image is byte
+    /// identical and its recorded metadata survives exactly as written. Re-encoding is
+    /// only a fallback for an image that has no file yet, where the resident pixels and
+    /// every metadata field are genuinely current.
+    nonisolated func writeCopy(to destination: URL) async throws {
+        if let sourceURL, let data = try? Data(contentsOf: sourceURL) {
+            try data.write(to: destination, options: .atomic)
+            return
+        }
+
+        guard let data = await imageData(contentType) else {
+            throw SDImageError.encodingFailed
+        }
+        try data.write(to: destination, options: .atomic)
     }
 
     /// Re-encodes the image with its metadata.
