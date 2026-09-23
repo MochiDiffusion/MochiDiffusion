@@ -27,13 +27,19 @@ struct GalleryLoadingTests {
         imageDir = try temp.subdirectory("images")
     }
 
-    private func makeController(gallery: ImageGallery) -> GalleryController {
+    private func makeController(
+        gallery: ImageGallery,
+        thumbnailProvider: GalleryThumbnailProvider = GalleryThumbnailProvider(),
+        fullImageProvider: GalleryFullImageProvider = GalleryFullImageProvider()
+    ) -> GalleryController {
         let configStore = ConfigStore(store: defaults.defaults)
         configStore.imageDir = imageDir.path(percentEncoded: false)
         return GalleryController(
             configStore: configStore,
             imageGallery: gallery,
-            focusController: FocusController()
+            focusController: FocusController(),
+            thumbnailProvider: thumbnailProvider,
+            fullImageProvider: fullImageProvider
         )
     }
 
@@ -208,6 +214,66 @@ struct GalleryLoadingTests {
 
         controller.clearFinderTags(try #require(gallery.images.first))
         #expect(gallery.images.first?.finderTagColorNumber == 0)
+        controller.shutdown()
+    }
+
+    /// The user-facing half of the cache-consistency defect, from the controller
+    /// down.
+    ///
+    /// Deleting an image and putting different pixels at the same path is
+    /// reachable without leaving the app: `removeImage` unlinks the file, and an
+    /// import then succeeds where it would otherwise have refused to overwrite.
+    /// Both caches key on path, so without invalidation the grid drew the deleted
+    /// image under the new one's name — and `GalleryFullImageProvider` handed the
+    /// same stale pixels to export and to generation input.
+    ///
+    /// The import itself is behind an `NSOpenPanel`, so this drives the delete and
+    /// writes the replacement directly, which is the same sequence of effects on
+    /// the folder.
+    @Test("Deleting an image stops its pixels being served for that path")
+    func deletingAnImageInvalidatesItsCaches() async throws {
+        try writePNG(
+            caption: MetadataCodec.encode([
+                (.includeInImage, "a cat"),
+                (.generator, "Mochi Diffusion 6.0"),
+            ]),
+            to: imageDir.appending(path: "one.png"),
+            image: makeCGImage(width: 512, height: 256)
+        )
+        let thumbnailProvider = GalleryThumbnailProvider()
+        let fullImageProvider = GalleryFullImageProvider()
+        let gallery = ImageGallery()
+        let controller = makeController(
+            gallery: gallery,
+            thumbnailProvider: thumbnailProvider,
+            fullImageProvider: fullImageProvider
+        )
+        await controller.loadImages()
+        let sdi = try #require(gallery.images.first)
+
+        // Viewed: both caches now hold this file's pixels under its path.
+        _ = try #require(await thumbnailProvider.thumbnail(for: sdi.path, maxPixelSize: 64))
+        _ = try #require(await fullImageProvider.image(forPath: sdi.path))
+
+        await controller.removeImage(sdi)
+        // A different image arrives at the same path, as a reimport produces.
+        try writePNG(
+            caption: MetadataCodec.encode([
+                (.includeInImage, "a dog"),
+                (.generator, "Mochi Diffusion 6.0"),
+            ]),
+            to: URL(filePath: sdi.path),
+            image: makeCGImage(width: 64, height: 256)
+        )
+
+        let thumbnail = try #require(
+            await thumbnailProvider.thumbnail(for: sdi.path, maxPixelSize: 64))
+        let full = try #require(await fullImageProvider.image(forPath: sdi.path))
+
+        // The new image's shape, not the deleted one's 2:1.
+        #expect(thumbnail.height == thumbnail.width * 4)
+        #expect(full.width == 64)
+        #expect(full.height == 256)
         controller.shutdown()
     }
 }

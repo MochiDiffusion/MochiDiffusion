@@ -24,6 +24,20 @@ final class GalleryController {
     private let imageGallery: ImageGallery
     private let imageRepository: ImageRepository
     private let focusController: FocusController
+    /// The caches that have to be told when a file under a path changes.
+    ///
+    /// Held here because this controller is what changes them: it deletes, it
+    /// imports, and it is what learns from the folder monitor that a file went
+    /// away. The caches are keyed by path, so reusing a path — deleting an image
+    /// and importing a different one under the same name is the way to do it
+    /// without leaving the app — would otherwise serve the old pixels for both the
+    /// grid and, through `GalleryFullImageProvider`, for export and generation
+    /// input.
+    ///
+    /// Defaulted for tests, which want isolated caches; the app passes the ones it
+    /// actually displays from.
+    private let thumbnailProvider: GalleryThumbnailProvider
+    private let fullImageProvider: GalleryFullImageProvider
 
     private var imageFolderMonitorTask: Task<Void, Never>?
     private var imageDirDebounceTask: Task<Void, Never>?
@@ -38,12 +52,16 @@ final class GalleryController {
         configStore: ConfigStore,
         imageGallery: ImageGallery,
         imageRepository: ImageRepository = ImageRepository(),
-        focusController: FocusController
+        focusController: FocusController,
+        thumbnailProvider: GalleryThumbnailProvider = GalleryThumbnailProvider(),
+        fullImageProvider: GalleryFullImageProvider = GalleryFullImageProvider()
     ) {
         self.configStore = configStore
         self.imageGallery = imageGallery
         self.imageRepository = imageRepository
         self.focusController = focusController
+        self.thumbnailProvider = thumbnailProvider
+        self.fullImageProvider = fullImageProvider
         initialLoadTask = Task { [weak self] in
             await self?.load()
         }
@@ -112,6 +130,7 @@ final class GalleryController {
 
         imageGallery.remove(sdi)
         await imageRepository.delete(path: sdi.path, moveToTrash: configStore.useTrash)
+        invalidateCaches(for: sdi.path)
     }
 
     /// Sets a Finder label on the image's file and tells the gallery. Zero clears
@@ -157,6 +176,12 @@ final class GalleryController {
             createSDImage(from: record).map { image in
                 (image: image, metadataFields: record.metadataFields)
             }
+        }
+        // Before the gallery shows them: an imported file can land on a path some
+        // earlier image was cached under, whether this session deleted it or
+        // something else did.
+        for record in records {
+            invalidateCaches(for: record.path)
         }
         let succeeded = imagesAndMetadata.count
         imageGallery.add(imagesAndMetadata)
@@ -253,6 +278,10 @@ final class GalleryController {
 
     private func updateImageFolderMonitor() async {
         startImageFolderMonitor()
+        // A different folder can hold the same file names as the last one, and the
+        // caches key on path alone.
+        await thumbnailProvider.invalidate()
+        await fullImageProvider.invalidate()
         await loadImages()
     }
 
@@ -289,6 +318,15 @@ final class GalleryController {
             .path(percentEncoded: false)
     }
 
+    /// Tells both caches that whatever was at `path` is no longer what is there.
+    ///
+    /// Synchronous: both calls are `nonisolated`, so this happens at the moment the
+    /// file changes rather than after a hop that a read could get in front of.
+    private func invalidateCaches(for path: String) {
+        thumbnailProvider.invalidate(path: path)
+        fullImageProvider.invalidate(path: path)
+    }
+
     private func syncImages() async {
         let imageDir = imageDirectoryPath()
         let existingPaths = imageGallery.allImages.compactMap { sdi in
@@ -310,6 +348,11 @@ final class GalleryController {
         }
 
         if !result.removals.isEmpty {
+            // Covers a deletion this app did not perform. `syncImages` compares
+            // file names, so this is every disappearance it can see.
+            for path in result.removals {
+                invalidateCaches(for: path)
+            }
             let removals = imageGallery.allImages.filter {
                 result.removals.contains($0.path)
             }

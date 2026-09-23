@@ -22,7 +22,7 @@ struct MochiDiffusionApp: App {
     @State private var quickLook: QuickLookState
     @State private var quicklookURL: URL?
 
-    private let thumbnailProvider = GalleryThumbnailProvider()
+    private let thumbnailProvider: GalleryThumbnailProvider
     private let fullImageProvider: GalleryFullImageProvider
     private let updaterController: SPUStandardUpdaterController
 
@@ -30,8 +30,10 @@ struct MochiDiffusionApp: App {
         let configStore = ConfigStore()
         let focusController = FocusController()
         let imageGallery = ImageGallery()
+        let thumbnailProvider = GalleryThumbnailProvider()
         let fullImageProvider = GalleryFullImageProvider()
         let engineRegistry = EngineRegistry()
+        self.thumbnailProvider = thumbnailProvider
         self.fullImageProvider = fullImageProvider
         let generationService = GenerationService(
             engineRegistry: engineRegistry,
@@ -51,7 +53,11 @@ struct MochiDiffusionApp: App {
             initialValue: GalleryController(
                 configStore: configStore,
                 imageGallery: imageGallery,
-                focusController: focusController
+                focusController: focusController,
+                // The same instances the views read from, so invalidating on a
+                // delete or an import reaches what is actually on screen.
+                thumbnailProvider: thumbnailProvider,
+                fullImageProvider: fullImageProvider
             )
         )
         self._generationState = .init(wrappedValue: .shared)

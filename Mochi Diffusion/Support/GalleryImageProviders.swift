@@ -8,6 +8,58 @@ import Foundation
 import ImageIO
 import SwiftUI
 
+/// Which version of a file's contents a cache entry was made from.
+///
+/// `NSCache` cannot enumerate its keys, and a thumbnail path is cached at up to
+/// thirty size buckets at once, so dropping one path's entries by deleting them
+/// would mean maintaining a side index of every key — and keeping that index
+/// correct through evictions the cache makes silently. Folding a generation into
+/// the key instead makes invalidation O(1) and needs no index: the superseded
+/// entries simply become unreachable and fall out under the cache's own count
+/// limit.
+///
+/// It is also what makes a load that is already in flight harmless. Such a load
+/// resumes holding pixels read before the file changed, and its key names the
+/// generation it started in, so it cannot put them anywhere a later read will
+/// look.
+///
+/// Lock-guarded rather than actor-isolated because
+/// `GalleryThumbnailProvider.cachedThumbnail(for:maxPixelSize:)` is synchronous
+/// and needs a token during layout — avoiding that actor hop is the whole reason
+/// that call exists.
+nonisolated final class GalleryCacheGenerations: @unchecked Sendable {
+    private let lock = NSLock()
+    private var all = 0
+    private var byPath: [String: Int] = [:]
+
+    /// Identifies the current contents of `path`.
+    func token(for path: String) -> String {
+        lock.lock()
+        defer { lock.unlock() }
+        return "\(all).\(byPath[path] ?? 0)"
+    }
+
+    /// Supersedes every entry cached for `path`.
+    ///
+    /// Only paths that have actually changed are recorded, so this grows with the
+    /// images a session deletes or imports rather than with the images it caches.
+    func bump(_ path: String) {
+        lock.lock()
+        byPath[path, default: 0] += 1
+        lock.unlock()
+    }
+
+    /// Supersedes everything. Clearing the per-path entries is safe because the
+    /// shared counter has already moved, so every token they could produce differs
+    /// from every token issued before.
+    func bumpAll() {
+        lock.lock()
+        all += 1
+        byPath.removeAll()
+        lock.unlock()
+    }
+}
+
 /// Downsampled thumbnails for the gallery grid, read from disk rather than from a
 /// decoded image in memory.
 ///
@@ -38,6 +90,8 @@ actor GalleryThumbnailProvider {
     /// `cachedThumbnail(for:maxPixelSize:)` read it without an actor hop.
     nonisolated(unsafe) private let cache = NSCache<NSString, CachedThumbnail>()
     private var inFlightRequests: [String: Task<CGImage?, Never>] = [:]
+    /// Which contents each cached entry was made from. See `GalleryCacheGenerations`.
+    private let generations = GalleryCacheGenerations()
 
     init(countLimit: Int = 256) {
         cache.countLimit = countLimit
@@ -63,7 +117,12 @@ actor GalleryThumbnailProvider {
         let image = await request.value
         inFlightRequests[cacheKey] = nil
 
-        if let image {
+        // The actor suspends at the await above, so the file may have changed
+        // while this load was running — in which case these pixels are the old
+        // ones and `cacheKey` names a generation nothing will ask for again.
+        // Re-deriving the key is how that is detected; skipping the write keeps a
+        // dead entry from occupying a slot until it is evicted.
+        if let image, cacheKey == self.cacheKey(for: path, maxPixelSize: maxPixelSize) {
             cache.setObject(CachedThumbnail(image), forKey: cacheKey as NSString)
         }
 
@@ -86,17 +145,30 @@ actor GalleryThumbnailProvider {
         return cache.object(forKey: key as NSString)?.image
     }
 
-    /// Drops what is cached for a path, for a file that changed or went away.
+    /// Drops what is cached for one path, for a file that changed or went away.
     ///
-    /// Size-agnostic: the cache is keyed by path *and* size, so clearing one entry
-    /// would leave the others stale. `NSCache` cannot enumerate its keys, so this
-    /// empties it — coarse, and correct, and rare.
+    /// Size-agnostic, because the cache is keyed by path *and* size and clearing a
+    /// single entry would leave the others stale. Supersedes rather than deletes —
+    /// see `GalleryCacheGenerations` for why that is the cheaper way to reach every
+    /// size at once.
+    ///
+    /// `nonisolated`, so the gallery can invalidate at the moment it changes a file
+    /// rather than hopping onto this actor to do it.
+    nonisolated func invalidate(path: String) {
+        guard !path.isEmpty else { return }
+        generations.bump(path)
+    }
+
+    /// Drops everything, for when the gallery is no longer looking at the same
+    /// folder. Unlike the per-path form this also frees the entries, since none of
+    /// them can be wanted again.
     func invalidate() {
+        generations.bumpAll()
         cache.removeAllObjects()
     }
 
     nonisolated private func cacheKey(for path: String, maxPixelSize: Int) -> String {
-        "\(path)#\(maxPixelSize)"
+        "\(path)#\(maxPixelSize)#\(generations.token(for: path))"
     }
 
     /// `kCGImageSourceShouldCache: false` matters as much as the max pixel size:
@@ -136,6 +208,8 @@ actor GalleryFullImageProvider {
     private let cache = NSCache<NSString, CachedImage>()
     private var inFlightRequests: [String: Task<CGImage?, Never>] = [:]
     private let imageLoader: @Sendable (String) async -> CGImage?
+    /// Which contents each cached entry was made from. See `GalleryCacheGenerations`.
+    private let generations = GalleryCacheGenerations()
 
     init(
         countLimit: Int = 32,
@@ -157,11 +231,12 @@ actor GalleryFullImageProvider {
     func image(forPath path: String) async -> CGImage? {
         guard !path.isEmpty else { return nil }
 
-        if let cached = cache.object(forKey: path as NSString) {
+        let cacheKey = cacheKey(for: path)
+        if let cached = cache.object(forKey: cacheKey as NSString) {
             return cached.image
         }
 
-        if let request = inFlightRequests[path] {
+        if let request = inFlightRequests[cacheKey] {
             return await request.value
         }
 
@@ -169,20 +244,36 @@ actor GalleryFullImageProvider {
         let request = Task(priority: .utility) {
             await imageLoader(path)
         }
-        inFlightRequests[path] = request
+        inFlightRequests[cacheKey] = request
 
         let image = await request.value
-        inFlightRequests[path] = nil
+        inFlightRequests[cacheKey] = nil
 
-        if let image {
-            cache.setObject(CachedImage(image), forKey: path as NSString)
+        // As in `GalleryThumbnailProvider.thumbnail(for:maxPixelSize:)`: pixels
+        // read before the file changed must not be written back under a key a
+        // later read would find. It matters more here, since these images are fed
+        // to generation and to export, not only drawn.
+        if let image, cacheKey == self.cacheKey(for: path) {
+            cache.setObject(CachedImage(image), forKey: cacheKey as NSString)
         }
 
         return image
     }
 
+    /// Drops what is cached for one path. `nonisolated` for the same reason as the
+    /// thumbnail provider's.
+    nonisolated func invalidate(path: String) {
+        guard !path.isEmpty else { return }
+        generations.bump(path)
+    }
+
     func invalidate() {
+        generations.bumpAll()
         cache.removeAllObjects()
+    }
+
+    private func cacheKey(for path: String) -> String {
+        "\(path)#\(generations.token(for: path))"
     }
 }
 

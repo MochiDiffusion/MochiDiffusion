@@ -201,4 +201,158 @@ struct GalleryImageProviderTests {
 
         #expect(provider.cachedThumbnail(for: path, maxPixelSize: 64) == nil)
     }
+
+    // MARK: - Keeping cached pixels consistent with the file
+
+    /// The defect these tests exist for. Both caches key on path, and a path can
+    /// be reused without leaving the app: delete an image, import a different one
+    /// under the same name, and every later read — the grid, Quick Look, export,
+    /// and generation input — was served the deleted image's pixels.
+    @Test("A path invalidated once no longer serves the old pixels")
+    func invalidatingAPathDropsItsThumbnail() async throws {
+        let path = try writeImage("reused.png", width: 512, height: 256)
+        let provider = GalleryThumbnailProvider()
+        _ = try #require(await provider.thumbnail(for: path, maxPixelSize: 64))
+
+        // Different contents at the same path, as a delete and a reimport produce.
+        try writePNG(
+            caption: "", to: URL(filePath: path), image: makeCGImage(width: 64, height: 256))
+        provider.invalidate(path: path)
+
+        let reloaded = try #require(await provider.thumbnail(for: path, maxPixelSize: 64))
+        // 1:4 now, where the cached one was 2:1.
+        #expect(reloaded.height == reloaded.width * 4)
+    }
+
+    /// Invalidation has to reach every size the path was cached at. The grid holds
+    /// a path at several buckets at once while a window is being resized, so
+    /// clearing one and leaving the rest would show the old image at the next
+    /// size the cell settles on.
+    @Test("Invalidating a path reaches every size it was cached at")
+    func invalidatingAPathReachesEverySize() async throws {
+        let path = try writeImage("reused.png", width: 512, height: 256)
+        let provider = GalleryThumbnailProvider()
+        _ = await provider.thumbnail(for: path, maxPixelSize: 64)
+        _ = await provider.thumbnail(for: path, maxPixelSize: 128)
+        _ = await provider.thumbnail(for: path, maxPixelSize: 256)
+
+        provider.invalidate(path: path)
+
+        for size in [64, 128, 256] {
+            #expect(provider.cachedThumbnail(for: path, maxPixelSize: size) == nil)
+        }
+    }
+
+    /// Targeted, so deleting one image does not throw away the decoded thumbnails
+    /// of everything else on screen.
+    @Test("Invalidating one path leaves the others cached")
+    func invalidatingAPathSparesOtherPaths() async throws {
+        let changed = try writeImage("changed.png", width: 512, height: 256)
+        let untouched = try writeImage("untouched.png", width: 512, height: 256)
+        let provider = GalleryThumbnailProvider()
+        _ = await provider.thumbnail(for: changed, maxPixelSize: 64)
+        let keep = try #require(await provider.thumbnail(for: untouched, maxPixelSize: 64))
+
+        provider.invalidate(path: changed)
+
+        #expect(provider.cachedThumbnail(for: changed, maxPixelSize: 64) == nil)
+        #expect(provider.cachedThumbnail(for: untouched, maxPixelSize: 64) === keep)
+    }
+
+    @Test("The full-image provider stops serving an invalidated path")
+    func invalidatingAPathDropsTheFullImage() async throws {
+        let path = try writeImage("reused.png", width: 512, height: 256)
+        let provider = GalleryFullImageProvider()
+        let first = try #require(await provider.image(forPath: path))
+        #expect(first.width == 512)
+
+        try writePNG(
+            caption: "", to: URL(filePath: path), image: makeCGImage(width: 64, height: 64))
+        provider.invalidate(path: path)
+
+        let reloaded = try #require(await provider.image(forPath: path))
+        #expect(reloaded.width == 64)
+    }
+
+    /// The second half of the defect, and the one a targeted invalidation does not
+    /// fix by itself: a read that was already running when the file changed
+    /// resumes holding the old pixels and used to write them straight back into
+    /// the cache, undoing the invalidation that happened while it was suspended.
+    ///
+    /// Driven through the full-image provider because its loader is injectable, so
+    /// the overlap is arranged rather than raced. The thumbnail provider resolves
+    /// it the same way — the generation is part of the key in both.
+    @Test("A load in flight when a path changes cannot repopulate the cache")
+    func inFlightLoadCannotRestoreStalePixels() async throws {
+        let path = try writeImage("reused.png", width: 512, height: 256)
+        let started = AsyncSemaphore()
+        let release = AsyncSemaphore()
+        let stale = makeCGImage(width: 512, height: 256)
+        let fresh = makeCGImage(width: 64, height: 64)
+        let loads = Counter()
+
+        let provider = GalleryFullImageProvider { _ in
+            loads.increment()
+            // The first load is the one that overlaps the change; later loads
+            // must see the new file rather than replay the old answer.
+            if loads.value == 1 {
+                await started.signal()
+                await release.wait()
+                return stale
+            }
+            return fresh
+        }
+
+        let inFlight = Task { await provider.image(forPath: path) }
+        await started.wait()
+
+        // The file changes, and the gallery says so, while that load is suspended.
+        provider.invalidate(path: path)
+        await release.signal()
+        #expect(await inFlight.value === stale)
+
+        // The stale pixels were returned to the caller that asked before the
+        // change — which is unavoidable — but must not be what the cache now holds.
+        let after = try #require(await provider.image(forPath: path))
+        #expect(after === fresh)
+    }
+}
+
+/// A one-shot signal usable from either side of an `await`.
+///
+/// `CheckedContinuation` rather than a poll, so the overlap in
+/// `inFlightLoadCannotRestoreStalePixels` is arranged exactly rather than slept
+/// into place.
+private actor AsyncSemaphore {
+    private var isSignalled = false
+    private var waiters: [CheckedContinuation<Void, Never>] = []
+
+    func signal() {
+        isSignalled = true
+        for waiter in waiters { waiter.resume() }
+        waiters = []
+    }
+
+    func wait() async {
+        if isSignalled { return }
+        await withCheckedContinuation { waiters.append($0) }
+    }
+}
+
+/// A counter readable from the `@Sendable` loader closure without an actor hop.
+private final class Counter: @unchecked Sendable {
+    private let lock = NSLock()
+    private var count = 0
+
+    func increment() {
+        lock.lock()
+        count += 1
+        lock.unlock()
+    }
+
+    var value: Int {
+        lock.lock()
+        defer { lock.unlock() }
+        return count
+    }
 }
