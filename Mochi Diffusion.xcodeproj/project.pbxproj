@@ -109,6 +109,7 @@
 		AA50000000000000000001982 /* QueueLivenessTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA50000000000000000001981 /* QueueLivenessTests.swift */; };
 		AA50000000000000000001992 /* GenerationOwnershipTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA50000000000000000001991 /* GenerationOwnershipTests.swift */; };
 		AA50000000000000000002002 /* IdleTimeoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA50000000000000000002001 /* IdleTimeoutTests.swift */; };
+		AA70000000000000000000052 /* CancellationBindingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA70000000000000000000051 /* CancellationBindingTests.swift */; };
 		AA50000000000000000002012 /* SecretStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA50000000000000000002011 /* SecretStore.swift */; };
 		AA50000000000000000002022 /* SecretStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA50000000000000000002021 /* SecretStoreTests.swift */; };
 		AA50000000000000000002032 /* ImageQuality.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA50000000000000000002031 /* ImageQuality.swift */; };
@@ -269,6 +270,7 @@
 		AA50000000000000000001981 /* QueueLivenessTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueueLivenessTests.swift; sourceTree = "<group>"; };
 		AA50000000000000000001991 /* GenerationOwnershipTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationOwnershipTests.swift; sourceTree = "<group>"; };
 		AA50000000000000000002001 /* IdleTimeoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdleTimeoutTests.swift; sourceTree = "<group>"; };
+		AA70000000000000000000051 /* CancellationBindingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CancellationBindingTests.swift; sourceTree = "<group>"; };
 		AA50000000000000000002011 /* SecretStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecretStore.swift; sourceTree = "<group>"; };
 		AA50000000000000000002021 /* SecretStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecretStoreTests.swift; sourceTree = "<group>"; };
 		AA50000000000000000002031 /* ImageQuality.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageQuality.swift; sourceTree = "<group>"; };
@@ -531,6 +533,7 @@
 				AA70000000000000000000041 /* MetadataPresenceExportTests.swift */,
 				AA50000000000000000001991 /* GenerationOwnershipTests.swift */,
 				AA50000000000000000002001 /* IdleTimeoutTests.swift */,
+				AA70000000000000000000051 /* CancellationBindingTests.swift */,
 				AA50000000000000000002021 /* SecretStoreTests.swift */,
 				AA50000000000000000002051 /* OpenAIImageEngineTests.swift */,
 				AA6000000000000000000031 /* OpenAICredentialCheckTests.swift */,
@@ -903,6 +906,7 @@
 				AA70000000000000000000042 /* MetadataPresenceExportTests.swift in Sources */,
 				AA50000000000000000001992 /* GenerationOwnershipTests.swift in Sources */,
 				AA50000000000000000002002 /* IdleTimeoutTests.swift in Sources */,
+				AA70000000000000000000052 /* CancellationBindingTests.swift in Sources */,
 				AA50000000000000000002022 /* SecretStoreTests.swift in Sources */,
 				AA50000000000000000002052 /* OpenAIImageEngineTests.swift in Sources */,
 				AA6000000000000000000032 /* OpenAICredentialCheckTests.swift in Sources */,

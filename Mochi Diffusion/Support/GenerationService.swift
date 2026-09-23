@@ -139,7 +139,18 @@ actor GenerationService {
         guard cancelingCurrentID != current.id else { return }
 
         cancelingCurrentID = current.id
+        // Bound to the session that is running *now*, and stopped before the
+        // status update below rather than after it. This actor is reentrant: the
+        // update suspends on a hop to the main actor, and during that suspension
+        // the running request can finish and the drain can start the next one, so
+        // re-reading `currentSession` afterwards can hand the stop to a request
+        // the user never asked to stop. Cancelling first also keeps a stop prompt
+        // while the main actor is busy, which is when a generation is running.
+        let session = currentSession
         broadcastSnapshot()
+        // Synchronous, and it does not touch the runtime: one blocked inside
+        // `generateImages` or `iris_generate` could not accept a call.
+        session?.cancel()
         // Says so when it is true rather than implying a cancel is always free.
         // Stopping a hosted request stops us waiting; it does not necessarily stop
         // the service, and the image may still be charged for.
@@ -150,9 +161,6 @@ actor GenerationService {
                     : nil
             )
         )
-        // Synchronous, and it does not touch the runtime: one blocked inside
-        // `generateImages` or `iris_generate` could not accept a call.
-        currentSession?.cancel()
     }
 
     func updateStatus(_ status: GenerationState.Status) async {
