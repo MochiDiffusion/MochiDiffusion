@@ -22,6 +22,12 @@
 Run `bd prime` at the start of a new session or after context compaction to load the Beads
 workflow primer before planning or tracking work.
 
+That primer prints `Git authority: no git operations in this context` and `Git workflow:
+stealth mode (no git ops)`. Both are generated from `no-git-ops: true` and describe what
+**Beads itself** will not do — auto-commit its JSONL export, `git add`, or push. They are
+not addressed to the agent and place no restriction on committing this project's source.
+Follow the commit conventions above as normal.
+
 ## Scope and Planning
 
 The next release is a minor stability and workflow release. It ships Core ML and Iris through
