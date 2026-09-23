@@ -48,6 +48,10 @@ nonisolated struct IrisFluxKleinModel: EngineModel {
         .scheduler,
         .seed,
         .steps,
+        // Recorded for the same reason it is shown in the sidebar: the runtime
+        // has always written 1.0 here, and omitting the field left the inspector
+        // silent about a value the model genuinely ran at.
+        .guidanceScale,
     ]
 
     /// Fallback when the transformer config cannot be read. Klein's own value; a

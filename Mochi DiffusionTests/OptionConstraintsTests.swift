@@ -532,6 +532,72 @@ struct ModelVisibilityTests {
         #expect(constraints.inputImages.maxCount == IrisEngine.maxReferenceImages)
     }
 
+    /// The sidebar shows these three rows for every model, so each one has to
+    /// have something to display no matter which engine is selected: a range to
+    /// slide, a pinned value to show disabled, or the em-dash placeholder.
+    ///
+    /// Recorded per engine because the failure this guards against is silent —
+    /// a constraint changing shape does not break the build, it just empties a
+    /// row and slides the sidebar.
+    @Test("Every engine has something to show in the always-visible rows")
+    func alwaysVisibleRowsHaveSomethingToShow() throws {
+        let cases: [(String, OptionConstraints)] = [
+            ("Core ML", try makeSDModel(inputSize: nil).constraints),
+            ("Klein", IrisFluxKleinModel.constraints),
+            ("OpenAI", OpenAIImageEngine.gptImage2.constraints),
+            ("no model selected", OptionConstraints.unconstrained),
+        ]
+
+        // Mirrors what each view asks: a range first, then a pinned value, then
+        // the placeholder. The placeholder is always available, so the check is
+        // that a constraint declaring support can actually produce a value.
+        for (named, constraints) in cases {
+            if constraints.steps.isSupported {
+                #expect(
+                    constraints.steps.bounds != nil || constraints.steps.resolved(20) != nil,
+                    "\(named) declares steps supported but shows nothing"
+                )
+            }
+            if constraints.guidanceScale.isSupported {
+                #expect(
+                    constraints.guidanceScale.bounds != nil
+                        || constraints.guidanceScale.resolved(7.5) != nil,
+                    "\(named) declares a guidance scale but shows nothing"
+                )
+            }
+            if constraints.numberOfImages.isSupported {
+                #expect(
+                    constraints.numberOfImages.bounds != nil
+                        || constraints.numberOfImages.resolved(1) != nil,
+                    "\(named) declares a number of images but shows nothing"
+                )
+            }
+        }
+    }
+
+    /// What each engine deliberately does not offer.
+    ///
+    /// `.unsupported` means Mochi does not know the value, not that the user
+    /// cannot change it: a value Mochi knows is pinned and shown disabled. These
+    /// are the cases where the option genuinely is absent or undisclosed.
+    @Test("Hidden options are the ones Mochi genuinely cannot state")
+    func unsupportedMeansUnknown() {
+        // Distilled: guidance is pinned at the identity scale, not hidden. What
+        // Klein really lacks is a denoising origin and any ControlNet.
+        #expect(IrisFluxKleinModel.constraints.guidanceScale.isSupported)
+        #expect(!IrisFluxKleinModel.constraints.startingImage.isSupported)
+        #expect(!IrisFluxKleinModel.constraints.controlNet.isSupported)
+
+        // Hosted: the service does not disclose its sampler settings, so there is
+        // no value to pin. This is the case `.unsupported` is for.
+        let hosted = OpenAIImageEngine.gptImage2.constraints
+        #expect(!hosted.steps.isSupported)
+        #expect(!hosted.guidanceScale.isSupported)
+        #expect(!hosted.scheduler.isSupported)
+        // Quality is the inverse: hosted vocabulary the local engines do not have.
+        #expect(hosted.quality.isSupported)
+    }
+
     @Test("A fixed-size Core ML model shows its size read-only")
     func fixedSizeIsReadOnly() throws {
         let model = try makeSDModel(inputSize: CGSize(width: 512, height: 768))

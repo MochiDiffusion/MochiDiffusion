@@ -147,12 +147,14 @@ struct MetadataRoundTripTests {
         #expect(record.steps == sdi.steps)
         #expect(record.scheduler == sdi.scheduler)
         #expect(record.inputImages == sdi.inputImages)
+        // Declared too: Klein's guidance is pinned rather than absent, so the
+        // value it ran at is recorded like the step count is.
+        #expect(record.guidanceScale == sdi.guidanceScale)
         // Not declared, so the importer must fall back to its defaults.
         #expect(record.negativePrompt.isEmpty)
         #expect(record.controlNetImage.isEmpty)
         #expect(record.startingImage.isEmpty)
         #expect(record.mlComputeUnit == nil)
-        #expect(record.guidanceScale == 11.0)
     }
 
     @Test("Declared-but-empty optional values are omitted entirely")

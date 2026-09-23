@@ -36,6 +36,13 @@ struct SidebarView: View {
                         ModelView()
                         Spacer().frame(height: 6)
                     }
+                    // Steps, number of images and guidance scale are always
+                    // shown. Each renders a disabled placeholder for a value the
+                    // model pins or does not have, so gating them here would drop
+                    // the row the placeholder exists to hold open and move every
+                    // control below it. The image sections below are still gated:
+                    // they are whole features rather than one value, and there is
+                    // nothing meaningful to show in place of an absent image well.
                     Group {
                         SizeView()
                         Spacer().frame(height: 6)
@@ -52,23 +59,17 @@ struct SidebarView: View {
                             Divider().frame(height: 16)
                         }
                     }
-                    if controller.currentConstraints.numberOfImages.isSupported {
-                        Group {
-                            NumberOfImagesView()
-                            Spacer().frame(height: 6)
-                        }
+                    Group {
+                        NumberOfImagesView()
+                        Spacer().frame(height: 6)
                     }
-                    if controller.currentConstraints.steps.isSupported {
-                        Group {
-                            StepsView()
-                            Spacer().frame(height: 6)
-                        }
+                    Group {
+                        StepsView()
+                        Spacer().frame(height: 6)
                     }
-                    if controller.currentConstraints.guidanceScale.isSupported {
-                        Group {
-                            GuidanceScaleView()
-                            Spacer().frame(height: 6)
-                        }
+                    Group {
+                        GuidanceScaleView()
+                        Spacer().frame(height: 6)
                     }
                     Group {
                         SeedView()
