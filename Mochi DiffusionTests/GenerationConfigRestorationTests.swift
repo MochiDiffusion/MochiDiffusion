@@ -99,10 +99,14 @@ struct GenerationConfigRestorationTests {
         #expect(controller.startingImage?.image.height == 7)
 
         try selectModel("gpt-image-2", on: controller)
-        controller.setInputImages([])
+        // Nothing to scrub first: selecting a model that reads references does not
+        // move the starting image into them, so the list is still empty here.
+        #expect(controller.inputImages.isEmpty)
         #expect(controller.galleryImageDestination == .inputImage)
         await controller.useGalleryImage(galleryImage)
-        #expect(controller.startingImage == nil)
+        // The starting image chosen for the Core ML model is untouched by reuse
+        // landing in the other role; it is simply inactive for this model.
+        #expect(controller.startingImage?.name == "reuse.png")
         #expect(controller.inputImages.map(\.name) == ["reuse.png"])
         #expect(controller.inputImages.first?.image.width == 13)
         #expect(controller.inputImages.first?.image.height == 7)

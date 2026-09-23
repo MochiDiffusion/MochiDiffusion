@@ -522,42 +522,83 @@ struct GenerationRequestBuilderTests {
         #expect(request.inputImageNames.isEmpty)
     }
 
-    /// The two sections hold different state, so switching to a model that reads the
-    /// other one would leave a chosen picture stranded in a section that is no longer
-    /// shown — looking like the app forgot it.
-    @Test("A picture moves between the two sections when the model changes")
-    func imagesMoveWhenConstraintsChange() async throws {
+    /// The two roles are separate state and are never exchanged.
+    ///
+    /// A starting image is the origin a model denoises from; a reference is
+    /// something a model attends to. Selecting a model that does not read one of
+    /// them says nothing about whether the user still wants the picture they chose,
+    /// so it goes inactive rather than moving roles or being cleared.
+    ///
+    /// This replaced a transfer that moved a lone picture between the two sections.
+    /// It read as helpful for one image and could not be expressed at all for
+    /// several, which is why two references used to be deleted outright — see
+    /// `severalReferencesSurviveAModelThatTakesNone`.
+    @Test("Each role keeps its own image across a model change")
+    func rolesAreNotExchangedWhenConstraintsChange() async throws {
         try makeSDModelFixture(at: modelDir.appending(path: "sd-model"))
         try makeKleinModelFixture(at: modelDir.appending(path: "klein-model"))
         let controller = try await makeControllerSelecting("sd-model")
         controller.setStartingImage(image: makeCGImage(), filename: "carried.png")
 
-        // Core ML → Klein: a denoising origin becomes a reference.
+        // Core ML → Klein: Klein reads no starting image, so it is held, not moved
+        // into the reference list the user has not put anything in.
         controller.setModel("klein-model")
-        #expect(controller.startingImage == nil)
-        #expect(controller.inputImages.count == 1)
-        #expect(controller.inputImages.first?.name == "carried.png")
-
-        // Klein → Core ML: a single reference becomes the denoising origin again.
-        controller.setModel("sd-model")
         #expect(controller.inputImages.isEmpty)
         #expect(controller.startingImage?.name == "carried.png")
+
+        // Klein → Core ML: and it is still there, unchanged.
+        controller.setModel("sd-model")
+        #expect(controller.startingImage?.name == "carried.png")
+        #expect(controller.inputImages.isEmpty)
     }
 
-    @Test("Several references are dropped rather than guessed at when only one fits")
-    func severalReferencesDoNotBecomeAStartingImage() async throws {
+    /// The defect that motivated separating the roles: the old transfer cleared the
+    /// reference list before deciding what to do with it, and promotion needed
+    /// exactly one image, so two or more were destroyed along with their crops.
+    @Test("Several references survive a model that takes none")
+    func severalReferencesSurviveAModelThatTakesNone() async throws {
         try makeSDModelFixture(at: modelDir.appending(path: "sd-model"))
         try makeKleinModelFixture(at: modelDir.appending(path: "klein-model"))
         let controller = try await makeControllerSelecting("klein-model")
         controller.addInputImage(image: makeCGImage(), filename: "a.png")
         controller.addInputImage(image: makeCGImage(), filename: "b.png")
+        controller.setInputImageEdit(
+            IrisReferenceImageEdit(cropLeftFraction: 0.25, cropTopFraction: 0.1), at: 1)
+        let edit = controller.inputImageEdit(at: 1)
 
         controller.setModel("sd-model")
 
-        // Two references have no unambiguous denoising origin, so neither is
-        // promoted. Picking one would be a guess about which the user meant.
-        #expect(controller.inputImages.isEmpty)
+        // Held while Core ML is selected: the section is hidden and `plan` sends
+        // none of them, but choosing that model did not un-choose the pictures.
+        #expect(controller.inputImages.map(\.name) == ["a.png", "b.png"])
         #expect(controller.startingImage == nil)
+
+        controller.setModel("klein-model")
+
+        // Back intact, in order, with the crop dragged out against the second one.
+        #expect(controller.inputImages.map(\.name) == ["a.png", "b.png"])
+        #expect(controller.inputImageEdit(at: 1) == edit)
+    }
+
+    /// Retention is only safe because `plan` is what resolves a draft against the
+    /// selected model. Core ML never reads `draft.inputImages`, so references held
+    /// for another model cannot reach a request built for it.
+    @Test("A Core ML request carries no references even while some are held")
+    func heldReferencesDoNotReachACoreMLRequest() async throws {
+        try makeSDModelFixture(at: modelDir.appending(path: "sd-model"))
+        try makeKleinModelFixture(at: modelDir.appending(path: "klein-model"))
+        let controller = try await makeControllerSelecting("klein-model")
+        controller.addInputImage(image: makeCGImage(width: 40, height: 20), filename: "a.png")
+        controller.addInputImage(image: makeCGImage(width: 40, height: 20), filename: "b.png")
+
+        controller.setModel("sd-model")
+        controller.setStartingImage(image: makeCGImage(width: 40, height: 20), filename: "s.png")
+        let request = try #require(controller.buildGenerationRequest())
+
+        #expect(!controller.inputImages.isEmpty)
+        #expect(request.inputImageData.isEmpty)
+        #expect(request.inputImageNames.isEmpty)
+        #expect(request.startingImageName == "s.png")
     }
 
     @Test("Klein never carries ControlNet state")

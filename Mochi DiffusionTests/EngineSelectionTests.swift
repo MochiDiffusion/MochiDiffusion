@@ -353,8 +353,12 @@ struct EnginePickerTests {
         #expect(controller.selectedEngine == .iris)
         #expect(controller.currentConstraints.inputImages.isSupported)
         #expect(!controller.currentConstraints.startingImage.isSupported)
-        #expect(controller.startingImage == nil)
-        #expect(controller.inputImages.map(\.name) == ["start.png"])
+        // The picture stays the starting image it was chosen as. Klein does not
+        // read one, so it is simply inactive here — what the two roles do when the
+        // model changes is `GenerationRequestBuilderTests`' subject, not this
+        // suite's.
+        #expect(controller.startingImage?.name == "start.png")
+        #expect(controller.inputImages.isEmpty)
     }
 
     @Test("Switching engine selects that engine's first model")

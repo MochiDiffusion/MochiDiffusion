@@ -204,16 +204,25 @@ final class GenerationController {
     private(set) var controlNet: [String] = []
     /// The image to denoise from, for a model that does img2img.
     ///
-    /// Separate state from `inputImages`, not the first of it. The two mean
-    /// different things to a model and are edited by different sidebar sections, and
-    /// a model may declare either, both, or neither.
+    /// Separate state from `inputImages`, not the first of it, and never exchanged
+    /// with it. The two ask different things of a model — one is the origin a model
+    /// denoises from, the other is something it attends to — and a model may declare
+    /// either, both, or neither.
+    ///
+    /// Selecting a model that does not denoise from an image leaves this inactive
+    /// and its section hidden, not cleared; choosing that model says nothing about
+    /// whether the user still wants the picture they chose. `plan` is what drops it
+    /// from a request, per model. Moving it into `inputImages` instead was the old
+    /// behaviour, and it was a guess about which role the user meant — one that
+    /// could not be made at all from several references, so they were deleted
+    /// instead.
     private(set) var startingImage: InputImage?
     /// The reference images the sidebar is holding, in the order the user added them.
     ///
     /// Kept whole regardless of what the selected model accepts, so switching to a
-    /// model that takes fewer does not throw away images the user chose. `plan`
-    /// truncates to the model's `maxCount` when the request is built, and the
-    /// sidebar marks the ones that will not be used.
+    /// model that takes fewer — or none — does not throw away images the user chose.
+    /// `plan` truncates to the model's `maxCount` when the request is built, and the
+    /// sidebar shows only the wells that model will read.
     private(set) var inputImages: [InputImage] = []
     var numberOfImages = 1.0
     var seed: UInt32 = 0
@@ -242,7 +251,6 @@ final class GenerationController {
             // controller reads off one engine's concrete type.
             controlNet = model.constraints.controlNet.names
             currentControlNets = []
-            reconcileImagesWithConstraints()
         }
     }
 
@@ -750,38 +758,6 @@ final class GenerationController {
             addInputImage(image: image, filename: filename)
         case .startingImage:
             setStartingImage(image: image, filename: filename)
-        }
-    }
-
-    /// Moves images between the two sections when the selected model changes what it
-    /// accepts.
-    ///
-    /// Called from `currentModelId.didSet`. Without it, choosing a picture on a Core
-    /// ML model and switching to Klein would leave it in a section the new model does
-    /// not read, looking like the app forgot it. Moving it is better than discarding
-    /// it and better than leaving it stranded — the user chose that picture, and both
-    /// sections are asking the same question of it.
-    ///
-    /// Only ever moves a single image, and only into an empty destination, so nothing
-    /// is silently reordered or dropped.
-    private func reconcileImagesWithConstraints() {
-        let constraints = currentConstraints
-
-        if !constraints.startingImage.isSupported, let stranded = startingImage {
-            startingImage = nil
-            if constraints.inputImages.isSupported, inputImages.isEmpty {
-                inputImages = [stranded]
-            }
-        }
-
-        if !constraints.inputImages.isSupported, !inputImages.isEmpty {
-            let stranded = inputImages
-            inputImages = []
-            if constraints.startingImage.isSupported, startingImage == nil,
-                stranded.count == 1
-            {
-                startingImage = stranded[0]
-            }
         }
     }
 
