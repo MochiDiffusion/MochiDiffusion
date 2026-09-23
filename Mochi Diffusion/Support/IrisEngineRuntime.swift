@@ -87,6 +87,21 @@ actor IrisEngineRuntime: GenerationEngineRuntime {
         guard let ctx = iris_load_dir(modelDir) else {
             throw IrisRuntimeError.loadFailed(fluxErrorMessage())
         }
+        // Every reference the request carried, decoded below. Declared here so
+        // the cleanup that follows owns each image as soon as it is appended.
+        var referenceImages: [UnsafeMutablePointer<iris_image>] = []
+        // Registered straight after the context exists, so a throw from
+        // reference decoding or prompt encoding frees it too — not only a run
+        // that reaches generation.
+        defer {
+            iris_set_step_image_callback(ctx, nil)
+            iris_set_step_callback(nil)
+            iris_set_phase_callback(nil)
+            iris_free(ctx)
+            for image in referenceImages {
+                iris_image_free(image)
+            }
+        }
 
         iris_set_mmap(ctx, 1)
         iris_set_phase_callback(fluxPhaseCallback)
@@ -101,15 +116,11 @@ actor IrisEngineRuntime: GenerationEngineRuntime {
         var embeddingLength: Int32 = 0
         var embeddings: [Float]?
 
-        // Every reference the request carried, decoded up front so a failure is
-        // reported before any generation starts rather than part-way through a
-        // batch. Freed together in the `defer` below.
-        var referenceImages: [UnsafeMutablePointer<iris_image>] = []
+        // Decoded up front so a failure is reported before any generation starts
+        // rather than part-way through a batch. Already-decoded images are freed
+        // by the `defer` above.
         for data in request.inputImageData {
             guard let decoded = Self.makeFluxImage(from: data) else {
-                for image in referenceImages {
-                    iris_image_free(image)
-                }
                 throw IrisRuntimeError.decodeStartingImageFailed
             }
             referenceImages.append(decoded)
@@ -162,16 +173,6 @@ actor IrisEngineRuntime: GenerationEngineRuntime {
             }
             // Keep peak memory lower before transformer work, even on cache hits.
             iris_release_text_encoder(ctx)
-        }
-
-        defer {
-            iris_set_step_image_callback(ctx, nil)
-            iris_set_step_callback(nil)
-            iris_set_phase_callback(nil)
-            iris_free(ctx)
-            for image in referenceImages {
-                iris_image_free(image)
-            }
         }
 
         var seed = request.seed
