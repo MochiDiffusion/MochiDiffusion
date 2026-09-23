@@ -515,13 +515,16 @@ struct ModelVisibilityTests {
         let constraints = IrisFluxKleinModel.constraints
 
         #expect(!constraints.supportsNegativePrompt)
-        #expect(!constraints.guidanceScale.isSupported)
         #expect(!constraints.controlNet.isSupported)
         #expect(!constraints.startingImage.strength.isSupported)
         // Shown, but disabled: seeing "4" explains the model better than an
-        // absent row does.
+        // absent row does. Guidance is the same case — distillation fixes it at
+        // 1.0, the scale at which classifier-free guidance is the identity.
         #expect(constraints.steps.isSupported)
         #expect(!constraints.steps.isEditable)
+        #expect(constraints.guidanceScale.isSupported)
+        #expect(!constraints.guidanceScale.isEditable)
+        #expect(constraints.guidanceScale.resolved(7.5) == 1.0)
         #expect(!constraints.scheduler.isEditable)
         // Images are accepted as references, up to what `iris_multiref` takes.
         #expect(constraints.inputImages.isSupported)

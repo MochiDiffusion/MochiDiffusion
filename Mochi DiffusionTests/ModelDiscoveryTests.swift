@@ -226,7 +226,7 @@ struct IrisFluxKleinDiscoveryTests {
         #expect(!constraints.supportsNegativePrompt)
         #expect(constraints.steps == .pinned(4))
         #expect(constraints.scheduler == .pinned(.discreteFlowScheduler))
-        #expect(constraints.guidanceScale == .unsupported)
+        #expect(constraints.guidanceScale == .pinned(1.0))
         #expect(constraints.controlNet == .unsupported)
         // References, not a denoising origin — so no starting image and no
         // strength to go with one.

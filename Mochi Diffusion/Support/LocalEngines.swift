@@ -251,8 +251,9 @@ nonisolated struct IrisEngine: GenerationEngineDescriptor {
             controlNetImageNames: [],
             stepCount: stepCount,
             scheduler: scheduler,
-            // Klein has neither: a distilled model has no guidance, and it declares
-            // no starting image, so there is no strength to resolve.
+            // Klein declares no starting image, so there is no strength to
+            // resolve. Its guidance is pinned rather than absent: distillation
+            // fixes the value, it does not remove the concept.
             strength: constraints.startingImage.strength.resolved(Double(draft.strength))
                 .map(Float.init),
             guidanceScale: constraints.guidanceScale.resolved(Double(draft.guidanceScale))

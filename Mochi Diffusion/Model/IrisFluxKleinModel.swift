@@ -6,15 +6,16 @@
 import Foundation
 
 nonisolated struct IrisFluxKleinModel: EngineModel {
-    /// FLUX.2 Klein is distilled: four steps on the flow-match scheduler, and no
-    /// classifier-free guidance, so there is no negative prompt or guidance scale
-    /// to offer. It attends to images as references rather than denoising from
-    /// one, so it declares input images and no starting image at all.
+    /// FLUX.2 Klein is distilled: four steps on the flow-match scheduler, and
+    /// guidance baked into the weights rather than applied at sampling time, so
+    /// there is no negative prompt to offer. It attends to images as references
+    /// rather than denoising from one, so it declares input images and no starting
+    /// image at all.
     static let constraints = OptionConstraints(
         supportsNegativePrompt: false,
         size: .freeform(range: 64...1_792, step: 16),
         steps: .pinned(distilledStepCount),
-        guidanceScale: .unsupported,
+        guidanceScale: .pinned(distilledGuidanceScale),
         scheduler: .pinned(.discreteFlowScheduler),
         startingImage: .unsupported,
         inputImages: .supported(maxCount: IrisEngine.maxReferenceImages),
@@ -25,6 +26,17 @@ nonisolated struct IrisFluxKleinModel: EngineModel {
     )
 
     static let distilledStepCount = 4
+
+    /// Pinned rather than unsupported, so the sidebar shows the value the pipeline
+    /// runs at instead of dropping the row.
+    ///
+    /// A guidance-distilled model runs no classifier-free guidance at all: Iris
+    /// sends Klein down `iris_sample_euler_flux` with no unconditioned pass, and
+    /// 1.0 is the scale at which the CFG formula `v_uncond + g * (v_cond -
+    /// v_uncond)` reduces to `v_cond`. It is also what Iris itself resolves for a
+    /// distilled model, and what Mochi has always written into the metadata of a
+    /// Klein image, so showing it agrees with both.
+    static let distilledGuidanceScale = 1.0
 
     static let metadataFields: Set<MetadataField> = [
         .prompt,

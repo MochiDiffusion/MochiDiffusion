@@ -630,10 +630,11 @@ struct GenerationRequestBuilderTests {
         #expect(request.stepCount == 4)
         #expect(request.scheduler == .discreteFlowScheduler)
 
-        // Klein declares no guidance scale, so `plan` resolves it to nothing and
-        // the queue leaves the row out rather than printing a number that had no
-        // effect on the image.
-        #expect(request.guidanceScale == nil)
+        // Klein pins its guidance rather than declaring none, so `plan` resolves
+        // the distilled value. 1.0 is the scale at which classifier-free guidance
+        // is the identity, which is what a guidance-distilled model runs at, and it
+        // matches what the runtime writes into the image metadata.
+        #expect(request.guidanceScale == 1.0)
         // The negative prompt is still carried. Klein ignores it, and 4b stops
         // the sidebar offering it, but nothing resolves free text away.
         #expect(request.negativePrompt == "blurry, low quality")
