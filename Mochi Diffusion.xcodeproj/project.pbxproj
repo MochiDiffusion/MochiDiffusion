@@ -1115,7 +1115,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.6;
-				MARKETING_VERSION = 6.1.1;
+				MARKETING_VERSION = 6.1.2;
 				OTHER_LDFLAGS = "$(BUILD_DIR)/vendor/iris/$(CONFIGURATION)/libiris_mps.a";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
@@ -1151,7 +1151,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 15.6;
-				MARKETING_VERSION = 6.1.1;
+				MARKETING_VERSION = 6.1.2;
 				OTHER_LDFLAGS = "$(BUILD_DIR)/vendor/iris/$(CONFIGURATION)/libiris_mps.a";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
