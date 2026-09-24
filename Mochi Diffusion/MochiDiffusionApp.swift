@@ -17,7 +17,6 @@ struct MochiDiffusionApp: App {
     @State private var galleryController: GalleryController
     @State private var generationState: GenerationState
     @State private var store: ImageGallery
-    @State private var focusCon: FocusController
     @State private var notificationController: NotificationController
     @State private var quickLook: QuickLookState
     @State private var quicklookURL: URL?
@@ -28,7 +27,6 @@ struct MochiDiffusionApp: App {
 
     init() {
         let configStore = ConfigStore()
-        let focusController = FocusController()
         let imageGallery = ImageGallery()
         let thumbnailProvider = GalleryThumbnailProvider()
         let fullImageProvider = GalleryFullImageProvider()
@@ -53,7 +51,6 @@ struct MochiDiffusionApp: App {
             initialValue: GalleryController(
                 configStore: configStore,
                 imageGallery: imageGallery,
-                focusController: focusController,
                 // The same instances the views read from, so invalidating on a
                 // delete or an import reaches what is actually on screen.
                 thumbnailProvider: thumbnailProvider,
@@ -62,7 +59,6 @@ struct MochiDiffusionApp: App {
         )
         self._generationState = .init(wrappedValue: .shared)
         self._store = .init(wrappedValue: imageGallery)
-        self._focusCon = .init(wrappedValue: focusController)
         self._notificationController = .init(wrappedValue: .shared)
         self._quickLook = State(initialValue: QuickLookState())
 
@@ -108,7 +104,6 @@ struct MochiDiffusionApp: App {
         .environment(galleryController)
         .environment(generationState)
         .environment(store)
-        .environment(focusCon)
         .environment(quickLook)
         .environment(\.galleryThumbnailProvider, thumbnailProvider)
         .environment(\.galleryFullImageProvider, fullImageProvider)
@@ -121,9 +116,7 @@ struct MochiDiffusionApp: App {
                 galleryController: galleryController,
                 configStore: configStore,
                 generationState: generationState,
-                store: store,
-                quickLook: quickLook,
-                focusController: focusCon
+                store: store
             )
             HelpCommands()
         }

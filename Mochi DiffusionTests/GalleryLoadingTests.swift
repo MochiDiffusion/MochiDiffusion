@@ -33,7 +33,6 @@ struct GalleryLoadingTests {
         return GalleryController(
             configStore: configStore,
             imageGallery: gallery,
-            focusController: FocusController(),
             thumbnailProvider: thumbnailProvider,
             fullImageProvider: fullImageProvider
         )

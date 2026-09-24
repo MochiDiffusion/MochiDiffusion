@@ -22,10 +22,6 @@ struct PromptTextEditor: View {
 
     var height: CGFloat
 
-    @Binding var focusBinding: Bool
-
-    @FocusState private var focused: Bool
-
     let tokenizer: Tokenizer?
     let tokenLimit: Int?
 
@@ -55,8 +51,6 @@ struct PromptTextEditor: View {
         VStack(alignment: .leading, spacing: Self.counterSpacing) {
             TextEditor(text: $text)
                 .font(.system(size: 14))
-                .focused($focused)
-                .syncFocus($focusBinding, with: _focused)
                 .frame(height: height)
                 .border(Color(nsColor: .gridColor))
                 .cornerRadius(4)
@@ -99,7 +93,6 @@ struct PromptTextEditor: View {
 struct PromptView: View {
     @Environment(GenerationController.self) private var controller: GenerationController
     @Environment(ConfigStore.self) private var configStore: ConfigStore
-    @Environment(FocusController.self) private var focusCon: FocusController
     @Environment(GenerationState.self) private var generationState: GenerationState
     @State private var tokenizer: Tokenizer?
     @State private var tokenLimit: Int?
@@ -137,7 +130,6 @@ struct PromptView: View {
 
     var body: some View {
         @Bindable var configStore = configStore
-        @Bindable var focusCon = focusCon
 
         VStack(alignment: .leading, spacing: Self.spacing) {
             Text("Include in Image")
@@ -150,7 +142,6 @@ struct PromptView: View {
             PromptTextEditor(
                 text: $configStore.prompt,
                 height: includeEditorHeight,
-                focusBinding: $focusCon.promptFieldIsFocused,
                 tokenizer: tokenizer,
                 tokenLimit: tokenLimit
             )
@@ -163,7 +154,6 @@ struct PromptView: View {
                 PromptTextEditor(
                     text: $configStore.negativePrompt,
                     height: Self.excludeHeight,
-                    focusBinding: $focusCon.negativePromptFieldIsFocused,
                     tokenizer: tokenizer,
                     tokenLimit: tokenLimit
                 )

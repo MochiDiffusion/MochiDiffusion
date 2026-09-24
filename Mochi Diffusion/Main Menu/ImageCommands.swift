@@ -13,8 +13,6 @@ struct ImageCommands: Commands {
     var configStore: ConfigStore
     var generationState: GenerationState
     var store: ImageGallery
-    var quickLook: QuickLookState
-    var focusController: FocusController
 
     var body: some Commands {
         CommandMenu("Image") {
@@ -39,29 +37,6 @@ struct ImageCommands: Commands {
             }
             Section {
                 Button {
-                    Task { await galleryController.selectNext() }
-                } label: {
-                    Text(
-                        "Select Next",
-                        comment: "Select next image in Gallery"
-                    )
-                }
-                .keyboardShortcut(.rightArrow, modifiers: [])
-                .disabled(store.images.isEmpty || focusController.isTextFieldFocused)
-
-                Button {
-                    Task { await galleryController.selectPrevious() }
-                } label: {
-                    Text(
-                        "Select Previous",
-                        comment: "Select previous image in Gallery"
-                    )
-                }
-                .keyboardShortcut(.leftArrow, modifiers: [])
-                .disabled(store.images.isEmpty || focusController.isTextFieldFocused)
-            }
-            Section {
-                Button {
                     guard let sdi = store.selected() else { return }
                     Task { await generationController.useGalleryImage(sdi) }
                 } label: {
@@ -83,17 +58,6 @@ struct ImageCommands: Commands {
                     store.selected() == nil
                         || generationController.galleryImageDestination == nil
                 )
-
-                Button {
-                    quickLook.toggle(image: store.selected())
-                } label: {
-                    Text(
-                        "Quick Look",
-                        comment: "View current image using Quick Look"
-                    )
-                }
-                .keyboardShortcut(" ", modifiers: [])
-                .disabled(store.selected() == nil)
             }
             Section {
                 Button {
@@ -104,8 +68,7 @@ struct ImageCommands: Commands {
                         comment: "Remove image from the gallery"
                     )
                 }
-                .keyboardShortcut(.delete, modifiers: .command)
-                .disabled(store.selected() == nil || focusController.isTextFieldFocused)
+                .disabled(store.selected() == nil)
             }
         }
     }

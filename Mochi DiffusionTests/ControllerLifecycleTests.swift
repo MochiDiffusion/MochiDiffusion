@@ -43,8 +43,7 @@ struct ControllerLifecycleTests {
         do {
             let controller = GalleryController(
                 configStore: ConfigStore(store: defaults.defaults),
-                imageGallery: ImageGallery(),
-                focusController: FocusController()
+                imageGallery: ImageGallery()
             )
             weakController = controller
             #expect(weakController != nil)
@@ -86,8 +85,7 @@ struct ControllerLifecycleTests {
         do {
             let controller = GalleryController(
                 configStore: configStore,
-                imageGallery: ImageGallery(),
-                focusController: FocusController()
+                imageGallery: ImageGallery()
             )
             weakController = controller
             controller.shutdown()

@@ -9,7 +9,6 @@ import CompactSlider
 import SwiftUI
 
 struct MochiSlider: View {
-    @Environment(FocusController.self) private var focusCon: FocusController
     @Binding var value: Double
     private let bounds: ClosedRange<Double>
     private let step: Double
@@ -101,13 +100,8 @@ struct MochiSlider: View {
 
         // MARK: Focus
 
-        .onChange(of: focusCon.focusedSliderField) {
-            self.focusedSlider = focusCon.focusedSliderField
-        }
-        .onChange(of: _focusedSlider.wrappedValue) {
-            if _focusedSlider.wrappedValue == self.id {
-                focusCon.focusedSliderField = _focusedSlider.wrappedValue
-            } else {
+        .onChange(of: focusedSlider) {
+            if focusedSlider != self.id {
                 self.text = value.formatted(.number.precision(.fractionLength(fractionLength)))
                 self.isEditable = false
             }

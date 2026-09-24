@@ -26,19 +26,6 @@ extension NSApplication {
     }
 }
 
-extension View {
-    func syncFocus<T: Equatable>(_ binding: Binding<T>, with focusState: FocusState<T>) -> some View
-    {
-        self
-            .onChange(of: binding.wrappedValue) {
-                focusState.wrappedValue = binding.wrappedValue
-            }
-            .onChange(of: focusState.wrappedValue) {
-                binding.wrappedValue = focusState.wrappedValue
-            }
-    }
-}
-
 extension NSImage {
     nonisolated func getImageHash() -> Int {
         self.tiffRepresentation!.hashValue

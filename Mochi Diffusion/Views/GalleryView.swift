@@ -14,6 +14,10 @@ struct GalleryView: View {
     @Environment(ImageGallery.self) private var store: ImageGallery
     @Environment(GalleryController.self) private var galleryController: GalleryController
     @Environment(QuickLookState.self) private var quickLook: QuickLookState
+    /// Whether the grid is the key view. Gallery key handling hangs off the
+    /// grid, so it runs only while the grid holds focus; text fields, sheets and
+    /// panels receive their own keys without the gallery having to know about them.
+    @FocusState private var isFocused: Bool
 
     private let gridColumns = [GridItem(.adaptive(minimum: 200), spacing: 16)]
     private var previewLeadsGrid: Bool { store.sortType == .newestFirst }
@@ -27,36 +31,7 @@ struct GalleryView: View {
                     }
 
                     ForEach(store.images) { sdi in
-                        GalleryItemView(sdi: sdi)
-                            .accessibilityAddTraits(.isButton)
-                            .transition(.galleryItemTransition)
-                            .id(sdi.id)
-                            .aspectRatio(sdi.aspectRatio, contentMode: .fit)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 2)
-                                    .stroke(
-                                        store.selectedId == sdi.id
-                                            ? Color.accentColor
-                                            : Color(nsColor: .controlBackgroundColor),
-                                        lineWidth: 4
-                                    )
-                            )
-                            .gesture(
-                                TapGesture(count: 2).onEnded {
-                                    quickLook.toggle(image: store.selected())
-                                }
-                            )
-                            .simultaneousGesture(
-                                TapGesture().onEnded {
-                                    Task { await galleryController.select(sdi.id) }
-                                }
-                            )
-                            .onDrag {
-                                Self.dragProvider(for: sdi)
-                            }
-                            .contextMenu {
-                                GalleryItemContextMenuView(sdi: sdi)
-                            }
+                        tile(for: sdi)
                     }
 
                     if !previewLeadsGrid {
@@ -72,6 +47,7 @@ struct GalleryView: View {
                 proxy.scrollTo(selectedId)
             }
         }
+        .modifier(GalleryKeyHandling(isFocused: $isFocused))
         .background(
             Image("GalleryBackground")
                 .resizable(resizingMode: .tile)
@@ -102,6 +78,47 @@ struct GalleryView: View {
             // paragraph, and a batch can end more than one way.
             Text(verbatim: generationState.unreportedOutcomes.joined(separator: "\n\n"))
         }
+    }
+
+    private func tile(for sdi: SDImage) -> some View {
+        GalleryItemView(sdi: sdi)
+            .accessibilityAddTraits(.isButton)
+            .transition(.galleryItemTransition)
+            .id(sdi.id)
+            .aspectRatio(sdi.aspectRatio, contentMode: .fit)
+            .overlay(
+                RoundedRectangle(cornerRadius: 2)
+                    .stroke(borderColor(for: sdi), lineWidth: 4)
+            )
+            .gesture(
+                TapGesture(count: 2).onEnded {
+                    quickLook.toggle(image: store.selected())
+                }
+            )
+            .simultaneousGesture(
+                TapGesture().onEnded {
+                    isFocused = true
+                    Task { await galleryController.select(sdi.id) }
+                }
+            )
+            .onDrag {
+                Self.dragProvider(for: sdi)
+            }
+            .contextMenu {
+                GalleryItemContextMenuView(sdi: sdi)
+            }
+    }
+
+    /// The selected tile is accent while the grid has focus and the system's
+    /// unemphasized selection otherwise, so the highlight shows whether the
+    /// gallery will receive keys.
+    private func borderColor(for sdi: SDImage) -> Color {
+        guard store.selectedId == sdi.id else {
+            return Color(nsColor: .controlBackgroundColor)
+        }
+        return isFocused
+            ? Color.accentColor
+            : Color(nsColor: .unemphasizedSelectedContentBackgroundColor)
     }
 
     /// Uses ordinary file-transfer metadata for gallery drags so the receiving
@@ -318,6 +335,47 @@ struct GalleryView: View {
                     )
                 }
             }
+        }
+    }
+}
+
+/// Keyboard control of the gallery selection, attached to the grid so that it
+/// runs only while the grid holds focus.
+private struct GalleryKeyHandling: ViewModifier {
+    @Environment(ImageGallery.self) private var store: ImageGallery
+    @Environment(GalleryController.self) private var galleryController: GalleryController
+    @Environment(QuickLookState.self) private var quickLook: QuickLookState
+    var isFocused: FocusState<Bool>.Binding
+
+    func body(content: Content) -> some View {
+        content
+            .focusable()
+            .focusEffectDisabled()
+            .focused(isFocused)
+            .onMoveCommand(perform: move)
+            .onKeyPress(.space) {
+                guard let selected = store.selected() else { return .ignored }
+                quickLook.toggle(image: selected)
+                return .handled
+            }
+            // Handled here rather than as a menu shortcut: a menu key equivalent is
+            // offered to the main menu before the key window's first responder, so
+            // it would also fire from a save panel's name field. The Delete key
+            // arrives as U+007F, not the U+0008 of `KeyEquivalent.delete`.
+            .onKeyPress(KeyEquivalent("\u{7F}"), phases: .down) { press in
+                guard press.modifiers == .command, store.selected() != nil else {
+                    return .ignored
+                }
+                Task { await galleryController.removeCurrentImage() }
+                return .handled
+            }
+    }
+
+    private func move(_ direction: MoveCommandDirection) {
+        switch direction {
+        case .left: Task { await galleryController.selectPrevious() }
+        case .right: Task { await galleryController.selectNext() }
+        default: break
         }
     }
 }

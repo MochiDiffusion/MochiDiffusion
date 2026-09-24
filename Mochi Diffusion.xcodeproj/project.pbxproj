@@ -24,7 +24,6 @@
 
 /* Begin PBXBuildFile section */
 		030370312A2BECDD003D2F0C /* SDControlNet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 030370302A2BECDD003D2F0C /* SDControlNet.swift */; };
-		03061E6229AB9C06009AA2A2 /* FocusController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03061E6129AB9C06009AA2A2 /* FocusController.swift */; };
 		0307B0DA294D4AE500A9BD55 /* FileCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0307B0D9294D4AE500A9BD55 /* FileCommands.swift */; };
 		0311C69929899A660074BCAE /* Metadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0311C69829899A660074BCAE /* Metadata.swift */; };
 		0311C6BD2989E3EF0074BCAE /* Localizable.stringsdict in Resources */ = {isa = PBXBuildFile; fileRef = 0311C6BF2989E3EF0074BCAE /* Localizable.stringsdict */; };
@@ -168,7 +167,6 @@
 
 /* Begin PBXFileReference section */
 		030370302A2BECDD003D2F0C /* SDControlNet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDControlNet.swift; sourceTree = "<group>"; };
-		03061E6129AB9C06009AA2A2 /* FocusController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusController.swift; sourceTree = "<group>"; };
 		0307B0D9294D4AE500A9BD55 /* FileCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileCommands.swift; sourceTree = "<group>"; };
 		0311C69829899A660074BCAE /* Metadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Metadata.swift; sourceTree = "<group>"; };
 		0311C6BE2989E3EF0074BCAE /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = en; path = en.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
@@ -354,7 +352,6 @@
 				C1F0A1A32D0E6B6A00C0BEEF /* FileSystemStore.swift */,
 				BFE66B0D2F2AFD3700A8965C /* ConfigStore.swift */,
 				3A3DE44C5062F02AEE432860 /* ComputeUnitPreference.swift */,
-				03061E6129AB9C06009AA2A2 /* FocusController.swift */,
 				C1ADEC2B2B16957800E142CA /* FolderMonitor.swift */,
 				0352E2B4294EA887003FBF25 /* Functions.swift */,
 				630682FB60575CB32EEC50D5 /* GenerationController.swift */,
@@ -843,7 +840,6 @@
 				03D43B7A29660A2600604911 /* GalleryItemView.swift in Sources */,
 				035EDFF8295A216500080D18 /* StepsView.swift in Sources */,
 				AA50000000000000000002072 /* QualityView.swift in Sources */,
-				03061E6229AB9C06009AA2A2 /* FocusController.swift in Sources */,
 				C1220FC02AFB122F007E5055 /* ImageWellView.swift in Sources */,
 				0380934329AD504600EDBC8E /* InputImagesView.swift in Sources */,
 				AA3000000000000000000097 /* StartingImageView.swift in Sources */,

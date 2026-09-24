@@ -19,7 +19,6 @@ final class GalleryController {
     /// contents.
     private let imageGallery: ImageGallery
     private let imageRepository: ImageRepository
-    private let focusController: FocusController
     /// The caches that have to be told when a file under a path changes.
     ///
     /// This controller deletes and imports files and hears from the folder monitor
@@ -45,14 +44,12 @@ final class GalleryController {
         configStore: ConfigStore,
         imageGallery: ImageGallery,
         imageRepository: ImageRepository = ImageRepository(),
-        focusController: FocusController,
         thumbnailProvider: GalleryThumbnailProvider = GalleryThumbnailProvider(),
         fullImageProvider: GalleryFullImageProvider = GalleryFullImageProvider()
     ) {
         self.configStore = configStore
         self.imageGallery = imageGallery
         self.imageRepository = imageRepository
-        self.focusController = focusController
         self.thumbnailProvider = thumbnailProvider
         self.fullImageProvider = fullImageProvider
         initialLoadTask = Task { [weak self] in
@@ -93,7 +90,6 @@ final class GalleryController {
 
     func select(_ id: SDImage.ID) async {
         imageGallery.select(id)
-        focusController.removeAllFocus()
     }
 
     func selectPrevious() async {
