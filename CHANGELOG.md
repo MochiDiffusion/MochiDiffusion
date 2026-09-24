@@ -1,3 +1,8 @@
+# [v6.1.2](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v6.1.2) - 23 Sept 2026
+
+- Assorted UI tweaks to maintain sidebar fixed layout, so controls no longer shift when switching models
+- Stopped "Always show" scrollbars from resizing sidebar controls
+
 # [v6.1](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v6.1) - 21 Sept 2026
 
 ## Features
