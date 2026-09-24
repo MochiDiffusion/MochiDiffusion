@@ -12,9 +12,9 @@ import Testing
 /// Unit tests for the caption codec itself, independent of image I/O.
 ///
 /// Version 2 separates fields with newlines and escapes the separator inside
-/// values. Version 1 — everything written before this type existed — joined
-/// fields with `"; "` and escaped nothing; those captions must keep parsing
-/// exactly as they did, since real user galleries are full of them.
+/// values. Version 1 joined fields with `"; "` and escaped nothing; existing
+/// galleries are full of those captions, so they must keep parsing exactly as
+/// they did.
 struct MetadataCodecTests {
     @Test("An unknown scheduler is absent rather than the legacy default")
     func unknownSchedulerIsNotPresentedAsKnown() {

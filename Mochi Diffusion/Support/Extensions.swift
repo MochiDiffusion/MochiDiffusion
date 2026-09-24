@@ -232,8 +232,8 @@ extension Text {
         func body(content: Content) -> some View {
             content
                 .textSelection(.enabled)
+                // Selectable text otherwise renders dark in dark mode.
                 .foregroundColor(Color(nsColor: .textColor))
-            /// Fixes dark text in dark mode SwiftUI bug
         }
     }
 

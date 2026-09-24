@@ -15,27 +15,20 @@ final class GalleryController {
     private let logger = Logger()
     var configStore: ConfigStore
     var isLoading = true
-    /// The gallery this controller loads into.
-    ///
-    /// Injected rather than reached for as `ImageGallery.shared`, so a test can give
-    /// this controller its own gallery instead of mutating the one the app is
-    /// showing. `loadImages()` replaces the whole contents, which is not something a
-    /// test suite can do to a shared singleton and still run in parallel.
+    /// The gallery this controller loads into. `loadImages()` replaces its whole
+    /// contents.
     private let imageGallery: ImageGallery
     private let imageRepository: ImageRepository
     private let focusController: FocusController
     /// The caches that have to be told when a file under a path changes.
     ///
-    /// Held here because this controller is what changes them: it deletes, it
-    /// imports, and it is what learns from the folder monitor that a file went
-    /// away. The caches are keyed by path, so reusing a path — deleting an image
-    /// and importing a different one under the same name is the way to do it
-    /// without leaving the app — would otherwise serve the old pixels for both the
-    /// grid and, through `GalleryFullImageProvider`, for export and generation
-    /// input.
+    /// This controller deletes and imports files and hears from the folder monitor
+    /// when one goes away. The caches are keyed by path, and deleting an image then
+    /// importing another under the same name reuses one, so each change has to
+    /// invalidate them.
     ///
     /// Defaulted for tests, which want isolated caches; the app passes the ones it
-    /// actually displays from.
+    /// displays from.
     private let thumbnailProvider: GalleryThumbnailProvider
     private let fullImageProvider: GalleryFullImageProvider
 
@@ -120,10 +113,10 @@ final class GalleryController {
     func removeImage(_ sdi: SDImage) async {
         if sdi.id == imageGallery.selectedId {
             if let previous = imageGallery.imageBefore(sdi.id, wrap: false) {
-                /// Move selection to the left, if possible.
+                // Move selection to the left, if possible.
                 await select(previous)
             } else if let next = imageGallery.imageAfter(sdi.id, wrap: false) {
-                /// When deleting the first image, move selection to the right.
+                // When deleting the first image, move selection to the right.
                 await select(next)
             }
         }
@@ -135,9 +128,6 @@ final class GalleryController {
 
     /// Sets a Finder label on the image's file and tells the gallery. Zero clears
     /// every tag.
-    ///
-    /// Here rather than as a free function because the second half needs a gallery
-    /// to tell, and a free function had nothing to reach for but the singleton.
     func setFinderTagColorNumber(_ sdi: SDImage, colorNumber: Int) {
         writeFinderTagColorNumber(sdi.path, colorNumber: colorNumber)
         imageGallery.updateMetadata(sdi, colorNumber: colorNumber)
@@ -177,9 +167,8 @@ final class GalleryController {
                 (image: image, metadataFields: record.metadataFields)
             }
         }
-        // Before the gallery shows them: an imported file can land on a path some
-        // earlier image was cached under, whether this session deleted it or
-        // something else did.
+        // Before the gallery shows them: an imported file can land on a path an
+        // earlier image was cached under.
         for record in records {
             invalidateCaches(for: record.path)
         }

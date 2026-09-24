@@ -122,8 +122,8 @@ struct OpenAIImageEngineTests {
 
     // MARK: - Availability
 
-    /// The reason this engine is listed while unconfigured: nobody discovers a
-    /// backend that only appears once it is already set up (§8).
+    /// The engine is listed while unconfigured, because nobody discovers a backend
+    /// that only appears once it is already set up.
     @Test("Without a key the engine says what is missing")
     func availabilityWithoutKey() async {
         let availability = await engine(key: nil).availability(settings)
@@ -308,8 +308,8 @@ struct OpenAIImageEngineTests {
         #expect(plan.numberOfImages == 10)
     }
 
-    /// §13.1 keeps credentials out of persisted requests and logs, and a payload
-    /// rides in a `GenerationRequest`. This is the structural guard.
+    /// Credentials stay out of queued requests and logs, and a payload rides in a
+    /// `GenerationRequest`.
     @Test("The payload carries no credential")
     func payloadCarriesNoCredential() throws {
         let plan = try engine().plan(draft: draft(), model: OpenAIImageEngine.gptImage2)

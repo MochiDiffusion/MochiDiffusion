@@ -5,8 +5,7 @@
 
 import SwiftUI
 
-/// The dormant beta control for choosing a generation engine. It remains compiled
-/// so the explicit-engine surface can return without rebuilding its behavior.
+/// The explicit engine picker. The sidebar does not currently show it.
 ///
 /// A placeholder holds the picker when none is usable, rather than going empty.
 struct EngineView: View {

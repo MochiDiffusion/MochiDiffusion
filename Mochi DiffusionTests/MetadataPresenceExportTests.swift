@@ -85,7 +85,6 @@ struct MetadataPresenceExportTests {
         #expect(!caption.contains(Metadata.guidanceScale.rawValue))
     }
 
-    /// The acceptance criterion for MochiDiffusion-3nd.
     @Test("An image with no recorded scheduler does not acquire one on export")
     func absentSchedulerIsNotInvented() async throws {
         let source = try writePNG(
@@ -135,8 +134,8 @@ struct MetadataPresenceExportTests {
         #expect(!reimported.metadataFields.contains(.scheduler))
     }
 
-    /// Guards the regression directly: exporting as though every field were present
-    /// is what published the defaults as fact.
+    /// Shows why export needs the recorded field set: exporting as though every
+    /// field were present publishes `SDImage`'s defaults as fact.
     @Test("Claiming every field is what invents a scheduler")
     func exportingAllFieldsInventsValues() async throws {
         let source = try writePNG(
@@ -152,7 +151,6 @@ struct MetadataPresenceExportTests {
             named: "over-claimed.png"
         )
 
-        // Documents the old behaviour, so a regression here is loud.
         #expect(reimported.metadataFields.contains(.scheduler))
         #expect(reimported.scheduler == .dpmSolverMultistepScheduler)
     }

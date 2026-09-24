@@ -63,15 +63,11 @@ nonisolated struct CoreMLPipelineCacheKey: Equatable {
 /// Runs Core ML Stable Diffusion requests and owns the loaded pipeline between
 /// them.
 ///
-/// An `actor`, so the loaded pipeline and its cache key are ordinary isolated
-/// state rather than something guarded by an external serialization assumption.
-///
 /// The blocking `generateImages` call runs *inside* the actor and occupies its
-/// executor for the length of a generation. That is a deliberate trade: moving it
-/// out would mean sending the non-`Sendable` pipeline across an isolation boundary
-/// and back, which Swift's region analysis cannot prove safe for a value read out
-/// of actor storage. Nothing deadlocks on it, because the two things that would
-/// want in during a generation do not come here — cancellation goes to the
+/// executor for the length of a generation. Running it elsewhere would mean
+/// sending the non-`Sendable` pipeline across an isolation boundary, which Swift's
+/// region analysis cannot prove safe for a value read out of actor storage.
+/// Nothing waits on the actor meanwhile: cancellation goes to the
 /// `GenerationSession`, and the queue admits one request at a time.
 actor CoreMLEngineRuntime: GenerationEngineRuntime {
     private var pipeline: (any StableDiffusionPipelineProtocol)?
@@ -87,11 +83,8 @@ actor CoreMLEngineRuntime: GenerationEngineRuntime {
         session: GenerationSession,
         onResult: @escaping @Sendable (GenerationResult) async throws -> Void
     ) async throws {
-        // The single downcast of this engine's payload. A mismatch means a
-        // request reached the wrong runtime, which is a wiring bug, so it is
-        // reported as an invariant failure rather than as a pipeline the user
-        // could fix. `AnyGenerationEngine.accepts(payload:)` rejects it at
-        // enqueue, so reaching here means that check was bypassed.
+        // The single downcast of this engine's payload. A mismatch is a wiring
+        // bug: `AnyGenerationEngine.accepts(payload:)` rejects it at enqueue.
         guard let payload = request.payload as? CoreMLGenerationPayload else {
             throw EngineError.payloadDoesNotBelongToEngine(engine: .coreMLStableDiffusion)
         }
@@ -130,10 +123,8 @@ actor CoreMLEngineRuntime: GenerationEngineRuntime {
         session: GenerationSession
     ) throws {
         // Relinking happens *before* the cache check, and its result is part of
-        // the key. Both matter: changing the configured ControlNet folder used to
-        // leave a stale link in place and produce an identical hash, so the
-        // pipeline already loaded from the old folder was reused indefinitely.
-        // Only two stat calls, against reloading a multi-gigabyte pipeline.
+        // the key, so changing the configured ControlNet folder repoints the link
+        // and reloads the pipeline from the new folder.
         var effectiveControlNetLocation: String?
         if !controlNet.isEmpty {
             effectiveControlNetLocation = ControlNetLink.resolve(
@@ -247,12 +238,8 @@ actor CoreMLEngineRuntime: GenerationEngineRuntime {
         let useDenoisedIntermediates = pipelineConfig.useDenoisedIntermediates
         for _ in 0..<config.numberOfImages {
             let images = try pipeline.generateImages(configuration: pipelineConfig) { progress in
-                // Synchronous, unlike the `Task { await onProgress(…) }` this
-                // replaces. Each of those was a separate unstructured task, so
-                // two progress updates could be applied out of order, and a task
-                // created during teardown could outlive the request. Emitting
-                // into the session's stream preserves order and is dropped at one
-                // checkpoint once the session closes.
+                // Emitted synchronously into the session's stream, which keeps
+                // updates in order and drops them once the session closes.
                 session.emit(
                     .progress(
                         GenerationState.Progress(
@@ -345,9 +332,8 @@ actor CoreMLEngineRuntime: GenerationEngineRuntime {
             model: model,
             mlComputeUnit: payload.computeUnit,
             controlNets: resolvedControlNets,
-            // From the payload, not the request: the request carries these as
-            // optionals so the queue can hide a row the model does not use, while
-            // the runtime wants the value it will pass to the pipeline.
+            // From the payload, which holds these non-optional; the request's
+            // optional copies are for the queue.
             strength: payload.strength,
             stepCount: payload.stepCount,
             guidanceScale: payload.guidanceScale,

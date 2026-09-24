@@ -29,16 +29,13 @@ actor IrisEngineRuntime: GenerationEngineRuntime {
         // which cannot await.
         await IrisSingleFlight.shared.acquire()
 
-        // Checked here rather than only inside the generation loop. Waiting for the
-        // lease is unbounded — it lasts as long as the generation ahead — so a
-        // request cancelled while queued would otherwise take its turn and pay for
-        // `iris_metal_init` and a multi-gigabyte `iris_load_dir` before the first
-        // check, holding the lease against work that is still wanted.
+        // Checked here as well as inside the generation loop. Waiting for the lease
+        // lasts as long as the generation ahead, so a request cancelled while
+        // waiting must not go on to `iris_metal_init` and `iris_load_dir`.
         //
-        // A cancelled waiter still takes its place in the FIFO rather than being
-        // removed from it, but its turn is now one actor round-trip, so it delays
-        // nothing measurably. Removing it instead would mean plumbing session
-        // cancellation into the lease, and the session's flag is not the task's.
+        // A cancelled waiter still takes its turn in the FIFO, but that turn is one
+        // actor round-trip. The session's cancel flag is not the task's, so the
+        // lease cannot remove it earlier.
         guard !session.isCancelled else {
             await IrisSingleFlight.shared.release()
             return
@@ -91,8 +88,7 @@ actor IrisEngineRuntime: GenerationEngineRuntime {
         // the cleanup that follows owns each image as soon as it is appended.
         var referenceImages: [UnsafeMutablePointer<iris_image>] = []
         // Registered straight after the context exists, so a throw from
-        // reference decoding or prompt encoding frees it too — not only a run
-        // that reaches generation.
+        // reference decoding or prompt encoding frees it too.
         defer {
             iris_set_step_image_callback(ctx, nil)
             iris_set_step_callback(nil)
@@ -126,9 +122,8 @@ actor IrisEngineRuntime: GenerationEngineRuntime {
             referenceImages.append(decoded)
         }
         // More than one reference means `iris_multiref`, which has no
-        // `_with_embeddings` variant — so a multi-reference request re-encodes its
-        // prompt instead of reusing the cache. Worth knowing when a two-image
-        // generation feels slower to start than a one-image one.
+        // `_with_embeddings` variant, so a multi-reference request re-encodes its
+        // prompt instead of reusing the cache.
         let usesMultiref = referenceImages.count > 1
 
         if isDistilled {

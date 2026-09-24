@@ -10,14 +10,11 @@ import SwiftUI
 ///
 /// Separate from `ConfigStore` because the keys are dynamic. `@AppStorage` binds
 /// one property to one literal key, which cannot express `Engine.<id>.…` for a
-/// set of engines that grows. So the values are held as observed stored
-/// properties and written through to `UserDefaults`, which also means the
-/// `access`/`withMutation` boilerplate `ConfigStore` needs — only because
-/// `@AppStorage` is `@ObservationIgnored` — is not needed here.
+/// set of engines that grows, so the values are observed stored properties
+/// written through to `UserDefaults`.
 ///
-/// `ConfigStore` keeps everything genuinely global, including `ModelDir` and
-/// `ControlNetDir`: the engines share one models folder, so there is no per-engine
-/// path to store.
+/// The model picker's live selection is `ConfigStore.selectedModel`. These values
+/// back the explicit engine picker, which the app does not currently show.
 @MainActor
 @Observable final class EngineSettingsStore {
     nonisolated enum Key {
@@ -30,11 +27,9 @@ import SwiftUI
 
     private let store: UserDefaults
 
-    /// Observed for the preserved explicit-engine UI and its tests.
     private var selectedEngineID: EngineID?
     /// Model selections by engine, read once at init and written through on
-    /// change. Held as one dictionary rather than a property per engine because
-    /// the set of engines is not known at compile time.
+    /// change.
     private var selectedModels: [EngineID: ModelID]
 
     /// - Parameters:
@@ -52,9 +47,8 @@ import SwiftUI
                 let persisted = store.string(forKey: Key.selectedModel(engine)),
                 let id = ModelID(persistedValue: persisted)
             else { continue }
-            // A key that names a different engine than the one it is filed under
-            // is corrupt rather than merely stale, and trusting it would let one
-            // engine's selection resolve to another engine's model.
+            // A key filed under a different engine is corrupt; trusting it would
+            // let one engine's selection resolve to another engine's model.
             guard id.engine == engine else { continue }
             selectedModels[engine] = id
         }
@@ -79,9 +73,8 @@ import SwiftUI
 
     /// Records `model` as `engine`'s selection.
     ///
-    /// Ignores a model belonging to a different engine: the caller would be
-    /// filing a selection where nothing will look for it, and the mismatch is a
-    /// wiring bug rather than something to persist.
+    /// Ignores a model belonging to a different engine, which is a wiring bug
+    /// rather than something to persist.
     func setSelectedModel(_ model: ModelID?, for engine: EngineID) {
         if let model, model.engine != engine { return }
         guard selectedModels[engine] != model else { return }
@@ -110,13 +103,9 @@ import SwiftUI
             discovered: discovered
         )
         if case .migrated(let id) = outcome {
-            // The model slot is always filled: that is the migration's actual job,
-            // and it is what makes the old selection reappear when the user next
-            // switches to that engine.
             setSelectedModel(id, for: id.engine)
-            // The engine is only *adopted* if none is chosen. Overwriting it would
-            // move a user off whatever they are working in, which is a worse
-            // surprise than their old model waiting where they left it.
+            // The engine is adopted only if none is chosen, so the user is not
+            // moved off the engine they are working in.
             if selectedEngine == nil {
                 selectedEngine = id.engine
             }
@@ -128,13 +117,11 @@ import SwiftUI
 /// One-time migration of a single `SelectedModel` into `SelectedEngine` plus one
 /// key per engine, so switching engines and back does not lose the model in use.
 ///
-/// A second step rather than part of `PreferenceMigration`: a user coming from
-/// before engines existed runs both in order, the legacy `Model` URL becoming a
-/// `SelectedModel` and that becoming an engine plus a per-engine key. Folding them
-/// together would repeat the discovery-matching only the first step needs.
+/// Runs after `PreferenceMigration`, which turns the legacy `Model` URL into a
+/// `SelectedModel`; only that first step needs to match against discovery.
 ///
-/// `SelectedModel` remains the combined picker's live global selection. This
-/// migration also seeds the per-engine copy used by the preserved beta surface.
+/// `SelectedModel` remains the model picker's live selection. This migration
+/// seeds the per-engine copy that the explicit engine picker reads.
 ///
 /// Delete both once the migration window closes.
 nonisolated enum EngineSelectionMigration {
@@ -153,20 +140,14 @@ nonisolated enum EngineSelectionMigration {
     /// Decides what the engine-scoped selection should become.
     ///
     /// Migrates only a selection that resolves to a model discovery actually found.
-    /// The value is already engine-qualified, so there is nothing to resolve — but
-    /// writing it through unchecked would set `SelectedEngine` to an engine with no
-    /// models, and the controller keeps a chosen engine even when it is empty. An
-    /// upgrading user would land on an empty sidebar with no way to see why.
-    ///
-    /// That rule is about engines the user chose through the picker. A stale
-    /// waypoint is not a choice, so leaving `SelectedEngine` unset and letting the
-    /// controller pick the first model is the right outcome.
+    /// Otherwise `SelectedEngine` would name an engine with no models, and the
+    /// controller keeps a chosen engine even when it is empty. Leaving it unset
+    /// lets the controller pick the first model instead.
     ///
     /// - Parameter alreadyInItsSlot: whether the selection is already recorded
-    ///   against its own engine, which is what "this has run" means. Not "some
-    ///   engine is selected": `restoreSelection` persists a fallback engine, which
-    ///   would end a migration that had never started. Only the migration's own
-    ///   result may end its retries.
+    ///   against its own engine, which is what "this has run" means. Whether some
+    ///   engine is selected says nothing, because `restoreSelection` persists a
+    ///   fallback engine.
     static func selection(
         previousSelection: ModelID?,
         alreadyInItsSlot: Bool,

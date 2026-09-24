@@ -9,8 +9,8 @@ import Testing
 
 @testable import Mochi_Diffusion
 
-/// The providers the gallery renders from, now that it no longer holds a decoded
-/// full-size image per entry.
+/// The providers the gallery renders from, since gallery entries hold no decoded
+/// full-size image.
 struct GalleryImageProviderTests {
     let temp: TempDirectory
 
@@ -204,10 +204,8 @@ struct GalleryImageProviderTests {
 
     // MARK: - Keeping cached pixels consistent with the file
 
-    /// The defect these tests exist for. Both caches key on path, and a path can
-    /// be reused without leaving the app: delete an image, import a different one
-    /// under the same name, and every later read — the grid, Quick Look, export,
-    /// and generation input — was served the deleted image's pixels.
+    /// Both caches key on path, and a path can be reused without leaving the app:
+    /// delete an image, then import a different one under the same name.
     @Test("A path invalidated once no longer serves the old pixels")
     func invalidatingAPathDropsItsThumbnail() async throws {
         let path = try writeImage("reused.png", width: 512, height: 256)
@@ -274,10 +272,9 @@ struct GalleryImageProviderTests {
         #expect(reloaded.width == 64)
     }
 
-    /// The second half of the defect, and the one a targeted invalidation does not
-    /// fix by itself: a read that was already running when the file changed
-    /// resumes holding the old pixels and used to write them straight back into
-    /// the cache, undoing the invalidation that happened while it was suspended.
+    /// A read already running when the file changed resumes holding the old
+    /// pixels, and must not write them back into the cache, undoing the
+    /// invalidation that happened while it was suspended.
     ///
     /// Driven through the full-image provider because its loader is injectable, so
     /// the overlap is arranged rather than raced. The thumbnail provider resolves

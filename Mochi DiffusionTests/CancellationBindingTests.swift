@@ -12,17 +12,13 @@ import Testing
 /// Pins *which* request a stop reaches, and that reaching it does not depend on
 /// the main actor being free.
 ///
-/// `GenerationService` is a reentrant actor. `stopCurrentGeneration()` used to
-/// publish `.canceling` and only then read `currentSession` and cancel it — so
-/// during that hop to the main actor the running request could finish, the drain
-/// could start the next one, and the stop the user aimed at the first request
-/// landed on the second.
+/// `GenerationService` is a reentrant actor, so a stop must bind to the running
+/// session before any hop to the main actor, during which the next request could
+/// start.
 ///
-/// **An extension of `QueueLivenessTests` rather than a suite of its own**, for
-/// the reason recorded on `IdleTimeoutQueueTests`: both drive `GenerationService`,
-/// which writes to the `GenerationState` singleton, and two separately
-/// `.serialized` suites are not serialized against each other. Here it matters
-/// more than usual, since these tests deliberately occupy the main actor.
+/// An extension of `QueueLivenessTests` rather than a suite of its own: both drive
+/// `GenerationService`, which writes to the `GenerationState` singleton, and two
+/// separately `.serialized` suites are not serialized against each other.
 extension QueueLivenessTests {
 
     /// The sessions the fake runtime was handed, by request prompt.
@@ -71,7 +67,7 @@ extension QueueLivenessTests {
     ///
     /// Blocks its thread on purpose: an `await` would hand the main actor back,
     /// and the point is to hold it the way a busy UI does. The wait is bounded, so
-    /// a regression fails on an expectation instead of hanging the suite.
+    /// a failure is an expectation instead of a hang.
     final class MainActorHold: @unchecked Sendable {
         private let condition = NSCondition()
         private var isOpen = false
@@ -164,9 +160,8 @@ extension QueueLivenessTests {
         }
     }
 
-    /// The regression. Publishing `.canceling` first meant the stop signal was
-    /// delivered only once the main actor came free — and the main actor is busy
-    /// exactly when a generation is running.
+    /// The main actor is busy exactly when a generation is running, so the stop
+    /// must not wait for it.
     @Test("A stop reaches the running session without waiting on the main actor")
     func stopDoesNotWaitOnTheMainActor() async throws {
         await MainActor.run { GenerationState.shared.report(.ready(nil)) }
@@ -204,14 +199,9 @@ extension QueueLivenessTests {
     /// The acceptance criterion: the request the user chose to stop is the one
     /// that stops, and the queue keeps going.
     ///
-    /// **Not the regression pin** — it passes with or without the fix, and is
-    /// marked so rather than implying coverage it does not have. Reaching the
-    /// misdelivery from here needs the drain's hop to the main actor to overtake
-    /// the stop's, and the main actor runs jobs from one queue: under the test's
-    /// scheduling the stop's `.canceling` always went first, so the stale read
-    /// still found the right session. The test above is what fails on the old
-    /// code. This one states the property the fix is *for*, so a later change
-    /// that reintroduces a stale read has something to break.
+    /// This does not force the race: that needs the drain's hop to the main actor
+    /// to overtake the stop's, which the test's scheduling does not produce. The
+    /// test above covers the ordering; this one states the property it protects.
     @Test("Stopping a request cannot cancel the one that follows it")
     func stopDoesNotReachTheNextRequest() async throws {
         await MainActor.run { GenerationState.shared.report(.ready(nil)) }

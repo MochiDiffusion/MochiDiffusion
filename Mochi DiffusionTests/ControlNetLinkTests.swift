@@ -8,10 +8,9 @@ import Testing
 
 @testable import Mochi_Diffusion
 
-/// Pins the two halves of a bug that predates the engine work: a stale
-/// `<model>/controlnet` link was never replaced, and the pipeline cache key did
-/// not include where ControlNet was actually loaded from, so changing the
-/// configured folder could keep using the old one for as long as the app ran.
+/// Pins that `<model>/controlnet` follows the configured folder, and that the
+/// reported load location, which is part of the pipeline cache key, changes with
+/// it.
 struct ControlNetLinkTests {
     let temp: TempDirectory
     let modelURL: URL
@@ -50,8 +49,6 @@ struct ControlNetLinkTests {
         #expect(location == folderA.path(percentEncoded: false))
     }
 
-    /// The first half of the bug. The old code returned early whenever anything
-    /// existed at the path, so this link stayed pointing at A forever.
     @Test("A link pointing at the wrong folder is replaced")
     func replacesStaleLink() throws {
         ControlNetLink.resolve(configured: folderA, in: modelURL)
@@ -62,9 +59,8 @@ struct ControlNetLinkTests {
         #expect(location == folderB.path(percentEncoded: false))
     }
 
-    /// The second half. The returned location is what makes the pipeline cache
-    /// key differ, so the pipeline is rebuilt against the new folder instead of
-    /// the already-loaded one being reused.
+    /// The returned location is what makes the pipeline cache key differ, so the
+    /// pipeline is rebuilt against the new folder.
     @Test("The reported location changes with the configured folder")
     func locationTracksConfiguredFolder() {
         let first = ControlNetLink.resolve(configured: folderA, in: modelURL)
@@ -73,10 +69,9 @@ struct ControlNetLinkTests {
         #expect(first != second)
     }
 
-    /// The hazard in the obvious fix. `ml-stable-diffusion` reads
-    /// `<model>/controlnet` whether or not it is a link, so a user not using
-    /// Mochi's shared folder may keep their own bundles there. Replacing a
-    /// directory means deleting what is inside it.
+    /// `ml-stable-diffusion` reads `<model>/controlnet` whether or not it is a
+    /// link, so a user may keep their own bundles there. Replacing a directory
+    /// would delete them.
     @Test("A real directory is left in place and its contents survive")
     func doesNotReplaceRealDirectory() throws {
         let real = modelURL.appending(path: "controlnet", directoryHint: .isDirectory)

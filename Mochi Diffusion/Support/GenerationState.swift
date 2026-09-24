@@ -15,12 +15,10 @@ final class GenerationState {
     }
 
     /// `nonisolated` because these are pure data that cross isolation on every
-    /// generation. Nested in a `@MainActor` type and with
-    /// `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor`, their members were
-    /// main-actor-isolated despite the `Sendable` conformance — so an engine
-    /// running off the main actor could construct a `Progress` and hand it over,
-    /// but could not read `step` back out of one. Anything that reports progress
-    /// from a background context needs both directions.
+    /// generation. Nested in a `@MainActor` type under
+    /// `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor`, their members would otherwise
+    /// be main-actor-isolated despite the `Sendable` conformance, and code off the
+    /// main actor could not read them.
     nonisolated struct Progress: Sendable, Equatable {
         let step: Int
         let stepCount: Int
@@ -76,27 +74,18 @@ final class GenerationState {
 
     /// Outcomes the user has not dismissed yet, oldest first.
     ///
-    /// Held apart from `state` because `state` is only ever the *current* status,
-    /// and the next request overwrites it. A rate limit part-way through a batch
-    /// kept its message exactly as long as it took the following request to
-    /// report `.loading` — which is to say the generation failed in silence. The
-    /// queue also keeps draining after a failure, so ten requests failing the
-    /// same way set `.error` ten times, and that should be one alert rather than
-    /// ten. Identical messages collapse.
+    /// Held apart from `state` because `state` is only the *current* status, and
+    /// the next request overwrites it. The queue keeps draining after a failure,
+    /// so identical messages collapse into one alert.
     ///
     /// Every message counts, not only `.error`. A refused prompt or a rate limit
-    /// is not a malfunction, but it still ends a request having produced no
-    /// image; the register the message is written in is no reason to make the
-    /// user go looking for it.
+    /// is not a malfunction, but it still ends a request having produced no image.
     private(set) var unreportedOutcomes: [String] = []
 
     /// What the user has dismissed during the batch now draining.
     ///
-    /// Dismissing used to clear the deduplication outright, so the next request
-    /// failing the same way appended the message again and reopened the alert.
-    /// Ten identical failures were one alert only for a user who left it alone
-    /// until the queue emptied; anyone dismissing eagerly still got ten.
-    /// Acknowledging one silences it for the rest of the batch, and no longer.
+    /// Acknowledging a message silences it for the rest of the batch, so later
+    /// requests failing the same way do not reopen the alert.
     private var acknowledged: Set<String> = []
 
     /// The only way `state` changes, so an outcome cannot reach the UI without
@@ -114,15 +103,11 @@ final class GenerationState {
         unreportedOutcomes = []
     }
 
-    /// A batch starting forgets what was dismissed during the last one, so a
-    /// failure acknowledged an hour ago is reported again rather than suppressed
-    /// for the rest of the run.
+    /// A batch starting forgets what was dismissed during the last one.
     ///
     /// Called when the user asks for a generation, not when a drain begins or
-    /// ends. Not the end, because the alert outlives the drain that raised it and
-    /// that dismissal would land in the next batch. Not the start either: a
-    /// request that fails before it is ever enqueued starts no drain, so there
-    /// would be nothing to reset it and Generate would go quiet.
+    /// ends: the alert outlives the drain that raised it, and a request that fails
+    /// before it is enqueued starts no drain.
     func noteBatchStarted() {
         acknowledged = []
     }

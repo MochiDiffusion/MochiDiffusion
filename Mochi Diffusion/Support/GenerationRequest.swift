@@ -74,9 +74,8 @@ nonisolated struct GenerationRequest: Sendable, Identifiable {
     /// which is both local engines.
     let quality: ImageQuality?
     /// Core ML only, but the queue displays it when the model records it, so it
-    /// stays a plain field rather than something the queue has to unwrap a
-    /// payload for. Becomes an engine-provided display detail once engines
-    /// describe their own metadata rows.
+    /// is a plain field rather than something the queue has to unwrap a payload
+    /// for.
     let mlComputeUnit: MLComputeUnits?
     let useDenoisedIntermediates: Bool
     let seed: UInt32

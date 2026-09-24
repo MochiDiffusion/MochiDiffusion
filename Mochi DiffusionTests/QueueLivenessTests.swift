@@ -11,14 +11,11 @@ import Testing
 
 /// Pins that a queued request always runs.
 ///
-/// The queue used to refuse to start unless `GenerationState` was `.ready`, and
-/// nothing outside `GenerationService` ever restores `.ready`. So one failure that
-/// left `.error` — an unwritable images folder, say — stranded every later request
-/// permanently: the button stayed enabled, the request was appended, and no drain
-/// would ever start. These tests exist so that cannot come back.
+/// Nothing outside `GenerationService` restores `GenerationState` to `.ready`, so
+/// a queue that gated on it would strand every request after one failure.
 ///
-/// `.serialized` and a time limit because `GenerationState` and `ImageGallery` are
-/// main-actor singletons, and because a regression here hangs rather than fails.
+/// `.serialized` because `GenerationState` is a main-actor singleton, and a time
+/// limit because a failure here hangs rather than fails.
 @Suite(.serialized, .timeLimit(.minutes(1)))
 struct QueueLivenessTests {
 
@@ -146,9 +143,6 @@ struct QueueLivenessTests {
         )
     }
 
-    /// The regression. Every non-`.ready` state used to strand the request; only
-    /// `.error` did so permanently, because the other states imply a drain is
-    /// already running.
     @Test(
         "A queued request runs whatever state the UI was left in",
         arguments: [
@@ -168,10 +162,6 @@ struct QueueLivenessTests {
         #expect(await signal.runCount == 1)
     }
 
-    /// A distinct property from the one above: the state guard was only ever at
-    /// the top of the drain, so an error part-way through a batch never stopped the
-    /// rest of it. Verified by restoring the guard — this test still passed, which
-    /// is why it is not the regression pin.
     @Test("An error part-way through a batch does not stop the rest of it")
     func errorMidBatchDoesNotStopTheRest() async throws {
         await MainActor.run { GenerationState.shared.report(.ready(nil)) }
@@ -191,15 +181,12 @@ struct QueueLivenessTests {
         #expect(await signal.runCount == 2)
     }
 
-    /// Back-to-back enqueues, which is the ordinary path rather than the narrow
-    /// one.
+    /// Back-to-back enqueues, the ordinary path.
     ///
-    /// The teardown race the outer loop in `processQueue` fixes — a request landing
-    /// after the inner loop exits but before `processingTask` is cleared — is
-    /// **not** pinned here, and this test passes with or without that fix. Hitting
-    /// the window needs the queue-empty notification to be slow on demand, and
-    /// `NotificationController.shared` is a singleton with no seam. Left as a
-    /// known gap rather than a test that implies coverage it does not have.
+    /// Does not cover the teardown window the outer loop in `processQueue` handles
+    /// — a request landing after the inner loop exits but before `processingTask`
+    /// is cleared. Reaching it would need a slow queue-empty notification, and
+    /// `NotificationController.shared` has no seam for that.
     @Test("Back-to-back requests both run")
     func backToBackRequestsBothRun() async throws {
         await MainActor.run { GenerationState.shared.report(.ready(nil)) }
@@ -229,9 +216,8 @@ struct QueueLivenessTests {
         // error heals rather than needing anything outside the service to clear it.
         //
         // Reaching the end of the wait *is* the assertion. Re-reading the state
-        // afterwards was racy: `GenerationState` is a singleton, and a service
-        // from an earlier test that is still finishing can write to it between the
-        // loop exiting and the check. That failed about one isolated run in three.
+        // afterwards would race: a service from an earlier test that is still
+        // finishing can write to the singleton between the loop and the check.
         while await MainActor.run(
             resultType: Bool.self, body: { GenerationState.shared.state != .ready(nil) })
         {

@@ -18,10 +18,6 @@ actor GenerationService {
     ///
     /// Storing a `@MainActor` type in an actor is sound — global-actor isolation
     /// makes it `Sendable`, and every use below still goes through `MainActor.run`.
-    /// Injected so the suites that drive this queue can each have their own gallery:
-    /// two separately serialized suites are serial within themselves but not against
-    /// each other, which is how a shared singleton produces a flake that passes alone
-    /// and fails in a full run.
     private let imageGallery: ImageGallery
     private var logger = Logger()
     private var queue: [GenerationRequest] = []
@@ -38,10 +34,8 @@ actor GenerationService {
     private var processingTask: Task<Void, Never>?
     private var continuations: [UUID: AsyncStream<Snapshot>.Continuation] = [:]
     private var resultContinuations: [UUID: AsyncStream<GenerationResult>.Continuation] = [:]
-    /// One runtime per engine, made on first use and kept.
-    ///
-    /// Kept, so a loaded Core ML pipeline stays warm between requests. Made lazily,
-    /// so an engine nobody generates with never allocates one.
+    /// One runtime per engine, made on first use and kept, so a loaded pipeline
+    /// stays warm between requests.
     private var runtimes: [EngineID: any GenerationEngineRuntime] = [:]
     private var nextImageIndex = 1
     private var didEmitResultForCurrentRequest = false
@@ -52,9 +46,8 @@ actor GenerationService {
     /// Results and events travel on separate channels, since results need
     /// back-pressure and previews do not, so a buffered preview can be applied
     /// *after* the gallery has replaced the preview with the finished image.
-    /// Teardown skips clearing when a result was emitted, on the assumption that
-    /// the insert did it, and this is how it tells that case from a late frame that
-    /// would otherwise survive into the next request.
+    /// Teardown normally leaves clearing to the insert, and uses this to catch a
+    /// late frame that would otherwise survive into the next request.
     private var didApplyPreviewSinceResult = false
     private let imageRepository: ImageRepository
     private let modelRepository: ModelRepository
@@ -101,10 +94,9 @@ actor GenerationService {
     }
 
     func enqueue(_ request: GenerationRequest) async {
-        // Checked here rather than where a generator unwraps the payload: by then
-        // the request has been dequeued and published as current, and the queue
-        // cannot take that back. A mismatch is a wiring bug, so it is reported as
-        // an internal failure naming the engine, not as something to reconfigure.
+        // Checked here rather than where a runtime unwraps the payload: by then
+        // the request has been dequeued and published as current. A mismatch is a
+        // wiring bug, reported as an internal failure.
         guard let engine = engineRegistry.engine(request.modelID.engine) else {
             logger.error("no engine registered for \(request.modelID.description)")
             await updateStatus(.error("There is no engine for \(request.displayName)."))
@@ -139,21 +131,18 @@ actor GenerationService {
         guard cancelingCurrentID != current.id else { return }
 
         cancelingCurrentID = current.id
-        // Bound to the session that is running *now*, and stopped before the
-        // status update below rather than after it. This actor is reentrant: the
-        // update suspends on a hop to the main actor, and during that suspension
-        // the running request can finish and the drain can start the next one, so
-        // re-reading `currentSession` afterwards can hand the stop to a request
-        // the user never asked to stop. Cancelling first also keeps a stop prompt
-        // while the main actor is busy, which is when a generation is running.
+        // Captured and cancelled before the status update below. This actor is
+        // reentrant: during the update's hop to the main actor the running request
+        // can finish and the next one start, so re-reading `currentSession`
+        // afterwards could stop the wrong request. Cancelling first also keeps the
+        // stop prompt while the main actor is busy.
         let session = currentSession
         broadcastSnapshot()
         // Synchronous, and it does not touch the runtime: one blocked inside
         // `generateImages` or `iris_generate` could not accept a call.
         session?.cancel()
-        // Says so when it is true rather than implying a cancel is always free.
-        // Stopping a hosted request stops us waiting; it does not necessarily stop
-        // the service, and the image may still be charged for.
+        // Stopping a hosted request stops us waiting; the service may still finish
+        // and charge for the image.
         await updateGenerationState(
             .canceling(
                 currentRuntimeMayLeaveWorkBilled
@@ -175,18 +164,15 @@ actor GenerationService {
     /// Drains the queue until it is empty.
     ///
     /// Must not gate on `GenerationState`: nothing outside this actor restores
-    /// `.ready`, so a failure that left `.error` would strand every later request in
-    /// a queue no drain would start. Queue readiness is not a UI status.
-    ///
-    /// A stale `.error` heals on its own, since the first thing a started request
-    /// does is report `.loading`.
+    /// `.ready`, so a failure that left `.error` would strand every later request.
+    /// Queue readiness is not a UI status. A stale `.error` clears on its own, since
+    /// a started request first reports `.loading`.
     private func processQueue() async {
         defer { processingTask = nil }
 
         // Outer loop because the drain ends with an `await`. A request enqueued
-        // during that await sees `processingTask` still set and so schedules no
-        // drain of its own, and without re-checking here this task would then
-        // clear `processingTask` and leave it queued.
+        // during that await sees `processingTask` still set and schedules no drain
+        // of its own, so this task has to pick it up.
         while !queue.isEmpty {
             savedImageCount = 0
             await drainQueue()
@@ -208,9 +194,6 @@ actor GenerationService {
             didEmitResultForCurrentRequest = false
             broadcastSnapshot()
 
-            // The registry answers which engine owns the request and the engine
-            // makes its own runtime, so adding an engine does not mean editing the
-            // queue.
             guard let engine = engineRegistry.engine(request.modelID.engine) else {
                 logger.error("no engine registered for \(request.modelID.description)")
                 await updateStatus(.error("There is no engine for \(request.displayName)."))
@@ -246,18 +229,15 @@ actor GenerationService {
                         await self?.apply(event, for: request.id)
                     }
                 }
-                // Not a `defer`: closing the stream and joining the drain has to
-                // happen on both the success and failure paths, and `defer` cannot
-                // await. The outcome is held and rethrown afterwards so the
-                // existing per-error handling below still sees it.
-                // Started here rather than at enqueue: the clock bounds the gap
-                // between signs of life while running, and on a serial queue a
-                // request can sit behind a long one for minutes.
-                // Starting it earlier would expire a whole queue at once.
+                // The idle clock starts here rather than at enqueue, since a
+                // request can wait behind a long one for minutes.
                 session.noteActivity()
                 let watchdog = runtime.idleTimeout(for: request).map {
                     Self.startIdleWatchdog(session: session, timeout: $0)
                 }
+                // Held and rethrown below rather than handled with `defer`, which
+                // cannot await: the stream has to be closed and drained on both
+                // paths first.
                 let outcome: Result<Void, any Error>
                 do {
                     try await runtime.run(
@@ -265,9 +245,7 @@ actor GenerationService {
                         session: session,
                         onResult: { [weak self] result in
                             guard let self else { return }
-                            // A result is a sign of life that is not an event, so
-                            // a run producing one image a minute is working rather
-                            // than stalled.
+                            // Results are not events, but they are signs of life.
                             session.noteActivity()
                             let filenameWithoutExtension = await self.nextFilename(
                                 for: result.metadata
@@ -303,10 +281,8 @@ actor GenerationService {
                 // flight, which is what lets the next request reuse the UI state.
                 session.close()
                 await forwarding.value
-                // Checked before the runtime's own outcome. A runtime that notices
-                // the stop returns normally, so without this an expiry would be
-                // indistinguishable from success and the UI would go quietly
-                // `.ready` having produced nothing.
+                // Checked before the runtime's own outcome, because a runtime that
+                // notices the stop returns normally.
                 if session.stopReason == .expired {
                     throw GenerationError.requestExpired
                 }
@@ -319,11 +295,8 @@ actor GenerationService {
                 restoreReadyAfterCancel = true
             } catch GenerationError.refused(let reason) {
                 // Reported through `.ready` rather than `.error`: the call
-                // succeeded and the service declined, so this is news rather than
-                // a malfunction (D5). The difference is the register the message
-                // is written in and the state the queue is left in, not the
-                // presentation — a request that produced no image is reported
-                // either way.
+                // succeeded and the service declined, so this is not a
+                // malfunction. The outcome alert reports it either way.
                 logger.info("\(request.displayName) declined the prompt: \(reason)")
                 await updateStatus(.ready(reason))
             } catch GenerationError.authenticationFailed {
@@ -432,8 +405,8 @@ actor GenerationService {
 
     /// Applies one event from the running session.
     ///
-    /// The single checkpoint an event from a finished or cancelled request is
-    /// dropped at, instead of the same two guards repeated in three handlers.
+    /// Each handler drops events from a request that is no longer current or has
+    /// been cancelled.
     private func apply(_ event: GenerationEvent, for requestID: GenerationRequest.ID) async {
         switch event {
         case .state(let status):
@@ -570,11 +543,9 @@ actor GenerationService {
         restoreReadyAfterCancel: Bool
     ) async {
         let cancelRequested = isCancelRequested(for: requestID)
-        // The third condition is the fix: a result was emitted, so the insert was
-        // expected to replace the preview, but a frame arrived after it and is
-        // still on screen. Clearing only in that case keeps the common path
-        // unchanged — no blank flash between the last preview and the inserted
-        // image, and no change to whether the insert animates.
+        // After a result, the insert replaces the preview, so clearing here would
+        // flash blank. The exception is a frame that arrived after the result and
+        // is still on screen.
         if cancelRequested || !didEmitResultForCurrentRequest || didApplyPreviewSinceResult {
             await clearCurrentGeneratingImage(owner: requestID)
         }

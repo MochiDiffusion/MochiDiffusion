@@ -21,9 +21,8 @@ enum ImagesSortType: String {
 
     private let imageRepository: ImageRepository
 
-    /// `nonisolated` is safe because `init` only initialises stored properties
-    /// `nonisolated` is needed because `init` is called by `MochiDiffusionApp.init`
-    /// and `GenerationService`, and both are nonisolated
+    /// `nonisolated` so `MochiDiffusionApp.init` and `GenerationService` can call
+    /// it; safe because it only initialises stored properties.
     nonisolated init(imageRepository: ImageRepository = ImageRepository()) {
         self.imageRepository = imageRepository
     }
@@ -42,8 +41,8 @@ enum ImagesSortType: String {
     ///
     /// Results and progress events travel on separate channels, so a finished
     /// request's result can be applied *after* the next request has already put its
-    /// first preview on screen. Without an owner, that result's teardown would
-    /// erase a preview belonging to a generation still running.
+    /// first preview on screen. The owner keeps that result's teardown from erasing
+    /// the running generation's preview.
     private(set) var currentGeneratingOwner: GenerationRequest.ID?
 
     private(set) var selectedId: SDImage.ID?
@@ -138,9 +137,8 @@ enum ImagesSortType: String {
 
     /// Clears the preview only if `owner` still owns it.
     ///
-    /// A request that has finished must not clear a preview the next one has already
-    /// replaced, which is a real ordering: a result is delivered on its own channel
-    /// and can be applied late.
+    /// A result is delivered on its own channel and can be applied late, so a
+    /// finished request must not clear a preview the next one has already replaced.
     func clearCurrentGenerating(owner: GenerationRequest.ID) {
         guard currentGeneratingOwner == owner else { return }
         clearCurrentGenerating()
@@ -218,10 +216,8 @@ enum ImagesSortType: String {
 
     /// Finds a related gallery image by the basename recorded in image metadata.
     ///
-    /// Metadata predates stable gallery IDs and intentionally stores only the
-    /// source filename. Filesystems and imported captions may disagree about case
-    /// or Unicode accents, so those differences do not make a valid relationship
-    /// disappear from the inspector.
+    /// Metadata records only the source filename. The comparison ignores case and
+    /// diacritics, since filesystems and imported captions may disagree about both.
     func image(named filename: String) -> SDImage? {
         guard let basename = filename.normalizedFilename else { return nil }
         return allImages.first { image in

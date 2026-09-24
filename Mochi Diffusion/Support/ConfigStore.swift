@@ -16,8 +16,8 @@ import UniformTypeIdentifiers
         static let imageType = "ImageType"
         static let modelDir = "ModelDir"
         static let controlNetDir = "ControlNetDir"
-        /// Superseded by `selectedModelEngine`/`selectedModelKey`. Still read, by
-        /// `PreferenceMigration`, and still written by nothing.
+        /// The legacy selection, superseded by `selectedModel`. Read only by
+        /// `PreferenceMigration`; never written.
         static let legacyModelId = "Model"
         static let selectedModel = "SelectedModel"
         static let prompt = "Prompt"
@@ -36,10 +36,9 @@ import UniformTypeIdentifiers
         static let useTrash = "UseTrash"
     }
 
-    /// Declared once for the same reason. `init(store:)` has to restate every
-    /// default when it rebinds the wrappers, and a default that drifts from its
-    /// declaration would be visible only under an injected store — that is, only
-    /// in tests, and as a wrong expected value rather than a failure.
+    /// Declared once because `init(store:)` restates every default when it rebinds
+    /// the wrappers, and a drifted default would show up only under an injected
+    /// store, in tests.
     private enum Default {
         static let imageDir = ""
         static let imageType = UTType.png.preferredFilenameExtension!
@@ -90,23 +89,16 @@ import UniformTypeIdentifiers
         Default.safetyChecker
     @ObservationIgnored @AppStorage(Key.useTrash) private var _useTrash = Default.useTrash
 
-    /// - Parameter store: the defaults every value is read from and written to.
-    ///   `nil` keeps `@AppStorage`'s own `UserDefaults.standard`, which is what
-    ///   the app always wants; tests pass an isolated suite so they neither read
-    ///   nor overwrite the real app's settings. The test host *is* Mochi
-    ///   Diffusion, so `UserDefaults.standard` here is the developer's own
-    ///   preferences.
     /// The defaults this store reads and writes.
     ///
-    /// Exposed so a store built alongside this one — `EngineSettingsStore`, whose
-    /// keys are dynamic and so cannot use `@AppStorage` — inherits the same suite
-    /// rather than defaulting to `.standard`. Under test the difference is between
-    /// an isolated suite and the developer's own preferences, since the test host
-    /// is the app itself.
-    /// `UserDefaults` is not `Sendable`, so this stays main-actor-isolated like
-    /// the rest of the store; every reader is already on the main actor.
+    /// Exposed so `EngineSettingsStore`, whose dynamic keys cannot use
+    /// `@AppStorage`, uses the same suite rather than defaulting to `.standard`.
     @ObservationIgnored let defaults: UserDefaults
 
+    /// - Parameter store: the defaults every value is read from and written to.
+    ///   `nil` keeps `UserDefaults.standard`, which is what the app wants. Tests
+    ///   pass an isolated suite: the test host is the app itself, so `.standard`
+    ///   would be the developer's own preferences.
     init(store: UserDefaults? = nil) {
         defaults = store ?? .standard
         guard let store else { return }
@@ -190,14 +182,12 @@ import UniformTypeIdentifiers
         }
     }
 
-    /// The combined picker's last engine-qualified model, or `nil` when none has
+    /// The model picker's last engine-qualified model, or `nil` when none has
     /// ever been selected.
     ///
-    /// One `"engine:key"` string rather than two keys, so writing a selection is a
-    /// single `UserDefaults` write and cannot be torn into a valid-looking hybrid
-    /// of a new engine and an old key. Still a plain readable string rather than
-    /// encoded data, so it stays legible in `defaults read`, and anything
-    /// unparseable degrades to "no selection".
+    /// One `"engine:key"` string, so writing a selection is a single
+    /// `UserDefaults` write that cannot tear. A plain string stays legible in
+    /// `defaults read`, and anything unparseable reads as no selection.
     var selectedModel: ModelID? {
         get {
             access(keyPath: \.selectedModel)
@@ -210,14 +200,14 @@ import UniformTypeIdentifiers
         }
     }
 
-    /// The pre-multi-engine selection: an absolute `URL` for the model directory.
-    /// Only the migration reads this, and nothing writes it.
+    /// The legacy selection: an absolute `URL` for the model directory. Only the
+    /// migration reads this, and nothing writes it.
     var legacyModelId: URL? {
         access(keyPath: \.legacyModelId)
         return _legacyModelId
     }
 
-    /// Converts a pre-multi-engine selection into an engine-qualified one.
+    /// Converts a legacy selection into an engine-qualified one.
     ///
     /// Idempotent, and cheap enough to call on every model load: once a selection
     /// exists it returns immediately. Takes the ids discovery just found, because

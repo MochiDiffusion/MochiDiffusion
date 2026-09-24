@@ -15,8 +15,7 @@ import UniformTypeIdentifiers
 /// writes must be exactly what `createImageRecordFromURL` reads back, and the
 /// declared `metadataFields` must survive the trip as `presentFields`.
 ///
-/// This is the contract every future provider has to satisfy, so these tests
-/// exist to fail loudly if the format or the field mapping drifts.
+/// Every engine has to satisfy this contract.
 @MainActor
 struct MetadataRoundTripTests {
     let temp: TempDirectory
@@ -67,9 +66,8 @@ struct MetadataRoundTripTests {
     /// Version 2 captions separate fields with real newlines, so the whole format
     /// rests on every container preserving embedded LF in the IPTC caption byte
     /// for byte. If one normalised LF to CRLF, every field would decode with a
-    /// trailing `\r` and the numeric fields would parse as nil — a silent,
-    /// format-wide failure. `SettingsView` offers all three of these types and
-    /// only PNG was covered.
+    /// trailing `\r` and the numeric fields would parse as nil. `SettingsView`
+    /// offers all three of these types.
     @Test(
         "A multi-line caption survives every image type the app writes",
         arguments: [UTType.png, .jpeg, .heic]
@@ -261,9 +259,8 @@ struct MetadataRoundTripTests {
     }
 
     /// Multi-line prompts are ordinary — the sidebar prompt field is a
-    /// `TextEditor`. They worked by accident under the version 1 format because
-    /// newlines were not the separator; under version 2 they only work because
-    /// the codec escapes them.
+    /// `TextEditor` — and version 2 uses newlines as its separator, so they
+    /// depend on the codec escaping them.
     @Test("A multi-line prompt survives export and import")
     func multiLinePromptRoundTrips() async throws {
         var sdi = Self.makeImage()

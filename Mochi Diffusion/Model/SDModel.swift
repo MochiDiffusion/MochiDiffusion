@@ -62,12 +62,10 @@ nonisolated struct SDModel: EngineModel {
             supportsNegativePrompt: true,
             size: inputSize.map { .pinned([$0]) }
                 ?? .freeform(range: 64...1_792, step: 16),
-            // The released sliders pass `strictUpperBound: false`, so a typed
-            // value above the span is kept. Clamping here would show one number
-            // and generate another.
+            // The step slider keeps a typed value above its span, so the
+            // constraint accepts it too.
             steps: .range(1...50, step: 1, acceptsBeyondUpperBound: true),
-            // Bounds match the released sliders exactly. Tightening them would
-            // clamp values users already have persisted.
+            // Matches the slider's bounds, so persisted values are not clamped.
             guidanceScale: .range(1...20, step: nil),
             scheduler: .oneOf(Scheduler.allCases),
             startingImage: .supported(strength: .range(0...1, step: nil)),

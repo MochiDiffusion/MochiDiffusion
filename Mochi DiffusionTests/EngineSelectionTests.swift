@@ -105,14 +105,13 @@ struct EngineSettingsStoreTests {
     }
 }
 
-/// Pins the Phase 2 → Phase 5 selection migration as a pure decision.
+/// Pins the per-engine selection migration as a pure decision.
 struct EngineSelectionMigrationTests {
     private let klein = ModelID(engine: .iris, key: "klein")
 
     /// "Already run" is the selection being in its own engine's slot — the
-    /// migration's own result. It used to be "some engine is selected", which
-    /// `restoreSelection`'s fallback could set, so a fallback could claim the
-    /// migration was finished when it had not started.
+    /// migration's own result — not merely some engine being selected, which
+    /// `restoreSelection`'s fallback can also cause.
     @Test("The selection already being in its slot means the migration has run")
     func alreadyMigrated() {
         let outcome = EngineSelectionMigration.selection(
@@ -124,8 +123,8 @@ struct EngineSelectionMigrationTests {
         #expect(outcome == .alreadyMigrated)
     }
 
-    /// The reported bug, as a decision. A fallback engine having been persisted
-    /// must not end the migration: the legacy selection is still owed a slot.
+    /// A persisted fallback engine must not end the migration: the legacy
+    /// selection is still owed a slot.
     @Test("Another engine being selected does not end the migration")
     func fallbackEngineDoesNotEndTheMigration() {
         let outcome = EngineSelectionMigration.selection(
@@ -406,7 +405,7 @@ struct EnginePickerTests {
         #expect(second.currentModel?.name == "b-klein")
     }
 
-    /// §8: an engine the user chose stays chosen even when empty, and Generate is
+    /// An engine the user chose stays chosen even when empty, and Generate is
     /// disabled, rather than silently generating with another engine's model.
     @Test("Choosing an engine with no models leaves the selection empty")
     func emptyEngineLeavesSelectionEmpty() async throws {
@@ -455,14 +454,13 @@ struct EnginePickerTests {
         #expect(controller.currentControlNets.isEmpty)
     }
 
-    @Test("The preserved engine surface lists every registered engine")
+    @Test("The engine list includes every registered engine")
     func allEnginesAreListed() async throws {
         try makeSDModelFixture(at: modelDir.appending(path: "a-coreml"))
         let controller = makeController()
         await controller.loadModels()
 
-        // Every registered engine for the preserved beta surface. Keep this exact
-        // so a deferred engine cannot return to the stable release unnoticed.
+        // Exact, so an engine added to the shipped registry is a deliberate change.
         #expect(controller.engines.map(\.id) == [.iris, .coreMLStableDiffusion])
         #expect(controller.engineAvailability[.iris] == .ready)
         #expect(controller.engineAvailability[.coreMLStableDiffusion] == .ready)
@@ -519,11 +517,9 @@ struct EnginePickerTests {
         #expect(controller.pickerEngines.map(\.id) == [.iris, .coreMLStableDiffusion])
     }
 
-    /// The picker distinguishes "there are none" from "we could not look". Before
-    /// this was merged in, a folder that existed but could not be read answered
-    /// `.ready` from `availability`, failed in discovery, and was reported as
-    /// "No models found" — sending the user after missing models when the folder
-    /// was the problem.
+    /// The picker distinguishes "there are none" from "we could not look". A
+    /// folder that exists but cannot be read answers `.ready` from `availability`
+    /// and then fails in discovery, which must not read as "No models found".
     @Test("A discovery failure is reported as unreachable, not as an empty engine")
     func discoveryFailureIsNotReportedAsEmpty() async throws {
         try makeSDModelFixture(at: modelDir.appending(path: "a-coreml"))
@@ -829,14 +825,10 @@ struct RefreshOrderingTests {
         let second = Task { await controller.loadModels() }
         await sequencer.waitUntilStarted(2)
 
-        // The newer pass is allowed to finish *completely* before the older one is
-        // released — the order that used to leave the older pass's models on screen.
-        //
-        // Awaiting `second.value` here rather than at the end is what makes this a
-        // pin. Releasing a gate only schedules the waiting continuation, so
-        // releasing both and then awaiting leaves the order they apply in
-        // unspecified: without the epoch guard the test would pass whenever the
-        // older pass happened to run first.
+        // The newer pass finishes *completely* before the older one is released.
+        // Awaiting `second.value` here rather than at the end fixes that order:
+        // releasing a gate only schedules the waiting continuation, so releasing
+        // both and then awaiting would leave the order they apply in unspecified.
         await sequencer.release(2)
         _ = await second.value
         #expect(controller.models.map(\.name) == ["call-2"])

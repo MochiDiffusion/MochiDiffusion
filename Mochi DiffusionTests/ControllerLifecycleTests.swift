@@ -11,10 +11,8 @@ import Testing
 
 /// Pins that a controller can actually be released.
 ///
-/// A monitor loop iterates a stream that never ends, so hoisting a strong `self`
-/// out of the loop makes the task and the controller keep each other alive. That
-/// change compiles, reads as a simplification, and is invisible without a test
-/// like this one.
+/// A monitor loop iterates a stream that never ends, so a strong `self` hoisted
+/// out of the loop would make the task and the controller keep each other alive.
 @MainActor
 struct ControllerLifecycleTests {
     @Test("A generation controller is released after shutdown")
@@ -58,10 +56,8 @@ struct ControllerLifecycleTests {
     }
 
     /// `withObservationTracking` callbacks stay armed until they fire, and firing
-    /// is what re-registers them — so cancelling tasks did not stop a settings
-    /// change after `shutdown()` from arming observation and scheduling debounce
-    /// work all over again. If it still did, the new task would hold the
-    /// controller and this would not deallocate.
+    /// re-registers them, so cancelling tasks alone would not stop a settings
+    /// change after `shutdown()` from scheduling work that holds the controller.
     @Test("A settings change after shutdown does not revive the controller")
     func settingsChangeAfterShutdownDoesNothing() async {
         let defaults = TempDefaults()

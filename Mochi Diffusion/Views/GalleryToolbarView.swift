@@ -68,9 +68,8 @@ struct GalleryToolbarView: View {
             .tag(ImagesSortType.newestFirst)
         }
 
-        // Gated on there being a selection, not on its pixels being in memory. A
-        // gallery image loaded from disk has no decoded image, and Remove and Save
-        // As never needed one.
+        // Gated on there being a selection, not on its pixels being in memory: a
+        // gallery image loaded from disk has no decoded image.
         if let sdi = store.selected() {
             Button {
                 Task { await galleryController.removeCurrentImage() }

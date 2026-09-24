@@ -42,10 +42,8 @@ final class QuickLookState {
     /// Points Quick Look at the file itself whenever there is one.
     ///
     /// A gallery image on disk needs no decoding, no re-encoding and no temporary
-    /// copy — and since gallery images are no longer decoded at load, asking for
-    /// pixels would mean reading the file just to write it out again. Only an image
-    /// with no path, which in practice means a generation result not yet saved, takes
-    /// the round trip.
+    /// copy. Only an image with no path, in practice a generation result not yet
+    /// saved, is encoded to a temporary file.
     private func updateURL(for image: SDImage) {
         currentImageID = image.id
 

@@ -7,9 +7,9 @@ import SwiftUI
 
 /// The images handed to a generation as input.
 ///
-/// Ported from the 6.1 prototype with its layout intact: progressively revealed
-/// wells rather than a fixed row of empty ones, wells shaped to their image's
-/// aspect ratio, a per-image crop popover, and the reference-budget warning.
+/// Wells are revealed progressively rather than as a fixed row of empty ones,
+/// shaped to their image's aspect ratio, with a per-image crop popover and the
+/// reference-budget warning.
 ///
 /// References only, with no strength: that belongs to `StartingImageView`, which
 /// is a separate section shown by its own constraint. A model may declare either,

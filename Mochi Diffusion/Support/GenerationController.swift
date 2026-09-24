@@ -12,9 +12,8 @@ import os
 private enum SidebarRestoreModel {
     case exact(ModelID)
     case legacyName(String)
-    /// Modern metadata that claims an engine-scoped identity but does not contain
-    /// a complete one. It must not fall back to a display name that another engine
-    /// may also offer.
+    /// Metadata that records an engine or key but not both. It must not fall back
+    /// to a display name that another engine may also offer.
     case unavailable
     case unspecified
 }
@@ -149,11 +148,11 @@ private struct SidebarRestoreSource {
 @MainActor
 @Observable
 final class GenerationController {
-    /// How model restoration treats the preserved per-engine selection.
+    /// How model restoration treats the per-engine selection.
     ///
-    /// The stable app uses one combined picker. The engine-scoped mode keeps the
-    /// old picker's empty-engine semantics intact so that surface can be restored
-    /// for a future beta without rebuilding its selection behavior.
+    /// The app uses `.combined`: one picker over every engine's models.
+    /// `.engineScoped` backs the explicit engine picker, where a chosen engine
+    /// stays selected even when it has no models.
     enum ModelSelectionMode {
         case combined
         case engineScoped
@@ -184,14 +183,9 @@ final class GenerationController {
     private let fullImageProvider: GalleryFullImageProvider
     private let modelSelectionMode: ModelSelectionMode
     /// The gallery finished images are inserted into, and the one "copy to sidebar"
-    /// reads its selection from. Injected for the same reason as
-    /// `GalleryController.imageGallery`.
+    /// reads its selection from.
     private let imageGallery: ImageGallery
     /// The queue this controller submits to and observes.
-    ///
-    /// Injected rather than reached for as a singleton, which is what lets the
-    /// gallery singleton go: the service holds a gallery, so as long as it built
-    /// itself it needed a globally reachable one to hold.
     private let generationService: GenerationService
     private(set) var generationQueue = [GenerationRequest]()
     private(set) var currentGeneration: GenerationRequest?
@@ -212,10 +206,7 @@ final class GenerationController {
     /// Selecting a model that does not denoise from an image leaves this inactive
     /// and its section hidden, not cleared; choosing that model says nothing about
     /// whether the user still wants the picture they chose. `plan` is what drops it
-    /// from a request, per model. Moving it into `inputImages` instead was the old
-    /// behaviour, and it was a guess about which role the user meant — one that
-    /// could not be made at all from several references, so they were deleted
-    /// instead.
+    /// from a request, per model.
     private(set) var startingImage: InputImage?
     /// The reference images the sidebar is holding, in the order the user added them.
     ///
@@ -233,29 +224,25 @@ final class GenerationController {
                 galleryImageLoadGeneration += 1
             }
             guard let model = models.first(where: { $0.id == self.currentModelId }) else {
-                // Selecting nothing — an engine with no models — has to clear the
-                // ControlNet state too. Leaving it would offer the previous
-                // model's ControlNets for a model that is not selected.
+                // Selecting nothing clears the ControlNet state too, so the
+                // previous model's ControlNets are not offered.
                 controlNet = []
                 currentControlNets = []
                 return
             }
-            // The stable UI has one combined picker, so its last exact selection
-            // is global. Keep the per-engine copy too: a future explicit-engine
-            // beta can return to each engine's remembered model.
+            // The combined picker's selection is global. The per-engine copy lets
+            // the explicit engine picker return to each engine's last model.
             configStore.selectedModel = model.id
             engineSettings.selectedEngine = model.id.engine
             engineSettings.setSelectedModel(model.id, for: model.id.engine)
-            // From the constraint rather than a downcast: which ControlNets a
-            // model can use is something it declares, not something the
-            // controller reads off one engine's concrete type.
+            // Read from the model's constraints rather than its concrete type.
             controlNet = model.constraints.controlNet.names
             currentControlNets = []
         }
     }
 
     /// Every registered engine, including unconfigured ones and ones with no
-    /// models. Preserved for the dormant explicit-engine beta surface.
+    /// models. Used by the explicit engine picker.
     var engines: [AnyGenerationEngine] {
         engineRegistry.allEngines
     }
@@ -271,7 +258,7 @@ final class GenerationController {
         engineSettings.selectedEngine
     }
 
-    /// Every model shown by the stable release's combined picker.
+    /// Every model shown by the combined model picker.
     ///
     /// Discovery has already sorted the models. Names stay untouched unless two
     /// models collide under the same case- and diacritic-insensitive comparison
@@ -307,8 +294,7 @@ final class GenerationController {
         return models.filter { $0.id.engine == selectedEngine }
     }
 
-    /// Whether `engine` has anything to generate with right now.
-    /// Whether an engine can be generated with right now.
+    /// Whether `engine` can be generated with right now.
     ///
     /// Both halves are needed and neither implies the other: a local engine is
     /// `.ready` as soon as its folder exists but has no models until one is put
@@ -318,20 +304,13 @@ final class GenerationController {
         engineAvailability[engine] == .ready && hasModels(engine)
     }
 
-    /// The engines the sidebar picker offers.
-    ///
-    /// Not every registered engine. Preserved for the dormant explicit-engine
-    /// beta surface, where unavailable engines can be configured separately.
+    /// The engines the explicit engine picker offers: the usable ones.
     ///
     /// The selected engine is always included, even when it stops being usable.
-    /// `restoreSelection` deliberately keeps a chosen engine whose models have
-    /// disappeared so the picker can say why; hiding it would leave the selection
-    /// pointing at something absent from its own picker, and take the explanation
-    /// with it.
+    /// `restoreSelection` keeps a chosen engine whose models have disappeared so
+    /// the picker can say why.
     ///
-    /// Empty is a real answer, and `EngineView` renders a placeholder for it rather
-    /// than this inventing one — an engine is a thing that can generate, and the
-    /// placeholder is not one.
+    /// May be empty; `EngineView` renders a placeholder for that case.
     var pickerEngines: [AnyGenerationEngine] {
         engines.filter { isUsable($0.id) || $0.id == selectedEngine }
     }
@@ -382,9 +361,8 @@ final class GenerationController {
     /// Supersedes an older gallery image load when the user invokes the action
     /// again before the first file has finished decoding.
     private var galleryImageLoadGeneration = 0
-    /// Stored, and capturing weakly, so `shutdown()` can reach it. An
-    /// unreferenced `Task` capturing `self` strongly would keep the controller
-    /// alive until the load finished, with no handle to cancel.
+    /// Stored, and capturing weakly, so `shutdown()` can cancel it and it cannot
+    /// keep the controller alive.
     private var initialLoadTask: Task<Void, Never>?
     /// Checked before arming observation, scheduling a debounce or starting a
     /// monitor.
@@ -400,11 +378,9 @@ final class GenerationController {
 
     /// - Parameter startsObserving: whether to begin the eager work — the initial
     ///   model load, the folder monitors, and the generation-service observation.
-    ///   The app always wants it. Tests opt out so the controller owns no
-    ///   background task that can reload models, and therefore reassign
-    ///   `currentModelId`, in the middle of their assertions: its `didSet` clears
-    ///   `currentControlNets`, so a stray reload silently empties state a test
-    ///   just set up.
+    ///   The app always wants it. Tests opt out so no background reload can
+    ///   reassign `currentModelId`, whose `didSet` clears `currentControlNets`,
+    ///   in the middle of their assertions.
     init(
         configStore: ConfigStore,
         modelRepository: ModelRepository = ModelRepository(),
@@ -466,9 +442,8 @@ final class GenerationController {
         // The two guards that make a refresh abandonable. `loadModels` is
         // started by the initial load, two folder monitors and two debounced
         // settings paths, and `@MainActor` serialises the *mutations* without
-        // preventing reentrancy across the await above. Without the epoch, a
-        // pass for the previous models folder could finish after a newer pass
-        // and overwrite its models, availability and selection.
+        // preventing reentrancy across the await above. The epoch stops an older
+        // pass that finishes late from overwriting a newer one.
         guard generation == loadGeneration else {
             logger.info("Discarding a superseded model load")
             return
@@ -493,18 +468,14 @@ final class GenerationController {
         }
 
         // Two migrations, in order, both idempotent. The first recovers the
-        // engine for a pre-engine `Model` URL by matching what discovery just
-        // found; the second turns that single selection into an engine plus a
-        // per-engine model. A user upgrading across both arrives with the model
-        // they had selected still selected.
+        // engine for a legacy `Model` URL by matching what discovery just found;
+        // the second records that selection as an engine plus a per-engine model.
         let discoveredIDs = self.models.map(\.id)
         let globalMigration = configStore.migrateSelectedModelIfNeeded(discovered: discoveredIDs)
         var engineMigrationSelection = configStore.selectedModel
-        // The combined picker now writes its live selection to `SelectedModel`.
-        // If a hosted beta model was the only runnable fallback before an old
-        // local model reappeared, that live value must not strand the older URL
-        // migration. Recover the legacy local identity solely for its per-engine
-        // slot; do not replace the model the user is currently using.
+        // `SelectedModel` may hold a hosted model picked as a fallback while the
+        // legacy local model was missing. The legacy identity is still recovered
+        // for its per-engine slot, without replacing the current selection.
         if globalMigration == .alreadyMigrated,
             let current = configStore.selectedModel,
             !PreferenceMigration.legacyEnginePreference.contains(current.engine),
@@ -532,9 +503,8 @@ final class GenerationController {
     /// and generation are different subjects, and sharing one banner means they
     /// overwrite each other.
     ///
-    /// Reported per engine. A message that fired only when the combined model list
-    /// was empty would be silenced permanently by any hosted engine, since one
-    /// always has a model, hiding a broken models folder.
+    /// Failures are reported per engine, since a hosted engine always has a model
+    /// and would otherwise keep the combined list from ever being empty.
     ///
     /// Availability is not reported here: "Add an API key" is a standing fact about
     /// an engine rather than a problem with this pass, and the picker already says it
@@ -564,12 +534,10 @@ final class GenerationController {
 
     /// Picks the exact model to show after a discovery pass.
     ///
-    /// The active engine's remembered model comes first when upgrading from the
-    /// explicit-engine UI, because the older global preference may be a stale
-    /// migration value. Once selected, `currentModelId.didSet` writes both stores,
-    /// so the global selection is authoritative on later combined-picker launches.
-    /// A missing selection falls back to the first runnable model in the registry's
-    /// deterministic combined ordering.
+    /// The selected engine's remembered model comes first, because the global
+    /// preference may still hold a stale migration value. `currentModelId.didSet`
+    /// writes both stores, so after one selection they agree. Without a usable
+    /// selection this falls back to the first runnable model in discovery order.
     private func restoreSelection() {
         if modelSelectionMode == .engineScoped,
             let engine = engineSettings.selectedEngine,
@@ -605,13 +573,11 @@ final class GenerationController {
     func generate() async {
         guard let request = buildGenerationRequest() else { return }
         // Asking again is a new attempt, so it forgets what was dismissed during
-        // the last one. The boundary is here rather than at the start of a drain
-        // because the folder check below fails *before* anything is enqueued: with
-        // no drain to reset it, dismissing this error once would suppress it for
-        // every later click, and Generate would go silent with nothing queued.
+        // the last one. Here rather than at the start of a drain because the
+        // folder check below can fail before anything is enqueued.
         GenerationState.shared.noteBatchStarted()
-        // Both engines write through ImageRepository, so an unwritable images
-        // folder should surface before the job is queued rather than after it runs.
+        // Every engine writes through ImageRepository, so an unwritable images
+        // folder surfaces before the job is queued rather than after it runs.
         do {
             _ = try await imageRepository.ensureOutputDirectory(
                 imageDir: request.imageDir
@@ -1030,13 +996,10 @@ final class GenerationController {
             configStore.width = Int(size.width)
             configStore.height = Int(size.height)
         }
-        // `isEditable`, not `isSupported`: the question is whether this value was
-        // ever the user's to choose. A pinned value is a function of the model,
-        // and the model is restored too, so copying it in can never change the
-        // reproduction — it can only overwrite the value the user had for some
-        // other model they select next. Copying options from a distilled Klein
-        // image used to leave the sidebar at four steps and guidance 1.0, which
-        // then silently applied to a Core ML model.
+        // `isEditable`, not `isSupported`: only values the user could have chosen
+        // are restored. A pinned value follows from the model, which is restored
+        // too, so copying it could only overwrite the sidebar's value for the next
+        // model the user selects.
         //
         // The single-value actions below (`copyStepsToPrompt` and friends) stay
         // unconditional: there the user pointed at one number and asked for it.
@@ -1072,7 +1035,7 @@ final class GenerationController {
         }
     }
 
-    /// Selects a model by display name, which is all a pre-engine image recorded.
+    /// Selects a model by display name, which is all a legacy image recorded.
     ///
     /// Prefers the engine already selected, so a name two engines both offer does
     /// not move the user off the engine they are working in. Failing that, a single
@@ -1168,8 +1131,7 @@ final class GenerationController {
     /// model's engine to resolve, and copies the resulting plan into a request.
     /// Every per-engine decision belongs to that engine's `plan`.
     ///
-    /// Internal rather than private so tests can assert the exact request the app
-    /// builds.
+    /// Internal so tests can assert the exact request the app builds.
     func buildGenerationRequest() -> GenerationRequest? {
         guard let model = currentModel else { return nil }
         guard let engine = engineRegistry.engine(model.id.engine) else {
@@ -1301,7 +1263,7 @@ final class GenerationController {
         defer {
             // Scoped to the request that produced this result. Results arrive on
             // their own channel and can be applied after the next request has put
-            // its first preview up; clearing unconditionally erased it.
+            // its first preview up.
             if let requestID = result.requestID {
                 imageGallery.clearCurrentGenerating(owner: requestID)
             } else {
@@ -1348,9 +1310,6 @@ final class GenerationController {
     }
 
     /// Stops the running generation.
-    ///
-    /// Here rather than the view reaching for the queue itself, so the controller
-    /// stays the one thing that knows which queue it is talking to.
     func stopCurrentGeneration() async {
         await generationService.stopCurrentGeneration()
     }
@@ -1424,9 +1383,8 @@ final class GenerationController {
         modelFolderMonitorTask?.cancel()
         let path = modelDirectoryPath()
         modelFolderMonitorTask = Task { [weak self] in
-            // Weak *inside* the loop, not before it. Hoisting `self` out kept the
-            // controller alive for as long as the task ran, and the task ran
-            // forever, so neither could be released.
+            // Weak *inside* the loop, not hoisted before it: the loop never ends
+            // on its own, so a strong `self` would keep the controller alive.
             let stream = await FolderMonitorService.shared.updates(for: path)
             for await _ in stream {
                 guard let self else { return }

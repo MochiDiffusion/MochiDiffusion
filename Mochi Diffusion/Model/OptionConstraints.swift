@@ -16,10 +16,9 @@ nonisolated enum IntConstraint: Sendable, Equatable {
     /// `bounds` is what a control spans; `acceptsBeyondUpperBound` says the model
     /// will take more than that.
     ///
-    /// The distinction matters because the step and image-count sliders pass
-    /// `strictUpperBound: false`, which keeps a typed value above the maximum. A
-    /// constraint that clamped to `bounds` would let the sidebar show 75 steps
-    /// while the request generated 50.
+    /// The step and image-count sliders pass `strictUpperBound: false`, which keeps
+    /// a typed value above the maximum, so the constraint must accept it too or the
+    /// sidebar would show one value while the request used another.
     case range(ClosedRange<Int>, step: Int, acceptsBeyondUpperBound: Bool)
 
     /// The common case, where the control's span is also the limit.
@@ -85,13 +84,11 @@ nonisolated enum IntConstraint: Sendable, Equatable {
 
 /// What a model can do with one fractional option — a guidance scale, a strength.
 ///
-/// `step` is optional, and both current uses pass `nil`: a constraint says what
-/// the model will *accept*, and nothing in Core ML requires a guidance scale to
-/// land on a half or a strength on a twentieth. Granularity belongs to the
-/// control, and `MochiSlider` already applies its own when it writes the value, so
-/// snapping here would move a number the user typed for no reason the model cares
-/// about. `SizeConstraint` is the case that genuinely does snap, since latent
-/// dimensions have to be multiples of 16.
+/// `step` is usually `nil`: a constraint says what the model will *accept*, and
+/// granularity belongs to the control. `MochiSlider` applies its own when it writes
+/// the value, so snapping here would move a typed number for no reason the model
+/// cares about. `SizeConstraint` does snap, since latent dimensions have to be
+/// multiples of 16.
 nonisolated enum DoubleConstraint: Sendable, Equatable {
     case unsupported
     case pinned(Double)
@@ -343,9 +340,8 @@ nonisolated enum StartingImageConstraint: Sendable, Equatable {
 /// Exceeding it is not something to warn about — `resolved(_:)` drops the extras
 /// before the request is built, the same as every other constraint.
 ///
-/// Independent of ``StartingImageConstraint`` on purpose. A model may support
-/// either, both, or neither, so an enum with a case per kind could not describe
-/// the complete capability space.
+/// Independent of ``StartingImageConstraint``: a model may support either, both,
+/// or neither.
 nonisolated enum InputImagesConstraint: Sendable, Equatable {
     case unsupported
     case supported(maxCount: Int)
@@ -443,12 +439,10 @@ nonisolated enum ChoiceConstraint<Option: Hashable & Sendable>: Sendable, Equata
 /// Per model rather than per engine, because a Core ML model's size and available
 /// ControlNets are fixed by how it was converted.
 ///
-/// Each option distinguishes three states rather than carrying a Boolean, because
-/// "supported" and "has one fixed value" lead to different controls: an
-/// unsupported option is hidden, a pinned one is shown disabled so its effective
-/// value is visible, and an editable one is shown with its bounds. A Boolean can
-/// say "supports a step count" but not "always uses four", which is the case that
-/// otherwise leaves the sidebar offering a value the engine overrides.
+/// Each option distinguishes three states because "supported" and "has one fixed
+/// value" lead to different controls: an unsupported option shows no value, a
+/// pinned one is shown disabled so its effective value is visible, and an editable
+/// one is shown with its bounds.
 nonisolated struct OptionConstraints: Sendable {
     /// A plain `Bool` because there is nothing to constrain here but presence —
     /// a negative prompt is free text or it is not accepted at all.

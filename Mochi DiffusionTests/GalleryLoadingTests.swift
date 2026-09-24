@@ -9,12 +9,8 @@ import UniformTypeIdentifiers
 
 @testable import Mochi_Diffusion
 
-/// Gallery loading, into a gallery this suite owns.
-///
-/// Not possible before `GalleryController` took an injected `ImageGallery`:
-/// `loadImages()` calls `replaceAll`, which against `ImageGallery.shared` would
-/// have replaced the contents of the gallery the app is showing — and would have
-/// raced any other suite doing the same.
+/// Gallery loading, into a gallery each test owns. `loadImages()` replaces the
+/// gallery's whole contents, so a shared gallery would race other suites.
 @MainActor
 struct GalleryLoadingTests {
     let temp: TempDirectory
@@ -69,8 +65,6 @@ struct GalleryLoadingTests {
         controller.shutdown()
     }
 
-    /// The reason the injection was worth doing: two controllers loading at once
-    /// touch only their own gallery.
     @Test("Two galleries do not see each other's contents")
     func galleriesAreIndependent() async throws {
         try writeImportableImage(named: "one.png", prompt: "a cat")
@@ -99,10 +93,8 @@ struct GalleryLoadingTests {
         controller.shutdown()
     }
 
-    /// The point of the whole exercise: a gallery image is not decoded at load.
-    ///
-    /// A decoded 1024x1024 image is about 4 MB, so holding one per entry made a large
-    /// gallery cost gigabytes for pictures drawn a couple of hundred points wide.
+    /// A decoded 1024x1024 image is about 4 MB, so gallery images are not decoded
+    /// at load.
     @Test("A loaded image carries no decoded pixels, but knows its size")
     func loadedImagesAreNotDecoded() async throws {
         try writePNG(
@@ -170,8 +162,8 @@ struct GalleryLoadingTests {
         #expect(gallery.image(named: "missing.png") == nil)
     }
 
-    /// Save As, Save All and Copy all go through `imageData`, and would each have
-    /// silently produced nothing once gallery images stopped being decoded.
+    /// Save As, Save All and Copy all go through `imageData`, and gallery images
+    /// loaded from disk have no resident pixels.
     @Test("Re-encoding loads the file when no pixels are resident")
     func imageDataLoadsFromDisk() async throws {
         let url = imageDir.appending(path: "one.png")
@@ -199,8 +191,6 @@ struct GalleryLoadingTests {
         #expect(await sdi.imageData(.png) == nil)
     }
 
-    /// The half of Finder tagging that needed a gallery to talk to, which is why it
-    /// moved off a free function and onto the controller.
     @Test("Setting a Finder tag updates the gallery's copy")
     func finderTagUpdatesTheGallery() async throws {
         try writeImportableImage(named: "one.png", prompt: "a cat")
@@ -217,15 +207,9 @@ struct GalleryLoadingTests {
         controller.shutdown()
     }
 
-    /// The user-facing half of the cache-consistency defect, from the controller
-    /// down.
-    ///
-    /// Deleting an image and putting different pixels at the same path is
-    /// reachable without leaving the app: `removeImage` unlinks the file, and an
-    /// import then succeeds where it would otherwise have refused to overwrite.
-    /// Both caches key on path, so without invalidation the grid drew the deleted
-    /// image under the new one's name — and `GalleryFullImageProvider` handed the
-    /// same stale pixels to export and to generation input.
+    /// Cache consistency from the controller down. `removeImage` unlinks the file,
+    /// so a later import can put different pixels at the same path, and both caches
+    /// key on path.
     ///
     /// The import itself is behind an `NSOpenPanel`, so this drives the delete and
     /// writes the replacement directly, which is the same sequence of effects on

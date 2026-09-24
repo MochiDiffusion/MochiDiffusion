@@ -211,5 +211,3 @@ The multi-engine foundation is implemented. Current ownership and contracts foll
   - Support: `ControlNetLinkTests`.
   - Fixtures are synthetic directories containing only the files the production sniffing
     code inspects, so no real model weights are required.
-  - There are no `withKnownIssue` tests: the two defects that used one — prompt truncation
-    on import, and an unreachable Iris fallback name — are fixed.

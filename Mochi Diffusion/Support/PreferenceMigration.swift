@@ -5,18 +5,15 @@
 
 import Foundation
 
-/// One-time migration of the pre-multi-engine selected-model preference.
+/// One-time migration of the legacy selected-model preference.
 ///
-/// Before engines existed, the selection was an absolute `URL` under the models
-/// directory. It is now a `ModelID`: an engine plus the model directory's name.
-/// The engine is not recoverable from the URL, so it has to be recovered some
-/// other way.
+/// The legacy selection is an absolute `URL` under the models directory; the
+/// current one is a `ModelID`, an engine plus the model directory's name. The URL
+/// does not name an engine.
 ///
-/// It is recovered by matching against the models discovery actually found, not
-/// by re-running recognition. Calling the model initialisers would tie the outcome
-/// to live recognition rules, so relaxing them later would change which engine a
-/// legacy URL migrates to — and users upgrade at different times, so identical
-/// preferences would migrate differently.
+/// The engine is recovered by matching against the models discovery found, not by
+/// re-running recognition, so later changes to recognition rules cannot change
+/// which engine a legacy URL migrates to.
 ///
 /// Deciding and persisting are separate, so the decision is a pure function.
 /// `ConfigStore.migrateSelectedModelIfNeeded(discovered:)` applies it.

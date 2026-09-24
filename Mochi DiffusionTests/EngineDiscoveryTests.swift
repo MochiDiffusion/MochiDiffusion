@@ -49,8 +49,7 @@ struct EngineDiscoveryTests {
         #expect(iris.map(\.name) == ["klein-model"])
     }
 
-    /// The point of engine-qualified identity. The old loader picked one kind and
-    /// discarded the other; both are now offered, and the user chooses.
+    /// The point of engine-qualified identity: neither engine claims the directory.
     @Test("A directory both engines recognise is offered by both, under distinct ids")
     func sharedDirectoryIsOfferedByBothEngines() async throws {
         let ambiguous = modelDir.appending(path: "ambiguous")
@@ -100,11 +99,9 @@ struct EngineDiscoveryTests {
 
     // MARK: - Core ML specifics stay in the Core ML engine
 
-    /// Discovery used to drop a `controlnet` symlink into every capable model
-    /// directory, which meant writing to the user's models folder from a read
-    /// path on every folder-change event. The link is still needed — the Apple
-    /// pipeline resolves bundles relative to the model — but `CoreMLEngineRuntime`
-    /// now creates it when it is about to load a ControlNet pipeline.
+    /// The Apple pipeline resolves ControlNet bundles relative to the model, so a
+    /// `controlnet` link is needed, but `CoreMLEngineRuntime` creates it only when
+    /// it is about to load a ControlNet pipeline. Discovery is read-only.
     @Test("Discovery does not write into the models folder")
     func discoveryDoesNotWrite() async throws {
         let modelURL = modelDir.appending(path: "controlled-model")
@@ -297,8 +294,7 @@ struct EngineRegistryTests {
     }
 
     /// Stands in for a hosted engine: it has models, and it never looks at the
-    /// models folder. Its `url` is a placeholder because `EngineModel.url` is not
-    /// optional yet — which is itself a Phase 6 prerequisite.
+    /// models folder. Its `url` is a placeholder.
     private struct FolderIgnoringEngine: GenerationEngineDescriptor {
         struct Model: EngineModel {
             let id: ModelID
@@ -413,8 +409,6 @@ struct EngineRegistryTests {
         #expect(registry.engine(.openAI) != nil)
     }
 
-    /// The behaviour the old loader could not express: it threw one error for the
-    /// whole load, so any engine's problem emptied the list.
     @Test("One engine failing does not erase another engine's models")
     func failureIsIsolated() async throws {
         try makeSDModelFixture(at: modelDir.appending(path: "coreml-model"))
@@ -439,8 +433,6 @@ struct EngineRegistryTests {
         let discoveries = await registry.discoverAll(settings: settings)
 
         #expect(discoveries.allModels.isEmpty)
-        // Both local engines fail on an unreadable folder; the hosted engine
-        // never touches it, which is why it is not counted here.
         #expect(discoveries.failures.count == 2)
     }
 
@@ -500,8 +492,6 @@ struct EngineRegistryTests {
 
         let models = await EngineRegistry().discoverAll(settings: settings).allModels
 
-        // Both, not one. This is what `kleinTakesPrecedenceOverCoreML` used to
-        // assert the opposite of.
         #expect(models.count == 2)
     }
 }

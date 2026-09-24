@@ -34,8 +34,7 @@ nonisolated struct IrisFluxKleinModel: EngineModel {
     /// sends Klein down `iris_sample_euler_flux` with no unconditioned pass, and
     /// 1.0 is the scale at which the CFG formula `v_uncond + g * (v_cond -
     /// v_uncond)` reduces to `v_cond`. It is also what Iris itself resolves for a
-    /// distilled model, and what Mochi has always written into the metadata of a
-    /// Klein image, so showing it agrees with both.
+    /// distilled model.
     static let distilledGuidanceScale = 1.0
 
     static let metadataFields: Set<MetadataField> = [
@@ -48,9 +47,7 @@ nonisolated struct IrisFluxKleinModel: EngineModel {
         .scheduler,
         .seed,
         .steps,
-        // Recorded for the same reason it is shown in the sidebar: the runtime
-        // has always written 1.0 here, and omitting the field left the inspector
-        // silent about a value the model genuinely ran at.
+        // Pinned rather than absent, so the value the model ran at is recorded.
         .guidanceScale,
     ]
 

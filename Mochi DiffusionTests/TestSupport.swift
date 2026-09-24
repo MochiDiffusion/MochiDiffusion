@@ -185,14 +185,11 @@ nonisolated func makeKleinModelFixture(
 
 /// Builds a `GenerationController` with a gallery and a queue of its own.
 ///
-/// `GenerationController.init` requires both on purpose: there is no
-/// `ImageGallery.shared` any more, so a default would have to be a *fresh* gallery,
-/// and a production call site that forgot to pass one would silently generate into a
-/// gallery nobody is showing. Making it required means the compiler asks.
+/// `GenerationController.init` requires both on purpose: a default would have to
+/// be a fresh gallery, and a production call site that forgot to pass one would
+/// generate into a gallery nobody is showing.
 ///
-/// Tests almost always want throwaway instances, so they ask here instead of
-/// repeating the pair at every call site — and each test getting its own of both is
-/// what lets these suites run in parallel.
+/// Each test getting its own of both is what lets these suites run in parallel.
 @MainActor
 func makeTestGenerationController(
     configStore: ConfigStore,

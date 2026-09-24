@@ -33,8 +33,7 @@ nonisolated enum SettingsDirectory {
 
 struct SettingsView: View {
     @Environment(ConfigStore.self) private var configStore: ConfigStore
-    // Preserved for the dormant engine settings surface. The stable Settings
-    // tabs do not instantiate or render its API-key row.
+    // Used only by the per-engine settings, which no tab currently shows.
     private let secrets = KeychainSecretStore()
     private let credentialCheck = OpenAICredentialCheck()
     private let logger = Logger()
@@ -391,20 +390,14 @@ struct SettingsView: View {
         }
     }
 
-    /// The dormant beta settings surface. It remains compiled, but no stable
-    /// Settings tab renders it.
+    /// Per-engine settings. No Settings tab currently shows this.
     ///
     /// `ControlNetDir`, `ReduceMemory`, `MLComputeUnitPreference` and
-    /// `SafetyChecker` used to sit in General and Image, presented as global while
-    /// only ever affecting Core ML Stable Diffusion. Iris ignores all four, so a
-    /// user changing them saw no effect and no reason why.
+    /// `SafetyChecker` affect only Core ML Stable Diffusion, so they are shown under
+    /// that engine. The safety checker is a `StableDiffusionPipeline` module rather
+    /// than a model capability.
     ///
-    /// The safety checker is a `StableDiffusionPipeline` module, which is why it
-    /// belongs here rather than being a model capability: nothing outside Core ML
-    /// has one to enable.
-    ///
-    /// The models folder stays global: one shared folder is a settled decision, so
-    /// there is no per-engine path to show here.
+    /// The engines share one models folder, so there is no per-engine path here.
     @ViewBuilder
     private var enginesView: some View {
         ScrollView {
@@ -423,8 +416,8 @@ struct SettingsView: View {
     ///
     /// A `switch` rather than something the engine itself supplies: a settings pane
     /// is a view, and `GenerationEngineDescriptor` is deliberately free of SwiftUI.
-    /// An engine with nothing to configure — Iris today — says so, so its section
-    /// does not read as a rendering failure.
+    /// An engine with nothing to configure says so, so its section does not read
+    /// as a rendering failure.
     @ViewBuilder
     private func settings(for engine: EngineID) -> some View {
         @Bindable var configStore = configStore
@@ -757,8 +750,8 @@ struct SettingsView: View {
                     if notificationController.sendNotification,
                         notificationController.authStatus != .authorized
                     {
-                        // on iOS there is `openNotificationSettingsURLString` but for macOS,
-                        // seems like we need to manually call this here.
+                        // macOS has no `openNotificationSettingsURLString`, so the
+                        // Notifications settings URL is built by hand.
                         Link(
                             destination: URL(
                                 string:

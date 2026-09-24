@@ -71,9 +71,8 @@ struct SizeView: View {
     /// engine has a model for the flipped orientation. A fixed-size model with no
     /// sibling has nothing to swap to.
     ///
-    /// Disables the button rather than removing it. The two fields keep their
-    /// positions across every model that way — a button that came and went moved
-    /// them relative to each other and to the sidebar's edges.
+    /// Disables the button rather than removing it, so the two fields keep their
+    /// positions across every model.
     private var canSwap: Bool {
         controller.canSetSize(width: Int(resolvedSize.height), height: Int(resolvedSize.width))
     }

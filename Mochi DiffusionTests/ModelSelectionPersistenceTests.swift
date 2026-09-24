@@ -59,7 +59,7 @@ struct ModelSelectionPersistenceTests {
         )
     }
 
-    /// The preserved beta list with a key already stored, so the hosted engine is
+    /// The `openAIBeta` engine list with a key already stored, so the hosted engine is
     /// `.ready` and can become the fallback.
     private func makeKeyedBetaController(
         imageGallery: ImageGallery = ImageGallery()
@@ -76,7 +76,7 @@ struct ModelSelectionPersistenceTests {
         )
     }
 
-    /// The preserved beta list, whose hosted engine has no key in a test.
+    /// The `openAIBeta` engine list, whose hosted engine has no key in a test.
     private func makeBetaController() -> GenerationController {
         makeTestGenerationController(
             configStore: configStore,
@@ -89,8 +89,7 @@ struct ModelSelectionPersistenceTests {
     }
 
     /// Writes an engine-scoped selection the way a previous launch would have,
-    /// so a test starts from Phase 5 state rather than relying on the Phase 2
-    /// migration to produce it.
+    /// so a test does not rely on the migrations to produce it.
     private func seedSelection(_ id: ModelID) {
         tempDefaults.defaults.set(
             id.engine.rawValue, forKey: EngineSettingsStore.Key.selectedEngine)
@@ -100,18 +99,14 @@ struct ModelSelectionPersistenceTests {
         )
     }
 
-    /// The per-engine copy of the live selection, preserved for the future
-    /// explicit-engine surface alongside `ConfigStore.selectedModel`.
+    /// The per-engine copy of the live selection, kept alongside
+    /// `ConfigStore.selectedModel`.
     private func persistedSelection(_ controller: GenerationController) -> ModelID? {
         guard let engine = controller.engineSettings.selectedEngine else { return nil }
         return controller.engineSettings.selectedModel(for: engine)
     }
 
-    /// The message the app is showing, or `nil` if it is not in an error state.
-    /// `GenerationState` is a singleton, hence `.serialized` on this suite.
-    /// Discovery problems are the controller's own message now, not the
-    /// generation status. Routing them through the status meant a folder problem
-    /// and a generation error shared one banner and overwrote each other.
+    /// The discovery message the app is showing, or `nil` if there is none.
     private func discoveryMessage(_ controller: GenerationController) -> String? {
         controller.discoveryMessage
     }
@@ -150,11 +145,8 @@ struct ModelSelectionPersistenceTests {
         #expect(controller.currentModel?.name == "b-model")
     }
 
-    /// A key is the model directory's own name, so there is only one spelling of it
-    /// to get wrong. Identifying a model by the exact `URL` that
-    /// `contentsOfDirectory` returned — symlinks resolved, trailing slash — matched
-    /// by plain equality instead means any other spelling of the same directory
-    /// misses, and the user silently gets the first model rather than theirs.
+    /// A key is the model directory's own name, so it does not depend on how the
+    /// models directory's path is spelled.
     @Test("A selection is restored however the models directory is spelled")
     func selectionIsIndependentOfPathSpelling() async throws {
         try makeTwoModels()
@@ -235,9 +227,8 @@ struct ModelSelectionPersistenceTests {
 
     // MARK: - Failure paths
 
-    /// The persisted choice deliberately survives a failed pass. Wiping it would
-    /// now discard the engine as well as the model, and a models folder that is
-    /// briefly unavailable should not cost the user either.
+    /// The persisted choice survives a failed pass, so a models folder that is
+    /// briefly unavailable does not cost the user their selection.
     @Test("An empty model directory clears the live selection but keeps the persisted one")
     func emptyDirectoryClearsLiveSelectionOnly() async throws {
         seedSelection(ModelID(engine: .coreMLStableDiffusion, key: "gone"))
@@ -270,8 +261,6 @@ struct ModelSelectionPersistenceTests {
         #expect(!message.contains("No models found"))
     }
 
-    /// Copying an image's options used to drop quality, so regenerating an OpenAI
-    /// image reused whatever the sidebar happened to have.
     @Test(
         "Copying an image restores a recognised quality and leaves an unknown one",
         arguments: [("high", ImageQuality.high), ("ultra", ImageQuality.low)]
@@ -303,24 +292,19 @@ struct ModelSelectionPersistenceTests {
         #expect(configStore.quality == expected)
     }
 
-    /// A ready hosted engine used to be able to end the Phase 2 migration without
-    /// performing it. `restoreSelection` persists a fallback engine, and the
-    /// migration read "some engine is selected" as "this has already run" — so a
-    /// legacy selection whose model was temporarily missing was never recovered.
-    ///
-    /// The migration deliberately retries across passes, and only its own result
-    /// may end that.
+    /// `restoreSelection` persists a fallback engine, which must not end the
+    /// legacy migration: it retries across passes until its own result ends it,
+    /// so a legacy model that was temporarily missing is still recovered.
     @Test("A hosted fallback does not strand the legacy selection")
     func hostedFallbackDoesNotStrandTheLegacyMigration() async throws {
-        // A pre-engine selection whose model is not there yet.
+        // A legacy selection whose model is not there yet.
         let legacy = modelDir.appending(path: "a-model")
         tempDefaults.defaults.set(legacy, forKey: ConfigStore.Key.legacyModelId)
 
         let controller = makeKeyedBetaController()
         await controller.loadModels()
 
-        // The hosted engine is the only usable one, so it became the fallback —
-        // which is what used to claim the migration was finished.
+        // The hosted engine is the only usable one, so it became the fallback.
         #expect(controller.selectedEngine == .openAI)
         #expect(controller.configStore.selectedModel?.engine == .openAI)
 
@@ -341,11 +325,9 @@ struct ModelSelectionPersistenceTests {
         #expect(controller.currentModelId?.key == "a-model")
     }
 
-    /// The reason registering a hosted engine needed care. It always has a model,
-    /// so an empty local folder no longer means an empty combined list — and
-    /// because assigning `currentModelId` persists it, auto-selecting an engine
-    /// with no API key would overwrite the user's choice and not give it back when
-    /// their folder returned.
+    /// A hosted engine always has a model, and assigning `currentModelId` persists
+    /// it, so auto-selecting one with no API key would overwrite the user's choice
+    /// while their models folder is empty.
     @Test("A hosted engine with no key is never auto-selected")
     func hostedEngineIsNotAutoSelected() async throws {
         seedSelection(ModelID(engine: .coreMLStableDiffusion, key: "gone"))
@@ -408,9 +390,8 @@ struct ModelSelectionPersistenceTests {
         try FileManager.default.removeItem(at: modelDir)
         await controller.loadModels()
 
-        // The models list used to be left stale, showing models that were gone.
-        // It is now emptied, and the persisted choice is what survives instead —
-        // so restoring the folder restores the selection.
+        // The list is emptied, and the persisted choice survives, so restoring
+        // the folder restores the selection.
         #expect(controller.models.isEmpty)
         #expect(controller.currentModelId == nil)
         #expect(persistedSelection(controller) == chosen)

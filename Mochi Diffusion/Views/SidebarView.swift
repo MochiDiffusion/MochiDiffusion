@@ -12,10 +12,8 @@ struct SidebarView: View {
     @Environment(GenerationController.self) private var controller: GenerationController
 
     /// With the "Always show" scrollbar setting, the scroller occupies a real gutter, but only
-    /// while the content overflows. The sidebar crosses that threshold whenever a section is
-    /// added or removed, which reflows every control inside it. Reserving the gutter at all
-    /// times keeps the content width constant. Overlay scrollers take no space, so the gutter
-    /// is zero for them and nothing changes.
+    /// while the content overflows. Reserving the gutter at all times keeps the content width
+    /// constant. Overlay scrollers take no space, so `scrollerGutter` is zero and nothing changes.
     @State private var scrollerStyle = NSScroller.preferredScrollerStyle
 
     private var scrollerGutter: CGFloat {
@@ -36,13 +34,6 @@ struct SidebarView: View {
                         ModelView()
                         Spacer().frame(height: 6)
                     }
-                    // Steps, number of images and guidance scale are always
-                    // shown. Each renders a disabled placeholder for a value the
-                    // model pins or does not have, so gating them here would drop
-                    // the row the placeholder exists to hold open and move every
-                    // control below it. The image sections below are still gated:
-                    // they are whole features rather than one value, and there is
-                    // nothing meaningful to show in place of an absent image well.
                     Group {
                         SizeView()
                         Spacer().frame(height: 6)

@@ -26,9 +26,8 @@ struct OptionConstraintsTests {
         #expect(!IntConstraint.unsupported.isEditable)
     }
 
-    /// The case that made the old capability flags insufficient: the sidebar
-    /// offered an editable step count, the generator used four, and the saved
-    /// metadata then disagreed with what was on screen.
+    /// A distilled model always uses four steps, so the sidebar, the generator and
+    /// the saved metadata must all agree on four.
     @Test("A pinned option ignores what was requested", arguments: [1, 4, 20, 999])
     func pinnedIntIgnoresRequest(requested: Int) {
         #expect(IntConstraint.pinned(4).resolved(requested) == 4)
@@ -52,9 +51,9 @@ struct OptionConstraintsTests {
         #expect(IntConstraint.range(64...1_792, step: 16).resolved(requested) == expected)
     }
 
-    /// The released step and image-count sliders pass `strictUpperBound: false`,
-    /// so a typed value above the span is kept. A constraint that clamped to the
-    /// span would show 75 steps and generate 50.
+    /// The step and image-count sliders pass `strictUpperBound: false`, so a
+    /// typed value above the span is kept. A constraint that clamped to the span
+    /// would show 75 steps and generate 50.
     @Test(
         "A value above the span is kept when the control allows it",
         arguments: [(51, 51), (75, 75), (1_000, 1_000), (0, 1)]
@@ -158,7 +157,7 @@ struct OptionConstraintsTests {
 
     /// The shape a hosted model needs: an arbitrary size on a 16px grid, but
     /// capped in elongation and in total pixels. Numbers follow the OpenAI image
-    /// API (§13.2, D1 of `Multi-Engine-Design.md`).
+    /// API.
     private static let hosted = SizeConstraint.freeform(
         range: 512...3_840,
         step: 16,
@@ -313,9 +312,8 @@ struct OptionConstraintsTests {
         #expect(klein.constraints.quality.resolved(.high) == nil)
     }
 
-    /// Raw values reach the wire and the image metadata, so they are pinned. §6
-    /// learned with `Scheduler` what it costs to let a display string double as a
-    /// persisted identifier.
+    /// Raw values reach the wire and the image metadata, so they are pinned, and
+    /// kept separate from display strings.
     @Test("Quality identifiers are stable and distinct from their labels")
     func qualityIdentifiersAreStable() {
         #expect(ImageQuality.auto.rawValue == "auto")
@@ -331,8 +329,7 @@ struct OptionConstraintsTests {
 
     /// The forward-compatibility rule. An image written by a later build naming a
     /// quality this one does not have must leave the sidebar alone rather than be
-    /// read as `auto` — that would show a value the image never used, which is the
-    /// scheduler import defect in a new place.
+    /// read as `auto`, which would show a value the image never used.
     @Test(
         "Only a recognised recorded quality is read back",
         arguments: [
@@ -405,12 +402,10 @@ struct OptionConstraintsTests {
         #expect(supported.strength.resolved(0.5) == 0.5)
     }
 
-    /// The two are independent, so all four combinations are expressible. Draw
-    /// Things does img2img and moodboard conditioning at once, which an enum with a
-    /// case per kind could not say.
+    /// The two are independent, so all four combinations are expressible.
     @Test("A starting image and input images are declared separately")
     func startingImageAndInputImagesAreIndependent() {
-        // Both at once, which the previous single-enum shape could not express.
+        // Both at once.
         let both = OptionConstraints.unconstrained
         #expect(both.startingImage.isSupported)
         #expect(both.inputImages.isSupported)
@@ -639,7 +634,7 @@ struct ModelVisibilityTests {
 
         #expect(constraints.supportsNegativePrompt)
         #expect(constraints.steps.bounds == 1...50)
-        // Both released sliders let a typed value past their maximum.
+        // Both sliders let a typed value past their maximum.
         #expect(constraints.steps.allowsValuesAboveBounds)
         #expect(constraints.numberOfImages.allowsValuesAboveBounds)
         #expect(constraints.steps.resolved(75) == 75)

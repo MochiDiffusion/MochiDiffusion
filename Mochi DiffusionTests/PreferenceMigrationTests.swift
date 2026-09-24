@@ -49,10 +49,9 @@ struct PreferenceMigrationTests {
         #expect(outcome == .migrated(ModelID(engine: .iris, key: "klein-model")))
     }
 
-    /// Once engines discover independently, a directory both recognise yields two
-    /// models with the same key. The tiebreak reproduces the sniff order
-    /// `ModelRepository.load` used when the legacy preference was written — Klein
-    /// first — because that is what the user was actually looking at.
+    /// A directory both engines recognise yields two models with the same key. The
+    /// tiebreak reproduces the sniff order in use when the legacy preference was
+    /// written — Klein first — because that is what the user was looking at.
     @Test("A key both engines expose follows the order the old app read them in")
     func ambiguousKeyFollowsTheOldSniffOrder() {
         let outcome = PreferenceMigration.selectedModel(

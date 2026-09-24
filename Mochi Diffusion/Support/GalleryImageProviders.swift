@@ -63,14 +63,10 @@ nonisolated final class GalleryCacheGenerations: @unchecked Sendable {
 /// Downsampled thumbnails for the gallery grid, read from disk rather than from a
 /// decoded image in memory.
 ///
-/// The gallery used to hold a full-size `CGImage` for every entry. A decoded
-/// 1024x1024 image is about 4 MB, so a few hundred images was gigabytes resident
-/// for pictures rendered a couple of hundred points wide.
-///
-/// Two things keep that from being traded for churn. The `NSCache` lets the system
-/// evict under pressure rather than growing without bound, and `inFlightRequests`
-/// coalesces concurrent asks for the same path and size — scrolling produces a burst
-/// of identical requests, and without it each would decode its own copy.
+/// A decoded 1024x1024 image is about 4 MB, so gallery entries do not hold
+/// full-size pixels. The `NSCache` lets the system evict under pressure, and
+/// `inFlightRequests` coalesces concurrent asks for the same path and size, since
+/// scrolling produces bursts of identical requests.
 actor GalleryThumbnailProvider {
     /// `NSCache` needs a class, and `CGImage` is not one.
     ///
@@ -131,14 +127,12 @@ actor GalleryThumbnailProvider {
 
     /// What is already cached, read synchronously.
     ///
-    /// A `LazyVGrid` cell scrolled or resized out of the render window is destroyed
-    /// and rebuilt with fresh `@State`, losing the thumbnail it was showing. Going
-    /// back through the actor costs an `await` even when the image is resident, and
-    /// that suspension is long enough to paint a `ProgressView` — the blanking seen
-    /// along the bottom edge of the gallery during a window resize. Reading the
-    /// cache directly lets a recycled cell draw its image in the same layout pass.
+    /// A `LazyVGrid` cell scrolled or resized out of the render window is rebuilt
+    /// with fresh `@State`, losing its thumbnail. Going through the actor costs an
+    /// `await` long enough to paint a `ProgressView`, so this lets a rebuilt cell
+    /// draw a cached image in the same layout pass.
     ///
-    /// Returns nil on a miss; the asynchronous path is unchanged and still loads.
+    /// Returns nil on a miss; the caller then loads through `thumbnail(for:maxPixelSize:)`.
     nonisolated func cachedThumbnail(for path: String, maxPixelSize: Int) -> CGImage? {
         guard !path.isEmpty, maxPixelSize > 0 else { return nil }
         let key = cacheKey(for: path, maxPixelSize: maxPixelSize)

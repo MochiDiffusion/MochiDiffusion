@@ -207,8 +207,8 @@ struct OpenAIRuntimeTests {
         #expect(await classify(429, body: body) as? GenerationError == .insufficientQuota)
     }
 
-    /// The distinction D5 is about: the call succeeded and the service declined,
-    /// so this must not read as a malfunction.
+    /// The call succeeded and the service declined, so this must not read as a
+    /// malfunction.
     @Test(
         "A content-policy decline is a refusal, carrying what the service said",
         arguments: [
@@ -272,7 +272,7 @@ struct OpenAIRuntimeTests {
         #expect(body["prompt"] as? String == "a cat")
         #expect(body["size"] as? String == "1024x1024")
         #expect(body["output_format"] as? String == "png")
-        // One image per call, so the loop count never becomes the API's `n` (D6).
+        // One image per call, so the loop count never becomes the API's `n`.
         #expect(body["n"] as? Int == 1)
         #expect(body["stream"] as? Bool == true)
         #expect(body["partial_images"] as? Int == 3)
@@ -450,8 +450,8 @@ struct OpenAIRuntimeTests {
         }
     }
 
-    /// D6's reason for one call per image: cancelling after the second of five
-    /// should cost two images, not five.
+    /// One call per image, so cancelling after the second of five costs two
+    /// images, not five.
     @Test("Each image is a separate request")
     func oneRequestPerImage() async throws {
         let http = CountingHTTPSession(body: [completed])
@@ -497,10 +497,9 @@ struct OpenAIRuntimeTests {
 
     // MARK: - Interrupting a suspended request
 
-    /// The P1 this suite missed. A network call suspends — on response headers,
-    /// then on the next line — so polling `isCancelled` never runs, and neither a
-    /// user cancelling nor the watchdog expiring would be noticed. The request
-    /// would hold the serial queue for good and keep a billable call open.
+    /// A network call suspends — on response headers, then on the next line — so
+    /// polling `isCancelled` never runs. Cancellation has to interrupt the
+    /// suspension, or the request would hold the serial queue indefinitely.
     @Test(
         "Cancelling interrupts a request suspended on the network",
         .timeLimit(.minutes(1)),
@@ -524,8 +523,7 @@ struct OpenAIRuntimeTests {
 
         generationSession.cancel()
 
-        // Returns rather than hanging. Without the fix this awaits until the
-        // suite's time limit kills it.
+        // Returns rather than hanging until the time limit.
         try await run.value
         #expect(await results.all.isEmpty)
         // Reaching the network, not just unblocking the caller: a cancelled
@@ -576,9 +574,9 @@ struct OpenAIRuntimeTests {
 
     // MARK: - Timeout policy
 
-    /// The other P1. With no partial images there are no intermediate events, so a
-    /// 60-second *idle* bound silently becomes a 60-second *total* one and kills a
-    /// slow-but-healthy generation, discarding the image it was about to return.
+    /// With no partial images there are no intermediate events, so a 60-second
+    /// *idle* bound would become a 60-second *total* one and kill a slow but
+    /// healthy generation.
     @Test("The bound is idle when there is a heartbeat and total when there is not")
     func timeoutPolicyDependsOnTheRequest() {
         let runtime = runtime(session: FakeHTTPSession())
@@ -592,7 +590,7 @@ struct OpenAIRuntimeTests {
         #expect(notStreaming! > streaming!)
     }
 
-    /// §13.1 asks the UI not to imply a cancel is free when it is not.
+    /// The UI must not imply a cancel is free when it is not.
     @Test("A hosted runtime says its work may still be billed; a local one does not")
     func billingHonesty() {
         #expect(runtime(session: FakeHTTPSession()).cancellationMayLeaveWorkBilled)
@@ -671,11 +669,9 @@ struct OpenAIRuntimeTests {
 /// A transport that never answers, in the two ways it can fail to: no response
 /// headers, and headers followed by a stream that yields nothing.
 ///
-/// The gap these cover is the one a cooperative fake hides. `StallingRuntime` in
-/// `IdleTimeoutTests` polls `isCancelled` in a sleep loop, so it proved the queue
-/// releases its drain on expiry while never showing whether a *real* runtime can
-/// be interrupted at all — and the hosted one could not: it suspends on the
-/// network, where polling never runs.
+/// Unlike `StallingRuntime` in `IdleTimeoutTests`, which polls `isCancelled`,
+/// this exercises the real hosted runtime while it is suspended on the network,
+/// where polling never runs.
 nonisolated final class HangingHTTPSession: HTTPSession, @unchecked Sendable {
     enum Mode: Sendable {
         /// Never returns response headers.

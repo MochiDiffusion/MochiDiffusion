@@ -91,9 +91,8 @@ nonisolated func finderTagColorNumberToString(_ tagColorNumber: Int) -> String {
 
 /// Writes a Finder label onto the file. Zero clears every tag.
 ///
-/// Only the filesystem half. Telling the gallery lives on
-/// `GalleryController.setFinderTagColorNumber(_:colorNumber:)`, which has the
-/// gallery to tell — this used to reach for the singleton from a free function.
+/// Only the filesystem half; `GalleryController.setFinderTagColorNumber(_:colorNumber:)`
+/// also updates the gallery.
 nonisolated func writeFinderTagColorNumber(_ path: String, colorNumber: Int) {
     var url = URL(fileURLWithPath: path)
     var rv = URLResourceValues()
@@ -172,9 +171,8 @@ nonisolated func createImageRecordFromURL(_ url: URL) -> ImageRecord? {
     let finderTagColorNumber = getFinderTagColorNumber(url)
 
     guard let dateModified = maybeDateModified else { return nil }
-    // From the URL, not from bytes read into memory. Only the properties are wanted
-    // here, and reading the whole file to get them cost a full copy per gallery
-    // image on every load.
+    // From the URL rather than bytes read into memory: only the properties are
+    // wanted, so the file is not read in full.
     guard let cgImageSource = CGImageSourceCreateWithURL(url as CFURL, nil) else { return nil }
     guard let properties = CGImageSourceCopyPropertiesAtIndex(cgImageSource, 0, nil) else {
         return nil

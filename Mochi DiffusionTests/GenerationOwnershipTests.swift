@@ -13,13 +13,9 @@ import Testing
 ///
 /// Results and progress events travel on separate channels — results need
 /// back-pressure, previews do not — so nothing orders a result against the next
-/// request's first preview. Clearing the preview used to be unconditional, so a
-/// result applied late erased a preview belonging to a generation still running.
+/// request's first preview.
 ///
-/// `.serialized` because `ImageGallery` is a main-actor singleton.
-/// No longer `.serialized`: each test gets its own gallery, so these cannot see
-/// each other's preview state. They shared `ImageGallery.shared` before, which is
-/// what made serialisation necessary.
+/// Each test gets its own gallery, so these need no serialization.
 @MainActor
 struct PreviewOwnershipTests {
     private let first = UUID()
@@ -37,8 +33,8 @@ struct PreviewOwnershipTests {
         #expect(gallery.currentGeneratingImage == nil)
     }
 
-    /// The defect. A finished request's teardown must not erase the preview of the
-    /// one that has already started.
+    /// A finished request's teardown must not erase the preview of the one that
+    /// has already started.
     @Test("A clear from another request leaves the preview alone")
     func clearFromAnotherRequestIsIgnored() {
         gallery.setCurrentGenerating(image: makeCGImage(), owner: second)
@@ -48,8 +44,8 @@ struct PreviewOwnershipTests {
         #expect(gallery.currentGeneratingImage != nil)
     }
 
-    /// The full ordering the bug needed: the next request takes the slot, and only
-    /// then does the previous request's result get applied.
+    /// The next request takes the slot, and only then is the previous request's
+    /// result applied.
     @Test("A late result cannot erase the next request's preview")
     func lateResultDoesNotEraseNextPreview() {
         gallery.setCurrentGenerating(image: makeCGImage(), owner: first)
@@ -86,10 +82,9 @@ struct PreviewOwnershipTests {
 
 /// Pins that a request cancelled while queued does not pay for a model load.
 ///
-/// Waiting for the Iris lease is unbounded — it lasts as long as the generation
-/// ahead of it — so a request cancelled during that wait used to take its turn and
-/// run `iris_metal_init` and `iris_load_dir` before reaching the first cancellation
-/// check, holding the process-global lease against work that was still wanted.
+/// Waiting for the Iris lease lasts as long as the generation ahead, so a request
+/// cancelled during that wait must not go on to `iris_metal_init` and
+/// `iris_load_dir`.
 ///
 /// `.serialized` because both tests take `IrisSingleFlight.shared`, and one asserts
 /// the lease is free afterwards. Run in parallel they race against each other.

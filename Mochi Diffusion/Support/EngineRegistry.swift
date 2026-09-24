@@ -12,7 +12,7 @@ import os
 /// separately, so a missing folder or an absent API key cannot empty the model list
 /// for everything else.
 actor EngineRegistry {
-    /// The engines in the stable release, in registration order. That order decides
+    /// The engines the app ships with, in registration order. That order decides
     /// only where an engine appears in a list — never which engine owns a model,
     /// and never whether a model is valid.
     static var shipped: [AnyGenerationEngine] {
@@ -22,10 +22,11 @@ actor EngineRegistry {
         ]
     }
 
-    /// The preserved hosted-generation composition for a future experimental beta.
+    /// The shipped engines plus hosted OpenAI generation, which the app does not
+    /// currently register.
     ///
-    /// Keeping the opt-in here makes restoring the beta a composition-root change;
-    /// the stable app cannot reach a credential store or hosted runtime accidentally.
+    /// Hosted generation is opt-in at the composition root, so the default
+    /// registry cannot reach a credential store or hosted runtime.
     static func openAIBeta(
         secrets: any SecretStore,
         fileSystem: FileSystemStore = FileSystemStore()
@@ -58,7 +59,7 @@ actor EngineRegistry {
         self.fileSystem = fileSystem
     }
 
-    /// The stable release engine list. Hosted generation must be opted into through
+    /// The shipped engine list. Hosted generation must be opted into through
     /// `openAIBeta(secrets:fileSystem:)`.
     init(fileSystem: FileSystemStore = FileSystemStore()) {
         self.init(engines: EngineRegistry.shipped, fileSystem: fileSystem)
@@ -69,7 +70,7 @@ actor EngineRegistry {
     }
 
     /// Every engine, in registration order, including ones that are unconfigured or
-    /// have no models. Preserved for the dormant explicit-engine beta surface.
+    /// have no models.
     nonisolated var allEngines: [AnyGenerationEngine] {
         engines
     }

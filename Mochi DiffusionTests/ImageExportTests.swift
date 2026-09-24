@@ -11,10 +11,8 @@ import UniformTypeIdentifiers
 
 @testable import Mochi_Diffusion
 
-/// Save As copies an image rather than converting it. The format is chosen once, in
-/// Settings, which is what generation and Save All use; Save As previously inferred a
-/// second, invisible choice from the typed extension and could write PNG bytes under
-/// a `.jpg` name.
+/// Save As copies an image rather than converting it. The output format is chosen
+/// once, in Settings, and a copy's bytes must match its extension.
 @MainActor
 struct ImageExportTests {
     let temp: TempDirectory
@@ -70,8 +68,8 @@ struct ImageExportTests {
         #expect(sdi.contentType == expected)
     }
 
-    /// The regression that prompted this change: `.jpg` was unknown to
-    /// `UTType.fromString`, whose `default` case returns PNG.
+    /// `UTType.fromString` does not know `.jpg`, and its `default` case returns
+    /// PNG.
     @Test("A .jpg image is not mistaken for a PNG")
     func jpgIsNotTreatedAsPNG() throws {
         var sdi = SDImage()

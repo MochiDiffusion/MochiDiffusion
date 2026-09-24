@@ -66,10 +66,9 @@ nonisolated extension InputImagesConstraint {
     /// returning `nil` sends the cropped image at its own size. Cropping and
     /// encoding are shared because they are the same everywhere.
     ///
-    /// Data and names are produced in one pass so they cannot disagree. Doing them
-    /// separately is how metadata comes to claim an image that resizing silently
-    /// failed to produce: the name came from the draft, the pixels did not arrive,
-    /// and nothing noticed. An entry that fails to encode is dropped from both.
+    /// Data and names are produced in one pass so metadata cannot name an image
+    /// whose pixels were not produced. An entry that fails to encode is dropped
+    /// from both.
     ///
     /// Every engine goes through here, so "what the model accepts" is enforced once
     /// rather than per engine.

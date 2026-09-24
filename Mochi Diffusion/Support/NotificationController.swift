@@ -70,10 +70,10 @@ import UserNotifications
         }
     }
 
-    /// Fetches current UserNotificationAuthorization status from UserNotificationCenter
-    /// There does not seem to be a nice way to directly observe that property
-    /// So we just fetch the current value as required and "cache" it in this
-    /// class's property `authStatus`
+    /// Fetches the current authorization status and caches it in `authStatus`.
+    ///
+    /// `UNUserNotificationCenter` offers no way to observe the status, so it is
+    /// fetched when needed.
     func fetchAuthStatus() async -> UNAuthorizationStatus {
         let settings = await self.notificationCenter.notificationSettings()
         self.authStatus = settings.authorizationStatus
@@ -81,9 +81,8 @@ import UserNotifications
     }
 
     func sendImagesReadyNotification(count: Int) async {
-        // if the user has notifications turned on in our app's settings window,
-        // we still need to fetch the latest authorization status
-        // from UserNotificationCenter in case they turned it off there
+        // Notifications enabled in Settings may still have been turned off in
+        // System Settings, so fetch the latest authorization status.
         var currentAuthStatus: UNAuthorizationStatus?
         if sendNotification {
             currentAuthStatus = await fetchAuthStatus()

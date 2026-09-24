@@ -7,10 +7,8 @@ import SwiftUI
 
 /// Picks how much effort a model should spend on an image.
 ///
-/// An individual row, so it is never hidden: it stays in place and shows a
-/// disabled field for a model with no notion of quality, which today means both
-/// local engines. `SidebarView` documents the rule — hiding a row would move every
-/// control below it whenever the model changed.
+/// Never hidden: for a model with no notion of quality it shows a disabled field,
+/// so the controls below keep their positions when the model changes.
 struct QualityView: View {
     @Environment(GenerationController.self) private var controller: GenerationController
     @Environment(ConfigStore.self) private var configStore: ConfigStore

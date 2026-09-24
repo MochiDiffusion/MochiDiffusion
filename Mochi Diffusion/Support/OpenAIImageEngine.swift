@@ -148,8 +148,7 @@ nonisolated extension OpenAIImageEngine {
     /// total-pixel minimum and a 3:1 ratio cap but no per-edge minimum, and the
     /// smallest edge any legal size can have is the one where the long edge is
     /// exactly three times it — `3s² >= 655_360`, so `s >= 468`, which is 480 on
-    /// the 16px grid. A floor of 512 would have excluded legal sizes like
-    /// 480x1440.
+    /// the 16px grid.
     private static func imageModel(
         apiName: String,
         qualities: [ImageQuality]
@@ -186,10 +185,9 @@ nonisolated extension OpenAIImageEngine {
             // still generated for the output filename, which is all it is used
             // for here.
             //
-            // No `.revisedPrompt` either. The API may return a revision, but that
-            // is documented on the Responses API image tool rather than this
-            // endpoint, and an unverified metadata key is a permanent export
-            // contract for a guess.
+            // No `.revisedPrompt` either: a revision is documented for the
+            // Responses API image tool, not this endpoint, and a metadata key is a
+            // permanent export contract.
             metadataFields: [
                 .prompt, .model, .engine, .modelKey, .size, .quality, .inputImages,
             ]

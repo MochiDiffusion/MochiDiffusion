@@ -16,9 +16,7 @@ struct GuidanceScaleView: View {
 
         let guidanceScale = controller.currentConstraints.guidanceScale
 
-        // The row is shown for every model, including the guidance-distilled ones
-        // that have no scale at all. Removing it moved everything below it, which
-        // is a worse trade than one disabled field.
+        // Shown for every model, so the controls below keep their positions.
         Text("Guidance Scale")
             .sidebarLabelFormat()
         if let bounds = guidanceScale.bounds {

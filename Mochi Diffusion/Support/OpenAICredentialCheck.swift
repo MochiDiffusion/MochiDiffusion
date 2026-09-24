@@ -7,16 +7,12 @@ import Foundation
 
 /// Asks OpenAI whether a key is live.
 ///
-/// A request rather than a shape check. The key format has changed more than once,
-/// so a regex can only reject keys that would have worked while still accepting
-/// keys that have been revoked. `GET /v1/models` costs nothing and answers the
-/// question that matters: 200 or 401.
+/// A request rather than a shape check, since the key format changes and a revoked
+/// key looks valid. `GET /v1/models` costs nothing and answers 200 or 401.
 ///
-/// Not part of ``OpenAIImageEngine``. `GenerationEngineDescriptor` describes models
-/// and plans requests; authentication there would oblige every local engine to
-/// answer a question it does not have. Note that
-/// ``OpenAIImageEngine/discoverModels(_:)`` declines this same endpoint for its own
-/// purpose — it cannot say which models generate images. It can say who is calling.
+/// Not part of ``OpenAIImageEngine``: `GenerationEngineDescriptor` describes models
+/// and plans requests, and authentication there would oblige every local engine to
+/// answer a question it does not have.
 nonisolated struct OpenAICredentialCheck: Sendable {
     private static let endpoint = URL(string: "https://api.openai.com/v1/models")!
 

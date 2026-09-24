@@ -104,15 +104,12 @@ extension SDImage {
 
     /// The image's own content type, taken from the file it came from.
     ///
-    /// Save As deliberately does not let the user choose a different one. The output
-    /// format is a single documented preference in Settings, which is what generation
-    /// and Save All already use; offering a second, invisible choice here only made
-    /// the saved bytes disagree with the saved name.
+    /// Save As keeps this type rather than offering a choice: the output format is
+    /// the Settings preference that generation and Save All use, and a copy's bytes
+    /// must match its extension.
     ///
     /// Resolved through the system's extension mapping rather than `UTType.fromString`,
-    /// which knows only each type's single preferred extension and so reports an
-    /// imported `.jpg` as PNG. That helper still serves the import paths, where a
-    /// PNG fallback is a reasonable guess; here it would mislabel bytes being copied.
+    /// which knows only each type's preferred extension and so reports `.jpg` as PNG.
     nonisolated var contentType: UTType {
         guard
             let sourceURL,
@@ -168,12 +165,11 @@ extension SDImage {
 
     /// Re-encodes the image with its metadata.
     ///
-    /// Loads the file when no decoded image is resident which is normal for anything
-    /// read from disk, only a freshly generated image arrives with its pixels.
+    /// Loads the file when no decoded image is resident, which is normal for anything
+    /// read from disk; only a freshly generated image arrives with its pixels.
     ///
-    /// Deliberately re-encodes rather than copying the file, even though the file is
-    /// usually identical: the caller chooses the type, so this is also the path that
-    /// converts a PNG to JPEG on save.
+    /// Re-encodes rather than copying the file because the caller chooses the type,
+    /// so this is also the path that converts between formats.
     nonisolated func imageData(
         _ type: UTType,
         metadataFields: Set<MetadataField> = Set(MetadataField.allCases)

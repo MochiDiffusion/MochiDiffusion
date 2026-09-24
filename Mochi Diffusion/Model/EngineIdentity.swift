@@ -61,13 +61,10 @@ nonisolated extension ModelID {
     /// The key for a model directory that discovery returned: its last path component.
     ///
     /// Discovery only enumerates direct children, so the last component is the
-    /// whole relative path. Computing one against the models root instead breaks
-    /// two cases: `contentsOfDirectory(at:)` returns `/private/var`-prefixed
-    /// children for a `/var` root, and a model directory that is itself a symlink
-    /// resolves outside the root entirely.
-    ///
-    /// A nested layout would make this a relative path, and would still have to
-    /// leave symlinks in the child unresolved.
+    /// whole relative path. It is not computed against the models root because
+    /// `contentsOfDirectory(at:)` returns `/private/var`-prefixed children for a
+    /// `/var` root, and a model directory that is a symlink resolves outside the
+    /// root entirely.
     static func localKey(for url: URL) -> String {
         url.lastPathComponent
     }

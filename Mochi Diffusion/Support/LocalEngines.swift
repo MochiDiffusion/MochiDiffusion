@@ -72,10 +72,9 @@ nonisolated struct CoreMLStableDiffusionEngine: GenerationEngineDescriptor {
         var controlNetNames: [String] = []
         var controlNetImageNames: [String?] = []
         var controlNetInputs: [Data] = []
-        // Said as a constraint now, so the sidebar hides the control instead of
-        // this quietly dropping what the user put in it. A freeform model has no
-        // fixed size to scale guide images to, and `SDModel` reports no matching
-        // nets for one, so its constraint is `.unsupported`.
+        // A freeform model has no fixed size to scale guide images to, and
+        // `SDModel` reports no matching nets for one, so its constraint is
+        // `.unsupported` and the sidebar hides the control.
         if constraints.controlNet.isSupported {
             for controlNet in draft.controlNets {
                 guard
@@ -176,9 +175,7 @@ nonisolated struct IrisEngine: GenerationEngineDescriptor {
     /// "up to 4 reference images for klein".
     ///
     /// A limit of the library rather than a policy of ours, so it lives beside the
-    /// code that calls it. Nothing here shrinks images to fit a memory budget: a
-    /// request that asks too much of the machine is the user's to reconsider, and
-    /// silently resizing their references would change the picture they asked for.
+    /// code that calls it.
     static let maxReferenceImages = 4
 
     private let fileSystem: FileSystemStore
@@ -216,16 +213,11 @@ nonisolated struct IrisEngine: GenerationEngineDescriptor {
         let scheduler = constraints.scheduler.resolved(draft.scheduler)
         let numberOfImages =
             constraints.numberOfImages.resolved(draft.numberOfImages) ?? draft.numberOfImages
-        // Iris is the one engine with a memory budget to respect. Attention cost
-        // grows with the square of the sequence length times the head count, and
-        // references add tokens to that sequence — so four full-size references
-        // against a large output can ask for more than the machine has. The
-        // estimator predicts a size per reference that fits, and each is fitted to
-        // it here.
-        //
-        // Deliberately not generalised to every engine. A hosted model has no
-        // attention budget we can see, and applying this to one would shrink images
-        // for a limit that does not exist.
+        // Attention cost grows with the square of the sequence length times the
+        // head count, and references add tokens to that sequence, so full-size
+        // references against a large output can ask for more memory than the
+        // machine has. The estimator predicts a size per reference that fits, and
+        // each is fitted to it here.
         let budget = Self.budgetReport(
             for: draft.inputImages,
             model: model,

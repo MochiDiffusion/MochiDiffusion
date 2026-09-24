@@ -114,9 +114,7 @@ struct PromptView: View {
     private static let excludeHeight: CGFloat = 70
 
     /// The prompt block keeps one height whichever model is selected, so nothing
-    /// below it moves when the negative prompt comes and goes — the Engine picker
-    /// sitting directly underneath used to jump out from under the pointer that
-    /// had just changed it.
+    /// below it moves when the negative prompt comes and goes.
     ///
     /// The space goes to the remaining editor rather than being left blank, which
     /// suits the models that lack a negative prompt: FLUX.2 Klein attends to 512
@@ -158,8 +156,7 @@ struct PromptView: View {
             )
 
             // A distilled model has no classifier-free guidance, so there is
-            // nothing for a negative prompt to steer away from. The field used to
-            // be offered and the text silently discarded.
+            // nothing for a negative prompt to steer away from.
             if controller.currentConstraints.supportsNegativePrompt {
                 Text("Exclude from Image")
                     .sidebarLabelFormat()

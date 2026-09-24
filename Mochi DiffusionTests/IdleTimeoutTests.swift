@@ -119,20 +119,13 @@ struct GenerationStopReasonTests {
     }
 }
 
-/// Pins that a runtime which goes quiet is given up on, and — the part that
-/// matters — that giving up releases the drain exactly as a completion does.
+/// Pins that a runtime which goes quiet is given up on, and that giving up
+/// releases the drain exactly as a completion does.
 ///
-/// A failure path that leaves the queue unable to start again is the bug class
-/// `QueueLivenessTests` exists for; this is the same hazard reached by a new route.
-///
-/// **An extension of that suite rather than a suite of its own.** Both drive
+/// An extension of `QueueLivenessTests` rather than a suite of its own. Both drive
 /// `GenerationService`, which publishes to the `GenerationState` singleton, and two
-/// separately `.serialized` suites are serialized within themselves but not against
-/// each other — so a liveness test setting `.ready(nil)` could overwrite the expiry
-/// error this one was waiting for, and it would spin to its time limit. It passed
-/// alone and failed in the full suite, which is what that looks like. Sharing one
-/// suite makes them serial with respect to each other, which is the actual
-/// requirement.
+/// separately `.serialized` suites are not serialized against each other, so a
+/// liveness test could overwrite the expiry error this one waits for.
 extension QueueLivenessTests {
 
     /// Runs, reports nothing, and waits to be stopped — as a real runtime does
@@ -270,9 +263,8 @@ extension QueueLivenessTests {
         await waitUntilIdle(service)
     }
 
-    /// The hazard. An expiry that failed to release the drain would leave every
-    /// later request accepted and never started — the `dc209e9` failure mode,
-    /// reached by a different route.
+    /// An expiry that failed to release the drain would leave every later request
+    /// accepted and never started.
     @Test("A request enqueued after an expiry still runs")
     func drainSurvivesAnExpiry() async throws {
         await MainActor.run { GenerationState.shared.report(.ready(nil)) }

@@ -89,9 +89,8 @@ struct MochiDiffusionApp: App {
                     NotificationCenter.default.publisher(
                         for: NSApplication.willTerminateNotification)
                 ) { _ in
-                    /// cleanup quick look temp images
+                    // Clean up Quick Look temporary images and the MPS temporary folder.
                     NSImage.cleanupTempFiles()
-                    /// cleanup MPS temp folder
                     let mpsURL = FileManager.default.temporaryDirectory.appendingPathComponent(
                         "com.apple.MetalPerformanceShadersGraph", isDirectory: true)
                     try? FileManager.default.removeItem(at: mpsURL)

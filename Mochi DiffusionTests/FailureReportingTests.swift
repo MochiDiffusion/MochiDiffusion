@@ -8,11 +8,9 @@ import Testing
 
 @testable import Mochi_Diffusion
 
-/// Pins what the outcome alert is given to report. The interesting properties are
-/// not that a failure is recorded, but that a batch ending the same way ten times
-/// is still one thing to report, and that an outcome survives the next request
-/// overwriting `state` — which is how a rate-limited generation used to fail in
-/// silence.
+/// Pins what the outcome alert is given to report: a batch ending the same way ten
+/// times is one thing to report, and an outcome survives the next request
+/// overwriting `state`.
 ///
 /// Uses its own `GenerationState` rather than the shared one: the singleton is
 /// written to by services still finishing in other suites.
@@ -32,9 +30,8 @@ struct FailureReportingTests {
         #expect(state.unreportedOutcomes == ["Couldn't access images folder at: /nope"])
     }
 
-    /// The regression. A rate limit and a refusal are reported through `.ready`
-    /// because they are not malfunctions, and that used to mean the only trace of
-    /// them was a `state` the next request overwrote.
+    /// A rate limit and a refusal are reported through `.ready` because they are
+    /// not malfunctions, but they still reach the alert.
     @Test("An outcome that is not a malfunction is still reported")
     func newsIsReportedToo() {
         let state = GenerationState()
@@ -48,9 +45,9 @@ struct FailureReportingTests {
         )
     }
 
-    /// The mechanism of that silence: the next request in the batch reports
-    /// `.loading`, and later `.ready(nil)`, both of which clear the message from
-    /// `state`. The report has to outlive them.
+    /// The next request in the batch reports `.loading`, and later `.ready(nil)`,
+    /// both of which clear the message from `state`. The report has to outlive
+    /// them.
     @Test("A later request cannot erase an outcome before it is reported")
     func outcomeSurvivesTheNextRequest() {
         let state = GenerationState()
@@ -91,9 +88,8 @@ struct FailureReportingTests {
         #expect(state.unreportedOutcomes == ["a malfunction", "news"])
     }
 
-    /// Dismissing used to clear the deduplication outright, so a user who
-    /// dismissed eagerly got one alert per failing request — ten alerts for the
-    /// ten identical failures this is supposed to collapse.
+    /// Otherwise a user who dismissed eagerly would get one alert per failing
+    /// request.
     @Test("Dismissing silences that outcome for the rest of the batch")
     func dismissalSticksWithinTheBatch() {
         let state = GenerationState()
@@ -118,10 +114,9 @@ struct FailureReportingTests {
         #expect(state.unreportedOutcomes == ["a different failure"])
     }
 
-    /// "A new batch" is the user asking again, which is also what rescues the
-    /// failure that happens before anything is enqueued: an unwritable images
-    /// folder starts no drain, so without this every click after the first would
-    /// be silent.
+    /// "A new batch" is the user asking again. That also covers a failure before
+    /// anything is enqueued, such as an unwritable images folder, which starts no
+    /// drain.
     @Test("Asking again reports an outcome dismissed during the last attempt")
     func aNewBatchReportsAgain() {
         let state = GenerationState()
@@ -134,9 +129,8 @@ struct FailureReportingTests {
         #expect(state.unreportedOutcomes == ["a failure"])
     }
 
-    /// Why the batch boundary is the start of a drain and not the end: the alert
-    /// outlives the drain that raised it, so a batch beginning must not throw away
-    /// an outcome still waiting to be read.
+    /// The alert outlives the drain that raised it, so a batch beginning must not
+    /// throw away an outcome still waiting to be read.
     @Test("A new batch keeps an outcome that has not been reported yet")
     func aNewBatchKeepsUnreadOutcomes() {
         let state = GenerationState()

@@ -41,9 +41,9 @@ nonisolated final class OpenAIEngineRuntime: GenerationEngineRuntime {
     /// an idle clock and the same number would become a total budget, expiring a slow
     /// but healthy generation. That case gets an explicitly generous total budget.
     ///
-    /// Requesting partials purely as heartbeats and discarding them would fetch
-    /// full-size images for a user who asked not to receive them, and assumes
-    /// streamed partials do not affect billing, which is unconfirmed.
+    /// Partials are not requested purely as heartbeats: that would fetch images the
+    /// user asked not to receive, and whether streamed partials affect billing is
+    /// unconfirmed.
     static let streamingIdleTimeout = Duration.seconds(60)
     static let nonStreamingTotalTimeout = Duration.seconds(300)
 
@@ -83,14 +83,10 @@ nonisolated final class OpenAIEngineRuntime: GenerationEngineRuntime {
 
         // Registered once, cancelling whichever image is in flight.
         //
-        // Polling `isCancelled` is not enough for this runtime, and that is the
-        // difference from Core ML. A network call suspends: waiting for response
-        // headers, then for the next line of the stream. A server that accepts the
-        // connection and sends nothing leaves this suspended indefinitely, so
-        // neither a user cancelling nor the watchdog expiring would ever be
-        // noticed — the request would hold the serial queue for good and keep a
-        // billable call open. So the work goes in a task the handler can cancel,
-        // which terminates the stream, which cancels the underlying transfer.
+        // Polling `isCancelled` is not enough here: a network call can stay
+        // suspended on response headers or the next stream line indefinitely. So
+        // the work runs in a task the handler can cancel, which terminates the
+        // stream and cancels the underlying transfer.
         let inFlight = TaskHandle()
         generationSession.onCancel { inFlight.cancel() }
 
@@ -324,12 +320,10 @@ nonisolated final class OpenAIEngineRuntime: GenerationEngineRuntime {
             metadataFields: request.metadataFields
         )
 
-        // Re-encoded through the same path both local engines use, because that is
+        // Re-encoded through the same path the local engines use, because that is
         // what embeds Mochi's metadata. `scheduler`, `steps` and `guidanceScale`
-        // above are unread: this model declares none of them, so
-        // `metadata(including:)` never writes them. They are the last places a
-        // hosted engine still has to name a value it does not have, and section
-        // 6.5 is what removes them.
+        // above are placeholders: this model declares none of them, so
+        // `metadata(including:)` never writes them.
         guard let data = await encode(image: image, metadata: metadata, request: request) else {
             throw GenerationError.malformedResponse
         }

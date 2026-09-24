@@ -356,6 +356,10 @@ struct InspectorView: View {
 }
 
 extension CGImage {
+    /// The image's average color, ignoring alpha.
+    ///
+    /// Computed from a 40x40 redraw into 8-bit ARGB, which is fast and normalizes
+    /// whatever color format the source uses.
     var averageColor: Color? {
         /// First, resize the image. We do this for two reasons,
         /// 1) less pixels to deal with means faster calculation and a resized image still has the "gist" of the colors

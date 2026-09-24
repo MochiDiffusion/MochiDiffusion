@@ -34,9 +34,8 @@ struct ImageRecord: Sendable, Identifiable {
     ///
     /// Set for a generation result, whose bytes were just written to disk anyway, so
     /// the gallery can show it without a read-back. Nil for a record built by
-    /// scanning the images folder: decoding every file at load is what made a large
-    /// gallery cost gigabytes, and the grid renders from `GalleryThumbnailProvider`
-    /// instead.
+    /// scanning the images folder; the grid renders those from
+    /// `GalleryThumbnailProvider`.
     var imageData: Data?
     var loras: [LoRASelection] = []
 }

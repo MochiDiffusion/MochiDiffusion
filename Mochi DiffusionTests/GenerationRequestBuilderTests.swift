@@ -124,8 +124,8 @@ struct GenerationRequestBuilderTests {
         #expect(request.imageDir == "/tmp/mochi-test-images")
         #expect(request.imageType == "heic")
         // Both of these invert their config value; a sign flip would otherwise
-        // be invisible. `disableSafety` moved into the Core ML payload, since it
-        // is a Core ML pipeline setting and no other engine has one.
+        // be invisible. `disableSafety` is a Core ML pipeline setting, so it
+        // lives in the Core ML payload.
         let payload = try #require(request.payload as? CoreMLGenerationPayload)
         #expect(payload.disableSafety == false)  // safetyChecker == true
         #expect(request.useDenoisedIntermediates == false)  // showGenerationPreview == false
@@ -145,8 +145,7 @@ struct GenerationRequestBuilderTests {
 
         // The sidebar's 640x384 is unreachable for this model: it always emits
         // 512x768. JobQueueView displays request.size and copies it back to the
-        // sidebar, so recording the configured size here put a number on screen
-        // that no generated image would ever match.
+        // sidebar, so it must be the size the image will have.
         #expect(request.size == CGSize(width: 512, height: 768))
     }
 
@@ -528,11 +527,6 @@ struct GenerationRequestBuilderTests {
     /// something a model attends to. Selecting a model that does not read one of
     /// them says nothing about whether the user still wants the picture they chose,
     /// so it goes inactive rather than moving roles or being cleared.
-    ///
-    /// This replaced a transfer that moved a lone picture between the two sections.
-    /// It read as helpful for one image and could not be expressed at all for
-    /// several, which is why two references used to be deleted outright — see
-    /// `severalReferencesSurviveAModelThatTakesNone`.
     @Test("Each role keeps its own image across a model change")
     func rolesAreNotExchangedWhenConstraintsChange() async throws {
         try makeSDModelFixture(at: modelDir.appending(path: "sd-model"))
@@ -552,9 +546,8 @@ struct GenerationRequestBuilderTests {
         #expect(controller.inputImages.isEmpty)
     }
 
-    /// The defect that motivated separating the roles: the old transfer cleared the
-    /// reference list before deciding what to do with it, and promotion needed
-    /// exactly one image, so two or more were destroyed along with their crops.
+    /// References and their crops are kept while a model that reads none is
+    /// selected.
     @Test("Several references survive a model that takes none")
     func severalReferencesSurviveAModelThatTakesNone() async throws {
         try makeSDModelFixture(at: modelDir.appending(path: "sd-model"))
@@ -632,11 +625,10 @@ struct GenerationRequestBuilderTests {
 
         // Klein pins its guidance rather than declaring none, so `plan` resolves
         // the distilled value. 1.0 is the scale at which classifier-free guidance
-        // is the identity, which is what a guidance-distilled model runs at, and it
-        // matches what the runtime writes into the image metadata.
+        // is the identity, which is what a guidance-distilled model runs at.
         #expect(request.guidanceScale == 1.0)
-        // The negative prompt is still carried. Klein ignores it, and 4b stops
-        // the sidebar offering it, but nothing resolves free text away.
+        // The negative prompt is still carried. Klein ignores it and the sidebar
+        // does not offer it, but nothing resolves free text away.
         #expect(request.negativePrompt == "blurry, low quality")
     }
 
@@ -653,13 +645,9 @@ struct GenerationRequestBuilderTests {
     }
 
     /// `stepCount` and `scheduler` are optional on the request, because a hosted
-    /// engine has no concept of either — so the runtime takes its values from the
-    /// payload instead, as it already did for `strength` and `guidanceScale`.
-    ///
-    /// That leaves two copies of each value, which is the arrangement Phase 4
-    /// existed to remove. These pin them equal: the number the queue row shows is
-    /// the number the pipeline is handed. A plan that resolved one and forgot the
-    /// other would otherwise pass every existing test.
+    /// engine has no concept of either, so the runtime takes its values from the
+    /// payload. These pin the two copies equal: the number the queue row shows is
+    /// the number the pipeline is handed.
     @Test(
         "The payload's step count and scheduler are the ones the request reports",
         arguments: [
