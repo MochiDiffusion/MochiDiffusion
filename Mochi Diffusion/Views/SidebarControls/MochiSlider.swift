@@ -28,8 +28,7 @@ struct MochiSlider: View {
 
     @State private var text: String = ""
     @State private var isEditable = false
-    @FocusState private var focusedSlider: UUID?
-    private let id = UUID()
+    @FocusState private var isFocused: Bool
 
     func stringToDouble(_ string: String) -> Double? {
         if let doubleValue = Double(string.replacingOccurrences(of: ",", with: ".")) {
@@ -46,7 +45,7 @@ struct MochiSlider: View {
         CompactSlider(value: $value, in: bounds, step: step) {
             if isEditable {
                 TextField("", text: $text)
-                    .focused($focusedSlider, equals: self.id)
+                    .focused($isFocused)
             } else {
                 Text(text)
                     .padding(.leading, 4)
@@ -54,7 +53,7 @@ struct MochiSlider: View {
                     .gesture(
                         TapGesture(count: 1).onEnded {
                             self.isEditable = true
-                            self.focusedSlider = self.id
+                            self.isFocused = true
                         }
                     )
                     .onHover { inside in
@@ -100,18 +99,18 @@ struct MochiSlider: View {
 
         // MARK: Focus
 
-        .onChange(of: focusedSlider) {
-            if focusedSlider != self.id {
+        .onChange(of: isFocused) {
+            if !isFocused {
                 self.text = value.formatted(.number.precision(.fractionLength(fractionLength)))
                 self.isEditable = false
             }
         }
         .onSubmit {
-            self.focusedSlider = nil
+            self.isFocused = false
             self.isEditable = false
         }
         .onExitCommand {
-            self.focusedSlider = nil
+            self.isFocused = false
             self.isEditable = false
         }
     }
