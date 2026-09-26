@@ -65,19 +65,25 @@ enum ImagesSortType: String {
         }
     }
 
+    /// Adds `sdi` unless the gallery already holds its file. See
+    /// `add(_:animate:)` for the rule. Returns nil when the image was skipped.
     @discardableResult
     func add(
         _ sdi: SDImage,
         metadataFields: Set<MetadataField> = Set(MetadataField.allCases),
         animate: Bool = true
-    ) -> SDImage.ID {
-        runWithOptionalAnimation(animate: animate) {
-            allImages.append(sdi)
-            metadataFieldsByImageID[sdi.id] = metadataFields
-            return sdi.id
-        }
+    ) -> SDImage.ID? {
+        add([(image: sdi, metadataFields: metadataFields)], animate: animate).first
     }
 
+    /// Adds the images whose files the gallery does not already hold, and returns
+    /// the IDs of those it added.
+    ///
+    /// The gallery mirrors one images folder, so it holds at most one entry per
+    /// file. A folder sync can find a file at the same time as an import or a
+    /// generation result adds it, and whichever arrives second is skipped. Files
+    /// are compared by name, because loading and writing can spell the folder's
+    /// path differently. An image with no path is always added.
     @discardableResult
     func add(
         _ imagesAndMetadata: [(image: SDImage, metadataFields: Set<MetadataField>)],
@@ -85,14 +91,24 @@ enum ImagesSortType: String {
     )
         -> [SDImage.ID]
     {
-        runWithOptionalAnimation(animate: animate) {
-            let images = imagesAndMetadata.map(\.image)
+        var heldFileNames = Set(allImages.compactMap(Self.fileName(of:)))
+        let newItems = imagesAndMetadata.filter { item in
+            guard let fileName = Self.fileName(of: item.image) else { return true }
+            return heldFileNames.insert(fileName).inserted
+        }
+        guard !newItems.isEmpty else { return [] }
+        return runWithOptionalAnimation(animate: animate) {
+            let images = newItems.map(\.image)
             allImages.append(contentsOf: images)
-            for item in imagesAndMetadata {
+            for item in newItems {
                 metadataFieldsByImageID[item.image.id] = item.metadataFields
             }
             return images.map(\.id)
         }
+    }
+
+    private static func fileName(of image: SDImage) -> String? {
+        image.path.isEmpty ? nil : URL(fileURLWithPath: image.path).lastPathComponent
     }
 
     @discardableResult

@@ -378,6 +378,69 @@ struct GalleryLoadingTests {
         #expect(!controller.isLoading)
     }
 
+    /// The folder monitor syncs shortly after the first imported file lands, so a
+    /// long import overlaps a sync. The sync sees the copied files before the
+    /// import has added them to the gallery.
+    @Test("A folder sync during an import adds each imported image once")
+    func importAndSyncTogetherAddEachImageOnce() async throws {
+        let incoming = try temp.subdirectory("incoming")
+        let urls = try (0..<20).map { index in
+            try writeImportableImage(named: "\(index).png", prompt: "\(index)", in: incoming)
+            return incoming.appending(path: "\(index).png")
+        }
+        let gallery = ImageGallery()
+        let controller = try await makeSettledController(gallery: gallery)
+
+        async let imported = controller.importImages(from: urls)
+        async let synced: Void = controller.syncImages()
+        _ = await (imported, synced)
+
+        #expect(gallery.allImages.count == 20)
+        #expect(Set(gallery.allImages.map(\.prompt)).count == 20)
+    }
+
+    // MARK: - One entry per file
+
+    @Test("The gallery skips an image whose file it already holds")
+    func galleryHoldsOneEntryPerFile() {
+        let gallery = ImageGallery()
+        let original = SDImage(
+            image: nil, aspectRatio: 1, path: imageDir.appending(path: "one.png").path)
+        // The same file reached through the resolved spelling of the folder.
+        let again = SDImage(
+            image: nil,
+            aspectRatio: 1,
+            path: imageDir.resolvingSymlinksInPath().appending(path: "one.png").path
+        )
+
+        let other = SDImage(
+            image: nil, aspectRatio: 1, path: imageDir.appending(path: "two.png").path)
+        let fields: Set<MetadataField> = [.prompt]
+
+        let added = gallery.add(original)
+        let skipped = gallery.add(again)
+        let batch = gallery.add([
+            (image: again, metadataFields: fields),
+            (image: other, metadataFields: fields),
+        ])
+
+        #expect(added == original.id)
+        #expect(skipped == nil)
+        #expect(batch.count == 1)
+        #expect(gallery.allImages.count == 2)
+        #expect(gallery.allImages.first?.id == original.id)
+    }
+
+    @Test("Images with no file are always added")
+    func imagesWithoutPathsAreAlwaysAdded() {
+        let gallery = ImageGallery()
+
+        gallery.add(SDImage())
+        gallery.add(SDImage())
+
+        #expect(gallery.allImages.count == 2)
+    }
+
     // MARK: - Save All
 
     @Test("Save All writes every gallery image, numbered in gallery order")
