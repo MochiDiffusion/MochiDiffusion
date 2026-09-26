@@ -236,10 +236,6 @@ Play notification sound
 No comment provided by engineer. */
 "Play notification sound" = "Bildirim için sesi çal";
 /* en.lproj/Localizable.strings
-Quick Look
-View current image using Quick Look */
-"Quick Look" = "Göster";
-/* en.lproj/Localizable.strings
 Reduce Memory Usage
 No comment provided by engineer. */
 "Reduce Memory Usage" = "Bellek Kullanımını Azalt";
@@ -286,14 +282,6 @@ No comment provided by engineer. */
 Select
 OK button text for choose image panel */
 "Select" = "Seç";
-/* en.lproj/Localizable.strings
-Select Next
-Select next image in Gallery */
-"Select Next" = "Sonrakini Seç";
-/* en.lproj/Localizable.strings
-Select Previous
-Select previous image in Gallery */
-"Select Previous" = "Öncekini Seç";
 /* en.lproj/Localizable.strings
 Send Notifications
 No comment provided by engineer. */
