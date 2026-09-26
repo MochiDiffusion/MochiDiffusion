@@ -106,12 +106,7 @@ nonisolated func writeFinderTagColorNumber(_ path: String, colorNumber: Int) {
 
 nonisolated func getFinderTagColorNumber(_ url: URL) -> Int {
     guard let md = MDItemCreateWithURL(nil, url as CFURL) else { return 0 }
-    var finderTagColorNumber: Int = 0
-    let mdItemFSLabel = MDItemCopyAttribute(md, kMDItemFSLabel)
-    if let label = mdItemFSLabel {
-        finderTagColorNumber = label as! Int
-    }
-    return finderTagColorNumber
+    return MDItemCopyAttribute(md, kMDItemFSLabel) as? Int ?? 0
 }
 
 /// Turns a prompt into part of an image filename.

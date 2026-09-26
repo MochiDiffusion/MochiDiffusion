@@ -22,18 +22,8 @@ struct MochiCompactSliderStyle: CompactSliderStyle {
 
 extension NSApplication {
     nonisolated static var appVersion: String {
-        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as! String
-    }
-}
-
-extension NSImage {
-    nonisolated func getImageHash() -> Int {
-        self.tiffRepresentation!.hashValue
-    }
-
-    nonisolated func toPngData() -> Data {
-        let imageRepresentation = NSBitmapImageRep(data: self.tiffRepresentation!)
-        return (imageRepresentation?.representation(using: .png, properties: [:])!)!
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
+            ?? "unknown"
     }
 }
 
@@ -174,15 +164,26 @@ extension NSImage {
         }
     }
 
+    /// Writes the image to a PNG in the temporary directory, named by its content
+    /// so the same image reuses one file. Throws if the image has no bitmap
+    /// representation that can be encoded.
     nonisolated func temporaryFileURL() throws -> URL {
-        let imageHash = self.getImageHash()
-        let filename = "\(Self.temporaryFilePrefix)\(imageHash).png"
+        guard let tiffData = tiffRepresentation else {
+            throw CocoaError(.fileWriteUnknown)
+        }
+        let filename = "\(Self.temporaryFilePrefix)\(tiffData.hashValue).png"
         let url = FileManager.default.temporaryDirectory.appending(path: filename)
         if FileManager.default.fileExists(atPath: url.path(percentEncoded: false)) {
             return url
         }
 
-        let fileWrapper = FileWrapper(regularFileWithContents: self.toPngData())
+        guard
+            let pngData = NSBitmapImageRep(data: tiffData)?
+                .representation(using: .png, properties: [:])
+        else {
+            throw CocoaError(.fileWriteUnknown)
+        }
+        let fileWrapper = FileWrapper(regularFileWithContents: pngData)
         try fileWrapper.write(to: url, originalContentsURL: nil)
         return url
     }
