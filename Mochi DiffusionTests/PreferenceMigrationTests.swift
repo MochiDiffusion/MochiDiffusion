@@ -234,6 +234,15 @@ struct ConfigStoreMigrationTests {
         #expect(store.selectedModel == ModelID(engine: .coreMLStableDiffusion, key: "other-model"))
     }
 
+    @Test("The output format preference from JPEG and HEIC output is deleted")
+    func legacyImageTypeIsDeleted() {
+        tempDefaults.defaults.set("heic", forKey: ConfigStore.Key.legacyImageType)
+
+        _ = makeStore()
+
+        #expect(tempDefaults.defaults.object(forKey: ConfigStore.Key.legacyImageType) == nil)
+    }
+
     @Test("The legacy key is left in place")
     func legacyKeyIsPreserved() throws {
         try makeSDModelFixture(at: modelDir.appending(path: "sd-model"))

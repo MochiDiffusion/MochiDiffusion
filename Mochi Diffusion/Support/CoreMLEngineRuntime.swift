@@ -30,7 +30,6 @@ nonisolated struct CoreMLGenerationConfig {
     let useDenoisedIntermediates: Bool
     let seed: UInt32
     let numberOfImages: Int
-    let imageType: String
 }
 
 /// Every constructor input that determines whether the loaded Core ML pipeline
@@ -268,9 +267,8 @@ actor CoreMLEngineRuntime: GenerationEngineRuntime {
                 sdi.controlNetImage = config.controlNetImageName
                 sdi.inputImages = config.inputImageNames
 
-                let type = UTType.fromString(config.imageType)
                 guard
-                    let data = await sdi.imageData(type, metadataFields: request.metadataFields)
+                    let data = await sdi.imageData(.png, metadataFields: request.metadataFields)
                 else { continue }
                 let metadata = GenerationMetadata(
                     prompt: sdi.prompt,
@@ -341,8 +339,7 @@ actor CoreMLEngineRuntime: GenerationEngineRuntime {
             scheduler: payload.scheduler,
             useDenoisedIntermediates: request.useDenoisedIntermediates,
             seed: request.seed,
-            numberOfImages: request.numberOfImages,
-            imageType: request.imageType
+            numberOfImages: request.numberOfImages
         )
     }
 }

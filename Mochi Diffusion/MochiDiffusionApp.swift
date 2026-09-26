@@ -41,7 +41,7 @@ struct MochiDiffusionApp: App {
         // One repository for every writer, so filename allocation covers all of
         // them. See `ImageRepository`.
         let imageRepository = ImageRepository()
-        let imageGallery = ImageGallery(imageRepository: imageRepository)
+        let imageGallery = ImageGallery()
         let thumbnailProvider = GalleryThumbnailProvider()
         let fullImageProvider = GalleryFullImageProvider()
         let engineRegistry = EngineRegistry()

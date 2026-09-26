@@ -11,8 +11,8 @@ import UniformTypeIdentifiers
 
 @testable import Mochi_Diffusion
 
-/// Save As copies an image rather than converting it. The output format is chosen
-/// once, in Settings, and a copy's bytes must match its extension.
+/// Save As always writes a PNG. A PNG source is copied byte for byte; a JPEG or HEIC
+/// source is converted, carrying only the metadata fields it recorded.
 @MainActor
 struct ImageExportTests {
     let temp: TempDirectory
@@ -68,17 +68,6 @@ struct ImageExportTests {
         #expect(sdi.contentType == expected)
     }
 
-    /// `UTType.fromString` does not know `.jpg`, and its `default` case returns
-    /// PNG.
-    @Test("A .jpg image is not mistaken for a PNG")
-    func jpgIsNotTreatedAsPNG() throws {
-        var sdi = SDImage()
-        sdi.path = temp.appending("photo.jpg").path(percentEncoded: false)
-
-        #expect(sdi.contentType != .png)
-        #expect(sdi.contentType == .jpeg)
-    }
-
     @Test("An image with no file on disk falls back to PNG")
     func pathlessImageFallsBackToPNG() {
         var sdi = SDImage()
@@ -101,7 +90,7 @@ struct ImageExportTests {
     // MARK: - Writing
 
     @Test(
-        "Saving a copy preserves the source type rather than converting it",
+        "Saving a copy always produces a PNG",
         arguments: [
             ("source.jpg", UTType.jpeg),
             ("source.jpeg", UTType.jpeg),
@@ -109,15 +98,36 @@ struct ImageExportTests {
             ("source.png", UTType.png),
         ]
     )
-    func copyKeepsSourceType(name: String, expected: UTType) async throws {
-        let source = try writeSource(name, type: expected)
+    func copyIsAlwaysPNG(name: String, sourceType: UTType) async throws {
+        let source = try writeSource(name, type: sourceType)
         var sdi = SDImage()
         sdi.path = source.path(percentEncoded: false)
 
-        let destination = temp.appending("exported-\(name)")
-        try await sdi.writeCopy(to: destination)
+        let destination = temp.appending("exported-\(name).png")
+        try await sdi.writeCopy(to: destination, metadataFields: [])
 
-        #expect(type(of: destination) == expected)
+        #expect(type(of: destination) == .png)
+    }
+
+    @Test(
+        "Converting to PNG keeps the recorded metadata and adds nothing",
+        arguments: [("source.jpg", UTType.jpeg), ("source.heic", UTType.heic)]
+    )
+    func conversionKeepsOnlyRecordedFields(name: String, sourceType: UTType) async throws {
+        let caption = MetadataCodec.encode([
+            (.includeInImage, "a cat"), (.generator, "Mochi Diffusion 6.0"),
+        ])
+        let source = try writeSource(name, type: sourceType, caption: caption)
+        let record = try #require(createImageRecordFromURL(source))
+        let sdi = try #require(createSDImage(from: record))
+
+        let destination = temp.appending("converted.png")
+        try await sdi.writeCopy(to: destination, metadataFields: record.metadataFields)
+
+        let converted = try #require(createImageRecordFromURL(destination))
+        #expect(converted.prompt == "a cat")
+        #expect(!converted.metadataFields.contains(.steps))
+        #expect(!converted.metadataFields.contains(.scheduler))
     }
 
     @Test("A disk-backed image is copied byte for byte, so its metadata is untouched")
@@ -129,7 +139,7 @@ struct ImageExportTests {
         sdi.prompt = "something else entirely"
 
         let destination = temp.appending("copied.png")
-        try await sdi.writeCopy(to: destination)
+        try await sdi.writeCopy(to: destination, metadataFields: Set(MetadataField.allCases))
 
         let copied = try Data(contentsOf: destination)
         let original = try Data(contentsOf: source)
@@ -144,7 +154,7 @@ struct ImageExportTests {
         sdi.image = makeCGImage()
 
         let destination = temp.appending("fresh.png")
-        try await sdi.writeCopy(to: destination)
+        try await sdi.writeCopy(to: destination, metadataFields: Set(MetadataField.allCases))
 
         #expect(type(of: destination) == .png)
     }
@@ -155,7 +165,7 @@ struct ImageExportTests {
         let destination = temp.appending("nothing.png")
 
         await #expect(throws: SDImageError.encodingFailed) {
-            try await sdi.writeCopy(to: destination)
+            try await sdi.writeCopy(to: destination, metadataFields: Set(MetadataField.allCases))
         }
     }
 
@@ -168,7 +178,7 @@ struct ImageExportTests {
         sdi.image = makeCGImage()
 
         let destination = temp.appending("recovered.png")
-        try await sdi.writeCopy(to: destination)
+        try await sdi.writeCopy(to: destination, metadataFields: Set(MetadataField.allCases))
 
         #expect(type(of: destination) == .png)
     }

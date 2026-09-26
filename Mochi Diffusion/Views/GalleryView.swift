@@ -178,6 +178,7 @@ struct GalleryView: View {
     struct GalleryItemContextMenuView: View {
         @Environment(GenerationController.self) private var controller: GenerationController
         @Environment(GalleryController.self) private var galleryController: GalleryController
+        @Environment(ImageGallery.self) private var store: ImageGallery
         let sdi: SDImage
 
         var body: some View {
@@ -220,7 +221,7 @@ struct GalleryView: View {
             }
             Section {
                 Button {
-                    Task { await sdi.saveAs() }
+                    Task { await sdi.saveAs(metadataFields: store.metadataFields(for: sdi.id)) }
                 } label: {
                     Text(
                         "Save As...",

@@ -185,7 +185,6 @@ struct EnginePayloadOwnershipTests {
             safetyChecker: false,
             showGenerationPreview: false,
             imageDir: "",
-            imageType: "png",
             controlNetDirectory: controlNetDir
         )
     }

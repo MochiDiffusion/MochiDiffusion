@@ -85,7 +85,6 @@ struct GenerationRequestBuilderTests {
         configStore.safetyChecker = true
         configStore.reduceMemory = true
         configStore.imageDir = "/tmp/mochi-test-images"
-        configStore.imageType = "heic"
         configStore.mlComputeUnitPreference = .cpuAndGPU
     }
 
@@ -122,7 +121,6 @@ struct GenerationRequestBuilderTests {
         #expect(request.seed == 987_654_321)
         #expect(request.numberOfImages == 3)
         #expect(request.imageDir == "/tmp/mochi-test-images")
-        #expect(request.imageType == "heic")
         // Both of these invert their config value; a sign flip would otherwise
         // be invisible. `disableSafety` is a Core ML pipeline setting, so it
         // lives in the Core ML payload.

@@ -115,7 +115,6 @@ struct OpenAIImageEngineTests {
             safetyChecker: false,
             showGenerationPreview: previews,
             imageDir: FileManager.default.temporaryDirectory.path(percentEncoded: false),
-            imageType: "png",
             controlNetDirectory: URL(fileURLWithPath: "/controlnet")
         )
     }

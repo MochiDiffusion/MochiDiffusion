@@ -7,7 +7,6 @@
 
 import Foundation
 import SwiftUI
-import UniformTypeIdentifiers
 
 enum ImagesSortType: String {
     case oldestFirst = "OLDEST_FIRST"
@@ -19,13 +18,9 @@ enum ImagesSortType: String {
 @MainActor
 @Observable public final class ImageGallery {
 
-    private let imageRepository: ImageRepository
-
     /// `nonisolated` so `MochiDiffusionApp.init` and `GenerationService` can call
     /// it; safe because it only initialises stored properties.
-    nonisolated init(imageRepository: ImageRepository = ImageRepository()) {
-        self.imageRepository = imageRepository
-    }
+    nonisolated init() {}
 
     private(set) var allImages: [SDImage] = [] {
         didSet {
@@ -179,31 +174,6 @@ enum ImagesSortType: String {
         guard let index = index(for: sdi.id) else { return }
         allImages[index] = sdi
         allImages[index].finderTagColorNumber = colorNumber
-    }
-
-    func update(_ sdi: SDImage) {
-        guard let index = index(for: sdi.id) else { return }
-        allImages[index] = sdi
-        guard !sdi.path.isEmpty else { return }
-
-        Task { @MainActor in
-            let url = URL(fileURLWithPath: sdi.path, isDirectory: false)
-            let type = UTType.fromString(url.pathExtension.lowercased())
-            // Rewriting the file must not turn SDImage's generation defaults into
-            // claims about how this image was made.
-            let metadataFields = self.metadataFields(for: sdi.id)
-            guard let data = await sdi.imageData(type, metadataFields: metadataFields) else {
-                return
-            }
-            guard
-                let savedURL = await imageRepository.saveUpdatedImage(
-                    path: sdi.path,
-                    data: data
-                )
-            else { return }
-            guard let refreshedIndex = self.index(for: sdi.id) else { return }
-            self.allImages[refreshedIndex].path = savedURL.path(percentEncoded: false)
-        }
     }
 
     func index(for id: SDImage.ID) -> Int? {

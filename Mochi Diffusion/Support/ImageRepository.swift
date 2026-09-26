@@ -174,25 +174,16 @@ actor ImageRepository {
         }
     }
 
-    func saveUpdatedImage(path: String, data: Data) -> URL? {
-        let url = URL(fileURLWithPath: path, isDirectory: false)
-        let pathWithoutExtension = url.deletingPathExtension()
-        let type = UTType.fromString(url.pathExtension.lowercased())
-        return saveImageData(data, pathWithoutExtension: pathWithoutExtension, type: type)
-    }
-
     func writeImage(
         filenameWithoutExtension: String,
         imageData: Data,
-        imageDir: String,
-        imageType: String,
+        imageDir: String
     ) -> URL? {
         let directoryURL = resolvedImageDirectoryURL(fromPath: imageDir)
         let filename = safeFilenameComponent(filenameWithoutExtension)
         let pathURL = directoryURL.appending(path: filename)
-        let type = UTType.fromString(imageType)
-        let availablePathURL = nextAvailablePathWithoutExtension(for: pathURL, type: type)
-        return saveImageData(imageData, pathWithoutExtension: availablePathURL, type: type)
+        let availablePathURL = nextAvailablePathWithoutExtension(for: pathURL, type: .png)
+        return saveImageData(imageData, pathWithoutExtension: availablePathURL, type: .png)
     }
 
     func ensureOutputDirectory(imageDir: String) throws -> URL {
@@ -208,12 +199,12 @@ actor ImageRepository {
         return directoryURL
     }
 
-    func exportAllImages(_ images: [ImageExportRequest], to directory: URL, type: UTType) {
+    func exportAllImages(_ images: [ImageExportRequest], to directory: URL) {
         for request in images {
             let filename = safeFilenameComponent(request.filenameWithoutExtension)
             let url = directory.appending(path: filename)
-            let availableURL = nextAvailablePathWithoutExtension(for: url, type: type)
-            _ = saveImageData(request.imageData, pathWithoutExtension: availableURL, type: type)
+            let availableURL = nextAvailablePathWithoutExtension(for: url, type: .png)
+            _ = saveImageData(request.imageData, pathWithoutExtension: availableURL, type: .png)
         }
     }
 

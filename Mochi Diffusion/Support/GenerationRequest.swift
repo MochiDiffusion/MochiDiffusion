@@ -81,7 +81,6 @@ nonisolated struct GenerationRequest: Sendable, Identifiable {
     let seed: UInt32
     let numberOfImages: Int
     let imageDir: String
-    let imageType: String
 }
 
 nonisolated struct GenerationResult: Sendable, Identifiable {

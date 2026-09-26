@@ -202,8 +202,6 @@ final class GalleryController {
         }
 
         guard let selectedURL = panel.url else { return }
-        let type = UTType.fromString(configStore.imageType)
-
         let images = imageGallery.images
         var exportRequests: [ImageExportRequest] = []
         exportRequests.reserveCapacity(images.count)
@@ -213,7 +211,7 @@ final class GalleryController {
             // write. An imported image that carried only a prompt must not gain a
             // scheduler and step count on the way out.
             let metadataFields = imageGallery.metadataFields(for: sdi.id)
-            guard let data = await sdi.imageData(type, metadataFields: metadataFields) else {
+            guard let data = await sdi.imageData(.png, metadataFields: metadataFields) else {
                 continue
             }
             exportRequests.append(
@@ -224,7 +222,7 @@ final class GalleryController {
             )
         }
 
-        await imageRepository.exportAllImages(exportRequests, to: selectedURL, type: type)
+        await imageRepository.exportAllImages(exportRequests, to: selectedURL)
     }
 
     func copyImage(_ sdi: SDImage) async {

@@ -1208,7 +1208,6 @@ final class GenerationController {
             safetyChecker: configStore.safetyChecker,
             showGenerationPreview: configStore.showGenerationPreview,
             imageDir: configStore.imageDir,
-            imageType: configStore.imageType,
             controlNetDirectory: ModelRepository.controlNetDirectoryURL(
                 fromPath: configStore.controlNetDir
             )
@@ -1247,8 +1246,7 @@ final class GenerationController {
             useDenoisedIntermediates: draft.showGenerationPreview,
             seed: draft.seed,
             numberOfImages: plan.numberOfImages,
-            imageDir: draft.imageDir,
-            imageType: draft.imageType
+            imageDir: draft.imageDir
         )
     }
 

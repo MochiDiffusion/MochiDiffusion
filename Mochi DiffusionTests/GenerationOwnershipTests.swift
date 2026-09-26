@@ -119,8 +119,7 @@ struct IrisCancelledWaiterTests {
             useDenoisedIntermediates: false,
             seed: 1,
             numberOfImages: 1,
-            imageDir: FileManager.default.temporaryDirectory.path(percentEncoded: false),
-            imageType: "png"
+            imageDir: FileManager.default.temporaryDirectory.path(percentEncoded: false)
         )
     }
 

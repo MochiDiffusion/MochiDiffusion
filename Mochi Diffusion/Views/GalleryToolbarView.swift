@@ -88,7 +88,7 @@ struct GalleryToolbarView: View {
             Spacer()
 
             Button {
-                Task { await sdi.saveAs() }
+                Task { await sdi.saveAs(metadataFields: store.metadataFields(for: sdi.id)) }
             } label: {
                 Label {
                     Text(

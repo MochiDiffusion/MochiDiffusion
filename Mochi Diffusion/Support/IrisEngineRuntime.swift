@@ -255,8 +255,7 @@ actor IrisEngineRuntime: GenerationEngineRuntime {
             guard
                 let imageData = await makeImageData(
                     from: cgImage,
-                    metadata: metadata,
-                    imageType: request.imageType
+                    metadata: metadata
                 )
             else {
                 throw IrisRuntimeError.encodeFailed
@@ -321,8 +320,7 @@ actor IrisEngineRuntime: GenerationEngineRuntime {
 
     private func makeImageData(
         from cgImage: CGImage,
-        metadata: GenerationMetadata,
-        imageType: String
+        metadata: GenerationMetadata
     ) async -> Data? {
         var sdi = SDImage()
         sdi.image = cgImage
@@ -342,8 +340,7 @@ actor IrisEngineRuntime: GenerationEngineRuntime {
         sdi.generatedDate = metadata.generatedDate
         sdi.aspectRatio = CGFloat(Double(cgImage.width) / Double(cgImage.height))
 
-        let type = UTType.fromString(imageType)
-        return await sdi.imageData(type, metadataFields: metadata.metadataFields)
+        return await sdi.imageData(.png, metadataFields: metadata.metadataFields)
     }
 
     fileprivate static func makeCGImage(from image: UnsafePointer<iris_image>) -> CGImage? {

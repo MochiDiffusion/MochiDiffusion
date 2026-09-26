@@ -176,37 +176,4 @@ struct MetadataPresenceExportTests {
 
         #expect(gallery.metadataFields(for: UUID()) == Set(MetadataField.allCases))
     }
-
-    // MARK: - Updating a file in place
-
-    @Test("Updating an image rewrites its file without inventing metadata")
-    func updatePreservesRecordedFields() async throws {
-        let source = try writePNG(
-            [(.includeInImage, "a cat wearing a hat")],
-            named: "tagged.png"
-        )
-        let imported = try #require(createImageRecordFromURL(source))
-        let sdi = try #require(createSDImage(from: imported))
-
-        let gallery = ImageGallery()
-        gallery.add(sdi, metadataFields: imported.metadataFields, animate: false)
-
-        let originalBytes = try Data(contentsOf: source)
-        gallery.update(sdi)
-
-        // update() rewrites the file from an unstructured Task, so wait for the
-        // bytes to actually change. Keying on anything the original file already
-        // satisfies would pass before the rewrite had happened at all.
-        var rewritten = false
-        for _ in 0..<100 where !rewritten {
-            try await Task.sleep(for: .milliseconds(20))
-            rewritten = (try? Data(contentsOf: source)) != originalBytes
-        }
-        #expect(rewritten, "update() never rewrote the file")
-
-        let result = try #require(createImageRecordFromURL(source))
-        #expect(!result.metadataFields.contains(.scheduler))
-        #expect(!result.metadataFields.contains(.steps))
-        #expect(result.prompt == "a cat wearing a hat")
-    }
 }

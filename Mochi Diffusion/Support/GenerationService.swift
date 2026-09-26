@@ -254,8 +254,7 @@ actor GenerationService {
                                 let path = await imageRepository.writeImage(
                                     filenameWithoutExtension: filenameWithoutExtension,
                                     imageData: result.imageData,
-                                    imageDir: outputDirectory.path(percentEncoded: false),
-                                    imageType: request.imageType
+                                    imageDir: outputDirectory.path(percentEncoded: false)
                                 )
                             else {
                                 throw GenerationError.imageDirectoryNoAccess

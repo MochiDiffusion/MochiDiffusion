@@ -17,7 +17,7 @@ struct FileCommands: Commands {
                 Button {
                     Task {
                         guard let sdi = store.selected() else { return }
-                        await sdi.saveAs()
+                        await sdi.saveAs(metadataFields: store.metadataFields(for: sdi.id))
                     }
                 } label: {
                     Text(

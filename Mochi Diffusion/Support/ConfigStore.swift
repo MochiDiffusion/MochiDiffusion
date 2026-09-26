@@ -4,7 +4,6 @@
 //
 
 import SwiftUI
-import UniformTypeIdentifiers
 
 @MainActor
 @Observable final class ConfigStore {
@@ -13,7 +12,9 @@ import UniformTypeIdentifiers
     /// without hopping to the main actor.
     nonisolated enum Key {
         static let imageDir = "ImageDir"
-        static let imageType = "ImageType"
+        /// The output format preference from when images could be saved as JPEG or
+        /// HEIC. Output is PNG only; `init(store:)` deletes the stale value.
+        static let legacyImageType = "ImageType"
         static let modelDir = "ModelDir"
         static let controlNetDir = "ControlNetDir"
         /// The legacy selection, superseded by `selectedModel`. Read only by
@@ -41,7 +42,6 @@ import UniformTypeIdentifiers
     /// store, in tests.
     private enum Default {
         static let imageDir = ""
-        static let imageType = UTType.png.preferredFilenameExtension!
         static let modelDir = ""
         static let controlNetDir = ""
         static let prompt = ""
@@ -62,7 +62,6 @@ import UniformTypeIdentifiers
     }
 
     @ObservationIgnored @AppStorage(Key.imageDir) private var _imageDir = Default.imageDir
-    @ObservationIgnored @AppStorage(Key.imageType) private var _imageType = Default.imageType
     @ObservationIgnored @AppStorage(Key.modelDir) private var _modelDir = Default.modelDir
     @ObservationIgnored @AppStorage(Key.controlNetDir) private var _controlNetDir =
         Default.controlNetDir
@@ -101,9 +100,9 @@ import UniformTypeIdentifiers
     ///   would be the developer's own preferences.
     init(store: UserDefaults? = nil) {
         defaults = store ?? .standard
+        defaults.removeObject(forKey: Key.legacyImageType)
         guard let store else { return }
         __imageDir = AppStorage(wrappedValue: Default.imageDir, Key.imageDir, store: store)
-        __imageType = AppStorage(wrappedValue: Default.imageType, Key.imageType, store: store)
         __modelDir = AppStorage(wrappedValue: Default.modelDir, Key.modelDir, store: store)
         __controlNetDir = AppStorage(
             wrappedValue: Default.controlNetDir, Key.controlNetDir, store: store)
@@ -142,18 +141,6 @@ import UniformTypeIdentifiers
         set {
             withMutation(keyPath: \.imageDir) {
                 _imageDir = newValue
-            }
-        }
-    }
-
-    var imageType: String {
-        get {
-            access(keyPath: \.imageType)
-            return _imageType
-        }
-        set {
-            withMutation(keyPath: \.imageType) {
-                _imageType = newValue
             }
         }
     }

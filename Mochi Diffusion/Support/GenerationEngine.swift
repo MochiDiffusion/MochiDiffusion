@@ -78,7 +78,6 @@ nonisolated struct GenerationDraft: Sendable {
     var safetyChecker: Bool
     var showGenerationPreview: Bool
     var imageDir: String
-    var imageType: String
     /// Where the shared ControlNet bundles live. Only Core ML Stable Diffusion
     /// reads it.
     var controlNetDirectory: URL

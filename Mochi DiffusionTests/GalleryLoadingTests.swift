@@ -352,16 +352,14 @@ struct ImageRepositoryTests {
             await repository.writeImage(
                 filenameWithoutExtension: "A cat.1.42",
                 imageData: Data([1]),
-                imageDir: directory.path(percentEncoded: false),
-                imageType: "png"
+                imageDir: directory.path(percentEncoded: false)
             )
         )
         let second = try #require(
             await repository.writeImage(
                 filenameWithoutExtension: "A cat.1.42",
                 imageData: Data([2]),
-                imageDir: directory.path(percentEncoded: false),
-                imageType: "png"
+                imageDir: directory.path(percentEncoded: false)
             )
         )
 
@@ -382,8 +380,7 @@ struct ImageRepositoryTests {
                     await repository.writeImage(
                         filenameWithoutExtension: "same-name",
                         imageData: Data([byte]),
-                        imageDir: directory.path(percentEncoded: false),
-                        imageType: "png"
+                        imageDir: directory.path(percentEncoded: false)
                     )
                 }
             }
@@ -410,8 +407,7 @@ struct ImageRepositoryTests {
             await repository.writeImage(
                 filenameWithoutExtension: "../../outside",
                 imageData: Data([1]),
-                imageDir: directory.path(percentEncoded: false),
-                imageType: "png"
+                imageDir: directory.path(percentEncoded: false)
             )
         )
 
@@ -470,8 +466,7 @@ struct ImageRepositoryTests {
             await repository.writeImage(
                 filenameWithoutExtension: "default-location",
                 imageData: Data([1]),
-                imageDir: "",
-                imageType: "png"
+                imageDir: ""
             )
         )
 
@@ -601,8 +596,7 @@ struct ImageRepositoryTests {
                     imageData: Data([2])
                 )
             ],
-            to: directory,
-            type: .png
+            to: directory
         )
 
         #expect(try Data(contentsOf: original) == Data([1]))

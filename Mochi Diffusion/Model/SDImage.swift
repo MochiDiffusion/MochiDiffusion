@@ -98,32 +98,31 @@ extension SDImage {
         path.isEmpty ? nil : URL(fileURLWithPath: path, isDirectory: false)
     }
 
-    /// The formats the gallery can hold, and therefore the ones Save As can reproduce.
-    /// Mirrors `ImageRepository.supportedImageExtensions`.
-    nonisolated static let savableTypes: Set<UTType> = [.png, .jpeg, .heic]
+    /// The formats the gallery can hold. Mirrors
+    /// `ImageRepository.supportedImageExtensions`.
+    nonisolated static let readableTypes: Set<UTType> = [.png, .jpeg, .heic]
 
     /// The image's own content type, taken from the file it came from.
     ///
-    /// Save As keeps this type rather than offering a choice: the output format is
-    /// the Settings preference that generation and Save All use, and a copy's bytes
-    /// must match its extension.
-    ///
-    /// Resolved through the system's extension mapping rather than `UTType.fromString`,
-    /// which knows only each type's preferred extension and so reports `.jpg` as PNG.
+    /// Resolved through the system's extension mapping, so `.jpg` and `.jpeg` are
+    /// both JPEG.
     nonisolated var contentType: UTType {
         guard
             let sourceURL,
             let type = UTType(filenameExtension: sourceURL.pathExtension.lowercased()),
-            Self.savableTypes.contains(type)
+            Self.readableTypes.contains(type)
         else { return .png }
         return type
     }
 
     @MainActor
     /// Display save image dialog.
-    func saveAs() async {
+    ///
+    /// - Parameter metadataFields: the fields this image recorded, from the gallery,
+    ///   written if the image has to be encoded rather than copied.
+    func saveAs(metadataFields: Set<MetadataField>) async {
         let panel = NSSavePanel()
-        panel.allowedContentTypes = [contentType]
+        panel.allowedContentTypes = [.png]
         panel.canCreateDirectories = true
         panel.isExtensionHidden = false
         panel.title = String(localized: "Save Image", comment: "Header text for save image panel")
@@ -139,25 +138,28 @@ extension SDImage {
         guard let url = panel.url else { return }
 
         do {
-            try await writeCopy(to: url)
+            try await writeCopy(to: url, metadataFields: metadataFields)
         } catch {
             NSLog("*** Error saving image file: \(error.localizedDescription)")
         }
     }
 
-    /// Writes this image to `destination` keeping the type and bytes it already has.
+    /// Writes this image to `destination` as a PNG.
     ///
-    /// Copies the source file whenever it is readable, so the saved image is byte
-    /// identical and its recorded metadata survives exactly as written. Re-encoding is
-    /// only a fallback for an image that has no file yet, where the resident pixels and
-    /// every metadata field are genuinely current.
-    nonisolated func writeCopy(to destination: URL) async throws {
-        if let sourceURL, let data = try? Data(contentsOf: sourceURL) {
+    /// A readable PNG source file is copied, so the saved image is byte identical and
+    /// its recorded metadata survives exactly as written. A JPEG or HEIC source, or an
+    /// image with no file yet, is encoded as PNG carrying only `metadataFields`, so a
+    /// field the image never recorded does not appear as a default value.
+    nonisolated func writeCopy(
+        to destination: URL,
+        metadataFields: Set<MetadataField>
+    ) async throws {
+        if contentType == .png, let sourceURL, let data = try? Data(contentsOf: sourceURL) {
             try data.write(to: destination, options: .atomic)
             return
         }
 
-        guard let data = await imageData(contentType) else {
+        guard let data = await imageData(.png, metadataFields: metadataFields) else {
             throw SDImageError.encodingFailed
         }
         try data.write(to: destination, options: .atomic)

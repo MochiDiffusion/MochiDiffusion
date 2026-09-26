@@ -247,19 +247,6 @@ extension CompactSliderStyle where Self == MochiCompactSliderStyle {
     static var `mochi`: MochiCompactSliderStyle { MochiCompactSliderStyle() }
 }
 
-extension UTType {
-    nonisolated static func fromString(_ fileExtension: String) -> UTType {
-        switch fileExtension {
-        case UTType.jpeg.preferredFilenameExtension!:
-            return UTType.jpeg
-        case UTType.heic.preferredFilenameExtension!:
-            return UTType.heic
-        default:
-            return UTType.png
-        }
-    }
-}
-
 extension MLComputeUnits {
     nonisolated static func toString(_ computeUnit: MLComputeUnits?) -> String {
         guard let computeUnit = computeUnit else {

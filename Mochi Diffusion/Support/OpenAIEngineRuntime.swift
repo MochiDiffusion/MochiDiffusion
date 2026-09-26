@@ -349,10 +349,7 @@ nonisolated final class OpenAIEngineRuntime: GenerationEngineRuntime {
         sdi.inputImages = metadata.inputImages
         sdi.seed = metadata.seed
         sdi.generatedDate = metadata.generatedDate
-        return await sdi.imageData(
-            UTType.fromString(request.imageType),
-            metadataFields: metadata.metadataFields
-        )
+        return await sdi.imageData(.png, metadataFields: metadata.metadataFields)
     }
 
     // MARK: - Parsing

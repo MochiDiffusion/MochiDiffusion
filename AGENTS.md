@@ -39,8 +39,8 @@ contracts for a later experimental beta rather than rolling back the architectur
 Before the 6.2 feature work starts, the post-6.1 backlog fixes land on develop. They ship
 with 6.2 and do not get a patch release of their own.
 
-PNG-only output removes JPEG and HEIC writing. Released JPEG and HEIC images must stay
-readable, and exporting one converts it to PNG with its generation metadata.
+Image output is PNG only. Released JPEG and HEIC images stay readable, and exporting
+one converts it to PNG with its generation metadata.
 
 Draw Things interoperability is explicitly postponed by Graham. It is preserved on branch
 `codex/draw-things-prototype` at `e18663b3877bd42fac9fe169063a052b567a4f8a` and excluded
@@ -68,8 +68,9 @@ The multi-engine foundation is implemented. Current ownership and contracts foll
 - Runtime ownership boundaries:
   - `ConfigStore` (`@MainActor`, `@Observable`) owns persisted input that is *global* —
     `modelDir`, `controlNetDir`, `prompt`, `steps`, `width`/`height`, `imageDir`,
-    `imageType`, and shared draft values such as `quality`. Its `UserDefaults` store is
-    injectable, so tests use an isolated suite.
+    and shared draft values such as `quality`. Output is always PNG, so there is no
+    format preference. Its `UserDefaults` store is injectable, so tests use an
+    isolated suite.
   - `EngineSettingsStore` (`@MainActor`, `@Observable`) owns per-engine persisted values
     under dynamic `Engine.<id>.…` keys: the selected engine, and the model each engine was
     last using. Separate from `ConfigStore` because `@AppStorage` binds one property to one
