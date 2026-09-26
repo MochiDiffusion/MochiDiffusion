@@ -122,11 +122,12 @@ actor IrisEngineRuntime: GenerationEngineRuntime {
             referenceImages.append(decoded)
         }
         // More than one reference means `iris_multiref`, which has no
-        // `_with_embeddings` variant, so a multi-reference request re-encodes its
-        // prompt instead of reusing the cache.
+        // `_with_embeddings` variant and encodes the prompt itself. A
+        // multi-reference request therefore skips the embedding cache: embeddings
+        // prepared here would be discarded.
         let usesMultiref = referenceImages.count > 1
 
-        if isDistilled {
+        if isDistilled, !usesMultiref {
             if let cached = await Self.embeddingCache.lookup(
                 modelDir: modelDir,
                 prompt: request.prompt
