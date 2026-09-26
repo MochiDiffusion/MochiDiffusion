@@ -154,7 +154,7 @@ No comment provided by engineer. */
 "Include in Image" = "关键词";
 /* en.lproj/Localizable.strings
 Loading the model for the first time may take a few minutes
-Text displayed when the model is being loaded */
+Text displayed while a local Core ML model is being loaded */
 "Loading the model for the first time may take a few minutes" = "首次加载模型可能需要几分钟";
 /* en.lproj/Localizable.strings
 Loading...
@@ -217,10 +217,6 @@ Play notification sound
 No comment provided by engineer. */
 "Play notification sound" = "播放通知声音";
 /* en.lproj/Localizable.strings
-Quick Look
-View current image using Quick Look */
-"Quick Look" = "快速查看";
-/* en.lproj/Localizable.strings
 Reduce Memory Usage
 No comment provided by engineer. */
 "Reduce Memory Usage" = "减少内存占用";
@@ -234,6 +230,7 @@ No comment provided by engineer. */
 "Release Notes" = "版本说明";
 /* en.lproj/Localizable.strings
 Remove
+Button to delete a stored API key
 Remove image from the gallery
 Toolbar button to remove the selected image */
 "Remove" = "移除";
@@ -267,14 +264,6 @@ Select
 OK button text for choose image panel */
 "Select" = "选择";
 /* en.lproj/Localizable.strings
-Select Next
-Select next image in Gallery */
-"Select Next" = "下一张";
-/* en.lproj/Localizable.strings
-Select Previous
-Select previous image in Gallery */
-"Select Previous" = "上一张";
-/* en.lproj/Localizable.strings
 Send Notifications
 No comment provided by engineer. */
 "Send Notifications" = "推送通知";
@@ -284,7 +273,8 @@ Help text for Send Notifications setting */
 "Send notification when images are ready." = "当图像准备好时推送通知";
 /* en.lproj/Localizable.strings
 Set as Starting Image
-Set the current image as the starting image for img2img */
+Set the current image as the starting image for img2img
+Use a gallery image as an img2img starting image */
 "Set as Starting Image" = "设为原始图像";
 /* en.lproj/Localizable.strings
 Share...
@@ -354,10 +344,6 @@ No comment provided by engineer. */
 Width:
 Label for image width picker */
 "Width:" = "宽度：";
-/* en.lproj/Localizable.strings
-Your images are ready!
-No comment provided by engineer. */
-"Your images are ready!" = "您的图像已经生成完毕！";
 /* en.lproj/Localizable.strings
 random
 No comment provided by engineer. */

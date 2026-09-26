@@ -154,7 +154,7 @@ No comment provided by engineer. */
 "Include in Image" = "프롬프트";
 /* en.lproj/Localizable.strings
 Loading the model for the first time may take a few minutes
-Text displayed when the model is being loaded */
+Text displayed while a local Core ML model is being loaded */
 "Loading the model for the first time may take a few minutes" = "모델을 처음으로 로드하는 데 몇 분 정도 걸릴 수 있습니다";
 /* en.lproj/Localizable.strings
 Loading...
@@ -217,10 +217,6 @@ Play notification sound
 No comment provided by engineer. */
 "Play notification sound" = "알림 사운드 재생";
 /* en.lproj/Localizable.strings
-Quick Look
-View current image using Quick Look */
-"Quick Look" = "훑어보기";
-/* en.lproj/Localizable.strings
 Reduce Memory Usage
 No comment provided by engineer. */
 "Reduce Memory Usage" = "메모리 사용량 줄이기";
@@ -234,6 +230,7 @@ No comment provided by engineer. */
 "Release Notes" = "릴리스 노트";
 /* en.lproj/Localizable.strings
 Remove
+Button to delete a stored API key
 Remove image from the gallery
 Toolbar button to remove the selected image */
 "Remove" = "삭제";
@@ -267,14 +264,6 @@ Select
 OK button text for choose image panel */
 "Select" = "선택";
 /* en.lproj/Localizable.strings
-Select Next
-Select next image in Gallery */
-"Select Next" = "다음 선택";
-/* en.lproj/Localizable.strings
-Select Previous
-Select previous image in Gallery */
-"Select Previous" = "이전 선택";
-/* en.lproj/Localizable.strings
 Send Notifications
 No comment provided by engineer. */
 "Send Notifications" = "알림 허용";
@@ -284,7 +273,8 @@ Help text for Send Notifications setting */
 "Send notification when images are ready." = "이미지가 생성되면 알림을 보냅니다.";
 /* en.lproj/Localizable.strings
 Set as Starting Image
-Set the current image as the starting image for img2img */
+Set the current image as the starting image for img2img
+Use a gallery image as an img2img starting image */
 "Set as Starting Image" = "시작 이미지로 선택";
 /* en.lproj/Localizable.strings
 Share...
@@ -350,10 +340,6 @@ No comment provided by engineer. */
 Width:
 Label for image width picker */
 "Width:" = "가로길이:";
-/* en.lproj/Localizable.strings
-Your images are ready!
-No comment provided by engineer. */
-"Your images are ready!" = "이미지가 생성되었습니다!";
 /* en.lproj/Localizable.strings
 random
 No comment provided by engineer. */

@@ -153,7 +153,7 @@ No comment provided by engineer. */
 "Include in Image" = "Inclure dans l\'image";
 /* en.lproj/Localizable.strings
 Loading the model for the first time may take a few minutes
-Text displayed when the model is being loaded */
+Text displayed while a local Core ML model is being loaded */
 "Loading the model for the first time may take a few minutes" = "Charger le modèle pour la première fois peut prendre quelques minutes";
 /* en.lproj/Localizable.strings
 Loading...
@@ -208,10 +208,6 @@ Open in Finder
 No comment provided by engineer. */
 "Open in Finder" = "Afficher dans le Finder";
 /* en.lproj/Localizable.strings
-Quick Look
-View current image using Quick Look */
-"Quick Look" = "Coup d\'oeil";
-/* en.lproj/Localizable.strings
 Reduce Memory Usage
 No comment provided by engineer. */
 "Reduce Memory Usage" = "Réduire l\'utilisation de la mémoire";
@@ -225,6 +221,7 @@ No comment provided by engineer. */
 "Release Notes" = "Notes de version";
 /* en.lproj/Localizable.strings
 Remove
+Button to delete a stored API key
 Remove image from the gallery
 Toolbar button to remove the selected image */
 "Remove" = "Supprimer";
@@ -258,16 +255,9 @@ Select
 OK button text for choose image panel */
 "Select" = "Sélectionner";
 /* en.lproj/Localizable.strings
-Select Next
-Select next image in Gallery */
-"Select Next" = "Sélectionnez Suivant";
-/* en.lproj/Localizable.strings
-Select Previous
-Select previous image in Gallery */
-"Select Previous" = "Sélectionnez Précédent";
-/* en.lproj/Localizable.strings
 Set as Starting Image
-Set the current image as the starting image for img2img */
+Set the current image as the starting image for img2img
+Use a gallery image as an img2img starting image */
 "Set as Starting Image" = "Définir comme image de départ";
 /* en.lproj/Localizable.strings
 Share...
@@ -333,10 +323,6 @@ No comment provided by engineer. */
 Width:
 Label for image width picker */
 "Width:" = "Largeur :";
-/* en.lproj/Localizable.strings
-Your images are ready!
-No comment provided by engineer. */
-"Your images are ready!" = "Vos images sont prêtes!";
 /* en.lproj/Localizable.strings
 random
 No comment provided by engineer. */

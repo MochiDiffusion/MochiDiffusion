@@ -117,7 +117,7 @@ No comment provided by engineer. */
 "Include in Image" = "Incluir en Imagen";
 /* en.lproj/Localizable.strings
 Loading the model for the first time may take a few minutes
-Text displayed when the model is being loaded */
+Text displayed while a local Core ML model is being loaded */
 "Loading the model for the first time may take a few minutes" = "Cargar el modelo por primera vez puede tardar unos minutos";
 /* en.lproj/Localizable.strings
 Loading...
@@ -164,10 +164,6 @@ Play notification sound
 No comment provided by engineer. */
 "Play notification sound" = "Reproducir sonido de notificación";
 /* en.lproj/Localizable.strings
-Quick Look
-View current image using Quick Look */
-"Quick Look" = "Vista Rápida";
-/* en.lproj/Localizable.strings
 Reduce Memory Usage
 No comment provided by engineer. */
 "Reduce Memory Usage" = "Reducir el Uso de Memoria";
@@ -181,6 +177,7 @@ No comment provided by engineer. */
 "Release Notes" = "Notas de Nueva Versión";
 /* en.lproj/Localizable.strings
 Remove
+Button to delete a stored API key
 Remove image from the gallery
 Toolbar button to remove the selected image */
 "Remove" = "Eliminar";
@@ -214,14 +211,6 @@ Select
 OK button text for choose image panel */
 "Select" = "Seleccionar";
 /* en.lproj/Localizable.strings
-Select Next
-Select next image in Gallery */
-"Select Next" = "Seleccionar Siguiente";
-/* en.lproj/Localizable.strings
-Select Previous
-Select previous image in Gallery */
-"Select Previous" = "Seleccionar Anterior";
-/* en.lproj/Localizable.strings
 Send Notifications
 No comment provided by engineer. */
 "Send Notifications" = "Enviar notificaciones";
@@ -231,7 +220,8 @@ Help text for Send Notifications setting */
 "Send notification when images are ready." = "Enviar una notificación cuando las imágenes estén preparadas.";
 /* en.lproj/Localizable.strings
 Set as Starting Image
-Set the current image as the starting image for img2img */
+Set the current image as the starting image for img2img
+Use a gallery image as an img2img starting image */
 "Set as Starting Image" = "Establecer como Imagen Inicial";
 /* en.lproj/Localizable.strings
 Share...
@@ -289,10 +279,6 @@ No comment provided by engineer. */
 Width:
 Label for image width picker */
 "Width:" = "Ancho:";
-/* en.lproj/Localizable.strings
-Your images are ready!
-No comment provided by engineer. */
-"Your images are ready!" = "¡Tus imágenes están listas!";
 /* en.lproj/Localizable.strings
 random
 No comment provided by engineer. */

@@ -92,10 +92,6 @@ Open in Finder
 No comment provided by engineer. */
 "Open in Finder" = "Visa i Finder";
 /* en.lproj/Localizable.strings
-Quick Look
-View current image using Quick Look */
-"Quick Look" = "Snabbtitt";
-/* en.lproj/Localizable.strings
 Reduce Memory Usage
 No comment provided by engineer. */
 "Reduce Memory Usage" = "Minska minnesanvändningen";
@@ -109,6 +105,7 @@ No comment provided by engineer. */
 "Release Notes" = "Ändringslogg";
 /* en.lproj/Localizable.strings
 Remove
+Button to delete a stored API key
 Remove image from the gallery
 Toolbar button to remove the selected image */
 "Remove" = "Ta bort";
@@ -129,14 +126,6 @@ No comment provided by engineer. */
 Seed
 No comment provided by engineer. */
 "Seed" = "Seed";
-/* en.lproj/Localizable.strings
-Select Next
-Select next image in Gallery */
-"Select Next" = "Välj Nästa";
-/* en.lproj/Localizable.strings
-Select Previous
-Select previous image in Gallery */
-"Select Previous" = "Välj föregående";
 /* en.lproj/Localizable.strings
 Share...
 Toolbar button to show the system share sheet */

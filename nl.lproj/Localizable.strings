@@ -188,10 +188,6 @@ Open in Finder
 No comment provided by engineer. */
 "Open in Finder" = "Toon in Finder";
 /* en.lproj/Localizable.strings
-Quick Look
-View current image using Quick Look */
-"Quick Look" = "Snelle Weergave";
-/* en.lproj/Localizable.strings
 Reduce Memory Usage
 No comment provided by engineer. */
 "Reduce Memory Usage" = "Verminder geheugengebruik";
@@ -205,6 +201,7 @@ No comment provided by engineer. */
 "Release Notes" = "Versie-informatie";
 /* en.lproj/Localizable.strings
 Remove
+Button to delete a stored API key
 Remove image from the gallery
 Toolbar button to remove the selected image */
 "Remove" = "Verwijderen";
@@ -238,16 +235,9 @@ Select
 OK button text for choose image panel */
 "Select" = "Selecteer";
 /* en.lproj/Localizable.strings
-Select Next
-Select next image in Gallery */
-"Select Next" = "Volgende Selecteren";
-/* en.lproj/Localizable.strings
-Select Previous
-Select previous image in Gallery */
-"Select Previous" = "Vorige Selecteren";
-/* en.lproj/Localizable.strings
 Set as Starting Image
-Set the current image as the starting image for img2img */
+Set the current image as the starting image for img2img
+Use a gallery image as an img2img starting image */
 "Set as Starting Image" = "Instellen als startafbeelding";
 /* en.lproj/Localizable.strings
 Share...
