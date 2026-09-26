@@ -217,10 +217,6 @@ Play notification sound
 No comment provided by engineer. */
 "Play notification sound" = "發出通知音效";
 /* en.lproj/Localizable.strings
-Quick Look
-View current image using Quick Look */
-"Quick Look" = "快速查看";
-/* en.lproj/Localizable.strings
 Reduce Memory Usage
 No comment provided by engineer. */
 "Reduce Memory Usage" = "減少記憶體使用量";
@@ -267,14 +263,6 @@ No comment provided by engineer. */
 Select
 OK button text for choose image panel */
 "Select" = "選擇";
-/* en.lproj/Localizable.strings
-Select Next
-Select next image in Gallery */
-"Select Next" = "下一張";
-/* en.lproj/Localizable.strings
-Select Previous
-Select previous image in Gallery */
-"Select Previous" = "上一張";
 /* en.lproj/Localizable.strings
 Send Notifications
 No comment provided by engineer. */
