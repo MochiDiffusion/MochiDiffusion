@@ -38,13 +38,17 @@ struct MochiDiffusionApp: App {
 
     init() {
         let configStore = ConfigStore()
-        let imageGallery = ImageGallery()
+        // One repository for every writer, so filename allocation covers all of
+        // them. See `ImageRepository`.
+        let imageRepository = ImageRepository()
+        let imageGallery = ImageGallery(imageRepository: imageRepository)
         let thumbnailProvider = GalleryThumbnailProvider()
         let fullImageProvider = GalleryFullImageProvider()
         let engineRegistry = EngineRegistry()
         self.thumbnailProvider = thumbnailProvider
         self.fullImageProvider = fullImageProvider
         let generationService = GenerationService(
+            imageRepository: imageRepository,
             engineRegistry: engineRegistry,
             imageGallery: imageGallery
         )
@@ -52,6 +56,7 @@ struct MochiDiffusionApp: App {
         self._generationController = State(
             initialValue: GenerationController(
                 configStore: configStore,
+                imageRepository: imageRepository,
                 imageGallery: imageGallery,
                 generationService: generationService,
                 engineRegistry: engineRegistry,
@@ -62,6 +67,7 @@ struct MochiDiffusionApp: App {
             initialValue: GalleryController(
                 configStore: configStore,
                 imageGallery: imageGallery,
+                imageRepository: imageRepository,
                 // The same instances the views read from, so invalidating on a
                 // delete or an import reaches what is actually on screen.
                 thumbnailProvider: thumbnailProvider,

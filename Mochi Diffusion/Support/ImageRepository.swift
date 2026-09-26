@@ -58,6 +58,14 @@ enum ImageRepositoryError: Error {
     case imageDirectoryUnavailable(String, reason: String)
 }
 
+/// Reads and writes the images folder.
+///
+/// Choosing a free filename and writing to it happen in one actor call, so two
+/// writes through the same repository never pick the same name. That guarantee
+/// covers only callers that share an instance: the app creates one and gives it
+/// to every owner that writes images, which matters because generations are not
+/// guaranteed to finish one at a time. It does not protect against other
+/// processes writing to the same folder.
 actor ImageRepository {
     private static let supportedImageExtensions: Set<String> = ["png", "jpg", "jpeg", "heic"]
 
