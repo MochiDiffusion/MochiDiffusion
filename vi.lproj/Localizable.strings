@@ -176,10 +176,6 @@ Open in Finder
 No comment provided by engineer. */
 "Open in Finder" = "Mở trong Finder";
 /* en.lproj/Localizable.strings
-Quick Look
-View current image using Quick Look */
-"Quick Look" = "Cái nhìn lướt qua";
-/* en.lproj/Localizable.strings
 Reduce Memory Usage
 No comment provided by engineer. */
 "Reduce Memory Usage" = "Giảm mức sử dụng bộ nhớ";
@@ -226,14 +222,6 @@ No comment provided by engineer. */
 Select
 OK button text for choose image panel */
 "Select" = "Chọn";
-/* en.lproj/Localizable.strings
-Select Next
-Select next image in Gallery */
-"Select Next" = "Chọn Tiếp";
-/* en.lproj/Localizable.strings
-Select Previous
-Select previous image in Gallery */
-"Select Previous" = "Chọn Trước";
 /* en.lproj/Localizable.strings
 Set as Starting Image
 Set the current image as the starting image for img2img
