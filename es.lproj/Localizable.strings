@@ -164,10 +164,6 @@ Play notification sound
 No comment provided by engineer. */
 "Play notification sound" = "Reproducir sonido de notificación";
 /* en.lproj/Localizable.strings
-Quick Look
-View current image using Quick Look */
-"Quick Look" = "Vista Rápida";
-/* en.lproj/Localizable.strings
 Reduce Memory Usage
 No comment provided by engineer. */
 "Reduce Memory Usage" = "Reducir el Uso de Memoria";
@@ -214,14 +210,6 @@ No comment provided by engineer. */
 Select
 OK button text for choose image panel */
 "Select" = "Seleccionar";
-/* en.lproj/Localizable.strings
-Select Next
-Select next image in Gallery */
-"Select Next" = "Seleccionar Siguiente";
-/* en.lproj/Localizable.strings
-Select Previous
-Select previous image in Gallery */
-"Select Previous" = "Seleccionar Anterior";
 /* en.lproj/Localizable.strings
 Send Notifications
 No comment provided by engineer. */
