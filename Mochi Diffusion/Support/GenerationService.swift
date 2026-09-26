@@ -345,6 +345,11 @@ actor GenerationService {
                 await updateStatus(
                     .error("Couldn't access images folder at: \(path)")
                 )
+            } catch ImageRepositoryError.imageDirectoryUnavailable(let path, let reason) {
+                logger.error("Couldn't create images folder at \(path): \(reason)")
+                await updateStatus(
+                    .error("Couldn't create images folder at: \(path). \(reason)")
+                )
             } catch GenerationError.imageDirectoryNoAccess {
                 logger.error("Couldn't save image to images folder.")
                 await updateStatus(

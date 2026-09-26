@@ -83,6 +83,8 @@ final class GalleryController {
             imageGallery.replaceAll(imagesAndMetadata)
         } catch ImageRepositoryError.imageDirectoryNoAccess(let path) {
             logger.error("Couldn't access images directory at: \"\(path)\"")
+        } catch ImageRepositoryError.imageDirectoryUnavailable(let path, let reason) {
+            logger.error("Couldn't create images directory at: \"\(path)\": \(reason)")
         } catch {
             logger.error("There was a problem loading the images: \(error.localizedDescription)")
         }

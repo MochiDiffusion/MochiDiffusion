@@ -51,7 +51,11 @@ struct ImageSyncResult: Sendable {
 }
 
 enum ImageRepositoryError: Error {
+    /// Mochi is not permitted to create, read or write the images folder.
     case imageDirectoryNoAccess(String)
+    /// The images folder could not be created for another reason, such as a full
+    /// disk or a file where a folder belongs. Carries the system's description.
+    case imageDirectoryUnavailable(String, reason: String)
 }
 
 actor ImageRepository {
@@ -76,15 +80,34 @@ actor ImageRepository {
         )
     }
 
-    func load(imageDir: String) throws -> [ImageRecord] {
-        let directoryURL = resolvedImageDirectoryURL(fromPath: imageDir)
+    private func ensureImageDirectoryExists(_ directoryURL: URL) throws {
         do {
             try fileSystem.ensureDirectoryExists(directoryURL)
         } catch {
-            throw ImageRepositoryError.imageDirectoryNoAccess(
-                directoryURL.path(percentEncoded: false)
+            let path = directoryURL.path(percentEncoded: false)
+            if Self.isPermissionFailure(error) {
+                throw ImageRepositoryError.imageDirectoryNoAccess(path)
+            }
+            throw ImageRepositoryError.imageDirectoryUnavailable(
+                path,
+                reason: error.localizedDescription
             )
         }
+    }
+
+    private nonisolated static func isPermissionFailure(_ error: any Error) -> Bool {
+        guard let error = error as? CocoaError else { return false }
+        switch error.code {
+        case .fileReadNoPermission, .fileWriteNoPermission, .fileWriteVolumeReadOnly:
+            return true
+        default:
+            return false
+        }
+    }
+
+    func load(imageDir: String) throws -> [ImageRecord] {
+        let directoryURL = resolvedImageDirectoryURL(fromPath: imageDir)
+        try ensureImageDirectoryExists(directoryURL)
 
         let items = try fileSystem.contentsOfDirectory(at: directoryURL)
         let imageURLs =
@@ -166,13 +189,7 @@ actor ImageRepository {
 
     func ensureOutputDirectory(imageDir: String) throws -> URL {
         let directoryURL = resolvedImageDirectoryURL(fromPath: imageDir)
-        do {
-            try fileSystem.ensureDirectoryExists(directoryURL)
-        } catch {
-            throw ImageRepositoryError.imageDirectoryNoAccess(
-                directoryURL.path(percentEncoded: false)
-            )
-        }
+        try ensureImageDirectoryExists(directoryURL)
 
         guard fileSystem.isWritableDirectory(directoryURL) else {
             throw ImageRepositoryError.imageDirectoryNoAccess(

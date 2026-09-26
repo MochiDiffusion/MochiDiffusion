@@ -419,6 +419,47 @@ struct ImageRepositoryTests {
         #expect(url.lastPathComponent == "outside.png")
     }
 
+    @Test("A folder that cannot be created for a non-permission reason names the cause")
+    func nonPermissionDirectoryFailureKeepsCause() async throws {
+        let blocker = temp.appending("not-a-folder")
+        try Data([1]).write(to: blocker)
+        let directory = blocker.appending(path: "images")
+        let repository = ImageRepository()
+
+        do {
+            _ = try await repository.ensureOutputDirectory(
+                imageDir: directory.path(percentEncoded: false)
+            )
+            Issue.record("Expected creating the images folder to fail")
+        } catch ImageRepositoryError.imageDirectoryUnavailable(let path, let reason) {
+            #expect(URL(fileURLWithPath: path).pathComponents == directory.pathComponents)
+            #expect(!reason.isEmpty)
+        }
+    }
+
+    @Test("A folder Mochi may not create is reported as no access")
+    func permissionDirectoryFailureIsNoAccess() async throws {
+        let parent = try temp.subdirectory("read-only")
+        try FileManager.default.setAttributes([.posixPermissions: 0o555], ofItemAtPath: parent.path)
+        defer {
+            try? FileManager.default.setAttributes(
+                [.posixPermissions: 0o755],
+                ofItemAtPath: parent.path
+            )
+        }
+        let directory = parent.appending(path: "images")
+        let repository = ImageRepository()
+
+        do {
+            _ = try await repository.ensureOutputDirectory(
+                imageDir: directory.path(percentEncoded: false)
+            )
+            Issue.record("Expected creating the images folder to fail")
+        } catch ImageRepositoryError.imageDirectoryNoAccess(let path) {
+            #expect(URL(fileURLWithPath: path).pathComponents == directory.pathComponents)
+        }
+    }
+
     @Test("An empty image directory resolves to the injected default")
     func emptyDirectoryUsesDefaultForWrites() async throws {
         let defaultDirectory = temp.appending("default-images")

@@ -589,6 +589,11 @@ final class GenerationController {
                 .error("Couldn't access images folder at: \(path)")
             )
             return
+        } catch ImageRepositoryError.imageDirectoryUnavailable(let path, let reason) {
+            await generationService.updateStatus(
+                .error("Couldn't create images folder at: \(path). \(reason)")
+            )
+            return
         } catch {
             await generationService.updateStatus(
                 .error("Couldn't access images folder.")
