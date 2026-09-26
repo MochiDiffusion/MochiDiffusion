@@ -217,10 +217,6 @@ Play notification sound
 No comment provided by engineer. */
 "Play notification sound" = "알림 사운드 재생";
 /* en.lproj/Localizable.strings
-Quick Look
-View current image using Quick Look */
-"Quick Look" = "훑어보기";
-/* en.lproj/Localizable.strings
 Reduce Memory Usage
 No comment provided by engineer. */
 "Reduce Memory Usage" = "메모리 사용량 줄이기";
@@ -267,14 +263,6 @@ No comment provided by engineer. */
 Select
 OK button text for choose image panel */
 "Select" = "선택";
-/* en.lproj/Localizable.strings
-Select Next
-Select next image in Gallery */
-"Select Next" = "다음 선택";
-/* en.lproj/Localizable.strings
-Select Previous
-Select previous image in Gallery */
-"Select Previous" = "이전 선택";
 /* en.lproj/Localizable.strings
 Send Notifications
 No comment provided by engineer. */
