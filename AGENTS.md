@@ -5,6 +5,8 @@
 - Run tests: `xcodebuild test -project "Mochi Diffusion.xcodeproj" -scheme "Mochi Diffusion" -destination "platform=macOS" -configuration Debug`
 - Lint/format: `swift format lint -p -r ./`  
 - Always ensure the project builds cleanly after any change. Resolve any lint warnings before committing any changes.
+- Releases follow [RELEASING.md](RELEASING.md). Before the release build, record a code health
+  snapshot with `scripts/code_health.sh`. The snapshot is informational and never blocks a release.
 
 ## Commit & Pull Request Guidelines
 - Commit message format (from `CONTRIBUTING.md`):  
@@ -49,7 +51,8 @@ Draw Things wrote. The abandoned Iris LoRA experiments are not carry-over work.
 
 Beads owns task status, acceptance criteria and dependencies. `MochiDiffusion-bpb` is the
 finite 6.2 release epic: `MochiDiffusion-bpb.1` holds the backlog fixes,
-`MochiDiffusion-ruj` is PNG-only output and `MochiDiffusion-e4v` is Musubi.
+`MochiDiffusion-ruj` is PNG-only output, `MochiDiffusion-bpb.2` acts on the static analysis
+pass and `MochiDiffusion-e4v` is Musubi.
 `MochiDiffusion-2lu` is the beta line and is not part of 6.2. Use the existing
 database; do not create a replacement if access fails. Closed beads are historical and
 may describe abandoned work. They do not create obligations to restore it. Do not turn
