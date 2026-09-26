@@ -30,21 +30,27 @@ Follow the commit conventions above as normal.
 
 ## Scope and Planning
 
-The next release is a minor stability and workflow release. It ships Core ML and Iris through
-one combined model picker, keeps the completed multi-engine foundation underneath, and includes
-multiple reference images/crop controls and gallery memory improvements. The explicit engine
-picker, engine-oriented settings UI and OpenAI hosted generation are excluded from this stable
-release surface. Preserve the OpenAI implementation and multi-engine contracts where practical
-for a later experimental beta rather than rolling back the architecture wholesale.
+The next release is 6.2. It integrates Musubi for generation metadata and simplifies image
+output to PNG only. The shipped engines stay Core ML and Iris behind one combined model
+picker. The explicit engine picker, engine-oriented settings UI and OpenAI hosted generation
+stay out of the stable surface. Preserve the OpenAI implementation and multi-engine
+contracts for a later experimental beta rather than rolling back the architecture wholesale.
 
-Draw Things and Musubi interoperability are explicitly postponed by Graham. Draw Things is
-preserved on branch `codex/draw-things-prototype` at
-`e18663b3877bd42fac9fe169063a052b567a4f8a` and excluded from the release, including its
-exclusive dependencies.
-The abandoned Iris LoRA experiments are not carry-over work.
+Before the 6.2 feature work starts, the post-6.1 backlog fixes land on develop. They ship
+with 6.2 and do not get a patch release of their own.
 
-Beads owns task status, acceptance criteria and dependencies. `MochiDiffusion-q73` is the
-finite next-release epic; `MochiDiffusion-e4v` is the deferred Musubi epic. Use the existing
+PNG-only output removes JPEG and HEIC writing. Released JPEG and HEIC images must stay
+readable, and exporting one converts it to PNG with its generation metadata.
+
+Draw Things interoperability is explicitly postponed by Graham. It is preserved on branch
+`codex/draw-things-prototype` at `e18663b3877bd42fac9fe169063a052b567a4f8a` and excluded
+from the release, including its exclusive dependencies. Musubi may still read images that
+Draw Things wrote. The abandoned Iris LoRA experiments are not carry-over work.
+
+Beads owns task status, acceptance criteria and dependencies. `MochiDiffusion-bpb` is the
+finite 6.2 release epic: `MochiDiffusion-bpb.1` holds the backlog fixes,
+`MochiDiffusion-ruj` is PNG-only output and `MochiDiffusion-e4v` is Musubi.
+`MochiDiffusion-2lu` is the beta line and is not part of 6.2. Use the existing
 database; do not create a replacement if access fails. Closed beads are historical and
 may describe abandoned work. They do not create obligations to restore it. Do not turn
 every research idea into a task or expand release scope without a concrete need.
@@ -169,10 +175,10 @@ The multi-engine foundation is implemented. Current ownership and contracts foll
     display name alone.
   - Generated and imported images share one interpretation path
     (`createImageRecordFromURL`).
-  - Musubi is not integrated. Keep the current caption format for this release; broad
-    interoperability, per-output snapshot design and new container writers remain deferred.
+  - Musubi is not yet integrated; 6.2 replaces the caption format with Musubi reading and
+    PNG writing, tracked in `MochiDiffusion-e4v`. Until then keep the caption format.
     `Scheduler` is still Core ML vocabulary. Unknown imported values must not be presented
-    or restored as a known default; the bounded correction is tracked in the release epic.
+    or restored as a known default; `MochiDiffusion-e4v.10` covers this for Musubi.
 
 - Gallery ownership and memory:
   - `ImageGallery` and `GenerationService` are app-owned, not singletons.
