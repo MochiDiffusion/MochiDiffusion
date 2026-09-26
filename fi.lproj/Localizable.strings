@@ -92,10 +92,6 @@ Open in Finder
 No comment provided by engineer. */
 "Open in Finder" = "Avaa Finderissa";
 /* en.lproj/Localizable.strings
-Quick Look
-View current image using Quick Look */
-"Quick Look" = "Pikainen Vilkaisu";
-/* en.lproj/Localizable.strings
 Reduce Memory Usage
 No comment provided by engineer. */
 "Reduce Memory Usage" = "Vähennä muistin Käyttöä";
@@ -138,14 +134,6 @@ No comment provided by engineer. */
 Seed
 No comment provided by engineer. */
 "Seed" = "Seed-luku";
-/* en.lproj/Localizable.strings
-Select Next
-Select next image in Gallery */
-"Select Next" = "Valitse Seuraava";
-/* en.lproj/Localizable.strings
-Select Previous
-Select previous image in Gallery */
-"Select Previous" = "Valitse Edellinen";
 /* en.lproj/Localizable.strings
 Share...
 Toolbar button to show the system share sheet */
