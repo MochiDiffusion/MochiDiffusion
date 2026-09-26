@@ -233,10 +233,6 @@ Play notification sound
 No comment provided by engineer. */
 "Play notification sound" = "通知音を鳴らす";
 /* en.lproj/Localizable.strings
-Quick Look
-View current image using Quick Look */
-"Quick Look" = "クイックルック";
-/* en.lproj/Localizable.strings
 Reduce Memory Usage
 No comment provided by engineer. */
 "Reduce Memory Usage" = "メモリ使用量の削減";
@@ -283,14 +279,6 @@ No comment provided by engineer. */
 Select
 OK button text for choose image panel */
 "Select" = "選択";
-/* en.lproj/Localizable.strings
-Select Next
-Select next image in Gallery */
-"Select Next" = "次を選択";
-/* en.lproj/Localizable.strings
-Select Previous
-Select previous image in Gallery */
-"Select Previous" = "前を選択";
 /* en.lproj/Localizable.strings
 Send Notifications
 No comment provided by engineer. */
