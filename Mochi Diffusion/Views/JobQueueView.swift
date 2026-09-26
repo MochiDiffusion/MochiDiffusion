@@ -12,15 +12,13 @@ struct JobQueueView: View {
     @Environment(GenerationState.self) private var generationState: GenerationState
     @Environment(GenerationController.self) private var controller: GenerationController
 
-    @State private var progressData: (Double, String)?
-
-    private func updateProgressData() {
+    private var progressData: (Double, String)? {
         if case .running(let progress) = generationState.state, let progress = progress,
             progress.stepCount > 0
         {
             let step = progress.step + 1
             let stepValue = Double(step) / Double(progress.stepCount)
-            progressData = (stepValue, progress.localizedLabel)
+            return (stepValue, progress.localizedLabel)
         } else if case .loading(let stage) = generationState.state {
             let progressLabel =
                 stage
@@ -28,7 +26,7 @@ struct JobQueueView: View {
                     localized: "Preparing generation...",
                     comment: "Fallback text displayed while an engine prepares a generation"
                 )
-            progressData = (-1, progressLabel)
+            return (-1, progressLabel)
         } else if case .canceling(let stage) = generationState.state {
             let progressLabel =
                 stage
@@ -36,9 +34,9 @@ struct JobQueueView: View {
                     localized: "Canceling...",
                     comment: "Text displayed while waiting for generation cancellation cleanup"
                 )
-            progressData = (-1, progressLabel)
+            return (-1, progressLabel)
         } else {
-            progressData = nil
+            return nil
         }
     }
 
@@ -48,12 +46,6 @@ struct JobQueueView: View {
                 if let currentGeneration = controller.currentGeneration {
                     JobView(request: currentGeneration, progress: progressData) {
                         Task { await controller.stopCurrentGeneration() }
-                    }
-                    .onAppear {
-                        updateProgressData()
-                    }
-                    .onChange(of: generationState.state) {
-                        updateProgressData()
                     }
                 } else if case .canceling(let stage) = generationState.state {
                     CancelingJobView(
