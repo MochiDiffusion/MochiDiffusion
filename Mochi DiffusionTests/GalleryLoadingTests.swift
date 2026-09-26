@@ -3,6 +3,7 @@
 //  Mochi DiffusionTests
 //
 
+import CoreGraphics
 import Foundation
 import Testing
 import UniformTypeIdentifiers
@@ -38,15 +39,40 @@ struct GalleryLoadingTests {
         )
     }
 
+    /// A controller that has finished its initial load and whose folder monitor
+    /// is stopped, so every folder sync in the test is one the test asked for.
+    private func makeSettledController(
+        gallery: ImageGallery,
+        thumbnailProvider: GalleryThumbnailProvider = GalleryThumbnailProvider(),
+        fullImageProvider: GalleryFullImageProvider = GalleryFullImageProvider()
+    ) async throws -> GalleryController {
+        let controller = makeController(
+            gallery: gallery,
+            thumbnailProvider: thumbnailProvider,
+            fullImageProvider: fullImageProvider
+        )
+        while controller.isLoading {
+            try await Task.sleep(for: .milliseconds(5))
+        }
+        controller.shutdown()
+        return controller
+    }
+
     /// Writes an importable image: the version gate rejects anything without a
     /// `Generator` key naming 2.2 or later.
-    private func writeImportableImage(named name: String, prompt: String) throws {
+    private func writeImportableImage(
+        named name: String,
+        prompt: String,
+        in directory: URL? = nil,
+        image: CGImage = makeCGImage()
+    ) throws {
         try writePNG(
             caption: MetadataCodec.encode([
                 (.includeInImage, prompt),
                 (.generator, "Mochi Diffusion 6.0"),
             ]),
-            to: imageDir.appending(path: name)
+            to: (directory ?? imageDir).appending(path: name),
+            image: image
         )
     }
 
@@ -209,10 +235,6 @@ struct GalleryLoadingTests {
     /// Cache consistency from the controller down. `removeImage` unlinks the file,
     /// so a later import can put different pixels at the same path, and both caches
     /// key on path.
-    ///
-    /// The import itself is behind an `NSOpenPanel`, so this drives the delete and
-    /// writes the replacement directly, which is the same sequence of effects on
-    /// the folder.
     @Test("Deleting an image stops its pixels being served for that path")
     func deletingAnImageInvalidatesItsCaches() async throws {
         try writePNG(
@@ -226,12 +248,11 @@ struct GalleryLoadingTests {
         let thumbnailProvider = GalleryThumbnailProvider()
         let fullImageProvider = GalleryFullImageProvider()
         let gallery = ImageGallery()
-        let controller = makeController(
+        let controller = try await makeSettledController(
             gallery: gallery,
             thumbnailProvider: thumbnailProvider,
             fullImageProvider: fullImageProvider
         )
-        await controller.loadImages()
         let sdi = try #require(gallery.images.first)
 
         // Viewed: both caches now hold this file's pixels under its path.
@@ -239,14 +260,23 @@ struct GalleryLoadingTests {
         _ = try #require(await fullImageProvider.image(forPath: sdi.path))
 
         await controller.removeImage(sdi)
-        // A different image arrives at the same path, as a reimport produces.
+        // A different image is imported under the same name.
+        let incoming = try temp.subdirectory("incoming").appending(path: "one.png")
         try writePNG(
             caption: MetadataCodec.encode([
                 (.includeInImage, "a dog"),
                 (.generator, "Mochi Diffusion 6.0"),
             ]),
-            to: URL(filePath: sdi.path),
+            to: incoming,
             image: makeCGImage(width: 64, height: 256)
+        )
+        let imported = await controller.importImages(from: [incoming])
+        #expect(imported.succeeded == 1)
+        // The temporary folder is reached through a symlink, and loading and
+        // importing spell its path differently.
+        #expect(
+            gallery.images.first.map { URL(filePath: $0.path).resolvingSymlinksInPath() }
+                == URL(filePath: sdi.path).resolvingSymlinksInPath()
         )
 
         let thumbnail = try #require(
@@ -257,7 +287,145 @@ struct GalleryLoadingTests {
         #expect(thumbnail.height == thumbnail.width * 4)
         #expect(full.width == 64)
         #expect(full.height == 256)
-        controller.shutdown()
+    }
+
+    // MARK: - Folder sync
+
+    @Test("Folder sync adds new files, drops deleted ones and keeps the rest")
+    func syncReconcilesWithTheFolder() async throws {
+        try writeImportableImage(named: "one.png", prompt: "a cat")
+        try writeImportableImage(named: "two.png", prompt: "a dog")
+        let gallery = ImageGallery()
+        let controller = try await makeSettledController(gallery: gallery)
+        let kept = try #require(gallery.allImages.first { $0.prompt == "a cat" })
+
+        try writeImportableImage(named: "three.png", prompt: "a bird")
+        try FileManager.default.removeItem(at: imageDir.appending(path: "two.png"))
+        await controller.syncImages()
+
+        #expect(gallery.allImages.count == 2)
+        #expect(Set(gallery.allImages.map(\.prompt)) == ["a cat", "a bird"])
+        // The same record, not a reloaded copy, so its selection and state survive.
+        #expect(gallery.allImages.first { $0.prompt == "a cat" }?.id == kept.id)
+    }
+
+    @Test("A second folder sync with no changes adds nothing")
+    func repeatedSyncIsStable() async throws {
+        try writeImportableImage(named: "one.png", prompt: "a cat")
+        let gallery = ImageGallery()
+        let controller = try await makeSettledController(gallery: gallery)
+        try writeImportableImage(named: "two.png", prompt: "a dog")
+
+        await controller.syncImages()
+        await controller.syncImages()
+
+        #expect(gallery.allImages.map(\.prompt).sorted() == ["a cat", "a dog"])
+    }
+
+    /// Covers a file removed outside the app, which `removeImage` never sees.
+    @Test("Folder sync stops a vanished file's pixels being served for its path")
+    func syncInvalidatesRemovedPaths() async throws {
+        try writeImportableImage(
+            named: "one.png", prompt: "a cat", image: makeCGImage(width: 512, height: 256))
+        let thumbnailProvider = GalleryThumbnailProvider()
+        let fullImageProvider = GalleryFullImageProvider()
+        let gallery = ImageGallery()
+        let controller = try await makeSettledController(
+            gallery: gallery,
+            thumbnailProvider: thumbnailProvider,
+            fullImageProvider: fullImageProvider
+        )
+        let sdi = try #require(gallery.images.first)
+        _ = try #require(await thumbnailProvider.thumbnail(for: sdi.path, maxPixelSize: 64))
+        _ = try #require(await fullImageProvider.image(forPath: sdi.path))
+
+        try FileManager.default.removeItem(atPath: sdi.path)
+        await controller.syncImages()
+        #expect(gallery.allImages.isEmpty)
+        try writeImportableImage(
+            named: "one.png", prompt: "a dog", image: makeCGImage(width: 64, height: 256))
+
+        let thumbnail = try #require(
+            await thumbnailProvider.thumbnail(for: sdi.path, maxPixelSize: 64))
+        let full = try #require(await fullImageProvider.image(forPath: sdi.path))
+        #expect(thumbnail.height == thumbnail.width * 4)
+        #expect(full.width == 64)
+    }
+
+    // MARK: - Import
+
+    @Test("Importing copies images into the images folder and adds them to the gallery")
+    func importCopiesAndAdds() async throws {
+        let incoming = try temp.subdirectory("incoming")
+        try writeImportableImage(named: "valid.png", prompt: "imported", in: incoming)
+        // No `Generator` key, so the version gate rejects it.
+        try writePNG(caption: "Include in Image: raw", to: incoming.appending(path: "raw.png"))
+        let gallery = ImageGallery()
+        let controller = try await makeSettledController(gallery: gallery)
+
+        let result = await controller.importImages(from: [
+            incoming.appending(path: "valid.png"),
+            incoming.appending(path: "raw.png"),
+        ])
+
+        #expect(result.succeeded == 1)
+        #expect(result.failed == 1)
+        let imported = try #require(gallery.allImages.only)
+        #expect(imported.prompt == "imported")
+        #expect(imported.path == imageDir.appending(path: "valid.png").path(percentEncoded: false))
+        #expect(FileManager.default.fileExists(atPath: imported.path))
+        #expect(!FileManager.default.fileExists(atPath: imageDir.appending(path: "raw.png").path))
+        #expect(!controller.isLoading)
+    }
+
+    // MARK: - Save All
+
+    @Test("Save All writes every gallery image, numbered in gallery order")
+    func saveAllWritesInGalleryOrder() async throws {
+        try writeImportableImage(named: "one.png", prompt: "a cat")
+        try writeImportableImage(named: "two.png", prompt: "a dog")
+        let gallery = ImageGallery()
+        let controller = try await makeSettledController(gallery: gallery)
+        let exportDir = try temp.subdirectory("export")
+
+        await controller.saveAll(to: exportDir)
+
+        let expected = gallery.images.enumerated().map { index, sdi in
+            sdi.filenameWithoutExtension(count: index + 1) + ".png"
+        }
+        let written = try FileManager.default.contentsOfDirectory(
+            atPath: exportDir.path(percentEncoded: false))
+        #expect(written.sorted() == expected.sorted())
+        for name in written {
+            let data = try Data(contentsOf: exportDir.appending(path: name))
+            #expect(pixelSize(of: data) != nil)
+        }
+    }
+
+    /// An image that recorded only a prompt must not gain a scheduler and step
+    /// count on the way out.
+    @Test("Save All writes only the metadata fields each image recorded")
+    func saveAllKeepsRecordedFields() async throws {
+        try writeImportableImage(named: "one.png", prompt: "a cat")
+        let gallery = ImageGallery()
+        let controller = try await makeSettledController(gallery: gallery)
+        let sdi = try #require(gallery.images.first)
+        let exportDir = try temp.subdirectory("export")
+
+        await controller.saveAll(to: exportDir)
+
+        let name = sdi.filenameWithoutExtension(count: 1) + ".png"
+        let exported = try #require(createImageRecordFromURL(exportDir.appending(path: name)))
+        #expect(gallery.metadataFields(for: sdi.id) == [.prompt])
+        #expect(exported.metadataFields == [.prompt])
+        #expect(exported.prompt == "a cat")
+    }
+}
+
+extension Collection {
+    /// The single element, or nil when there are none or several.
+    fileprivate var only: Element? {
+        count == 1 ? first : nil
     }
 }
 

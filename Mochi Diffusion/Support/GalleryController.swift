@@ -157,22 +157,7 @@ final class GalleryController {
         let selectedURLs = panel.urls
         if selectedURLs.isEmpty { return }
 
-        isLoading = true
-        let (records, failed) = await imageRepository.importImages(
-            from: selectedURLs, imageDir: configStore.imageDir)
-        let imagesAndMetadata = records.compactMap { record in
-            createSDImage(from: record).map { image in
-                (image: image, metadataFields: record.metadataFields)
-            }
-        }
-        // Before the gallery shows them: an imported file can land on a path an
-        // earlier image was cached under.
-        for record in records {
-            invalidateCaches(for: record.path)
-        }
-        let succeeded = imagesAndMetadata.count
-        imageGallery.add(imagesAndMetadata)
-        isLoading = false
+        let (succeeded, failed) = await importImages(from: selectedURLs)
 
         let alert = NSAlert()
         alert.messageText = String(localized: "Imported \(succeeded) image(s)")
@@ -185,6 +170,28 @@ final class GalleryController {
         alert.alertStyle = .informational
         alert.addButton(withTitle: "OK")
         await ModalPresentation.present(alert)
+    }
+
+    /// Copies `urls` into the images folder and adds the copies to the gallery.
+    ///
+    /// Returns how many images were added and how many were not.
+    func importImages(from urls: [URL]) async -> (succeeded: Int, failed: Int) {
+        isLoading = true
+        defer { isLoading = false }
+        let (records, failed) = await imageRepository.importImages(
+            from: urls, imageDir: configStore.imageDir)
+        let imagesAndMetadata = records.compactMap { record in
+            createSDImage(from: record).map { image in
+                (image: image, metadataFields: record.metadataFields)
+            }
+        }
+        // Before the gallery shows them: an imported file can land on a path an
+        // earlier image was cached under.
+        for record in records {
+            invalidateCaches(for: record.path)
+        }
+        imageGallery.add(imagesAndMetadata)
+        return (imagesAndMetadata.count, failed)
     }
 
     func saveAll() async {
@@ -202,6 +209,12 @@ final class GalleryController {
         }
 
         guard let selectedURL = panel.url else { return }
+        await saveAll(to: selectedURL)
+    }
+
+    /// Writes every image in the gallery's current order to `directory` as PNG,
+    /// numbered from 1 in that order.
+    func saveAll(to directory: URL) async {
         let images = imageGallery.images
         var exportRequests: [ImageExportRequest] = []
         exportRequests.reserveCapacity(images.count)
@@ -222,7 +235,7 @@ final class GalleryController {
             )
         }
 
-        await imageRepository.exportAllImages(exportRequests, to: selectedURL)
+        await imageRepository.exportAllImages(exportRequests, to: directory)
     }
 
     func copyImage(_ sdi: SDImage) async {
@@ -312,7 +325,10 @@ final class GalleryController {
         fullImageProvider.invalidate(path: path)
     }
 
-    private func syncImages() async {
+    /// Brings the gallery in line with the images folder: adds files the gallery
+    /// does not have and removes images whose file is gone. The folder monitor
+    /// calls this after each change it reports.
+    func syncImages() async {
         let imageDir = imageDirectoryPath()
         let existingPaths = imageGallery.allImages.compactMap { sdi in
             sdi.path.isEmpty ? nil : sdi.path
