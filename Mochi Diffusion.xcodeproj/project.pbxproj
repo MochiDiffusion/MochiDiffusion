@@ -106,6 +106,7 @@
 		AA50000000000000000001962 /* EngineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA50000000000000000001961 /* EngineView.swift */; };
 		AA50000000000000000001972 /* EngineSelectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA50000000000000000001971 /* EngineSelectionTests.swift */; };
 		AA50000000000000000001982 /* QueueLivenessTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA50000000000000000001981 /* QueueLivenessTests.swift */; };
+		AA50000000000000000002082 /* GenerationResultPathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA50000000000000000002081 /* GenerationResultPathTests.swift */; };
 		AA50000000000000000001992 /* GenerationOwnershipTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA50000000000000000001991 /* GenerationOwnershipTests.swift */; };
 		AA50000000000000000002002 /* IdleTimeoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA50000000000000000002001 /* IdleTimeoutTests.swift */; };
 		AA70000000000000000000052 /* CancellationBindingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA70000000000000000000051 /* CancellationBindingTests.swift */; };
@@ -266,6 +267,7 @@
 		AA50000000000000000001961 /* EngineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngineView.swift; sourceTree = "<group>"; };
 		AA50000000000000000001971 /* EngineSelectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngineSelectionTests.swift; sourceTree = "<group>"; };
 		AA50000000000000000001981 /* QueueLivenessTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueueLivenessTests.swift; sourceTree = "<group>"; };
+		AA50000000000000000002081 /* GenerationResultPathTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationResultPathTests.swift; sourceTree = "<group>"; };
 		AA50000000000000000001991 /* GenerationOwnershipTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationOwnershipTests.swift; sourceTree = "<group>"; };
 		AA50000000000000000002001 /* IdleTimeoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdleTimeoutTests.swift; sourceTree = "<group>"; };
 		AA70000000000000000000051 /* CancellationBindingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CancellationBindingTests.swift; sourceTree = "<group>"; };
@@ -524,6 +526,7 @@
 				AA50000000000000000001971 /* EngineSelectionTests.swift */,
 				AA5000000000000000002047 /* FailureReportingTests.swift */,
 				AA50000000000000000001981 /* QueueLivenessTests.swift */,
+				AA50000000000000000002081 /* GenerationResultPathTests.swift */,
 				AA70000000000000000000011 /* GalleryLoadingTests.swift */,
 				AA70000000000000000000021 /* GalleryImageProviderTests.swift */,
 				AA70000000000000000000031 /* ImageExportTests.swift */,
@@ -896,6 +899,7 @@
 				AA50000000000000000001972 /* EngineSelectionTests.swift in Sources */,
 				AA5000000000000000002048 /* FailureReportingTests.swift in Sources */,
 				AA50000000000000000001982 /* QueueLivenessTests.swift in Sources */,
+				AA50000000000000000002082 /* GenerationResultPathTests.swift in Sources */,
 				AA70000000000000000000012 /* GalleryLoadingTests.swift in Sources */,
 				AA70000000000000000000022 /* GalleryImageProviderTests.swift in Sources */,
 				AA70000000000000000000032 /* ImageExportTests.swift in Sources */,
