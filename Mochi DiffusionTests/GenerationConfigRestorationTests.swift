@@ -205,6 +205,122 @@ struct GenerationConfigRestorationTests {
         #expect(controller.startingImage?.image.height == 10)
     }
 
+    /// A gallery holding one path-backed reference per name, and one OpenAI image
+    /// per name whose metadata records that reference and a matching prompt.
+    private func makeRestoreGallery(_ names: [String]) -> (ImageGallery, [String: SDImage]) {
+        let gallery = ImageGallery()
+        var entries: [(image: SDImage, metadataFields: Set<MetadataField>)] = []
+        var sources: [String: SDImage] = [:]
+        for name in names {
+            let reference = SDImage(image: nil, aspectRatio: 1, path: "/tmp/\(name).png")
+            var source = SDImage(image: makeCGImage(), aspectRatio: 1, path: "")
+            source.model = "gpt-image-2"
+            source.engine = EngineID.openAI.rawValue
+            source.modelKey = "gpt-image-2"
+            source.prompt = "prompt \(name)"
+            source.inputImages = ["\(name).png"]
+            entries.append((image: reference, metadataFields: []))
+            entries.append(
+                (
+                    image: source,
+                    metadataFields: [.model, .engine, .modelKey, .prompt, .inputImages]
+                )
+            )
+            sources[name] = source
+        }
+        gallery.replaceAll(entries)
+        return (gallery, sources)
+    }
+
+    @Test("A newer Copy Options owns the sidebar when an older one finishes last")
+    func newerRestoreWinsOverOlderLoad() async throws {
+        let loader = ControlledImageLoader()
+        let provider = GalleryFullImageProvider { path in
+            await loader.load(path)
+        }
+        let (gallery, sources) = makeRestoreGallery(["a", "b"])
+        let controller = makeController(gallery: gallery, fullImageProvider: provider)
+        await controller.loadModels()
+
+        let older = Task { await controller.copyToPrompt(try #require(sources["a"])) }
+        await loader.waitUntilStarted("/tmp/a.png")
+        let newer = Task { await controller.copyToPrompt(try #require(sources["b"])) }
+        await loader.waitUntilStarted("/tmp/b.png")
+        await loader.finish("/tmp/b.png", with: makeCGImage(width: 12, height: 8))
+        try await newer.value
+        await loader.finish("/tmp/a.png", with: makeCGImage(width: 8, height: 12))
+        try await older.value
+
+        #expect(configStore.prompt == "prompt b")
+        #expect(controller.inputImages.map(\.name) == ["b.png"])
+        #expect(controller.inputImages.first?.image.width == 12)
+    }
+
+    @Test("Edits made while Copy Options loads are not overwritten")
+    func restoreDoesNotOverwriteNewerEdits() async throws {
+        let loader = ControlledImageLoader()
+        let provider = GalleryFullImageProvider { path in
+            await loader.load(path)
+        }
+        let (gallery, sources) = makeRestoreGallery(["a"])
+        let controller = makeController(gallery: gallery, fullImageProvider: provider)
+        await controller.loadModels()
+
+        let restore = Task { await controller.copyToPrompt(try #require(sources["a"])) }
+        await loader.waitUntilStarted("/tmp/a.png")
+        configStore.prompt = "typed while loading"
+        controller.addInputImage(image: makeCGImage(width: 20, height: 10), filename: "newer.png")
+        await loader.finish("/tmp/a.png", with: makeCGImage())
+        try await restore.value
+
+        #expect(configStore.prompt == "typed while loading")
+        #expect(controller.inputImages.map(\.name) == ["newer.png"])
+    }
+
+    @Test("A model change during Copy Options discards its late images")
+    func restoreDoesNotCrossModelChanges() async throws {
+        try makeSDModelFixture(at: modelDir.appending(path: "core"))
+        let loader = ControlledImageLoader()
+        let provider = GalleryFullImageProvider { path in
+            await loader.load(path)
+        }
+        let (gallery, sources) = makeRestoreGallery(["a"])
+        let controller = makeController(gallery: gallery, fullImageProvider: provider)
+        await controller.loadModels()
+
+        let restore = Task { await controller.copyToPrompt(try #require(sources["a"])) }
+        await loader.waitUntilStarted("/tmp/a.png")
+        try selectModel("core", on: controller)
+        await loader.finish("/tmp/a.png", with: makeCGImage())
+        try await restore.value
+
+        #expect(controller.currentModelId == ModelID(engine: .coreMLStableDiffusion, key: "core"))
+        #expect(controller.inputImages.isEmpty)
+    }
+
+    @Test("A gallery reuse supersedes an in-flight Copy Options")
+    func galleryReuseSupersedesRestore() async throws {
+        let loader = ControlledImageLoader()
+        let provider = GalleryFullImageProvider { path in
+            await loader.load(path)
+        }
+        let (gallery, sources) = makeRestoreGallery(["a"])
+        let controller = makeController(gallery: gallery, fullImageProvider: provider)
+        await controller.loadModels()
+        let reused = SDImage(image: nil, aspectRatio: 1, path: "/tmp/reused.png")
+
+        let restore = Task { await controller.copyToPrompt(try #require(sources["a"])) }
+        await loader.waitUntilStarted("/tmp/a.png")
+        let reuse = Task { await controller.useGalleryImage(reused) }
+        await loader.waitUntilStarted("/tmp/reused.png")
+        await loader.finish("/tmp/reused.png", with: makeCGImage())
+        await reuse.value
+        await loader.finish("/tmp/a.png", with: makeCGImage())
+        try await restore.value
+
+        #expect(controller.inputImages.map(\.name) == ["reused.png"])
+    }
+
     @Test("A queued unnamed starting image keeps its role and ControlNet")
     func queuedCoreMLRestoreKeepsExplicitImageRoles() async throws {
         let modelURL = modelDir.appending(path: "core-portrait")

@@ -221,7 +221,7 @@ final class GenerationController {
     var currentModelId: ModelID? {
         didSet {
             if oldValue != currentModelId {
-                galleryImageLoadGeneration += 1
+                sidebarImageLoadGeneration += 1
             }
             guard let model = models.first(where: { $0.id == self.currentModelId }) else {
                 // Selecting nothing clears the ControlNet state too, so the
@@ -358,9 +358,11 @@ final class GenerationController {
     private var controlNetDirDebounceTask: Task<Void, Never>?
     private var generationUpdatesTask: Task<Void, Never>?
     private var generationResultsTask: Task<Void, Never>?
-    /// Supersedes an older gallery image load when the user invokes the action
-    /// again before the first file has finished decoding.
-    private var galleryImageLoadGeneration = 0
+    /// Identifies the latest sidebar action that loads images: gallery reuse or
+    /// Copy Options. Each such action, and each model change, advances it, so an
+    /// older load that finishes later is discarded rather than overwriting the
+    /// newer action's images.
+    private var sidebarImageLoadGeneration = 0
     /// Stored, and capturing weakly, so `shutdown()` can cancel it and it cannot
     /// keep the controller alive.
     private var initialLoadTask: Task<Void, Never>?
@@ -699,19 +701,21 @@ final class GenerationController {
     /// Loads a gallery image on demand and sends it to the role the selected model
     /// accepts.
     ///
-    /// The file read suspends outside this main-actor controller. Model changes and
-    /// newer gallery actions own the sidebar after that suspension, so an older
-    /// load is discarded rather than updating their destination.
+    /// The file read suspends outside this main-actor controller. Model changes,
+    /// newer gallery actions, Copy Options and image edits own the sidebar after
+    /// that suspension, so an older load is discarded rather than updating their
+    /// destination.
     func useGalleryImage(_ sdi: SDImage) async {
         guard let modelID = currentModelId, let destination = galleryImageDestination else {
             return
         }
         let destinationStartingImage = startingImage
         let destinationInputImages = inputImages
-        galleryImageLoadGeneration += 1
-        let generation = galleryImageLoadGeneration
+        sidebarImageLoadGeneration += 1
+        let generation = sidebarImageLoadGeneration
         guard let image = await fullImageProvider.image(for: sdi) else { return }
-        guard generation == galleryImageLoadGeneration,
+        guard !isShutDown,
+            generation == sidebarImageLoadGeneration,
             currentModelId == modelID,
             galleryImageDestination == destination,
             startingImage == destinationStartingImage,
@@ -905,11 +909,23 @@ final class GenerationController {
         setModel(name)
     }
 
+    /// Restores a recorded configuration into the sidebar.
+    ///
+    /// Settings are applied before anything suspends, so a later edit always
+    /// lands after them. Only the images arrive late, because a path-backed gallery
+    /// image loads outside this main-actor controller. They are applied only if
+    /// this is still the latest image-loading action, the model is unchanged, and
+    /// the user has not changed the image inputs in the meantime.
     private func restoreSidebar(from source: SidebarRestoreSource) async {
         selectModel(for: source.model)
         guard let destinationModel = currentModel else { return }
         let destinationModelID = destinationModel.id
         let constraints = destinationModel.constraints
+        sidebarImageLoadGeneration += 1
+        let generation = sidebarImageLoadGeneration
+
+        apply(source, constrainedBy: constraints, to: destinationModel)
+        let destinationImages = SidebarImageInputs(self)
 
         let restoredStartingImage =
             constraints.startingImage.isSupported
@@ -940,14 +956,41 @@ final class GenerationController {
             }
         }
 
-        // Loading a path-backed gallery image suspends. If the user selected a
-        // different model while it was loading, that newer choice owns the sidebar.
-        guard currentModelId == destinationModelID else { return }
+        guard !isShutDown,
+            generation == sidebarImageLoadGeneration,
+            currentModelId == destinationModelID,
+            SidebarImageInputs(self) == destinationImages
+        else { return }
 
-        apply(source, constrainedBy: constraints, to: destinationModel)
         startingImage = restoredStartingImage
         inputImages = restoredInputImages
         currentControlNets = restoredControlNets
+    }
+
+    /// The sidebar's image inputs, compared by identity, to tell whether the user
+    /// changed them while a restore was loading.
+    private struct SidebarImageInputs: Equatable {
+        let startingImage: InputImage?
+        let inputImages: [InputImage]
+        let controlNets: [ControlNetIdentity]
+
+        struct ControlNetIdentity: Equatable {
+            let name: String?
+            let image: ObjectIdentifier?
+            let imageFilename: String?
+        }
+
+        init(_ controller: GenerationController) {
+            startingImage = controller.startingImage
+            inputImages = controller.inputImages
+            controlNets = controller.currentControlNets.map { controlNet in
+                ControlNetIdentity(
+                    name: controlNet.name,
+                    image: controlNet.image.map(ObjectIdentifier.init),
+                    imageFilename: controlNet.imageFilename
+                )
+            }
+        }
     }
 
     private func selectModel(for source: SidebarRestoreModel) {
