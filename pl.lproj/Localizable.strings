@@ -188,10 +188,6 @@ Open in Finder
 No comment provided by engineer. */
 "Open in Finder" = "Pokaż w Finderze";
 /* en.lproj/Localizable.strings
-Quick Look
-View current image using Quick Look */
-"Quick Look" = "Szybki pogląd";
-/* en.lproj/Localizable.strings
 Reduce Memory Usage
 No comment provided by engineer. */
 "Reduce Memory Usage" = "Zmniejsz zużycie pamięci";
@@ -238,14 +234,6 @@ No comment provided by engineer. */
 Select
 OK button text for choose image panel */
 "Select" = "Wybierz";
-/* en.lproj/Localizable.strings
-Select Next
-Select next image in Gallery */
-"Select Next" = "Wybierz następny";
-/* en.lproj/Localizable.strings
-Select Previous
-Select previous image in Gallery */
-"Select Previous" = "Wybierz poprzedni";
 /* en.lproj/Localizable.strings
 Set as Starting Image
 Set the current image as the starting image for img2img
