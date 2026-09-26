@@ -19,11 +19,22 @@ struct MochiDiffusionApp: App {
     @State private var store: ImageGallery
     @State private var notificationController: NotificationController
     @State private var quickLook: QuickLookState
-    @State private var quicklookURL: URL?
 
     private let thumbnailProvider: GalleryThumbnailProvider
     private let fullImageProvider: GalleryFullImageProvider
     private let updaterController: SPUStandardUpdaterController
+
+    /// The preview reports dismissal by clearing the URL, which closes the shared
+    /// state. It never sets a URL of its own, so only that write is handled.
+    private var quickLookURL: Binding<URL?> {
+        let quickLook = quickLook
+        return Binding(
+            get: { quickLook.url },
+            set: { newValue in
+                if newValue == nil { quickLook.close() }
+            }
+        )
+    }
 
     init() {
         let configStore = ConfigStore()
@@ -91,13 +102,7 @@ struct MochiDiffusionApp: App {
                         "com.apple.MetalPerformanceShadersGraph", isDirectory: true)
                     try? FileManager.default.removeItem(at: mpsURL)
                 }
-                .onChange(of: quickLook.url) { _, newValue in
-                    if quicklookURL != newValue { quicklookURL = newValue }
-                }
-                .onChange(of: quicklookURL) { _, newValue in
-                    if newValue == nil { quickLook.close() }
-                }
-                .quickLookPreview($quicklookURL)
+                .quickLookPreview(quickLookURL)
         }
         .environment(configStore)
         .environment(generationController)
