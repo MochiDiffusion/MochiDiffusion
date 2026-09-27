@@ -93,7 +93,7 @@ nonisolated final class OpenAIEngineRuntime: GenerationEngineRuntime {
         // One request per image: cancelling after the second of five costs two
         // rather than five, results reach the gallery as they arrive, and
         // partial-image previews are per-request.
-        for index in 0..<request.numberOfImages {
+        for _ in 0..<request.numberOfImages {
             if generationSession.isCancelled { return }
 
             let image = try await generateOne(
@@ -109,8 +109,7 @@ nonisolated final class OpenAIEngineRuntime: GenerationEngineRuntime {
             let result = try await makeResult(
                 image: image,
                 request: request,
-                payload: payload,
-                index: index
+                payload: payload
             )
             try await onResult(result)
         }
@@ -296,8 +295,7 @@ nonisolated final class OpenAIEngineRuntime: GenerationEngineRuntime {
     private func makeResult(
         image: CGImage,
         request: GenerationRequest,
-        payload: OpenAIGenerationPayload,
-        index: Int
+        payload: OpenAIGenerationPayload
     ) async throws -> GenerationResult {
         let metadata = GenerationMetadata(
             prompt: request.prompt,
@@ -324,7 +322,7 @@ nonisolated final class OpenAIEngineRuntime: GenerationEngineRuntime {
         // what embeds Mochi's metadata. `scheduler`, `steps` and `guidanceScale`
         // above are placeholders: this model declares none of them, so
         // `metadata(including:)` never writes them.
-        guard let data = await encode(image: image, metadata: metadata, request: request) else {
+        guard let data = await encode(image: image, metadata: metadata) else {
             throw GenerationError.malformedResponse
         }
         return GenerationResult(
@@ -337,8 +335,7 @@ nonisolated final class OpenAIEngineRuntime: GenerationEngineRuntime {
     @MainActor
     private func encode(
         image: CGImage,
-        metadata: GenerationMetadata,
-        request: GenerationRequest
+        metadata: GenerationMetadata
     ) async -> Data? {
         var sdi = SDImage(image: image, aspectRatio: 0, path: "")
         sdi.prompt = metadata.prompt

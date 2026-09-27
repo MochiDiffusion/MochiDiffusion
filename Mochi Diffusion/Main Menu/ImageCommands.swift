@@ -10,8 +10,6 @@ import SwiftUI
 struct ImageCommands: Commands {
     var generationController: GenerationController
     var galleryController: GalleryController
-    var configStore: ConfigStore
-    var generationState: GenerationState
     var store: ImageGallery
 
     var body: some Commands {

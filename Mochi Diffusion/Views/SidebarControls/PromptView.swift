@@ -93,7 +93,6 @@ struct PromptTextEditor: View {
 struct PromptView: View {
     @Environment(GenerationController.self) private var controller: GenerationController
     @Environment(ConfigStore.self) private var configStore: ConfigStore
-    @Environment(GenerationState.self) private var generationState: GenerationState
     @State private var tokenizer: Tokenizer?
     @State private var tokenLimit: Int?
     /// Measured from the "Include in Image" label, which is always present and

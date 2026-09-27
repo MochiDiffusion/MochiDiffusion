@@ -11,12 +11,10 @@ import SwiftUI
 enum ImagesSortType: String {
     case oldestFirst = "OLDEST_FIRST"
     case newestFirst = "NEWEST_FIRST"
-
-    static let allValues: [ImagesSortType] = [.oldestFirst, .newestFirst]
 }
 
 @MainActor
-@Observable public final class ImageGallery {
+@Observable final class ImageGallery {
 
     /// `nonisolated` so `MochiDiffusionApp.init` and `GenerationService` can call
     /// it; safe because it only initialises stored properties.
@@ -111,16 +109,6 @@ enum ImagesSortType: String {
         image.path.isEmpty ? nil : URL(fileURLWithPath: image.path).lastPathComponent
     }
 
-    @discardableResult
-    func add(_ sdis: [SDImage], animate: Bool = true) -> [SDImage.ID] {
-        add(
-            sdis.map { image in
-                (image: image, metadataFields: Set(MetadataField.allCases))
-            },
-            animate: animate
-        )
-    }
-
     func replaceAll(_ imagesAndMetadata: [(image: SDImage, metadataFields: Set<MetadataField>)]) {
         withAnimation {
             allImages = imagesAndMetadata.map(\.image)
@@ -196,10 +184,6 @@ enum ImagesSortType: String {
         allImages.firstIndex { $0.id == id }
     }
 
-    func image(with id: SDImage.ID) -> SDImage? {
-        allImages.first { $0.id == id }
-    }
-
     /// Finds a related gallery image by the basename recorded in image metadata.
     ///
     /// Metadata records only the source filename. The comparison ignores case and
@@ -212,13 +196,6 @@ enum ImagesSortType: String {
                 options: [.caseInsensitive, .diacriticInsensitive]
             ) == .orderedSame
         }
-    }
-
-    func image(with index: Int) -> SDImage? {
-        if allImages.isEmpty { return nil }
-        if index < allImages.startIndex { return nil }
-        if index > allImages.endIndex { return nil }
-        return allImages[index]
     }
 
     func select(_ id: SDImage.ID) {

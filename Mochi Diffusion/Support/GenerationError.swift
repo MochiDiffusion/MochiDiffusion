@@ -12,9 +12,6 @@ nonisolated enum GenerationError: Error, Equatable {
     /// stopped waiting. Distinct from cancellation, which is the user's doing. A
     /// remote service may still finish, and bill, after this.
     case requestExpired
-    case modelDirectoryNoAccess
-    case modelSubDirectoriesNoAccess
-    case noModelsFound
     case pipelineNotAvailable
     case requestedModelNotFound
 

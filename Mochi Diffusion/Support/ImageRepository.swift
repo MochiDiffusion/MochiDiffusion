@@ -13,7 +13,6 @@ struct ImageRecord: Sendable, Identifiable {
     var negativePrompt: String
     var width: Int
     var height: Int
-    var aspectRatio: Double
     var model: String
     var engine: String
     var modelKey: String

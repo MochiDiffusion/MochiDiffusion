@@ -12,7 +12,6 @@ nonisolated private let logger = Logger()
 
 nonisolated struct SDControlNet {
     let name: String
-    let url: URL
     let size: CGSize
     let attention: SDModelAttentionType
 
@@ -24,7 +23,6 @@ nonisolated struct SDControlNet {
         }
 
         self.name = url.deletingPathExtension().lastPathComponent
-        self.url = url
         self.size = size
         self.attention = attention
     }

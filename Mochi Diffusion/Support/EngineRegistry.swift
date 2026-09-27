@@ -166,10 +166,6 @@ actor EngineRegistry {
     }
 }
 
-nonisolated extension EngineRegistry.Discovery {
-    var isFailure: Bool { failure != nil }
-}
-
 /// `nonisolated` is load-bearing. Under `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor`
 /// an unannotated extension's closures are inferred main-actor-isolated, and
 /// `sorted(by:)` calls its predicate synchronously on the current thread — so the

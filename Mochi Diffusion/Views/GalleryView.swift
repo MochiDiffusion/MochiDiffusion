@@ -10,7 +10,6 @@ import SwiftUI
 struct GalleryView: View {
 
     @Environment(GenerationState.self) private var generationState: GenerationState
-    @Environment(GenerationController.self) private var controller: GenerationController
     @Environment(ImageGallery.self) private var store: ImageGallery
     @Environment(GalleryController.self) private var galleryController: GalleryController
     @Environment(QuickLookState.self) private var quickLook: QuickLookState

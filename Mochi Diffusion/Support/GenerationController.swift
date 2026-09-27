@@ -177,7 +177,6 @@ final class GenerationController {
     private var logger = Logger()
     private(set) var configStore: ConfigStore
     private(set) var engineSettings: EngineSettingsStore
-    private let modelRepository: ModelRepository
     private let engineRegistry: EngineRegistry
     private let imageRepository: ImageRepository
     private let fullImageProvider: GalleryFullImageProvider
@@ -385,7 +384,6 @@ final class GenerationController {
     ///   in the middle of their assertions.
     init(
         configStore: ConfigStore,
-        modelRepository: ModelRepository = ModelRepository(),
         imageRepository: ImageRepository = ImageRepository(),
         imageGallery: ImageGallery,
         generationService: GenerationService,
@@ -396,7 +394,6 @@ final class GenerationController {
         startsObserving: Bool = true
     ) {
         self.configStore = configStore
-        self.modelRepository = modelRepository
         self.engineRegistry = engineRegistry
         self.imageRepository = imageRepository
         self.fullImageProvider = fullImageProvider
@@ -617,15 +614,6 @@ final class GenerationController {
         startingImage = nil
     }
 
-    func selectStartingImage() async {
-        guard let image = await selectImage() else { return }
-        setStartingImage(image: image)
-    }
-
-    func setStartingImageEdit(_ edit: IrisReferenceImageEdit) {
-        startingImage?.edit = edit.clamped()
-    }
-
     // MARK: - Input images
 
     /// How many reference images the selected model will take.
@@ -646,10 +634,6 @@ final class GenerationController {
                 name: filename?.normalizedFilename ?? consumePendingSelectedImageFilename()
             )
         )
-    }
-
-    func setInputImages(_ images: [InputImage]) {
-        inputImages = images
     }
 
     /// Sets the image at `index`, appending when the list is not that long yet.
@@ -1320,14 +1304,12 @@ final class GenerationController {
         let metadata = result.metadata
         let width = metadata.width
         let height = metadata.height
-        let aspectRatio = height > 0 ? Double(width) / Double(height) : 0
         let record = ImageRecord(
             id: result.id,
             prompt: metadata.prompt,
             negativePrompt: metadata.negativePrompt,
             width: width,
             height: height,
-            aspectRatio: aspectRatio,
             model: metadata.model,
             engine: metadata.engine,
             modelKey: metadata.modelKey,

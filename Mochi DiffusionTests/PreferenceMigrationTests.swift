@@ -288,7 +288,6 @@ struct ConfigStoreMigrationTests {
 
         let controller = makeTestGenerationController(
             configStore: store,
-            modelRepository: ModelRepository(),
             imageRepository: ImageRepository(),
             startsObserving: false
         )

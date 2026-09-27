@@ -50,12 +50,10 @@ actor GenerationService {
     /// late frame that would otherwise survive into the next request.
     private var didApplyPreviewSinceResult = false
     private let imageRepository: ImageRepository
-    private let modelRepository: ModelRepository
     private let engineRegistry: EngineRegistry
 
     init(
         imageRepository: ImageRepository = ImageRepository(),
-        modelRepository: ModelRepository = ModelRepository(),
         engineRegistry: EngineRegistry = EngineRegistry(),
         imageGallery: ImageGallery,
         notifyImagesReady: @escaping @Sendable (Int) async -> Void = { count in
@@ -63,7 +61,6 @@ actor GenerationService {
         }
     ) {
         self.imageRepository = imageRepository
-        self.modelRepository = modelRepository
         self.engineRegistry = engineRegistry
         self.imageGallery = imageGallery
         self.notifyImagesReady = notifyImagesReady

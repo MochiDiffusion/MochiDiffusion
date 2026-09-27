@@ -9,7 +9,7 @@ import SwiftUI
 import UserNotifications
 
 @MainActor
-@Observable public final class NotificationController {
+@Observable final class NotificationController {
     static let shared = NotificationController()
     var authStatus: UNAuthorizationStatus = .notDetermined
 

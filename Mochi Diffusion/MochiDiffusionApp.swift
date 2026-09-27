@@ -125,8 +125,6 @@ struct MochiDiffusionApp: App {
             ImageCommands(
                 generationController: generationController,
                 galleryController: galleryController,
-                configStore: configStore,
-                generationState: generationState,
                 store: store
             )
             HelpCommands()

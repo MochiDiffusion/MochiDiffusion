@@ -48,7 +48,6 @@ struct ModelSelectionPersistenceTests {
     {
         makeTestGenerationController(
             configStore: configStore,
-            modelRepository: ModelRepository(),
             imageRepository: ImageRepository(),
             imageGallery: imageGallery,
             engineRegistry: EngineRegistry(engines: [
@@ -67,7 +66,6 @@ struct ModelSelectionPersistenceTests {
         let secrets = InMemorySecretStore([OpenAIImageEngine.secretAccount: "sk-test"])
         return makeTestGenerationController(
             configStore: configStore,
-            modelRepository: ModelRepository(),
             imageRepository: ImageRepository(),
             imageGallery: imageGallery,
             engineRegistry: EngineRegistry.openAIBeta(secrets: secrets),
@@ -80,7 +78,6 @@ struct ModelSelectionPersistenceTests {
     private func makeBetaController() -> GenerationController {
         makeTestGenerationController(
             configStore: configStore,
-            modelRepository: ModelRepository(),
             imageRepository: ImageRepository(),
             engineRegistry: EngineRegistry.openAIBeta(secrets: NoSecretStore()),
             modelSelectionMode: .engineScoped,

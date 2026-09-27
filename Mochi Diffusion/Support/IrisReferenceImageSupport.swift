@@ -144,12 +144,8 @@ nonisolated enum IrisReferenceImageProcessor {
 nonisolated struct IrisReferenceBudgetReport: Sendable {
     let numHeads: Int
     let outputSize: CGSize
-    let outputTokenCount: Int
-    let textTokenCount: Int
-    let maxTotalTokenCount: Int
     let remainingReferenceTokenBudget: Int
     let perImageTokenBudget: Int
-    let normalizedReferenceSizes: [CGSize]
     let predictedReferenceSizes: [CGSize]
     let predictedReferenceTokenCounts: [Int]
 
@@ -197,12 +193,8 @@ nonisolated enum IrisReferenceBudgetEstimator {
         return IrisReferenceBudgetReport(
             numHeads: safeNumHeads,
             outputSize: outputPixelSize,
-            outputTokenCount: outputTokenCount,
-            textTokenCount: textTokenCount,
-            maxTotalTokenCount: maxTotalTokenCount,
             remainingReferenceTokenBudget: remainingReferenceTokenBudget,
             perImageTokenBudget: perImageTokenBudget,
-            normalizedReferenceSizes: normalizedReferences,
             predictedReferenceSizes: predictedReferences,
             predictedReferenceTokenCounts: predictedReferences.map(tokenCount(for:))
         )

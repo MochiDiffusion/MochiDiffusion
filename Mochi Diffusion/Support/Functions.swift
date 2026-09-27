@@ -188,7 +188,6 @@ nonisolated func createImageRecordFromURL(_ url: URL) -> ImageRecord? {
         negativePrompt: "",
         width: width,
         height: height,
-        aspectRatio: height > 0 ? Double(width) / Double(height) : 0,
         model: "",
         engine: "",
         modelKey: "",

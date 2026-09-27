@@ -369,5 +369,4 @@ nonisolated extension GenerationEngineDescriptor {
 nonisolated enum EngineError: Error, Equatable {
     case modelDoesNotBelongToEngine(model: ModelID, engine: EngineID)
     case payloadDoesNotBelongToEngine(engine: EngineID)
-    case noEngineForModel(ModelID)
 }

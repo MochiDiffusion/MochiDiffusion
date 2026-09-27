@@ -193,7 +193,6 @@ nonisolated func makeKleinModelFixture(
 @MainActor
 func makeTestGenerationController(
     configStore: ConfigStore,
-    modelRepository: ModelRepository = ModelRepository(),
     imageRepository: ImageRepository = ImageRepository(),
     imageGallery: ImageGallery = ImageGallery(),
     engineRegistry: EngineRegistry = EngineRegistry(),
@@ -204,7 +203,6 @@ func makeTestGenerationController(
 ) -> GenerationController {
     GenerationController(
         configStore: configStore,
-        modelRepository: modelRepository,
         imageRepository: imageRepository,
         imageGallery: imageGallery,
         generationService: GenerationService(

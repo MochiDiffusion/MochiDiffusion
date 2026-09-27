@@ -41,7 +41,6 @@ struct GenerationRequestBuilderTests {
     private func makeController() -> GenerationController {
         makeTestGenerationController(
             configStore: configStore,
-            modelRepository: ModelRepository(),
             imageRepository: ImageRepository(),
             startsObserving: false
         )

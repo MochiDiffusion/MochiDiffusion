@@ -65,31 +65,6 @@ extension SDImage {
         imageFilenameWithoutExtension(prompt: prompt, seed: seed, count: count)
     }
 
-    @MainActor
-    @discardableResult
-    /// Save image file to `pathURL`.
-    /// File extension will be automatically added based on `type`.
-    /// - Parameters:
-    ///   - pathURL: Full save path without extension.
-    ///   - type: Image type.
-    /// - Returns: Full file save path with extension.
-    func save(_ pathURL: URL, type: UTType) async -> URL? {
-        guard let data = await imageData(type) else {
-            NSLog("*** Failed to create image data")
-            return nil
-        }
-
-        let url = pathURL.appendingPathExtension(for: type)
-
-        do {
-            try data.write(to: url, options: .atomic)
-        } catch {
-            NSLog("*** Error saving image file: \(error.localizedDescription)")
-        }
-
-        return url
-    }
-
     /// The file URL this image was read from or written to, when it has one.
     ///
     /// A freshly generated image that has not reached the images folder yet has no

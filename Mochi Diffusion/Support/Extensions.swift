@@ -133,8 +133,8 @@ extension CGImage {
     }
 }
 
-public struct TransferableImage {
-    public let image: NSImage
+struct TransferableImage {
+    let image: NSImage
 }
 
 extension TransferableImage: Transferable {
@@ -227,19 +227,6 @@ extension Text {
 
     func selectableTextFormat() -> some View {
         modifier(SelectableTextFormat())
-    }
-}
-
-extension Binding {
-    @MainActor
-    func onChange(_ handler: @escaping @Sendable (Value) -> Void) -> Binding<Value> {
-        Binding(
-            get: { self.wrappedValue },
-            set: { newValue in
-                self.wrappedValue = newValue
-                handler(newValue)
-            }
-        )
     }
 }
 
