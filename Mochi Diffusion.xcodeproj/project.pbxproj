@@ -133,6 +133,7 @@
 		AA70000000000000000000032 /* ImageExportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA70000000000000000000031 /* ImageExportTests.swift */; };
 		AA70000000000000000000042 /* MetadataPresenceExportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA70000000000000000000041 /* MetadataPresenceExportTests.swift */; };
 		AA7500000000000000000001 /* FilterablePicker in Frameworks */ = {isa = PBXBuildFile; productRef = AA7500000000000000000002 /* FilterablePicker */; };
+		AA8800000000000000000001 /* Musubi in Frameworks */ = {isa = PBXBuildFile; productRef = AA8800000000000000000002 /* Musubi */; };
 		AA7600000000000000000002 /* CoreMLPipelineCacheKeyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA7600000000000000000001 /* CoreMLPipelineCacheKeyTests.swift */; };
 		AA80000000000000000000012 /* GalleryImageProviders.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA80000000000000000000011 /* GalleryImageProviders.swift */; };
 		AD83C9D690826D2A57A43EA8 /* GalleryController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 540CFF7CA65203E6AD7C64B1 /* GalleryController.swift */; };
@@ -328,6 +329,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AA7500000000000000000001 /* FilterablePicker in Frameworks */,
+				AA8800000000000000000001 /* Musubi in Frameworks */,
 				BF3689632F2F4337006501CE /* MetalPerformanceShaders.framework in Frameworks */,
 				BF3689622F2F4329006501CE /* MetalPerformanceShadersGraph.framework in Frameworks */,
 				03ADC8B9299581AF00B2843F /* StableDiffusion in Frameworks */,
@@ -610,6 +612,7 @@
 			name = "Mochi Diffusion";
 			packageProductDependencies = (
 				AA7500000000000000000002 /* FilterablePicker */,
+				AA8800000000000000000002 /* Musubi */,
 				0352E2A4294E2591003FBF25 /* Sparkle */,
 				0388DEAF297B00FC008B1C1C /* CompactSlider */,
 				03ADC8B8299581AF00B2843F /* StableDiffusion */,
@@ -706,6 +709,7 @@
 			mainGroup = 036BFC15294B9F7500D8AD04;
 			packageReferences = (
 				AA7500000000000000000003 /* XCRemoteSwiftPackageReference "FilterablePicker" */,
+				AA8800000000000000000003 /* XCRemoteSwiftPackageReference "Musubi" */,
 				0352E2A3294E2591003FBF25 /* XCRemoteSwiftPackageReference "Sparkle" */,
 				0388DEAE297B00FC008B1C1C /* XCLocalSwiftPackageReference "Vendor/CompactSlider" */,
 				03ADC8B7299581AF00B2843F /* XCRemoteSwiftPackageReference "ml-stable-diffusion" */,
@@ -1316,6 +1320,14 @@
 				minimumVersion = 1.0.1;
 			};
 		};
+		AA8800000000000000000003 /* XCRemoteSwiftPackageReference "Musubi" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/MochiDiffusion/Musubi.git";
+			requirement = {
+				kind = revision;
+				revision = 65771844a6a9c43840ee035b6972ad51cfbec44e;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1338,6 +1350,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = AA7500000000000000000003 /* XCRemoteSwiftPackageReference "FilterablePicker" */;
 			productName = FilterablePicker;
+		};
+		AA8800000000000000000002 /* Musubi */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AA8800000000000000000003 /* XCRemoteSwiftPackageReference "Musubi" */;
+			productName = Musubi;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

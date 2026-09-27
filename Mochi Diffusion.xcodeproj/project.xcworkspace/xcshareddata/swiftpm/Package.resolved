@@ -1,5 +1,5 @@
 {
-  "originHash" : "f74a915ce830d56bce4f1d50ddbda42d82a09c358adc2075974fd08595806b04",
+  "originHash" : "8fa63e5322fce25b70c9eac5893dcb3708b9607d18bf9209904e8724c6dd43ca",
   "pins" : [
     {
       "identity" : "filterablepicker",
@@ -17,6 +17,14 @@
       "state" : {
         "branch" : "main",
         "revision" : "e12202c1f6405b83918b58a5d097cd61e3e1f702"
+      }
+    },
+    {
+      "identity" : "musubi",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/MochiDiffusion/Musubi.git",
+      "state" : {
+        "revision" : "65771844a6a9c43840ee035b6972ad51cfbec44e"
       }
     },
     {
