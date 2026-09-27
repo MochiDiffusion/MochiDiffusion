@@ -18,19 +18,83 @@ what must be true before the release.
 You do not set the build number. `scripts/set_build_version.sh` runs during the build and sets
 `CFBundleVersion` to the commit count of `HEAD`.
 
+## Tools and one-time setup
+
+The release needs these tools:
+
+- Xcode, signed in with the Developer ID team.
+- `create-dmg` from npm (`npm install --global create-dmg`).
+- `sign_update` and `generate_keys` from the `bin` folder of a Sparkle release.
+
+Keep both signing secrets in the login keychain. Never put a secret in this repository, in
+release notes or in a shell command.
+
+1. Store the notarization credentials under the profile name that the notarize step uses:
+
+   ```sh
+   xcrun notarytool store-credentials "notarytool-password"
+   ```
+
+2. Import the Sparkle private key. The key signs every update, and installed copies accept
+   only updates that it signed. Put the key in a file, import it, then delete the file:
+
+   ```sh
+   generate_keys -f <private-key-file>
+   ```
+
+3. Make sure that the keychain holds the right key. This command prints the public key, which
+   must be equal to `SUPublicEDKey` in `MochiDiffusionInfo.plist`:
+
+   ```sh
+   generate_keys -p
+   ```
+
+Keep a backup of the Sparkle private key in a password manager. If you lose the key, you
+cannot ship updates to installed copies. To make a backup file, use `generate_keys -x <file>`.
+
 ## Release
 
 1. Bring `main` up to date with `develop`.
-2. Build, sign and notarize `MochiDiffusion_<version>.dmg` from `main`.
-3. Publish a GitHub release with the tag `v<version>`, and attach the DMG.
-4. Add an item for the new version at the top of `.sparkle/appcast.xml` on `main`. Copy the
+2. Build and notarize the app from `main`:
+   1. In Xcode, select Product > Archive.
+   2. In the Organizer, select Distribute App > Direct Distribution. Xcode signs the app and
+      sends it for notarization.
+   3. When notarization is complete, export `Mochi Diffusion.app`.
+3. Make the DMG in the folder that holds the exported app. `create-dmg` names it
+   `MochiDiffusion_<version>.dmg`.
+
+   ```sh
+   create-dmg "./Mochi Diffusion.app"
+   ```
+
+4. Notarize the DMG, then staple the ticket to it:
+
+   ```sh
+   xcrun notarytool submit "./MochiDiffusion_<version>.dmg" \
+       --keychain-profile "notarytool-password" --wait
+   xcrun stapler staple "./MochiDiffusion_<version>.dmg"
+   ```
+
+5. Tag the release commit `v<version>`. On GitHub, draft a new release for the tag, attach the
+   DMG and publish the release.
+6. Sign the DMG for Sparkle. `sign_update` reads the private key from the keychain, and prints
+   the `sparkle:edSignature` and `length` attributes:
+
+   ```sh
+   sign_update "./MochiDiffusion_<version>.dmg"
+   ```
+
+7. Add an item for the new version at the top of `.sparkle/appcast.xml` on `main`. Copy the
    format of the previous item. Sparkle reads the feed from `main`, so the update reaches
    users when this commit lands. The item needs these values:
-   - `sparkle:version`: the `CFBundleVersion` of the released app.
+   - `sparkle:version`: the `CFBundleVersion` of the exported app. Read it with
+     `/usr/libexec/PlistBuddy -c "Print :CFBundleVersion" "Mochi Diffusion.app/Contents/Info.plist"`.
    - `sparkle:shortVersionString`: the new version.
    - The DMG URL from the GitHub release.
-   - `sparkle:edSignature` and `length`: the output of Sparkle's `sign_update` for the DMG.
-   - `pubDate` and a short description of the changes.
+   - `sparkle:edSignature` and `length` from step 6.
+   - `pubDate`: the time that GitHub published the release, in the same form as the other
+     items. `gh release view v<version> --json publishedAt` prints it.
+   - A short description of the changes.
 
 ## Code health snapshot
 
