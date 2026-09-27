@@ -7,13 +7,15 @@ what must be true before the release.
 ## Before the release build
 
 1. Make sure that every child of the release epic is closed or explicitly dropped.
-2. Make sure that the build, the full test suite and `swift format lint -s -p -r ./` pass on
+2. Review the comments and documentation that changed since the previous release. See
+   [Comment and documentation review](#comment-and-documentation-review).
+3. Make sure that the build, the full test suite and `swift format lint -s -p -r ./` pass on
    `develop`.
-3. Record a code health snapshot. See [Code health snapshot](#code-health-snapshot).
-4. Set `MARKETING_VERSION` in `Mochi Diffusion.xcodeproj` to the new version. The app target
+4. Record a code health snapshot. See [Code health snapshot](#code-health-snapshot).
+5. Set `MARKETING_VERSION` in `Mochi Diffusion.xcodeproj` to the new version. The app target
    has one value for Debug and one for Release. Change both values in one
    `build: bump app version to <version>` commit.
-5. Add a section for the new version at the top of `CHANGELOG.md`.
+6. Add a section for the new version at the top of `CHANGELOG.md`.
 
 You do not set the build number. `scripts/set_build_version.sh` runs during the build and sets
 `CFBundleVersion` to the commit count of `HEAD`.
@@ -95,6 +97,41 @@ cannot ship updates to installed copies. To make a backup file, use `generate_ke
    - `pubDate`: the time that GitHub published the release, in the same form as the other
      items. `gh release view v<version> --json publishedAt` prints it.
    - A short description of the changes.
+
+## Comment and documentation review
+
+Comments and documentation must describe the code as it is now: what it does, what it
+guarantees and why it has its current shape. Change history belongs in commit messages and
+Beads. Comments that were written during a working session often describe the session
+instead, so review them before each release.
+
+1. List the comments and documentation that changed since the previous release tag:
+
+   ```sh
+   git diff v<previous-version>..develop -- "Mochi Diffusion" "Mochi DiffusionTests" "*.md"
+   ```
+
+2. Remove or rewrite each comment or documentation passage that does one of these things:
+   - Tells what the code did before, or what the change replaced, fixed or removed. Examples
+     are "used to", "previously", "no longer", "the old …" and "the fix".
+   - Refers to earlier designs, abandoned prototypes or release planning. Examples are
+     "stable release", "future beta", "dormant" and "preserved for".
+   - Uses shorthand from design documents or trackers, such as section numbers, decision IDs,
+     phases, priorities, bead IDs or commit hashes.
+   - Tells how a bug was found or how a test failed before. A test comment tells which
+     property the test protects.
+   - Argues against an alternative that the code does not use, or is a conversational aside.
+   - Restates what the next line of code does.
+3. Keep the rationale that a reader of the current code needs: concurrency and ordering
+   invariants, the reason for an approach that is not obvious, and descriptions of legacy
+   data formats that the code still reads or migrates.
+
+Do not change the closed design records, such as `Multi-Engine-Design.md`, or
+`CHANGELOG.md`. These documents record history on purpose. Do not edit translated text. See
+the localization rules in `AGENTS.md`.
+
+Commit the changes as `docs: prune history from comments before <version>`. The build, the
+tests and the lint must pass after the review.
 
 ## Code health snapshot
 
