@@ -6,7 +6,6 @@
 //
 
 import AppKit
-import CoreML
 import FilterablePicker
 import SwiftUI
 

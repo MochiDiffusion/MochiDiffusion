@@ -5,8 +5,10 @@
 //  Created by Joshua Park on 2/12/23.
 //
 
+import AppKit
 import CoreML
-import SwiftUI
+import ImageIO
+import Observation
 import os
 
 private enum SidebarRestoreModel {

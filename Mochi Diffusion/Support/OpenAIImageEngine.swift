@@ -3,7 +3,6 @@
 //  Mochi Diffusion
 //
 
-import CoreGraphics
 import Foundation
 
 /// A model offered by the OpenAI image API.

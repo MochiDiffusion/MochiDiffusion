@@ -3,8 +3,6 @@
 //  Mochi Diffusion
 //
 
-import Foundation
-
 /// Failures in the generation pipeline that are not specific to one engine.
 nonisolated enum GenerationError: Error, Equatable {
     case imageDirectoryNoAccess

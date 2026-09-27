@@ -5,7 +5,8 @@
 //  Created by Joshua Park on 2/12/23.
 //
 
-import SwiftUI
+import AppKit
+import Observation
 import UniformTypeIdentifiers
 import os
 

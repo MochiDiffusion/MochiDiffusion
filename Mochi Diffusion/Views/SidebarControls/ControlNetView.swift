@@ -5,7 +5,6 @@
 //  Created by Stuart Moore on 4/27/23.
 //
 
-import CoreML
 import SwiftUI
 
 struct ControlNetView: View {

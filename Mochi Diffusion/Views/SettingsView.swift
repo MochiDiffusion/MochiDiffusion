@@ -5,7 +5,6 @@
 //  Created by Joshua Park on 12/19/22.
 //
 
-import CoreML
 import SwiftUI
 import UserNotifications
 import os

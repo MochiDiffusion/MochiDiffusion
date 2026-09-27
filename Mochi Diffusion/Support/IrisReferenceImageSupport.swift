@@ -4,7 +4,6 @@
 //
 
 import CoreGraphics
-import Foundation
 
 nonisolated struct IrisReferenceImageEdit: Sendable, Equatable {
     var cropLeftFraction: Double = 0

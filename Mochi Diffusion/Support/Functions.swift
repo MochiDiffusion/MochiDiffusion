@@ -6,7 +6,6 @@
 //
 
 import AppKit
-import CoreML
 
 /// Presents AppKit panels as sheets when the app has a suitable window and as
 /// application-modal UI when it does not.

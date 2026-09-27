@@ -8,7 +8,6 @@
 import QuickLook
 import Sparkle
 import SwiftUI
-import UserNotifications
 
 @main
 struct MochiDiffusionApp: App {

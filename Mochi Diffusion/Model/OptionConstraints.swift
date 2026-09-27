@@ -4,7 +4,6 @@
 //
 
 import CoreGraphics
-import Foundation
 
 /// What a model can do with one whole-number option — a step count, an image
 /// count.

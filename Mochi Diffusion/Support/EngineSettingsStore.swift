@@ -3,7 +3,8 @@
 //  Mochi Diffusion
 //
 
-import SwiftUI
+import Foundation
+import Observation
 
 /// Per-engine persisted values: which engine is selected, and which model each
 /// engine was last using.
