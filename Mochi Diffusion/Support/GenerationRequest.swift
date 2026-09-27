@@ -150,43 +150,4 @@ nonisolated struct GenerationMetadata: Sendable {
     let guidanceScale: Double?
     let generatedDate: Date
     let metadataFields: Set<MetadataField>
-    var loras: [LoRASelection] = []
-}
-
-nonisolated extension GenerationMetadata {
-    /// The gallery's form of this record.
-    ///
-    /// The gallery model has no optional fields, so an absent value takes its
-    /// placeholder. `metadataFields` is what keeps such a placeholder from
-    /// being shown, written or restored.
-    func sdImage(image: CGImage? = nil) -> SDImage {
-        var sdi = SDImage()
-        sdi.image = image
-        sdi.prompt = prompt
-        sdi.negativePrompt = negativePrompt ?? ""
-        sdi.width = width
-        sdi.height = height
-        sdi.aspectRatio = height > 0 ? CGFloat(Double(width) / Double(height)) : 0
-        sdi.model = model
-        sdi.engine = engine
-        sdi.modelKey = modelKey
-        sdi.quality = quality ?? ""
-        sdi.startingImage = startingImage ?? ""
-        sdi.controlNetImage = controlNetImage ?? ""
-        sdi.inputImages = (inputImages ?? []).filter { !$0.isEmpty }
-        sdi.loras = loras
-        if let scheduler { sdi.scheduler = scheduler }
-        sdi.mlComputeUnit = mlComputeUnit
-        if let seed { sdi.seed = seed }
-        if let steps { sdi.steps = steps }
-        if let guidanceScale { sdi.guidanceScale = guidanceScale }
-        sdi.generatedDate = generatedDate
-        return sdi
-    }
-
-    /// `image` encoded as PNG with this record embedded. Every engine encodes
-    /// through here, so each writes its metadata the same way.
-    func pngData(for image: CGImage) async -> Data? {
-        await sdImage(image: image).imageData(.png, metadataFields: metadataFields)
-    }
 }

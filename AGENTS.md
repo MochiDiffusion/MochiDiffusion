@@ -170,19 +170,25 @@ The multi-engine foundation is implemented. Current ownership and contracts foll
     compiler cannot see and a later change silently breaks.
 
 - Metadata lifecycle:
-  - `MetadataCodec` owns both directions. Version 2 is newline-separated `Key: value` lines
-    with escaped values; legacy captions parse under version 1 rules. Malformed input never
-    traps.
-  - A model's `metadataFields` is the export contract; `presentFields` is what an imported
-    image actually carried. Keep those distinct.
-  - `.engine` and `.modelKey` let an imported image name a model exactly rather than by
-    display name alone.
-  - Generated and imported images share one interpretation path
-    (`createImageRecordFromURL`).
-  - Musubi is not yet integrated; 6.2 replaces the caption format with Musubi reading and
-    PNG writing, tracked in `MochiDiffusion-e4v`. Until then keep the caption format.
-    `Scheduler` is still Core ML vocabulary. Unknown imported values must not be presented
-    or restored as a known default; `MochiDiffusion-e4v.10` covers this for Musubi.
+  - Musubi (github.com/MochiDiffusion/Musubi, pinned to a revision) reads and writes all
+    generation metadata. `ImageMetadata.swift` is the only adapter between Musubi and Mochi.
+  - Writing: each runtime builds a `GenerationMetadata` from the values that reached the
+    pipeline, with `nil` for anything the image did not use. `GenerationMetadata.snapshot()`
+    maps it to a `MochiGenerationSnapshot`, and `pngData(for:)` writes the native XMP record
+    plus AUTOMATIC1111-compatible text through `PNGMetadataWriter`. An image whose native
+    record cannot be written is not saved.
+  - Reading: `ImageMetadataReader` inspects PNG and JPEG with Musubi, and passes ImageIO's XMP
+    through Musubi for HEIC and other files direct inspection cannot read. It uses Musubi's
+    selection; an ambiguous file is imported with a note and no settings, and a file with no
+    generation metadata is skipped.
+  - A gallery image's `metadataFields` is what it actually recorded. A value Mochi cannot
+    restore, such as an unknown sampler or a seed above `UInt32`, is a shown-only
+    `MetadataDetail`. Never present or restore an unrecorded value as a default.
+  - A fresh generation's gallery record is built by the same mapping as reading its file.
+  - Export always produces PNG: a PNG is copied byte for byte; JPEG and HEIC convert, carrying
+    a released Mochi caption as a native record and foreign AUTOMATIC1111 text unchanged.
+  - Sampler names: DPM-Solver++ is written as `DPM++ 2M`, PNDM as `PLMS`, flow matching under
+    Mochi's own name. `Scheduler(samplerLabel:)` maps them back for Copy Options.
 
 - Gallery ownership and memory:
   - `ImageGallery` and `GenerationService` are app-owned, not singletons.
@@ -217,7 +223,7 @@ The multi-engine foundation is implemented. Current ownership and contracts foll
   - Gallery: `GalleryLoadingTests`, `GalleryImageProviderTests`.
   - Hosted engine and credentials: `OpenAIImageEngineTests`, `OpenAIRuntimeTests`,
     `OpenAICredentialCheckTests`, `SecretStoreTests`.
-  - Metadata: `MetadataCodecTests`, `MetadataRoundTripTests`.
+  - Metadata: `GenerationMetadataTests`, `MetadataRoundTripTests`, `ImageExportTests`.
   - Support: `ControlNetLinkTests`.
   - Fixtures are synthetic directories containing only the files the production sniffing
     code inspects, so no real model weights are required.

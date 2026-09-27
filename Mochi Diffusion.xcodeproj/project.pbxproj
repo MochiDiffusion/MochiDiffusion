@@ -78,7 +78,6 @@
 		AA2000000000000000000002 /* MetadataRoundTripTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000002 /* MetadataRoundTripTests.swift */; };
 		AA2000000000000000000003 /* ModelDiscoveryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000003 /* ModelDiscoveryTests.swift */; };
 		AA2000000000000000000004 /* ComputeUnitPreferenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000004 /* ComputeUnitPreferenceTests.swift */; };
-		AA2000000000000000000005 /* MetadataCodecTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000005 /* MetadataCodecTests.swift */; };
 		AA2000000000000000000006 /* GenerationRequestBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000006 /* GenerationRequestBuilderTests.swift */; };
 		AA2000000000000000000007 /* ModelSelectionPersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000007 /* ModelSelectionPersistenceTests.swift */; };
 		AA2000000000000000000008 /* EngineIdentityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1000000000000000000008 /* EngineIdentityTests.swift */; };
@@ -131,7 +130,6 @@
 		AA70000000000000000000012 /* GalleryLoadingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA70000000000000000000011 /* GalleryLoadingTests.swift */; };
 		AA70000000000000000000022 /* GalleryImageProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA70000000000000000000021 /* GalleryImageProviderTests.swift */; };
 		AA70000000000000000000032 /* ImageExportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA70000000000000000000031 /* ImageExportTests.swift */; };
-		AA70000000000000000000042 /* MetadataPresenceExportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA70000000000000000000041 /* MetadataPresenceExportTests.swift */; };
 		AA7500000000000000000001 /* FilterablePicker in Frameworks */ = {isa = PBXBuildFile; productRef = AA7500000000000000000002 /* FilterablePicker */; };
 		AA8800000000000000000001 /* Musubi in Frameworks */ = {isa = PBXBuildFile; productRef = AA8800000000000000000002 /* Musubi */; };
 		AA7600000000000000000002 /* CoreMLPipelineCacheKeyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA7600000000000000000001 /* CoreMLPipelineCacheKeyTests.swift */; };
@@ -144,7 +142,7 @@
 		BF3689672F3086B2006501CE /* IrisFluxKleinModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF3689662F3086B2006501CE /* IrisFluxKleinModel.swift */; };
 		BFE156D72F2F37B10060DEBF /* Iris-BridgingHeader.h in Sources */ = {isa = PBXBuildFile; fileRef = BFE156D62F2F37B10060DEBF /* Iris-BridgingHeader.h */; };
 		BFE66B0E2F2AFD3700A8965C /* ConfigStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFE66B0D2F2AFD3700A8965C /* ConfigStore.swift */; };
-		C0DEC0DEC0DEC0DEC0DE0002 /* MetadataCodec.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DEC0DEC0DEC0DEC0DE0001 /* MetadataCodec.swift */; };
+		AA8800000000000000000005 /* ImageMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA8800000000000000000004 /* ImageMetadata.swift */; };
 		C116D4952AFC382E00314FE3 /* MochiSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C116D4942AFC382E00314FE3 /* MochiSlider.swift */; };
 		C11A03882B099D9600540F7F /* JobQueueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C11A03872B099D9600540F7F /* JobQueueView.swift */; };
 		C1220FC02AFB122F007E5055 /* ImageWellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1220FBF2AFB122F007E5055 /* ImageWellView.swift */; };
@@ -245,7 +243,6 @@
 		AA1000000000000000000002 /* MetadataRoundTripTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetadataRoundTripTests.swift; sourceTree = "<group>"; };
 		AA1000000000000000000003 /* ModelDiscoveryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelDiscoveryTests.swift; sourceTree = "<group>"; };
 		AA1000000000000000000004 /* ComputeUnitPreferenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComputeUnitPreferenceTests.swift; sourceTree = "<group>"; };
-		AA1000000000000000000005 /* MetadataCodecTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetadataCodecTests.swift; sourceTree = "<group>"; };
 		AA1000000000000000000006 /* GenerationRequestBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationRequestBuilderTests.swift; sourceTree = "<group>"; };
 		AA1000000000000000000007 /* ModelSelectionPersistenceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelSelectionPersistenceTests.swift; sourceTree = "<group>"; };
 		AA1000000000000000000008 /* EngineIdentityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngineIdentityTests.swift; sourceTree = "<group>"; };
@@ -298,7 +295,6 @@
 		AA70000000000000000000011 /* GalleryLoadingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryLoadingTests.swift; sourceTree = "<group>"; };
 		AA70000000000000000000021 /* GalleryImageProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryImageProviderTests.swift; sourceTree = "<group>"; };
 		AA70000000000000000000031 /* ImageExportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageExportTests.swift; sourceTree = "<group>"; };
-		AA70000000000000000000041 /* MetadataPresenceExportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetadataPresenceExportTests.swift; sourceTree = "<group>"; };
 		AA7600000000000000000001 /* CoreMLPipelineCacheKeyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreMLPipelineCacheKeyTests.swift; sourceTree = "<group>"; };
 		AA80000000000000000000011 /* GalleryImageProviders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryImageProviders.swift; sourceTree = "<group>"; };
 		BF36895C2F2F3BDA006501CE /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
@@ -309,7 +305,7 @@
 		BFE156D62F2F37B10060DEBF /* Iris-BridgingHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Iris-BridgingHeader.h"; sourceTree = "<group>"; };
 		BFE66B0D2F2AFD3700A8965C /* ConfigStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigStore.swift; sourceTree = "<group>"; };
 		C0D1F1A02F4C100000000001 /* MochiDiffusion.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = MochiDiffusion.xcconfig; sourceTree = "<group>"; };
-		C0DEC0DEC0DEC0DEC0DE0001 /* MetadataCodec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetadataCodec.swift; sourceTree = "<group>"; };
+		AA8800000000000000000004 /* ImageMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageMetadata.swift; sourceTree = "<group>"; };
 		C116D4942AFC382E00314FE3 /* MochiSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MochiSlider.swift; sourceTree = "<group>"; };
 		C11A03872B099D9600540F7F /* JobQueueView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JobQueueView.swift; sourceTree = "<group>"; };
 		C1220FBF2AFB122F007E5055 /* ImageWellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageWellView.swift; sourceTree = "<group>"; };
@@ -377,7 +373,7 @@
 				742263CBCAFF48E997B3B810 /* QuickLookState.swift */,
 				03173C102999D83600B03456 /* CoreMLEngineRuntime.swift */,
 				52F2A312D80E8D81A88D7636 /* ImageRepository.swift */,
-				C0DEC0DEC0DEC0DEC0DE0001 /* MetadataCodec.swift */,
+				AA8800000000000000000004 /* ImageMetadata.swift */,
 				AA1100000000000000000098 /* IrisReferenceImageSupport.swift */,
 				AA80000000000000000000011 /* GalleryImageProviders.swift */,
 				AA4000000000000000000001 /* PreferenceMigration.swift */,
@@ -524,7 +520,6 @@
 			isa = PBXGroup;
 			children = (
 				AA1000000000000000000001 /* TestSupport.swift */,
-				AA1000000000000000000005 /* MetadataCodecTests.swift */,
 				AA1000000000000000000006 /* GenerationRequestBuilderTests.swift */,
 				AA7600000000000000000001 /* CoreMLPipelineCacheKeyTests.swift */,
 				AA1000000000000000000007 /* ModelSelectionPersistenceTests.swift */,
@@ -547,7 +542,6 @@
 				AA70000000000000000000011 /* GalleryLoadingTests.swift */,
 				AA70000000000000000000021 /* GalleryImageProviderTests.swift */,
 				AA70000000000000000000031 /* ImageExportTests.swift */,
-				AA70000000000000000000041 /* MetadataPresenceExportTests.swift */,
 				AA50000000000000000001991 /* GenerationOwnershipTests.swift */,
 				AA50000000000000000002001 /* IdleTimeoutTests.swift */,
 				AA70000000000000000000051 /* CancellationBindingTests.swift */,
@@ -868,7 +862,7 @@
 				0EF066A162A2D255BF7624D3 /* ComputeUnitPreference.swift in Sources */,
 				463715C52EA79FC4AF642B78 /* GenerationController.swift in Sources */,
 				73F2FE036E51455A99DBC80B /* GenerationRequest.swift in Sources */,
-				C0DEC0DEC0DEC0DEC0DE0002 /* MetadataCodec.swift in Sources */,
+				AA8800000000000000000005 /* ImageMetadata.swift in Sources */,
 				AA3000000000000000000098 /* IrisReferenceImageSupport.swift in Sources */,
 				AA80000000000000000000012 /* GalleryImageProviders.swift in Sources */,
 				AA4000000000000000000002 /* PreferenceMigration.swift in Sources */,
@@ -904,7 +898,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				AA2000000000000000000001 /* TestSupport.swift in Sources */,
-				AA2000000000000000000005 /* MetadataCodecTests.swift in Sources */,
 				AA2000000000000000000006 /* GenerationRequestBuilderTests.swift in Sources */,
 				AA7600000000000000000002 /* CoreMLPipelineCacheKeyTests.swift in Sources */,
 				AA2000000000000000000007 /* ModelSelectionPersistenceTests.swift in Sources */,
@@ -927,7 +920,6 @@
 				AA70000000000000000000012 /* GalleryLoadingTests.swift in Sources */,
 				AA70000000000000000000022 /* GalleryImageProviderTests.swift in Sources */,
 				AA70000000000000000000032 /* ImageExportTests.swift in Sources */,
-				AA70000000000000000000042 /* MetadataPresenceExportTests.swift in Sources */,
 				AA50000000000000000001992 /* GenerationOwnershipTests.swift in Sources */,
 				AA50000000000000000002002 /* IdleTimeoutTests.swift in Sources */,
 				AA70000000000000000000052 /* CancellationBindingTests.swift in Sources */,

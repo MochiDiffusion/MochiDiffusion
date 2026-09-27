@@ -46,15 +46,6 @@ struct GenerationRequestBuilderTests {
         )
     }
 
-    private func parsedSourceMetadata(from request: GenerationRequest) -> MetadataCodec.Parsed {
-        var image = SDImage(image: makeCGImage(), aspectRatio: 1, path: "")
-        image.startingImage = request.startingImageName ?? ""
-        image.controlNetImage = request.controlNetImageNames.first.flatMap { $0 } ?? ""
-        return MetadataCodec.decode(
-            image.metadata(including: [.startingImage, .controlNetImage])
-        )
-    }
-
     /// Loads models and selects `name`. Selection happens last because
     /// `currentModelId.didSet` resets ControlNet state, so callers configure
     /// ControlNet inputs after this returns.
@@ -211,7 +202,6 @@ struct GenerationRequestBuilderTests {
         #expect(request.startingImageName == "start.png")
         // Core ML SD records a starting image; the Iris path records input images.
         #expect(request.inputImageNames.isEmpty)
-        #expect(parsedSourceMetadata(from: request).startingImage == "start.png")
     }
 
     @Test("A starting image is scaled to the configured size when the model has none")
@@ -261,7 +251,6 @@ struct GenerationRequestBuilderTests {
 
         #expect(request.controlNetNames == ["canny"])
         #expect(request.controlNetImageNames == ["c.png"])
-        #expect(parsedSourceMetadata(from: request).controlNetImage == "c.png")
         let data = try #require(request.controlNetImageData.first)
         #expect(pixelSize(of: data) == CGSize(width: 512, height: 512))
     }
@@ -327,7 +316,6 @@ struct GenerationRequestBuilderTests {
         #expect(request.controlNetImageData.count == 1)
         #expect(request.controlNetNames == ["canny"])
         #expect(request.controlNetImageNames == [nil])
-        #expect(parsedSourceMetadata(from: request).controlNetImage == nil)
     }
 
     // MARK: - Image well drops

@@ -3,19 +3,18 @@
 //  Mochi DiffusionTests
 //
 
-import AppKit
+import CoreGraphics
 import CoreML
 import Foundation
+import ImageIO
 import Testing
 import UniformTypeIdentifiers
 
 @testable import Mochi_Diffusion
 
-/// Pins the export/import metadata contract: what `SDImage.metadata(including:)`
-/// writes must be exactly what `createImageRecordFromURL` reads back, and the
-/// declared `metadataFields` must survive the trip as `presentFields`.
-///
-/// Every engine has to satisfy this contract.
+/// Pins the metadata contract through real files: what a generated image writes
+/// is what the gallery reads back, a value an image did not record stays absent,
+/// and released or foreign images are read without invented values.
 @MainActor
 struct MetadataRoundTripTests {
     let temp: TempDirectory
@@ -24,275 +23,333 @@ struct MetadataRoundTripTests {
         temp = try TempDirectory()
     }
 
-    /// Values chosen to differ from every default in `createImageRecordFromURL`,
-    /// so a dropped field shows up as a mismatch rather than a silent pass.
-    static func makeImage() -> SDImage {
-        var sdi = SDImage(
-            image: makeCGImage(width: 24, height: 16),
-            aspectRatio: 1.5,
-            path: ""
-        )
-        sdi.prompt = "a cat wearing a hat"
-        sdi.negativePrompt = "blurry, low quality"
-        sdi.model = "sd-1.5_512x512"
-        sdi.engine = "coreml-sd"
-        sdi.modelKey = "sd-1.5_512x512"
-        sdi.quality = "high"
-        sdi.startingImage = "starting.png"
-        sdi.controlNetImage = "control.png"
-        sdi.inputImages = ["first.png", "second.png"]
-        sdi.scheduler = .discreteFlowScheduler
-        sdi.mlComputeUnit = .cpuAndNeuralEngine
-        sdi.seed = 123_456_789
-        sdi.steps = 17
-        sdi.guidanceScale = 7.5
-        return sdi
+    static func coreMLMetadata(
+        prompt: String = "a cat wearing a hat",
+        startingImage: String? = "starting.png",
+        strength: Double? = 0.42
+    ) -> GenerationMetadata {
+        GenerationMetadata(
+            prompt: prompt, negativePrompt: "blurry, low quality", width: 24, height: 16,
+            model: "sdxl_1024x1024", engine: EngineID.coreMLStableDiffusion.rawValue,
+            modelKey: "sdxl_1024x1024",
+            architecture: SDModel.ModelType.sdxl.displayName, quality: nil,
+            startingImage: startingImage,
+            strength: strength, controlNet: "canny", controlNetImage: "control.png",
+            inputImages: nil,
+            scheduler: .dpmSolverMultistepScheduler, mlComputeUnit: .cpuAndNeuralEngine,
+            seed: 123_456_789,
+            steps: 17, guidanceScale: 7.5,
+            generatedDate: Date(timeIntervalSince1970: 1_790_000_000.25),
+            metadataFields: [])
     }
 
-    /// Round-trips `sdi` through a real image file on disk and returns the parsed
-    /// record.
-    func roundTrip(
-        _ sdi: SDImage,
-        fields: Set<MetadataField>,
-        name: String = "image",
-        type: UTType = .png
-    ) async throws -> ImageRecord? {
-        let data = try #require(await sdi.imageData(type, metadataFields: fields))
-        let url = temp.appending("\(name).\(type.preferredFilenameExtension!)")
+    /// Writes `metadata` through the generation encoder and reads the file back.
+    func roundTrip(_ metadata: GenerationMetadata, name: String = "image") async throws
+        -> ImageRecord
+    {
+        let data = try #require(await metadata.pngData(for: makeCGImage(width: 24, height: 16)))
+        let url = temp.appending("\(name).png")
         try data.write(to: url, options: .atomic)
-        return createImageRecordFromURL(url)
+        return try #require(createImageRecordFromURL(url))
     }
 
-    /// Version 2 captions separate fields with real newlines, so the whole format
-    /// rests on every container preserving embedded LF in the IPTC caption byte
-    /// for byte. If one normalised LF to CRLF, every field would decode with a
-    /// trailing `\r` and the numeric fields would parse as nil. `SettingsView`
-    /// offers all three of these types.
-    @Test(
-        "A multi-line caption survives every image type the app writes",
-        arguments: [UTType.png, .jpeg, .heic]
-    )
-    func captionSurvivesEveryContainer(type: UTType) async throws {
-        var sdi = Self.makeImage()
-        sdi.prompt = "a cat; wearing a hat\nand a scarf"
-        let fields = Set(MetadataField.allCases)
+    // MARK: - Generated images
 
-        let record = try #require(
-            await roundTrip(sdi, fields: fields, name: "container", type: type)
-        )
+    @Test("A Core ML image reads back every setting it recorded")
+    func coreMLRoundTrip() async throws {
+        let metadata = Self.coreMLMetadata()
 
-        #expect(record.prompt == sdi.prompt)
-        #expect(record.seed == sdi.seed)
-        #expect(record.steps == sdi.steps)
-        #expect(record.guidanceScale == sdi.guidanceScale)
-        #expect(record.inputImages == sdi.inputImages)
-        #expect(record.metadataFields == fields)
+        let record = try await roundTrip(metadata)
+
+        #expect(record.prompt == metadata.prompt)
+        #expect(record.negativePrompt == "blurry, low quality")
+        #expect(record.model == metadata.model)
+        #expect(record.engine == metadata.engine)
+        #expect(record.modelKey == metadata.modelKey)
+        #expect(record.startingImage == "starting.png")
+        #expect(record.strength == 0.42)
+        #expect(record.controlNetImage == "control.png")
+        #expect(record.scheduler == .dpmSolverMultistepScheduler)
+        #expect(record.mlComputeUnit == .cpuAndNeuralEngine)
+        #expect(record.seed == 123_456_789)
+        #expect(record.steps == 17)
+        #expect(record.guidanceScale == 7.5)
+        #expect(record.generationSize == CGSize(width: 24, height: 16))
+        #expect(record.generatedDate == metadata.generatedDate)
+        #expect(record.generatedDateIsRecorded)
+        #expect(record.details.contains(MetadataDetail(label: "Schedule", value: "Karras")))
+        #expect(
+            record.metadataFields
+                == [
+                    .prompt, .negativePrompt, .model, .engine, .modelKey, .size, .startingImage,
+                    .strength,
+                    .controlNetImage, .scheduler, .mlComputeUnit, .seed, .steps, .guidanceScale,
+                ])
     }
 
-    @Test("Every declared field survives an export/import round trip")
-    func fullFieldSetRoundTrips() async throws {
-        let sdi = Self.makeImage()
-        let fields = Set(MetadataField.allCases)
+    @Test("A generated image's gallery record is the one its file reads back as")
+    func freshRecordMatchesFile() async throws {
+        let metadata = Self.coreMLMetadata()
 
-        let record = try #require(await roundTrip(sdi, fields: fields))
+        let read = try await roundTrip(metadata)
+        let fresh = ImageMetadataReader.record(for: metadata, path: read.path, imageData: nil)
 
-        #expect(record.prompt == sdi.prompt)
-        #expect(record.negativePrompt == sdi.negativePrompt)
-        #expect(record.model == sdi.model)
-        #expect(record.engine == sdi.engine)
-        #expect(record.modelKey == sdi.modelKey)
-        #expect(record.quality == sdi.quality)
-        #expect(record.startingImage == sdi.startingImage)
-        #expect(record.controlNetImage == sdi.controlNetImage)
-        #expect(record.inputImages == sdi.inputImages)
-        #expect(record.scheduler == sdi.scheduler)
-        #expect(record.mlComputeUnit == sdi.mlComputeUnit)
-        #expect(record.seed == sdi.seed)
-        #expect(record.steps == sdi.steps)
-        #expect(record.guidanceScale == sdi.guidanceScale)
-        #expect(record.metadataFields == fields)
-
-        // Size is recovered from the pixel buffer, not from the metadata string.
-        #expect(record.width == 24)
-        #expect(record.height == 16)
+        #expect(fresh.metadataFields == read.metadataFields)
+        #expect(fresh.details == read.details)
+        #expect(fresh.strength == read.strength)
+        #expect(fresh.generationSize == read.generationSize)
+        #expect(fresh.generatedDate == read.generatedDate)
     }
 
-    @Test("LoRA filenames and weights survive image export, import and gallery reconstruction")
-    func lorasRoundTrip() async throws {
-        var image = Self.makeImage()
-        image.loras = [
-            LoRASelection(file: "style; painted, blue\n\\.ckpt", weight: -0.75),
-            LoRASelection(file: "detail.ckpt", weight: 1.25),
-        ]
-        let record = try #require(await roundTrip(image, fields: [.loras]))
-        #expect(record.loras == image.loras)
-        #expect(createSDImage(from: record)?.loras == image.loras)
-        #expect(record.metadataFields == [.loras])
-        #expect(MetadataCodec.decode("Metadata Version: 2\nLoRAs: invalid").presentFields.isEmpty)
+    @Test("An empty prompt is recorded as empty, not as missing")
+    func emptyPromptRoundTrip() async throws {
+        let record = try await roundTrip(Self.coreMLMetadata(prompt: ""))
+
+        #expect(record.metadataFields.contains(.prompt))
+        #expect(record.prompt == "")
     }
 
-    @Test("A restricted field set omits everything it does not declare")
-    func restrictedFieldSetOmitsOtherFields() async throws {
-        let sdi = Self.makeImage()
-        let fields = IrisFluxKleinModel.metadataFields
+    @Test("A generated PNG carries both the native record and the AUTOMATIC1111 text")
+    func generatedPNGCarriesBothPayloads() async throws {
+        let data = try #require(await Self.coreMLMetadata().pngData(for: makeCGImage()))
 
-        let record = try #require(await roundTrip(sdi, fields: fields))
-
-        #expect(record.metadataFields == fields)
-        // Declared by the Klein field set.
-        #expect(record.prompt == sdi.prompt)
-        #expect(record.seed == sdi.seed)
-        #expect(record.steps == sdi.steps)
-        #expect(record.scheduler == sdi.scheduler)
-        #expect(record.inputImages == sdi.inputImages)
-        // Declared too: Klein's guidance is pinned rather than absent, so the
-        // value it ran at is recorded like the step count is.
-        #expect(record.guidanceScale == sdi.guidanceScale)
-        // Not declared, so the importer must fall back to its defaults.
-        #expect(record.negativePrompt.isEmpty)
-        #expect(record.controlNetImage.isEmpty)
-        #expect(record.startingImage.isEmpty)
-        #expect(record.mlComputeUnit == nil)
+        #expect(data.range(of: Data("XML:com.adobe.xmp\0".utf8)) != nil)
+        #expect(data.range(of: Data("parameters\0".utf8)) != nil)
+        #expect(data.range(of: Data("Sampler: DPM++ 2M, Schedule type: Karras".utf8)) != nil)
     }
 
-    @Test("Declared-but-empty optional values are omitted entirely")
-    func emptyOptionalValuesAreOmitted() async throws {
-        var sdi = Self.makeImage()
-        sdi.quality = ""
-        sdi.startingImage = ""
-        sdi.controlNetImage = ""
-        sdi.inputImages = []
+    @Test("An image without a starting image records no strength")
+    func noStartingImageNoStrength() async throws {
+        let record = try await roundTrip(Self.coreMLMetadata(startingImage: nil, strength: nil))
 
-        let record = try #require(
-            await roundTrip(sdi, fields: Set(MetadataField.allCases))
-        )
-
-        // Requested but empty: the writer drops the key, so import sees it absent.
-        #expect(!record.metadataFields.contains(.quality))
         #expect(!record.metadataFields.contains(.startingImage))
-        #expect(!record.metadataFields.contains(.controlNetImage))
-        #expect(!record.metadataFields.contains(.inputImages))
-        // Non-optional keys are still written even when empty.
-        #expect(record.metadataFields.contains(.negativePrompt))
+        #expect(!record.metadataFields.contains(.strength))
+        #expect(record.strength == nil)
     }
 
-    @Test("Multiple input images round trip as one field each")
-    func inputImagesRoundTripAsList() async throws {
-        var sdi = Self.makeImage()
-        sdi.inputImages = ["one.png", "two.png", "three.png"]
+    @Test("An Iris image keeps unnamed references in place and records no negative prompt")
+    func irisRoundTrip() async throws {
+        let metadata = GenerationMetadata(
+            prompt: "a fox", negativePrompt: nil, width: 24, height: 16, model: "klein",
+            engine: EngineID.iris.rawValue, modelKey: "klein",
+            architecture: IrisModelFamily.fluxKlein.displayName,
+            quality: nil, startingImage: nil, strength: nil, controlNet: nil, controlNetImage: nil,
+            inputImages: ["cat.png", "", "dog.png"], scheduler: .discreteFlowScheduler,
+            mlComputeUnit: nil,
+            seed: 9, steps: 4, guidanceScale: 1, generatedDate: Date(), metadataFields: [])
 
-        let record = try #require(
-            await roundTrip(sdi, fields: [.inputImages])
-        )
+        let record = try await roundTrip(metadata)
 
-        #expect(record.inputImages == sdi.inputImages)
+        #expect(record.inputImages == ["cat.png", "", "dog.png"])
+        #expect(!record.metadataFields.contains(.negativePrompt))
+        #expect(record.scheduler == .discreteFlowScheduler)
+        #expect(record.guidanceScale == 1)
     }
 
-    /// Guards the mapping between `MetadataField` and the `Metadata` string keys.
-    /// Adding a `MetadataField` without wiring it into both the writer and the
-    /// parser fails here rather than silently dropping the field at runtime.
-    @Test(
-        "Each metadata field is individually writable and parseable",
-        arguments: MetadataField.allCases)
-    func everyMetadataFieldIsParseable(field: MetadataField) async throws {
-        let sdi = Self.makeImage()
+    @Test("A hosted image records no seed, steps, sampler or guidance")
+    func sparseHostedRoundTrip() async throws {
+        let metadata = GenerationMetadata(
+            prompt: "a bird", negativePrompt: nil, width: 24, height: 16, model: "gpt-image-2",
+            engine: EngineID.openAI.rawValue, modelKey: "gpt-image-2", architecture: nil,
+            quality: "high",
+            startingImage: nil, strength: nil, controlNet: nil, controlNetImage: nil,
+            inputImages: [],
+            scheduler: nil, mlComputeUnit: nil, seed: nil, steps: nil, guidanceScale: nil,
+            generatedDate: Date(),
+            metadataFields: [])
 
-        let record = try #require(await roundTrip(sdi, fields: [field], name: field.rawValue))
+        let record = try await roundTrip(metadata)
 
-        #expect(record.metadataFields == [field])
-    }
-
-    @Test("Images without a generator version are rejected on import")
-    func unversionedMetadataIsRejected() async throws {
-        let url = temp.appending("no-version.png")
-        try writePNG(caption: "Include in Image: a cat; Model: some-model", to: url)
-
-        #expect(createImageRecordFromURL(url) == nil)
-    }
-
-    @Test("Images generated before 2.2 are rejected on import")
-    func legacyGeneratorVersionIsRejected() async throws {
-        let url = temp.appending("legacy.png")
-        try writePNG(
-            caption: "Include in Image: a cat; Generator: Mochi Diffusion 2.1",
-            to: url
-        )
-
-        #expect(createImageRecordFromURL(url) == nil)
-    }
-
-    @Test("Unknown metadata keys are skipped without failing the import")
-    func unknownKeysAreIgnored() async throws {
-        let url = temp.appending("unknown-key.png")
-        try writePNG(
-            caption:
-                "Include in Image: a cat; Provider: Some Future Engine; "
-                + "Generator: Mochi Diffusion 6.0",
-            to: url
-        )
-
-        let record = try #require(createImageRecordFromURL(url))
-        #expect(record.prompt == "a cat")
-        #expect(record.metadataFields == [.prompt])
+        #expect(
+            record.metadataFields == [
+                .prompt, .model, .engine, .modelKey, .size, .quality, .inputImages,
+            ])
     }
 
     @Test(
-        "Prompts containing separators and escapes round trip intact",
+        "Prompts the compatibility text cannot carry survive through the native record",
         arguments: [
-            "a cat; wearing a hat",
-            "a cat\nwearing a hat",
-            "a cat\r\nwearing a hat",
-            "back\\slash",
-            "Model: not a key",
-            "trailing backslash\\",
+            "a cat\nNegative prompt: typed\nSteps: 3",
+            "line one\r\n  indented; with \"quotes\" <&>",
+            "猫 🐈 unicode",
         ]
     )
-    func hostilePromptRoundTripsThroughAnImage(prompt: String) async throws {
-        var sdi = Self.makeImage()
-        sdi.prompt = prompt
-
-        let record = try #require(
-            await roundTrip(sdi, fields: [.prompt], name: "hostile-\(abs(prompt.hashValue))")
-        )
+    func hostilePromptsRoundTrip(prompt: String) async throws {
+        let record = try await roundTrip(Self.coreMLMetadata(prompt: prompt))
 
         #expect(record.prompt == prompt)
     }
 
-    /// Multi-line prompts are ordinary — the sidebar prompt field is a
-    /// `TextEditor` — and version 2 uses newlines as its separator, so they
-    /// depend on the codec escaping them.
-    @Test("A multi-line prompt survives export and import")
-    func multiLinePromptRoundTrips() async throws {
-        var sdi = Self.makeImage()
-        sdi.prompt = "a cat\n\nwearing a hat\nin three lines"
+    // MARK: - Released and foreign images
 
-        let record = try #require(await roundTrip(sdi, fields: [.prompt]))
-
-        #expect(record.prompt == sdi.prompt)
+    /// Writes an image the way released Mochi Diffusion did: an IPTC caption
+    /// with the originating program and version.
+    func writeReleasedImage(caption: String, type: UTType, name: String) throws -> URL {
+        let url = temp.appending("\(name).\(type.preferredFilenameExtension!)")
+        let data = CFDataCreateMutable(nil, 0)!
+        let destination = CGImageDestinationCreateWithData(
+            data, type.identifier as CFString, 1, nil)!
+        let properties =
+            [
+                kCGImagePropertyIPTCDictionary: [
+                    kCGImagePropertyIPTCCaptionAbstract: caption,
+                    kCGImagePropertyIPTCOriginatingProgram: "Mochi Diffusion",
+                    kCGImagePropertyIPTCProgramVersion: "6.0",
+                ]
+            ] as CFDictionary
+        CGImageDestinationAddImage(destination, makeCGImage(), properties)
+        precondition(CGImageDestinationFinalize(destination))
+        try (data as Data).write(to: url, options: .atomic)
+        return url
     }
 
-    /// Round-trip tests cannot catch a format change, because a compensating
-    /// change on both sides still passes. This pins the bytes an image actually
-    /// carries, so a codec change that breaks previously-saved images fails
-    /// here.
-    @Test("The written caption has the expected shape")
-    func writtenCaptionShapeIsStable() {
-        var sdi = Self.makeImage()
-        sdi.prompt = "a cat"
-        sdi.inputImages = ["one.png", "two.png"]
+    @Test(
+        "Released Mochi images stay readable in every format they were written in",
+        arguments: [UTType.png, .jpeg, .heic])
+    func releasedImagesAreReadable(type: UTType) throws {
+        let caption = releasedCaption([
+            (.includeInImage, "a cat; wearing a hat"),
+            (.model, "sd-1.5"),
+            (.steps, "17"),
+            (.guidanceScale, "7.5"),
+            (.seed, "42"),
+            (.inputImages, "first.png, second.png"),
+            (.scheduler, "PNDM"),
+            (.mlComputeUnit, "CPU & GPU"),
+            (.generator, "Mochi Diffusion 6.0"),
+        ])
+        let url = try writeReleasedImage(caption: caption, type: type, name: "released")
 
-        let caption = sdi.metadata(including: [.prompt, .model, .seed, .inputImages])
+        let record = try #require(createImageRecordFromURL(url))
 
+        // "; " ends a field only when a known label follows it.
+        #expect(record.prompt == "a cat; wearing a hat")
+        #expect(record.model == "sd-1.5")
+        #expect(record.steps == 17)
+        #expect(record.seed == 42)
+        #expect(record.scheduler == .pndmScheduler)
+        #expect(record.mlComputeUnit == .cpuAndGPU)
+        #expect(record.inputImages == ["first.png", "second.png"])
+        #expect(!record.metadataFields.contains(.negativePrompt))
         #expect(
-            caption == """
-                Metadata Version: 2
-                Include in Image: a cat
-                Model: sd-1.5_512x512
-                Seed: 123456789
-                Input Images: one.png
-                Input Images: two.png
-                Generator: Mochi Diffusion \(NSApplication.appVersion)
-                """
+            record.details.first == MetadataDetail(label: "Generator", value: "Mochi Diffusion 6.0")
         )
+    }
+
+    /// Writes a PNG whose only metadata is AUTOMATIC1111-compatible text.
+    func writeParametersImage(_ text: String, name: String) throws -> URL {
+        let url = temp.appending("\(name).png")
+        try PNGTestChunks.write(textChunks: [("parameters", text)], to: url)
+        return url
+    }
+
+    @Test("A foreign sampler, schedule or large seed is shown but never restored")
+    func foreignValuesAreShownNotRestored() throws {
+        let url = try writeParametersImage(
+            "a cat\nSteps: 20, Sampler: Euler a, Schedule type: Karras, CFG scale: 6, Seed: 12345678901, Size: 8x8",
+            name: "foreign")
+
+        let record = try #require(createImageRecordFromURL(url))
+
+        #expect(!record.metadataFields.contains(.scheduler))
+        #expect(!record.metadataFields.contains(.seed))
+        #expect(record.metadataFields.contains(.steps))
+        #expect(
+            record.details == [
+                MetadataDetail(label: "Generator", value: "AUTOMATIC1111-compatible"),
+                MetadataDetail(label: "Sampler", value: "Euler a"),
+                MetadataDetail(label: "Schedule", value: "Karras"),
+                MetadataDetail(label: "Seed", value: "12345678901"),
+            ])
+    }
+
+    @Test("A foreign prompt keeps its LoRA tags and lists the LoRAs")
+    func foreignLoRATags() throws {
+        let url = try writeParametersImage(
+            "a castle <lora:watercolor:0.8>\nSteps: 20, Seed: 1, Size: 8x8", name: "lora")
+
+        let record = try #require(createImageRecordFromURL(url))
+
+        #expect(record.prompt == "a castle <lora:watercolor:0.8>")
+        #expect(record.details.contains(MetadataDetail(label: "LoRAs", value: "watercolor (0.8)")))
+    }
+
+    @Test("A generation graph with several samplers is imported with a note and no settings")
+    func ambiguousGraphHasNoSettings() throws {
+        let graph =
+            #"{"1":{"class_type":"KSampler","inputs":{"seed":1,"positive":["3",0]}},"#
+            + #""2":{"class_type":"KSampler","inputs":{"seed":2,"positive":["3",0],"latent_image":["1",0]}},"#
+            + #""3":{"class_type":"CLIPTextEncode","inputs":{"text":"a"}},"#
+            + #""4":{"class_type":"SaveImage","inputs":{"images":["2",0]}}}"#
+        let url = temp.appending("graph.png")
+        try PNGTestChunks.write(textChunks: [("prompt", graph)], to: url)
+
+        let record = try #require(createImageRecordFromURL(url))
+
+        #expect(record.metadataFields.isEmpty)
+        #expect(record.note != nil)
+        #expect(record.details == [MetadataDetail(label: "Generator", value: "ComfyUI")])
+    }
+
+    @Test("A corrupt native record falls back to the compatibility text beside it")
+    func corruptNativeFallsBack() throws {
+        let packet = """
+            <x:xmpmeta xmlns:x="adobe:ns:meta/"><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">\
+            <rdf:Description xmlns:mochi="https://github.com/MochiDiffusion/MochiDiffusion/ns/metadata/1.0/"><mochi:Generation>{"format":"mochi-diffusion",\
+            "version":99}</mochi:Generation></rdf:Description></rdf:RDF></x:xmpmeta>
+            """
+        let url = temp.appending("corrupt.png")
+        try PNGTestChunks.write(
+            textChunks: [
+                ("XML:com.adobe.xmp", packet),
+                ("parameters", "a cat\nSteps: 8, Seed: 7, Size: 8x8"),
+            ],
+            to: url)
+
+        let record = try #require(createImageRecordFromURL(url))
+
+        #expect(record.prompt == "a cat")
+        #expect(record.seed == 7)
+    }
+
+    @Test("An image without generation metadata is not imported")
+    func plainImageIsSkipped() throws {
+        let url = temp.appending("plain.png")
+        try PNGTestChunks.write(textChunks: [("Comment", "holiday")], to: url)
+
+        #expect(createImageRecordFromURL(url) == nil)
+    }
+}
+
+/// Writes a decodable PNG with extra uncompressed text chunks.
+enum PNGTestChunks {
+    static func write(textChunks: [(keyword: String, text: String)], to url: URL) throws {
+        var data = try #require(ImageMetadataWriter.encodePNG(makeCGImage()))
+        // After the 8-byte signature and the 25-byte IHDR chunk.
+        var insertion = Data()
+        for (keyword, text) in textChunks {
+            var payload = Data(keyword.utf8)
+            payload.append(contentsOf: [0, 0, 0, 0, 0])
+            payload.append(Data(text.utf8))
+            insertion.append(chunk(type: "iTXt", payload: payload))
+        }
+        data.insert(contentsOf: insertion, at: 33)
+        try data.write(to: url, options: .atomic)
+    }
+
+    private static func chunk(type: String, payload: Data) -> Data {
+        let typeData = Data(type.utf8)
+        var crc: UInt32 = 0xFFFF_FFFF
+        for byte in typeData + payload {
+            crc ^= UInt32(byte)
+            for _ in 0..<8 { crc = crc & 1 == 1 ? (crc >> 1) ^ 0xEDB8_8320 : crc >> 1 }
+        }
+        crc ^= 0xFFFF_FFFF
+        var result = Data()
+        result.append(contentsOf: withUnsafeBytes(of: UInt32(payload.count).bigEndian, Array.init))
+        result.append(typeData)
+        result.append(payload)
+        result.append(contentsOf: withUnsafeBytes(of: crc.bigEndian, Array.init))
+        return result
     }
 }

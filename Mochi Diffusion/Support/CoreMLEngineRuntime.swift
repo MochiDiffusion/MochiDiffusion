@@ -253,7 +253,9 @@ actor CoreMLEngineRuntime: GenerationEngineRuntime {
                     seed: pipelineConfig.seed,
                     generatedDate: Date.now
                 )
-                guard let data = await metadata.pngData(for: image) else { continue }
+                guard let data = await metadata.pngData(for: image) else {
+                    throw GenerationError.imageEncodingFailed
+                }
                 try await onResult(GenerationResult(metadata: metadata, imageData: data))
             }
             pipelineConfig.seed = GenerationSeed.next(after: pipelineConfig.seed)

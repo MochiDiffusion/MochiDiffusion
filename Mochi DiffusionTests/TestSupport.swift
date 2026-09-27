@@ -234,9 +234,15 @@ nonisolated func makeCGImage(width: Int = 8, height: Int = 8) -> CGImage {
     return context.makeImage()!
 }
 
-/// Writes a PNG carrying `caption` as its IPTC caption-abstract, bypassing
-/// `SDImage.metadata(including:)` so tests can exercise the import parser
-/// against arbitrary — including malformed or legacy — metadata strings.
+/// A caption in the format released Mochi Diffusion 2.2 through 6.1 wrote:
+/// `Key: value` pairs joined by `"; "`.
+nonisolated func releasedCaption(_ pairs: [(key: Metadata, value: String)]) -> String {
+    pairs.map { "\($0.key.rawValue): \($0.value)" }.joined(separator: "; ")
+}
+
+/// Writes a PNG carrying `caption` as its IPTC caption-abstract, the way
+/// released Mochi Diffusion stored its metadata, so tests can exercise import of
+/// released, malformed or foreign captions.
 nonisolated func writePNG(
     caption: String,
     to url: URL,

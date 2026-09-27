@@ -154,81 +154,20 @@ nonisolated func cgImageFromFileURL(_ url: URL) -> CGImage? {
     return CGImageSourceCreateImageAtIndex(cgImageSource, imageIndex, nil)
 }
 
+/// The gallery record for an image file, or `nil` when the file records no
+/// generation or cannot be read.
 nonisolated func createImageRecordFromURL(_ url: URL) -> ImageRecord? {
     guard
-        let attr = try? FileManager.default.attributesOfItem(
-            atPath: url.path(percentEncoded: false))
-    else { return nil }
-    let maybeDateModified = attr[FileAttributeKey.modificationDate] as? Date
-
-    let finderTagColorNumber = getFinderTagColorNumber(url)
-
-    guard let dateModified = maybeDateModified else { return nil }
-    // From the URL rather than bytes read into memory: only the properties are
-    // wanted, so the file is not read in full.
-    guard let cgImageSource = CGImageSourceCreateWithURL(url as CFURL, nil) else { return nil }
-    guard let properties = CGImageSourceCopyPropertiesAtIndex(cgImageSource, 0, nil) else {
-        return nil
-    }
-    guard let propDict = properties as? [String: Any] else { return nil }
-    guard let iptcProp = propDict[kCGImagePropertyIPTCDictionary as String] as? [String: Any] else {
-        return nil
-    }
-    guard let infoString = iptcProp[kCGImagePropertyIPTCCaptionAbstract as String] as? String
+        let attributes = try? FileManager.default.attributesOfItem(
+            atPath: url.path(percentEncoded: false)),
+        let dateModified = attributes[FileAttributeKey.modificationDate] as? Date
     else { return nil }
 
-    let width = (propDict[kCGImagePropertyPixelWidth as String] as? NSNumber)?.intValue ?? 0
-    let height = (propDict[kCGImagePropertyPixelHeight as String] as? NSNumber)?.intValue ?? 0
-
-    var record = ImageRecord(
-        id: UUID(),
-        prompt: "",
-        negativePrompt: "",
-        width: width,
-        height: height,
-        model: "",
-        engine: "",
-        modelKey: "",
-        quality: "",
-        startingImage: "",
-        controlNetImage: "",
-        inputImages: [],
-        scheduler: .dpmSolverMultistepScheduler,
-        mlComputeUnit: nil,
-        seed: 0,
-        steps: 28,
-        guidanceScale: 11.0,
-        metadataFields: [],
-        generatedDate: dateModified,
-        path: url.path(percentEncoded: false),
-        finderTagColorNumber: finderTagColorNumber,
-        // Nil: a gallery image is rendered from a thumbnail read off disk, and the
-        // few things needing real pixels ask GalleryFullImageProvider. Only a
-        // freshly generated result arrives with its bytes already in hand.
-        imageData: nil
+    return ImageMetadataReader.record(
+        for: url,
+        fileDate: dateModified,
+        finderTagColorNumber: getFinderTagColorNumber(url)
     )
-
-    let parsed = MetadataCodec.decode(infoString)
-    guard MetadataCodec.isSupportedGeneratedVersion(parsed.generatedVersion) else { return nil }
-
-    record.prompt = parsed.prompt ?? ""
-    record.negativePrompt = parsed.negativePrompt ?? ""
-    record.model = parsed.model ?? ""
-    record.engine = parsed.engine ?? ""
-    record.modelKey = parsed.modelKey ?? ""
-    record.quality = parsed.quality ?? ""
-    record.startingImage = parsed.startingImage ?? ""
-    record.controlNetImage = parsed.controlNetImage ?? ""
-    record.inputImages = parsed.inputImages
-    record.loras = parsed.loras
-    record.scheduler = parsed.scheduler ?? .dpmSolverMultistepScheduler
-    record.mlComputeUnit = parsed.mlComputeUnit
-    record.seed = parsed.seed ?? 0
-    record.steps = parsed.steps ?? 28
-    record.guidanceScale = parsed.guidanceScale ?? 11.0
-    record.metadataFields = parsed.presentFields
-
-    return record
 }
 
 /// Builds the gallery's model of an image from a record.
@@ -269,12 +208,16 @@ func createSDImage(from record: ImageRecord) -> SDImage? {
     sdi.startingImage = record.startingImage
     sdi.controlNetImage = record.controlNetImage
     sdi.inputImages = record.inputImages
-    sdi.loras = record.loras
     sdi.scheduler = record.scheduler
     sdi.mlComputeUnit = record.mlComputeUnit
     sdi.seed = record.seed
     sdi.steps = record.steps
     sdi.guidanceScale = record.guidanceScale
+    sdi.strength = record.strength
+    sdi.generationSize = record.generationSize
+    sdi.details = record.details
+    sdi.note = record.note
+    sdi.generatedDateIsRecorded = record.generatedDateIsRecorded
     sdi.finderTagColorNumber = record.finderTagColorNumber
     return sdi
 }

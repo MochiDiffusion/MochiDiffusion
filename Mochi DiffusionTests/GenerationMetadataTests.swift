@@ -167,31 +167,6 @@ struct GenerationMetadataTests {
         #expect(metadata.strength == nil)
     }
 
-    // MARK: - Encoding
-
-    @Test("An absent value is not written into the image as a placeholder")
-    func sparseRecordWritesNoPlaceholders() async throws {
-        let metadata = GenerationMetadata(
-            prompt: "a red cube", negativePrompt: nil, width: 8, height: 8, model: "hosted",
-            engine: "openai", modelKey: "hosted", architecture: nil, quality: "high",
-            startingImage: nil,
-            strength: nil, controlNet: nil, controlNetImage: nil, inputImages: nil, scheduler: nil,
-            mlComputeUnit: nil, seed: nil, steps: nil, guidanceScale: nil, generatedDate: Date(),
-            metadataFields: [.prompt, .model, .engine, .modelKey, .size, .quality, .inputImages])
-
-        let data = try #require(await metadata.pngData(for: makeCGImage()))
-        let source = try #require(CGImageSourceCreateWithData(data as CFData, nil))
-        let properties = try #require(
-            CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any])
-        let iptc = try #require(properties[kCGImagePropertyIPTCDictionary] as? [CFString: Any])
-        let caption = try #require(iptc[kCGImagePropertyIPTCCaptionAbstract] as? String)
-        let parsed = MetadataCodec.decode(caption)
-
-        #expect(parsed.presentFields == [.prompt, .model, .engine, .modelKey, .size, .quality])
-        #expect(parsed.seed == nil)
-        #expect(parsed.steps == nil)
-    }
-
     @Test("A filename leaves out a seed the image does not have")
     func filenameWithoutSeed() {
         #expect(imageFilenameWithoutExtension(prompt: "a cat", seed: nil, count: 3) == "a cat.3")

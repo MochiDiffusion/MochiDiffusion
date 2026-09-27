@@ -8,7 +8,7 @@ import Foundation
 import UniformTypeIdentifiers
 
 struct ImageRecord: Sendable, Identifiable {
-    let id: UUID
+    var id: UUID
     var prompt: String
     var negativePrompt: String
     var width: Int
@@ -36,7 +36,52 @@ struct ImageRecord: Sendable, Identifiable {
     /// scanning the images folder; the grid renders those from
     /// `GalleryThumbnailProvider`.
     var imageData: Data?
-    var loras: [LoRASelection] = []
+    /// Starting-image strength, when the image records one.
+    var strength: Double?
+    /// The size the metadata says the image was generated at. `width` and
+    /// `height` are the file's own pixel size.
+    var generationSize: CGSize?
+    /// Settings shown but not restorable, such as an unknown sampler.
+    var details: [MetadataDetail] = []
+    /// Shown instead of settings when the metadata is ambiguous.
+    var note: String?
+    /// Whether `generatedDate` is the recorded generation time rather than the
+    /// file's modification date.
+    var generatedDateIsRecorded = false
+
+    /// A record with no generation settings yet. Every setting is absent from
+    /// `metadataFields`, so its placeholder value is never shown or restored.
+    nonisolated static func blank(
+        path: String,
+        pixelSize: CGSize,
+        fileDate: Date,
+        finderTagColorNumber: Int
+    ) -> ImageRecord {
+        ImageRecord(
+            id: UUID(),
+            prompt: "",
+            negativePrompt: "",
+            width: Int(pixelSize.width),
+            height: Int(pixelSize.height),
+            model: "",
+            engine: "",
+            modelKey: "",
+            quality: "",
+            startingImage: "",
+            controlNetImage: "",
+            inputImages: [],
+            scheduler: .dpmSolverMultistepScheduler,
+            mlComputeUnit: nil,
+            seed: 0,
+            steps: 0,
+            guidanceScale: 0,
+            metadataFields: [],
+            generatedDate: fileDate,
+            path: path,
+            finderTagColorNumber: finderTagColorNumber,
+            imageData: nil
+        )
+    }
 }
 
 struct ImageExportRequest: Sendable {

@@ -77,9 +77,7 @@ private struct SidebarRestoreSource {
         prompt = metadataFields.contains(.prompt) ? galleryImage.prompt : nil
         negativePrompt =
             metadataFields.contains(.negativePrompt) ? galleryImage.negativePrompt : nil
-        size =
-            metadataFields.contains(.size)
-            ? CGSize(width: galleryImage.width, height: galleryImage.height) : nil
+        size = metadataFields.contains(.size) ? galleryImage.generationSize : nil
         startingImage =
             metadataFields.contains(.startingImage) && !galleryImage.startingImage.isEmpty
             ? .galleryFilename(galleryImage.startingImage) : nil
@@ -98,8 +96,7 @@ private struct SidebarRestoreSource {
                     image: .galleryFilename(galleryImage.controlNetImage)
                 )
             ] : []
-        // Saved captions do not contain starting-image strength.
-        strength = nil
+        strength = metadataFields.contains(.strength) ? galleryImage.strength : nil
         steps = metadataFields.contains(.steps) ? galleryImage.steps : nil
         guidanceScale =
             metadataFields.contains(.guidanceScale) ? galleryImage.guidanceScale : nil
@@ -1090,9 +1087,18 @@ final class GenerationController {
         }
     }
 
+    /// Copies the recorded generation size, which can differ from the file's
+    /// pixel size.
     func copySizeToPrompt() {
-        guard let sdi = imageGallery.selected() else { return }
-        setSize(width: sdi.width, height: sdi.height)
+        guard let sdi = imageGallery.selected(), let size = sdi.generationSize else { return }
+        setSize(width: Int(size.width), height: Int(size.height))
+    }
+
+    func copyStrengthToPrompt() {
+        guard let sdi = imageGallery.selected(), let strength = sdi.strength,
+            currentModel?.constraints.startingImage.strength.isEditable == true
+        else { return }
+        configStore.strength = strength
     }
 
     /// Applies a size, which for some engines means selecting a different model.
@@ -1303,39 +1309,18 @@ final class GenerationController {
             }
         }
         guard let url = result.imageURL else { return }
-        let metadata = result.metadata
-        // The gallery model has no optional fields. An absent value takes the
-        // gallery placeholder, and `metadataFields` keeps it out of view.
-        let placeholder = metadata.sdImage()
-        let record = ImageRecord(
-            id: result.id,
-            prompt: placeholder.prompt,
-            negativePrompt: placeholder.negativePrompt,
-            width: metadata.width,
-            height: metadata.height,
-            model: placeholder.model,
-            engine: placeholder.engine,
-            modelKey: placeholder.modelKey,
-            quality: placeholder.quality,
-            startingImage: placeholder.startingImage,
-            controlNetImage: placeholder.controlNetImage,
-            inputImages: placeholder.inputImages,
-            scheduler: placeholder.scheduler,
-            mlComputeUnit: placeholder.mlComputeUnit,
-            seed: placeholder.seed,
-            steps: placeholder.steps,
-            guidanceScale: placeholder.guidanceScale,
-            metadataFields: metadata.metadataFields,
-            generatedDate: metadata.generatedDate,
+        // Built as reading the file back would build it, so a new image shows
+        // exactly what the gallery shows after a restart.
+        var record = ImageMetadataReader.record(
+            for: result.metadata,
             path: url.path(percentEncoded: false),
-            finderTagColorNumber: 0,
-            imageData: result.imageData,
-            loras: metadata.loras
+            imageData: result.imageData
         )
+        record.id = result.id
         guard let sdi = createSDImage(from: record) else { return }
         imageGallery.add(
             sdi,
-            metadataFields: metadata.metadataFields,
+            metadataFields: record.metadataFields,
             animate: shouldAnimateInsert
         )
     }

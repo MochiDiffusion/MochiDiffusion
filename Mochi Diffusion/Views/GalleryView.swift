@@ -220,7 +220,7 @@ struct GalleryView: View {
             }
             Section {
                 Button {
-                    Task { await sdi.saveAs(metadataFields: store.metadataFields(for: sdi.id)) }
+                    Task { await sdi.saveAs() }
                 } label: {
                     Text(
                         "Save As...",

@@ -181,18 +181,25 @@ struct InspectorView: View {
             if let selection = InspectorSelection(gallery: store) {
                 let sdi = selection.image
                 let metadataFields = selection.metadataFields
-                let inputImageNames = sdi.inputImages.filter {
-                    !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                }
+                let inputImageNames = sdi.inputImages
                 InspectorPreviewView(sdi: sdi)
 
                 ScrollView(.vertical) {
                     Grid(alignment: .leading, horizontalSpacing: 4) {
                         InfoGridRow(
-                            type: LocalizedStringKey(Metadata.date.rawValue),
+                            type: sdi.generatedDateIsRecorded
+                                ? LocalizedStringKey(Metadata.date.rawValue)
+                                : LocalizedStringKey("Modified"),
                             text: sdi.generatedDate.formatted(date: .long, time: .standard),
                             showCopyToPromptOption: false
                         )
+                        if let note = sdi.note {
+                            InfoGridRow(
+                                type: LocalizedStringKey("Note"),
+                                text: note,
+                                showCopyToPromptOption: false
+                            )
+                        }
                         if metadataFields.contains(.model) {
                             InfoGridRow(
                                 type: LocalizedStringKey(Metadata.model.rawValue),
@@ -201,13 +208,21 @@ struct InspectorView: View {
                                 callback: controller.copyModelToPrompt
                             )
                         }
-                        if metadataFields.contains(.size) {
+                        if metadataFields.contains(.size), let size = sdi.generationSize {
                             InfoGridRow(
                                 type: LocalizedStringKey(Metadata.size.rawValue),
-                                text:
-                                    "\(sdi.width) x \(sdi.height)",
+                                text: "\(Int(size.width)) x \(Int(size.height))",
                                 showCopyToPromptOption: true,
                                 callback: controller.copySizeToPrompt
+                            )
+                        }
+                        // The file's own pixel size, shown when the recorded
+                        // generation size is missing or differs.
+                        if sdi.generationSize != CGSize(width: sdi.width, height: sdi.height) {
+                            InfoGridRow(
+                                type: LocalizedStringKey("Image Size"),
+                                text: "\(sdi.width) x \(sdi.height)",
+                                showCopyToPromptOption: false
                             )
                         }
                         if metadataFields.contains(.quality), !sdi.quality.isEmpty {
@@ -223,6 +238,14 @@ struct InspectorView: View {
                                 filename: sdi.startingImage,
                                 galleryImage: store.image(named: sdi.startingImage),
                                 allowsReuse: true
+                            )
+                        }
+                        if metadataFields.contains(.strength), let strength = sdi.strength {
+                            InfoGridRow(
+                                type: LocalizedStringKey("Strength"),
+                                text: String(strength),
+                                showCopyToPromptOption: true,
+                                callback: controller.copyStrengthToPrompt
                             )
                         }
                         if metadataFields.contains(.controlNetImage), !sdi.controlNetImage.isEmpty {
@@ -242,21 +265,21 @@ struct InspectorView: View {
                                     inputImageNames.count == 1
                                     ? Metadata.inputImages.rawValue
                                     : "\(Metadata.inputImages.rawValue) \(index + 1)"
-                                RelatedImageInfoGridRow(
-                                    type: LocalizedStringKey(label),
-                                    filename: name,
-                                    galleryImage: store.image(named: name),
-                                    allowsReuse: true
-                                )
+                                if name.isEmpty {
+                                    InfoGridRow(
+                                        type: LocalizedStringKey(label),
+                                        text: SDImage.displayName(ofInputImage: name),
+                                        showCopyToPromptOption: false
+                                    )
+                                } else {
+                                    RelatedImageInfoGridRow(
+                                        type: LocalizedStringKey(label),
+                                        filename: name,
+                                        galleryImage: store.image(named: name),
+                                        allowsReuse: true
+                                    )
+                                }
                             }
-                        }
-                        if metadataFields.contains(.loras), !sdi.loras.isEmpty {
-                            InfoGridRow(
-                                type: LocalizedStringKey(Metadata.loras.rawValue),
-                                text: sdi.loras.map { "\($0.file) (\($0.weight))" }.joined(
-                                    separator: "\n"),
-                                showCopyToPromptOption: false
-                            )
                         }
                         if metadataFields.contains(.prompt) {
                             InfoGridRow(
@@ -310,6 +333,13 @@ struct InspectorView: View {
                             InfoGridRow(
                                 type: LocalizedStringKey(Metadata.mlComputeUnit.rawValue),
                                 text: MLComputeUnits.toString(sdi.mlComputeUnit),
+                                showCopyToPromptOption: false
+                            )
+                        }
+                        ForEach(sdi.details, id: \.self) { detail in
+                            InfoGridRow(
+                                type: LocalizedStringKey(detail.label),
+                                text: detail.value,
                                 showCopyToPromptOption: false
                             )
                         }

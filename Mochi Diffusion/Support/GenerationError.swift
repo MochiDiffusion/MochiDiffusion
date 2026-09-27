@@ -12,6 +12,9 @@ nonisolated enum GenerationError: Error, Equatable {
     case requestExpired
     case pipelineNotAvailable
     case requestedModelNotFound
+    /// The image or its metadata record could not be encoded, so the image was
+    /// not saved. An image is never saved without its record.
+    case imageEncodingFailed
 
     // MARK: - Hosted engines
 

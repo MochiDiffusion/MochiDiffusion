@@ -500,6 +500,30 @@ struct GenerationConfigRestorationTests {
         #expect(controller.inputImages.isEmpty)
     }
 
+    @Test("Copy Options restores a recorded strength and leaves an absent one alone")
+    func strengthRestore() async throws {
+        try makeSDModelFixture(at: modelDir.appending(path: "core"))
+        let gallery = ImageGallery()
+        var withStrength = SDImage(image: makeCGImage(), aspectRatio: 1, path: "")
+        withStrength.strength = 0.35
+        var withoutStrength = SDImage(image: makeCGImage(), aspectRatio: 1, path: "")
+        withoutStrength.strength = 0.9
+        gallery.replaceAll([
+            (image: withStrength, metadataFields: [.strength]),
+            (image: withoutStrength, metadataFields: []),
+        ])
+        let controller = makeController(gallery: gallery)
+        await controller.loadModels()
+        try selectModel("core", on: controller)
+        configStore.strength = 0.6
+
+        await controller.copyToPrompt(withoutStrength)
+        #expect(configStore.strength == 0.6)
+
+        await controller.copyToPrompt(withStrength)
+        #expect(configStore.strength == 0.35)
+    }
+
     @Test("Legacy gallery metadata falls back to an unambiguous display name")
     func legacyModelNameFallbackStillWorks() async throws {
         try makeSDModelFixture(at: modelDir.appending(path: "legacy-core"))

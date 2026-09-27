@@ -67,7 +67,7 @@ struct GalleryLoadingTests {
         image: CGImage = makeCGImage()
     ) throws {
         try writePNG(
-            caption: MetadataCodec.encode([
+            caption: releasedCaption([
                 (.includeInImage, prompt),
                 (.generator, "Mochi Diffusion 6.0"),
             ]),
@@ -123,7 +123,7 @@ struct GalleryLoadingTests {
     @Test("A loaded image carries no decoded pixels, but knows its size")
     func loadedImagesAreNotDecoded() async throws {
         try writePNG(
-            caption: MetadataCodec.encode([
+            caption: releasedCaption([
                 (.includeInImage, "a cat"),
                 (.generator, "Mochi Diffusion 6.0"),
             ]),
@@ -147,7 +147,7 @@ struct GalleryLoadingTests {
     @Test("A disk-backed selection exposes metadata to the inspector")
     func diskBackedSelectionHasInspectorMetadata() async throws {
         try writePNG(
-            caption: MetadataCodec.encode([
+            caption: releasedCaption([
                 (.includeInImage, "a cat wearing a hat"),
                 (.model, "test-model"),
                 (.seed, "123"),
@@ -187,13 +187,13 @@ struct GalleryLoadingTests {
         #expect(gallery.image(named: "missing.png") == nil)
     }
 
-    /// Save As, Save All and Copy all go through `imageData`, and gallery images
-    /// loaded from disk have no resident pixels.
-    @Test("Re-encoding loads the file when no pixels are resident")
-    func imageDataLoadsFromDisk() async throws {
+    /// Save As, Save All and Copy all go through `exportPNGData`, and gallery
+    /// images loaded from disk have no resident pixels.
+    @Test("Export reads the file when no pixels are resident")
+    func exportReadsFromDisk() async throws {
         let url = imageDir.appending(path: "one.png")
         try writePNG(
-            caption: MetadataCodec.encode([
+            caption: releasedCaption([
                 (.includeInImage, "a cat"),
                 (.generator, "Mochi Diffusion 6.0"),
             ]),
@@ -204,16 +204,16 @@ struct GalleryLoadingTests {
         sdi.width = 64
         sdi.height = 32
 
-        let data = try #require(await sdi.imageData(.png, metadataFields: [.prompt]))
+        let data = try #require(await sdi.exportPNGData())
 
         #expect(pixelSize(of: data) == CGSize(width: 64, height: 32))
     }
 
-    @Test("An image with neither pixels nor a path re-encodes to nothing")
-    func imageDataWithoutSourceIsNil() async {
-        let sdi = SDImage(image: nil, aspectRatio: 0, path: "")
+    @Test("An image with no file has nothing to export")
+    func exportWithoutSourceIsNil() async {
+        let sdi = SDImage(image: makeCGImage(), aspectRatio: 1, path: "")
 
-        #expect(await sdi.imageData(.png) == nil)
+        #expect(await sdi.exportPNGData() == nil)
     }
 
     @Test("Setting a Finder tag updates the gallery's copy")
@@ -238,7 +238,7 @@ struct GalleryLoadingTests {
     @Test("Deleting an image stops its pixels being served for that path")
     func deletingAnImageInvalidatesItsCaches() async throws {
         try writePNG(
-            caption: MetadataCodec.encode([
+            caption: releasedCaption([
                 (.includeInImage, "a cat"),
                 (.generator, "Mochi Diffusion 6.0"),
             ]),
@@ -263,7 +263,7 @@ struct GalleryLoadingTests {
         // A different image is imported under the same name.
         let incoming = try temp.subdirectory("incoming").appending(path: "one.png")
         try writePNG(
-            caption: MetadataCodec.encode([
+            caption: releasedCaption([
                 (.includeInImage, "a dog"),
                 (.generator, "Mochi Diffusion 6.0"),
             ]),
@@ -503,7 +503,7 @@ struct ImageRepositoryTests {
 
     private func writeImportableImage(to url: URL, prompt: String = "a cat") throws {
         try writePNG(
-            caption: MetadataCodec.encode([
+            caption: releasedCaption([
                 (.includeInImage, prompt),
                 (.generator, "Mochi Diffusion 6.0"),
             ]),

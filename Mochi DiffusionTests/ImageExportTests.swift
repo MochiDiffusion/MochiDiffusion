@@ -11,8 +11,9 @@ import UniformTypeIdentifiers
 
 @testable import Mochi_Diffusion
 
-/// Save As always writes a PNG. A PNG source is copied byte for byte; a JPEG or HEIC
-/// source is converted, carrying only the metadata fields it recorded.
+/// Save As, Save All and Copy always produce a PNG. A PNG source is copied byte
+/// for byte. A JPEG or HEIC source is converted and carries its generation
+/// metadata, and only the settings it recorded.
 @MainActor
 struct ImageExportTests {
     let temp: TempDirectory
@@ -21,25 +22,31 @@ struct ImageExportTests {
         temp = try TempDirectory()
     }
 
-    private func writeSource(_ name: String, type: UTType, caption: String = "") throws -> URL {
+    /// An image in `type` with `properties` written by ImageIO.
+    private func writeSource(_ name: String, type: UTType, properties: [CFString: Any] = [:]) throws
+        -> URL
+    {
         let url = temp.appending(name)
         let data = CFDataCreateMutable(nil, 0)!
         let destination = CGImageDestinationCreateWithData(
-            data,
-            type.identifier as CFString,
-            1,
-            nil
-        )!
-        let properties =
-            [
-                kCGImagePropertyIPTCDictionary: [
-                    kCGImagePropertyIPTCCaptionAbstract: caption
-                ]
-            ] as CFDictionary
-        CGImageDestinationAddImage(destination, makeCGImage(), properties)
+            data, type.identifier as CFString, 1, nil)!
+        CGImageDestinationAddImage(destination, makeCGImage(), properties as CFDictionary)
         precondition(CGImageDestinationFinalize(destination))
         try (data as Data).write(to: url, options: .atomic)
         return url
+    }
+
+    /// An image with the caption released Mochi Diffusion wrote.
+    private func writeReleasedSource(_ name: String, type: UTType, caption: String) throws -> URL {
+        try writeSource(
+            name, type: type,
+            properties: [
+                kCGImagePropertyIPTCDictionary: [
+                    kCGImagePropertyIPTCCaptionAbstract: caption,
+                    kCGImagePropertyIPTCOriginatingProgram: "Mochi Diffusion",
+                    kCGImagePropertyIPTCProgramVersion: "6.0",
+                ]
+            ])
     }
 
     private func type(of url: URL) -> UTType? {
@@ -49,137 +56,106 @@ struct ImageExportTests {
         return UTType(identifier)
     }
 
-    // MARK: - Source type resolution
-
-    @Test(
-        "An image reports the type of the file it came from, for both JPEG extensions",
-        arguments: [
-            ("image.png", UTType.png),
-            ("image.jpeg", UTType.jpeg),
-            ("image.jpg", UTType.jpeg),
-            ("image.JPG", UTType.jpeg),
-            ("image.heic", UTType.heic),
-        ]
-    )
-    func contentTypeFollowsTheFile(name: String, expected: UTType) throws {
-        var sdi = SDImage()
-        sdi.path = temp.appending(name).path(percentEncoded: false)
-
-        #expect(sdi.contentType == expected)
+    private func export(_ source: URL, name: String) async throws -> URL {
+        let sdi = SDImage(image: nil, aspectRatio: 1, path: source.path(percentEncoded: false))
+        let destination = temp.appending(name)
+        try await sdi.writeCopy(to: destination)
+        return destination
     }
 
-    @Test("An image with no file on disk falls back to PNG")
-    func pathlessImageFallsBackToPNG() {
-        var sdi = SDImage()
-        sdi.image = makeCGImage()
+    @Test("A PNG is copied byte for byte, so its metadata is untouched")
+    func pngIsCopiedExactly() async throws {
+        let source = temp.appending("source.png")
+        try PNGTestChunks.write(
+            textChunks: [("parameters", "a cat\nSteps: 8, Seed: 1, Size: 8x8")], to: source)
 
-        #expect(sdi.sourceURL == nil)
-        #expect(sdi.contentType == .png)
-    }
+        let destination = try await export(source, name: "copy.png")
 
-    /// The gallery only holds PNG, JPEG and HEIC, so anything else would be a type the
-    /// re-encode fallback could not produce.
-    @Test("An unsupported extension falls back to PNG rather than offering that type")
-    func unsupportedExtensionFallsBackToPNG() {
-        var sdi = SDImage()
-        sdi.path = temp.appending("scan.tiff").path(percentEncoded: false)
-
-        #expect(sdi.contentType == .png)
-    }
-
-    // MARK: - Writing
-
-    @Test(
-        "Saving a copy always produces a PNG",
-        arguments: [
-            ("source.jpg", UTType.jpeg),
-            ("source.jpeg", UTType.jpeg),
-            ("source.heic", UTType.heic),
-            ("source.png", UTType.png),
-        ]
-    )
-    func copyIsAlwaysPNG(name: String, sourceType: UTType) async throws {
-        let source = try writeSource(name, type: sourceType)
-        var sdi = SDImage()
-        sdi.path = source.path(percentEncoded: false)
-
-        let destination = temp.appending("exported-\(name).png")
-        try await sdi.writeCopy(to: destination, metadataFields: [])
-
-        #expect(type(of: destination) == .png)
+        #expect(try Data(contentsOf: destination) == Data(contentsOf: source))
     }
 
     @Test(
-        "Converting to PNG keeps the recorded metadata and adds nothing",
-        arguments: [("source.jpg", UTType.jpeg), ("source.heic", UTType.heic)]
+        "A released JPEG or HEIC converts to PNG with only the settings it recorded",
+        arguments: [("image.jpg", UTType.jpeg), ("image.heic", UTType.heic)]
     )
-    func conversionKeepsOnlyRecordedFields(name: String, sourceType: UTType) async throws {
-        let caption = MetadataCodec.encode([
-            (.includeInImage, "a cat"), (.generator, "Mochi Diffusion 6.0"),
+    func releasedImageConversion(name: String, sourceType: UTType) async throws {
+        let caption = releasedCaption([
+            (.includeInImage, "a cat"),
+            (.seed, "42"),
+            (.scheduler, "Euler"),
+            (.generator, "Mochi Diffusion 6.0"),
         ])
-        let source = try writeSource(name, type: sourceType, caption: caption)
-        let record = try #require(createImageRecordFromURL(source))
-        let sdi = try #require(createSDImage(from: record))
+        let source = try writeReleasedSource(name, type: sourceType, caption: caption)
 
-        let destination = temp.appending("converted.png")
-        try await sdi.writeCopy(to: destination, metadataFields: record.metadataFields)
-
+        let destination = try await export(source, name: "converted.png")
         let converted = try #require(createImageRecordFromURL(destination))
-        #expect(converted.prompt == "a cat")
-        #expect(!converted.metadataFields.contains(.steps))
-        #expect(!converted.metadataFields.contains(.scheduler))
-    }
-
-    @Test("A disk-backed image is copied byte for byte, so its metadata is untouched")
-    func copyIsByteIdentical() async throws {
-        let source = try writeSource("meta.png", type: .png, caption: "Include in Image: a cat")
-        var sdi = SDImage()
-        sdi.path = source.path(percentEncoded: false)
-        // Deliberately disagrees with the file: a copy must not publish this.
-        sdi.prompt = "something else entirely"
-
-        let destination = temp.appending("copied.png")
-        try await sdi.writeCopy(to: destination, metadataFields: Set(MetadataField.allCases))
-
-        let copied = try Data(contentsOf: destination)
-        let original = try Data(contentsOf: source)
-        #expect(copied == original)
-    }
-
-    /// Re-encoding remains the fallback for a generated image that has not been written
-    /// to the images folder yet, where the resident pixels are the only source.
-    @Test("An image with no file is re-encoded from its resident pixels")
-    func pathlessImageIsReEncoded() async throws {
-        var sdi = SDImage()
-        sdi.image = makeCGImage()
-
-        let destination = temp.appending("fresh.png")
-        try await sdi.writeCopy(to: destination, metadataFields: Set(MetadataField.allCases))
 
         #expect(type(of: destination) == .png)
+        #expect(converted.prompt == "a cat")
+        #expect(converted.seed == 42)
+        #expect(converted.metadataFields == [.prompt, .seed])
+        // A sampler Mochi does not offer stays a shown detail and is not invented
+        // as a known scheduler.
+        #expect(converted.details.contains(MetadataDetail(label: "Sampler", value: "Euler")))
+        #expect(
+            converted.details.first
+                == MetadataDetail(label: "Generator", value: "Mochi Diffusion 6.0"))
     }
 
-    @Test("Saving an image with neither a file nor pixels reports a failure")
-    func emptyImageThrows() async {
-        let sdi = SDImage()
-        let destination = temp.appending("nothing.png")
+    @Test("Another application's AUTOMATIC1111 text is carried over as it was")
+    func foreignTextIsCarried() async throws {
+        let text = "a dog\nSteps: 12, Sampler: Euler, CFG scale: 5, Seed: 9, Size: 8x8"
+        let source = try writeSource(
+            "foreign.jpg", type: .jpeg,
+            properties: [kCGImagePropertyExifDictionary: [kCGImagePropertyExifUserComment: text]])
+
+        let destination = try await export(source, name: "converted.png")
+        let converted = try #require(createImageRecordFromURL(destination))
+
+        #expect(type(of: destination) == .png)
+        #expect(converted.prompt == "a dog")
+        #expect(converted.steps == 12)
+        #expect(
+            converted.details.first
+                == MetadataDetail(label: "Generator", value: "AUTOMATIC1111-compatible"))
+    }
+
+    @Test("An image with no file has nothing to export, and saving it reports a failure")
+    func pathlessImageFails() async {
+        let sdi = SDImage(image: makeCGImage(), aspectRatio: 1, path: "")
 
         await #expect(throws: SDImageError.encodingFailed) {
-            try await sdi.writeCopy(to: destination, metadataFields: Set(MetadataField.allCases))
+            try await sdi.writeCopy(to: temp.appending("out.png"))
         }
     }
 
-    /// A missing or unreadable source file must not lose the image: the resident pixels
-    /// are still a valid export.
-    @Test("A deleted source file falls back to re-encoding when pixels are resident")
-    func missingSourceFallsBackToPixels() async throws {
-        var sdi = SDImage()
-        sdi.path = temp.appending("gone.png").path(percentEncoded: false)
-        sdi.image = makeCGImage()
+    @Test("A deleted source file reports a failure instead of writing an image without metadata")
+    func missingSourceFails() async {
+        let sdi = SDImage(
+            image: makeCGImage(), aspectRatio: 1,
+            path: temp.appending("gone.png").path(percentEncoded: false))
 
-        let destination = temp.appending("recovered.png")
-        try await sdi.writeCopy(to: destination, metadataFields: Set(MetadataField.allCases))
+        await #expect(throws: SDImageError.encodingFailed) {
+            try await sdi.writeCopy(to: temp.appending("out.png"))
+        }
+    }
 
-        #expect(type(of: destination) == .png)
+    // MARK: - Presence
+
+    @Test("The gallery reports the presence set it was given")
+    func galleryRetainsPresencePerImage() {
+        let gallery = ImageGallery()
+        let sdi = SDImage(image: nil, aspectRatio: 1, path: "/tmp/a.png")
+
+        gallery.add(sdi, metadataFields: [.prompt, .seed])
+
+        #expect(gallery.metadataFields(for: sdi.id) == [.prompt, .seed])
+    }
+
+    @Test("An unknown image falls back to every field")
+    func unknownImageFallsBackToAllFields() {
+        let gallery = ImageGallery()
+
+        #expect(gallery.metadataFields(for: UUID()) == Set(MetadataField.allCases))
     }
 }
