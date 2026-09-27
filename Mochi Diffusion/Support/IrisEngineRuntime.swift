@@ -263,7 +263,7 @@ actor IrisEngineRuntime: GenerationEngineRuntime {
 
             let result = GenerationResult(metadata: metadata, imageData: imageData)
             try await onResult(result)
-            seed &+= 1
+            seed = GenerationSeed.next(after: seed)
         }
     }
 

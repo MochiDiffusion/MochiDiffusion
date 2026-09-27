@@ -1187,7 +1187,7 @@ final class GenerationController {
             guidanceScale: Float(configStore.guidanceScale),
             scheduler: configStore.scheduler,
             quality: configStore.quality,
-            seed: seed == 0 ? UInt32.random(in: 0..<UInt32.max) : seed,
+            seed: seed == 0 ? GenerationSeed.random() : seed,
             numberOfImages: Int(numberOfImages),
             computeUnitPreference: configStore.mlComputeUnitPreference,
             reduceMemory: configStore.reduceMemory,

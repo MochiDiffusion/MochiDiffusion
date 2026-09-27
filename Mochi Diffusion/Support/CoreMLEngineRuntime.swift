@@ -292,7 +292,7 @@ actor CoreMLEngineRuntime: GenerationEngineRuntime {
                 )
                 try await onResult(GenerationResult(metadata: metadata, imageData: data))
             }
-            pipelineConfig.seed += 1
+            pipelineConfig.seed = GenerationSeed.next(after: pipelineConfig.seed)
         }
     }
 

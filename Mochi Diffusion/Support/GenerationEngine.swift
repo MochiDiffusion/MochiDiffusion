@@ -47,6 +47,22 @@ nonisolated struct ModelDiscoveryContext: Sendable {
     }
 }
 
+/// The seeds a generation uses.
+///
+/// The sidebar reserves seed 0 for "random", so no generated image is given
+/// seed 0: an image recorded with it could not be reproduced through Copy Options.
+nonisolated enum GenerationSeed {
+    static func random() -> UInt32 {
+        UInt32.random(in: 1...UInt32.max)
+    }
+
+    /// The seed for the image after one generated with `seed` in the same batch.
+    /// Wraps from `UInt32.max` to 1.
+    static func next(after seed: UInt32) -> UInt32 {
+        seed == .max ? 1 : seed + 1
+    }
+}
+
 /// Everything the sidebar holds, handed to an engine so it can decide what its own
 /// generation needs.
 ///
