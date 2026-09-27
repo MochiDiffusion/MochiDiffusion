@@ -97,7 +97,9 @@ struct IrisCancelledWaiterTests {
             metadataFields: [.prompt],
             payload: IrisGenerationPayload(
                 modelDirectory: "/nonexistent",
+                family: .fluxKlein,
                 stepCount: 4,
+                guidanceScale: 1,
                 scheduler: .discreteFlowScheduler
             ),
             prompt: "a cat",

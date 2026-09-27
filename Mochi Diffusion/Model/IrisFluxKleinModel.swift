@@ -5,37 +5,100 @@
 
 import Foundation
 
-nonisolated struct IrisFluxKleinModel: EngineModel {
-    /// FLUX.2 Klein is distilled: four steps on the flow-match scheduler, and
-    /// guidance baked into the weights rather than applied at sampling time, so
-    /// there is no negative prompt to offer. It attends to images as references
-    /// rather than denoising from one, so it declares input images and no starting
-    /// image at all.
-    static let constraints = OptionConstraints(
-        supportsNegativePrompt: false,
-        size: .freeform(range: 64...1_792, step: 16),
-        steps: .pinned(distilledStepCount),
-        guidanceScale: .pinned(distilledGuidanceScale),
-        scheduler: .pinned(.discreteFlowScheduler),
-        startingImage: .unsupported,
-        inputImages: .supported(maxCount: IrisEngine.maxReferenceImages),
-        controlNet: .unsupported,
-        quality: .unsupported,
-        numberOfImages: .range(1...100, step: 1, acceptsBeyondUpperBound: true),
-        promptTokenLimit: 512
-    )
+/// The model families Iris runs.
+///
+/// Detected by the same rules Iris applies when it loads a model directory, so
+/// Mochi and Iris always agree on which family a model belongs to.
+nonisolated enum IrisModelFamily: Sendable, Equatable, CaseIterable {
+    /// FLUX.2 Klein, guidance-distilled.
+    case fluxKlein
+    /// FLUX.2 Klein base, which runs classifier-free guidance.
+    case fluxKleinBase
+    /// Z-Image Turbo, distilled.
+    case zImageTurbo
 
-    static let distilledStepCount = 4
+    var displayName: String {
+        switch self {
+        case .fluxKlein: "FLUX.2 Klein"
+        case .fluxKleinBase: "FLUX.2 Klein Base"
+        case .zImageTurbo: "Z-Image Turbo"
+        }
+    }
 
-    /// Pinned rather than unsupported, so the sidebar shows the value the pipeline
-    /// runs at instead of dropping the row.
+    /// The step count Iris uses for the family when it is given none. Mochi
+    /// pins this value, so the recorded count is the one that runs.
+    var stepCount: Int {
+        switch self {
+        case .fluxKlein: 4
+        case .fluxKleinBase: 50
+        case .zImageTurbo: 9
+        }
+    }
+
+    /// The classifier-free guidance scale the family runs at. Mochi passes no
+    /// guidance, so Iris resolves its own default, and this value matches it.
     ///
-    /// A guidance-distilled model runs no classifier-free guidance at all: Iris
-    /// sends Klein down `iris_sample_euler_flux` with no unconditioned pass, and
-    /// 1.0 is the scale at which the CFG formula `v_uncond + g * (v_cond -
-    /// v_uncond)` reduces to `v_cond`. It is also what Iris itself resolves for a
-    /// distilled model.
-    static let distilledGuidanceScale = 1.0
+    /// A distilled model runs no guidance pass. 1.0 is the scale at which the
+    /// CFG formula `v_uncond + g * (v_cond - v_uncond)` reduces to `v_cond`, so
+    /// it records "no guidance" as a scale. Iris stores Z-Image's setting as 0,
+    /// meaning the same thing.
+    var guidanceScale: Double {
+        switch self {
+        case .fluxKlein, .zImageTurbo: 1.0
+        case .fluxKleinBase: 4.0
+        }
+    }
+
+    /// The family of the model in `directory`, by Iris's rules: a Z-Image
+    /// pipeline is named in `model_index.json` or has a `cap_feat_dim`
+    /// transformer setting; otherwise a model is distilled unless
+    /// `model_index.json` exists without `"is_distilled": true`. Iris reads
+    /// only the start of each file, and so does this.
+    static func detect(in directory: URL) -> IrisModelFamily {
+        let index = prefix(of: directory.appending(path: "model_index.json"), bytes: 4_095)
+        let transformer = prefix(
+            of: directory.appending(components: "transformer", "config.json"), bytes: 8_191)
+
+        if let index, index.contains("ZImagePipeline") || index.contains("Z-Image") {
+            return .zImageTurbo
+        }
+        if let transformer, transformer.contains("\"cap_feat_dim\"") {
+            return .zImageTurbo
+        }
+        guard let index else { return .fluxKlein }
+        let distilled =
+            index.contains("\"is_distilled\": true") || index.contains("\"is_distilled\":true")
+        return distilled ? .fluxKlein : .fluxKleinBase
+    }
+
+    private static func prefix(of url: URL, bytes: Int) -> String? {
+        guard let handle = try? FileHandle(forReadingFrom: url) else { return nil }
+        defer { try? handle.close() }
+        guard let data = try? handle.read(upToCount: bytes) else { return nil }
+        return String(decoding: data, as: UTF8.self)
+    }
+}
+
+nonisolated struct IrisFluxKleinModel: EngineModel {
+    /// Iris models run flow matching with no negative prompt. They attend to
+    /// images as references rather than denoising from one, so they declare
+    /// input images and no starting image at all. Steps and guidance are pinned
+    /// to the family's own values, so the sidebar shows what the pipeline runs.
+    static func constraints(for family: IrisModelFamily) -> OptionConstraints {
+        OptionConstraints(
+            supportsNegativePrompt: false,
+            size: .freeform(range: 64...1_792, step: 16),
+            steps: .pinned(family.stepCount),
+            guidanceScale: .pinned(family.guidanceScale),
+            scheduler: .pinned(.discreteFlowScheduler),
+            startingImage: .unsupported,
+            inputImages: .supported(maxCount: IrisEngine.maxReferenceImages),
+            controlNet: .unsupported,
+            quality: .unsupported,
+            numberOfImages: .range(1...100, step: 1, acceptsBeyondUpperBound: true),
+            promptTokenLimit: 512
+        )
+    }
 
     static let metadataFields: Set<MetadataField> = [
         .prompt,
@@ -62,10 +125,11 @@ nonisolated struct IrisFluxKleinModel: EngineModel {
     /// of the sequence length *times* the head count, so this is what makes the
     /// reference budget a real estimate rather than a guess.
     let attentionHeadCount: Int
+    let family: IrisModelFamily
 
     var id: ModelID { ModelID(engine: .iris, key: ModelID.localKey(for: url)) }
     var tokenizerModelDir: URL? { url.appending(path: "tokenizer") }
-    var constraints: OptionConstraints { Self.constraints }
+    var constraints: OptionConstraints { Self.constraints(for: family) }
     var metadataFields: Set<MetadataField> { Self.metadataFields }
 
     init?(url: URL, name: String) {
@@ -73,6 +137,7 @@ nonisolated struct IrisFluxKleinModel: EngineModel {
         self.url = url
         self.name = name
         self.attentionHeadCount = readAttentionHeadCount(from: url)
+        self.family = IrisModelFamily.detect(in: url)
     }
 }
 

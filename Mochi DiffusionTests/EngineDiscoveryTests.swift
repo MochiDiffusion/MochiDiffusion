@@ -195,7 +195,9 @@ struct EnginePayloadOwnershipTests {
         let iris = AnyGenerationEngine(IrisEngine())
         let irisPayload = IrisGenerationPayload(
             modelDirectory: "/models/klein",
+            family: .fluxKlein,
             stepCount: 4,
+            guidanceScale: 1,
             scheduler: .discreteFlowScheduler
         )
 

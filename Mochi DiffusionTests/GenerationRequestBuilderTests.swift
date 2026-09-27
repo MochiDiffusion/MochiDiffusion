@@ -418,6 +418,25 @@ struct GenerationRequestBuilderTests {
         #expect(request.modelID.engine == .iris)
     }
 
+    @Test("A Klein base model runs and shows its own steps and guidance")
+    func kleinBaseUsesFamilyValues() async throws {
+        let url = modelDir.appending(path: "klein-base")
+        try makeKleinModelFixture(at: url)
+        try writeFile(
+            #"{"_class_name": "Flux2KleinPipeline"}"#, to: url.appending(path: "model_index.json"))
+        let controller = try await makeControllerSelecting("klein-base")
+
+        let request = try #require(controller.buildGenerationRequest())
+        let payload = try #require(request.payload as? IrisGenerationPayload)
+
+        #expect(payload.family == .fluxKleinBase)
+        #expect(payload.stepCount == 50)
+        #expect(payload.guidanceScale == 4)
+        // The queue shows the values the payload runs with.
+        #expect(request.stepCount == 50)
+        #expect(request.guidanceScale == 4)
+    }
+
     @Test("Klein records references, and no starting image")
     func kleinRecordsInputImages() async throws {
         try makeKleinModelFixture(at: modelDir.appending(path: "klein-model"))

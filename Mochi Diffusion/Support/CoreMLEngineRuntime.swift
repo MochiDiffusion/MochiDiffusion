@@ -17,7 +17,6 @@ nonisolated struct CoreMLGenerationConfig {
     let startingImage: CGImage?
     let startingImageName: String
     let controlNetImageName: String
-    let inputImageNames: [String]
     let controlNetInputs: [CGImage]
     let model: SDModel
     let mlComputeUnit: MLComputeUnits
@@ -223,17 +222,6 @@ actor CoreMLEngineRuntime: GenerationEngineRuntime {
             pipelineConfig.schedulerTimestepShift = 3.0
         }
 
-        var sdi = SDImage()
-        sdi.prompt = pipelineConfig.prompt
-        sdi.negativePrompt = pipelineConfig.negativePrompt
-        sdi.model = config.model.name
-        sdi.engine = config.model.id.engine.rawValue
-        sdi.modelKey = config.model.id.key
-        sdi.scheduler = config.scheduler
-        sdi.mlComputeUnit = config.mlComputeUnit
-        sdi.steps = pipelineConfig.stepCount
-        sdi.guidanceScale = Double(pipelineConfig.guidanceScale)
-
         let useDenoisedIntermediates = pipelineConfig.useDenoisedIntermediates
         for _ in 0..<config.numberOfImages {
             let images = try pipeline.generateImages(configuration: pipelineConfig) { progress in
@@ -257,43 +245,64 @@ actor CoreMLEngineRuntime: GenerationEngineRuntime {
             }
             for image in images {
                 guard let image else { continue }
-                sdi.image = image
-                sdi.aspectRatio = CGFloat(Double(image.width) / Double(image.height))
-                sdi.id = UUID()
-                sdi.seed = pipelineConfig.seed
-                sdi.generatedDate = Date.now
-                sdi.path = ""
-                sdi.startingImage = config.startingImageName
-                sdi.controlNetImage = config.controlNetImageName
-                sdi.inputImages = config.inputImageNames
-
-                guard
-                    let data = await sdi.imageData(.png, metadataFields: request.metadataFields)
-                else { continue }
-                let metadata = GenerationMetadata(
-                    prompt: sdi.prompt,
-                    negativePrompt: sdi.negativePrompt,
+                let metadata = Self.metadata(
+                    request: request,
+                    config: config,
                     width: image.width,
                     height: image.height,
-                    model: sdi.model,
-                    engine: sdi.engine,
-                    modelKey: sdi.modelKey,
-                    quality: sdi.quality,
-                    startingImage: config.startingImageName,
-                    controlNetImage: config.controlNetImageName,
-                    inputImages: config.inputImageNames,
-                    scheduler: sdi.scheduler,
-                    mlComputeUnit: request.mlComputeUnit,
-                    seed: sdi.seed,
-                    steps: sdi.steps,
-                    guidanceScale: sdi.guidanceScale,
-                    generatedDate: sdi.generatedDate,
-                    metadataFields: request.metadataFields
+                    seed: pipelineConfig.seed,
+                    generatedDate: Date.now
                 )
+                guard let data = await metadata.pngData(for: image) else { continue }
                 try await onResult(GenerationResult(metadata: metadata, imageData: data))
             }
             pipelineConfig.seed = GenerationSeed.next(after: pipelineConfig.seed)
         }
+    }
+
+    /// What one Core ML image records. A starting image, its strength and a
+    /// ControlNet are recorded only when they reached the pipeline: a model
+    /// without a fixed input size drops them in `makeConfig`.
+    static func metadata(
+        request: GenerationRequest,
+        config: CoreMLGenerationConfig,
+        width: Int,
+        height: Int,
+        seed: UInt32,
+        generatedDate: Date
+    ) -> GenerationMetadata {
+        let usedStartingImage = config.startingImage != nil
+        let usedControlNet = !config.controlNets.isEmpty
+        return GenerationMetadata(
+            prompt: config.prompt,
+            negativePrompt: config.negativePrompt,
+            width: width,
+            height: height,
+            model: config.model.name,
+            engine: config.model.id.engine.rawValue,
+            modelKey: config.model.id.key,
+            architecture: config.model.type.displayName,
+            quality: nil,
+            startingImage: usedStartingImage ? config.startingImageName : nil,
+            strength: usedStartingImage ? decimal(config.strength) : nil,
+            controlNet: usedControlNet ? config.controlNets.first : nil,
+            controlNetImage: usedControlNet ? config.controlNetImageName : nil,
+            inputImages: nil,
+            scheduler: config.scheduler,
+            mlComputeUnit: config.mlComputeUnit,
+            seed: seed,
+            steps: config.stepCount,
+            guidanceScale: decimal(config.guidanceScale),
+            generatedDate: generatedDate,
+            metadataFields: request.metadataFields
+        )
+    }
+
+    /// The pipeline takes `Float`. Widening one to `Double` exposes binary
+    /// noise, so 0.42 would read back as 0.41999998688697815. The shortest
+    /// decimal text of the `Float` is the value the user chose.
+    private static func decimal(_ value: Float) -> Double {
+        Double(value.description) ?? Double(value)
     }
 
     private func makeConfig(
@@ -325,7 +334,6 @@ actor CoreMLEngineRuntime: GenerationEngineRuntime {
             startingImage: startingImage,
             startingImageName: request.startingImageName ?? "",
             controlNetImageName: request.controlNetImageNames.first.flatMap { $0 } ?? "",
-            inputImageNames: request.inputImageNames.compactMap { $0 },
             controlNetInputs: controlNetInputs,
             model: model,
             mlComputeUnit: payload.computeUnit,

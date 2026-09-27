@@ -221,7 +221,7 @@ struct IrisFluxKleinDiscoveryTests {
     /// properties of the distillation rather than choices.
     @Test("Klein declares only what it can honour")
     func declaresConstraints() {
-        let constraints = IrisFluxKleinModel.constraints
+        let constraints = IrisFluxKleinModel.constraints(for: .fluxKlein)
 
         #expect(!constraints.supportsNegativePrompt)
         #expect(constraints.steps == .pinned(4))

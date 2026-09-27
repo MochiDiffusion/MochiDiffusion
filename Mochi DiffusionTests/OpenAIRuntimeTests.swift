@@ -417,6 +417,12 @@ struct OpenAIRuntimeTests {
         #expect(saved[0].metadata.model == "gpt-image-2")
         #expect(saved[0].metadata.engine == "openai")
         #expect(saved[0].metadata.modelKey == "gpt-image-2")
+        // A hosted model reports none of these, so none is recorded.
+        #expect(saved[0].metadata.seed == nil)
+        #expect(saved[0].metadata.steps == nil)
+        #expect(saved[0].metadata.scheduler == nil)
+        #expect(saved[0].metadata.guidanceScale == nil)
+        #expect(saved[0].metadata.negativePrompt == nil)
         #expect(!saved[0].imageData.isEmpty)
     }
 
@@ -604,7 +610,8 @@ struct OpenAIRuntimeTests {
             displayName: "klein",
             metadataFields: [.prompt],
             payload: IrisGenerationPayload(
-                modelDirectory: "/models/klein", stepCount: 4, scheduler: .discreteFlowScheduler),
+                modelDirectory: "/models/klein", family: .fluxKlein, stepCount: 4, guidanceScale: 1,
+                scheduler: .discreteFlowScheduler),
             prompt: "a cat",
             negativePrompt: "",
             size: CGSize(width: 64, height: 64),

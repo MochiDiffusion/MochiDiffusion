@@ -232,7 +232,10 @@ nonisolated struct IrisEngine: GenerationEngineDescriptor {
         return GenerationPlan<IrisGenerationPayload>(
             payload: IrisGenerationPayload(
                 modelDirectory: model.url.path(percentEncoded: false),
-                stepCount: stepCount ?? draft.stepCount,
+                family: model.family,
+                stepCount: stepCount ?? model.family.stepCount,
+                guidanceScale: constraints.guidanceScale.resolved(Double(draft.guidanceScale))
+                    ?? model.family.guidanceScale,
                 scheduler: scheduler ?? draft.scheduler
             ),
             size: size,
@@ -307,9 +310,13 @@ nonisolated struct CoreMLGenerationPayload: Sendable {
 /// Iris loads from a directory rather than a typed model handle.
 nonisolated struct IrisGenerationPayload: Sendable {
     let modelDirectory: String
+    let family: IrisModelFamily
     /// Resolved, and non-optional, for the same reason Core ML's are. Iris uses
     /// the step count directly as `params.num_steps`; the scheduler it only
     /// records, since flow matching is fixed inside the C library.
     let stepCount: Int
+    /// Recorded, not passed: Iris resolves the family's own guidance, which the
+    /// family's pinned value matches.
+    let guidanceScale: Double
     let scheduler: Scheduler
 }

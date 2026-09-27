@@ -109,6 +109,7 @@
 		AA50000000000000000002082 /* GenerationResultPathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA50000000000000000002081 /* GenerationResultPathTests.swift */; };
 		AA50000000000000000002096 /* SchedulerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA50000000000000000002095 /* SchedulerTests.swift */; };
 		AA50000000000000000002098 /* GenerationSeedTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA50000000000000000002097 /* GenerationSeedTests.swift */; };
+		AA50000000000000000002100 /* GenerationMetadataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA50000000000000000002099 /* GenerationMetadataTests.swift */; };
 		AA50000000000000000002094 /* IrisConversionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA50000000000000000002093 /* IrisConversionTests.swift */; };
 		AA50000000000000000002092 /* GalleryBrowsingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA50000000000000000002091 /* GalleryBrowsingTests.swift */; };
 		AA50000000000000000001992 /* GenerationOwnershipTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA50000000000000000001991 /* GenerationOwnershipTests.swift */; };
@@ -274,6 +275,7 @@
 		AA50000000000000000002081 /* GenerationResultPathTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationResultPathTests.swift; sourceTree = "<group>"; };
 		AA50000000000000000002095 /* SchedulerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchedulerTests.swift; sourceTree = "<group>"; };
 		AA50000000000000000002097 /* GenerationSeedTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationSeedTests.swift; sourceTree = "<group>"; };
+		AA50000000000000000002099 /* GenerationMetadataTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationMetadataTests.swift; sourceTree = "<group>"; };
 		AA50000000000000000002093 /* IrisConversionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IrisConversionTests.swift; sourceTree = "<group>"; };
 		AA50000000000000000002091 /* GalleryBrowsingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryBrowsingTests.swift; sourceTree = "<group>"; };
 		AA50000000000000000001991 /* GenerationOwnershipTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationOwnershipTests.swift; sourceTree = "<group>"; };
@@ -537,6 +539,7 @@
 				AA50000000000000000002081 /* GenerationResultPathTests.swift */,
 				AA50000000000000000002095 /* SchedulerTests.swift */,
 				AA50000000000000000002097 /* GenerationSeedTests.swift */,
+				AA50000000000000000002099 /* GenerationMetadataTests.swift */,
 				AA50000000000000000002093 /* IrisConversionTests.swift */,
 				AA50000000000000000002091 /* GalleryBrowsingTests.swift */,
 				AA70000000000000000000011 /* GalleryLoadingTests.swift */,
@@ -914,6 +917,7 @@
 				AA50000000000000000002082 /* GenerationResultPathTests.swift in Sources */,
 				AA50000000000000000002096 /* SchedulerTests.swift in Sources */,
 				AA50000000000000000002098 /* GenerationSeedTests.swift in Sources */,
+				AA50000000000000000002100 /* GenerationMetadataTests.swift in Sources */,
 				AA50000000000000000002094 /* IrisConversionTests.swift in Sources */,
 				AA50000000000000000002092 /* GalleryBrowsingTests.swift in Sources */,
 				AA70000000000000000000012 /* GalleryLoadingTests.swift in Sources */,

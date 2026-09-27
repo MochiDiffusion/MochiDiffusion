@@ -42,6 +42,15 @@ nonisolated struct SDModel: EngineModel {
         case sdxl
         case sd3
         case sd15
+
+        /// The architecture's name, as recorded in image metadata.
+        var displayName: String {
+            switch self {
+            case .sdxl: "Stable Diffusion XL"
+            case .sd3: "Stable Diffusion 3"
+            case .sd15: "Stable Diffusion 1.x/2.x"
+            }
+        }
     }
     let type: ModelType
     let url: URL

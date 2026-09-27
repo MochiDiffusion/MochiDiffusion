@@ -112,24 +112,81 @@ nonisolated struct GenerationResult: Sendable, Identifiable {
     }
 }
 
+/// What one generated image records: the settings that produced it.
+///
+/// A runtime builds one per output image, from the values that reached the
+/// pipeline. A value is `nil` when the model does not use that option or the
+/// engine does not report it. Nothing here is filled with a default.
 nonisolated struct GenerationMetadata: Sendable {
     let prompt: String
-    let negativePrompt: String
+    /// `nil` when the model takes no negative prompt.
+    let negativePrompt: String?
     let width: Int
     let height: Int
     let model: String
     let engine: String
     let modelKey: String
-    let quality: String
-    let startingImage: String
-    let controlNetImage: String
-    let inputImages: [String]
-    let scheduler: Scheduler
+    /// The model's architecture or family, such as `SDXL` or `FLUX.2 Klein`.
+    let architecture: String?
+    let quality: String?
+    /// The starting image's filename. Empty when the image had none; `nil`
+    /// when no starting image was used.
+    let startingImage: String?
+    /// Starting-image strength. Only an image generated from a starting image
+    /// has one.
+    let strength: Double?
+    /// The ControlNet model that ran, if any.
+    let controlNet: String?
+    /// The guide image's filename. Empty when the image had none; `nil` when
+    /// no ControlNet ran.
+    let controlNetImage: String?
+    /// Reference images in the order the engine used them, with an empty name
+    /// for a reference that had no filename. `nil` when the model takes none.
+    let inputImages: [String]?
+    let scheduler: Scheduler?
     let mlComputeUnit: MLComputeUnits?
-    let seed: UInt32
-    let steps: Int
-    let guidanceScale: Double
+    let seed: UInt32?
+    let steps: Int?
+    let guidanceScale: Double?
     let generatedDate: Date
     let metadataFields: Set<MetadataField>
     var loras: [LoRASelection] = []
+}
+
+nonisolated extension GenerationMetadata {
+    /// The gallery's form of this record.
+    ///
+    /// The gallery model has no optional fields, so an absent value takes its
+    /// placeholder. `metadataFields` is what keeps such a placeholder from
+    /// being shown, written or restored.
+    func sdImage(image: CGImage? = nil) -> SDImage {
+        var sdi = SDImage()
+        sdi.image = image
+        sdi.prompt = prompt
+        sdi.negativePrompt = negativePrompt ?? ""
+        sdi.width = width
+        sdi.height = height
+        sdi.aspectRatio = height > 0 ? CGFloat(Double(width) / Double(height)) : 0
+        sdi.model = model
+        sdi.engine = engine
+        sdi.modelKey = modelKey
+        sdi.quality = quality ?? ""
+        sdi.startingImage = startingImage ?? ""
+        sdi.controlNetImage = controlNetImage ?? ""
+        sdi.inputImages = (inputImages ?? []).filter { !$0.isEmpty }
+        sdi.loras = loras
+        if let scheduler { sdi.scheduler = scheduler }
+        sdi.mlComputeUnit = mlComputeUnit
+        if let seed { sdi.seed = seed }
+        if let steps { sdi.steps = steps }
+        if let guidanceScale { sdi.guidanceScale = guidanceScale }
+        sdi.generatedDate = generatedDate
+        return sdi
+    }
+
+    /// `image` encoded as PNG with this record embedded. Every engine encodes
+    /// through here, so each writes its metadata the same way.
+    func pngData(for image: CGImage) async -> Data? {
+        await sdImage(image: image).imageData(.png, metadataFields: metadataFields)
+    }
 }

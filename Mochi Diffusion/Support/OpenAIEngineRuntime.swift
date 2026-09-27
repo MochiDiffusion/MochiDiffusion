@@ -299,30 +299,31 @@ nonisolated final class OpenAIEngineRuntime: GenerationEngineRuntime {
     ) async throws -> GenerationResult {
         let metadata = GenerationMetadata(
             prompt: request.prompt,
-            negativePrompt: "",
+            negativePrompt: nil,
             width: image.width,
             height: image.height,
             model: payload.apiModel,
             engine: request.modelID.engine.rawValue,
             modelKey: request.modelID.key,
-            quality: request.quality?.rawValue ?? "",
-            startingImage: "",
-            controlNetImage: "",
-            inputImages: request.inputImageNames.compactMap { $0 },
-            scheduler: .dpmSolverMultistepScheduler,
+            architecture: nil,
+            quality: request.quality?.rawValue,
+            startingImage: nil,
+            strength: nil,
+            controlNet: nil,
+            controlNetImage: nil,
+            inputImages: request.inputImageNames.map { $0 ?? "" },
+            scheduler: nil,
             mlComputeUnit: nil,
-            seed: request.seed,
-            steps: 0,
-            guidanceScale: 0,
+            seed: nil,
+            steps: nil,
+            guidanceScale: nil,
             generatedDate: Date(),
             metadataFields: request.metadataFields
         )
 
-        // Re-encoded through the same path the local engines use, because that is
-        // what embeds Mochi's metadata. `scheduler`, `steps` and `guidanceScale`
-        // above are placeholders: this model declares none of them, so
-        // `metadata(including:)` never writes them.
-        guard let data = await encode(image: image, metadata: metadata) else {
+        // A hosted model reports no seed, steps, sampler or guidance, so none is
+        // recorded.
+        guard let data = await metadata.pngData(for: image) else {
             throw GenerationError.malformedResponse
         }
         return GenerationResult(
@@ -330,23 +331,6 @@ nonisolated final class OpenAIEngineRuntime: GenerationEngineRuntime {
             imageData: data,
             requestID: request.id
         )
-    }
-
-    @MainActor
-    private func encode(
-        image: CGImage,
-        metadata: GenerationMetadata
-    ) async -> Data? {
-        var sdi = SDImage(image: image, aspectRatio: 0, path: "")
-        sdi.prompt = metadata.prompt
-        sdi.model = metadata.model
-        sdi.engine = metadata.engine
-        sdi.modelKey = metadata.modelKey
-        sdi.quality = metadata.quality
-        sdi.inputImages = metadata.inputImages
-        sdi.seed = metadata.seed
-        sdi.generatedDate = metadata.generatedDate
-        return await sdi.imageData(.png, metadataFields: metadata.metadataFields)
     }
 
     // MARK: - Parsing

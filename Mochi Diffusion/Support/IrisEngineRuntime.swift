@@ -227,36 +227,17 @@ actor IrisEngineRuntime: GenerationEngineRuntime {
             }
             defer { iris_image_free(image) }
 
-            let metadata = GenerationMetadata(
-                prompt: request.prompt,
-                negativePrompt: request.negativePrompt,
+            let metadata = Self.metadata(
+                request: request,
+                payload: payload,
                 width: Int(image.pointee.width),
                 height: Int(image.pointee.height),
-                model: request.displayName,
-                engine: request.modelID.engine.rawValue,
-                modelKey: request.modelID.key,
-                quality: "",
-                startingImage: "",
-                controlNetImage: "",
-                inputImages: request.inputImageNames.compactMap { $0 },
-                scheduler: payload.scheduler,
-                mlComputeUnit: request.mlComputeUnit,
                 seed: seed,
-                steps: payload.stepCount,
-                guidanceScale: isDistilled ? 1.0 : 4.0,
-                generatedDate: Date.now,
-                metadataFields: request.metadataFields
+                generatedDate: Date.now
             )
 
-            guard let cgImage = Self.makeCGImage(from: UnsafePointer(image)) else {
-                throw IrisRuntimeError.encodeFailed
-            }
-
-            guard
-                let imageData = await makeImageData(
-                    from: cgImage,
-                    metadata: metadata
-                )
+            guard let cgImage = Self.makeCGImage(from: UnsafePointer(image)),
+                let imageData = await metadata.pngData(for: cgImage)
             else {
                 throw IrisRuntimeError.encodeFailed
             }
@@ -318,29 +299,40 @@ actor IrisEngineRuntime: GenerationEngineRuntime {
         }
     }
 
-    private func makeImageData(
-        from cgImage: CGImage,
-        metadata: GenerationMetadata
-    ) async -> Data? {
-        var sdi = SDImage()
-        sdi.image = cgImage
-        sdi.prompt = metadata.prompt
-        sdi.negativePrompt = metadata.negativePrompt
-        sdi.model = metadata.model
-        sdi.engine = metadata.engine
-        sdi.modelKey = metadata.modelKey
-        sdi.quality = metadata.quality
-        sdi.startingImage = metadata.startingImage
-        sdi.controlNetImage = metadata.controlNetImage
-        sdi.inputImages = metadata.inputImages
-        sdi.scheduler = metadata.scheduler
-        sdi.seed = metadata.seed
-        sdi.steps = metadata.steps
-        sdi.guidanceScale = metadata.guidanceScale
-        sdi.generatedDate = metadata.generatedDate
-        sdi.aspectRatio = CGFloat(Double(cgImage.width) / Double(cgImage.height))
-
-        return await sdi.imageData(.png, metadataFields: metadata.metadataFields)
+    /// What one Iris image records. Steps and guidance are the family's pinned
+    /// values, which are the ones Iris runs. A reference without a filename
+    /// keeps its place as an empty name.
+    static func metadata(
+        request: GenerationRequest,
+        payload: IrisGenerationPayload,
+        width: Int,
+        height: Int,
+        seed: UInt32,
+        generatedDate: Date
+    ) -> GenerationMetadata {
+        GenerationMetadata(
+            prompt: request.prompt,
+            negativePrompt: nil,
+            width: width,
+            height: height,
+            model: request.displayName,
+            engine: request.modelID.engine.rawValue,
+            modelKey: request.modelID.key,
+            architecture: payload.family.displayName,
+            quality: nil,
+            startingImage: nil,
+            strength: nil,
+            controlNet: nil,
+            controlNetImage: nil,
+            inputImages: request.inputImageNames.map { $0 ?? "" },
+            scheduler: payload.scheduler,
+            mlComputeUnit: nil,
+            seed: seed,
+            steps: payload.stepCount,
+            guidanceScale: payload.guidanceScale,
+            generatedDate: generatedDate,
+            metadataFields: request.metadataFields
+        )
     }
 
     static func makeCGImage(from image: UnsafePointer<iris_image>) -> CGImage? {

@@ -132,17 +132,16 @@ nonisolated func sanitizedImageFilenameBase(from prompt: String) -> String? {
     return String(trimmed.prefix(70))
 }
 
-/// Builds the filename shared by generation, Save As and Save All.
+/// Builds the filename shared by generation, Save As and Save All: the prompt,
+/// then the batch count and the seed when there are any.
 nonisolated func imageFilenameWithoutExtension(
     prompt: String,
-    seed: UInt32,
+    seed: UInt32?,
     count: Int? = nil
 ) -> String {
     let base = sanitizedImageFilenameBase(from: prompt) ?? "Image"
-    if let count {
-        return "\(base).\(count).\(seed)"
-    }
-    return "\(base).\(seed)"
+    let suffixes = [count.map(String.init), seed.map(String.init)].compactMap { $0 }
+    return ([base] + suffixes).joined(separator: ".")
 }
 
 /// Decodes a full-size image from a file.

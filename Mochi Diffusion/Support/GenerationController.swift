@@ -1304,26 +1304,27 @@ final class GenerationController {
         }
         guard let url = result.imageURL else { return }
         let metadata = result.metadata
-        let width = metadata.width
-        let height = metadata.height
+        // The gallery model has no optional fields. An absent value takes the
+        // gallery placeholder, and `metadataFields` keeps it out of view.
+        let placeholder = metadata.sdImage()
         let record = ImageRecord(
             id: result.id,
-            prompt: metadata.prompt,
-            negativePrompt: metadata.negativePrompt,
-            width: width,
-            height: height,
-            model: metadata.model,
-            engine: metadata.engine,
-            modelKey: metadata.modelKey,
-            quality: metadata.quality,
-            startingImage: metadata.startingImage,
-            controlNetImage: metadata.controlNetImage,
-            inputImages: metadata.inputImages,
-            scheduler: metadata.scheduler,
-            mlComputeUnit: metadata.mlComputeUnit,
-            seed: metadata.seed,
-            steps: metadata.steps,
-            guidanceScale: metadata.guidanceScale,
+            prompt: placeholder.prompt,
+            negativePrompt: placeholder.negativePrompt,
+            width: metadata.width,
+            height: metadata.height,
+            model: placeholder.model,
+            engine: placeholder.engine,
+            modelKey: placeholder.modelKey,
+            quality: placeholder.quality,
+            startingImage: placeholder.startingImage,
+            controlNetImage: placeholder.controlNetImage,
+            inputImages: placeholder.inputImages,
+            scheduler: placeholder.scheduler,
+            mlComputeUnit: placeholder.mlComputeUnit,
+            seed: placeholder.seed,
+            steps: placeholder.steps,
+            guidanceScale: placeholder.guidanceScale,
             metadataFields: metadata.metadataFields,
             generatedDate: metadata.generatedDate,
             path: url.path(percentEncoded: false),
