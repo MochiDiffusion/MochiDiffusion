@@ -343,7 +343,7 @@ actor IrisEngineRuntime: GenerationEngineRuntime {
         return await sdi.imageData(.png, metadataFields: metadata.metadataFields)
     }
 
-    fileprivate static func makeCGImage(from image: UnsafePointer<iris_image>) -> CGImage? {
+    static func makeCGImage(from image: UnsafePointer<iris_image>) -> CGImage? {
         let width = Int(image.pointee.width)
         let height = Int(image.pointee.height)
         let channels = Int(image.pointee.channels)
@@ -381,7 +381,7 @@ actor IrisEngineRuntime: GenerationEngineRuntime {
         )
     }
 
-    fileprivate static func makeFluxImage(from data: Data) -> UnsafeMutablePointer<iris_image>? {
+    static func makeFluxImage(from data: Data) -> UnsafeMutablePointer<iris_image>? {
         guard let cgImage = CGImage.fromData(data) else {
             return nil
         }
@@ -468,87 +468,92 @@ nonisolated private func fluxErrorMessage() -> String {
     return String(cString: cString)
 }
 
+/// A prompt embedding stored at 4 bits per value.
+///
+/// Values are quantized in blocks of `blockSize`. Each block keeps its own
+/// minimum and range, so the error of a value is at most half a step of its
+/// block's range divided into 15 steps.
+nonisolated struct QuantizedPromptEmbedding: Sendable {
+    static let blockSize = 32
+
+    let elementCount: Int
+    let packed: [UInt8]
+    let scales: [Float]
+    let offsets: [Float]
+
+    init(values: [Float]) {
+        elementCount = values.count
+        let blockCount = (values.count + Self.blockSize - 1) / Self.blockSize
+
+        var packed = [UInt8](repeating: 0, count: (values.count + 1) / 2)
+        var scales = [Float](repeating: 0, count: blockCount)
+        var offsets = [Float](repeating: 0, count: blockCount)
+
+        for block in 0..<blockCount {
+            let start = block * Self.blockSize
+            let end = min(start + Self.blockSize, values.count)
+            let slice = values[start..<end]
+            guard let minVal = slice.min(), let maxVal = slice.max() else {
+                continue
+            }
+            let range = max(maxVal - minVal, 1e-10)
+            offsets[block] = minVal
+            scales[block] = range
+
+            let invScale = 15.0 / range
+            for idx in start..<end {
+                let normalized = (values[idx] - minVal) * invScale
+                let quantized = max(0, min(15, Int(normalized.rounded())))
+                let byteIdx = idx / 2
+                if idx.isMultiple(of: 2) {
+                    packed[byteIdx] = (packed[byteIdx] & 0xF0) | UInt8(quantized & 0x0F)
+                } else {
+                    packed[byteIdx] = (packed[byteIdx] & 0x0F) | UInt8((quantized & 0x0F) << 4)
+                }
+            }
+        }
+
+        self.packed = packed
+        self.scales = scales
+        self.offsets = offsets
+    }
+
+    func dequantized() -> [Float] {
+        var values = [Float](repeating: 0, count: elementCount)
+        let blockCount = scales.count
+
+        for block in 0..<blockCount {
+            let start = block * Self.blockSize
+            let end = min(start + Self.blockSize, elementCount)
+
+            let scale = scales[block] / 15.0
+            let offset = offsets[block]
+
+            for idx in start..<end {
+                let byteIdx = idx / 2
+                let quantized: UInt8
+                if idx.isMultiple(of: 2) {
+                    quantized = packed[byteIdx] & 0x0F
+                } else {
+                    quantized = (packed[byteIdx] >> 4) & 0x0F
+                }
+                values[idx] = Float(quantized) * scale + offset
+            }
+        }
+
+        return values
+    }
+}
+
 private actor FluxPromptEmbeddingCache {
     struct Entry {
         let seqLen: Int32
         let values: [Float]
     }
 
-    private struct QuantizedEmbedding {
-        static let blockSize = 32
-
-        let elementCount: Int
-        let packed: [UInt8]
-        let scales: [Float]
-        let offsets: [Float]
-
-        init(values: [Float]) {
-            elementCount = values.count
-            let blockCount = (values.count + Self.blockSize - 1) / Self.blockSize
-
-            var packed = [UInt8](repeating: 0, count: (values.count + 1) / 2)
-            var scales = [Float](repeating: 0, count: blockCount)
-            var offsets = [Float](repeating: 0, count: blockCount)
-
-            for block in 0..<blockCount {
-                let start = block * Self.blockSize
-                let end = min(start + Self.blockSize, values.count)
-                let slice = values[start..<end]
-                guard let minVal = slice.min(), let maxVal = slice.max() else {
-                    continue
-                }
-                let range = max(maxVal - minVal, 1e-10)
-                offsets[block] = minVal
-                scales[block] = range
-
-                let invScale = 15.0 / range
-                for idx in start..<end {
-                    let normalized = (values[idx] - minVal) * invScale
-                    let quantized = max(0, min(15, Int(normalized.rounded())))
-                    let byteIdx = idx / 2
-                    if idx.isMultiple(of: 2) {
-                        packed[byteIdx] = (packed[byteIdx] & 0xF0) | UInt8(quantized & 0x0F)
-                    } else {
-                        packed[byteIdx] = (packed[byteIdx] & 0x0F) | UInt8((quantized & 0x0F) << 4)
-                    }
-                }
-            }
-
-            self.packed = packed
-            self.scales = scales
-            self.offsets = offsets
-        }
-
-        func dequantized() -> [Float] {
-            var values = [Float](repeating: 0, count: elementCount)
-            let blockCount = scales.count
-
-            for block in 0..<blockCount {
-                let start = block * Self.blockSize
-                let end = min(start + Self.blockSize, elementCount)
-
-                let scale = scales[block] / 15.0
-                let offset = offsets[block]
-
-                for idx in start..<end {
-                    let byteIdx = idx / 2
-                    let quantized: UInt8
-                    if idx.isMultiple(of: 2) {
-                        quantized = packed[byteIdx] & 0x0F
-                    } else {
-                        quantized = (packed[byteIdx] >> 4) & 0x0F
-                    }
-                    values[idx] = Float(quantized) * scale + offset
-                }
-            }
-
-            return values
-        }
-    }
-
     private struct StoredEntry {
         let seqLen: Int32
-        let quantized: QuantizedEmbedding
+        let quantized: QuantizedPromptEmbedding
     }
 
     private struct Key: Hashable {
@@ -577,7 +582,7 @@ private actor FluxPromptEmbeddingCache {
 
     func store(modelDir: String, prompt: String, seqLen: Int32, values: [Float]) {
         let key = Key(modelDir: modelDir, prompt: prompt)
-        let quantized = QuantizedEmbedding(values: values)
+        let quantized = QuantizedPromptEmbedding(values: values)
 
         entries[key] = StoredEntry(
             seqLen: seqLen,
