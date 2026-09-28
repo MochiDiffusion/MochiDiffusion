@@ -190,7 +190,7 @@ nonisolated enum ImageMetadataWriter {
                     producer: interpretation.producer
                         ?? MetadataProducer(name: ImageMetadataReader.producerName),
                     generation: generation,
-                    details: ImageMetadataReader.mochiDetails(interpretation, reading: reading)
+                    details: MochiGenerationDetails(interpretation, payloads: reading.payloads)
                         ?? MochiGenerationDetails()
                 ))
         case .automatic1111:
@@ -282,7 +282,7 @@ nonisolated enum ImageMetadataReader {
                 interpretation.generations[reference.generation],
                 producer: interpretation.producer,
                 format: interpretation.format,
-                details: mochiDetails(interpretation, reading: reading),
+                details: MochiGenerationDetails(interpretation, payloads: reading.payloads),
                 to: &record)
         case .ambiguous(let references):
             let sources = Set(
@@ -314,46 +314,6 @@ nonisolated enum ImageMetadataReader {
             details: snapshot.details,
             to: &record)
         return record
-    }
-
-    /// The Mochi details of a native record, or of a released Mochi caption's
-    /// parameters.
-    static func mochiDetails(_ interpretation: MetadataInterpretation, reading: Reading)
-        -> MochiGenerationDetails?
-    {
-        switch interpretation.format {
-        case .mochiDiffusion:
-            guard let index = interpretation.payloadIndices.first,
-                let text = reading.payloads[index].text
-            else {
-                return nil
-            }
-            return (try? MochiNativeCodec.decodeXMPPacket(text))?.details
-        case .mochiDiffusionLegacyCaption:
-            let parameters = interpretation.generations.first?.parameters ?? []
-            func value(_ key: String) -> String? {
-                parameters.first { $0.key == key }?.value
-            }
-            // The 6.1 caption lists each input image as its own `Input Image`.
-            // Earlier captions join them with commas under `Input Images`.
-            let inputImages = parameters.filter { $0.key == "Input Image" }.map(\.value)
-            return MochiGenerationDetails(
-                engine: value("Engine"),
-                modelKey: value("Model Key"),
-                quality: value("Quality"),
-                computeUnit: value("ML Compute Unit"),
-                startingImage: value("Starting Image"),
-                controlNetImage: value("ControlNet Image"),
-                inputImages: inputImages.isEmpty
-                    ? value("Input Images").map {
-                        $0.components(separatedBy: ",").map {
-                            $0.trimmingCharacters(in: .whitespaces)
-                        }
-                        .filter { !$0.isEmpty }
-                    } : inputImages)
-        case .automatic1111, .comfyUI, .drawThings:
-            return nil
-        }
     }
 
     /// Copies one generation into a gallery record. A value Mochi can restore
