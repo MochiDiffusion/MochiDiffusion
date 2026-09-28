@@ -25,7 +25,7 @@ Mochi Diffusion is a native macOS app for generating images locally using [Apple
 ## Features
 
 - Generate images locally and completely offline
-- Generated images are saved with prompt info inside EXIF metadata (view in Finder's Get Info window)
+- Generated images are saved as PNG with their generation settings, which AUTOMATIC1111-compatible tools and Civitai uploads can read (view in Finder's Get Info window)
 - Built-in gallery with import/save/sync support
 - macOS native app using SwiftUI
 

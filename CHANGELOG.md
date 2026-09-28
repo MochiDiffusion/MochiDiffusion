@@ -1,3 +1,14 @@
+# Unreleased
+
+## Image metadata
+
+- Images are saved as PNG only. JPEG and HEIC images from earlier versions stay readable, and Save As, Save All and Copy convert them to PNG with their generation settings
+- Generation settings are written as AUTOMATIC1111-compatible text, so a Civitai upload fills in the prompt, negative prompt, steps, CFG scale, sampler and seed. Civitai does not identify the model, because Mochi records it by name without a hash
+- A complete record of the settings is saved alongside, and Finder's Get Info shows the settings as the image's description
+- A prompt containing lines other tools would read as settings, such as `Steps:`, is saved with Mochi's own record only
+- Images from ComfyUI, Draw Things, AUTOMATIC1111-compatible tools and earlier Mochi versions import with the settings they recorded. Values Mochi cannot use are shown but not copied to the sidebar
+- Mochi Diffusion 6.1.2 and earlier do not show images saved by this version in their gallery
+
 # [v6.1.2](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v6.1.2) - 25 Sept 2026
 
 - Assorted UI tweaks to maintain sidebar fixed layout, so controls no longer move when switching models or resizing windows
