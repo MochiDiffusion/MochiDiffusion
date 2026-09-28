@@ -234,10 +234,40 @@ nonisolated func makeCGImage(width: Int = 8, height: Int = 8) -> CGImage {
     return context.makeImage()!
 }
 
-/// A caption in the format released Mochi Diffusion 2.2 through 6.1 wrote:
+/// A caption in the format released Mochi Diffusion 2.2 through 6.0 wrote:
 /// `Key: value` pairs joined by `"; "`.
 nonisolated func releasedCaption(_ pairs: [(key: Metadata, value: String)]) -> String {
     pairs.map { "\($0.key.rawValue): \($0.value)" }.joined(separator: "; ")
+}
+
+/// A caption in the format released Mochi Diffusion 6.1 through 6.1.2 wrote:
+/// `Metadata Version: 2`, then one `Key: value` pair per line, with backslash,
+/// line feed and carriage return escaped in each value.
+nonisolated func releasedLineCaption(_ pairs: [(key: Metadata, value: String)]) -> String {
+    func escape(_ value: String) -> String {
+        var escaped = ""
+        for scalar in value.unicodeScalars {
+            switch scalar {
+            case "\\": escaped += "\\\\"
+            case "\n": escaped += "\\n"
+            case "\r": escaped += "\\r"
+            default: escaped.unicodeScalars.append(scalar)
+            }
+        }
+        return escaped
+    }
+    return (["Metadata Version: 2"] + pairs.map { "\($0.key.rawValue): \(escape($0.value))" })
+        .joined(separator: "\n")
+}
+
+/// The XMP `dc:description` of an encoded image, as ImageIO reads it. Spotlight
+/// imports it as the description Finder shows in Get Info.
+nonisolated func xmpDescription(of data: Data) -> String? {
+    guard let source = CGImageSourceCreateWithData(data as CFData, nil),
+        let metadata = CGImageSourceCopyMetadataAtIndex(source, 0, nil)
+    else { return nil }
+    return CGImageMetadataCopyStringValueWithPath(metadata, nil, "dc:description" as CFString)
+        as String?
 }
 
 /// Writes a PNG carrying `caption` as its IPTC caption-abstract, the way

@@ -118,6 +118,19 @@ struct MetadataRoundTripTests {
         #expect(data.range(of: Data("Sampler: DPM++ 2M, Schedule type: Karras".utf8)) != nil)
     }
 
+    @Test("A generated PNG's description is its AUTOMATIC1111 text")
+    func generatedPNGDescription() async throws {
+        let data = try #require(await Self.coreMLMetadata().pngData(for: makeCGImage()))
+
+        let description = try #require(xmpDescription(of: data))
+
+        #expect(
+            description.hasPrefix("a cat wearing a hat\nNegative prompt: blurry, low quality\n"))
+        #expect(description.contains("Sampler: DPM++ 2M, Schedule type: Karras"))
+        // The same text as the uncompressed `parameters` iTXt chunk.
+        #expect(data.range(of: Data("parameters\0\0\0\0\0\(description)".utf8)) != nil)
+    }
+
     @Test("An image without a starting image records no strength")
     func noStartingImageNoStrength() async throws {
         let record = try await roundTrip(Self.coreMLMetadata(startingImage: nil, strength: nil))
@@ -234,6 +247,48 @@ struct MetadataRoundTripTests {
         #expect(
             record.details.first == MetadataDetail(label: "Generator", value: "Mochi Diffusion 6.0")
         )
+    }
+
+    @Test(
+        "Images from Mochi Diffusion 6.1 through 6.1.2 stay readable in every format",
+        arguments: [UTType.png, .jpeg, .heic])
+    func releasedLineCaptionImagesAreReadable(type: UTType) throws {
+        let caption = releasedLineCaption([
+            (.includeInImage, "a cat\nwearing a \\hat"),
+            (.excludeFromImage, ""),
+            (.model, "sd-1.5"),
+            (.engine, EngineID.coreMLStableDiffusion.rawValue),
+            (.modelKey, "sd-1.5"),
+            (.steps, "17"),
+            (.guidanceScale, "7.5"),
+            (.seed, "42"),
+            (.size, "512x768"),
+            (.inputImages, "first, one.png"),
+            (.inputImages, "second.png"),
+            (.scheduler, "DPM-Solver++"),
+            (.mlComputeUnit, "CPU & GPU"),
+            (.generator, "Mochi Diffusion 6.1.2"),
+        ])
+        let url = try writeReleasedImage(caption: caption, type: type, name: "released-6.1")
+
+        let record = try #require(createImageRecordFromURL(url))
+
+        #expect(record.prompt == "a cat\nwearing a \\hat")
+        #expect(record.negativePrompt == "")
+        #expect(record.metadataFields.contains(.negativePrompt))
+        #expect(record.model == "sd-1.5")
+        #expect(record.engine == EngineID.coreMLStableDiffusion.rawValue)
+        #expect(record.modelKey == "sd-1.5")
+        #expect(record.steps == 17)
+        #expect(record.guidanceScale == 7.5)
+        #expect(record.seed == 42)
+        #expect(record.generationSize == CGSize(width: 512, height: 768))
+        #expect(record.scheduler == .dpmSolverMultistepScheduler)
+        #expect(record.mlComputeUnit == .cpuAndGPU)
+        #expect(record.inputImages == ["first, one.png", "second.png"])
+        #expect(
+            record.details.first
+                == MetadataDetail(label: "Generator", value: "Mochi Diffusion 6.1.2"))
     }
 
     /// Writes a PNG whose only metadata is AUTOMATIC1111-compatible text.

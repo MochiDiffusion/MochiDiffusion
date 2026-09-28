@@ -94,12 +94,38 @@ struct ImageExportTests {
         #expect(converted.prompt == "a cat")
         #expect(converted.seed == 42)
         #expect(converted.metadataFields == [.prompt, .seed])
+        #expect(try xmpDescription(of: Data(contentsOf: destination))?.hasPrefix("a cat\n") == true)
         // A sampler Mochi does not offer stays a shown detail and is not invented
         // as a known scheduler.
         #expect(converted.details.contains(MetadataDetail(label: "Sampler", value: "Euler")))
         #expect(
             converted.details.first
                 == MetadataDetail(label: "Generator", value: "Mochi Diffusion 6.0"))
+    }
+
+    @Test("A 6.1 HEIC converts to PNG with its model identity and input images")
+    func releasedLineCaptionConversion() async throws {
+        let caption = releasedLineCaption([
+            (.includeInImage, "a cat"),
+            (.engine, EngineID.iris.rawValue),
+            (.modelKey, "flux-klein"),
+            (.inputImages, "first, one.png"),
+            (.inputImages, "second.png"),
+            (.generator, "Mochi Diffusion 6.1.2"),
+        ])
+        let source = try writeReleasedSource("image.heic", type: .heic, caption: caption)
+
+        let destination = try await export(source, name: "converted.png")
+        let converted = try #require(createImageRecordFromURL(destination))
+
+        #expect(type(of: destination) == .png)
+        #expect(converted.prompt == "a cat")
+        #expect(converted.engine == EngineID.iris.rawValue)
+        #expect(converted.modelKey == "flux-klein")
+        #expect(converted.inputImages == ["first, one.png", "second.png"])
+        #expect(
+            converted.details.first
+                == MetadataDetail(label: "Generator", value: "Mochi Diffusion 6.1.2"))
     }
 
     @Test("Another application's AUTOMATIC1111 text is carried over as it was")

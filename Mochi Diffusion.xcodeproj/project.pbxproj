@@ -1317,7 +1317,7 @@
 			repositoryURL = "https://github.com/MochiDiffusion/Musubi.git";
 			requirement = {
 				kind = revision;
-				revision = 65771844a6a9c43840ee035b6972ad51cfbec44e;
+				revision = 027c6b997269a9e505d9382858fedf02d4308182;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */

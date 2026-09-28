@@ -114,22 +114,30 @@ nonisolated extension GenerationMetadata {
     /// no image is saved without its record. AUTOMATIC1111 text that readers
     /// would misread is left out, and the native record alone is written.
     func pngData(for image: CGImage) async -> Data? {
-        let snapshot = snapshot()
         guard let pixels = ImageMetadataWriter.encodePNG(image),
-            let packet = try? MochiNativeCodec.encodeXMPPacket(snapshot)
+            let payloads = ImageMetadataWriter.payloads(for: snapshot())
         else { return nil }
-        let parameters = A1111ParametersEncoder.encode(
-            snapshot.generation, producer: snapshot.producer)
         return try? PNGMetadataWriter.write(
-            PNGMetadataPayloads(nativeXMPPacket: packet, parameters: parameters.text),
-            into: pixels,
-            replacingExistingRecords: false
-        )
+            payloads, into: pixels, replacingExistingRecords: false)
     }
 }
 
 /// Encodes pixels and carries generation metadata into exported PNG files.
 nonisolated enum ImageMetadataWriter {
+    /// The native record and the AUTOMATIC1111-compatible text of `snapshot`.
+    /// The text is also the record's description, which Finder shows in Get
+    /// Info and Spotlight searches. `nil` when the record cannot be written.
+    static func payloads(for snapshot: MochiGenerationSnapshot) -> PNGMetadataPayloads? {
+        let parameters = A1111ParametersEncoder.encode(
+            snapshot.generation, producer: snapshot.producer
+        ).text
+        guard
+            let packet = try? MochiNativeCodec.encodeXMPPacket(
+                snapshot, description: parameters)
+        else { return nil }
+        return PNGMetadataPayloads(nativeXMPPacket: packet, parameters: parameters)
+    }
+
     /// `image` as a PNG with no metadata.
     static func encodePNG(_ image: CGImage) -> Data? {
         guard let data = CFDataCreateMutable(nil, 0),
@@ -172,18 +180,14 @@ nonisolated enum ImageMetadataWriter {
 
         switch interpretation.format {
         case .mochiDiffusion, .mochiDiffusionLegacyCaption:
-            let snapshot = MochiGenerationSnapshot(
-                producer: interpretation.producer
-                    ?? MetadataProducer(name: ImageMetadataReader.producerName),
-                generation: generation,
-                details: ImageMetadataReader.mochiDetails(interpretation, reading: reading)
-                    ?? MochiGenerationDetails()
-            )
-            guard let packet = try? MochiNativeCodec.encodeXMPPacket(snapshot) else { return nil }
-            return PNGMetadataPayloads(
-                nativeXMPPacket: packet,
-                parameters: A1111ParametersEncoder.encode(generation, producer: snapshot.producer)
-                    .text)
+            return payloads(
+                for: MochiGenerationSnapshot(
+                    producer: interpretation.producer
+                        ?? MetadataProducer(name: ImageMetadataReader.producerName),
+                    generation: generation,
+                    details: ImageMetadataReader.mochiDetails(interpretation, reading: reading)
+                        ?? MochiGenerationDetails()
+                ))
         case .automatic1111:
             let text = interpretation.payloadIndices.first.flatMap { reading.payloads[$0].text }
             return text.map { PNGMetadataPayloads(parameters: $0) }
@@ -321,20 +325,27 @@ nonisolated enum ImageMetadataReader {
             }
             return (try? MochiNativeCodec.decodeXMPPacket(text))?.details
         case .mochiDiffusionLegacyCaption:
-            let generation = interpretation.generations.first
+            let parameters = interpretation.generations.first?.parameters ?? []
             func value(_ key: String) -> String? {
-                generation?.parameters.first { $0.key == key }?.value
+                parameters.first { $0.key == key }?.value
             }
+            // The 6.1 caption lists each input image as its own `Input Image`.
+            // Earlier captions join them with commas under `Input Images`.
+            let inputImages = parameters.filter { $0.key == "Input Image" }.map(\.value)
             return MochiGenerationDetails(
+                engine: value("Engine"),
+                modelKey: value("Model Key"),
                 quality: value("Quality"),
                 computeUnit: value("ML Compute Unit"),
                 startingImage: value("Starting Image"),
                 controlNetImage: value("ControlNet Image"),
-                // Released captions join input images with commas.
-                inputImages: value("Input Images").map {
-                    $0.components(separatedBy: ",").map { $0.trimmingCharacters(in: .whitespaces) }
+                inputImages: inputImages.isEmpty
+                    ? value("Input Images").map {
+                        $0.components(separatedBy: ",").map {
+                            $0.trimmingCharacters(in: .whitespaces)
+                        }
                         .filter { !$0.isEmpty }
-                })
+                    } : inputImages)
         case .automatic1111, .comfyUI, .drawThings:
             return nil
         }
