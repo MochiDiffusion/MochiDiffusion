@@ -103,6 +103,29 @@ struct ImageExportTests {
                 == MetadataDetail(label: "Generator", value: "Mochi Diffusion 6.0"))
     }
 
+    @Test(
+        "A released image's scheduler converts to the sampler label a fresh image writes",
+        arguments: [("DPM-Solver++", "DPM++ 2M"), ("PNDM", "PLMS")]
+    )
+    func releasedSchedulerLabel(released: String, label: String) async throws {
+        let caption = releasedCaption([
+            (.includeInImage, "a cat"),
+            (.steps, "17"),
+            (.seed, "42"),
+            (.scheduler, released),
+            (.generator, "Mochi Diffusion 6.0"),
+        ])
+        let source = try writeReleasedSource("image.jpg", type: .jpeg, caption: caption)
+
+        let destination = try await export(source, name: "converted.png")
+        let description = try #require(xmpDescription(of: Data(contentsOf: destination)))
+
+        #expect(description.contains("Sampler: \(label),"))
+        let converted = try #require(createImageRecordFromURL(destination))
+        #expect(converted.scheduler != nil)
+        #expect(converted.scheduler == Scheduler(samplerLabel: released))
+    }
+
     @Test("A 6.1 HEIC converts to PNG with its model identity and input images")
     func releasedLineCaptionConversion() async throws {
         let caption = releasedLineCaption([

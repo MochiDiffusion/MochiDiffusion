@@ -176,10 +176,15 @@ nonisolated enum ImageMetadataWriter {
         let reading = ImageMetadataReader.read(url)
         guard case .selected(let reference) = reading?.selection, let reading else { return nil }
         let interpretation = reading.interpretations[reference.interpretation]
-        let generation = interpretation.generations[reference.generation]
+        var generation = interpretation.generations[reference.generation]
 
         switch interpretation.format {
         case .mochiDiffusion, .mochiDiffusionLegacyCaption:
+            // A released caption names the sampler by Mochi's scheduler name.
+            // The PNG records it under the label a fresh generation writes.
+            if let sampler = generation.sampler, let scheduler = Scheduler(samplerLabel: sampler) {
+                generation.sampler = scheduler.samplerLabel
+            }
             return payloads(
                 for: MochiGenerationSnapshot(
                     producer: interpretation.producer
