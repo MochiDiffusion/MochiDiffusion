@@ -175,8 +175,9 @@ The multi-engine foundation is implemented. Current ownership and contracts foll
   - Writing: each runtime builds a `GenerationMetadata` from the values that reached the
     pipeline, with `nil` for anything the image did not use. `GenerationMetadata.snapshot()`
     maps it to a `MochiGenerationSnapshot`, and `pngData(for:)` writes the native XMP record
-    plus AUTOMATIC1111-compatible text through `PNGMetadataWriter`. An image whose native
-    record cannot be written is not saved.
+    plus AUTOMATIC1111-compatible text through `PNGMetadataWriter`. The same text is the XMP
+    packet's `dc:description`, which Finder shows in Get Info and Spotlight searches. An
+    image whose native record cannot be written is not saved.
   - Reading: `ImageMetadataReader` inspects PNG and JPEG with Musubi, and passes ImageIO's XMP
     through Musubi for HEIC and other files direct inspection cannot read. It uses Musubi's
     selection; an ambiguous file is imported with a note and no settings, and a file with no
