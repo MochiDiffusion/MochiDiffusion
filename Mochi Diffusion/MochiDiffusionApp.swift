@@ -18,22 +18,14 @@ struct MochiDiffusionApp: App {
     @State private var store: ImageGallery
     @State private var notificationController: NotificationController
     @State private var quickLook: QuickLookState
+    /// Mirrors `quickLook.url` for `quickLookPreview`, which reads its binding off the
+    /// main thread. A `Binding(get:set:)` over the main-actor `QuickLookState` would
+    /// trap on that read under Swift 6 isolation checking; a `@State` binding does not.
+    @State private var quickLookURL: URL?
 
     private let thumbnailProvider: GalleryThumbnailProvider
     private let fullImageProvider: GalleryFullImageProvider
     private let updaterController: SPUStandardUpdaterController
-
-    /// The preview reports dismissal by clearing the URL, which closes the shared
-    /// state. It never sets a URL of its own, so only that write is handled.
-    private var quickLookURL: Binding<URL?> {
-        let quickLook = quickLook
-        return Binding(
-            get: { quickLook.url },
-            set: { newValue in
-                if newValue == nil { quickLook.close() }
-            }
-        )
-    }
 
     init() {
         let configStore = ConfigStore()
@@ -107,7 +99,14 @@ struct MochiDiffusionApp: App {
                         "com.apple.MetalPerformanceShadersGraph", isDirectory: true)
                     try? FileManager.default.removeItem(at: mpsURL)
                 }
-                .quickLookPreview(quickLookURL)
+                .onChange(of: quickLook.url) { _, newValue in
+                    if quickLookURL != newValue { quickLookURL = newValue }
+                }
+                // The preview reports dismissal by clearing the URL.
+                .onChange(of: quickLookURL) { _, newValue in
+                    if newValue == nil { quickLook.close() }
+                }
+                .quickLookPreview($quickLookURL)
         }
         .environment(configStore)
         .environment(generationController)
