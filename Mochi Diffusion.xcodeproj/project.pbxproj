@@ -130,6 +130,7 @@
 		AA70000000000000000000012 /* GalleryLoadingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA70000000000000000000011 /* GalleryLoadingTests.swift */; };
 		AA70000000000000000000022 /* GalleryImageProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA70000000000000000000021 /* GalleryImageProviderTests.swift */; };
 		AA70000000000000000000032 /* ImageExportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA70000000000000000000031 /* ImageExportTests.swift */; };
+		AA70000000000000000000062 /* CompatibilityTextTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA70000000000000000000061 /* CompatibilityTextTests.swift */; };
 		AA7500000000000000000001 /* FilterablePicker in Frameworks */ = {isa = PBXBuildFile; productRef = AA7500000000000000000002 /* FilterablePicker */; };
 		AA8800000000000000000001 /* Musubi in Frameworks */ = {isa = PBXBuildFile; productRef = AA8800000000000000000002 /* Musubi */; };
 		AA7600000000000000000002 /* CoreMLPipelineCacheKeyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA7600000000000000000001 /* CoreMLPipelineCacheKeyTests.swift */; };
@@ -295,6 +296,7 @@
 		AA70000000000000000000011 /* GalleryLoadingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryLoadingTests.swift; sourceTree = "<group>"; };
 		AA70000000000000000000021 /* GalleryImageProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryImageProviderTests.swift; sourceTree = "<group>"; };
 		AA70000000000000000000031 /* ImageExportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageExportTests.swift; sourceTree = "<group>"; };
+		AA70000000000000000000061 /* CompatibilityTextTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompatibilityTextTests.swift; sourceTree = "<group>"; };
 		AA7600000000000000000001 /* CoreMLPipelineCacheKeyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreMLPipelineCacheKeyTests.swift; sourceTree = "<group>"; };
 		AA80000000000000000000011 /* GalleryImageProviders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryImageProviders.swift; sourceTree = "<group>"; };
 		BF36895C2F2F3BDA006501CE /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
@@ -542,6 +544,7 @@
 				AA70000000000000000000011 /* GalleryLoadingTests.swift */,
 				AA70000000000000000000021 /* GalleryImageProviderTests.swift */,
 				AA70000000000000000000031 /* ImageExportTests.swift */,
+				AA70000000000000000000061 /* CompatibilityTextTests.swift */,
 				AA50000000000000000001991 /* GenerationOwnershipTests.swift */,
 				AA50000000000000000002001 /* IdleTimeoutTests.swift */,
 				AA70000000000000000000051 /* CancellationBindingTests.swift */,
@@ -920,6 +923,7 @@
 				AA70000000000000000000012 /* GalleryLoadingTests.swift in Sources */,
 				AA70000000000000000000022 /* GalleryImageProviderTests.swift in Sources */,
 				AA70000000000000000000032 /* ImageExportTests.swift in Sources */,
+				AA70000000000000000000062 /* CompatibilityTextTests.swift in Sources */,
 				AA50000000000000000001992 /* GenerationOwnershipTests.swift in Sources */,
 				AA50000000000000000002002 /* IdleTimeoutTests.swift in Sources */,
 				AA70000000000000000000052 /* CancellationBindingTests.swift in Sources */,

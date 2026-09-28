@@ -193,6 +193,26 @@ struct MetadataRoundTripTests {
         #expect(record.prompt == prompt)
     }
 
+    @Test("A prompt too long to repeat in the description keeps both records")
+    func longPromptDropsOnlyTheDescription() async throws {
+        let prompt = String(repeating: "a cat wearing a hat, ", count: 2_000)
+        let data = try #require(
+            await Self.coreMLMetadata(prompt: prompt).pngData(for: makeCGImage()))
+        let url = temp.appending("long.png")
+        try data.write(to: url, options: .atomic)
+
+        #expect(xmpDescription(of: data) == nil)
+        #expect(data.range(of: Data("parameters\0".utf8)) != nil)
+        #expect(try #require(createImageRecordFromURL(url)).prompt == prompt)
+    }
+
+    @Test("An image whose native record exceeds its limit is not written")
+    func oversizedRecordIsNotWritten() async {
+        let prompt = String(repeating: "a cat wearing a hat, ", count: 4_000)
+
+        #expect(await Self.coreMLMetadata(prompt: prompt).pngData(for: makeCGImage()) == nil)
+    }
+
     // MARK: - Released and foreign images
 
     /// Writes an image the way released Mochi Diffusion did: an IPTC caption

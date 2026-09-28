@@ -5,6 +5,7 @@
 
 import CoreGraphics
 import Foundation
+import ImageIO
 import Testing
 import UniformTypeIdentifiers
 
@@ -482,6 +483,57 @@ struct GalleryLoadingTests {
         #expect(gallery.metadataFields(for: sdi.id) == [.prompt])
         #expect(exported.metadataFields == [.prompt])
         #expect(exported.prompt == "a cat")
+    }
+
+    @Test("Save All copies a generated PNG exactly and converts released JPEG and HEIC to PNG")
+    func saveAllMixedFormats() async throws {
+        let generated = MetadataRoundTripTests.coreMLMetadata(prompt: "a generated cat")
+        try #require(await generated.pngData(for: makeCGImage()))
+            .write(to: imageDir.appending(path: "generated.png"))
+        for (name, type) in [("released.jpg", UTType.jpeg), ("released.heic", .heic)] {
+            let data = CFDataCreateMutable(nil, 0)!
+            let destination = try #require(
+                CGImageDestinationCreateWithData(data, type.identifier as CFString, 1, nil))
+            let caption = releasedCaption([
+                (.includeInImage, "a released \(type.preferredFilenameExtension!)"),
+                (.seed, "42"),
+                (.generator, "Mochi Diffusion 6.0"),
+            ])
+            let properties = [
+                kCGImagePropertyIPTCDictionary: [
+                    kCGImagePropertyIPTCCaptionAbstract: caption,
+                    kCGImagePropertyIPTCOriginatingProgram: "Mochi Diffusion",
+                    kCGImagePropertyIPTCProgramVersion: "6.0",
+                ]
+            ]
+            CGImageDestinationAddImage(destination, makeCGImage(), properties as CFDictionary)
+            try #require(CGImageDestinationFinalize(destination))
+            try (data as Data).write(to: imageDir.appending(path: name))
+        }
+        let gallery = ImageGallery()
+        let controller = try await makeSettledController(gallery: gallery)
+        let exportDir = try temp.subdirectory("export")
+        try #require(gallery.images.count == 3)
+
+        await controller.saveAll(to: exportDir)
+
+        for (index, sdi) in gallery.images.enumerated() {
+            let source = URL(fileURLWithPath: sdi.path)
+            let exported = exportDir.appending(
+                path: sdi.filenameWithoutExtension(count: index + 1) + ".png")
+            let data = try Data(contentsOf: exported)
+            let record = try #require(createImageRecordFromURL(exported))
+            #expect(record.prompt == sdi.prompt)
+            #expect(record.metadataFields == gallery.metadataFields(for: sdi.id))
+            if source.pathExtension == "png" {
+                #expect(data == (try Data(contentsOf: source)))
+                #expect(record.startingImage == "starting.png")
+                #expect(record.controlNetImage == "control.png")
+            } else {
+                #expect(data.starts(with: [0x89, 0x50, 0x4E, 0x47]))
+                #expect(record.seed == 42)
+            }
+        }
     }
 }
 

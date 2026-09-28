@@ -4,6 +4,7 @@
 //
 
 import CoreGraphics
+import CoreML
 import Foundation
 import Testing
 
@@ -522,6 +523,74 @@ struct GenerationConfigRestorationTests {
 
         await controller.copyToPrompt(withStrength)
         #expect(configStore.strength == 0.35)
+    }
+
+    /// The gallery image of the file at `url`, read the way the gallery reads it.
+    private func galleryImage(readFrom url: URL, in gallery: ImageGallery) throws -> SDImage {
+        let record = try #require(createImageRecordFromURL(url))
+        let sdi = try #require(createSDImage(from: record))
+        gallery.replaceAll([(image: sdi, metadataFields: record.metadataFields)])
+        return sdi
+    }
+
+    @Test("Copy Options restores the settings a generated file recorded")
+    func restoreFromGeneratedFile() async throws {
+        try makeSDModelFixture(at: modelDir.appending(path: "core"))
+        let metadata = GenerationMetadata(
+            prompt: "a cat\nwearing a hat", negativePrompt: "blurry", width: 512, height: 512,
+            model: "core", engine: EngineID.coreMLStableDiffusion.rawValue, modelKey: "core",
+            architecture: SDModel.ModelType.sd15.displayName, quality: nil, startingImage: nil,
+            strength: nil, controlNet: nil, controlNetImage: nil, inputImages: nil,
+            scheduler: .pndmScheduler, mlComputeUnit: .cpuAndGPU, seed: UInt32.max, steps: 23,
+            guidanceScale: 6.5, generatedDate: Date(), metadataFields: [])
+        let url = temp.appending("generated.png")
+        try #require(await metadata.pngData(for: makeCGImage())).write(to: url)
+        let gallery = ImageGallery()
+        let sdi = try galleryImage(readFrom: url, in: gallery)
+        let controller = makeController(gallery: gallery)
+        await controller.loadModels()
+        try selectModel("gpt-image-2", on: controller)
+
+        await controller.copyToPrompt(sdi)
+
+        #expect(controller.currentModelId == ModelID(engine: .coreMLStableDiffusion, key: "core"))
+        #expect(configStore.prompt == "a cat\nwearing a hat")
+        #expect(configStore.negativePrompt == "blurry")
+        #expect(configStore.steps == 23)
+        #expect(configStore.guidanceScale == 6.5)
+        #expect(configStore.scheduler == .pndmScheduler)
+        #expect(controller.seed == UInt32.max)
+        #expect(configStore.mlComputeUnitPreference == ComputeUnitPreference(exact: .cpuAndGPU))
+    }
+
+    @Test("Copy Options from another application's image restores only what Mochi can use")
+    func restoreFromForeignFile() async throws {
+        try makeSDModelFixture(at: modelDir.appending(path: "core"))
+        let url = temp.appending("foreign.png")
+        try PNGTestChunks.write(
+            textChunks: [
+                (
+                    "parameters",
+                    "a dog\nNegative prompt: cat\nSteps: 12, Sampler: Euler a, CFG scale: 5, Seed: 8589934592, Size: 8x8, Model: dreamshaper"
+                )
+            ], to: url)
+        let gallery = ImageGallery()
+        let sdi = try galleryImage(readFrom: url, in: gallery)
+        let controller = makeController(gallery: gallery)
+        await controller.loadModels()
+        try selectModel("core", on: controller)
+        configStore.scheduler = .dpmSolverMultistepScheduler
+        controller.seed = 7
+
+        await controller.copyToPrompt(sdi)
+
+        #expect(configStore.prompt == "a dog")
+        #expect(configStore.negativePrompt == "cat")
+        #expect(configStore.steps == 12)
+        #expect(configStore.guidanceScale == 5)
+        // Neither a sampler Mochi does not offer nor a seed above UInt32 is restored.
+        #expect(configStore.scheduler == .dpmSolverMultistepScheduler)
+        #expect(controller.seed == 7)
     }
 
     @Test("Legacy gallery metadata falls back to an unambiguous display name")

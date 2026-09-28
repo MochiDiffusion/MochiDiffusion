@@ -187,7 +187,13 @@ The multi-engine foundation is implemented. Current ownership and contracts foll
     `MetadataDetail`. Never present or restore an unrecorded value as a default.
   - A fresh generation's gallery record is built by the same mapping as reading its file.
   - Export always produces PNG: a PNG is copied byte for byte; JPEG and HEIC convert, carrying
-    a released Mochi caption as a native record and foreign AUTOMATIC1111 text unchanged.
+    a released Mochi caption as a native record and foreign AUTOMATIC1111 text unchanged. A
+    released caption's scheduler is written under the sampler label a fresh image uses.
+  - `CompatibilityTextTests` pins the AUTOMATIC1111 text written for each engine and
+    conversion. Musubi's wire probe checks text of those shapes with the pinned AUTOMATIC1111
+    and Civitai readers. A model is recorded by name only, so Civitai does not identify it as a
+    resource. Mochi 6.1.2 and earlier import only a caption naming its `Generator`, so they skip
+    images from newer versions.
   - Sampler names: DPM-Solver++ is written as `DPM++ 2M`, PNDM as `PLMS`, flow matching under
     Mochi's own name. `Scheduler(samplerLabel:)` maps them back for Copy Options.
 
@@ -224,7 +230,8 @@ The multi-engine foundation is implemented. Current ownership and contracts foll
   - Gallery: `GalleryLoadingTests`, `GalleryImageProviderTests`.
   - Hosted engine and credentials: `OpenAIImageEngineTests`, `OpenAIRuntimeTests`,
     `OpenAICredentialCheckTests`, `SecretStoreTests`.
-  - Metadata: `GenerationMetadataTests`, `MetadataRoundTripTests`, `ImageExportTests`.
+  - Metadata: `GenerationMetadataTests`, `MetadataRoundTripTests`, `ImageExportTests`,
+    `CompatibilityTextTests`.
   - Support: `ControlNetLinkTests`.
   - Fixtures are synthetic directories containing only the files the production sniffing
     code inspects, so no real model weights are required.
