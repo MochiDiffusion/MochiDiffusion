@@ -45,24 +45,18 @@ struct MochiSlider: View {
         CompactSlider(value: $value, in: bounds, step: step) {
             if isEditable {
                 TextField("", text: $text)
+                    .textFieldStyle(.plain)
+                    .focusEffectDisabled()
                     .focused($isFocused)
             } else {
                 Text(text)
-                    .padding(.leading, 4)
-                    .padding(.bottom, 1)
                     .gesture(
                         TapGesture(count: 1).onEnded {
                             self.isEditable = true
                             self.isFocused = true
                         }
                     )
-                    .onHover { inside in
-                        if inside {
-                            NSCursor.iBeam.push()
-                        } else {
-                            NSCursor.pop()
-                        }
-                    }
+                    .pointerStyle(.horizontalText)
             }
             Spacer()
         }
