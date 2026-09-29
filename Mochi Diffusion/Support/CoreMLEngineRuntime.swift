@@ -7,7 +7,6 @@
 
 import CoreML
 import StableDiffusion
-import UniformTypeIdentifiers
 
 /// Resolved values for one Core ML generation, in the shape the Apple pipeline
 /// wants them.

@@ -5,7 +5,6 @@
 
 import CoreGraphics
 import Foundation
-import UniformTypeIdentifiers
 
 /// Runs a generation against the OpenAI image API.
 ///

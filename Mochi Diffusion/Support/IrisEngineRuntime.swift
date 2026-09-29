@@ -5,7 +5,6 @@
 
 import CoreGraphics
 import Foundation
-import UniformTypeIdentifiers
 
 /// Runs Iris FLUX.2 requests.
 ///
