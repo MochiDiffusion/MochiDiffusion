@@ -166,7 +166,7 @@ The summary contains these values:
 - Test totals and the line coverage of the app target. The test bundle runs inside the app,
   so view coverage comes mostly from the app launch.
 - Unused declarations from Periphery, and declarations that only the tests use. The count
-  includes the preserved OpenAI and engine-picker code.
+  includes the OpenAI engine and the engine picker, which the app does not show.
 - Unused imports and force unwraps from SwiftLint.
 - The number of functions, their average cyclomatic complexity and the functions above 15.
   Cyclomatic complexity is the number of independent paths through a function.

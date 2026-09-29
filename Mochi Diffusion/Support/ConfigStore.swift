@@ -12,8 +12,8 @@ import SwiftUI
     /// without hopping to the main actor.
     nonisolated enum Key {
         static let imageDir = "ImageDir"
-        /// The output format preference from when images could be saved as JPEG or
-        /// HEIC. Output is PNG only; `init(store:)` deletes the stale value.
+        /// A persisted choice of JPEG, HEIC or PNG output. Output is PNG only, so
+        /// `init(store:)` deletes the value.
         static let legacyImageType = "ImageType"
         static let modelDir = "ModelDir"
         static let controlNetDir = "ControlNetDir"
