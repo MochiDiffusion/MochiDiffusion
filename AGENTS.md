@@ -32,28 +32,24 @@ Follow the commit conventions above as normal.
 
 ## Scope and Planning
 
-The next release is 6.2. It integrates Musubi for generation metadata and simplifies image
-output to PNG only. The shipped engines stay Core ML and Iris behind one combined model
-picker. The explicit engine picker, engine-oriented settings UI and OpenAI hosted generation
-stay out of the stable surface. Preserve the OpenAI implementation and multi-engine
-contracts for a later experimental beta rather than rolling back the architecture wholesale.
+The current release is 6.2. The scope of the next release is not decided yet; when it is,
+it gets its own finite release epic in Beads.
 
-Before the 6.2 feature work starts, the post-6.1 backlog fixes land on develop. They ship
-with 6.2 and do not get a patch release of their own.
+The shipped engines are Core ML and Iris behind one combined model picker. The explicit
+engine picker, engine-oriented settings UI and OpenAI hosted generation stay out of the
+stable surface. Preserve the OpenAI implementation and multi-engine contracts for a later
+experimental beta rather than rolling back the architecture wholesale.
 
 Image output is PNG only. Released JPEG and HEIC images stay readable, and exporting
 one converts it to PNG with its generation metadata.
 
 Draw Things interoperability is explicitly postponed by Graham. It is preserved on branch
 `codex/draw-things-prototype` at `e18663b3877bd42fac9fe169063a052b567a4f8a` and excluded
-from the release, including its exclusive dependencies. Musubi may still read images that
+from stable releases, including its exclusive dependencies. Musubi may still read images that
 Draw Things wrote. The abandoned Iris LoRA experiments are not carry-over work.
 
-Beads owns task status, acceptance criteria and dependencies. `MochiDiffusion-bpb` is the
-finite 6.2 release epic: `MochiDiffusion-bpb.1` holds the backlog fixes,
-`MochiDiffusion-ruj` is PNG-only output, `MochiDiffusion-bpb.2` acts on the static analysis
-pass and `MochiDiffusion-e4v` is Musubi.
-`MochiDiffusion-2lu` is the beta line and is not part of 6.2. Use the existing
+Beads owns task status, acceptance criteria and dependencies. No release epic is open.
+`MochiDiffusion-2lu` is the beta line and is not part of any stable release. Use the existing
 database; do not create a replacement if access fails. Closed beads are historical and
 may describe abandoned work. They do not create obligations to restore it. Do not turn
 every research idea into a task or expand release scope without a concrete need.
@@ -118,8 +114,9 @@ The multi-engine foundation is implemented. Current ownership and contracts foll
   - One shared models folder is a settled decision. `ModelDiscoveryContext` enumerates it
     once per discovery pass and hands the same candidate list to every engine.
   - Concrete descriptors live in `LocalEngines.swift` and `OpenAIImageEngine.swift`;
-    `EngineRegistry.shipped(secrets:)` registers them. OpenAI availability requires a
-    Keychain credential, and its model catalog is hand-maintained. `EngineModel` requires no
+    `EngineRegistry.shipped` lists Iris and Core ML, which the app registers.
+    `EngineRegistry.openAIBeta(secrets:)` adds OpenAI; the app does not call it. OpenAI
+    availability requires a Keychain credential, and its model catalog is hand-maintained. `EngineModel` requires no
     filesystem URL; its optional `tokenizerModelDir` is nil for hosted/server models.
 
 - Options, and where they are resolved:
@@ -223,11 +220,14 @@ The multi-engine foundation is implemented. Current ownership and contracts foll
   - Discovery and selection: `ModelDiscoveryTests`, `EngineDiscoveryTests`,
     `EngineSelectionTests`.
   - Resolution: `OptionConstraintsTests`, `GenerationRequestBuilderTests`,
-    `ComputeUnitPreferenceTests`.
+    `ComputeUnitPreferenceTests`, `GenerationSeedTests`, `GenerationConfigRestorationTests`.
+  - Engine conversions: `SchedulerTests`, `CoreMLPipelineCacheKeyTests`,
+    `IrisConversionTests`.
   - Queue and concurrency: `QueueLivenessTests`, `GenerationSessionTests`,
     `GenerationOwnershipTests`, `IrisSingleFlightTests`, `ControllerLifecycleTests`,
-    `IdleTimeoutTests` and `FailureReportingTests`.
-  - Gallery: `GalleryLoadingTests`, `GalleryImageProviderTests`.
+    `IdleTimeoutTests`, `FailureReportingTests`, `CancellationBindingTests` and
+    `GenerationResultPathTests`.
+  - Gallery: `GalleryLoadingTests`, `GalleryImageProviderTests`, `GalleryBrowsingTests`.
   - Hosted engine and credentials: `OpenAIImageEngineTests`, `OpenAIRuntimeTests`,
     `OpenAICredentialCheckTests`, `SecretStoreTests`.
   - Metadata: `GenerationMetadataTests`, `MetadataRoundTripTests`, `ImageExportTests`,
