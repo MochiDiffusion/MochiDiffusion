@@ -5,6 +5,29 @@
     <language>en</language>
 
     <item>
+      <title>v6.2</title>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion</link>
+      <sparkle:shortVersionString>6.2</sparkle:shortVersionString>
+      <sparkle:version>958</sparkle:version>
+      <sparkle:minimumSystemVersion>15.6</sparkle:minimumSystemVersion>
+      <sparkle:fullReleaseNotesLink>https://github.com/MochiDiffusion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <pubDate>Wed, 30 Sep 2026 03:56:55 +0000</pubDate>
+      <enclosure
+        url="https://github.com/MochiDiffusion/MochiDiffusion/releases/download/v6.2/MochiDiffusion_6.2.dmg"
+        sparkle:edSignature="EK59AS0IUbZ3OmPz17bJplQU/OJnLdS/TTRKKQrade4jIp9nEtf7YUhk8RyEm6QvzXIm3NITyexJlcumAoJ5Cg=="
+        length="4500489"
+        type="application/octet-stream" />
+      <description><![CDATA[
+      <ul>
+      <li>Reads and writes image metadata with Musubi</li>
+      <li>Imports generation settings from other common image generators</li>
+      <li>Adds AUTOMATIC1111-compatible metadata to images, which sites like Civitai read on upload</li>
+      </ul>
+      ]]>
+      </description>
+    </item>
+
+    <item>
       <title>v6.1.2</title>
       <link>https://github.com/MochiDiffusion/MochiDiffusion</link>
       <sparkle:shortVersionString>6.1.2</sparkle:shortVersionString>
