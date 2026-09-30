@@ -144,6 +144,7 @@ struct GenerationMetadataTests {
     func irisFamilyDefaults() {
         #expect(IrisModelFamily.allCases.map(\.stepCount) == [4, 50, 9])
         #expect(IrisModelFamily.allCases.map(\.guidanceScale) == [1, 4, 1])
+        #expect(IrisModelFamily.allCases.map(\.acceptsReferenceImages) == [true, true, false])
     }
 
     @Test("An Iris image records its family's values and keeps unnamed references in place")
@@ -152,7 +153,8 @@ struct GenerationMetadataTests {
             modelDirectory: "/models/base", family: .fluxKleinBase, stepCount: 50, guidanceScale: 4,
             scheduler: .discreteFlowScheduler)
         let request = Self.request(
-            engine: .iris, payload: payload, metadataFields: IrisModel.metadataFields,
+            engine: .iris, payload: payload,
+            metadataFields: IrisModel.metadataFields(for: .fluxKleinBase),
             inputImageNames: ["cat.png", nil, "dog.png"])
 
         let metadata = IrisEngineRuntime.metadata(

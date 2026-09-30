@@ -425,6 +425,31 @@ struct GenerationRequestBuilderTests {
         #expect(request.guidanceScale == 4)
     }
 
+    /// Iris rejects references for Z-Image, so references chosen for Klein are
+    /// held while Z-Image is selected and never reach its request.
+    @Test("A Z-Image model runs its own values and sends no references")
+    func zImageUsesFamilyValuesWithoutReferences() async throws {
+        try makeKleinModelFixture(at: modelDir.appending(path: "klein-model"))
+        let url = modelDir.appending(path: "zimage")
+        try makeKleinModelFixture(at: url)
+        try writeFile(
+            #"{"_class_name": "ZImagePipeline"}"#, to: url.appending(path: "model_index.json"))
+        let controller = try await makeControllerSelecting("klein-model")
+        controller.addInputImage(image: makeCGImage(width: 40, height: 20), filename: "in.png")
+
+        controller.setModel("zimage")
+        let request = try #require(controller.buildGenerationRequest())
+        let payload = try #require(request.payload as? IrisGenerationPayload)
+
+        #expect(payload.family == .zImageTurbo)
+        #expect(payload.stepCount == 9)
+        #expect(request.stepCount == 9)
+        #expect(request.inputImageData.isEmpty)
+        #expect(request.inputImageNames.isEmpty)
+        #expect(!request.metadataFields.contains(.inputImages))
+        #expect(controller.inputImages.map(\.name) == ["in.png"])
+    }
+
     @Test("Klein records references, and no starting image")
     func kleinRecordsInputImages() async throws {
         try makeKleinModelFixture(at: modelDir.appending(path: "klein-model"))

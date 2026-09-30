@@ -49,6 +49,15 @@ nonisolated enum IrisModelFamily: Sendable, Equatable, CaseIterable {
         }
     }
 
+    /// Whether the family attends to reference images. Iris's img2img and
+    /// multi-reference entry points return an error for a Z-Image model.
+    var acceptsReferenceImages: Bool {
+        switch self {
+        case .fluxKlein, .fluxKleinBase: true
+        case .zImageTurbo: false
+        }
+    }
+
     /// The family of the model in `directory`, by Iris's rules: a Z-Image
     /// pipeline is named in `model_index.json` or has a `cap_feat_dim`
     /// transformer setting; otherwise a model is distilled unless
@@ -80,10 +89,10 @@ nonisolated enum IrisModelFamily: Sendable, Equatable, CaseIterable {
 }
 
 nonisolated struct IrisModel: EngineModel {
-    /// Iris models run flow matching with no negative prompt. They attend to
-    /// images as references rather than denoising from one, so they declare
-    /// input images and no starting image at all. Steps and guidance are pinned
-    /// to the family's own values, so the sidebar shows what the pipeline runs.
+    /// Iris models run flow matching with no negative prompt. A family that uses
+    /// images attends to them as references rather than denoising from one, so
+    /// no Iris model declares a starting image. Steps and guidance are pinned to
+    /// the family's own values, so the sidebar shows what the pipeline runs.
     static func constraints(for family: IrisModelFamily) -> OptionConstraints {
         OptionConstraints(
             supportsNegativePrompt: false,
@@ -92,7 +101,8 @@ nonisolated struct IrisModel: EngineModel {
             guidanceScale: .pinned(family.guidanceScale),
             scheduler: .pinned(.discreteFlowScheduler),
             startingImage: .unsupported,
-            inputImages: .supported(maxCount: IrisEngine.maxReferenceImages),
+            inputImages: family.acceptsReferenceImages
+                ? .supported(maxCount: IrisEngine.maxReferenceImages) : .unsupported,
             controlNet: .unsupported,
             quality: .unsupported,
             numberOfImages: .range(1...100, step: 1, acceptsBeyondUpperBound: true),
@@ -100,19 +110,24 @@ nonisolated struct IrisModel: EngineModel {
         )
     }
 
-    static let metadataFields: Set<MetadataField> = [
-        .prompt,
-        .model,
-        .engine,
-        .modelKey,
-        .size,
-        .inputImages,
-        .scheduler,
-        .seed,
-        .steps,
-        // Pinned rather than absent, so the value the model ran at is recorded.
-        .guidanceScale,
-    ]
+    static func metadataFields(for family: IrisModelFamily) -> Set<MetadataField> {
+        var fields: Set<MetadataField> = [
+            .prompt,
+            .model,
+            .engine,
+            .modelKey,
+            .size,
+            .scheduler,
+            .seed,
+            .steps,
+            // Pinned rather than absent, so the value the model ran at is recorded.
+            .guidanceScale,
+        ]
+        if family.acceptsReferenceImages {
+            fields.insert(.inputImages)
+        }
+        return fields
+    }
 
     /// Fallback when the transformer config cannot be read. Klein's own value; a
     /// wrong head count only misestimates the reference budget, so guessing is
@@ -130,7 +145,7 @@ nonisolated struct IrisModel: EngineModel {
     var id: ModelID { ModelID(engine: .iris, key: ModelID.localKey(for: url)) }
     var tokenizerModelDir: URL? { url.appending(path: "tokenizer") }
     var constraints: OptionConstraints { Self.constraints(for: family) }
-    var metadataFields: Set<MetadataField> { Self.metadataFields }
+    var metadataFields: Set<MetadataField> { Self.metadataFields(for: family) }
 
     init?(url: URL, name: String) {
         guard isIrisModelDirectory(url) else { return nil }

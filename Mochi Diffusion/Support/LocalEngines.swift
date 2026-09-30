@@ -246,9 +246,9 @@ nonisolated struct IrisEngine: GenerationEngineDescriptor {
             controlNetImageNames: [],
             stepCount: stepCount,
             scheduler: scheduler,
-            // Klein declares no starting image, so there is no strength to
-            // resolve. Its guidance is pinned rather than absent: distillation
-            // fixes the value, it does not remove the concept.
+            // No Iris family declares a starting image, so there is no strength
+            // to resolve. Guidance is pinned rather than absent: each family runs
+            // at a fixed scale, which is still a value the image used.
             strength: constraints.startingImage.strength.resolved(Double(draft.strength))
                 .map(Float.init),
             guidanceScale: constraints.guidanceScale.resolved(Double(draft.guidanceScale))
