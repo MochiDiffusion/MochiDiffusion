@@ -106,7 +106,12 @@ actor IrisEngineRuntime: GenerationEngineRuntime {
         } else {
             iris_set_step_image_callback(ctx, nil)
         }
-        let isDistilled = iris_is_distilled(ctx) != 0
+        // The `_with_embeddings` entry points run no classifier-free guidance, so
+        // they are right exactly when the model runs none: a distilled Klein, or
+        // Z-Image, whose index carries no distillation flag. Encoding the prompt
+        // once here also keeps the text encoder from reloading for every image
+        // in a batch while the transformer is resident.
+        let runsWithoutGuidance = iris_is_distilled(ctx) != 0 || iris_is_zimage(ctx) != 0
 
         var embeddingLength: Int32 = 0
         var embeddings: [Float]?
@@ -126,7 +131,7 @@ actor IrisEngineRuntime: GenerationEngineRuntime {
         // prepared here would be discarded.
         let usesMultiref = referenceImages.count > 1
 
-        if isDistilled, !usesMultiref {
+        if runsWithoutGuidance, !usesMultiref {
             if let cached = await Self.embeddingCache.lookup(
                 modelDir: modelDir,
                 prompt: request.prompt
@@ -194,7 +199,7 @@ actor IrisEngineRuntime: GenerationEngineRuntime {
                     params: &params
                 )
             } else if let startingFluxImage = referenceImages.first {
-                if isDistilled, let embeddings {
+                if runsWithoutGuidance, let embeddings {
                     image = Self.generateImg2ImgWithEmbeddings(
                         ctx: ctx,
                         embeddings: embeddings,
@@ -206,7 +211,7 @@ actor IrisEngineRuntime: GenerationEngineRuntime {
                     image = iris_img2img(ctx, request.prompt, startingFluxImage, &params)
                 }
             } else {
-                if isDistilled, let embeddings {
+                if runsWithoutGuidance, let embeddings {
                     image = Self.generateWithEmbeddings(
                         ctx: ctx,
                         embeddings: embeddings,
