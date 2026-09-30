@@ -1,5 +1,5 @@
 //
-//  IrisFluxKleinModel.swift
+//  IrisModel.swift
 //  Mochi Diffusion
 //
 
@@ -79,7 +79,7 @@ nonisolated enum IrisModelFamily: Sendable, Equatable, CaseIterable {
     }
 }
 
-nonisolated struct IrisFluxKleinModel: EngineModel {
+nonisolated struct IrisModel: EngineModel {
     /// Iris models run flow matching with no negative prompt. They attend to
     /// images as references rather than denoising from one, so they declare
     /// input images and no starting image at all. Steps and guidance are pinned
@@ -133,7 +133,7 @@ nonisolated struct IrisFluxKleinModel: EngineModel {
     var metadataFields: Set<MetadataField> { Self.metadataFields }
 
     init?(url: URL, name: String) {
-        guard isIrisFluxKleinModelDirectory(url) else { return nil }
+        guard isIrisModelDirectory(url) else { return nil }
         self.url = url
         self.name = name
         self.attentionHeadCount = readAttentionHeadCount(from: url)
@@ -147,7 +147,7 @@ nonisolated private func readAttentionHeadCount(from modelURL: URL) -> Int {
         let data = try? Data(contentsOf: configURL),
         let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
     else {
-        return IrisFluxKleinModel.defaultAttentionHeadCount
+        return IrisModel.defaultAttentionHeadCount
     }
 
     if let value = json["num_attention_heads"] as? Int, value > 0 {
@@ -158,10 +158,10 @@ nonisolated private func readAttentionHeadCount(from modelURL: URL) -> Int {
         return value.intValue
     }
 
-    return IrisFluxKleinModel.defaultAttentionHeadCount
+    return IrisModel.defaultAttentionHeadCount
 }
 
-nonisolated private func isIrisFluxKleinModelDirectory(_ url: URL) -> Bool {
+nonisolated private func isIrisModelDirectory(_ url: URL) -> Bool {
     let fm = FileManager.default
 
     for url in [

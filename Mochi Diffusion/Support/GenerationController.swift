@@ -766,7 +766,7 @@ final class GenerationController {
     /// the warning the sidebar shows and the sizes the request uses cannot drift
     /// apart.
     var irisReferenceBudgetReport: IrisReferenceBudgetReport? {
-        guard let model = currentModel as? IrisFluxKleinModel else { return nil }
+        guard let model = currentModel as? IrisModel else { return nil }
         return IrisEngine.budgetReport(
             for: inputImages,
             model: model,

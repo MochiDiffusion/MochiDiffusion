@@ -133,7 +133,7 @@ struct GenerationMetadataTests {
             try writeFile(transformer, to: url.appending(components: "transformer", "config.json"))
         }
 
-        let model = try #require(IrisFluxKleinModel(url: url, name: "model"))
+        let model = try #require(IrisModel(url: url, name: "model"))
 
         #expect(model.family == family)
         #expect(model.constraints.steps.resolved(1) == family.stepCount)
@@ -152,7 +152,7 @@ struct GenerationMetadataTests {
             modelDirectory: "/models/base", family: .fluxKleinBase, stepCount: 50, guidanceScale: 4,
             scheduler: .discreteFlowScheduler)
         let request = Self.request(
-            engine: .iris, payload: payload, metadataFields: IrisFluxKleinModel.metadataFields,
+            engine: .iris, payload: payload, metadataFields: IrisModel.metadataFields,
             inputImageNames: ["cat.png", nil, "dog.png"])
 
         let metadata = IrisEngineRuntime.metadata(

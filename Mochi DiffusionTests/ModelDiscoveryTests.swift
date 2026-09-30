@@ -11,7 +11,7 @@ import Testing
 
 /// Pins how a directory on disk is recognised as a particular kind of model.
 ///
-/// Recognition lives in `SDModel.init?` and `IrisFluxKleinModel.init?`. Each
+/// Recognition lives in `SDModel.init?` and `IrisModel.init?`. Each
 /// engine applies only its own rules — see `EngineDiscoveryTests` for the
 /// discovery those feed.
 struct SDModelDiscoveryTests {
@@ -182,7 +182,7 @@ struct IrisFluxKleinDiscoveryTests {
         let url = try temp.subdirectory("klein")
         try makeKleinModelFixture(at: url, weights: .single)
 
-        let model = try #require(IrisFluxKleinModel(url: url, name: "klein"))
+        let model = try #require(IrisModel(url: url, name: "klein"))
         #expect(model.id == ModelID(engine: .iris, key: "klein"))
         #expect(model.constraints.promptTokenLimit == 512)
         #expect(model.tokenizerModelDir == url.appending(path: "tokenizer"))
@@ -193,7 +193,7 @@ struct IrisFluxKleinDiscoveryTests {
         let url = try temp.subdirectory("klein")
         try makeKleinModelFixture(at: url, weights: .sharded)
 
-        #expect(IrisFluxKleinModel(url: url, name: "klein") != nil)
+        #expect(IrisModel(url: url, name: "klein") != nil)
     }
 
     @Test("Klein weights are required")
@@ -201,7 +201,7 @@ struct IrisFluxKleinDiscoveryTests {
         let url = try temp.subdirectory("klein")
         try makeKleinModelFixture(at: url, weights: .missing)
 
-        #expect(IrisFluxKleinModel(url: url, name: "klein") == nil)
+        #expect(IrisModel(url: url, name: "klein") == nil)
     }
 
     @Test(
@@ -212,7 +212,7 @@ struct IrisFluxKleinDiscoveryTests {
         let url = try temp.subdirectory("klein-\(omitted.joined(separator: "-"))")
         try makeKleinModelFixture(at: url, omitting: [omitted])
 
-        #expect(IrisFluxKleinModel(url: url, name: "klein") == nil)
+        #expect(IrisModel(url: url, name: "klein") == nil)
     }
 
     /// Klein is distilled, which is what makes most of these unsupported rather
@@ -221,7 +221,7 @@ struct IrisFluxKleinDiscoveryTests {
     /// properties of the distillation rather than choices.
     @Test("Klein declares only what it can honour")
     func declaresConstraints() {
-        let constraints = IrisFluxKleinModel.constraints(for: .fluxKlein)
+        let constraints = IrisModel.constraints(for: .fluxKlein)
 
         #expect(!constraints.supportsNegativePrompt)
         #expect(constraints.steps == .pinned(4))

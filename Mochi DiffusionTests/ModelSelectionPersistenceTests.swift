@@ -219,7 +219,7 @@ struct ModelSelectionPersistenceTests {
         // Both engines' models live in one directory, so a persisted identity has
         // to name the engine as well as the model to restore this unambiguously.
         #expect(second.currentModel?.name == "b-klein")
-        #expect(second.currentModel is IrisFluxKleinModel)
+        #expect(second.currentModel is IrisModel)
     }
 
     // MARK: - Failure paths
@@ -498,7 +498,7 @@ struct ModelSelectionPersistenceTests {
 
         // Only one model has this name, so switching engines is unambiguous.
         // Refusing would leave "copy model to prompt" appearing to do nothing.
-        #expect(controller.currentModel is IrisFluxKleinModel)
+        #expect(controller.currentModel is IrisModel)
     }
 
     /// Engines discover independently, so one directory can be offered by two of

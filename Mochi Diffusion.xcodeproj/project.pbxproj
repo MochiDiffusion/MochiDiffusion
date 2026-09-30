@@ -140,7 +140,7 @@
 		BF3689622F2F4329006501CE /* MetalPerformanceShadersGraph.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BF36895E2F2F3BDA006501CE /* MetalPerformanceShadersGraph.framework */; };
 		BF3689632F2F4337006501CE /* MetalPerformanceShaders.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BF36895D2F2F3BDA006501CE /* MetalPerformanceShaders.framework */; };
 		BF3689652F308607006501CE /* SDModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF3689642F308607006501CE /* SDModel.swift */; };
-		BF3689672F3086B2006501CE /* IrisFluxKleinModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF3689662F3086B2006501CE /* IrisFluxKleinModel.swift */; };
+		BF3689672F3086B2006501CE /* IrisModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF3689662F3086B2006501CE /* IrisModel.swift */; };
 		BFE156D72F2F37B10060DEBF /* Iris-BridgingHeader.h in Sources */ = {isa = PBXBuildFile; fileRef = BFE156D62F2F37B10060DEBF /* Iris-BridgingHeader.h */; };
 		BFE66B0E2F2AFD3700A8965C /* ConfigStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFE66B0D2F2AFD3700A8965C /* ConfigStore.swift */; };
 		AA8800000000000000000005 /* ImageMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA8800000000000000000004 /* ImageMetadata.swift */; };
@@ -303,7 +303,7 @@
 		BF36895D2F2F3BDA006501CE /* MetalPerformanceShaders.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalPerformanceShaders.framework; path = System/Library/Frameworks/MetalPerformanceShaders.framework; sourceTree = SDKROOT; };
 		BF36895E2F2F3BDA006501CE /* MetalPerformanceShadersGraph.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalPerformanceShadersGraph.framework; path = System/Library/Frameworks/MetalPerformanceShadersGraph.framework; sourceTree = SDKROOT; };
 		BF3689642F308607006501CE /* SDModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDModel.swift; sourceTree = "<group>"; };
-		BF3689662F3086B2006501CE /* IrisFluxKleinModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IrisFluxKleinModel.swift; sourceTree = "<group>"; };
+		BF3689662F3086B2006501CE /* IrisModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IrisModel.swift; sourceTree = "<group>"; };
 		BFE156D62F2F37B10060DEBF /* Iris-BridgingHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Iris-BridgingHeader.h"; sourceTree = "<group>"; };
 		BFE66B0D2F2AFD3700A8965C /* ConfigStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigStore.swift; sourceTree = "<group>"; };
 		C0D1F1A02F4C100000000001 /* MochiDiffusion.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = MochiDiffusion.xcconfig; sourceTree = "<group>"; };
@@ -502,7 +502,7 @@
 				AA1100000000000000000031 /* OptionConstraints.swift */,
 				AA1100000000000000000099 /* InputImage.swift */,
 				AA50000000000000000002031 /* ImageQuality.swift */,
-				BF3689662F3086B2006501CE /* IrisFluxKleinModel.swift */,
+				BF3689662F3086B2006501CE /* IrisModel.swift */,
 				D7B03F1F29D42F9900DF89DD /* SDModelAttentionType.swift */,
 				BF3689642F308607006501CE /* SDModel.swift */,
 				9401BC6E2CB9E9E100F00DDE /* Filter.swift */,
@@ -886,7 +886,7 @@
 				7E03F8C1B8854C42AC38394D /* GenerationService.swift in Sources */,
 				AD83C9D690826D2A57A43EA8 /* GalleryController.swift in Sources */,
 				AE29AC66B78444DABC2B464F /* QuickLookState.swift in Sources */,
-				BF3689672F3086B2006501CE /* IrisFluxKleinModel.swift in Sources */,
+				BF3689672F3086B2006501CE /* IrisModel.swift in Sources */,
 				036BFC22294B9F7500D8AD04 /* MochiDiffusionApp.swift in Sources */,
 				03EA52CE297B66C800CDF661 /* SidebarView.swift in Sources */,
 				9B7392C3298DEAC2006F03D5 /* Tokenizer.swift in Sources */,

@@ -110,7 +110,7 @@ nonisolated func makeControlNetFixture(
 
 // MARK: - Iris FLUX.2 Klein fixtures
 
-/// Every path `IrisFluxKleinModel.init?` requires, minus the transformer and
+/// Every path `IrisModel.init?` requires, minus the transformer and
 /// text encoder weights, which `weights` supplies in either layout.
 nonisolated enum KleinWeightLayout {
     /// A single `<base>.safetensors` file.
@@ -125,7 +125,7 @@ nonisolated enum KleinWeightLayout {
     case missing
 }
 
-/// Every non-weight path `IrisFluxKleinModel.init?` requires, declared once so a
+/// Every non-weight path `IrisModel.init?` requires, declared once so a
 /// test can assert that each one is load-bearing without restating the list and
 /// silently covering only part of it.
 nonisolated let kleinRequiredConfigPaths: [[String]] = [
