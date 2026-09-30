@@ -161,20 +161,15 @@ nonisolated private func readAttentionHeadCount(from modelURL: URL) -> Int {
     return IrisModel.defaultAttentionHeadCount
 }
 
+/// Whether `url` holds the files Iris opens when it loads a model. Requiring
+/// anything more would hide models Iris can run, because each family's
+/// published download includes a different set of tokenizer extras.
 nonisolated private func isIrisModelDirectory(_ url: URL) -> Bool {
     let fm = FileManager.default
 
     for url in [
         url.appending(components: "text_encoder", "config.json"),
-        url.appending(components: "text_encoder", "generation_config.json"),
-        url.appending(components: "tokenizer", "added_tokens.json"),
-        url.appending(components: "tokenizer", "chat_template.jinja"),
-        url.appending(components: "tokenizer", "merges.txt"),
-        url.appending(components: "tokenizer", "special_tokens_map.json"),
         url.appending(components: "tokenizer", "tokenizer.json"),
-        url.appending(components: "tokenizer", "tokenizer_config.json"),
-        url.appending(components: "tokenizer", "vocab.json"),
-
         url.appending(components: "transformer", "config.json"),
         url.appending(components: "vae", "config.json"),
         url.appending(components: "vae", "diffusion_pytorch_model.safetensors"),
