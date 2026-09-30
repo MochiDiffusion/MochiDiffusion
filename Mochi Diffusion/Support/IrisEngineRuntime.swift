@@ -93,6 +93,10 @@ actor IrisEngineRuntime: GenerationEngineRuntime {
             iris_set_step_callback(nil)
             iris_set_phase_callback(nil)
             iris_free(ctx)
+            // The GPU copies of the model's weights outlive `iris_free`. Left in
+            // place they hold the whole model in memory after generation ends, and
+            // weights later loaded at a freed address could be matched to stale copies.
+            iris_metal_reset()
             for image in referenceImages {
                 iris_image_free(image)
             }
