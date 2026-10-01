@@ -20,7 +20,7 @@
 
 ![Screenshot](.github/images/screenshot.png)
 
-Mochi Diffusion is a native macOS app for generating images locally using [Apple's Core ML Stable Diffusion implementation](https://github.com/apple/ml-stable-diffusion) to achieve maximum performance and speed with reduced memory requirements, and the [Iris](https://github.com/antirez/iris.c) pipeline for running FLUX.2 (Klein) models with native Metal GPU acceleration
+Mochi Diffusion is a native macOS app for generating images locally using [Apple's Core ML Stable Diffusion implementation](https://github.com/apple/ml-stable-diffusion) to achieve maximum performance and speed with reduced memory requirements, and the [Iris](https://github.com/antirez/iris.c) pipeline for running FLUX.2 Klein and Z-Image Turbo models with native Metal GPU acceleration
 
 ## Features
 
@@ -40,10 +40,11 @@ Mochi Diffusion is a native macOS app for generating images locally using [Apple
 - FLUX.2 Klein
     - [FLUX.2-klein-4B (distilled)](https://huggingface.co/black-forest-labs/FLUX.2-klein-4B)
     - [FLUX.2-klein-9B (distilled)](https://huggingface.co/black-forest-labs/FLUX.2-klein-9B)
+- [Z-Image Turbo](https://huggingface.co/Tongyi-MAI/Z-Image-Turbo)
 
 ## Models
 
-You will need Core ML Stable Diffusion or FLUX.2 Klein models in order to use Mochi Diffusion.
+You will need model files. Mochi Diffusion supports Core ML Stable Diffusion, FLUX.2 Klein, and Z-Image Turbo.
 
 ### Core ML Stable Diffusion
 
@@ -110,6 +111,32 @@ Klein can use up to 4 “input images” in generations. Due to pipeline constra
 ```
 
 (see [iris.c issue #12](https://github.com/antirez/iris.c/issues/12)) for specific guidance for flux-klein-4b)
+
+### Z-Image Turbo
+
+No conversion is required for Z-Image Turbo. It does not use input images or starting image; its iris pipeline only supports t2i. 
+
+The "recommended" full precision download of Z-Image Turbo is large, about 32 GB. iris.c has not been optimized to read Z-Image Turbo model weights from disk, and so may fail to run on Macs with less than 24GB RAM ([iris.c/issues/37](https://github.com/antirez/iris.c/issues/37))
+
+#### Usage
+
+1. Download the files for Z-Image Turbo from the [Downloads](#downloads) links above (or use [`download_model.py`](https://github.com/antirez/iris.c/blob/main/download_model.py))
+2. Place a subfolder containing the model files in MochiDiffusion's model folder
+3. Your directory structure should look like this:
+
+```
+<Home Directory>/
+└── MochiDiffusion/
+    └── models/
+        ├── z-image-turbo/
+        │   ├── text_encoder/
+        │   ├── tokenizer/
+        │   ├── transformer/
+        │   ├── vae/
+        │   └── model_index.json
+        ├── ...
+        └── ...        
+```
 
 ## Compatibility
 
