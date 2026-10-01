@@ -32,18 +32,18 @@ Follow the commit conventions above as normal.
 
 ## Scope and Planning
 
-The current release is 6.2. Mochi 7.0 is epic `MochiDiffusion-5xf`: hosted and remote
-models (OpenAI, Gemini, Draw Things) in the one combined picker. Engines stay an internal
-distinction; users configure connections (API keys, a Draw Things server) in Settings, and
-each model's sidebar options come from its own constraints. Concurrent queueing by where
-work runs is `MochiDiffusion-08l`, planned for 7.1.
+The current release is 6.2. Mochi 7.0 is epic `MochiDiffusion-5xf`: generation on Draw
+Things servers, on this Mac or the local network, in the one combined picker. Engines stay an
+internal distinction; users configure the Draw Things server in Settings, and each model's
+sidebar options come from its own constraints. Hosted generation (OpenAI, Gemini) is the
+parked epic `MochiDiffusion-2lu`, assigned to no release. Concurrent queueing by where work
+runs is `MochiDiffusion-08l`, also unassigned.
 
 Z-Image Turbo support is already on develop. Graham has not decided whether it ships in 7.0
 or in a 6.3 released while 7.0 is in progress; do not assume either.
 
-The shipped engines are Core ML and Iris behind one combined model picker. Until 7.0 work
-enables them, the engine-oriented settings UI and OpenAI hosted generation stay out of the
-stable surface.
+The shipped engines are Core ML and Iris behind one combined model picker. The
+engine-oriented settings UI and OpenAI hosted generation stay out of the stable surface.
 
 Image output is PNG only. Released JPEG and HEIC images stay readable, and exporting
 one converts it to PNG with its generation metadata.
