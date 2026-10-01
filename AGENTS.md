@@ -32,24 +32,28 @@ Follow the commit conventions above as normal.
 
 ## Scope and Planning
 
-The current release is 6.2. The scope of the next release is not decided yet; when it is,
-it gets its own finite release epic in Beads.
+The current release is 6.2. Mochi 7.0 is epic `MochiDiffusion-5xf`: hosted and remote
+models (OpenAI, Gemini, Draw Things) in the one combined picker. Engines stay an internal
+distinction; users configure connections (API keys, a Draw Things server) in Settings, and
+each model's sidebar options come from its own constraints. Concurrent queueing by where
+work runs is `MochiDiffusion-08l`, planned for 7.1.
 
-The shipped engines are Core ML and Iris behind one combined model picker. The explicit
-engine picker, engine-oriented settings UI and OpenAI hosted generation stay out of the
-stable surface. Preserve the OpenAI implementation and multi-engine contracts for a later
-experimental beta rather than rolling back the architecture wholesale.
+Z-Image Turbo support is already on develop. Graham has not decided whether it ships in 7.0
+or in a 6.3 released while 7.0 is in progress; do not assume either.
+
+The shipped engines are Core ML and Iris behind one combined model picker. Until 7.0 work
+enables them, the engine-oriented settings UI and OpenAI hosted generation stay out of the
+stable surface.
 
 Image output is PNG only. Released JPEG and HEIC images stay readable, and exporting
 one converts it to PNG with its generation metadata.
 
-Draw Things interoperability is explicitly postponed by Graham. It is preserved on branch
-`codex/draw-things-prototype` at `e18663b3877bd42fac9fe169063a052b567a4f8a` and excluded
-from stable releases, including its exclusive dependencies. Musubi may still read images that
+Draw Things generation is in 7.0 scope (`MochiDiffusion-5xf.3`), ported from the prototype on
+branch `codex/draw-things-prototype` at `e18663b3877bd42fac9fe169063a052b567a4f8a` within
+the support policy decided in `MochiDiffusion-5xf.4`. Musubi may still read images that
 Draw Things wrote. The abandoned Iris LoRA experiments are not carry-over work.
 
-Beads owns task status, acceptance criteria and dependencies. No release epic is open.
-`MochiDiffusion-2lu` is the beta line and is not part of any stable release. Use the existing
+Beads owns task status, acceptance criteria and dependencies. Use the existing
 database; do not create a replacement if access fails. Closed beads are historical and
 may describe abandoned work. They do not create obligations to restore it. Do not turn
 every research idea into a task or expand release scope without a concrete need.
