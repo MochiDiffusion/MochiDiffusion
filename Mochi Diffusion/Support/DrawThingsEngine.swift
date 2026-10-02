@@ -67,7 +67,9 @@ nonisolated struct DrawThingsModel: EngineModel {
 
     var recommendedSteps: Int? { Int(configuration.steps) }
     var recommendedGuidanceScale: Double? {
-        isConsistencyModel ? nil : Double(configuration.guidanceScale)
+        guard !isConsistencyModel else { return nil }
+        return Double(
+            usesGuidanceEmbedding ? configuration.guidanceEmbed : configuration.guidanceScale)
     }
 
     var metadataFields: Set<MetadataField> {
@@ -198,7 +200,12 @@ nonisolated struct DrawThingsEngine: GenerationEngineDescriptor {
         }
         let guidanceScale = constraints.guidanceScale.resolved(Double(draft.guidanceScale))
         if let guidanceScale {
-            configuration.guidanceScale = Float(guidanceScale)
+            if model.usesGuidanceEmbedding {
+                configuration.speedUpWithGuidanceEmbed = true
+                configuration.guidanceEmbed = Float(guidanceScale)
+            } else {
+                configuration.guidanceScale = Float(guidanceScale)
+            }
         }
         let numberOfImages =
             constraints.numberOfImages.resolved(draft.numberOfImages) ?? draft.numberOfImages
@@ -243,29 +250,35 @@ actor DrawThingsRuntime: GenerationEngineRuntime {
         guard let payload = request.payload as? DrawThingsPayload else {
             throw EngineError.payloadDoesNotBelongToEngine(engine: .drawThings)
         }
-        let transport = transport
+        // One task for the batch, returning no image: the cancellation handler
+        // must not retain completed tasks whose results hold full-size pixels.
+        let work = Task {
+            try await generateImages(
+                request: request, payload: payload, session: session, onResult: onResult)
+        }
+        session.onCancel { work.cancel() }
+        do {
+            try await work.value
+        } catch {
+            if session.isCancelled { return }
+            throw error
+        }
+    }
+
+    private func generateImages(
+        request: GenerationRequest, payload: DrawThingsPayload, session: GenerationSession,
+        onResult: @escaping @Sendable (GenerationResult) async throws -> Void
+    ) async throws {
         let secret = secrets.secret(for: payload.connection.secretAccount)
         var seed = request.seed
         for _ in 0..<request.numberOfImages {
             if session.isCancelled { return }
             session.emit(.state(.loading("Generating with Draw Things…")))
             let imageSeed = seed
-            let work = Task { () throws -> CGImage? in
-                try await transport.generate(
-                    payload: payload, prompt: request.prompt, seed: imageSeed,
-                    sharedSecret: secret, session: session
-                )
-            }
-            // Captures this image's task, including the race where cancellation
-            // precedes registration.
-            session.onCancel { work.cancel() }
-            let image: CGImage?
-            do {
-                image = try await work.value
-            } catch {
-                if session.isCancelled { return }
-                throw error
-            }
+            let image = try await transport.generate(
+                payload: payload, prompt: request.prompt, seed: imageSeed,
+                sharedSecret: secret, session: session
+            )
             guard !session.isCancelled else { return }
             guard let image else {
                 throw DrawThingsError.message("Draw Things returned no finished image.")
@@ -306,7 +319,7 @@ actor DrawThingsRuntime: GenerationEngineRuntime {
             seed: seed,
             steps: Int(payload.configuration.steps),
             guidanceScale: fields.contains(.guidanceScale)
-                ? Double(payload.configuration.guidanceScale) : nil,
+                ? request.guidanceScale.map(Double.init) : nil,
             generatedDate: Date(),
             metadataFields: fields
         )

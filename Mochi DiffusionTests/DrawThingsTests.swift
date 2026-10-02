@@ -18,6 +18,8 @@ private actor StubDrawThingsTransport: DrawThingsTransport {
     var capturedSeeds: [UInt32] = []
     var capturedSecret: String?
     var capturedPayload: DrawThingsPayload?
+    private(set) var releasedPreviousImages: [Bool] = []
+    private(set) weak var lastImage: CGImage?
     var shouldWait = false
     var didCancel = false
     var shouldFail = false
@@ -40,6 +42,9 @@ private actor StubDrawThingsTransport: DrawThingsTransport {
         payload: DrawThingsPayload, prompt: String, seed: UInt32,
         sharedSecret: String?, session: GenerationSession
     ) async throws -> CGImage? {
+        if !capturedSeeds.isEmpty {
+            releasedPreviousImages.append(lastImage == nil)
+        }
         capturedPrompt = prompt
         capturedSeeds.append(seed)
         capturedSecret = sharedSecret
@@ -58,7 +63,9 @@ private actor StubDrawThingsTransport: DrawThingsTransport {
                 throw error
             }
         }
-        return makeCGImage(width: 16, height: 16)
+        let image = makeCGImage(width: 16, height: 16)
+        lastImage = image
+        return image
     }
 }
 
@@ -166,10 +173,13 @@ struct DrawThingsTests {
             controlNetDirectory: URL(fileURLWithPath: "/nonexistent")
         )
     }
-    private func request(imageDir: String = "/tmp", numberOfImages: Int = 1) throws
+    private func request(
+        model selectedModel: DrawThingsModel? = nil,
+        imageDir: String = "/tmp", numberOfImages: Int = 1
+    ) throws
         -> GenerationRequest
     {
-        let model = try model()
+        let model = try selectedModel ?? model()
         var input = draft()
         input.numberOfImages = numberOfImages
         let plan = try DrawThingsEngine(secrets: NoSecretStore()).plan(draft: input, model: model)
@@ -301,6 +311,96 @@ struct DrawThingsTests {
         #expect(plan.payload.negativePrompt.isEmpty)
         #expect(plan.guidanceScale == nil)
         #expect(plan.payload.configuration.guidanceScale == models[2].configuration.guidanceScale)
+    }
+
+    /// How a model applies guidance, from its catalog flags.
+    enum GuidanceKind: CaseIterable {
+        case cfg, embedded, consistency
+    }
+
+    @Test(
+        "Guidance recommendations, wire values and PNG metadata use the model's active guidance",
+        arguments: GuidanceKind.allCases)
+    @MainActor func guidanceResolution(kind: GuidanceKind) async throws {
+        var configuration = DrawThingsConfiguration(model: "guidance.ckpt")
+        configuration.guidanceScale = 2
+        configuration.guidanceEmbed = 4.5
+        configuration.speedUpWithGuidanceEmbed = false
+        let model = DrawThingsModel(
+            file: "guidance.ckpt", name: "Guidance test", version: "flux1",
+            isConsistencyModel: kind == .consistency,
+            usesGuidanceEmbedding: kind == .embedded, connection: connection,
+            specification: Data(), configuration: configuration)
+        let transport = StubDrawThingsTransport(catalog: Data())
+        let runtime = DrawThingsRuntime(secrets: NoSecretStore(), transport: transport)
+        let request = try request(model: model)
+        let results = ResultCollector()
+        try await runtime.run(request: request, session: GenerationSession(requestID: request.id)) {
+            await results.add($0)
+        }
+        let sent = try #require(await transport.capturedPayload).configuration
+        switch kind {
+        case .embedded:
+            #expect(model.recommendedGuidanceScale == 4.5)
+            #expect(sent.speedUpWithGuidanceEmbed)
+            #expect(sent.guidanceEmbed == 11)
+            #expect(sent.guidanceScale == 2)
+        case .cfg:
+            #expect(model.recommendedGuidanceScale == 2)
+            #expect(sent.guidanceScale == 11)
+            #expect(sent.guidanceEmbed == 4.5)
+        case .consistency:
+            #expect(model.recommendedGuidanceScale == nil)
+            #expect(sent.guidanceScale == 2)
+            #expect(sent.guidanceEmbed == 4.5)
+        }
+        let expectedGuidance: Double? = kind == .consistency ? nil : 11
+        #expect(request.guidanceScale.map(Double.init) == expectedGuidance)
+        let result = try #require(await results.all.first)
+        #expect(result.metadata.guidanceScale == expectedGuidance)
+        let directory = try TempDirectory()
+        let url = directory.url.appendingPathComponent("guidance.png")
+        try result.imageData.write(to: url)
+        let record = try #require(createImageRecordFromURL(url))
+        #expect(record.metadataFields.contains(.guidanceScale) == (expectedGuidance != nil))
+        if let expectedGuidance {
+            #expect(record.guidanceScale == expectedGuidance)
+        }
+    }
+
+    @Test("A batch releases completed images before generating the next image")
+    func batchImageLifetime() async throws {
+        let transport = StubDrawThingsTransport(catalog: catalog)
+        let runtime = DrawThingsRuntime(secrets: NoSecretStore(), transport: transport)
+        let request = try request(numberOfImages: 3)
+        let session = GenerationSession(requestID: request.id)
+        defer { session.close() }
+        try await runtime.run(request: request, session: session) { _ in }
+        #expect(await transport.releasedPreviousImages == [true, true])
+        // The session is still open and retains its cancellation handler here.
+        #expect(await transport.lastImage == nil)
+    }
+
+    @Test("Cancelling after a batch result interrupts the next image and skips the remainder")
+    func cancellationDuringBatch() async throws {
+        let transport = StubDrawThingsTransport(catalog: catalog)
+        let runtime = DrawThingsRuntime(secrets: NoSecretStore(), transport: transport)
+        let request = try request(numberOfImages: 3)
+        let session = GenerationSession(requestID: request.id)
+        defer { session.close() }
+        let results = ResultCollector()
+        let work = Task {
+            try await runtime.run(request: request, session: session) {
+                await results.add($0)
+                await transport.waitForCancellation()
+            }
+        }
+        while await transport.capturedSeeds.count < 2 { await Task.yield() }
+        session.cancel()
+        try await work.value
+        #expect(await transport.didCancel)
+        #expect(await transport.capturedSeeds == [7, 8])
+        #expect(await results.all.count == 1)
     }
 
     @Test("Only a complete final image can succeed")
