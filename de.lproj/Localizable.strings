@@ -15,6 +15,10 @@ No comment provided by engineer. */
 No comment provided by engineer. */
 "%@\"%@\"" = "%@„%@“";
 /* en.lproj/Localizable.strings
+%lld images saved.
+No comment provided by engineer. */
+"%lld images saved." = "%lld Bilder gespeichert.";
+/* en.lproj/Localizable.strings
 **Auto** selects the most appropriate configuration for the selected model.
 Explanation for the 'Auto' ML Compute Unit option */
 "**Auto** selects the most appropriate configuration for the selected model." = "**Auto** wählt die passendste Konfiguration für das ausgewählte Modell aus.";
@@ -26,6 +30,30 @@ Explanation for the 'CPU &amp; GPU' ML Compute Unit option */
 **CPU & Neural Engine** provides a good balance between speed and low memory usage, but only works with split-einsum models.
 Explanation for the 'CPU &amp; NE' ML Compute Unit option */
 "**CPU & Neural Engine** provides a good balance between speed and low memory usage, but only works with split-einsum models." = "**CPU & Neural Engine** bietet eine gute Balance zwischen Geschwindigkeit und niedriger Speicherauslastung, funktioniert aber nur mit Split-Einsum-Modellen.";
+/* en.lproj/Localizable.strings
+1 image saved.
+No comment provided by engineer. */
+"1 image saved." = "1 Bild gespeichert.";
+/* en.lproj/Localizable.strings
+API Key
+No comment provided by engineer. */
+"API Key" = "API-Schlüssel";
+/* en.lproj/Localizable.strings
+Add
+Button storing an entered API key */
+"Add" = "Hinzufügen";
+/* en.lproj/Localizable.strings
+Add API Key…
+Opens the sheet where an API key is entered */
+"Add API Key…" = "API-Schlüssel hinzufügen...";
+/* en.lproj/Localizable.strings
+Add Anyway
+Stores an API key the service could not be asked about */
+"Add Anyway" = "Trotzdem hinzufügen";
+/* en.lproj/Localizable.strings
+Add an API key in Settings
+Hosted engine unavailable because no API key is stored */
+"Add an API key in Settings" = "API-Schlüssel zu Einstellungen hinzufügen";
 /* en.lproj/Localizable.strings
 Add to Queue
 Button to generate image */
@@ -39,6 +67,10 @@ Allow Mochi Diffusion to send notifications under System Settings.
 No comment provided by engineer. */
 "Allow Mochi Diffusion to send notifications under System Settings." = "Mochi Diffusion erlauben, Mitteilungen zu senden.";
 /* en.lproj/Localizable.strings
+Auto
+Image quality: let the service choose */
+"Auto" = "Automatisch";
+/* en.lproj/Localizable.strings
 Auto (Recommended)
 Option to use the CPU + Neural Engine for split-einsum models, and CPU + GPU for original models */
 "Auto (Recommended)" = "Auto (Empfohlen)";
@@ -51,9 +83,29 @@ CPU & Neural Engine
 No comment provided by engineer. */
 "CPU & Neural Engine" = "CPU & Neural Engine";
 /* en.lproj/Localizable.strings
+Cancel
+Button dismissing the API key sheet */
+"Cancel" = "Abbrechen";
+/* en.lproj/Localizable.strings
+Canceling
+Job queue row title while canceling the current generation */
+"Canceling" = "Abbruch";
+/* en.lproj/Localizable.strings
+Canceling...
+Text displayed while waiting for generation cancellation cleanup */
+"Canceling..." = "Wird abgebrochen...";
+/* en.lproj/Localizable.strings
+Change…
+Opens the sheet to replace a stored API key */
+"Change…" = "Ändern...";
+/* en.lproj/Localizable.strings
 Check for Updates…
 No comment provided by engineer. */
 "Check for Updates…" = "Nach Aktualisierungen suchen…";
+/* en.lproj/Localizable.strings
+Checking with OpenAI…
+Shown while an entered API key is being verified */
+"Checking with OpenAI…" = "Überprüfe mit OpenAI...";
 /* en.lproj/Localizable.strings
 Choose a folder and a name to store the image
 No comment provided by engineer. */
@@ -112,6 +164,10 @@ Download Models
 No comment provided by engineer. */
 "Download Models" = "Modelle herunterladen";
 /* en.lproj/Localizable.strings
+Engine
+Label for the generation engine picker */
+"Engine" = "Modul";
+/* en.lproj/Localizable.strings
 Exclude from Image
 No comment provided by engineer. */
 "Exclude from Image" = "Was im Bild nicht enthalten sein soll";
@@ -148,9 +204,9 @@ Image
 Settings tab header label */
 "Image" = "Bild";
 /* en.lproj/Localizable.strings
-Image Type
+Image Size
 No comment provided by engineer. */
-"Image Type" = "Bildtyp";
+"Image Size" = "Bildgröße";
 /* en.lproj/Localizable.strings
 Image file name:
 File name field label for save image panel */
@@ -172,6 +228,10 @@ Include in Image
 No comment provided by engineer. */
 "Include in Image" = "Soll im Bild enthalten sein";
 /* en.lproj/Localizable.strings
+Input Images
+Label for setting one or more input reference images */
+"Input Images" = "Bilder importieren";
+/* en.lproj/Localizable.strings
 Loading the model for the first time may take a few minutes
 Text displayed while a local Core ML model is being loaded */
 "Loading the model for the first time may take a few minutes" = "Das erstmalige Laden des Modells kann einige Minuten dauern";
@@ -180,6 +240,10 @@ Loading...
 No comment provided by engineer. */
 "Loading..." = "Lade...";
 /* en.lproj/Localizable.strings
+Low
+Image quality */
+"Low" = "Niedrig";
+/* en.lproj/Localizable.strings
 ML Compute Unit
 No comment provided by engineer. */
 "ML Compute Unit" = "ML Recheneinheit";
@@ -187,6 +251,14 @@ No comment provided by engineer. */
 Manually selecting an incompatible ML Compute Unit may cause poor performance or crash.
 No comment provided by engineer. */
 "Manually selecting an incompatible ML Compute Unit may cause poor performance or crash." = "Die manuelle Auswahl einer inkompatiblen ML Compute Unit kann zu schlechter Performance oder zum Absturz führen.";
+/* en.lproj/Localizable.strings
+Maximum
+Image quality */
+"Maximum" = "Maximum";
+/* en.lproj/Localizable.strings
+Medium
+Image quality */
+"Medium" = "Mittel";
 /* en.lproj/Localizable.strings
 Mochi Diffusion
 No comment provided by engineer. */
@@ -200,6 +272,10 @@ Model Folder
 No comment provided by engineer. */
 "Model Folder" = "Model-Ordner";
 /* en.lproj/Localizable.strings
+Modified
+No comment provided by engineer. */
+"Modified" = "Geändert";
+/* en.lproj/Localizable.strings
 Move Images to Trash
 No comment provided by engineer. */
 "Move Images to Trash" = "Bilder in den Papierkorb verschieben";
@@ -212,9 +288,21 @@ No Info
 Placeholder text for image inspector */
 "No Info" = "Keine Info";
 /* en.lproj/Localizable.strings
+No image selected.
+No comment provided by engineer. */
+"No image selected." = "Kein Bild ausgewählt.";
+/* en.lproj/Localizable.strings
+No models found
+Shown for an engine that is configured but has no models */
+"No models found" = "Keine Modelle gefunden";
+/* en.lproj/Localizable.strings
 None
 Option to not use ControlNet */
 "None" = "Keine";
+/* en.lproj/Localizable.strings
+Note
+No comment provided by engineer. */
+"Note" = "Anmerkung";
 /* en.lproj/Localizable.strings
 Notifications
 Settings tab header label */
@@ -223,6 +311,10 @@ Settings tab header label */
 Number of Images
 No comment provided by engineer. */
 "Number of Images" = "Anzahl der Bilder";
+/* en.lproj/Localizable.strings
+OK
+No comment provided by engineer. */
+"OK" = "OK";
 /* en.lproj/Localizable.strings
 Oldest First
 Picker option to sort images in the gallery from oldest to newest */
