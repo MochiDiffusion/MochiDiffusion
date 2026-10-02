@@ -143,16 +143,6 @@ private struct SidebarRestoreSource {
 @MainActor
 @Observable
 final class GenerationController {
-    /// How model restoration treats the per-engine selection.
-    ///
-    /// The app uses `.combined`: one picker over every engine's models.
-    /// `.engineScoped` backs the explicit engine picker, where a chosen engine
-    /// stays selected even when it has no models.
-    enum ModelSelectionMode {
-        case combined
-        case engineScoped
-    }
-
     struct ModelPickerItem: Identifiable, Equatable {
         let id: ModelID?
         let name: String
@@ -175,7 +165,6 @@ final class GenerationController {
     private let engineRegistry: EngineRegistry
     private let imageRepository: ImageRepository
     private let fullImageProvider: GalleryFullImageProvider
-    private let modelSelectionMode: ModelSelectionMode
     /// The gallery finished images are inserted into, and the one "copy to sidebar"
     /// reads its selection from.
     private let imageGallery: ImageGallery
@@ -224,11 +213,7 @@ final class GenerationController {
                 currentControlNets = []
                 return
             }
-            // The combined picker's selection is global. The per-engine copy lets
-            // the explicit engine picker return to each engine's last model.
             configStore.selectedModel = model.id
-            engineSettings.selectedEngine = model.id.engine
-            engineSettings.setSelectedModel(model.id, for: model.id.engine)
             // Read from the model's constraints rather than its concrete type.
             controlNet = model.constraints.controlNet.names
             currentControlNets = []
@@ -236,7 +221,7 @@ final class GenerationController {
     }
 
     /// Every registered engine, including unconfigured ones and ones with no
-    /// models. Used by the explicit engine picker.
+    /// models.
     var engines: [AnyGenerationEngine] {
         engineRegistry.allEngines
     }
@@ -254,10 +239,6 @@ final class GenerationController {
     /// The latest applied discovery for each engine. Each source's refresh replaces
     /// only its own engines' entries, so a folder change keeps the server's models.
     private var discoveriesByEngine: [EngineID: EngineRegistry.Discovery] = [:]
-
-    var selectedEngine: EngineID? {
-        engineSettings.selectedEngine
-    }
 
     /// Every model shown by the combined model picker.
     ///
@@ -286,60 +267,10 @@ final class GenerationController {
         }
     }
 
-    /// The models the model picker shows: the selected engine's own.
-    ///
-    /// Falls back to every model when no engine is selected, which is the state
-    /// before the first discovery pass finishes.
-    var visibleModels: [any EngineModel] {
-        guard let selectedEngine else { return models }
-        return models.filter { $0.id.engine == selectedEngine }
-    }
-
-    /// Whether `engine` can be generated with right now.
-    ///
-    /// Both halves are needed and neither implies the other: a local engine is
-    /// `.ready` as soon as its folder exists but has no models until one is put
-    /// there, and a Draw Things server is `.ready` once it is configured but lists
-    /// models only when it answers.
-    func isUsable(_ engine: EngineID) -> Bool {
-        engineAvailability[engine] == .ready && hasModels(engine)
-    }
-
-    /// The engines the explicit engine picker offers: the usable ones.
-    ///
-    /// The selected engine is always included, even when it stops being usable.
-    /// `restoreSelection` keeps a chosen engine whose models have disappeared so
-    /// the picker can say why.
-    ///
-    /// May be empty; `EngineView` renders a placeholder for that case.
-    var pickerEngines: [AnyGenerationEngine] {
-        engines.filter { isUsable($0.id) || $0.id == selectedEngine }
-    }
-
     func hasModels(_ engine: EngineID) -> Bool {
         models.contains { $0.id.engine == engine }
     }
 
-    /// Switches engine, restoring the model that engine was last using.
-    ///
-    /// An engine with no models leaves the selection empty rather than borrowing
-    /// another engine's model, so nothing generates with a model the user did not
-    /// pick.
-    func selectEngine(_ engine: EngineID) {
-        guard engine != engineSettings.selectedEngine else { return }
-        engineSettings.selectedEngine = engine
-        currentModelId = rememberedOrFirstModel(for: engine)
-    }
-
-    private func rememberedOrFirstModel(for engine: EngineID) -> ModelID? {
-        let candidates = models.filter { $0.id.engine == engine }
-        if let remembered = engineSettings.selectedModel(for: engine),
-            candidates.contains(where: { $0.id == remembered })
-        {
-            return remembered
-        }
-        return candidates.first?.id
-    }
     var currentModel: (any EngineModel)? {
         models.first(where: { $0.id == self.currentModelId })
     }
@@ -392,24 +323,15 @@ final class GenerationController {
         engineRegistry: EngineRegistry = EngineRegistry(),
         engineSettings: EngineSettingsStore? = nil,
         fullImageProvider: GalleryFullImageProvider = GalleryFullImageProvider(),
-        modelSelectionMode: ModelSelectionMode = .combined,
         startsObserving: Bool = true
     ) {
         self.configStore = configStore
         self.engineRegistry = engineRegistry
         self.imageRepository = imageRepository
         self.fullImageProvider = fullImageProvider
-        self.modelSelectionMode = modelSelectionMode
         self.imageGallery = imageGallery
         self.generationService = generationService
-        // Defaulted from the registry rather than by the caller, so the store only
-        // ever loads selections for engines that actually exist.
-        self.engineSettings =
-            engineSettings
-            ?? EngineSettingsStore(
-                store: configStore.defaults,
-                engines: engineRegistry.engineIDs
-            )
+        self.engineSettings = engineSettings ?? EngineSettingsStore(store: configStore.defaults)
         guard startsObserving else { return }
         initialLoadTask = Task { [weak self] in
             await self?.loadModels()
@@ -505,30 +427,9 @@ final class GenerationController {
             return
         }
 
-        // Two migrations, in order, both idempotent. The first recovers the
-        // engine for a legacy `Model` URL by matching what discovery just found;
-        // the second records that selection as an engine plus a per-engine model.
-        let discoveredIDs = self.models.map(\.id)
-        let globalMigration = configStore.migrateSelectedModelIfNeeded(discovered: discoveredIDs)
-        var engineMigrationSelection = configStore.selectedModel
-        // `SelectedModel` may hold a Draw Things model picked as a fallback while
-        // the legacy local model was missing. The legacy identity is still recovered
-        // for its per-engine slot, without replacing the current selection.
-        if globalMigration == .alreadyMigrated,
-            let current = configStore.selectedModel,
-            !PreferenceMigration.legacyEnginePreference.contains(current.engine),
-            case .migrated(let legacySelection) = PreferenceMigration.selectedModel(
-                legacyURL: configStore.legacyModelId,
-                existing: nil,
-                discovered: discoveredIDs
-            )
-        {
-            engineMigrationSelection = legacySelection
-        }
-        engineSettings.migrateSelectedEngineIfNeeded(
-            from: engineMigrationSelection,
-            discovered: discoveredIDs
-        )
+        // Idempotent: recovers the engine for a legacy `Model` URL by matching what
+        // discovery just found.
+        configStore.migrateSelectedModelIfNeeded(discovered: self.models.map(\.id))
 
         logger.info("Found \(self.models.count) model(s)")
         restoreSelection()
@@ -569,31 +470,15 @@ final class GenerationController {
         )
     }
 
-    /// Picks the exact model to show after a discovery pass.
-    ///
-    /// The selected engine's remembered model comes first, because the global
-    /// preference may still hold a stale migration value. `currentModelId.didSet`
-    /// writes both stores, so after one selection they agree. Without a usable
-    /// selection this falls back to the first runnable model in discovery order.
+    /// Picks the exact model to show after a discovery pass: the saved one when it
+    /// is available, otherwise the first runnable model in discovery order.
     private func restoreSelection() {
-        if modelSelectionMode == .engineScoped,
-            let engine = engineSettings.selectedEngine,
-            engines.contains(where: { $0.id == engine })
+        if let selection = configStore.selectedModel,
+            models.contains(where: { $0.id == selection }),
+            engineAvailability[selection.engine] == .ready
         {
-            currentModelId = rememberedOrFirstModel(for: engine)
+            currentModelId = selection
             return
-        }
-
-        let activeEngineSelection = engineSettings.selectedEngine.flatMap {
-            engineSettings.selectedModel(for: $0)
-        }
-        for selection in [activeEngineSelection, configStore.selectedModel].compactMap({ $0 }) {
-            if models.contains(where: { $0.id == selection }),
-                engineAvailability[selection.engine] == .ready
-            {
-                currentModelId = selection
-                return
-            }
         }
 
         guard

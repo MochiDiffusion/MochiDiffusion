@@ -102,7 +102,6 @@
 		AA50000000000000000001922 /* ControlNetLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA50000000000000000001921 /* ControlNetLink.swift */; };
 		AA50000000000000000001942 /* IrisSingleFlight.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA50000000000000000001941 /* IrisSingleFlight.swift */; };
 		AA50000000000000000001952 /* EngineSettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA50000000000000000001951 /* EngineSettingsStore.swift */; };
-		AA50000000000000000001962 /* EngineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA50000000000000000001961 /* EngineView.swift */; };
 		AA50000000000000000001972 /* EngineSelectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA50000000000000000001971 /* EngineSelectionTests.swift */; };
 		AA50000000000000000001982 /* QueueLivenessTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA50000000000000000001981 /* QueueLivenessTests.swift */; };
 		AA50000000000000000002082 /* GenerationResultPathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA50000000000000000002081 /* GenerationResultPathTests.swift */; };
@@ -267,7 +266,6 @@
 		AA50000000000000000001921 /* ControlNetLink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlNetLink.swift; sourceTree = "<group>"; };
 		AA50000000000000000001941 /* IrisSingleFlight.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IrisSingleFlight.swift; sourceTree = "<group>"; };
 		AA50000000000000000001951 /* EngineSettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngineSettingsStore.swift; sourceTree = "<group>"; };
-		AA50000000000000000001961 /* EngineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngineView.swift; sourceTree = "<group>"; };
 		AA50000000000000000001971 /* EngineSelectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngineSelectionTests.swift; sourceTree = "<group>"; };
 		AA50000000000000000001981 /* QueueLivenessTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueueLivenessTests.swift; sourceTree = "<group>"; };
 		AA50000000000000000002081 /* GenerationResultPathTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerationResultPathTests.swift; sourceTree = "<group>"; };
@@ -408,7 +406,6 @@
 				035EDFF9295A219200080D18 /* GuidanceScaleView.swift */,
 				035EDFFD295A220F00080D18 /* SeedView.swift */,
 				035EDFFF295A224900080D18 /* ModelView.swift */,
-				AA50000000000000000001961 /* EngineView.swift */,
 				58FF218729FAE96200A70C7C /* ControlNetView.swift */,
 				035EDFFB295A21D600080D18 /* SizeView.swift */,
 				C1220FBF2AFB122F007E5055 /* ImageWellView.swift */,
@@ -870,7 +867,6 @@
 				AA50000000000000000001102 /* GenerationEngine.swift in Sources */,
 				AA50000000000000000001942 /* IrisSingleFlight.swift in Sources */,
 				AA50000000000000000001952 /* EngineSettingsStore.swift in Sources */,
-				AA50000000000000000001962 /* EngineView.swift in Sources */,
 				AA50000000000000000001922 /* ControlNetLink.swift in Sources */,
 				AA50000000000000000002012 /* SecretStore.swift in Sources */,
 				AA7100000000000000000001 /* DrawThingsEngine.swift in Sources */,

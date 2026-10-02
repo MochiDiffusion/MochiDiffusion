@@ -9,189 +9,13 @@ import Testing
 
 @testable import Mochi_Diffusion
 
-/// Pins the per-engine selection store: what it reads, what it refuses, and that
-/// one engine's selection cannot leak into another's.
-@MainActor
-struct EngineSettingsStoreTests {
-    let tempDefaults = TempDefaults()
-
-    private func makeStore() -> EngineSettingsStore {
-        EngineSettingsStore(
-            store: tempDefaults.defaults,
-            engines: [.iris, .coreMLStableDiffusion]
-        )
-    }
-
-    @Test("A selected engine round-trips through a fresh store")
-    func selectedEngineRoundTrips() {
-        let store = makeStore()
-        store.selectedEngine = .iris
-
-        #expect(makeStore().selectedEngine == .iris)
-    }
-
-    @Test("Clearing the selected engine removes the key rather than blanking it")
-    func clearingSelectedEngine() {
-        let store = makeStore()
-        store.selectedEngine = .iris
-        store.selectedEngine = nil
-
-        #expect(makeStore().selectedEngine == nil)
-        #expect(tempDefaults.defaults.string(forKey: EngineSettingsStore.Key.selectedEngine) == nil)
-    }
-
-    @Test("Each engine remembers its own model independently")
-    func selectionsAreIndependentPerEngine() {
-        let store = makeStore()
-        let klein = ModelID(engine: .iris, key: "klein")
-        let coreML = ModelID(engine: .coreMLStableDiffusion, key: "sd15")
-
-        store.setSelectedModel(klein, for: .iris)
-        store.setSelectedModel(coreML, for: .coreMLStableDiffusion)
-
-        let reloaded = makeStore()
-        #expect(reloaded.selectedModel(for: .iris) == klein)
-        #expect(reloaded.selectedModel(for: .coreMLStableDiffusion) == coreML)
-    }
-
-    /// Filing one engine's model under another would let a selection resolve to a
-    /// model the picker never offered for that engine.
-    @Test("A model belonging to another engine is not filed")
-    func mismatchedModelIsRejected() {
-        let store = makeStore()
-        store.setSelectedModel(ModelID(engine: .iris, key: "klein"), for: .coreMLStableDiffusion)
-
-        #expect(store.selectedModel(for: .coreMLStableDiffusion) == nil)
-    }
-
-    /// The same check on the way in, for a key hand-edited or left by a bug.
-    @Test("A persisted key whose engine disagrees with its slot is ignored")
-    func mismatchedPersistedKeyIsIgnored() {
-        tempDefaults.defaults.set(
-            ModelID(engine: .iris, key: "klein").persistedValue,
-            forKey: EngineSettingsStore.Key.selectedModel(.coreMLStableDiffusion)
-        )
-
-        #expect(makeStore().selectedModel(for: .coreMLStableDiffusion) == nil)
-    }
-
-    @Test("A malformed persisted key is ignored rather than trapping")
-    func malformedPersistedKeyIsIgnored() {
-        for value in ["", ":", "iris:", ":klein", "no-separator"] {
-            tempDefaults.defaults.set(
-                value, forKey: EngineSettingsStore.Key.selectedModel(.iris))
-            #expect(makeStore().selectedModel(for: .iris) == nil)
-        }
-    }
-
-    @Test("Only the engines asked for are loaded")
-    func unregisteredEngineIsNotLoaded() {
-        let ghost = EngineID(rawValue: "ghost")
-        tempDefaults.defaults.set(
-            ModelID(engine: ghost, key: "model").persistedValue,
-            forKey: EngineSettingsStore.Key.selectedModel(ghost)
-        )
-
-        #expect(makeStore().selectedModel(for: ghost) == nil)
-    }
-
-    @Test("Clearing a model selection removes its key")
-    func clearingModelSelection() {
-        let store = makeStore()
-        store.setSelectedModel(ModelID(engine: .iris, key: "klein"), for: .iris)
-        store.setSelectedModel(nil, for: .iris)
-
-        #expect(makeStore().selectedModel(for: .iris) == nil)
-    }
-}
-
-/// Pins the per-engine selection migration as a pure decision.
-struct EngineSelectionMigrationTests {
-    private let klein = ModelID(engine: .iris, key: "klein")
-
-    /// "Already run" is the selection being in its own engine's slot — the
-    /// migration's own result — not merely some engine being selected, which
-    /// `restoreSelection`'s fallback can also cause.
-    @Test("The selection already being in its slot means the migration has run")
-    func alreadyMigrated() {
-        let outcome = EngineSelectionMigration.selection(
-            previousSelection: klein,
-            alreadyInItsSlot: true,
-            discovered: [klein]
-        )
-
-        #expect(outcome == .alreadyMigrated)
-    }
-
-    /// A persisted fallback engine must not end the migration: the legacy
-    /// selection is still owed a slot.
-    @Test("Another engine being selected does not end the migration")
-    func fallbackEngineDoesNotEndTheMigration() {
-        let outcome = EngineSelectionMigration.selection(
-            previousSelection: klein,
-            alreadyInItsSlot: false,
-            discovered: [klein]
-        )
-
-        #expect(outcome == .migrated(klein))
-    }
-
-    @Test("No previous selection is nothing to migrate")
-    func nothingToMigrate() {
-        let outcome = EngineSelectionMigration.selection(
-            previousSelection: nil,
-            alreadyInItsSlot: false,
-            discovered: [klein]
-        )
-
-        #expect(outcome == .nothingToMigrate)
-    }
-
-    @Test("A previous selection that discovery found becomes the engine selection")
-    func migratesDiscoveredSelection() {
-        let outcome = EngineSelectionMigration.selection(
-            previousSelection: klein,
-            alreadyInItsSlot: false,
-            discovered: [klein, ModelID(engine: .coreMLStableDiffusion, key: "sd15")]
-        )
-
-        #expect(outcome == .migrated(klein))
-    }
-
-    /// The case that would otherwise strand an upgrading user: recording an engine
-    /// that has no models, which the controller then keeps rather than falling back
-    /// from.
-    @Test("A previous selection discovery did not find records no engine")
-    func doesNotMigrateUnresolvableSelection() {
-        let outcome = EngineSelectionMigration.selection(
-            previousSelection: klein,
-            alreadyInItsSlot: false,
-            discovered: [ModelID(engine: .coreMLStableDiffusion, key: "sd15")]
-        )
-
-        #expect(outcome == .unresolvable)
-    }
-
-    @Test("An unresolvable selection is retried rather than remembered")
-    func unresolvableIsRetried() {
-        // Nothing was written, so a later pass with the model present migrates it.
-        let later = EngineSelectionMigration.selection(
-            previousSelection: klein,
-            alreadyInItsSlot: false,
-            discovered: [klein]
-        )
-
-        #expect(later == .migrated(klein))
-    }
-}
-
-/// Pins what the engine picker does to the model selection.
+/// Pins the combined model picker and what discovery reports per engine.
 ///
 /// `loadModels()` is called directly for the same reason as
 /// `ModelSelectionPersistenceTests`: `init` only schedules it.
 @MainActor
 @Suite(.serialized)
-struct EnginePickerTests {
+struct ModelPickerTests {
     let temp: TempDirectory
     let tempDefaults: TempDefaults
     let configStore: ConfigStore
@@ -209,13 +33,11 @@ struct EnginePickerTests {
     }
 
     private func makeController(
-        engineRegistry: EngineRegistry = EngineRegistry(),
-        modelSelectionMode: GenerationController.ModelSelectionMode = .engineScoped
+        engineRegistry: EngineRegistry = EngineRegistry()
     ) -> GenerationController {
         makeTestGenerationController(
             configStore: configStore,
             engineRegistry: engineRegistry,
-            modelSelectionMode: modelSelectionMode,
             startsObserving: false
         )
     }
@@ -260,55 +82,22 @@ struct EnginePickerTests {
         try makeKleinModelFixture(at: modelDir.appending(path: "b-klein"))
     }
 
-    @Test("With nothing persisted, the first model's engine is selected")
-    func firstModelDecidesTheEngine() async throws {
+    @Test("With nothing persisted, the first model by name is selected")
+    func firstModelIsSelected() async throws {
         try makeMixedFolder()
-        let controller = makeController(modelSelectionMode: .combined)
+        let controller = makeController()
 
         await controller.loadModels()
 
         // Not the first engine in registration order — Iris is registered first,
         // and choosing by that would open a mixed folder on a Klein model.
-        #expect(controller.selectedEngine == .coreMLStableDiffusion)
         #expect(controller.currentModel?.name == "a-coreml")
-    }
-
-    @Test("A stale selection for a removed engine falls back to a shipped engine")
-    func removedEngineSelectionFallsBack() async throws {
-        try makeSDModelFixture(at: modelDir.appending(path: "a-coreml"))
-        tempDefaults.defaults.set(
-            "retired-engine", forKey: EngineSettingsStore.Key.selectedEngine)
-        let controller = makeController(modelSelectionMode: .combined)
-
-        await controller.loadModels()
-
-        #expect(controller.selectedEngine == .coreMLStableDiffusion)
-        #expect(controller.currentModel?.name == "a-coreml")
-        #expect(
-            tempDefaults.defaults.string(forKey: EngineSettingsStore.Key.selectedEngine)
-                == EngineID.coreMLStableDiffusion.rawValue
-        )
-    }
-
-    @Test("The model picker shows only the selected engine's models")
-    func visibleModelsAreScopedToTheEngine() async throws {
-        try makeMixedFolder()
-        let controller = makeController()
-        await controller.loadModels()
-
-        #expect(controller.models.count == 2)
-        // Scoped to the selected engine, so the Iris model is not among them.
-        #expect(controller.visibleModels.map(\.name) == ["a-coreml"])
-
-        controller.selectEngine(.iris)
-
-        #expect(controller.visibleModels.map(\.name) == ["b-klein"])
     }
 
     @Test("The stable model picker combines every engine's models")
     func combinedPickerShowsEveryModel() async throws {
         try makeMixedFolder()
-        let controller = makeController(modelSelectionMode: .combined)
+        let controller = makeController()
 
         await controller.loadModels()
 
@@ -325,7 +114,7 @@ struct EnginePickerTests {
         try makeKleinModelFixture(at: ambiguous)
         try makeSDModelFixture(at: ambiguous)
         try makeSDModelFixture(at: modelDir.appending(path: "unique"))
-        let controller = makeController(modelSelectionMode: .combined)
+        let controller = makeController()
 
         await controller.loadModels()
 
@@ -339,10 +128,10 @@ struct EnginePickerTests {
         )
     }
 
-    @Test("Choosing a combined model selects its engine implicitly")
-    func combinedPickerSelectsEngineImplicitly() async throws {
+    @Test("Choosing a model from another engine applies that model's constraints")
+    func choosingAModelAppliesItsConstraints() async throws {
         try makeMixedFolder()
-        let controller = makeController(modelSelectionMode: .combined)
+        let controller = makeController()
         await controller.loadModels()
 
         controller.setStartingImage(image: makeCGImage(), filename: "start.png")
@@ -350,7 +139,6 @@ struct EnginePickerTests {
         let iris = try #require(item.id)
         controller.currentModelId = iris
 
-        #expect(controller.selectedEngine == .iris)
         #expect(controller.currentConstraints.inputImages.isSupported)
         #expect(!controller.currentConstraints.startingImage.isSupported)
         // The picture stays the starting image it was chosen as. Klein does not
@@ -359,82 +147,6 @@ struct EnginePickerTests {
         // suite's.
         #expect(controller.startingImage?.name == "start.png")
         #expect(controller.inputImages.isEmpty)
-    }
-
-    @Test("Switching engine selects that engine's first model")
-    func switchingEngineSelectsItsModel() async throws {
-        try makeMixedFolder()
-        let controller = makeController()
-        await controller.loadModels()
-
-        controller.selectEngine(.iris)
-
-        #expect(controller.selectedEngine == .iris)
-        #expect(controller.currentModel?.name == "b-klein")
-    }
-
-    /// The point of per-engine selections: coming back to an engine returns the
-    /// model you left it on, not its first.
-    @Test("Each engine remembers the model it was last using")
-    func engineRemembersItsModel() async throws {
-        try makeSDModelFixture(at: modelDir.appending(path: "a-coreml"))
-        try makeSDModelFixture(at: modelDir.appending(path: "c-coreml"))
-        try makeKleinModelFixture(at: modelDir.appending(path: "b-klein"))
-        let controller = makeController()
-        await controller.loadModels()
-
-        controller.currentModelId = try #require(
-            controller.models.first { $0.name == "c-coreml" }
-        ).id
-        controller.selectEngine(.iris)
-        controller.selectEngine(.coreMLStableDiffusion)
-
-        #expect(controller.currentModel?.name == "c-coreml")
-    }
-
-    @Test("A remembered engine and model are restored on the next launch")
-    func rememberedSelectionSurvivesRelaunch() async throws {
-        try makeMixedFolder()
-        let first = makeController()
-        await first.loadModels()
-        first.selectEngine(.iris)
-
-        let second = makeController()
-        await second.loadModels()
-
-        #expect(second.selectedEngine == .iris)
-        #expect(second.currentModel?.name == "b-klein")
-    }
-
-    /// An engine the user chose stays chosen even when empty, and Generate is
-    /// disabled, rather than silently generating with another engine's model.
-    @Test("Choosing an engine with no models leaves the selection empty")
-    func emptyEngineLeavesSelectionEmpty() async throws {
-        try makeSDModelFixture(at: modelDir.appending(path: "a-coreml"))
-        let controller = makeController()
-        await controller.loadModels()
-
-        controller.selectEngine(.iris)
-
-        #expect(controller.selectedEngine == .iris)
-        #expect(controller.currentModelId == nil)
-        #expect(controller.visibleModels.isEmpty)
-        #expect(controller.hasModels(.iris) == false)
-        #expect(controller.hasModels(.coreMLStableDiffusion))
-    }
-
-    @Test("An empty engine choice survives a relaunch rather than reverting")
-    func emptyEngineChoiceSurvivesRelaunch() async throws {
-        try makeSDModelFixture(at: modelDir.appending(path: "a-coreml"))
-        let first = makeController()
-        await first.loadModels()
-        first.selectEngine(.iris)
-
-        let second = makeController()
-        await second.loadModels()
-
-        #expect(second.selectedEngine == .iris)
-        #expect(second.currentModelId == nil)
     }
 
     @Test("Selecting nothing clears the ControlNet options too")
@@ -449,7 +161,7 @@ struct EnginePickerTests {
         await controller.loadModels()
         #expect(controller.controlNet == ["canny"])
 
-        controller.selectEngine(.iris)
+        controller.currentModelId = nil
 
         #expect(controller.controlNet.isEmpty)
         #expect(controller.currentControlNets.isEmpty)
@@ -466,33 +178,8 @@ struct EnginePickerTests {
             controller.engines.map(\.id) == [.iris, .coreMLStableDiffusion, .drawThings])
         #expect(controller.engineAvailability[.iris] == .ready)
         #expect(controller.engineAvailability[.coreMLStableDiffusion] == .ready)
-
-        // Iris is `.ready` because the folder exists, but it has no Klein model in
-        // it, so the sidebar offers only Core ML.
-        #expect(controller.pickerEngines.map(\.id) == [.coreMLStableDiffusion])
-        #expect(controller.isUsable(.coreMLStableDiffusion))
-        #expect(!controller.isUsable(.iris))
-    }
-
-    /// The rule that keeps a selection from pointing at something absent from its
-    /// own picker. `restoreSelection` keeps a chosen engine whose models have gone
-    /// so the picker can say why, and hiding it would take the explanation too.
-    @Test("The selected engine stays listed after its models disappear")
-    func selectedEngineStaysListedWhenEmptied() async throws {
-        try makeMixedFolder()
-        let controller = makeController()
-        await controller.loadModels()
-        controller.selectEngine(.iris)
-        #expect(controller.pickerEngines.map(\.id).contains(.iris))
-
-        try FileManager.default.removeItem(
-            at: modelDir.appending(path: "b-klein"))
-        await controller.loadModels()
-
-        #expect(!controller.isUsable(.iris))
-        #expect(controller.selectedEngine == .iris)
-        // Registration order, which is presentation order and nothing else.
-        #expect(controller.pickerEngines.map(\.id) == [.iris, .coreMLStableDiffusion])
+        #expect(controller.hasModels(.coreMLStableDiffusion))
+        #expect(!controller.hasModels(.iris))
     }
 
     /// The picker distinguishes "there are none" from "we could not look". A

@@ -45,7 +45,7 @@ or in a 6.3 released while 7.0 is in progress; do not assume either.
 
 The registered engines are Core ML, Iris and Draw Things behind one combined model picker.
 Mochi supports no paid or hosted service, so nothing in the app refers to accounts, credits
-or billing. The engine-oriented settings UI stays out of the stable surface.
+or billing.
 
 Image output is PNG only. Released JPEG and HEIC images stay readable, and exporting
 one converts it to PNG with its generation metadata.
@@ -76,14 +76,13 @@ The multi-engine foundation is implemented. Current ownership and contracts foll
     and shared draft values. Output is always PNG, so there is no
     format preference. Its `UserDefaults` store is injectable, so tests use an
     isolated suite.
-  - `EngineSettingsStore` (`@MainActor`, `@Observable`) owns per-engine persisted values
-    under dynamic `Engine.<id>.…` keys: the selected engine, the model each engine was last
-    using, and the Draw Things connection (its shared secret is in the Keychain). Separate
-    from `ConfigStore` because `@AppStorage` binds one property to one
-    literal key and cannot express a key set that grows with the engine list.
-  - `GenerationController` (`@MainActor`, `@Observable`) owns the model list and the
-    engine/model selection, builds a `GenerationDraft` from UI state, asks the selected
-    engine to `plan` it, and enqueues the resulting `GenerationRequest`.
+  - `EngineSettingsStore` (`@MainActor`, `@Observable`) owns settings that belong to one
+    engine, under `Engine.<id>.Options` keys: the Draw Things connection (its shared secret
+    is in the Keychain).
+  - `GenerationController` (`@MainActor`, `@Observable`) owns the model list and the model
+    selection, which is the one saved `ConfigStore.selectedModel` behind the combined
+    picker. It builds a `GenerationDraft` from UI state, asks the selected model's engine to
+    `plan` it, and enqueues the resulting `GenerationRequest`.
   - `GalleryController` (`@MainActor`) handles gallery I/O orchestration through
     `ImageRepository`.
   - `GenerationService` (`actor`) is the queue. It rejects a request whose payload does not

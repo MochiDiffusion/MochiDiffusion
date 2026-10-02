@@ -50,10 +50,6 @@ actor EngineRegistry {
         self.init(engines: EngineRegistry.shipped, fileSystem: fileSystem)
     }
 
-    nonisolated var engineIDs: [EngineID] {
-        engines.map(\.id)
-    }
-
     /// Every engine, in registration order, including ones that are unconfigured or
     /// have no models.
     nonisolated var allEngines: [AnyGenerationEngine] {

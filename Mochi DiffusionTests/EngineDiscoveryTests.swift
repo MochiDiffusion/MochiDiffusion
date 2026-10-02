@@ -396,7 +396,7 @@ struct EngineRegistryTests {
 
         let discoveries = await registry.discoverAll(settings: settings)
 
-        #expect(registry.engineIDs == [.iris, .coreMLStableDiffusion, .drawThings])
+        #expect(registry.allEngines.map(\.id) == [.iris, .coreMLStableDiffusion, .drawThings])
         #expect(
             Set(discoveries.map(\.engine)) == [.iris, .coreMLStableDiffusion, .drawThings])
         #expect(discoveries.allModels.count == 2)

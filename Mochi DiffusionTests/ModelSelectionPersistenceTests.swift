@@ -69,27 +69,19 @@ struct ModelSelectionPersistenceTests {
                 AnyGenerationEngine(CoreMLStableDiffusionEngine()),
                 AnyGenerationEngine(StubServerEngine(isConfigured: configured)),
             ]),
-            modelSelectionMode: .engineScoped,
             startsObserving: false
         )
     }
 
-    /// Writes an engine-scoped selection the way a previous launch would have,
-    /// so a test does not rely on the migrations to produce it.
+    /// Writes a selection the way a previous launch would have, so a test does not
+    /// rely on the migration to produce it.
     private func seedSelection(_ id: ModelID) {
-        tempDefaults.defaults.set(
-            id.engine.rawValue, forKey: EngineSettingsStore.Key.selectedEngine)
-        tempDefaults.defaults.set(
-            id.persistedValue,
-            forKey: EngineSettingsStore.Key.selectedModel(id.engine)
-        )
+        configStore.selectedModel = id
     }
 
-    /// The per-engine copy of the live selection, kept alongside
-    /// `ConfigStore.selectedModel`.
+    /// The saved selection, as the next launch will read it.
     private func persistedSelection(_ controller: GenerationController) -> ModelID? {
-        guard let engine = controller.engineSettings.selectedEngine else { return nil }
-        return controller.engineSettings.selectedModel(for: engine)
+        controller.configStore.selectedModel
     }
 
     /// The discovery message the app is showing, or `nil` if there is none.
@@ -245,39 +237,6 @@ struct ModelSelectionPersistenceTests {
         // different problems into one sentence.
         #expect(message.contains("Couldn't read the models folder"))
         #expect(!message.contains("No models found"))
-    }
-
-    /// `restoreSelection` persists a fallback engine, which must not end the
-    /// legacy migration: it retries across passes until its own result ends it,
-    /// so a legacy model that was temporarily missing is still recovered.
-    @Test("A server fallback does not strand the legacy selection")
-    func serverFallbackDoesNotStrandTheLegacyMigration() async throws {
-        // A legacy selection whose model is not there yet.
-        let legacy = modelDir.appending(path: "a-model")
-        tempDefaults.defaults.set(legacy, forKey: ConfigStore.Key.legacyModelId)
-
-        let controller = makeServerController(configured: true)
-        await controller.loadModels()
-
-        // The server engine is the only usable one, so it became the fallback.
-        #expect(controller.selectedEngine == StubServerEngine.id)
-        #expect(controller.configStore.selectedModel?.engine == StubServerEngine.id)
-
-        // The folder comes back.
-        try makeSDModelFixture(at: legacy)
-        await controller.loadModels()
-
-        // Recovered into its own engine's slot rather than reported as already
-        // migrated and dropped.
-        #expect(
-            controller.engineSettings.selectedModel(for: .coreMLStableDiffusion)
-                == ModelID(engine: .coreMLStableDiffusion, key: "a-model"))
-        // And the user was not yanked off the engine they were working in. The old
-        // model is waiting where they left it.
-        #expect(controller.selectedEngine == StubServerEngine.id)
-
-        controller.selectEngine(.coreMLStableDiffusion)
-        #expect(controller.currentModelId?.key == "a-model")
     }
 
     /// Assigning `currentModelId` persists it, so auto-selecting a model from an

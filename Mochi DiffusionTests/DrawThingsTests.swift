@@ -333,9 +333,9 @@ struct DrawThingsTests {
         let suite = "DrawThingsTests.\(UUID())"
         let defaults = try #require(UserDefaults(suiteName: suite))
         defer { defaults.removePersistentDomain(forName: suite) }
-        let store = EngineSettingsStore(store: defaults, engines: [.drawThings])
+        let store = EngineSettingsStore(store: defaults)
         store.drawThings = connection
-        let restored = EngineSettingsStore(store: defaults, engines: [.drawThings])
+        let restored = EngineSettingsStore(store: defaults)
         #expect(restored.drawThings == connection)
         var remote = connection
         remote.host = "studio.local"
