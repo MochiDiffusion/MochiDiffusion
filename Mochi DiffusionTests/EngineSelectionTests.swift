@@ -236,6 +236,7 @@ struct EnginePickerTests {
         struct Failure: Error {}
 
         static let id = EngineID(rawValue: "ready-but-failing")
+        static let modelListSource = ModelListSource.modelsFolder
         var displayName: String { "Ready But Failing" }
 
         func availability(_ settings: EngineSettings) async -> EngineAvailability { .ready }
@@ -276,7 +277,7 @@ struct EnginePickerTests {
     func removedEngineSelectionFallsBack() async throws {
         try makeSDModelFixture(at: modelDir.appending(path: "a-coreml"))
         tempDefaults.defaults.set(
-            "drawthings", forKey: EngineSettingsStore.Key.selectedEngine)
+            "retired-engine", forKey: EngineSettingsStore.Key.selectedEngine)
         let controller = makeController(modelSelectionMode: .combined)
 
         await controller.loadModels()
@@ -461,7 +462,8 @@ struct EnginePickerTests {
         await controller.loadModels()
 
         // Exact, so an engine added to the shipped registry is a deliberate change.
-        #expect(controller.engines.map(\.id) == [.iris, .coreMLStableDiffusion])
+        #expect(
+            controller.engines.map(\.id) == [.iris, .coreMLStableDiffusion, .drawThings])
         #expect(controller.engineAvailability[.iris] == .ready)
         #expect(controller.engineAvailability[.coreMLStableDiffusion] == .ready)
         #expect(controller.engineAvailability[.openAI] == nil)
@@ -621,6 +623,7 @@ private struct ProbedEngine: GenerationEngineDescriptor {
     let expected: Int
 
     static var id: EngineID { EngineID(rawValue: "probed") }
+    static let modelListSource = ModelListSource.modelsFolder
     var displayName: String { engineID.rawValue }
 
     func availability(_ settings: EngineSettings) async -> EngineAvailability { .ready }
@@ -688,7 +691,7 @@ struct EngineRefreshTests {
 
         #expect(
             refresh.discoveries.map(\.engine) == [
-                .iris, .coreMLStableDiffusion,
+                .iris, .coreMLStableDiffusion, .drawThings,
             ])
         // Sorted by name across engines, independent of completion order.
         #expect(
@@ -760,6 +763,7 @@ private struct GatedEngine: GenerationEngineDescriptor {
     struct NotRun: Error {}
 
     static let id = EngineID(rawValue: "gated")
+    static let modelListSource = ModelListSource.modelsFolder
     let sequencer: LoadSequencer
     var displayName: String { "Gated" }
 
@@ -854,5 +858,184 @@ struct RefreshOrderingTests {
 
         #expect(controller.models.isEmpty)
         #expect(controller.currentModelId == nil)
+    }
+}
+
+/// A server engine for the tests below: its models come from a connection, and
+/// the test decides whether the server answers.
+private actor ServerState {
+    var isReachable = true
+    private(set) var discoveryCount = 0
+
+    func setReachable(_ reachable: Bool) { isReachable = reachable }
+
+    func discover() throws -> Bool {
+        discoveryCount += 1
+        return isReachable
+    }
+}
+
+private struct ServerEngine: GenerationEngineDescriptor {
+    struct Model: EngineModel {
+        let id: ModelID
+        let name: String
+        var constraints: OptionConstraints { .unconstrained }
+        var metadataFields: Set<MetadataField> { [.prompt] }
+        var tokenizerModelDir: URL? { nil }
+    }
+    struct Payload: Sendable {}
+    struct NotRun: Error {}
+    struct Unreachable: Error {}
+
+    static let id = EngineID(rawValue: "server")
+    static let modelListSource = ModelListSource.connection
+    static let modelID = ModelID(engine: id, key: "server-model")
+    let state: ServerState
+    /// Holds discovery until released, when set.
+    var sequencer: LoadSequencer?
+    var displayName: String { "Server" }
+
+    func availability(_ settings: EngineSettings) async -> EngineAvailability { .ready }
+
+    func discoverModels(_ context: ModelDiscoveryContext) async throws -> [Model] {
+        if let sequencer {
+            let call = await sequencer.begin()
+            await sequencer.waitForRelease(call)
+        }
+        guard try await state.discover() else { throw Unreachable() }
+        return [Model(id: Self.modelID, name: "server-model")]
+    }
+
+    func plan(draft: GenerationDraft, model: Model) throws -> GenerationPlan<Payload> {
+        throw NotRun()
+    }
+
+    func makeRuntime() -> any GenerationEngineRuntime { fatalError("never runs") }
+}
+
+/// Pins that the models folder and a server connection refresh separately: a
+/// folder change never asks the server, a slow server does not hold back local
+/// models, and selection never waits for a server.
+@MainActor
+@Suite(.serialized, .timeLimit(.minutes(1)))
+struct SourceRefreshTests {
+    let temp: TempDirectory
+    let modelDir: URL
+    let tempDefaults: TempDefaults
+    let configStore: ConfigStore
+    let localID = ModelID(engine: .coreMLStableDiffusion, key: "a-coreml")
+
+    init() throws {
+        temp = try TempDirectory()
+        modelDir = try temp.subdirectory("models")
+        tempDefaults = TempDefaults()
+        configStore = ConfigStore(store: tempDefaults.defaults)
+        configStore.modelDir = modelDir.path(percentEncoded: false)
+        try makeSDModelFixture(at: modelDir.appending(path: "a-coreml"))
+    }
+
+    private func makeController(_ server: ServerEngine) -> GenerationController {
+        makeTestGenerationController(
+            configStore: configStore,
+            engineRegistry: EngineRegistry(engines: [
+                AnyGenerationEngine(CoreMLStableDiffusionEngine()),
+                AnyGenerationEngine(server),
+            ]),
+            startsObserving: false
+        )
+    }
+
+    @Test("A models-folder refresh does not ask a connection engine")
+    func folderRefreshSkipsConnections() async throws {
+        let state = ServerState()
+        let registry = EngineRegistry(engines: [
+            AnyGenerationEngine(CoreMLStableDiffusionEngine()),
+            AnyGenerationEngine(ServerEngine(state: state)),
+        ])
+        let settings = EngineSettings(modelDirectory: modelDir, controlNetDirectory: modelDir)
+
+        let refresh = await registry.refresh(settings: settings, sources: [.modelsFolder])
+
+        #expect(refresh.discoveries.map(\.engine) == [.coreMLStableDiffusion])
+        #expect(refresh.availability[ServerEngine.id] == nil)
+        #expect(await state.discoveryCount == 0)
+    }
+
+    @Test("Local models are shown while a server is still loading")
+    func localModelsDoNotWaitForTheServer() async throws {
+        let sequencer = LoadSequencer()
+        let controller = makeController(ServerEngine(state: ServerState(), sequencer: sequencer))
+
+        let load = Task { await controller.loadModels() }
+        await sequencer.waitUntilStarted(1)
+        while controller.models.isEmpty { await Task.yield() }
+
+        #expect(controller.models.map(\.id) == [localID])
+        #expect(controller.currentModelId == localID)
+
+        await sequencer.release(1)
+        _ = await load.value
+        #expect(controller.models.map(\.id) == [localID, ServerEngine.modelID])
+    }
+
+    @Test("A saved server model is not waited for: the first available model is selected")
+    func savedServerModelIsNotWaitedFor() async throws {
+        configStore.selectedModel = ServerEngine.modelID
+        let sequencer = LoadSequencer()
+        let controller = makeController(ServerEngine(state: ServerState(), sequencer: sequencer))
+
+        let load = Task { await controller.loadModels() }
+        await sequencer.waitUntilStarted(1)
+        while controller.models.isEmpty { await Task.yield() }
+
+        #expect(controller.currentModelId == localID)
+        #expect(configStore.selectedModel == localID)
+        #expect(controller.discoveryMessage == nil)
+
+        await sequencer.release(1)
+        _ = await load.value
+        #expect(controller.currentModelId == localID)
+    }
+
+    @Test("A saved server model falls back once its server fails to answer")
+    func unreachableServerAtLaunchFallsBack() async throws {
+        configStore.selectedModel = ServerEngine.modelID
+        let state = ServerState()
+        await state.setReachable(false)
+        let controller = makeController(ServerEngine(state: state))
+
+        await controller.loadModels()
+
+        #expect(controller.currentModelId == localID)
+        #expect(configStore.selectedModel == localID)
+    }
+
+    @Test("A models-folder refresh keeps the server's models and the selected server model")
+    func folderRefreshKeepsServerModels() async throws {
+        let state = ServerState()
+        let controller = makeController(ServerEngine(state: state))
+        await controller.loadModels()
+        controller.currentModelId = ServerEngine.modelID
+
+        await controller.loadModels(from: [.modelsFolder])
+
+        #expect(controller.models.map(\.id) == [localID, ServerEngine.modelID])
+        #expect(controller.currentModelId == ServerEngine.modelID)
+        #expect(await state.discoveryCount == 1)
+    }
+
+    @Test("Reconnecting to an unreachable server falls back and saves the fallback")
+    func failedReconnectFallsBack() async throws {
+        let state = ServerState()
+        let controller = makeController(ServerEngine(state: state))
+        await controller.loadModels()
+        controller.currentModelId = ServerEngine.modelID
+
+        await state.setReachable(false)
+        await controller.loadModels(from: [.connection])
+
+        #expect(controller.models.map(\.id) == [localID])
+        #expect(controller.currentModelId == localID)
+        #expect(configStore.selectedModel == localID)
     }
 }

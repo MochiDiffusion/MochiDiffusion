@@ -71,6 +71,7 @@ struct QueueLivenessTests {
         struct Payload: Sendable {}
 
         static let id = EngineID(rawValue: "signalling")
+        static let modelListSource = ModelListSource.modelsFolder
         let signal: RunSignal
         var displayName: String { "Signalling" }
 

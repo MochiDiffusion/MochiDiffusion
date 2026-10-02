@@ -248,9 +248,16 @@ final class GenerationController {
     /// Why each engine can or cannot be used, refreshed with every discovery pass.
     private(set) var engineAvailability: [EngineID: EngineAvailability] = [:]
 
-    /// Increments per `loadModels()` call, so a pass that finishes after a newer one
-    /// can tell and discard itself rather than overwriting it.
-    private var loadGeneration = 0
+    /// Increments per refresh of each source, so a pass that finishes after a newer
+    /// one for the same source can tell and discard itself rather than overwriting it.
+    private var loadGenerations: [ModelListSource: Int] = [:]
+
+    /// Sources whose latest refresh has not been applied yet.
+    private var loadingSources: Set<ModelListSource> = []
+
+    /// The latest applied discovery for each engine. Each source's refresh replaces
+    /// only its own engines' entries, so a folder change keeps the server's models.
+    private var discoveriesByEngine: [EngineID: EngineRegistry.Discovery] = [:]
 
     var selectedEngine: EngineID? {
         engineSettings.selectedEngine
@@ -419,45 +426,82 @@ final class GenerationController {
         observeGenerationResults()
     }
 
-    func loadModels() async {
-        loadGeneration += 1
-        let generation = loadGeneration
-        logger.info("Started loading model directory at: \"\(self.configStore.modelDir)\"")
-        let modelDirectoryURL = ModelRepository.modelDirectoryURL(
-            fromPath: configStore.modelDir
-        )
-        let controlNetDirectoryURL = ModelRepository.controlNetDirectoryURL(
-            fromPath: configStore.controlNetDir)
-
-        let settings = EngineSettings(
-            modelDirectory: modelDirectoryURL,
-            controlNetDirectory: controlNetDirectoryURL
-        )
-        // One aggregate pass: availability and discovery gathered together, so
-        // this cannot pair one engine's availability with another pass's models.
-        let refresh = await engineRegistry.refresh(settings: settings)
-
-        // The two guards that make a refresh abandonable. `loadModels` is
-        // started by the initial load, two folder monitors and two debounced
-        // settings paths, and `@MainActor` serialises the *mutations* without
-        // preventing reentrancy across the await above. The epoch stops an older
-        // pass that finishes late from overwriting a newer one.
-        guard generation == loadGeneration else {
-            logger.info("Discarding a superseded model load")
-            return
+    /// Refreshes the models from `sources`, applying each source's result as soon as
+    /// it arrives, so a slow server does not hold back the models folder.
+    ///
+    /// Launch asks every source. A change in the models or ControlNet folder asks
+    /// only `.modelsFolder`; Reconnect and saving connection settings ask only
+    /// `.connection`.
+    func loadModels(from sources: Set<ModelListSource> = Set(ModelListSource.allCases)) async {
+        guard !sources.isEmpty else { return }
+        var generations: [ModelListSource: Int] = [:]
+        for source in sources {
+            loadGenerations[source, default: 0] += 1
+            generations[source] = loadGenerations[source]
         }
-        guard !isShutDown else { return }
+        loadingSources.formUnion(sources)
+        if sources.contains(.modelsFolder) {
+            logger.info("Started loading model directory at: \"\(self.configStore.modelDir)\"")
+        }
+        if sources.contains(.connection) {
+            logger.info("Started loading models from connections")
+        }
+        let settings = EngineSettings(
+            modelDirectory: ModelRepository.modelDirectoryURL(fromPath: configStore.modelDir),
+            controlNetDirectory: ModelRepository.controlNetDirectoryURL(
+                fromPath: configStore.controlNetDir),
+            drawThings: engineSettings.drawThings
+        )
+        let engineRegistry = engineRegistry
 
-        engineAvailability = refresh.availability
-        let discoveries = refresh.discoveries
-        let discoveredModels = refresh.models
+        await withTaskGroup(of: (ModelListSource, EngineRegistry.Refresh).self) { group in
+            for source in sources {
+                group.addTask {
+                    // One aggregate pass per source: availability and discovery
+                    // gathered together, so this cannot pair one engine's
+                    // availability with another pass's models.
+                    (source, await engineRegistry.refresh(settings: settings, sources: [source]))
+                }
+            }
+            for await (source, refresh) in group {
+                // The two guards that make a refresh abandonable. Refreshes are
+                // started by the initial load, two folder monitors, two debounced
+                // settings paths and connection settings, and `@MainActor`
+                // serialises the *mutations* without preventing reentrancy across
+                // the await. The epoch stops an older pass that finishes late from
+                // overwriting a newer one for the same source.
+                guard generations[source] == loadGenerations[source] else {
+                    logger.info("Discarding a superseded model load")
+                    continue
+                }
+                guard !isShutDown else { return }
+                loadingSources.remove(source)
+                apply(refresh, from: source)
+            }
+        }
+    }
+
+    private func apply(_ refresh: EngineRegistry.Refresh, from source: ModelListSource) {
+        for engine in engines where engine.modelListSource == source {
+            discoveriesByEngine[engine.id] = nil
+            engineAvailability[engine.id] = nil
+        }
+        for discovery in refresh.discoveries {
+            discoveriesByEngine[discovery.engine] = discovery
+        }
+        engineAvailability.merge(refresh.availability) { _, new in new }
+
+        // Registration order, as one refresh of every engine would produce.
+        let discoveries = engines.compactMap { discoveriesByEngine[$0.id] }
+        let discoveredModels = discoveries.allModels
         // Assigned before the check below, so a pass that finds nothing empties
         // the picker instead of leaving the previous pass's models on screen.
         self.models = discoveredModels
         discoveryMessage = Self.discoveryMessage(
             failures: discoveries.failures,
             engines: engines,
-            foundModels: !discoveredModels.isEmpty,
+            // A source still loading may yet find models, so "no models" waits for it.
+            foundModels: !discoveredModels.isEmpty || !loadingSources.isEmpty,
             modelDir: configStore.modelDir
         )
         guard !discoveredModels.isEmpty else {
@@ -1386,12 +1430,12 @@ final class GenerationController {
 
     private func updateModelFolderMonitor() async {
         startModelFolderMonitor()
-        await loadModels()
+        await loadModels(from: [.modelsFolder])
     }
 
     private func updateControlNetFolderMonitor() async {
         startControlNetFolderMonitor()
-        await loadModels()
+        await loadModels(from: [.modelsFolder])
     }
 
     private func startModelFolderMonitor() {
@@ -1404,7 +1448,7 @@ final class GenerationController {
             let stream = await FolderMonitorService.shared.updates(for: path)
             for await _ in stream {
                 guard let self else { return }
-                await self.loadModels()
+                await self.loadModels(from: [.modelsFolder])
             }
         }
     }
@@ -1417,7 +1461,7 @@ final class GenerationController {
             let stream = await FolderMonitorService.shared.updates(for: path)
             for await _ in stream {
                 guard let self else { return }
-                await self.loadModels()
+                await self.loadModels(from: [.modelsFolder])
             }
         }
     }

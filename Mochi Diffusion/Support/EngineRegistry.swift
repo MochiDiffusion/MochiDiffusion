@@ -19,6 +19,7 @@ actor EngineRegistry {
         [
             AnyGenerationEngine(IrisEngine()),
             AnyGenerationEngine(CoreMLStableDiffusionEngine()),
+            AnyGenerationEngine(DrawThingsEngine(secrets: KeychainSecretStore())),
         ]
     }
 
@@ -90,7 +91,9 @@ actor EngineRegistry {
         var failures: [(engine: EngineID, error: any Error)] { discoveries.failures }
     }
 
-    /// Asks every engine what it has and whether it can be used, concurrently.
+    /// Asks every engine whose models come from one of `sources` what it has and
+    /// whether it can be used, concurrently. Engines from other sources are not
+    /// asked and do not appear in the result.
     ///
     /// Concurrent because the work is per engine and independent: with a hosted
     /// engine registered, a serial pass would make a slow network round trip delay
@@ -98,9 +101,13 @@ actor EngineRegistry {
     ///
     /// Never throws. An engine that fails contributes its error and no models,
     /// which is what keeps one engine's problem from looking like a global one.
-    func refresh(settings: EngineSettings) async -> Refresh {
+    func refresh(
+        settings: EngineSettings,
+        sources: Set<ModelListSource> = Set(ModelListSource.allCases)
+    ) async -> Refresh {
         // Enumerated once for the whole pass; see `ModelDiscoveryContext`.
         let context = ModelDiscoveryContext(settings: settings, fileSystem: fileSystem)
+        let engines = engines.filter { sources.contains($0.modelListSource) }
 
         var discoveredByEngine: [EngineID: Discovery] = [:]
         var availability: [EngineID: EngineAvailability] = [:]

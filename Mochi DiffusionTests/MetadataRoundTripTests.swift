@@ -159,6 +159,28 @@ struct MetadataRoundTripTests {
         #expect(record.guidanceScale == 1)
     }
 
+    @Test("A Draw Things image reads back the settings it ran with and no sampler")
+    func drawThingsRoundTrip() async throws {
+        let metadata = GenerationMetadata(
+            prompt: "a lighthouse", negativePrompt: nil, width: 24, height: 16, model: "Klein",
+            engine: EngineID.drawThings.rawValue, modelKey: "flux_2_klein_4b_q8p.ckpt",
+            architecture: nil, quality: nil, startingImage: nil, strength: nil, controlNet: nil,
+            controlNetImage: nil, inputImages: nil, scheduler: nil, mlComputeUnit: nil, seed: 11,
+            steps: 4, guidanceScale: 1, generatedDate: Date(), metadataFields: [])
+
+        let record = try await roundTrip(metadata)
+
+        #expect(record.engine == "drawthings")
+        #expect(record.modelKey == "flux_2_klein_4b_q8p.ckpt")
+        #expect(record.seed == 11)
+        #expect(record.steps == 4)
+        #expect(record.guidanceScale == 1)
+        #expect(
+            record.metadataFields == [
+                .prompt, .model, .engine, .modelKey, .size, .seed, .steps, .guidanceScale,
+            ])
+    }
+
     @Test("A hosted image records no seed, steps, sampler or guidance")
     func sparseHostedRoundTrip() async throws {
         let metadata = GenerationMetadata(

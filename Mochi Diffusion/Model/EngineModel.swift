@@ -37,4 +37,18 @@ nonisolated protocol EngineModel: Identifiable, Sendable {
     var metadataFields: Set<MetadataField> { get }
     /// without a local tokenizer there is no prompt token count
     var tokenizerModelDir: URL? { get }
+    /// The steps the model's publisher recommends. Never applied automatically:
+    /// steps are the sidebar's value until the user changes them. `nil` when there
+    /// is no recommendation.
+    var recommendedSteps: Int? { get }
+    /// The guidance the model's publisher recommends, on the same terms as
+    /// `recommendedSteps`. `nil` when there is no recommendation or the model does
+    /// not use guidance.
+    var recommendedGuidanceScale: Double? { get }
+}
+
+nonisolated extension EngineModel {
+    /// Local models carry no recommendation.
+    var recommendedSteps: Int? { nil }
+    var recommendedGuidanceScale: Double? { nil }
 }

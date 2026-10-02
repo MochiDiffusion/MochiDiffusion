@@ -6,8 +6,8 @@
 import Foundation
 import Observation
 
-/// Per-engine persisted values: which engine is selected, and which model each
-/// engine was last using.
+/// Per-engine persisted values: which engine is selected, which model each engine
+/// was last using, and the Draw Things server connection.
 ///
 /// Separate from `ConfigStore` because the keys are dynamic. `@AppStorage` binds
 /// one property to one literal key, which cannot express `Engine.<id>.…` for a
@@ -24,9 +24,24 @@ import Observation
         static func selectedModel(_ engine: EngineID) -> String {
             "Engine.\(engine.rawValue).SelectedModel"
         }
+
+        /// Engine-specific values that are not a model selection, such as a
+        /// server's address.
+        static func options(_ engine: EngineID) -> String {
+            "Engine.\(engine.rawValue).Options"
+        }
     }
 
     private let store: UserDefaults
+
+    /// The shared secret is not part of this value; it is kept in the Keychain.
+    var drawThings: DrawThingsConnection {
+        didSet {
+            if let data = try? JSONEncoder().encode(drawThings) {
+                store.set(data, forKey: Key.options(.drawThings))
+            }
+        }
+    }
 
     private var selectedEngineID: EngineID?
     /// Model selections by engine, read once at init and written through on
@@ -41,6 +56,10 @@ import Observation
     ///     rather than resurrected.
     init(store: UserDefaults = .standard, engines: [EngineID]) {
         self.store = store
+        drawThings =
+            store.data(forKey: Key.options(.drawThings))
+            .flatMap { try? JSONDecoder().decode(DrawThingsConnection.self, from: $0) }
+            ?? DrawThingsConnection()
         selectedEngineID = store.string(forKey: Key.selectedEngine).map(EngineID.init(rawValue:))
         selectedModels = [:]
         for engine in engines {

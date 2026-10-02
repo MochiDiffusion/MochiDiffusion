@@ -72,6 +72,7 @@ struct GenerationResultPathTests {
         struct NotPlanned: Error {}
 
         static let id = EngineID(rawValue: "scripted")
+        static let modelListSource = ModelListSource.modelsFolder
         let runtime: ScriptedRuntime
         var displayName: String { "Scripted" }
 

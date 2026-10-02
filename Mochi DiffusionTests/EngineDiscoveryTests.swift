@@ -266,6 +266,7 @@ struct EngineRegistryTests {
         typealias Payload = CoreMLGenerationPayload
         struct Failure: Error {}
         static let id = EngineID(rawValue: "failing")
+        static let modelListSource = ModelListSource.modelsFolder
         var displayName: String { "Failing" }
         func availability(_ settings: EngineSettings) async -> EngineAvailability {
             .needsConfiguration("always")
@@ -309,6 +310,7 @@ struct EngineRegistryTests {
         struct NotRun: Error {}
 
         static let id = EngineID(rawValue: "folder-ignoring")
+        static let modelListSource = ModelListSource.connection
         var displayName: String { "Folder Ignoring" }
 
         func availability(_ settings: EngineSettings) async -> EngineAvailability { .ready }
@@ -395,9 +397,10 @@ struct EngineRegistryTests {
 
         let discoveries = await registry.discoverAll(settings: settings)
 
-        #expect(registry.engineIDs == [.iris, .coreMLStableDiffusion])
+        #expect(registry.engineIDs == [.iris, .coreMLStableDiffusion, .drawThings])
         #expect(registry.engine(.openAI) == nil)
-        #expect(Set(discoveries.map(\.engine)) == [.iris, .coreMLStableDiffusion])
+        #expect(
+            Set(discoveries.map(\.engine)) == [.iris, .coreMLStableDiffusion, .drawThings])
         #expect(discoveries.allModels.count == 2)
         #expect(discoveries.failures.isEmpty)
     }
@@ -406,7 +409,8 @@ struct EngineRegistryTests {
     func openAIBetaRemainsAvailable() {
         let registry = EngineRegistry.openAIBeta(secrets: NoSecretStore())
 
-        #expect(registry.engineIDs == [.iris, .coreMLStableDiffusion, .openAI])
+        #expect(
+            registry.engineIDs == [.iris, .coreMLStableDiffusion, .drawThings, .openAI])
         #expect(registry.engine(.openAI) != nil)
     }
 

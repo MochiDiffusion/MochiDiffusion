@@ -42,8 +42,8 @@ runs is `MochiDiffusion-08l`, also unassigned.
 Z-Image Turbo support is already on develop. Graham has not decided whether it ships in 7.0
 or in a 6.3 released while 7.0 is in progress; do not assume either.
 
-The shipped engines are Core ML and Iris behind one combined model picker. The
-engine-oriented settings UI and OpenAI hosted generation stay out of the stable surface.
+The registered engines are Core ML, Iris and Draw Things behind one combined model picker.
+The engine-oriented settings UI and OpenAI hosted generation stay out of the stable surface.
 
 Image output is PNG only. Released JPEG and HEIC images stay readable, and exporting
 one converts it to PNG with its generation metadata.
@@ -75,8 +75,9 @@ The multi-engine foundation is implemented. Current ownership and contracts foll
     format preference. Its `UserDefaults` store is injectable, so tests use an
     isolated suite.
   - `EngineSettingsStore` (`@MainActor`, `@Observable`) owns per-engine persisted values
-    under dynamic `Engine.<id>.…` keys: the selected engine, and the model each engine was
-    last using. Separate from `ConfigStore` because `@AppStorage` binds one property to one
+    under dynamic `Engine.<id>.…` keys: the selected engine, the model each engine was last
+    using, and the Draw Things connection (its shared secret is in the Keychain). Separate
+    from `ConfigStore` because `@AppStorage` binds one property to one
     literal key and cannot express a key set that grows with the engine list.
   - `GenerationController` (`@MainActor`, `@Observable`) owns the model list and the
     engine/model selection, builds a `GenerationDraft` from UI state, asks the selected
@@ -107,21 +108,33 @@ The multi-engine foundation is implemented. Current ownership and contracts foll
     engine, its models and its payload a compiler-checked triple. `AnyGenerationEngine`
     erases it for the registry and exposes `accepts(payload:)`.
   - `GenerationEngineRuntime` is the stateful half: it owns loaded pipelines and runs one
-    request against one session: `CoreMLEngineRuntime`, `IrisEngineRuntime`, and
-    `OpenAIEngineRuntime`.
-  - `EngineRegistry` (`actor`) holds the engines; `refresh(settings:)` gathers availability
-    and discovery per engine, failure-isolated, so one engine's missing folder or absent API
-    key cannot empty the model list for the others.
+    request against one session: `CoreMLEngineRuntime`, `IrisEngineRuntime`,
+    `DrawThingsRuntime`, and `OpenAIEngineRuntime`.
+  - `EngineRegistry` (`actor`) holds the engines; `refresh(settings:sources:)` gathers
+    availability and discovery per engine, failure-isolated, so one engine's missing folder or
+    absent API key cannot empty the model list for the others.
+  - Each engine declares a `ModelListSource`: `.modelsFolder` (Core ML, Iris) or
+    `.connection` (Draw Things, OpenAI). Launch refreshes both. Models- and ControlNet-folder
+    changes refresh only `.modelsFolder`, so they never contact a server; Reconnect and
+    saving connection settings refresh only `.connection`. `GenerationController` applies
+    each source's result as it arrives and keeps the other source's models.
+  - Selection does not wait for a source still loading. Each applied result restores the
+    saved model if it is available and otherwise selects the first available model, which
+    becomes the saved one.
   - **Engines never consult each other.** Each applies only its own recognition rules, and
     identity is engine-qualified, so two engines recognising the same directory both return a
     model. Registration order affects presentation order only — never ownership or validity.
   - One shared models folder is a settled decision. `ModelDiscoveryContext` enumerates it
     once per discovery pass and hands the same candidate list to every engine.
-  - Concrete descriptors live in `LocalEngines.swift` and `OpenAIImageEngine.swift`;
-    `EngineRegistry.shipped` lists Iris and Core ML, which the app registers.
+  - Concrete descriptors live in `LocalEngines.swift`, `DrawThingsEngine.swift` and
+    `OpenAIImageEngine.swift`; `EngineRegistry.shipped` lists Iris, Core ML and Draw Things,
+    which the app registers. Draw Things talks gRPC through `DrawThingsTransport.swift`, and
+    DT-gRPC-Swift-Client is pinned to a revision; updating it requires a compatibility
+    review, like `iris.c`. Its recommended configurations come from the bundled
+    `DrawThingsPresets.json` snapshot of Draw Things' `configs.json`.
     `EngineRegistry.openAIBeta(secrets:)` adds OpenAI; the app does not call it. OpenAI
-    availability requires a Keychain credential, and its model catalog is hand-maintained. `EngineModel` requires no
-    filesystem URL; its optional `tokenizerModelDir` is nil for hosted/server models.
+    availability requires a Keychain credential, and its model catalog is hand-maintained.
+    `EngineModel` requires no filesystem URL; its optional `tokenizerModelDir` is nil for hosted/server models.
 
 - Options, and where they are resolved:
   - `OptionConstraints` describes what a **model** will honour — per model, not per engine,
@@ -214,8 +227,8 @@ The multi-engine foundation is implemented. Current ownership and contracts foll
   - `FolderMonitorService` (`actor`) exposes `AsyncStream<Void>` update streams keyed by
     monitored path.
   - Controllers subscribe with task-based loops and trigger targeted refresh/sync
-    operations. A refresh is one abandonable snapshot: a superseded pass is discarded rather
-    than applied out of order.
+    operations. A refresh is one abandonable snapshot per model list source: a superseded pass
+    for the same source is discarded rather than applied out of order.
 
 - Test coverage (`Mochi DiffusionTests`, Swift Testing — `@Test`, `arguments:`,
   `#expect`/`#require`, no XCTest):
@@ -232,6 +245,8 @@ The multi-engine foundation is implemented. Current ownership and contracts foll
     `IdleTimeoutTests`, `FailureReportingTests`, `CancellationBindingTests` and
     `GenerationResultPathTests`.
   - Gallery: `GalleryLoadingTests`, `GalleryImageProviderTests`, `GalleryBrowsingTests`.
+  - Draw Things: `DrawThingsTests` (discovery, planning, runtime, and a loopback gRPC
+    server). `SourceRefreshTests` in `EngineSelectionTests` pins the separate refreshes.
   - Hosted engine and credentials: `OpenAIImageEngineTests`, `OpenAIRuntimeTests`,
     `OpenAICredentialCheckTests`, `SecretStoreTests`.
   - Metadata: `GenerationMetadataTests`, `MetadataRoundTripTests`, `ImageExportTests`,

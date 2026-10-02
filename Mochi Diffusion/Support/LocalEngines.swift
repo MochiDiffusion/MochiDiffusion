@@ -13,6 +13,7 @@ nonisolated struct CoreMLStableDiffusionEngine: GenerationEngineDescriptor {
     typealias Payload = CoreMLGenerationPayload
 
     static let id = EngineID.coreMLStableDiffusion
+    static let modelListSource = ModelListSource.modelsFolder
     var displayName: String { "Core ML Stable Diffusion" }
 
     private let fileSystem: FileSystemStore
@@ -169,6 +170,7 @@ nonisolated struct IrisEngine: GenerationEngineDescriptor {
     typealias Payload = IrisGenerationPayload
 
     static let id = EngineID.iris
+    static let modelListSource = ModelListSource.modelsFolder
     var displayName: String { "Iris" }
 
     /// What `iris_multiref` accepts for Klein, per its declaration in `iris.h`:

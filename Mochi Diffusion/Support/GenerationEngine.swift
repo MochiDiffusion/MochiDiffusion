@@ -15,6 +15,17 @@ import Foundation
 nonisolated struct EngineSettings: Sendable {
     var modelDirectory: URL
     var controlNetDirectory: URL
+    var drawThings: DrawThingsConnection = DrawThingsConnection()
+}
+
+/// What an engine's model list depends on, which decides the refreshes that ask it.
+///
+/// A change in the models folder refreshes only `.modelsFolder` engines, so a folder
+/// event never contacts a server. `.connection` engines are asked at launch and when
+/// the user reconnects or saves connection settings.
+nonisolated enum ModelListSource: Sendable, Hashable, CaseIterable {
+    case modelsFolder
+    case connection
 }
 
 /// One discovery pass, with the work that does not vary by engine done once.
@@ -250,6 +261,7 @@ nonisolated protocol GenerationEngineDescriptor: Sendable {
     associatedtype Payload: Sendable
 
     static var id: EngineID { get }
+    static var modelListSource: ModelListSource { get }
     var displayName: String { get }
 
     func availability(_ settings: EngineSettings) async -> EngineAvailability
@@ -300,6 +312,7 @@ nonisolated protocol GenerationEngineDescriptor: Sendable {
 nonisolated struct AnyGenerationEngine: Sendable, Identifiable {
     let id: EngineID
     let displayName: String
+    let modelListSource: ModelListSource
 
     private let _availability: @Sendable (EngineSettings) async -> EngineAvailability
     private let _discoverModels: @Sendable (ModelDiscoveryContext) async throws -> [any EngineModel]
@@ -313,6 +326,7 @@ nonisolated struct AnyGenerationEngine: Sendable, Identifiable {
     init<Engine: GenerationEngineDescriptor>(_ engine: Engine) {
         id = Engine.id
         displayName = engine.displayName
+        modelListSource = Engine.modelListSource
         _availability = { await engine.availability($0) }
         _discoverModels = { try await engine.discoverModels($0) }
         _plan = { draft, model in

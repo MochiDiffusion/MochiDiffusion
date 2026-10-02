@@ -17,6 +17,7 @@ nonisolated extension EngineID {
     static let coreMLStableDiffusion = EngineID(rawValue: "coreml-sd")
     static let iris = EngineID(rawValue: "iris")
     static let openAI = EngineID(rawValue: "openai")
+    static let drawThings = EngineID(rawValue: "drawthings")
 }
 
 /// Identifies a model within an engine.

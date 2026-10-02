@@ -178,6 +178,7 @@ extension QueueLivenessTests {
         typealias Payload = SignallingEngine.Payload
 
         static let id = EngineID(rawValue: "timed")
+        static let modelListSource = ModelListSource.modelsFolder
         let makeIt: @Sendable () -> any GenerationEngineRuntime
         var displayName: String { "Timed" }
 

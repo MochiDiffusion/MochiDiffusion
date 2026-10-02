@@ -1,13 +1,11 @@
 # Draw Things proof of concept
 
-**Deferred from the next release, 2026-09-10.** Graham has postponed Draw Things because
-the prototype's supported paths do not yet establish the desired level of polish across
-edge cases. This document preserves setup, scope and evidence for that future work; it is
-not a release promise or a task list. Beads task `MochiDiffusion-fwu` covers preserving the
-prototype on a feature branch and removing its integration and exclusive dependencies from
-the release line. The code and this record are preserved on branch
-`codex/draw-things-prototype` at `e18663b3877bd42fac9fe169063a052b567a4f8a`.
-Broader implementation work resumes only when Graham chooses; there is no target date.
+**Historical record of the prototype.** Draw Things was deferred from 6.2 because the
+prototype's supported paths did not yet reach the desired polish across edge cases. It is
+now Mochi 7.0 scope (epic `MochiDiffusion-5xf`), ported from branch
+`codex/draw-things-prototype` at `e18663b3877bd42fac9fe169063a052b567a4f8a` by
+`MochiDiffusion-5xf.3` within the support policy in `MochiDiffusion-5xf.4`. This document
+preserves the prototype's setup, scope and evidence; it is not a task list.
 
 Implemented September 6, 2026. One **Draw Things** engine connects to the Draw Things
 application or a compatible standalone gRPC server, on this Mac or another LAN machine.

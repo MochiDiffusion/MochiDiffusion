@@ -148,6 +148,19 @@ struct CompatibilityTextTests {
                 Steps: 4, Sampler: Flow Match Euler Discrete, CFG scale: 1.0, Seed: 9, \
                 Size: 24x16, Model: flux-klein, \(software)
                 """),
+        // A Draw Things image records the seed, steps and guidance it ran with.
+        // Its sampler is the model's recommended one, which is not recorded yet.
+        generated(
+            "drawthings",
+            metadata(
+                negativePrompt: nil, model: "flux_2_klein_4b_q8p.ckpt", engine: .drawThings,
+                architecture: nil, scheduler: nil, mlComputeUnit: nil, seed: 11, steps: 4,
+                guidanceScale: 1),
+            parameters: """
+                a red cube on a table
+                Steps: 4, CFG scale: 1.0, Seed: 11, Size: 24x16, \
+                Model: flux_2_klein_4b_q8p.ckpt, \(software)
+                """),
         // A hosted record has no steps, seed or guidance, and none is invented.
         generated(
             "hosted",

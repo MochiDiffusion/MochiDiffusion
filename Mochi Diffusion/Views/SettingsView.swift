@@ -70,6 +70,17 @@ struct SettingsView: View {
                             Image(systemName: "photo")
                         }
                     }
+                DrawThingsSettingsView()
+                    .tabItem {
+                        Label {
+                            Text(
+                                "Draw Things",
+                                comment: "Settings tab header label"
+                            )
+                        } icon: {
+                            Image(systemName: "network")
+                        }
+                    }
                 notificationsView
                     .tabItem {
                         Label {
@@ -543,7 +554,7 @@ struct SettingsView: View {
                 APIKeySheet(check: credentialCheck) { key in
                     try secrets.setSecret(key, for: OpenAIImageEngine.secretAccount)
                     apiKeyRevision += 1
-                    Task { await controller.loadModels() }
+                    Task { await controller.loadModels(from: [.connection]) }
                 }
             }
 
@@ -691,7 +702,7 @@ struct SettingsView: View {
         do {
             try secrets.setSecret(nil, for: OpenAIImageEngine.secretAccount)
             apiKeyRevision += 1
-            Task { await controller.loadModels() }
+            Task { await controller.loadModels(from: [.connection]) }
         } catch {
             logger.error("Couldn't remove the API key: \(error)")
         }
