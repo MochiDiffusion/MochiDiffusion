@@ -69,7 +69,6 @@ struct CompatibilityTextTests {
         model: String,
         engine: EngineID = .coreMLStableDiffusion,
         architecture: String?,
-        quality: String? = nil,
         startingImage: String? = nil,
         strength: Double? = nil,
         controlNet: String? = nil,
@@ -84,7 +83,7 @@ struct CompatibilityTextTests {
         GenerationMetadata(
             prompt: prompt, negativePrompt: negativePrompt, width: 24, height: 16, model: model,
             engine: engine.rawValue, modelKey: model, architecture: architecture,
-            quality: quality, startingImage: startingImage, strength: strength,
+            startingImage: startingImage, strength: strength,
             controlNet: controlNet, controlNetImage: controlNetImage, inputImages: inputImages,
             scheduler: scheduler, mlComputeUnit: mlComputeUnit, seed: seed, steps: steps,
             guidanceScale: guidanceScale,
@@ -161,14 +160,6 @@ struct CompatibilityTextTests {
                 Steps: 4, CFG scale: 1.0, Seed: 11, Size: 24x16, \
                 Model: flux_2_klein_4b_q8p.ckpt, \(software)
                 """),
-        // A hosted record has no steps, seed or guidance, and none is invented.
-        generated(
-            "hosted",
-            metadata(
-                negativePrompt: nil, model: "gpt-image-2", engine: .openAI, architecture: nil,
-                quality: "high", inputImages: [], scheduler: nil, mlComputeUnit: nil, seed: nil,
-                steps: nil, guidanceScale: nil),
-            parameters: "a red cube on a table\nSize: 24x16, Model: gpt-image-2, \(software)"),
         // An empty negative prompt is not written, the same as AUTOMATIC1111.
         // SD 1.x DPM-Solver++ spaces its steps linearly.
         generated(

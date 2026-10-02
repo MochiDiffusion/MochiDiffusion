@@ -80,7 +80,6 @@ nonisolated struct SDModel: EngineModel {
             startingImage: .supported(strength: .range(0...1, step: nil)),
             inputImages: .unsupported,
             controlNet: controlNet.isEmpty ? .unsupported : .supported(names: controlNet),
-            quality: .unsupported,
             numberOfImages: .range(1...100, step: 1, acceptsBeyondUpperBound: true),
             promptTokenLimit: 75
         )

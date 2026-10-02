@@ -32,7 +32,6 @@ struct SDImage: Identifiable, Hashable {
     /// imported image can name a model exactly rather than by display name alone.
     var engine = ""
     var modelKey = ""
-    var quality = ""
     var startingImage = ""
     var controlNetImage = ""
     var inputImages: [String] = []
@@ -155,9 +154,6 @@ extension SDImage {
             append(
                 Metadata.size.rawValue,
                 value: "\(Int(generationSize.width)) x \(Int(generationSize.height))")
-        }
-        if metadataFields.contains(.quality), !quality.isEmpty {
-            append(Metadata.quality.rawValue, value: quality)
         }
         if metadataFields.contains(.startingImage), !startingImage.isEmpty {
             append(Metadata.startingImage.rawValue, value: startingImage)

@@ -14,7 +14,6 @@ nonisolated enum MetadataField: String, CaseIterable, Sendable {
     case engine
     case modelKey
     case size
-    case quality
     case startingImage
     case controlNetImage
     case inputImages
@@ -28,7 +27,7 @@ nonisolated enum MetadataField: String, CaseIterable, Sendable {
 
 /// A model a particular engine can generate with.
 ///
-/// Local models have a directory, but hosted ones only a name,
+/// Local models have a directory, but a server's models only a name,
 /// so the concrete types carry their own `url` and generic callers do not ask.
 nonisolated protocol EngineModel: Identifiable, Sendable {
     var id: ModelID { get }

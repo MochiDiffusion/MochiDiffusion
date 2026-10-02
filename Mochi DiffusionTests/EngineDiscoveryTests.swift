@@ -177,7 +177,6 @@ struct EnginePayloadOwnershipTests {
             stepCount: 12,
             guidanceScale: 11,
             scheduler: .dpmSolverMultistepScheduler,
-            quality: .auto,
             seed: 1,
             numberOfImages: 1,
             computeUnitPreference: .auto,
@@ -295,7 +294,7 @@ struct EngineRegistryTests {
         }
     }
 
-    /// Stands in for a hosted engine: it has models, and it never looks at the
+    /// Stands in for a server engine: it has models, and it never looks at the
     /// models folder. Its `url` is a placeholder.
     private struct FolderIgnoringEngine: GenerationEngineDescriptor {
         struct Model: EngineModel {
@@ -320,9 +319,9 @@ struct EngineRegistryTests {
         func discoverModels(_ context: ModelDiscoveryContext) async throws -> [Model] {
             [
                 Model(
-                    id: ModelID(engine: Self.id, key: "hosted-model"),
+                    id: ModelID(engine: Self.id, key: "server-model"),
                     url: URL(fileURLWithPath: "/dev/null"),
-                    name: "hosted-model"
+                    name: "server-model"
                 )
             ]
         }
@@ -385,7 +384,7 @@ struct EngineRegistryTests {
 
         let discoveries = await registry.discoverAll(settings: missing)
 
-        #expect(discoveries.allModels.map(\.name) == ["hosted-model"])
+        #expect(discoveries.allModels.map(\.name) == ["server-model"])
         #expect(discoveries.failures.map(\.engine) == [.coreMLStableDiffusion])
     }
 
@@ -398,20 +397,10 @@ struct EngineRegistryTests {
         let discoveries = await registry.discoverAll(settings: settings)
 
         #expect(registry.engineIDs == [.iris, .coreMLStableDiffusion, .drawThings])
-        #expect(registry.engine(.openAI) == nil)
         #expect(
             Set(discoveries.map(\.engine)) == [.iris, .coreMLStableDiffusion, .drawThings])
         #expect(discoveries.allModels.count == 2)
         #expect(discoveries.failures.isEmpty)
-    }
-
-    @Test("The OpenAI beta composition remains available explicitly")
-    func openAIBetaRemainsAvailable() {
-        let registry = EngineRegistry.openAIBeta(secrets: NoSecretStore())
-
-        #expect(
-            registry.engineIDs == [.iris, .coreMLStableDiffusion, .drawThings, .openAI])
-        #expect(registry.engine(.openAI) != nil)
     }
 
     @Test("One engine failing does not erase another engine's models")

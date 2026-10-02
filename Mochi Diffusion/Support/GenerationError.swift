@@ -7,8 +7,7 @@
 nonisolated enum GenerationError: Error, Equatable {
     case imageDirectoryNoAccess
     /// The runtime went quiet for longer than its `idleTimeout` and the queue
-    /// stopped waiting. Distinct from cancellation, which is the user's doing. A
-    /// remote service may still finish, and bill, after this.
+    /// stopped waiting. Distinct from cancellation, which is the user's doing.
     case requestExpired
     case pipelineNotAvailable
     case requestedModelNotFound
@@ -16,27 +15,7 @@ nonisolated enum GenerationError: Error, Equatable {
     /// not saved. An image is never saved without its record.
     case imageEncodingFailed
 
-    // MARK: - Hosted engines
-
-    /// No credential, or one the service rejected.
-    case authenticationFailed
-    /// Asked to slow down. Not fatal to the queue: the next request may succeed.
-    case rateLimited
-    /// The credential authenticated, but the account cannot spend more API
-    /// credits (or has reached its billing limit).
-    case insufficientQuota
-    /// The service answered, unhappily. Carries what it said, because a hosted
-    /// failure the user cannot see the text of is one they cannot act on.
-    case serviceFailure(String)
-    /// The response was not shaped the way the API documents.
+    /// An engine's response was not shaped the way its protocol documents, such
+    /// as an image that would not decode.
     case malformedResponse
-    /// The service declined to make the image on content-policy grounds.
-    ///
-    /// An `Error` because it ends the request, but not one the user should see as
-    /// a failure: the call succeeded and the service answered. The queue reports
-    /// it through `.ready(message)` rather than `.error`, which changes the
-    /// register the message is written in and the state the queue is left in —
-    /// not whether the user is told. No image was made either way, so it raises
-    /// the same alert.
-    case refused(String)
 }

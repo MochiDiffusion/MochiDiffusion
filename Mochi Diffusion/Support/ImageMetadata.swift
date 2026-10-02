@@ -77,7 +77,6 @@ nonisolated extension GenerationMetadata {
             details: MochiGenerationDetails(
                 engine: engine,
                 modelKey: modelKey,
-                quality: quality,
                 computeUnit: mlComputeUnit.map(MLComputeUnits.toString),
                 startingImage: startingImage,
                 controlNetImage: controlNetImage,
@@ -394,10 +393,6 @@ nonisolated enum ImageMetadataReader {
                 record.engine = engine
                 record.modelKey = modelKey
                 fields.formUnion([.engine, .modelKey])
-            }
-            if let quality = details.quality {
-                record.quality = quality
-                fields.insert(.quality)
             }
             if let computeUnit = details.computeUnit.flatMap(computeUnits(named:)) {
                 record.mlComputeUnit = computeUnit

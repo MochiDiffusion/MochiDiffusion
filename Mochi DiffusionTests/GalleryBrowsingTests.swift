@@ -27,7 +27,6 @@ struct GalleryBrowsingTests {
         image.prompt = "a cat"
         image.negativePrompt = "blurry"
         image.model = "sd-model"
-        image.quality = "high"
         image.seed = 42
         image.steps = 28
         image.guidanceScale = 7.5
@@ -37,7 +36,6 @@ struct GalleryBrowsingTests {
             case .prompt: "a cat"
             case .negativePrompt: "blurry"
             case .model: "sd-model"
-            case .quality: "high"
             case .seed: "42"
             case .steps: "28"
             case .guidanceScale: "7.5"

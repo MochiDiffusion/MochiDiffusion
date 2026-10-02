@@ -10,8 +10,8 @@ import Foundation
 /// recognition rules to its own source, and nothing arbitrates between them.
 ///
 /// `modelExists(at:)` serves engines whose models are local directories. What
-/// "present" means is ultimately an engine's own question — a hosted model is
-/// never on disk at all — so a hosted engine answers it for itself rather than
+/// "present" means is ultimately an engine's own question — a Draw Things model is
+/// never on this disk at all — so a server engine answers it for itself rather than
 /// coming here. It takes a `URL` rather than an `any EngineModel` for that
 /// reason: only an engine that has a directory can ask.
 actor ModelRepository {

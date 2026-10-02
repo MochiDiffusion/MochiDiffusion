@@ -32,7 +32,7 @@ struct MetadataRoundTripTests {
             prompt: prompt, negativePrompt: "blurry, low quality", width: 24, height: 16,
             model: "sdxl_1024x1024", engine: EngineID.coreMLStableDiffusion.rawValue,
             modelKey: "sdxl_1024x1024",
-            architecture: SDModel.ModelType.sdxl.displayName, quality: nil,
+            architecture: SDModel.ModelType.sdxl.displayName,
             startingImage: startingImage,
             strength: strength, controlNet: "canny", controlNetImage: "control.png",
             inputImages: nil,
@@ -146,7 +146,7 @@ struct MetadataRoundTripTests {
             prompt: "a fox", negativePrompt: nil, width: 24, height: 16, model: "klein",
             engine: EngineID.iris.rawValue, modelKey: "klein",
             architecture: IrisModelFamily.fluxKlein.displayName,
-            quality: nil, startingImage: nil, strength: nil, controlNet: nil, controlNetImage: nil,
+            startingImage: nil, strength: nil, controlNet: nil, controlNetImage: nil,
             inputImages: ["cat.png", "", "dog.png"], scheduler: .discreteFlowScheduler,
             mlComputeUnit: nil,
             seed: 9, steps: 4, guidanceScale: 1, generatedDate: Date(), metadataFields: [])
@@ -164,7 +164,7 @@ struct MetadataRoundTripTests {
         let metadata = GenerationMetadata(
             prompt: "a lighthouse", negativePrompt: nil, width: 24, height: 16, model: "Klein",
             engine: EngineID.drawThings.rawValue, modelKey: "flux_2_klein_4b_q8p.ckpt",
-            architecture: nil, quality: nil, startingImage: nil, strength: nil, controlNet: nil,
+            architecture: nil, startingImage: nil, strength: nil, controlNet: nil,
             controlNetImage: nil, inputImages: nil, scheduler: nil, mlComputeUnit: nil, seed: 11,
             steps: 4, guidanceScale: 1, generatedDate: Date(), metadataFields: [])
 
@@ -178,26 +178,6 @@ struct MetadataRoundTripTests {
         #expect(
             record.metadataFields == [
                 .prompt, .model, .engine, .modelKey, .size, .seed, .steps, .guidanceScale,
-            ])
-    }
-
-    @Test("A hosted image records no seed, steps, sampler or guidance")
-    func sparseHostedRoundTrip() async throws {
-        let metadata = GenerationMetadata(
-            prompt: "a bird", negativePrompt: nil, width: 24, height: 16, model: "gpt-image-2",
-            engine: EngineID.openAI.rawValue, modelKey: "gpt-image-2", architecture: nil,
-            quality: "high",
-            startingImage: nil, strength: nil, controlNet: nil, controlNetImage: nil,
-            inputImages: [],
-            scheduler: nil, mlComputeUnit: nil, seed: nil, steps: nil, guidanceScale: nil,
-            generatedDate: Date(),
-            metadataFields: [])
-
-        let record = try await roundTrip(metadata)
-
-        #expect(
-            record.metadataFields == [
-                .prompt, .model, .engine, .modelKey, .size, .quality, .inputImages,
             ])
     }
 

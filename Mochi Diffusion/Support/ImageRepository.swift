@@ -16,7 +16,6 @@ struct ImageRecord: Sendable, Identifiable {
     var model: String
     var engine: String
     var modelKey: String
-    var quality: String
     var startingImage: String
     var controlNetImage: String
     var inputImages: [String]
@@ -66,7 +65,6 @@ struct ImageRecord: Sendable, Identifiable {
             model: "",
             engine: "",
             modelKey: "",
-            quality: "",
             startingImage: "",
             controlNetImage: "",
             inputImages: [],

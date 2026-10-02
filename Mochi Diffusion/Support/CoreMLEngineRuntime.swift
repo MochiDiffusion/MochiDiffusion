@@ -283,7 +283,6 @@ actor CoreMLEngineRuntime: GenerationEngineRuntime {
             engine: config.model.id.engine.rawValue,
             modelKey: config.model.id.key,
             architecture: config.model.type.displayName,
-            quality: nil,
             startingImage: usedStartingImage ? config.startingImageName : nil,
             strength: usedStartingImage ? decimal(config.strength) : nil,
             controlNet: usedControlNet ? config.controlNets.first : nil,

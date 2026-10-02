@@ -204,7 +204,6 @@ func createSDImage(from record: ImageRecord) -> SDImage? {
     sdi.model = record.model
     sdi.engine = record.engine
     sdi.modelKey = record.modelKey
-    sdi.quality = record.quality
     sdi.startingImage = record.startingImage
     sdi.controlNetImage = record.controlNetImage
     sdi.inputImages = record.inputImages

@@ -27,13 +27,11 @@ struct JobQueueView: View {
                     comment: "Fallback text displayed while an engine prepares a generation"
                 )
             return (-1, progressLabel)
-        } else if case .canceling(let stage) = generationState.state {
-            let progressLabel =
-                stage
-                ?? String(
-                    localized: "Canceling...",
-                    comment: "Text displayed while waiting for generation cancellation cleanup"
-                )
+        } else if case .canceling = generationState.state {
+            let progressLabel = String(
+                localized: "Canceling...",
+                comment: "Text displayed while waiting for generation cancellation cleanup"
+            )
             return (-1, progressLabel)
         } else {
             return nil
@@ -47,14 +45,13 @@ struct JobQueueView: View {
                     JobView(request: currentGeneration, progress: progressData) {
                         Task { await controller.stopCurrentGeneration() }
                     }
-                } else if case .canceling(let stage) = generationState.state {
+                } else if case .canceling = generationState.state {
                     CancelingJobView(
-                        label: stage
-                            ?? String(
-                                localized: "Canceling...",
-                                comment:
-                                    "Text displayed while waiting for generation cancellation cleanup"
-                            )
+                        label: String(
+                            localized: "Canceling...",
+                            comment:
+                                "Text displayed while waiting for generation cancellation cleanup"
+                        )
                     )
                 }
                 ForEach(controller.generationQueue) { generation in

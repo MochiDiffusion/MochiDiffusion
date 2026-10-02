@@ -51,7 +51,6 @@ private struct SidebarRestoreSource {
     var steps: Int?
     var guidanceScale: Double?
     var scheduler: Scheduler?
-    var quality: ImageQuality?
     var computeUnits: MLComputeUnits?
     var seed: UInt32?
     var numberOfImages: Int?
@@ -101,8 +100,6 @@ private struct SidebarRestoreSource {
         guidanceScale =
             metadataFields.contains(.guidanceScale) ? galleryImage.guidanceScale : nil
         scheduler = metadataFields.contains(.scheduler) ? galleryImage.scheduler : nil
-        quality =
-            metadataFields.contains(.quality) ? ImageQuality(galleryImage.quality) : nil
         computeUnits =
             metadataFields.contains(.mlComputeUnit) ? galleryImage.mlComputeUnit : nil
         seed = metadataFields.contains(.seed) ? galleryImage.seed : nil
@@ -137,7 +134,6 @@ private struct SidebarRestoreSource {
         steps = request.stepCount
         guidanceScale = request.guidanceScale.map(Double.init)
         scheduler = request.scheduler
-        quality = request.quality
         computeUnits = request.mlComputeUnit
         seed = request.metadataFields.contains(.seed) ? request.seed : nil
         numberOfImages = request.numberOfImages
@@ -303,8 +299,8 @@ final class GenerationController {
     ///
     /// Both halves are needed and neither implies the other: a local engine is
     /// `.ready` as soon as its folder exists but has no models until one is put
-    /// there, and a hosted engine always has a model but is not `.ready` until a
-    /// key is entered.
+    /// there, and a Draw Things server is `.ready` once it is configured but lists
+    /// models only when it answers.
     func isUsable(_ engine: EngineID) -> Bool {
         engineAvailability[engine] == .ready && hasModels(engine)
     }
@@ -515,8 +511,8 @@ final class GenerationController {
         let discoveredIDs = self.models.map(\.id)
         let globalMigration = configStore.migrateSelectedModelIfNeeded(discovered: discoveredIDs)
         var engineMigrationSelection = configStore.selectedModel
-        // `SelectedModel` may hold a hosted model picked as a fallback while the
-        // legacy local model was missing. The legacy identity is still recovered
+        // `SelectedModel` may hold a Draw Things model picked as a fallback while
+        // the legacy local model was missing. The legacy identity is still recovered
         // for its per-engine slot, without replacing the current selection.
         if globalMigration == .alreadyMigrated,
             let current = configStore.selectedModel,
@@ -545,12 +541,11 @@ final class GenerationController {
     /// and generation are different subjects, and sharing one banner means they
     /// overwrite each other.
     ///
-    /// Failures are reported per engine, since a hosted engine always has a model
-    /// and would otherwise keep the combined list from ever being empty.
+    /// Failures are reported per engine, so a server that answers cannot hide a
+    /// models folder that failed, or the reverse.
     ///
-    /// Availability is not reported here: "Add an API key" is a standing fact about
-    /// an engine rather than a problem with this pass, and the picker already says it
-    /// next to the engine's name.
+    /// Availability is not reported here: "Set up a Draw Things server" is a
+    /// standing fact about an engine rather than a problem with this pass.
     nonisolated static func discoveryMessage(
         failures: [(engine: EngineID, error: any Error)],
         engines: [AnyGenerationEngine],
@@ -1089,11 +1084,6 @@ final class GenerationController {
         {
             configStore.scheduler = scheduler
         }
-        if constraints.quality.isEditable, let quality = source.quality,
-            constraints.quality.options.contains(quality)
-        {
-            configStore.quality = quality
-        }
         if constraints.startingImage.strength.isEditable, let strength = source.strength {
             configStore.strength = strength
         }
@@ -1236,7 +1226,6 @@ final class GenerationController {
             stepCount: Int(configStore.steps),
             guidanceScale: Float(configStore.guidanceScale),
             scheduler: configStore.scheduler,
-            quality: configStore.quality,
             seed: seed == 0 ? GenerationSeed.random() : seed,
             numberOfImages: Int(numberOfImages),
             computeUnitPreference: configStore.mlComputeUnitPreference,
@@ -1277,7 +1266,6 @@ final class GenerationController {
             stepCount: plan.stepCount,
             guidanceScale: plan.guidanceScale,
             scheduler: plan.scheduler,
-            quality: plan.quality,
             mlComputeUnit: plan.mlComputeUnit,
             useDenoisedIntermediates: draft.showGenerationPreview,
             seed: draft.seed,

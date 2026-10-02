@@ -64,7 +64,6 @@ nonisolated struct CoreMLStableDiffusionEngine: GenerationEngineDescriptor {
             .map(Float.init)
         let numberOfImages =
             constraints.numberOfImages.resolved(draft.numberOfImages) ?? draft.numberOfImages
-        let quality = constraints.quality.resolved(draft.quality)
         let computeUnit = draft.computeUnitPreference.computeUnits(forModel: model)
         // Core ML denoises from one image and attends to no references, so only the
         // starting-image constraint is consulted.
@@ -111,7 +110,6 @@ nonisolated struct CoreMLStableDiffusionEngine: GenerationEngineDescriptor {
             scheduler: scheduler,
             strength: strength,
             guidanceScale: guidanceScale,
-            quality: quality,
             numberOfImages: numberOfImages,
             mlComputeUnit: computeUnit,
             // Core ML denoises from its one image, so it records a *starting*

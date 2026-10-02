@@ -137,7 +137,6 @@ extension QueueLivenessTests {
             stepCount: nil,
             guidanceScale: nil,
             scheduler: nil,
-            quality: nil,
             mlComputeUnit: nil,
             useDenoisedIntermediates: false,
             seed: 1,

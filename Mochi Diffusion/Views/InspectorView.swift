@@ -225,13 +225,6 @@ struct InspectorView: View {
                                 showCopyToPromptOption: false
                             )
                         }
-                        if metadataFields.contains(.quality), !sdi.quality.isEmpty {
-                            InfoGridRow(
-                                type: LocalizedStringKey(Metadata.quality.rawValue),
-                                text: sdi.quality,
-                                showCopyToPromptOption: false
-                            )
-                        }
                         if metadataFields.contains(.startingImage), !sdi.startingImage.isEmpty {
                             RelatedImageInfoGridRow(
                                 type: LocalizedStringKey(Metadata.startingImage.rawValue),

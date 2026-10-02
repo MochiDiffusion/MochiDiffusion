@@ -399,7 +399,7 @@ struct GenerationRequestBuilderTests {
         // in a form that does not compare equal. The string handed to
         // `iris_load_dir` therefore carries that trailing slash.
         // Downcast because `url` is not on `EngineModel`: where a model lives is
-        // its own engine's business, and a hosted model has no path at all.
+        // its own engine's business, and a Draw Things model has no local path.
         let model = try #require(controller.currentModel as? IrisModel)
         #expect(payload.modelDirectory == model.url.path(percentEncoded: false))
         #expect(payload.modelDirectory.hasSuffix("/klein-model/"))
@@ -673,9 +673,8 @@ struct GenerationRequestBuilderTests {
         #expect(request.scheduler == .pndmScheduler)
     }
 
-    /// `stepCount` and `scheduler` are optional on the request, because a hosted
-    /// engine has no concept of either, so the runtime takes its values from the
-    /// payload. These pin the two copies equal: the number the queue row shows is
+    /// `stepCount` and `scheduler` are optional on the request, because not every
+    /// model uses them, so the runtime takes its values from the payload. These pin the two copies equal: the number the queue row shows is
     /// the number the pipeline is handed.
     @Test(
         "The payload's step count and scheduler are the ones the request reports",

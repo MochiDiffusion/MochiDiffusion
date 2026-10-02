@@ -62,11 +62,13 @@ struct GenerationConfigRestorationTests {
         gallery: ImageGallery = ImageGallery(),
         fullImageProvider: GalleryFullImageProvider = GalleryFullImageProvider()
     ) -> GenerationController {
-        let secrets = InMemorySecretStore([OpenAIImageEngine.secretAccount: "sk-test"])
-        return makeTestGenerationController(
+        makeTestGenerationController(
             configStore: configStore,
             imageGallery: gallery,
-            engineRegistry: EngineRegistry.openAIBeta(secrets: secrets),
+            engineRegistry: EngineRegistry(engines: [
+                AnyGenerationEngine(IrisEngine()),
+                AnyGenerationEngine(CoreMLStableDiffusionEngine()),
+            ]),
             fullImageProvider: fullImageProvider,
             startsObserving: false
         )
@@ -81,6 +83,7 @@ struct GenerationConfigRestorationTests {
 
     @Test("A path-backed gallery image follows the selected model's image role")
     func galleryReuseLoadsIntoSupportedRole() async throws {
+        try makeKleinModelFixture(at: modelDir.appending(path: "klein"))
         try makeSDModelFixture(at: modelDir.appending(path: "core"))
         let imageURL = temp.appending("reuse.png")
         try writePNG(caption: "", to: imageURL, image: makeCGImage(width: 13, height: 7))
@@ -99,7 +102,7 @@ struct GenerationConfigRestorationTests {
         #expect(controller.startingImage?.image.width == 13)
         #expect(controller.startingImage?.image.height == 7)
 
-        try selectModel("gpt-image-2", on: controller)
+        try selectModel("klein", on: controller)
         // Nothing to scrub first: selecting a model that reads references does not
         // move the starting image into them, so the list is still empty here.
         #expect(controller.inputImages.isEmpty)
@@ -115,11 +118,12 @@ struct GenerationConfigRestorationTests {
 
     @Test("Gallery reuse is unavailable without a destination or a free reference slot")
     func galleryReuseAvailabilityFollowsConstraintsAndLimit() async throws {
+        try makeKleinModelFixture(at: modelDir.appending(path: "klein"))
         let controller = makeController()
         #expect(controller.galleryImageDestination == nil)
 
         await controller.loadModels()
-        try selectModel("gpt-image-2", on: controller)
+        try selectModel("klein", on: controller)
         for index in 0..<controller.maxInputImageCount {
             controller.addInputImage(
                 image: makeCGImage(),
@@ -133,6 +137,7 @@ struct GenerationConfigRestorationTests {
 
     @Test("A model change supersedes an in-flight gallery reuse")
     func galleryReuseDoesNotCrossModelChanges() async throws {
+        try makeKleinModelFixture(at: modelDir.appending(path: "klein"))
         try makeSDModelFixture(at: modelDir.appending(path: "core"))
         let loader = ControlledImageLoader()
         let provider = GalleryFullImageProvider { path in
@@ -145,7 +150,7 @@ struct GenerationConfigRestorationTests {
 
         let reuse = Task { await controller.useGalleryImage(source) }
         await loader.waitUntilStarted("/tmp/old.png")
-        try selectModel("gpt-image-2", on: controller)
+        try selectModel("klein", on: controller)
         await loader.finish("/tmp/old.png", with: makeCGImage())
         await reuse.value
 
@@ -206,18 +211,20 @@ struct GenerationConfigRestorationTests {
         #expect(controller.startingImage?.image.height == 10)
     }
 
-    /// A gallery holding one path-backed reference per name, and one OpenAI image
-    /// per name whose metadata records that reference and a matching prompt.
-    private func makeRestoreGallery(_ names: [String]) -> (ImageGallery, [String: SDImage]) {
+    /// A Klein model, and a gallery holding one path-backed reference per name and
+    /// one Klein image per name whose metadata records that reference and a
+    /// matching prompt.
+    private func makeRestoreGallery(_ names: [String]) throws -> (ImageGallery, [String: SDImage]) {
+        try makeKleinModelFixture(at: modelDir.appending(path: "klein"))
         let gallery = ImageGallery()
         var entries: [(image: SDImage, metadataFields: Set<MetadataField>)] = []
         var sources: [String: SDImage] = [:]
         for name in names {
             let reference = SDImage(image: nil, aspectRatio: 1, path: "/tmp/\(name).png")
             var source = SDImage(image: makeCGImage(), aspectRatio: 1, path: "")
-            source.model = "gpt-image-2"
-            source.engine = EngineID.openAI.rawValue
-            source.modelKey = "gpt-image-2"
+            source.model = "klein"
+            source.engine = EngineID.iris.rawValue
+            source.modelKey = "klein"
             source.prompt = "prompt \(name)"
             source.inputImages = ["\(name).png"]
             entries.append((image: reference, metadataFields: []))
@@ -239,7 +246,7 @@ struct GenerationConfigRestorationTests {
         let provider = GalleryFullImageProvider { path in
             await loader.load(path)
         }
-        let (gallery, sources) = makeRestoreGallery(["a", "b"])
+        let (gallery, sources) = try makeRestoreGallery(["a", "b"])
         let controller = makeController(gallery: gallery, fullImageProvider: provider)
         await controller.loadModels()
 
@@ -263,7 +270,7 @@ struct GenerationConfigRestorationTests {
         let provider = GalleryFullImageProvider { path in
             await loader.load(path)
         }
-        let (gallery, sources) = makeRestoreGallery(["a"])
+        let (gallery, sources) = try makeRestoreGallery(["a"])
         let controller = makeController(gallery: gallery, fullImageProvider: provider)
         await controller.loadModels()
 
@@ -285,7 +292,7 @@ struct GenerationConfigRestorationTests {
         let provider = GalleryFullImageProvider { path in
             await loader.load(path)
         }
-        let (gallery, sources) = makeRestoreGallery(["a"])
+        let (gallery, sources) = try makeRestoreGallery(["a"])
         let controller = makeController(gallery: gallery, fullImageProvider: provider)
         await controller.loadModels()
 
@@ -305,7 +312,7 @@ struct GenerationConfigRestorationTests {
         let provider = GalleryFullImageProvider { path in
             await loader.load(path)
         }
-        let (gallery, sources) = makeRestoreGallery(["a"])
+        let (gallery, sources) = try makeRestoreGallery(["a"])
         let controller = makeController(gallery: gallery, fullImageProvider: provider)
         await controller.loadModels()
         let reused = SDImage(image: nil, aspectRatio: 1, path: "/tmp/reused.png")
@@ -324,6 +331,7 @@ struct GenerationConfigRestorationTests {
 
     @Test("A queued unnamed starting image keeps its role and ControlNet")
     func queuedCoreMLRestoreKeepsExplicitImageRoles() async throws {
+        try makeKleinModelFixture(at: modelDir.appending(path: "klein"))
         let modelURL = modelDir.appending(path: "core-portrait")
         try makeSDModelFixture(
             at: modelURL,
@@ -352,7 +360,7 @@ struct GenerationConfigRestorationTests {
         #expect(source.startingImageName == nil)
         #expect(source.inputImageData.isEmpty)
 
-        try selectModel("gpt-image-2", on: controller)
+        try selectModel("klein", on: controller)
         controller.addInputImage(image: makeCGImage(), filename: "stale.png")
         await controller.copyToPrompt(source)
 
@@ -426,8 +434,9 @@ struct GenerationConfigRestorationTests {
         #expect(restored.inputImageData.count == source.inputImageData.count)
     }
 
-    @Test("A gallery restore loads path-backed OpenAI references")
+    @Test("A gallery restore loads path-backed references")
     func galleryRestoreLoadsReferencesAndIntersectsConstraints() async throws {
+        try makeKleinModelFixture(at: modelDir.appending(path: "klein"))
         try makeSDModelFixture(at: modelDir.appending(path: "core"))
         let referenceURL = temp.appending("reference.png")
         try writePNG(caption: "", to: referenceURL, image: makeCGImage(width: 13, height: 7))
@@ -435,18 +444,17 @@ struct GenerationConfigRestorationTests {
         let gallery = ImageGallery()
         let reference = SDImage(image: nil, aspectRatio: 13.0 / 7.0, path: referenceURL.path)
         var source = SDImage(image: makeCGImage(), aspectRatio: 1, path: "")
-        source.model = "gpt-image-2"
-        source.engine = EngineID.openAI.rawValue
-        source.modelKey = "gpt-image-2"
+        source.model = "klein"
+        source.engine = EngineID.iris.rawValue
+        source.modelKey = "klein"
         source.prompt = "restored prompt"
         source.negativePrompt = "not supported"
         source.steps = 99
         source.scheduler = .pndmScheduler
-        source.quality = ImageQuality.high.rawValue
         source.inputImages = ["RÉFERENCE.PNG"]
         let fields: Set<MetadataField> = [
             .model, .engine, .modelKey, .prompt, .negativePrompt, .steps, .scheduler,
-            .quality, .inputImages,
+            .inputImages,
         ]
         gallery.replaceAll([
             (image: reference, metadataFields: []),
@@ -461,12 +469,11 @@ struct GenerationConfigRestorationTests {
         configStore.scheduler = .discreteFlowScheduler
         await controller.copyToPrompt(source)
 
-        #expect(controller.currentModelId == ModelID(engine: .openAI, key: "gpt-image-2"))
+        #expect(controller.currentModelId == ModelID(engine: .iris, key: "klein"))
         #expect(configStore.prompt == "restored prompt")
         #expect(configStore.negativePrompt == "keep me")
         #expect(configStore.steps == 17)
         #expect(configStore.scheduler == .discreteFlowScheduler)
-        #expect(configStore.quality == .high)
         #expect(controller.inputImages.count == 1)
         #expect(controller.inputImages.first?.name == "RÉFERENCE.PNG")
         #expect(controller.inputImages.first?.image.width == 13)
@@ -475,6 +482,7 @@ struct GenerationConfigRestorationTests {
 
     @Test("A missing exact model retains the current model and its constraints")
     func missingExactModelUsesCurrentConstraints() async throws {
+        try makeKleinModelFixture(at: modelDir.appending(path: "klein"))
         try makeSDModelFixture(at: modelDir.appending(path: "core"))
         let gallery = ImageGallery()
         var source = SDImage(image: makeCGImage(), aspectRatio: 1, path: "")
@@ -488,7 +496,7 @@ struct GenerationConfigRestorationTests {
 
         let controller = makeController(gallery: gallery)
         await controller.loadModels()
-        try selectModel("gpt-image-2", on: controller)
+        try selectModel("klein", on: controller)
         configStore.steps = 21
         controller.addInputImage(image: makeCGImage(), filename: "stale.png")
         let selected = controller.currentModelId
@@ -535,11 +543,12 @@ struct GenerationConfigRestorationTests {
 
     @Test("Copy Options restores the settings a generated file recorded")
     func restoreFromGeneratedFile() async throws {
+        try makeKleinModelFixture(at: modelDir.appending(path: "klein"))
         try makeSDModelFixture(at: modelDir.appending(path: "core"))
         let metadata = GenerationMetadata(
             prompt: "a cat\nwearing a hat", negativePrompt: "blurry", width: 512, height: 512,
             model: "core", engine: EngineID.coreMLStableDiffusion.rawValue, modelKey: "core",
-            architecture: SDModel.ModelType.sd15.displayName, quality: nil, startingImage: nil,
+            architecture: SDModel.ModelType.sd15.displayName, startingImage: nil,
             strength: nil, controlNet: nil, controlNetImage: nil, inputImages: nil,
             scheduler: .pndmScheduler, mlComputeUnit: .cpuAndGPU, seed: UInt32.max, steps: 23,
             guidanceScale: 6.5, generatedDate: Date(), metadataFields: [])
@@ -549,7 +558,7 @@ struct GenerationConfigRestorationTests {
         let sdi = try galleryImage(readFrom: url, in: gallery)
         let controller = makeController(gallery: gallery)
         await controller.loadModels()
-        try selectModel("gpt-image-2", on: controller)
+        try selectModel("klein", on: controller)
 
         await controller.copyToPrompt(sdi)
 
@@ -595,6 +604,7 @@ struct GenerationConfigRestorationTests {
 
     @Test("Legacy gallery metadata falls back to an unambiguous display name")
     func legacyModelNameFallbackStillWorks() async throws {
+        try makeKleinModelFixture(at: modelDir.appending(path: "klein"))
         try makeSDModelFixture(at: modelDir.appending(path: "legacy-core"))
         let gallery = ImageGallery()
         var source = SDImage(image: makeCGImage(), aspectRatio: 1, path: "")
@@ -603,7 +613,7 @@ struct GenerationConfigRestorationTests {
 
         let controller = makeController(gallery: gallery)
         await controller.loadModels()
-        try selectModel("gpt-image-2", on: controller)
+        try selectModel("klein", on: controller)
 
         await controller.copyToPrompt(source)
 

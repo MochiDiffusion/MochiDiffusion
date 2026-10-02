@@ -9,8 +9,8 @@ import os
 /// Holds the engines and runs discovery across them.
 ///
 /// Discovery is per engine and failure-isolated: each engine's result is kept
-/// separately, so a missing folder or an absent API key cannot empty the model list
-/// for everything else.
+/// separately, so a missing folder or an unreachable server cannot empty the model
+/// list for everything else.
 actor EngineRegistry {
     /// The engines the app ships with, in registration order. That order decides
     /// only where an engine appears in a list — never which engine owns a model,
@@ -21,21 +21,6 @@ actor EngineRegistry {
             AnyGenerationEngine(CoreMLStableDiffusionEngine()),
             AnyGenerationEngine(DrawThingsEngine(secrets: KeychainSecretStore())),
         ]
-    }
-
-    /// The shipped engines plus hosted OpenAI generation, which the app does not
-    /// currently register.
-    ///
-    /// Hosted generation is opt-in at the composition root, so the default
-    /// registry cannot reach a credential store or hosted runtime.
-    static func openAIBeta(
-        secrets: any SecretStore,
-        fileSystem: FileSystemStore = FileSystemStore()
-    ) -> EngineRegistry {
-        EngineRegistry(
-            engines: shipped + [AnyGenerationEngine(OpenAIImageEngine(secrets: secrets))],
-            fileSystem: fileSystem
-        )
     }
 
     /// One engine's discovery result, kept whole so a caller can report a failure
@@ -60,8 +45,7 @@ actor EngineRegistry {
         self.fileSystem = fileSystem
     }
 
-    /// The shipped engine list. Hosted generation must be opted into through
-    /// `openAIBeta(secrets:fileSystem:)`.
+    /// The shipped engine list.
     init(fileSystem: FileSystemStore = FileSystemStore()) {
         self.init(engines: EngineRegistry.shipped, fileSystem: fileSystem)
     }
@@ -95,9 +79,8 @@ actor EngineRegistry {
     /// whether it can be used, concurrently. Engines from other sources are not
     /// asked and do not appear in the result.
     ///
-    /// Concurrent because the work is per engine and independent: with a hosted
-    /// engine registered, a serial pass would make a slow network round trip delay
-    /// the local engines that were ready all along.
+    /// Concurrent because the work is per engine and independent: a serial pass
+    /// would let a slow network round trip delay engines that were ready all along.
     ///
     /// Never throws. An engine that fails contributes its error and no models,
     /// which is what keeps one engine's problem from looking like a global one.
@@ -116,7 +99,7 @@ actor EngineRegistry {
             for engine in engines {
                 group.addTask {
                     // Both halves of one engine's answer, also concurrently: a
-                    // hosted engine will reach the network for each.
+                    // server engine may reach the network for each.
                     async let reported = engine.availability(settings)
                     let discovery: Discovery
                     do {
@@ -144,7 +127,7 @@ actor EngineRegistry {
             // folder is the problem.
             //
             // Only `.ready` is overridden. An engine that already said why it cannot
-            // be used — no API key, host unreachable — has given the better reason,
+            // be used — no server configured, host unreachable — has given the better reason,
             // and its discovery failing is a consequence of it rather than a second
             // fact. Replacing that with a generic message would lose the only one
             // the user can act on.

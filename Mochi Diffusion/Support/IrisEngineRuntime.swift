@@ -327,7 +327,6 @@ actor IrisEngineRuntime: GenerationEngineRuntime {
             engine: request.modelID.engine.rawValue,
             modelKey: request.modelID.key,
             architecture: payload.family.displayName,
-            quality: nil,
             startingImage: nil,
             strength: nil,
             controlNet: nil,

@@ -373,3 +373,9 @@ nonisolated final class InMemorySecretStore: SecretStore, @unchecked Sendable {
         return secrets[account]
     }
 }
+
+/// Collects what a runtime hands to `onResult`, in order.
+actor ResultCollector {
+    private(set) var all: [GenerationResult] = []
+    func add(_ result: GenerationResult) { all.append(result) }
+}

@@ -20,7 +20,6 @@ enum FilterElement: String, CaseIterable {
     case seed = "Seed"
     case negativePrompt = "Negative Prompt"
     case model = "Model"
-    case quality = "Quality"
     case steps = "Steps"
     case guidanceScale = "Guidance Scale"
 }
@@ -68,7 +67,6 @@ extension FilterElement {
         case .seed: String(sdImage.seed)
         case .negativePrompt: sdImage.negativePrompt
         case .model: sdImage.model
-        case .quality: sdImage.quality
         case .steps: String(sdImage.steps)
         case .guidanceScale: String(sdImage.guidanceScale)
         }

@@ -7,7 +7,6 @@
 
 import SwiftUI
 import UserNotifications
-import os
 
 /// Resolves the settings window's stored directory strings exactly as the
 /// corresponding repository does. In particular, an empty preference opens the
@@ -31,13 +30,6 @@ nonisolated enum SettingsDirectory {
 
 struct SettingsView: View {
     @Environment(ConfigStore.self) private var configStore: ConfigStore
-    // Used only by the per-engine settings, which no tab currently shows.
-    private let secrets = KeychainSecretStore()
-    private let credentialCheck = OpenAICredentialCheck()
-    private let logger = Logger()
-    @State private var apiKeyState = APIKeyState.absent
-    @State private var apiKeyRevision = 0
-    @State private var isEnteringAPIKey = false
     /// Needed because the scheduler is a per-model option shown in a
     /// model-agnostic window: without the selected model's constraints, this could
     /// offer a scheduler the model overrides.
@@ -541,170 +533,12 @@ struct SettingsView: View {
                 .padding(4)
             }
 
-        case OpenAIImageEngine.id:
-            GroupBox {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("API Key")
-                    apiKeyRow
-                }
-                .padding(4)
-            }
-            .task(id: apiKeyRevision) { await refreshAPIKeyState() }
-            .sheet(isPresented: $isEnteringAPIKey) {
-                APIKeySheet(check: credentialCheck) { key in
-                    try secrets.setSecret(key, for: OpenAIImageEngine.secretAccount)
-                    apiKeyRevision += 1
-                    Task { await controller.loadModels(from: [.connection]) }
-                }
-            }
-
         default:
             Text(
                 "This engine has no settings.",
                 comment: "Shown in Settings for an engine with nothing to configure"
             )
             .helpTextFormat()
-        }
-    }
-
-    // MARK: - API key
-
-    /// What Settings knows about the hosted engine's credential.
-    ///
-    /// The verdict is not persisted. The only durable fact is that the keychain
-    /// holds an item; whether the service still honours it is true only as of the
-    /// last time we asked, and a key can be revoked from a browser tab.
-    private enum APIKeyState: Equatable {
-        case absent
-        case stored(suffix: String, verdict: Verdict)
-
-        enum Verdict: Equatable {
-            case checking
-            case valid
-            case rejected
-            /// Stored, and the service could not be asked. Not a complaint.
-            case unverified
-        }
-    }
-
-    /// The credential as a state rather than a value: a button when there is no
-    /// key, a status line when there is, and no text field either way.
-    @ViewBuilder
-    private var apiKeyRow: some View {
-        switch apiKeyState {
-        case .absent:
-            HStack {
-                Button {
-                    isEnteringAPIKey = true
-                } label: {
-                    Text(
-                        "Add API Key…",
-                        comment: "Opens the sheet where an API key is entered"
-                    )
-                }
-
-                Spacer()
-            }
-
-        case .stored(let suffix, let verdict):
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 6) {
-                    verdictBadge(verdict)
-
-                    // Four characters, which is enough to tell two keys apart and
-                    // not enough to be one. The rest of the key is never shown.
-                    Text(verbatim: "••••\(suffix)")
-                        .monospaced()
-
-                    Spacer()
-
-                    Button {
-                        isEnteringAPIKey = true
-                    } label: {
-                        Text(
-                            "Change…",
-                            comment: "Opens the sheet to replace a stored API key"
-                        )
-                    }
-
-                    Button {
-                        removeAPIKey()
-                    } label: {
-                        Text("Remove", comment: "Button to delete a stored API key")
-                    }
-                }
-
-                if verdict == .rejected {
-                    Text(
-                        "OpenAI rejected this key. It may have been revoked, or belong to another account.",
-                        comment: "Shown in Settings when a stored API key is no longer accepted"
-                    )
-                    .helpTextFormat()
-                }
-            }
-        }
-    }
-
-    /// A glyph per verdict, and nothing louder than a glyph for `unverified`:
-    /// "we could not ask" is not something to complain about.
-    @ViewBuilder
-    private func verdictBadge(_ verdict: APIKeyState.Verdict) -> some View {
-        switch verdict {
-        case .checking:
-            ProgressView()
-                .controlSize(.small)
-        case .valid:
-            Image(systemName: "checkmark.circle.fill")
-                .foregroundStyle(.green)
-        case .rejected:
-            Image(systemName: "exclamationmark.triangle.fill")
-                .foregroundStyle(.orange)
-        case .unverified:
-            Image(systemName: "key.fill")
-                .foregroundStyle(.secondary)
-        }
-    }
-
-    /// Reads the stored key and asks the service whether it still works.
-    ///
-    /// The one place this pane reads the secret rather than only its presence: a
-    /// verdict needs the key itself. It goes to OpenAI and nowhere else — the row
-    /// shows four characters of it, so a screenshot of Settings does not carry a
-    /// usable credential.
-    private func refreshAPIKeyState() async {
-        guard let key = secrets.secret(for: OpenAIImageEngine.secretAccount) else {
-            apiKeyState = .absent
-            return
-        }
-        // A real key is far longer than this. A shorter one gets bare dots rather
-        // than most of itself.
-        let suffix = key.count > 8 ? String(key.suffix(4)) : ""
-        apiKeyState = .stored(suffix: suffix, verdict: .checking)
-
-        let outcome = await credentialCheck.check(key)
-        // `task(id:)` cancels this when the key changes underneath it, and a
-        // verdict about a key that is no longer stored is not news.
-        guard !Task.isCancelled else { return }
-        apiKeyState = .stored(suffix: suffix, verdict: Self.verdict(for: outcome))
-    }
-
-    private static func verdict(
-        for outcome: OpenAICredentialCheck.Outcome
-    ) -> APIKeyState.Verdict {
-        switch outcome {
-        case .valid: .valid
-        case .rejected: .rejected
-        case .unreachable: .unverified
-        }
-    }
-
-    private func removeAPIKey() {
-        do {
-            try secrets.setSecret(nil, for: OpenAIImageEngine.secretAccount)
-            apiKeyRevision += 1
-            Task { await controller.loadModels(from: [.connection]) }
-        } catch {
-            logger.error("Couldn't remove the API key: \(error)")
         }
     }
 

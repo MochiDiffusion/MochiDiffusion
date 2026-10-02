@@ -22,7 +22,7 @@ struct FailureReportingTests {
 
         state.report(.loading("Loading the model"))
         state.report(.running(GenerationState.Progress(step: 1, stepCount: 4)))
-        state.report(.canceling("Stopping"))
+        state.report(.canceling)
         state.report(.ready(nil))
         #expect(state.unreportedOutcomes.isEmpty)
 

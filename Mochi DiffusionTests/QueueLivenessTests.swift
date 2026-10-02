@@ -124,7 +124,6 @@ struct QueueLivenessTests {
             stepCount: 1,
             guidanceScale: nil,
             scheduler: .pndmScheduler,
-            quality: nil,
             mlComputeUnit: nil,
             useDenoisedIntermediates: false,
             seed: 1,
@@ -148,7 +147,7 @@ struct QueueLivenessTests {
         arguments: [
             GenerationState.Status.error("an earlier failure"),
             .ready("a message"),
-            .canceling(nil),
+            .canceling,
         ]
     )
     func requestRunsFromAnyUIState(state: GenerationState.Status) async throws {

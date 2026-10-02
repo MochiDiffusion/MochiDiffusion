@@ -160,7 +160,7 @@ struct DrawThingsTests {
             prompt: "a cat", negativePrompt: "blurry",
             configuredSize: CGSize(width: 777, height: 333),
             inputImages: [], controlNets: [], strength: 0.5, stepCount: 99, guidanceScale: 11,
-            scheduler: .pndmScheduler, quality: .high, seed: 7, numberOfImages: 8,
+            scheduler: .pndmScheduler, seed: 7, numberOfImages: 8,
             computeUnitPreference: .auto, reduceMemory: false, safetyChecker: false,
             showGenerationPreview: false, imageDir: "/tmp",
             controlNetDirectory: URL(fileURLWithPath: "/nonexistent")
@@ -180,7 +180,7 @@ struct DrawThingsTests {
             controlNetImageData: [],
             controlNetNames: [],
             controlNetImageNames: [], inputImageNames: [], strength: nil, stepCount: plan.stepCount,
-            guidanceScale: plan.guidanceScale, scheduler: nil, quality: nil, mlComputeUnit: nil,
+            guidanceScale: plan.guidanceScale, scheduler: nil, mlComputeUnit: nil,
             useDenoisedIntermediates: false, seed: 7, numberOfImages: plan.numberOfImages,
             imageDir: imageDir
         )
@@ -351,7 +351,7 @@ struct DrawThingsTests {
             secrets: InMemorySecretStore([connection.secretAccount: "secret"]), transport: transport
         )
         let request = try request(numberOfImages: 3)
-        let results = OpenAIRuntimeTests.ResultCollector()
+        let results = ResultCollector()
         try await runtime.run(request: request, session: GenerationSession(requestID: request.id)) {
             await results.add($0)
         }
@@ -384,7 +384,7 @@ struct DrawThingsTests {
         let runtime = DrawThingsRuntime(secrets: NoSecretStore(), transport: transport)
         let request = try request()
         let session = GenerationSession(requestID: request.id)
-        let results = OpenAIRuntimeTests.ResultCollector()
+        let results = ResultCollector()
         let work = Task {
             try await runtime.run(request: request, session: session) { await results.add($0) }
         }

@@ -42,8 +42,8 @@ nonisolated final class GenerationSession: @unchecked Sendable {
     /// Why a session stopped early.
     ///
     /// Both stop the work the same way — the runtime polls `isCancelled` — but the
-    /// queue reports them differently: a cancellation is what the user asked for, an
-    /// expiry is a failure they did not, and a hosted service may still bill for it.
+    /// queue reports them differently: a cancellation is what the user asked for, and
+    /// an expiry is a failure they did not.
     enum StopReason: Sendable, Equatable {
         case cancelled
         case expired

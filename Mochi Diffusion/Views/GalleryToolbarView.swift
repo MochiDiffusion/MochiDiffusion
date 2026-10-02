@@ -39,7 +39,7 @@ struct GalleryToolbarView: View {
                         .controlSize(.small)
                         .frame(width: 16, height: 16)
                 }
-            } else if case .canceling(_) = generationState.state {
+            } else if case .canceling = generationState.state {
                 Button {
                     self.isStatusPopoverShown.toggle()
                 } label: {

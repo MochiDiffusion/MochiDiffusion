@@ -60,9 +60,9 @@ nonisolated struct GenerationRequest: Sendable, Identifiable {
     let strength: Float?
     /// Resolved by `plan`; `nil` when the model does not use it at all.
     ///
-    /// Optional for the same reason `strength` is, and specifically so a hosted
-    /// engine is not forced to invent a step count or a sampler it has no concept
-    /// of. Runtimes that use these take them from their own payload.
+    /// Optional for the same reason `strength` is, so an engine is not forced to
+    /// invent a value it does not use. Runtimes that use these take them from their
+    /// own payload.
     let stepCount: Int?
     /// Resolved by `plan`; `nil` when the model does not use it at all, so the
     /// queue can leave the row out rather than print a number that had no effect.
@@ -70,9 +70,6 @@ nonisolated struct GenerationRequest: Sendable, Identifiable {
     /// Resolved by `plan`; `nil` when the model does not use it at all. See
     /// `stepCount`.
     let scheduler: Scheduler?
-    /// Resolved by `plan`; `nil` for every model that has no notion of quality,
-    /// which is both local engines.
-    let quality: ImageQuality?
     /// Core ML only, but the queue displays it when the model records it, so it
     /// is a plain field rather than something the queue has to unwrap a payload
     /// for.
@@ -128,7 +125,6 @@ nonisolated struct GenerationMetadata: Sendable {
     let modelKey: String
     /// The model's architecture or family, such as `SDXL` or `FLUX.2 Klein`.
     let architecture: String?
-    let quality: String?
     /// The starting image's filename. Empty when the image had none; `nil`
     /// when no starting image was used.
     let startingImage: String?

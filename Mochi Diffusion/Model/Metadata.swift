@@ -11,7 +11,6 @@ enum Metadata: String, CaseIterable {
     case engine = "Engine"
     case modelKey = "Model Key"
     case size = "Size"
-    case quality = "Quality"
     case startingImage = "Starting Image"
     case controlNetImage = "ControlNet Image"
     case inputImages = "Input Images"

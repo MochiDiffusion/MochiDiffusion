@@ -91,7 +91,6 @@ nonisolated struct DrawThingsModel: EngineModel {
             startingImage: .unsupported,
             inputImages: .unsupported,
             controlNet: .unsupported,
-            quality: .unsupported,
             numberOfImages: .range(1...100, step: 1, acceptsBeyondUpperBound: true),
             promptTokenLimit: nil
         )
@@ -215,7 +214,7 @@ nonisolated struct DrawThingsEngine: GenerationEngineDescriptor {
             controlNetNames: [],
             controlNetImageNames: [],
             stepCount: Int(configuration.steps), scheduler: nil, strength: nil,
-            guidanceScale: guidanceScale.map(Float.init), quality: nil,
+            guidanceScale: guidanceScale.map(Float.init),
             numberOfImages: numberOfImages,
             mlComputeUnit: nil, startingImageName: nil, inputImageNames: []
         )
@@ -297,7 +296,6 @@ actor DrawThingsRuntime: GenerationEngineRuntime {
             engine: request.modelID.engine.rawValue,
             modelKey: request.modelID.key,
             architecture: payload.architecture,
-            quality: nil,
             startingImage: nil,
             strength: nil,
             controlNet: nil,

@@ -36,14 +36,16 @@ The current release is 6.2. Mochi 7.0 is epic `MochiDiffusion-5xf`: generation o
 Things servers, on this Mac or the local network, in the one combined picker. Engines stay an
 internal distinction; users configure the Draw Things server in Settings, and each model's
 sidebar options come from its own constraints. Hosted generation (OpenAI, Gemini) is the
-parked epic `MochiDiffusion-2lu`, assigned to no release. Concurrent queueing by where work
-runs is `MochiDiffusion-08l`, also unassigned.
+parked epic `MochiDiffusion-2lu`, assigned to no release. Its OpenAI engine is not in the
+codebase; it is preserved on branch `preserve/openai-hosted-generation` at `f35100e`.
+Concurrent queueing by where work runs is `MochiDiffusion-08l`, also unassigned.
 
 Z-Image Turbo support is already on develop. Graham has not decided whether it ships in 7.0
 or in a 6.3 released while 7.0 is in progress; do not assume either.
 
 The registered engines are Core ML, Iris and Draw Things behind one combined model picker.
-The engine-oriented settings UI and OpenAI hosted generation stay out of the stable surface.
+Mochi supports no paid or hosted service, so nothing in the app refers to accounts, credits
+or billing. The engine-oriented settings UI stays out of the stable surface.
 
 Image output is PNG only. Released JPEG and HEIC images stay readable, and exporting
 one converts it to PNG with its generation metadata.
@@ -71,7 +73,7 @@ The multi-engine foundation is implemented. Current ownership and contracts foll
 - Runtime ownership boundaries:
   - `ConfigStore` (`@MainActor`, `@Observable`) owns persisted input that is *global* —
     `modelDir`, `controlNetDir`, `prompt`, `steps`, `width`/`height`, `imageDir`,
-    and shared draft values such as `quality`. Output is always PNG, so there is no
+    and shared draft values. Output is always PNG, so there is no
     format preference. Its `UserDefaults` store is injectable, so tests use an
     isolated suite.
   - `EngineSettingsStore` (`@MainActor`, `@Observable`) owns per-engine persisted values
@@ -108,13 +110,13 @@ The multi-engine foundation is implemented. Current ownership and contracts foll
     engine, its models and its payload a compiler-checked triple. `AnyGenerationEngine`
     erases it for the registry and exposes `accepts(payload:)`.
   - `GenerationEngineRuntime` is the stateful half: it owns loaded pipelines and runs one
-    request against one session: `CoreMLEngineRuntime`, `IrisEngineRuntime`,
-    `DrawThingsRuntime`, and `OpenAIEngineRuntime`.
+    request against one session: `CoreMLEngineRuntime`, `IrisEngineRuntime`, and
+    `DrawThingsRuntime`.
   - `EngineRegistry` (`actor`) holds the engines; `refresh(settings:sources:)` gathers
     availability and discovery per engine, failure-isolated, so one engine's missing folder or
-    absent API key cannot empty the model list for the others.
+    unreachable server cannot empty the model list for the others.
   - Each engine declares a `ModelListSource`: `.modelsFolder` (Core ML, Iris) or
-    `.connection` (Draw Things, OpenAI). Launch refreshes both. Models- and ControlNet-folder
+    `.connection` (Draw Things). Launch refreshes both. Models- and ControlNet-folder
     changes refresh only `.modelsFolder`, so they never contact a server; Reconnect and
     saving connection settings refresh only `.connection`. `GenerationController` applies
     each source's result as it arrives and keeps the other source's models.
@@ -126,15 +128,14 @@ The multi-engine foundation is implemented. Current ownership and contracts foll
     model. Registration order affects presentation order only — never ownership or validity.
   - One shared models folder is a settled decision. `ModelDiscoveryContext` enumerates it
     once per discovery pass and hands the same candidate list to every engine.
-  - Concrete descriptors live in `LocalEngines.swift`, `DrawThingsEngine.swift` and
-    `OpenAIImageEngine.swift`; `EngineRegistry.shipped` lists Iris, Core ML and Draw Things,
+  - Concrete descriptors live in `LocalEngines.swift` and `DrawThingsEngine.swift`;
+    `EngineRegistry.shipped` lists Iris, Core ML and Draw Things,
     which the app registers. Draw Things talks gRPC through `DrawThingsTransport.swift`, and
     DT-gRPC-Swift-Client is pinned to a revision; updating it requires a compatibility
     review, like `iris.c`. Its recommended configurations come from the bundled
-    `DrawThingsPresets.json` snapshot of Draw Things' `configs.json`.
-    `EngineRegistry.openAIBeta(secrets:)` adds OpenAI; the app does not call it. OpenAI
-    availability requires a Keychain credential, and its model catalog is hand-maintained.
-    `EngineModel` requires no filesystem URL; its optional `tokenizerModelDir` is nil for hosted/server models.
+    `DrawThingsPresets.json` snapshot of Draw Things' `configs.json`. Its shared secret is
+    kept in the Keychain through `SecretStore`. `EngineModel` requires no filesystem URL; its
+    optional `tokenizerModelDir` is nil for server models.
 
 - Options, and where they are resolved:
   - `OptionConstraints` describes what a **model** will honour — per model, not per engine,
@@ -149,12 +150,11 @@ The multi-engine foundation is implemented. Current ownership and contracts foll
   - `GenerationPlan<Payload>` stays generic until `erased()` at the heterogeneous queue
     boundary.
   - Request fields are `Optional` where a model may not use the option at all — `strength`,
-    `stepCount`, `guidanceScale`, `scheduler`, `quality`. A runtime that does use one reads
+    `stepCount`, `guidanceScale`, `scheduler`. A runtime that does use one reads
     the concrete value from its own payload. Two copies exist by design;
     `GenerationRequestBuilderTests` pins them equal.
   - Starting images and reference inputs have separate constraints and controller state.
-    OpenAI and Iris accept reference lists; Core ML uses a denoising starting image.
-    `SizeLimits` bounds dimensions jointly for hosted models, and quality is a typed choice.
+    Iris accepts reference lists; Core ML uses a denoising starting image.
 
 - Concurrency defaults (project settings):
   - `SWIFT_VERSION = 6.0`
@@ -173,7 +173,7 @@ The multi-engine foundation is implemented. Current ownership and contracts foll
   - Results are **not** events. A result must never be dropped, it applies back-pressure,
     and a failed write has to fail the generation, so it stays a throwing call.
   - Queue execution is globally serial. Runtimes can declare an idle timeout enforced by
-    the queue through the session; hosted transports also support cancellation/deadlines.
+    the queue through the session; the Draw Things transport also sets call deadlines.
     Timeout policy is runtime/request-specific, not a universal 60-second budget.
   - `IrisSingleFlight` (`actor`) is a process-wide lease around the Iris C library, whose
     callback slots and cancel flag are per process rather than per instance. An actor runtime
@@ -247,8 +247,7 @@ The multi-engine foundation is implemented. Current ownership and contracts foll
   - Gallery: `GalleryLoadingTests`, `GalleryImageProviderTests`, `GalleryBrowsingTests`.
   - Draw Things: `DrawThingsTests` (discovery, planning, runtime, and a loopback gRPC
     server). `SourceRefreshTests` in `EngineSelectionTests` pins the separate refreshes.
-  - Hosted engine and credentials: `OpenAIImageEngineTests`, `OpenAIRuntimeTests`,
-    `OpenAICredentialCheckTests`, `SecretStoreTests`.
+  - Credentials: `SecretStoreTests`.
   - Metadata: `GenerationMetadataTests`, `MetadataRoundTripTests`, `ImageExportTests`,
     `CompatibilityTextTests`.
   - Support: `ControlNetLinkTests`.

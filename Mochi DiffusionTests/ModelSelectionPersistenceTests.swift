@@ -39,9 +39,9 @@ struct ModelSelectionPersistenceTests {
     }
 
     /// Local engines only. These tests are about what an empty or unreadable
-    /// models folder does, and a hosted engine always contributes a model, so
-    /// including it would mean every assertion about an empty picker was really an
-    /// assertion about the shipped engine list. `hostedEngineIsNotAutoSelected`
+    /// models folder does, and a server engine can contribute models without one,
+    /// so including it would mean every assertion about an empty picker was really
+    /// an assertion about the shipped engine list. `unconfiguredServerIsNotAutoSelected`
     /// covers the interaction deliberately.
     private func makeController(imageGallery: ImageGallery = ImageGallery())
         -> GenerationController
@@ -58,28 +58,17 @@ struct ModelSelectionPersistenceTests {
         )
     }
 
-    /// The `openAIBeta` engine list with a key already stored, so the hosted engine is
-    /// `.ready` and can become the fallback.
-    private func makeKeyedBetaController(
-        imageGallery: ImageGallery = ImageGallery()
-    ) -> GenerationController {
-        let secrets = InMemorySecretStore([OpenAIImageEngine.secretAccount: "sk-test"])
-        return makeTestGenerationController(
-            configStore: configStore,
-            imageRepository: ImageRepository(),
-            imageGallery: imageGallery,
-            engineRegistry: EngineRegistry.openAIBeta(secrets: secrets),
-            modelSelectionMode: .engineScoped,
-            startsObserving: false
-        )
-    }
-
-    /// The `openAIBeta` engine list, whose hosted engine has no key in a test.
-    private func makeBetaController() -> GenerationController {
+    /// The local engines plus a server engine that lists a model without a models
+    /// folder, configured or not.
+    private func makeServerController(configured: Bool) -> GenerationController {
         makeTestGenerationController(
             configStore: configStore,
             imageRepository: ImageRepository(),
-            engineRegistry: EngineRegistry.openAIBeta(secrets: NoSecretStore()),
+            engineRegistry: EngineRegistry(engines: [
+                AnyGenerationEngine(IrisEngine()),
+                AnyGenerationEngine(CoreMLStableDiffusionEngine()),
+                AnyGenerationEngine(StubServerEngine(isConfigured: configured)),
+            ]),
             modelSelectionMode: .engineScoped,
             startsObserving: false
         )
@@ -258,52 +247,21 @@ struct ModelSelectionPersistenceTests {
         #expect(!message.contains("No models found"))
     }
 
-    @Test(
-        "Copying an image restores a recognised quality and leaves an unknown one",
-        arguments: [("high", ImageQuality.high), ("ultra", ImageQuality.low)]
-    )
-    func copyRestoresRecognisedQuality(
-        recorded: String, expected: ImageQuality
-    ) async throws {
-        // The controller reads its selection from the gallery it was given, so the
-        // test has to populate that one rather than a global.
-        let gallery = ImageGallery()
-        let controller = makeKeyedBetaController(imageGallery: gallery)
-        await controller.loadModels()
-        // The value the sidebar is left holding when the metadata says nothing we
-        // understand.
-        configStore.quality = .low
-
-        var image = SDImage(image: makeCGImage(), aspectRatio: 1, path: "")
-        image.model = "gpt-image-2"
-        image.engine = EngineID.openAI.rawValue
-        image.modelKey = "gpt-image-2"
-        image.quality = recorded
-        gallery.replaceAll([
-            (image: image, metadataFields: [.model, .engine, .modelKey, .quality])
-        ])
-        gallery.select(image.id)
-
-        await controller.copyToPrompt(image)
-
-        #expect(configStore.quality == expected)
-    }
-
     /// `restoreSelection` persists a fallback engine, which must not end the
     /// legacy migration: it retries across passes until its own result ends it,
     /// so a legacy model that was temporarily missing is still recovered.
-    @Test("A hosted fallback does not strand the legacy selection")
-    func hostedFallbackDoesNotStrandTheLegacyMigration() async throws {
+    @Test("A server fallback does not strand the legacy selection")
+    func serverFallbackDoesNotStrandTheLegacyMigration() async throws {
         // A legacy selection whose model is not there yet.
         let legacy = modelDir.appending(path: "a-model")
         tempDefaults.defaults.set(legacy, forKey: ConfigStore.Key.legacyModelId)
 
-        let controller = makeKeyedBetaController()
+        let controller = makeServerController(configured: true)
         await controller.loadModels()
 
-        // The hosted engine is the only usable one, so it became the fallback.
-        #expect(controller.selectedEngine == .openAI)
-        #expect(controller.configStore.selectedModel?.engine == .openAI)
+        // The server engine is the only usable one, so it became the fallback.
+        #expect(controller.selectedEngine == StubServerEngine.id)
+        #expect(controller.configStore.selectedModel?.engine == StubServerEngine.id)
 
         // The folder comes back.
         try makeSDModelFixture(at: legacy)
@@ -316,46 +274,43 @@ struct ModelSelectionPersistenceTests {
                 == ModelID(engine: .coreMLStableDiffusion, key: "a-model"))
         // And the user was not yanked off the engine they were working in. The old
         // model is waiting where they left it.
-        #expect(controller.selectedEngine == .openAI)
+        #expect(controller.selectedEngine == StubServerEngine.id)
 
         controller.selectEngine(.coreMLStableDiffusion)
         #expect(controller.currentModelId?.key == "a-model")
     }
 
-    /// A hosted engine always has a model, and assigning `currentModelId` persists
-    /// it, so auto-selecting one with no API key would overwrite the user's choice
-    /// while their models folder is empty.
-    @Test("A hosted engine with no key is never auto-selected")
-    func hostedEngineIsNotAutoSelected() async throws {
+    /// Assigning `currentModelId` persists it, so auto-selecting a model from an
+    /// engine that cannot run would overwrite the user's choice while their models
+    /// folder is empty.
+    @Test("A model from an unconfigured engine is never auto-selected")
+    func unconfiguredServerIsNotAutoSelected() async throws {
         seedSelection(ModelID(engine: .coreMLStableDiffusion, key: "gone"))
 
-        let controller = makeBetaController()
+        let controller = makeServerController(configured: false)
         await controller.loadModels()
 
-        // Present in the list and in the picker, saying why it cannot be used.
+        // Present in the list, saying why it cannot be used.
+        #expect(controller.models.map(\.name) == ["m-server"])
         #expect(
-            controller.models.map(\.name)
-                == ["gpt-image-2", "gpt-image-2.5-flare", "gpt-image-2.5-sunburst"])
-        #expect(
-            controller.engineAvailability[.openAI]
-                == .needsConfiguration("Add an API key in Settings"))
+            controller.engineAvailability[StubServerEngine.id]
+                == .needsConfiguration("Set up the server"))
         // But not selected, and the choice the user made is still on disk.
         #expect(controller.currentModelId == nil)
         #expect(
             persistedSelection(controller) == ModelID(engine: .coreMLStableDiffusion, key: "gone"))
-        // Models were found, so there is nothing for the banner to report. The
-        // per-engine reasons in the picker are the right channel for "needs a key".
+        // Models were found, so there is nothing for the banner to report.
         #expect(discoveryMessage(controller) == nil)
     }
 
-    /// A local model is preferred over a hosted one that cannot run, whatever the
-    /// names sort to.
-    @Test("A usable local model wins over an unusable hosted one")
+    /// A local model is preferred over one from an engine that cannot run, whatever
+    /// the names sort to.
+    @Test("A usable local model wins over an unusable server model")
     func readyEngineIsPreferred() async throws {
-        // Sorts after "gpt-image-2", so name order alone would pick the hosted one.
+        // Sorts after "m-server", so name order alone would pick the server's.
         try makeSDModelFixture(at: modelDir.appending(path: "z-model"))
 
-        let controller = makeBetaController()
+        let controller = makeServerController(configured: false)
         await controller.loadModels()
 
         #expect(controller.currentModelId?.engine == .coreMLStableDiffusion)
@@ -562,4 +517,37 @@ struct ModelSelectionPersistenceTests {
         // legacy fallback could silently select another engine's unrelated model.
         #expect(controller.currentModel?.name == "b-coreml")
     }
+}
+
+/// Stands in for a server engine: it lists a model without a models folder, and
+/// the test decides whether it is configured.
+private struct StubServerEngine: GenerationEngineDescriptor {
+    struct Model: EngineModel {
+        let id: ModelID
+        let name: String
+        var constraints: OptionConstraints { .unconstrained }
+        var metadataFields: Set<MetadataField> { [.prompt] }
+        var tokenizerModelDir: URL? { nil }
+    }
+    struct Payload: Sendable {}
+    struct NotRun: Error {}
+
+    static let id = EngineID(rawValue: "stub-server")
+    static let modelListSource = ModelListSource.connection
+    let isConfigured: Bool
+    var displayName: String { "Stub Server" }
+
+    func availability(_ settings: EngineSettings) async -> EngineAvailability {
+        isConfigured ? .ready : .needsConfiguration("Set up the server")
+    }
+
+    func discoverModels(_ context: ModelDiscoveryContext) async throws -> [Model] {
+        [Model(id: ModelID(engine: Self.id, key: "m-server"), name: "m-server")]
+    }
+
+    func plan(draft: GenerationDraft, model: Model) throws -> GenerationPlan<Payload> {
+        throw NotRun()
+    }
+
+    func makeRuntime() -> any GenerationEngineRuntime { fatalError("never runs") }
 }

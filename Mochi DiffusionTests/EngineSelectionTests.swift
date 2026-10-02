@@ -221,8 +221,8 @@ struct EnginePickerTests {
     }
 
     /// Reports itself ready and then fails to list anything — the shape of a folder
-    /// that exists but cannot be read, and of a hosted engine whose credentials are
-    /// accepted but whose request fails.
+    /// that exists but cannot be read, and of a configured server that does not
+    /// answer.
     private struct ReadyButFailingEngine: GenerationEngineDescriptor {
         struct Model: EngineModel {
             let id: ModelID
@@ -466,36 +466,12 @@ struct EnginePickerTests {
             controller.engines.map(\.id) == [.iris, .coreMLStableDiffusion, .drawThings])
         #expect(controller.engineAvailability[.iris] == .ready)
         #expect(controller.engineAvailability[.coreMLStableDiffusion] == .ready)
-        #expect(controller.engineAvailability[.openAI] == nil)
 
         // Iris is `.ready` because the folder exists, but it has no Klein model in
         // it, so the sidebar offers only Core ML.
         #expect(controller.pickerEngines.map(\.id) == [.coreMLStableDiffusion])
         #expect(controller.isUsable(.coreMLStableDiffusion))
         #expect(!controller.isUsable(.iris))
-        #expect(!controller.isUsable(.openAI))
-    }
-
-    /// Both halves of "usable" are needed and neither implies the other.
-    @Test("A hosted engine becomes usable when a key is entered")
-    func hostedEngineBecomesUsableWithAKey() async throws {
-        let secrets = InMemorySecretStore()
-        let controller = makeController(
-            engineRegistry: EngineRegistry(engines: [
-                AnyGenerationEngine(OpenAIImageEngine(secrets: secrets))
-            ]))
-
-        await controller.loadModels()
-        // A model, but nothing to authenticate with.
-        #expect(controller.hasModels(.openAI))
-        #expect(!controller.isUsable(.openAI))
-        #expect(controller.pickerEngines.isEmpty)
-
-        try secrets.setSecret("sk-test", for: OpenAIImageEngine.secretAccount)
-        await controller.loadModels()
-
-        #expect(controller.isUsable(.openAI))
-        #expect(controller.pickerEngines.map(\.id) == [.openAI])
     }
 
     /// The rule that keeps a selection from pointing at something absent from its
