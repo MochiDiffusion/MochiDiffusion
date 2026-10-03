@@ -332,7 +332,7 @@ actor IrisEngineRuntime: GenerationEngineRuntime {
             controlNet: nil,
             controlNetImage: nil,
             inputImages: request.inputImageNames.map { $0 ?? "" },
-            scheduler: payload.scheduler,
+            scheduler: payload.scheduler, samplerName: nil,
             mlComputeUnit: nil,
             seed: seed,
             steps: payload.stepCount,

@@ -474,6 +474,9 @@ struct DrawThingsTests {
         #expect(record.steps == 99)
         #expect(record.guidanceScale == 11)
         #expect(record.negativePrompt == "blurry")
+        // The recommended configuration's sampler for Klein 4B, under its own name.
+        #expect(result.metadata.samplerName == "DDIM Trailing")
+        #expect(record.details.contains(MetadataDetail(label: "Sampler", value: "DDIM Trailing")))
         #expect(!record.metadataFields.contains(.scheduler))
     }
 

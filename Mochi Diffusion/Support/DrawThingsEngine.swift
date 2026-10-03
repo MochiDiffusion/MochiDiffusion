@@ -315,6 +315,7 @@ actor DrawThingsRuntime: GenerationEngineRuntime {
             controlNetImage: nil,
             inputImages: nil,
             scheduler: nil,
+            samplerName: payload.configuration.sampler.displayName,
             mlComputeUnit: nil,
             seed: seed,
             steps: Int(payload.configuration.steps),
@@ -323,5 +324,37 @@ actor DrawThingsRuntime: GenerationEngineRuntime {
             generatedDate: Date(),
             metadataFields: fields
         )
+    }
+}
+
+nonisolated extension SamplerType {
+    /// The name Draw Things gives this sampler, which is how an image records it:
+    /// exactly `SamplerType.description` in draw-things-community
+    /// (`Libraries/DataModels/Sources/Defaults.swift`), which Draw Things also
+    /// parses back. Exhaustive, so a sampler added by a client update is named
+    /// deliberately.
+    var displayName: String {
+        switch self {
+        case .dpmpp2mkarras: "DPM++ 2M Karras"
+        case .eulera: "Euler Ancestral"
+        case .ddim: "DDIM"
+        case .plms: "PLMS"
+        case .dpmppsdekarras: "DPM++ SDE Karras"
+        case .unipc: "UniPC"
+        case .lcm: "LCM"
+        case .eulerasubstep: "Euler A Substep"
+        case .dpmppsdesubstep: "DPM++ SDE Substep"
+        case .tcd: "TCD"
+        case .euleratrailing: "Euler A Trailing"
+        case .dpmppsdetrailing: "DPM++ SDE Trailing"
+        case .dpmpp2mays: "DPM++ 2M AYS"
+        case .euleraays: "Euler A AYS"
+        case .dpmppsdeays: "DPM++ SDE AYS"
+        case .dpmpp2mtrailing: "DPM++ 2M Trailing"
+        case .ddimtrailing: "DDIM Trailing"
+        case .unipctrailing: "UniPC Trailing"
+        case .unipcays: "UniPC AYS"
+        case .tcdtrailing: "TCD Trailing"
+        }
     }
 }

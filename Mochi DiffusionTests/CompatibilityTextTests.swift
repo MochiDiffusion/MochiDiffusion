@@ -75,6 +75,7 @@ struct CompatibilityTextTests {
         controlNetImage: String? = nil,
         inputImages: [String]? = nil,
         scheduler: Scheduler?,
+        samplerName: String? = nil,
         mlComputeUnit: MLComputeUnits? = .cpuAndNeuralEngine,
         seed: UInt32?,
         steps: Int?,
@@ -85,7 +86,8 @@ struct CompatibilityTextTests {
             engine: engine.rawValue, modelKey: model, architecture: architecture,
             startingImage: startingImage, strength: strength,
             controlNet: controlNet, controlNetImage: controlNetImage, inputImages: inputImages,
-            scheduler: scheduler, mlComputeUnit: mlComputeUnit, seed: seed, steps: steps,
+            scheduler: scheduler, samplerName: samplerName, mlComputeUnit: mlComputeUnit,
+            seed: seed, steps: steps,
             guidanceScale: guidanceScale,
             generatedDate: Date(timeIntervalSince1970: 1_790_000_000), metadataFields: [])
     }
@@ -147,17 +149,17 @@ struct CompatibilityTextTests {
                 Steps: 4, Sampler: Flow Match Euler Discrete, CFG scale: 1.0, Seed: 9, \
                 Size: 24x16, Model: flux-klein, \(software)
                 """),
-        // A Draw Things image records the seed, steps and guidance it ran with.
-        // Its sampler is the model's recommended one, which is not recorded yet.
+        // A Draw Things image records the seed, steps and guidance it ran with,
+        // and its model's recommended sampler under Draw Things' own name.
         generated(
             "drawthings",
             metadata(
                 negativePrompt: nil, model: "flux_2_klein_4b_q8p.ckpt", engine: .drawThings,
-                architecture: nil, scheduler: nil, mlComputeUnit: nil, seed: 11, steps: 4,
-                guidanceScale: 1),
+                architecture: nil, scheduler: nil, samplerName: "DDIM Trailing",
+                mlComputeUnit: nil, seed: 11, steps: 4, guidanceScale: 1),
             parameters: """
                 a red cube on a table
-                Steps: 4, CFG scale: 1.0, Seed: 11, Size: 24x16, \
+                Steps: 4, Sampler: DDIM Trailing, CFG scale: 1.0, Seed: 11, Size: 24x16, \
                 Model: flux_2_klein_4b_q8p.ckpt, \(software)
                 """),
         // An empty negative prompt is not written, the same as AUTOMATIC1111.

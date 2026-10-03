@@ -36,7 +36,8 @@ struct MetadataRoundTripTests {
             startingImage: startingImage,
             strength: strength, controlNet: "canny", controlNetImage: "control.png",
             inputImages: nil,
-            scheduler: .dpmSolverMultistepScheduler, mlComputeUnit: .cpuAndNeuralEngine,
+            scheduler: .dpmSolverMultistepScheduler, samplerName: nil,
+            mlComputeUnit: .cpuAndNeuralEngine,
             seed: 123_456_789,
             steps: 17, guidanceScale: 7.5,
             generatedDate: Date(timeIntervalSince1970: 1_790_000_000.25),
@@ -148,6 +149,7 @@ struct MetadataRoundTripTests {
             architecture: IrisModelFamily.fluxKlein.displayName,
             startingImage: nil, strength: nil, controlNet: nil, controlNetImage: nil,
             inputImages: ["cat.png", "", "dog.png"], scheduler: .discreteFlowScheduler,
+            samplerName: nil,
             mlComputeUnit: nil,
             seed: 9, steps: 4, guidanceScale: 1, generatedDate: Date(), metadataFields: [])
 
@@ -159,14 +161,15 @@ struct MetadataRoundTripTests {
         #expect(record.guidanceScale == 1)
     }
 
-    @Test("A Draw Things image reads back the settings it ran with and no sampler")
+    @Test("A Draw Things image shows its sampler without offering it as a scheduler")
     func drawThingsRoundTrip() async throws {
         let metadata = GenerationMetadata(
             prompt: "a lighthouse", negativePrompt: nil, width: 24, height: 16, model: "Klein",
             engine: EngineID.drawThings.rawValue, modelKey: "flux_2_klein_4b_q8p.ckpt",
             architecture: nil, startingImage: nil, strength: nil, controlNet: nil,
-            controlNetImage: nil, inputImages: nil, scheduler: nil, mlComputeUnit: nil, seed: 11,
-            steps: 4, guidanceScale: 1, generatedDate: Date(), metadataFields: [])
+            controlNetImage: nil, inputImages: nil, scheduler: nil, samplerName: "DDIM Trailing",
+            mlComputeUnit: nil, seed: 11, steps: 4, guidanceScale: 1, generatedDate: Date(),
+            metadataFields: [])
 
         let record = try await roundTrip(metadata)
 
@@ -175,6 +178,8 @@ struct MetadataRoundTripTests {
         #expect(record.seed == 11)
         #expect(record.steps == 4)
         #expect(record.guidanceScale == 1)
+        #expect(record.details.contains(MetadataDetail(label: "Sampler", value: "DDIM Trailing")))
+        // Not a field, so Copy Options never restores it to the sidebar's scheduler.
         #expect(
             record.metadataFields == [
                 .prompt, .model, .engine, .modelKey, .size, .seed, .steps, .guidanceScale,

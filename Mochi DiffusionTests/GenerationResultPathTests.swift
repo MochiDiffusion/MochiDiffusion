@@ -153,7 +153,7 @@ struct GenerationResultPathTests {
                 controlNet: nil,
                 controlNetImage: nil,
                 inputImages: nil,
-                scheduler: .pndmScheduler,
+                scheduler: .pndmScheduler, samplerName: nil,
                 mlComputeUnit: nil,
                 seed: request.seed,
                 steps: 1,

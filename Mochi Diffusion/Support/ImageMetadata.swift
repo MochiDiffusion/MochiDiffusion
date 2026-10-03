@@ -63,7 +63,7 @@ nonisolated extension GenerationMetadata {
                 positivePrompt: prompt,
                 negativePrompt: negativePrompt,
                 model: model,
-                sampler: scheduler?.samplerLabel,
+                sampler: scheduler?.samplerLabel ?? samplerName,
                 scheduler: stepSpacing,
                 steps: steps,
                 cfgScale: guidanceScale,

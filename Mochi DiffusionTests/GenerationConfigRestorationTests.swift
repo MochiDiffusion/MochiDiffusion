@@ -550,7 +550,8 @@ struct GenerationConfigRestorationTests {
             model: "core", engine: EngineID.coreMLStableDiffusion.rawValue, modelKey: "core",
             architecture: SDModel.ModelType.sd15.displayName, startingImage: nil,
             strength: nil, controlNet: nil, controlNetImage: nil, inputImages: nil,
-            scheduler: .pndmScheduler, mlComputeUnit: .cpuAndGPU, seed: UInt32.max, steps: 23,
+            scheduler: .pndmScheduler, samplerName: nil, mlComputeUnit: .cpuAndGPU,
+            seed: UInt32.max, steps: 23,
             guidanceScale: 6.5, generatedDate: Date(), metadataFields: [])
         let url = temp.appending("generated.png")
         try #require(await metadata.pngData(for: makeCGImage())).write(to: url)

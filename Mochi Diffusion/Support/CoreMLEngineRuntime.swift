@@ -288,7 +288,7 @@ actor CoreMLEngineRuntime: GenerationEngineRuntime {
             controlNet: usedControlNet ? config.controlNets.first : nil,
             controlNetImage: usedControlNet ? config.controlNetImageName : nil,
             inputImages: nil,
-            scheduler: config.scheduler,
+            scheduler: config.scheduler, samplerName: nil,
             mlComputeUnit: config.mlComputeUnit,
             seed: seed,
             steps: config.stepCount,

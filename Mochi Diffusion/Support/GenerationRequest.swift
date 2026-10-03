@@ -140,6 +140,9 @@ nonisolated struct GenerationMetadata: Sendable {
     /// for a reference that had no filename. `nil` when the model takes none.
     let inputImages: [String]?
     let scheduler: Scheduler?
+    /// The sampler under its engine's own name, for an engine whose samplers are
+    /// not Mochi's schedulers. `nil` when `scheduler` names it or none is known.
+    let samplerName: String?
     let mlComputeUnit: MLComputeUnits?
     let seed: UInt32?
     let steps: Int?

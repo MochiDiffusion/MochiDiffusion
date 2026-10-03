@@ -208,7 +208,11 @@ The multi-engine foundation is implemented. Current ownership and contracts foll
     resource. Mochi 6.1.2 and earlier import only a caption naming its `Generator`, so they skip
     images from newer versions.
   - Sampler names: DPM-Solver++ is written as `DPM++ 2M`, PNDM as `PLMS`, flow matching under
-    Mochi's own name. `Scheduler(samplerLabel:)` maps them back for Copy Options.
+    Mochi's own name. `Scheduler(samplerLabel:)` maps them back for Copy Options. A Draw Things
+    image records its sampler as `GenerationMetadata.samplerName`, under exactly Draw Things'
+    own `SamplerType.description` (`SamplerType.displayName`), with no AUTOMATIC1111 translation. A name Mochi
+    does not use reads back as a shown-only detail; Draw Things' `PLMS` matches Mochi's own
+    label and reads back as PNDM.
 
 - Gallery ownership and memory:
   - `ImageGallery` and `GenerationService` are app-owned, not singletons.
