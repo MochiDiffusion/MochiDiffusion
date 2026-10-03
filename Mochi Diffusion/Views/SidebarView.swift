@@ -58,9 +58,13 @@ struct SidebarView: View {
                         StepsView()
                         Spacer().frame(height: 6)
                     }
-                    Group {
-                        GuidanceScaleView()
-                        Spacer().frame(height: 6)
+                    // Hidden for a model with no guidance, and the rows below move up:
+                    // there is no neat way to keep their positions this low down.
+                    if controller.currentConstraints.guidanceScale.isSupported {
+                        Group {
+                            GuidanceScaleView()
+                            Spacer().frame(height: 6)
+                        }
                     }
                     Group {
                         SeedView()

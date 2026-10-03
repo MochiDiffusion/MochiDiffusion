@@ -316,43 +316,46 @@ struct ModelVisibilityTests {
         #expect(constraints.inputImages.maxCount == IrisEngine.maxReferenceImages)
     }
 
-    /// The sidebar shows these three rows for every model, so each one has to
-    /// have something to display no matter which engine is selected: a range to
-    /// slide, a pinned value to show disabled, or the em-dash placeholder.
+    /// The sidebar shows the steps and number-of-images rows for every model, and
+    /// the guidance row for every model that uses guidance. A shown row has no
+    /// placeholder, so each one must have something to display: a range to slide
+    /// or a pinned value to show disabled.
     ///
     /// Recorded per engine because the failure this guards against is silent —
     /// a constraint changing shape does not break the build, it just empties a
-    /// row and slides the sidebar.
-    @Test("Every engine has something to show in the always-visible rows")
-    func alwaysVisibleRowsHaveSomethingToShow() throws {
+    /// row.
+    @Test("Every engine has something to show in every row it shows")
+    func shownRowsHaveSomethingToShow() throws {
+        let drawThings = try #require(
+            DrawThingsEngine.models(
+                from: Data(
+                    #"[{"file":"flux_1_schnell_q5p.ckpt","version":"flux1","is_consistency_model":true}]"#
+                        .utf8),
+                connection: DrawThingsConnection()
+            ).first)
         let cases: [(String, OptionConstraints)] = [
             ("Core ML", try makeSDModel(inputSize: nil).constraints),
             ("Klein", IrisModel.constraints(for: .fluxKlein)),
+            ("Draw Things consistency model", drawThings.constraints),
             ("no model selected", OptionConstraints.unconstrained),
         ]
 
-        // Mirrors what each view asks: a range first, then a pinned value, then
-        // the placeholder. The placeholder is always available, so the check is
-        // that a constraint declaring support can actually produce a value.
+        // Mirrors what each view asks: a range first, then a pinned value.
         for (named, constraints) in cases {
-            if constraints.steps.isSupported {
-                #expect(
-                    constraints.steps.bounds != nil || constraints.steps.resolved(20) != nil,
-                    "\(named) declares steps supported but shows nothing"
-                )
-            }
+            #expect(
+                constraints.steps.bounds != nil || constraints.steps.resolved(20) != nil,
+                "\(named) shows a steps row with nothing in it"
+            )
+            #expect(
+                constraints.numberOfImages.bounds != nil
+                    || constraints.numberOfImages.resolved(1) != nil,
+                "\(named) shows a number-of-images row with nothing in it"
+            )
             if constraints.guidanceScale.isSupported {
                 #expect(
                     constraints.guidanceScale.bounds != nil
                         || constraints.guidanceScale.resolved(7.5) != nil,
-                    "\(named) declares a guidance scale but shows nothing"
-                )
-            }
-            if constraints.numberOfImages.isSupported {
-                #expect(
-                    constraints.numberOfImages.bounds != nil
-                        || constraints.numberOfImages.resolved(1) != nil,
-                    "\(named) declares a number of images but shows nothing"
+                    "\(named) shows a guidance row with nothing in it"
                 )
             }
         }

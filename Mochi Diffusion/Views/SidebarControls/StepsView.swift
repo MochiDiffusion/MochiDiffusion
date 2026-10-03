@@ -28,8 +28,6 @@ struct StepsView: View {
         } else if let pinned = steps.resolved(Int(configStore.steps)) {
             // Disabled rather than hidden, so a pinned value is visible
             PinnedValueField(text: String(pinned))
-        } else {
-            UnsupportedValueField()
         }
     }
 }
@@ -43,21 +41,5 @@ struct PinnedValueField: View {
             .frame(width: 60)
             .disabled(true)
             .opacity(0.6)
-    }
-}
-
-/// A placeholder for an option the model does not have at all.
-///
-/// Holds the row open so the controls below it keep their positions when the selected model changes
-struct UnsupportedValueField: View {
-    var body: some View {
-        PinnedValueField(text: "\u{2014}")
-            // The field inside is disabled and so never sees the pointer. The
-            // overlay is not, which is what makes the tooltip reachable.
-            .overlay {
-                Color.clear
-                    .contentShape(Rectangle())
-                    .help("Not used by this model")
-            }
     }
 }
