@@ -15,11 +15,14 @@ actor EngineRegistry {
     /// The engines the app ships with, in registration order. That order decides
     /// only where an engine appears in a list — never which engine owns a model,
     /// and never whether a model is valid.
-    static var shipped: [AnyGenerationEngine] {
+    static func shipped(
+        drawThingsContacts: AsyncStream<DrawThingsContact>.Continuation
+    ) -> [AnyGenerationEngine] {
         [
             AnyGenerationEngine(IrisEngine()),
             AnyGenerationEngine(CoreMLStableDiffusionEngine()),
-            AnyGenerationEngine(DrawThingsEngine(secrets: KeychainSecretStore())),
+            AnyGenerationEngine(
+                DrawThingsEngine(secrets: KeychainSecretStore(), contacts: drawThingsContacts)),
         ]
     }
 
@@ -34,20 +37,32 @@ actor EngineRegistry {
     /// `nonisolated` because the engines are immutable `Sendable` values the sidebar
     /// reads on every request it builds. Discovery stays isolated: it does I/O.
     nonisolated private let engines: [AnyGenerationEngine]
+    /// What Draw Things generations learned about the server, for Settings. Read by
+    /// one consumer, `GenerationController`.
+    nonisolated let drawThingsContacts: AsyncStream<DrawThingsContact>
     private let fileSystem: FileSystemStore
     private let logger = Logger()
 
+    /// - Parameter drawThingsContacts: the stream the engines' contact reports go
+    ///   to. A test that does not pass one gets a stream nothing reports to.
     init(
         engines: [AnyGenerationEngine],
+        drawThingsContacts: AsyncStream<DrawThingsContact> = AsyncStream { $0.finish() },
         fileSystem: FileSystemStore = FileSystemStore()
     ) {
         self.engines = engines
+        self.drawThingsContacts = drawThingsContacts
         self.fileSystem = fileSystem
     }
 
     /// The shipped engine list.
     init(fileSystem: FileSystemStore = FileSystemStore()) {
-        self.init(engines: EngineRegistry.shipped, fileSystem: fileSystem)
+        // Only the newest reports matter: each one replaces the status before it.
+        let (contacts, continuation) = AsyncStream.makeStream(
+            of: DrawThingsContact.self, bufferingPolicy: .bufferingNewest(8))
+        self.init(
+            engines: EngineRegistry.shipped(drawThingsContacts: continuation),
+            drawThingsContacts: contacts, fileSystem: fileSystem)
     }
 
     /// Every engine, in registration order, including ones that are unconfigured or

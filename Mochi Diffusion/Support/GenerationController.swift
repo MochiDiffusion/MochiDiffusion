@@ -178,6 +178,10 @@ final class GenerationController {
     /// the generation banner rather than through it — see
     /// ``discoveryMessage(failures:engines:foundModels:modelDir:)``.
     private(set) var discoveryMessage: String?
+    /// What Settings says about the Draw Things server: the result of Mochi's last
+    /// contact with it, from a model-list fetch or a generation. Mochi does not poll,
+    /// so this can be out of date until the next contact.
+    private(set) var drawThingsStatus = DrawThingsStatus.inactive
     private(set) var controlNet: [String] = []
     /// The image to denoise from, for a model that does img2img.
     ///
@@ -290,6 +294,7 @@ final class GenerationController {
     private var controlNetDirDebounceTask: Task<Void, Never>?
     private var generationUpdatesTask: Task<Void, Never>?
     private var generationResultsTask: Task<Void, Never>?
+    private var drawThingsContactsTask: Task<Void, Never>?
     /// Identifies the latest sidebar action that loads images: gallery reuse or
     /// Copy Options. Each such action, and each model change, advances it, so an
     /// older load that finishes later is discarded rather than overwriting the
@@ -342,14 +347,15 @@ final class GenerationController {
         observeControlNetDir()
         observeGenerationService()
         observeGenerationResults()
+        observeDrawThingsContacts()
     }
 
     /// Refreshes the models from `sources`, applying each source's result as soon as
     /// it arrives, so a slow server does not hold back the models folder.
     ///
     /// Launch asks every source. A change in the models or ControlNet folder asks
-    /// only `.modelsFolder`; Reconnect and saving connection settings ask only
-    /// `.connection`.
+    /// only `.modelsFolder`; switching Draw Things on or off and saving its details
+    /// ask only `.connection`.
     func loadModels(from sources: Set<ModelListSource> = Set(ModelListSource.allCases)) async {
         guard !sources.isEmpty else { return }
         var generations: [ModelListSource: Int] = [:]
@@ -363,6 +369,7 @@ final class GenerationController {
         }
         if sources.contains(.connection) {
             logger.info("Started loading models from connections")
+            drawThingsStatus = engineSettings.drawThings.isActive ? .connecting : .inactive
         }
         let settings = EngineSettings(
             modelDirectory: ModelRepository.modelDirectoryURL(fromPath: configStore.modelDir),
@@ -409,6 +416,13 @@ final class GenerationController {
         }
         engineAvailability.merge(refresh.availability) { _, new in new }
 
+        if source == .connection {
+            drawThingsStatus = Self.drawThingsStatus(
+                isActive: engineSettings.drawThings.isActive,
+                failure: discoveriesByEngine[.drawThings]?.failure
+            )
+        }
+
         // Registration order, as one refresh of every engine would produce.
         let discoveries = engines.compactMap { discoveriesByEngine[$0.id] }
         let discoveredModels = discoveries.allModels
@@ -442,8 +456,9 @@ final class GenerationController {
     /// and generation are different subjects, and sharing one banner means they
     /// overwrite each other.
     ///
-    /// Failures are reported per engine, so a server that answers cannot hide a
-    /// models folder that failed, or the reverse.
+    /// Failures are reported per engine, so one engine cannot hide another's
+    /// unreadable models folder. A server that cannot be reached is not reported
+    /// here: Settings shows it, in `drawThingsStatus`.
     ///
     /// Availability is not reported here: "Set up a Draw Things server" is a
     /// standing fact about an engine rather than a problem with this pass.
@@ -453,6 +468,9 @@ final class GenerationController {
         foundModels: Bool,
         modelDir: String
     ) -> String? {
+        let failures = failures.filter { failure in
+            engines.first { $0.id == failure.engine }?.modelListSource == .modelsFolder
+        }
         if !failures.isEmpty {
             let names = failures.map { failure in
                 engines.first { $0.id == failure.engine }?.displayName
@@ -468,6 +486,28 @@ final class GenerationController {
             localized: "No models found under: \(modelDir)",
             comment: "Shown when discovery completed but found no models anywhere"
         )
+    }
+
+    /// The status after a model-list fetch from the Draw Things server.
+    nonisolated static func drawThingsStatus(isActive: Bool, failure: (any Error)?)
+        -> DrawThingsStatus
+    {
+        guard isActive else { return .inactive }
+        guard let failure else { return .connected(warning: nil) }
+        if case DrawThingsError.unusableModelList(let warning) = failure {
+            return .connected(warning: warning)
+        }
+        return .notConnected(DrawThingsError.connectionFailureDescription(failure))
+    }
+
+    /// Applies what a generation learned about the server. A report about a server
+    /// the settings no longer name is ignored.
+    func apply(_ contact: DrawThingsContact) {
+        let connection = engineSettings.drawThings
+        guard connection.isActive, (try? connection.validated()) == contact.connection else {
+            return
+        }
+        drawThingsStatus = contact.failure.map { .notConnected($0) } ?? .connected(warning: nil)
     }
 
     /// Picks the exact model to show after a discovery pass: the saved one when it
@@ -1170,6 +1210,7 @@ final class GenerationController {
         initialLoadTask?.cancel()
         generationUpdatesTask?.cancel()
         generationResultsTask?.cancel()
+        drawThingsContactsTask?.cancel()
         modelFolderMonitorTask?.cancel()
         controlNetFolderMonitorTask?.cancel()
         modelDirDebounceTask?.cancel()
@@ -1177,6 +1218,7 @@ final class GenerationController {
         initialLoadTask = nil
         generationUpdatesTask = nil
         generationResultsTask = nil
+        drawThingsContactsTask = nil
         modelFolderMonitorTask = nil
         controlNetFolderMonitorTask = nil
         modelDirDebounceTask = nil
@@ -1204,6 +1246,16 @@ final class GenerationController {
             for await result in stream {
                 guard let self else { return }
                 self.apply(result)
+            }
+        }
+    }
+
+    private func observeDrawThingsContacts() {
+        drawThingsContactsTask?.cancel()
+        drawThingsContactsTask = Task { [weak self, contacts = engineRegistry.drawThingsContacts] in
+            for await contact in contacts {
+                guard let self else { return }
+                self.apply(contact)
             }
         }
     }

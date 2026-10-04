@@ -24,6 +24,9 @@ private actor StubDrawThingsTransport: DrawThingsTransport {
     var didCancel = false
     var shouldFail = false
     var returnsNoImage = false
+    private(set) var catalogRequests = 0
+    var catalogError: (any Error)?
+    var generationError: (any Error)?
 
     init(catalog: Data) {
         self.catalog = catalog
@@ -32,10 +35,14 @@ private actor StubDrawThingsTransport: DrawThingsTransport {
     func failNextGeneration() { shouldFail = true }
     func returnNoImageOnce() { returnsNoImage = true }
     func resumeImmediately() { shouldWait = false }
+    func failCatalog(with error: any Error) { catalogError = error }
+    func failGenerations(with error: any Error) { generationError = error }
     func catalog(connection: DrawThingsConnection, sharedSecret: String?) async throws
         -> DrawThingsCatalog
     {
+        catalogRequests += 1
         capturedSecret = sharedSecret
+        if let catalogError { throw catalogError }
         return DrawThingsCatalog(models: catalog)
     }
     func generate(
@@ -53,6 +60,7 @@ private actor StubDrawThingsTransport: DrawThingsTransport {
             shouldFail = false
             throw DrawThingsError.message("Server unavailable")
         }
+        if let generationError { throw generationError }
         if returnsNoImage {
             returnsNoImage = false
             return nil
@@ -228,7 +236,7 @@ struct DrawThingsTests {
     @Test("Missing local folders cannot prevent Draw Things discovery")
     func remoteDiscovery() async throws {
         let transport = StubDrawThingsTransport(catalog: catalog)
-        let secrets = InMemorySecretStore([connection.secretAccount: "secret"])
+        let secrets = InMemorySecretStore([DrawThingsConnection.secretAccount: "secret"])
         let engine = DrawThingsEngine(secrets: secrets, transport: transport)
         let settings = EngineSettings(
             modelDirectory: URL(fileURLWithPath: "/missing"),
@@ -428,18 +436,148 @@ struct DrawThingsTests {
         #expect(throws: DrawThingsError.self) { try value.validated() }
     }
 
-    @Test("Settings persist without a secret and credentials are scoped to the endpoint")
+    @Test("Settings persist without a secret, and start switched off with no host")
     @MainActor func persistence() throws {
         let suite = "DrawThingsTests.\(UUID())"
         let defaults = try #require(UserDefaults(suiteName: suite))
         defer { defaults.removePersistentDomain(forName: suite) }
         let store = EngineSettingsStore(store: defaults)
+        #expect(store.drawThings == DrawThingsConnection(enabled: false, host: "", port: 7859))
         store.drawThings = connection
         let restored = EngineSettingsStore(store: defaults)
         #expect(restored.drawThings == connection)
-        var remote = connection
-        remote.host = "studio.local"
-        #expect(remote.secretAccount != connection.secretAccount)
+    }
+
+    @Test("Switched on with no host, Draw Things makes no network call")
+    func noHost() async throws {
+        let transport = StubDrawThingsTransport(catalog: catalog)
+        let engine = DrawThingsEngine(secrets: NoSecretStore(), transport: transport)
+        var empty = connection
+        empty.host = ""
+        let settings = EngineSettings(
+            modelDirectory: URL(fileURLWithPath: "/missing"),
+            controlNetDirectory: URL(fileURLWithPath: "/missing"), drawThings: empty)
+        #expect(try await engine.discoverModels(ModelDiscoveryContext(settings: settings)).isEmpty)
+        #expect(await engine.availability(settings) != .ready)
+        #expect(await transport.catalogRequests == 0)
+    }
+
+    @Test("Host and port fields keep only the characters they can use")
+    func fieldFilters() {
+        #expect(DrawThingsConnection.filteredHost("studio.local") == "studio.local")
+        #expect(DrawThingsConnection.filteredHost("192.168.1.5") == "192.168.1.5")
+        #expect(DrawThingsConnection.filteredHost("my-mac.local") == "my-mac.local")
+        #expect(DrawThingsConnection.filteredHost(" http://stüdio_1:80/ ") == "httpstdio180")
+        #expect(DrawThingsConnection.filteredPort("78a59") == "7859")
+        #expect(DrawThingsConnection.filteredPort("1234567") == "12345")
+    }
+
+    /// Builds a controller whose only engine is Draw Things, with no local models.
+    @MainActor private func statusController(
+        transport: StubDrawThingsTransport, connection: DrawThingsConnection
+    ) throws -> (GenerationController, TempDirectory, TempDefaults) {
+        let registry = EngineRegistry(engines: [
+            AnyGenerationEngine(DrawThingsEngine(secrets: NoSecretStore(), transport: transport))
+        ])
+        let defaults = TempDefaults()
+        let directory = try TempDirectory()
+        let config = ConfigStore(store: defaults.defaults)
+        config.modelDir = directory.url.path
+        let settings = EngineSettingsStore(store: defaults.defaults)
+        settings.drawThings = connection
+        let controller = makeTestGenerationController(
+            configStore: config, engineRegistry: registry, engineSettings: settings,
+            startsObserving: false)
+        return (controller, directory, defaults)
+    }
+
+    @Test("Settings shows the result of the last model-list fetch, with the server's reason")
+    @MainActor func statusFromFetch() async throws {
+        let transport = StubDrawThingsTransport(catalog: catalog)
+        let (controller, _, _) = try statusController(transport: transport, connection: connection)
+        #expect(controller.drawThingsStatus == .inactive)
+        await controller.loadModels(from: [.connection])
+        #expect(controller.drawThingsStatus == .connected(warning: nil))
+
+        let refusal = "Draw Things requires a shared secret."
+        await transport.failCatalog(with: DrawThingsError.message(refusal))
+        await controller.loadModels(from: [.connection])
+        #expect(controller.drawThingsStatus == .notConnected(refusal))
+        #expect(!controller.hasModels(.drawThings))
+        // Settings reports the server; the main window does not blame a models folder.
+        #expect(controller.discoveryMessage?.contains("Couldn't read the models folder") != true)
+
+        // A server with nothing Mochi can use answered, so it is a warning.
+        let empty = "Draw Things returned an unreadable model list."
+        await transport.failCatalog(with: DrawThingsError.unusableModelList(empty))
+        await controller.loadModels(from: [.connection])
+        #expect(controller.drawThingsStatus == .connected(warning: empty))
+
+        await transport.failCatalog(with: GRPCStatus(code: .unavailable, message: nil))
+        await controller.loadModels(from: [.connection])
+        guard case .notConnected(let reason) = controller.drawThingsStatus else {
+            Issue.record("Expected Not connected, got \(controller.drawThingsStatus)")
+            return
+        }
+        #expect(reason.contains("didn't answer"))
+
+        controller.engineSettings.drawThings.enabled = false
+        await controller.loadModels(from: [.connection])
+        #expect(controller.drawThingsStatus == .inactive)
+        #expect(await transport.catalogRequests == 4)
+    }
+
+    @Test("Generations report whether they reached the server")
+    func generationContacts() async throws {
+        let transport = StubDrawThingsTransport(catalog: catalog)
+        let (contacts, continuation) = AsyncStream.makeStream(of: DrawThingsContact.self)
+        let runtime = DrawThingsRuntime(
+            secrets: NoSecretStore(), transport: transport, contacts: continuation)
+        let request = try request()
+        let run = { () async -> Void in
+            try? await runtime.run(
+                request: request, session: GenerationSession(requestID: request.id)
+            ) { _ in }
+        }
+        await run()
+        // Draw Things answering with its own error still means it was reached.
+        await transport.failGenerations(with: DrawThingsError.message("Out of memory"))
+        await run()
+        await transport.failGenerations(with: GRPCStatus(code: .unavailable, message: nil))
+        await run()
+        await transport.failGenerations(
+            with: GRPCStatus(code: .deadlineExceeded, message: nil))
+        await run()
+        // A stop says nothing about the server.
+        await transport.failGenerations(with: CancellationError())
+        await run()
+        continuation.finish()
+
+        var reports: [DrawThingsContact] = []
+        for await contact in contacts { reports.append(contact) }
+        #expect(reports.map { $0.failure == nil } == [true, true, false, false])
+        #expect(reports.allSatisfy { $0.connection == connection })
+    }
+
+    @Test("A generation's contact updates Settings only for the server it names")
+    @MainActor func statusFromGeneration() async throws {
+        let transport = StubDrawThingsTransport(catalog: catalog)
+        let (controller, _, _) = try statusController(transport: transport, connection: connection)
+        await controller.loadModels(from: [.connection])
+
+        controller.apply(DrawThingsContact(connection: connection, failure: "No answer"))
+        #expect(controller.drawThingsStatus == .notConnected("No answer"))
+        // A failed generation leaves the model list and selection alone.
+        #expect(controller.hasModels(.drawThings))
+        #expect(controller.currentModelId?.engine == .drawThings)
+
+        controller.apply(DrawThingsContact(connection: connection, failure: nil))
+        #expect(controller.drawThingsStatus == .connected(warning: nil))
+
+        var other = connection
+        other.host = "studio.local"
+        controller.apply(DrawThingsContact(connection: other, failure: "No answer"))
+        #expect(controller.drawThingsStatus == .connected(warning: nil))
     }
 
     @Test(
@@ -448,7 +586,8 @@ struct DrawThingsTests {
     @MainActor func runtime() async throws {
         let transport = StubDrawThingsTransport(catalog: catalog)
         let runtime = DrawThingsRuntime(
-            secrets: InMemorySecretStore([connection.secretAccount: "secret"]), transport: transport
+            secrets: InMemorySecretStore([DrawThingsConnection.secretAccount: "secret"]),
+            transport: transport
         )
         let request = try request(numberOfImages: 3)
         let results = ResultCollector()

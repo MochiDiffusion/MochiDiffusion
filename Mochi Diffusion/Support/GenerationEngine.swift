@@ -21,8 +21,9 @@ nonisolated struct EngineSettings: Sendable {
 /// What an engine's model list depends on, which decides the refreshes that ask it.
 ///
 /// A change in the models folder refreshes only `.modelsFolder` engines, so a folder
-/// event never contacts a server. `.connection` engines are asked at launch and when
-/// the user reconnects or saves connection settings.
+/// event never contacts a server. `.connection` engines are asked at launch, when the
+/// user switches Draw Things on or off, and when they save its details, which is how
+/// they reconnect.
 nonisolated enum ModelListSource: Sendable, Hashable, CaseIterable {
     case modelsFolder
     case connection

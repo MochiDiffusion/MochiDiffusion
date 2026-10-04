@@ -9,6 +9,26 @@ import Foundation
 import GRPC
 import NIO
 
+extension DrawThingsError {
+    /// Whether `error` means the server could not be reached, rather than that it
+    /// answered with an error of its own.
+    static func isUnreachable(_ error: any Error) -> Bool {
+        let status = (error as? any GRPCStatusTransformable)?.makeGRPCStatus()
+        return status?.code == .unavailable || status?.code == .deadlineExceeded
+    }
+
+    /// What Settings shows when Mochi could not use the server.
+    static func connectionFailureDescription(_ error: any Error) -> String {
+        guard isUnreachable(error) else { return error.localizedDescription }
+        return String(
+            localized:
+                "The server didn't answer. It isn't available or its TLS setting doesn't match.",
+            comment:
+                "Reason shown under 'Not connected' when the Draw Things server cannot be reached"
+        )
+    }
+}
+
 nonisolated struct DrawThingsCatalog: Sendable {
     var models: Data
 }
@@ -74,7 +94,7 @@ actor GRPCDrawThingsTransport: DrawThingsTransport {
             try await channel.close().get()
             if reply.sharedSecretMissing {
                 throw DrawThingsError.message(
-                    "Draw Things requires a shared secret. Enter it in Settings and reconnect.")
+                    "Draw Things requires a shared secret.")
             }
             return DrawThingsCatalog(models: reply.override.models)
         } catch {
@@ -150,10 +170,11 @@ nonisolated struct DrawThingsImageAccumulator {
     static let byteLimit = 128 * 1024 * 1024
 
     mutating func append(_ chunks: [Data], isLastChunk: Bool) throws {
+        let moreThanOneImageError = DrawThingsError.message(
+            "Draw Things returned more than one image for a single-image request.")
         guard !chunks.isEmpty else { return }
         guard image == nil else {
-            throw DrawThingsError.message(
-                "Draw Things returned more than one image for a single-image request.")
+            throw moreThanOneImageError
         }
         for chunk in chunks {
             guard chunk.count <= Self.byteLimit - pending.count else {
@@ -164,9 +185,7 @@ nonisolated struct DrawThingsImageAccumulator {
         }
         if isLastChunk {
             guard chunks.count == 1 else {
-                throw DrawThingsError.message(
-                    "Draw Things returned several images for a single-image request."
-                )
+                throw moreThanOneImageError
             }
             image = pending
             pending = Data()

@@ -10,12 +10,30 @@ import Foundation
 /// One server for both this Mac (localhost) and another machine on the LAN.
 /// Credentials are deliberately absent from this persisted value.
 nonisolated struct DrawThingsConnection: Codable, Equatable, Sendable {
+    static let defaultPort = 7859
+    /// The Keychain account of the server's shared secret. There is one server, so
+    /// the account does not depend on the address: editing the host keeps the secret.
+    static let secretAccount = "drawthings"
+
     var enabled = false
-    var host = "localhost"
-    var port = 7859
+    /// Empty until the user enters a server. Mochi does not assume one.
+    var host = ""
+    var port = DrawThingsConnection.defaultPort
     var useTLS = true
 
-    var secretAccount: String { "drawthings.\(host.lowercased()):\(port).\(useTLS)" }
+    /// Whether Mochi may contact the server: switched on, with a host entered.
+    /// Otherwise Mochi makes no network calls for Draw Things.
+    var isActive: Bool { enabled && !host.isEmpty }
+
+    /// Keeps the characters a hostname or IPv4 address can contain.
+    static func filteredHost(_ text: String) -> String {
+        text.filter { $0.isASCII && ($0.isLetter || $0.isNumber || $0 == "." || $0 == "-") }
+    }
+
+    /// Keeps up to five digits.
+    static func filteredPort(_ text: String) -> String {
+        String(text.filter { $0.isASCII && $0.isNumber }.prefix(5))
+    }
 
     func validated() throws -> Self {
         var result = self
@@ -32,11 +50,36 @@ nonisolated struct DrawThingsConnection: Codable, Equatable, Sendable {
     }
 }
 
+/// Whether one generation reached the Draw Things server.
+///
+/// Reported by the runtime so Settings shows the result of Mochi's last contact
+/// with the server, which can be a generation as well as a model-list fetch.
+nonisolated struct DrawThingsContact: Sendable, Equatable {
+    let connection: DrawThingsConnection
+    /// Why the server could not be reached; `nil` when it answered, even with an
+    /// error of its own.
+    let failure: String?
+}
+
+/// What Settings says about the Draw Things server.
+nonisolated enum DrawThingsStatus: Equatable, Sendable {
+    /// Switched off, or no host entered: Mochi is not contacting a server.
+    case inactive
+    case connecting
+    /// The server answered. A warning says why Mochi still cannot use it, such as a
+    /// model list with no supported models.
+    case connected(warning: String?)
+    /// With the reason, to show under the status.
+    case notConnected(String)
+}
+
 nonisolated enum DrawThingsError: LocalizedError {
     case message(String)
+    /// The server answered, but its model list gives Mochi nothing to use.
+    case unusableModelList(String)
     var errorDescription: String? {
         switch self {
-        case .message(let message): message
+        case .message(let message), .unusableModelList(let message): message
         }
     }
 }
@@ -116,14 +159,21 @@ nonisolated struct DrawThingsEngine: GenerationEngineDescriptor {
     var displayName: String { "Draw Things" }
     private let secrets: any SecretStore
     private let transport: any DrawThingsTransport
+    private let contacts: AsyncStream<DrawThingsContact>.Continuation?
 
-    init(secrets: any SecretStore, transport: any DrawThingsTransport = GRPCDrawThingsTransport()) {
+    /// - Parameter contacts: where generations report whether they reached the
+    ///   server; `nil` reports nothing.
+    init(
+        secrets: any SecretStore, transport: any DrawThingsTransport = GRPCDrawThingsTransport(),
+        contacts: AsyncStream<DrawThingsContact>.Continuation? = nil
+    ) {
         self.secrets = secrets
         self.transport = transport
+        self.contacts = contacts
     }
 
     func availability(_ settings: EngineSettings) async -> EngineAvailability {
-        guard settings.drawThings.enabled else {
+        guard settings.drawThings.isActive else {
             return .needsConfiguration("Set up a Draw Things server in Settings")
         }
         do {
@@ -135,10 +185,11 @@ nonisolated struct DrawThingsEngine: GenerationEngineDescriptor {
     }
 
     func discoverModels(_ context: ModelDiscoveryContext) async throws -> [DrawThingsModel] {
-        guard context.settings.drawThings.enabled else { return [] }
+        guard context.settings.drawThings.isActive else { return [] }
         let connection = try context.settings.drawThings.validated()
         let catalog = try await transport.catalog(
-            connection: connection, sharedSecret: secrets.secret(for: connection.secretAccount)
+            connection: connection,
+            sharedSecret: secrets.secret(for: DrawThingsConnection.secretAccount)
         )
         return try Self.models(from: catalog.models, connection: connection)
     }
@@ -147,12 +198,13 @@ nonisolated struct DrawThingsEngine: GenerationEngineDescriptor {
         -> [DrawThingsModel]
     {
         guard !data.isEmpty else {
-            throw DrawThingsError.message(
-                "The server publishes no models. Enable Model Browsing in Draw Things and download a model, then reconnect."
+            throw DrawThingsError.unusableModelList(
+                "The server publishes no models. Enable Model Browsing in Draw Things."
             )
         }
         guard let entries = try JSONSerialization.jsonObject(with: data) as? [Any] else {
-            throw DrawThingsError.message("Draw Things returned an unreadable model list.")
+            throw DrawThingsError.unusableModelList(
+                "Draw Things returned an unreadable model list.")
         }
         var seen: Set<String> = []
         let presets = DrawThingsPresets.loadPresets()
@@ -173,8 +225,8 @@ nonisolated struct DrawThingsEngine: GenerationEngineDescriptor {
             )
         }
         guard !models.isEmpty else {
-            throw DrawThingsError.message(
-                "No supported text-to-image models were published. Enable Model Browsing in Draw Things and download a supported model, such as Krea 2, FLUX, Qwen Image or Z-Image. Video and editing models are not supported."
+            throw DrawThingsError.unusableModelList(
+                "No supported models were published. Video and editing models are not supported."
             )
         }
         return models
@@ -228,17 +280,22 @@ nonisolated struct DrawThingsEngine: GenerationEngineDescriptor {
     }
 
     func makeRuntime() -> any GenerationEngineRuntime {
-        DrawThingsRuntime(secrets: secrets, transport: transport)
+        DrawThingsRuntime(secrets: secrets, transport: transport, contacts: contacts)
     }
 }
 
 actor DrawThingsRuntime: GenerationEngineRuntime {
     private let secrets: any SecretStore
     private let transport: any DrawThingsTransport
+    private let contacts: AsyncStream<DrawThingsContact>.Continuation?
 
-    init(secrets: any SecretStore, transport: any DrawThingsTransport) {
+    init(
+        secrets: any SecretStore, transport: any DrawThingsTransport,
+        contacts: AsyncStream<DrawThingsContact>.Continuation? = nil
+    ) {
         self.secrets = secrets
         self.transport = transport
+        self.contacts = contacts
     }
 
     nonisolated func idleTimeout(for request: GenerationRequest) -> Duration? { .seconds(300) }
@@ -269,16 +326,26 @@ actor DrawThingsRuntime: GenerationEngineRuntime {
         request: GenerationRequest, payload: DrawThingsPayload, session: GenerationSession,
         onResult: @escaping @Sendable (GenerationResult) async throws -> Void
     ) async throws {
-        let secret = secrets.secret(for: payload.connection.secretAccount)
+        let secret = secrets.secret(for: DrawThingsConnection.secretAccount)
         var seed = request.seed
         for _ in 0..<request.numberOfImages {
             if session.isCancelled { return }
             session.emit(.state(.loading("Generating with Draw Things…")))
             let imageSeed = seed
-            let image = try await transport.generate(
-                payload: payload, prompt: request.prompt, seed: imageSeed,
-                sharedSecret: secret, session: session
-            )
+            let image: CGImage?
+            do {
+                image = try await transport.generate(
+                    payload: payload, prompt: request.prompt, seed: imageSeed,
+                    sharedSecret: secret, session: session
+                )
+            } catch {
+                // A stop says nothing about the server.
+                if !session.isCancelled, !(error is CancellationError) {
+                    report(error, connection: payload.connection)
+                }
+                throw error
+            }
+            contacts?.yield(DrawThingsContact(connection: payload.connection, failure: nil))
             guard !session.isCancelled else { return }
             guard let image else {
                 throw DrawThingsError.message("Draw Things returned no finished image.")
@@ -292,6 +359,15 @@ actor DrawThingsRuntime: GenerationEngineRuntime {
             try await onResult(GenerationResult(metadata: metadata, imageData: data))
             seed = GenerationSeed.next(after: seed)
         }
+    }
+
+    /// An error Draw Things itself returned means the server answered, so only an
+    /// unreachable server is reported as a failure.
+    private func report(_ error: any Error, connection: DrawThingsConnection) {
+        let failure =
+            DrawThingsError.isUnreachable(error)
+            ? DrawThingsError.connectionFailureDescription(error) : nil
+        contacts?.yield(DrawThingsContact(connection: connection, failure: failure))
     }
 
     /// Records the values sent to Draw Things, with `nil` for the options the

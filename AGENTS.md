@@ -92,8 +92,16 @@ The multi-engine foundation is implemented. Current ownership and contracts foll
     not consult `GenerationState`: queue readiness is not a UI status.
   - `GenerationState` (`@MainActor`) is the UI-facing status model
     (`ready`/`loading`/`running`/`error`).
-  - Discovery problems have their own `GenerationController.discoveryMessage`.
-    Generation outcomes are reported through alerts, separately from discovery.
+  - Discovery problems have their own `GenerationController.discoveryMessage`, which
+    reports only models-folder problems. Generation outcomes are reported through alerts,
+    separately from discovery.
+  - The Draw Things connection status is `GenerationController.drawThingsStatus`, shown in
+    General settings. It is the result of Mochi's last contact with the server: a model-list
+    fetch, or a generation reported by the runtime through `EngineRegistry.drawThingsContacts`.
+    A model list with nothing Mochi can use is a warning under Connected. Any other failed
+    fetch is Not connected; a generation counts as Not connected only when the server is
+    unreachable, since an error Draw Things itself returns means it answered. Mochi does not
+    poll, and a failed generation never changes the model list or selection.
   - Both controllers own their observation tasks and have a terminal `shutdown()`.
 
 - Engines:
@@ -116,8 +124,9 @@ The multi-engine foundation is implemented. Current ownership and contracts foll
     unreachable server cannot empty the model list for the others.
   - Each engine declares a `ModelListSource`: `.modelsFolder` (Core ML, Iris) or
     `.connection` (Draw Things). Launch refreshes both. Models- and ControlNet-folder
-    changes refresh only `.modelsFolder`, so they never contact a server; Reconnect and
-    saving connection settings refresh only `.connection`. `GenerationController` applies
+    changes refresh only `.modelsFolder`, so they never contact a server; the Draw Things
+    switch in General settings and OK in its Details sheet (which always reconnects) refresh
+    only `.connection`. `GenerationController` applies
     each source's result as it arrives and keeps the other source's models.
   - Selection does not wait for a source still loading. Each applied result restores the
     saved model if it is available and otherwise selects the first available model, which

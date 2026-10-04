@@ -62,17 +62,6 @@ struct SettingsView: View {
                             Image(systemName: "photo")
                         }
                     }
-                DrawThingsSettingsView()
-                    .tabItem {
-                        Label {
-                            Text(
-                                "Draw Things",
-                                comment: "Settings tab header label"
-                            )
-                        } icon: {
-                            Image(systemName: "network")
-                        }
-                    }
                 notificationsView
                     .tabItem {
                         Label {
@@ -225,6 +214,7 @@ struct SettingsView: View {
                 .padding(4)
             }
 
+            DrawThingsSettingsView()
         }
     }
 
