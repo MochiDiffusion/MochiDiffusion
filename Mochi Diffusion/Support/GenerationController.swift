@@ -688,6 +688,40 @@ final class GenerationController {
         }
     }
 
+    // MARK: - LoRAs
+
+    /// The saved LoRAs the selected model can use, in the order they were added,
+    /// each with the weight the generation will use.
+    ///
+    /// The saved list keeps the others, which reappear when the user selects a
+    /// model that can use them.
+    var shownLoRAs: [(option: LoRAOption, selection: LoRASelection)] {
+        let constraint = currentConstraints.loras
+        return constraint.resolved(configStore.loras).compactMap { selection in
+            constraint.options.first { $0.file == selection.file }.map { ($0, selection) }
+        }
+    }
+
+    /// The selected model's LoRAs that are not in the saved list.
+    var addableLoRAs: [LoRAOption] {
+        let saved = Set(configStore.loras.map(\.file))
+        return currentConstraints.loras.options.filter { !saved.contains($0.file) }
+    }
+
+    func addLoRA(_ option: LoRAOption) {
+        guard !configStore.loras.contains(where: { $0.file == option.file }) else { return }
+        configStore.loras.append(LoRASelection(file: option.file, weight: option.defaultWeight))
+    }
+
+    func removeLoRA(file: String) {
+        configStore.loras.removeAll { $0.file == file }
+    }
+
+    func setLoRAWeight(_ weight: Double, file: String) {
+        guard let index = configStore.loras.firstIndex(where: { $0.file == file }) else { return }
+        configStore.loras[index].weight = weight
+    }
+
     // MARK: - Per-image crop
 
     func inputImageEdit(at index: Int) -> IrisReferenceImageEdit? {
@@ -1165,7 +1199,8 @@ final class GenerationController {
             imageDir: configStore.imageDir,
             controlNetDirectory: ModelRepository.controlNetDirectoryURL(
                 fromPath: configStore.controlNetDir
-            )
+            ),
+            loras: configStore.loras
         )
 
         let plan: GenerationPlan<any Sendable>
@@ -1200,7 +1235,8 @@ final class GenerationController {
             useDenoisedIntermediates: draft.showGenerationPreview,
             seed: draft.seed,
             numberOfImages: plan.numberOfImages,
-            imageDir: draft.imageDir
+            imageDir: draft.imageDir,
+            loras: plan.loras
         )
     }
 

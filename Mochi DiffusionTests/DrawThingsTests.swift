@@ -15,6 +15,7 @@ import Testing
 
 private actor StubDrawThingsTransport: DrawThingsTransport {
     let catalog: Data
+    let loras: Data
     var capturedPrompt: String?
     var capturedSeeds: [UInt32] = []
     var capturedSecret: String?
@@ -30,8 +31,9 @@ private actor StubDrawThingsTransport: DrawThingsTransport {
     var catalogError: (any Error)?
     var generationError: (any Error)?
 
-    init(catalog: Data) {
+    init(catalog: Data, loras: Data = Data()) {
         self.catalog = catalog
+        self.loras = loras
     }
     func waitForCancellation() { shouldWait = true }
     func failNextGeneration() { shouldFail = true }
@@ -45,7 +47,7 @@ private actor StubDrawThingsTransport: DrawThingsTransport {
         catalogRequests += 1
         capturedSecret = sharedSecret
         if let catalogError { throw catalogError }
-        return DrawThingsCatalog(models: catalog)
+        return DrawThingsCatalog(models: catalog, loras: loras)
     }
     func generate(
         payload: DrawThingsPayload, inputs: DrawThingsInputs, prompt: String, seed: UInt32,
@@ -205,7 +207,7 @@ struct DrawThingsTests {
             strength: plan.strength, stepCount: plan.stepCount,
             guidanceScale: plan.guidanceScale, scheduler: nil, mlComputeUnit: nil,
             useDenoisedIntermediates: false, seed: 7, numberOfImages: plan.numberOfImages,
-            imageDir: imageDir
+            imageDir: imageDir, loras: plan.loras
         )
     }
 
@@ -515,6 +517,169 @@ struct DrawThingsTests {
         #expect(kleinMetadata.inputImages == ["first.png", ""])
         #expect(kleinRecord.inputImages == ["first.png", ""])
         #expect(kleinRecord.metadataFields.isDisjoint(with: [.startingImage, .strength]))
+    }
+
+    /// Two SD 1.5 LoRAs (one with no weight range of its own), a Klein LoRA, and
+    /// LoRAs Mochi cannot apply.
+    private var loraCatalog: Data {
+        Data(
+            #"""
+            [
+              {"file":"watercolor_lora_f16.ckpt","name":"Watercolor","version":"v1","prefix":"wtrclr style","weight":{"value":0.6,"lower_bound":-1,"upper_bound":2},"future_field":7},
+              {"file":"anime_lora_f16.ckpt","name":"anime","version":"v1"},
+              {"file":"klein_detail_lora_f16.ckpt","name":"Klein Detail","version":"flux2_4b"},
+              {"file":"hyper_sd_lora_f16.ckpt","name":"Hyper SD","version":"v1","is_consistency_model":true},
+              {"file":"inpaint_lora_f16.ckpt","name":"Inpaint","version":"v1","modifier":"inpainting"},
+              {"file":"decoder_lora_f16.ckpt","name":"Decoder","version":"v1","alternative_decoder":"x"},
+              {"file":"watercolor_lora_f16.ckpt","name":"duplicate","version":"v1"},
+              {"file":"no_version.ckpt"}
+            ]
+            """#.utf8)
+    }
+
+    @Test("Each model offers the server's LoRAs for its version that Mochi can apply")
+    func loraDiscovery() throws {
+        let models = try DrawThingsEngine.models(
+            from: imageCatalog, connection: connection, loras: loraCatalog)
+        let sd = models[0].constraints.loras
+        #expect(
+            sd.options == [
+                LoRAOption(
+                    file: "anime_lora_f16.ckpt", name: "anime", triggerWords: "",
+                    weightRange: -1.5...2.5, defaultWeight: 1),
+                LoRAOption(
+                    file: "watercolor_lora_f16.ckpt", name: "Watercolor",
+                    triggerWords: "wtrclr style", weightRange: -1...2, defaultWeight: 0.6),
+            ])
+        #expect(models[1].constraints.loras.options.map(\.file) == ["klein_detail_lora_f16.ckpt"])
+        // No LoRAs for its version, so the model offers none.
+        #expect(!models[2].constraints.loras.isSupported)
+        #expect(
+            !(try DrawThingsEngine.models(from: imageCatalog, connection: connection))[0]
+                .constraints.loras.isSupported)
+    }
+
+    @Test("Planning sends the saved LoRAs the model can use, in order, with clamped weights")
+    func loraPlanning() throws {
+        let models = try DrawThingsEngine.models(
+            from: imageCatalog, connection: connection, loras: loraCatalog)
+        var input = draft()
+        input.loras = [
+            LoRASelection(file: "watercolor_lora_f16.ckpt", weight: 5),
+            LoRASelection(file: "klein_detail_lora_f16.ckpt", weight: 0.5),
+            LoRASelection(file: "anime_lora_f16.ckpt", weight: -0.25),
+            LoRASelection(file: "removed_from_server.ckpt", weight: 1),
+        ]
+        let plan = try DrawThingsEngine(secrets: NoSecretStore()).plan(
+            draft: input, model: models[0])
+        #expect(
+            plan.loras == [
+                LoRASelection(file: "watercolor_lora_f16.ckpt", weight: 2),
+                LoRASelection(file: "anime_lora_f16.ckpt", weight: -0.25),
+            ])
+        #expect(plan.payload.configuration.loras.map(\.file) == plan.loras.map(\.file))
+        #expect(plan.payload.configuration.loras.map(\.weight) == [2, -0.25])
+        let specifications = try #require(
+            JSONSerialization.jsonObject(with: plan.payload.loraSpecifications) as? [[String: Any]])
+        #expect(specifications.map { $0["file"] as? String } == plan.loras.map(\.file))
+        #expect(specifications.first?["future_field"] as? Int == 7)
+
+        let none = try DrawThingsEngine(secrets: NoSecretStore()).plan(
+            draft: draft(), model: models[0])
+        #expect(none.loras.isEmpty)
+        #expect(none.payload.configuration.loras.isEmpty)
+        #expect(
+            (try JSONSerialization.jsonObject(with: none.payload.loraSpecifications) as? [Any])?
+                .isEmpty == true)
+    }
+
+    @Test("Each image records its LoRAs and weights, which the Info panel shows")
+    @MainActor func loraMetadata() async throws {
+        let models = try DrawThingsEngine.models(
+            from: imageCatalog, connection: connection, loras: loraCatalog)
+        var input = draft()
+        input.loras = [
+            LoRASelection(file: "watercolor_lora_f16.ckpt", weight: 0.7),
+            LoRASelection(file: "anime_lora_f16.ckpt", weight: 1),
+        ]
+        let transport = StubDrawThingsTransport(catalog: Data())
+        let runtime = DrawThingsRuntime(secrets: NoSecretStore(), transport: transport)
+        let request = try request(model: models[0], draft: input)
+        #expect(request.loras.map(\.file) == ["watercolor_lora_f16.ckpt", "anime_lora_f16.ckpt"])
+        let results = ResultCollector()
+        try await runtime.run(request: request, session: GenerationSession(requestID: request.id)) {
+            await results.add($0)
+        }
+        let result = try #require(await results.all.first)
+        #expect(
+            result.metadata.loras == [
+                LoRASelection(file: "watercolor_lora_f16.ckpt", weight: 0.7),
+                LoRASelection(file: "anime_lora_f16.ckpt", weight: 1),
+            ])
+        let directory = try TempDirectory()
+        let url = directory.url.appendingPathComponent("loras.png")
+        try result.imageData.write(to: url)
+        let record = try #require(createImageRecordFromURL(url))
+        #expect(record.prompt == "a cat")
+        #expect(
+            record.details.contains(
+                MetadataDetail(
+                    label: "LoRAs",
+                    value: "watercolor_lora_f16.ckpt (0.7)\nanime_lora_f16.ckpt (1.0)")))
+    }
+
+    @Test("The sidebar shows the saved LoRAs the model can use, and keeps the others saved")
+    @MainActor func savedLoRAs() async throws {
+        let transport = StubDrawThingsTransport(catalog: imageCatalog, loras: loraCatalog)
+        let (controller, _, defaults) = try statusController(
+            transport: transport, connection: connection)
+        defer { controller.shutdown() }
+        await controller.loadModels(from: [.connection])
+        let sd = try #require(controller.models.first { $0.name == "SD 1.5" })
+        let klein = try #require(controller.models.first { $0.name == "Klein 4B" })
+        let klein9B = try #require(controller.models.first { $0.name == "Klein 9B KV" })
+
+        controller.currentModelId = sd.id
+        #expect(controller.addableLoRAs.map(\.name) == ["anime", "Watercolor"])
+        controller.addLoRA(controller.addableLoRAs[1])
+        controller.setLoRAWeight(1.25, file: "watercolor_lora_f16.ckpt")
+        #expect(controller.addableLoRAs.map(\.name) == ["anime"])
+
+        controller.currentModelId = klein.id
+        #expect(controller.shownLoRAs.isEmpty)
+        controller.addLoRA(controller.addableLoRAs[0])
+        #expect(controller.shownLoRAs.map(\.option.name) == ["Klein Detail"])
+
+        // A model with no LoRAs offers none and shows none.
+        controller.currentModelId = klein9B.id
+        #expect(!controller.currentConstraints.loras.isSupported)
+        #expect(controller.shownLoRAs.isEmpty)
+
+        controller.currentModelId = sd.id
+        #expect(
+            controller.shownLoRAs.map(\.selection) == [
+                LoRASelection(file: "watercolor_lora_f16.ckpt", weight: 1.25)
+            ])
+        controller.removeLoRA(file: "watercolor_lora_f16.ckpt")
+        #expect(controller.shownLoRAs.isEmpty)
+
+        // The saved list survives relaunch, with the LoRA the SD model cannot use.
+        #expect(
+            ConfigStore(store: defaults.defaults).loras == [
+                LoRASelection(file: "klein_detail_lora_f16.ckpt", weight: 1)
+            ])
+    }
+
+    @Test("A saved weight outside its LoRA's range is shown as the weight that will be used")
+    @MainActor func savedWeightClamped() async throws {
+        let transport = StubDrawThingsTransport(catalog: imageCatalog, loras: loraCatalog)
+        let (controller, _, _) = try statusController(transport: transport, connection: connection)
+        defer { controller.shutdown() }
+        controller.configStore.loras = [LoRASelection(file: "watercolor_lora_f16.ckpt", weight: -4)]
+        await controller.loadModels(from: [.connection])
+        controller.currentModelId = try #require(controller.models.first { $0.name == "SD 1.5" }).id
+        #expect(controller.shownLoRAs.map(\.selection.weight) == [-1])
+        #expect(controller.buildGenerationRequest()?.loras.map(\.weight) == [-1])
     }
 
     /// How a model applies guidance, from its catalog flags.
@@ -839,11 +1004,14 @@ private final class DrawThingsLoopbackService: CallHandlerProvider, Sendable {
     let tensor: Data
     let expectedConfiguration: Data
     let expectedInputs: DrawThingsInputs
+    let loras: Data
 
     init(
-        catalog: Data, tensor: Data, expectedConfiguration: Data, expectedInputs: DrawThingsInputs
+        catalog: Data, tensor: Data, expectedConfiguration: Data, expectedInputs: DrawThingsInputs,
+        loras: Data
     ) {
         self.catalog = catalog
+        self.loras = loras
         self.tensor = tensor
         self.expectedConfiguration = expectedConfiguration
         self.expectedInputs = expectedInputs
@@ -864,6 +1032,7 @@ private final class DrawThingsLoopbackService: CallHandlerProvider, Sendable {
                 reply.sharedSecretMissing = request.sharedSecret != "test-secret"
                 if !reply.sharedSecretMissing {
                     reply.override.models = self.catalog
+                    reply.override.loras = self.loras
                 }
                 return context.eventLoop.makeSucceededFuture(reply)
             }
@@ -879,6 +1048,7 @@ private final class DrawThingsLoopbackService: CallHandlerProvider, Sendable {
                 #expect(request.sharedSecret == "test-secret")
                 #expect(request.configuration == self.expectedConfiguration)
                 #expect(request.override.models == self.catalog)
+                #expect(request.override.loras == self.loras)
                 #expect(request.chunked)
                 let image = self.expectedInputs.startingImage ?? Data()
                 #expect(request.image == Data(SHA256.hash(data: image)))
@@ -928,9 +1098,11 @@ struct DrawThingsGRPCTests {
                 try ImageHelpers.imageToDTTensor(
                     makeCGImage(width: width, height: height), forceRGB: true)
             })
+        let loras = Data(#"[{"file":"lora_f16.ckpt","version":"v1"}]"#.utf8)
         let service = DrawThingsLoopbackService(
             catalog: model.specification, tensor: tensor,
-            expectedConfiguration: try configuration.toFlatBufferData(), expectedInputs: inputs
+            expectedConfiguration: try configuration.toFlatBufferData(), expectedInputs: inputs,
+            loras: loras
         )
         let server = try await Server.insecure(group: MultiThreadedEventLoopGroup.singleton)
             .withServiceProviders([service]).bind(host: "127.0.0.1", port: 0).get()
@@ -951,10 +1123,11 @@ struct DrawThingsGRPCTests {
             let discovered = try await transport.catalog(
                 connection: connection, sharedSecret: "test-secret")
             #expect(discovered.models == model.specification)
+            #expect(discovered.loras == loras)
             let payload = DrawThingsPayload(
                 connection: connection, specification: discovered.models,
                 configuration: configuration, negativePrompt: "blurry",
-                architecture: nil, previewFamily: .sd1)
+                architecture: nil, previewFamily: .sd1, loraSpecifications: discovered.loras)
             let session = GenerationSession(requestID: UUID())
             let image = try await transport.generate(
                 payload: payload, inputs: inputs, prompt: "transport test", seed: 123,

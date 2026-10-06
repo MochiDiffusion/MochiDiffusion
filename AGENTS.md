@@ -73,7 +73,7 @@ The multi-engine foundation is implemented. Current ownership and contracts foll
 - Runtime ownership boundaries:
   - `ConfigStore` (`@MainActor`, `@Observable`) owns persisted input that is *global* —
     `modelDir`, `controlNetDir`, `prompt`, `steps`, `width`/`height`, `imageDir`,
-    and shared draft values. Output is always PNG, so there is no
+    the saved LoRA list, and shared draft values. Output is always PNG, so there is no
     format preference. Its `UserDefaults` store is injectable, so tests use an
     isolated suite.
   - `EngineSettingsStore` (`@MainActor`, `@Observable`) owns settings that belong to one
@@ -164,6 +164,11 @@ The multi-engine foundation is implemented. Current ownership and contracts foll
     Iris accepts reference lists; Core ML uses a denoising starting image. A Draw Things
     model takes one or the other by its catalog `modifier`: text-to-image models a starting
     image, FLUX.2 models references, sent as moodboard hints and never cropped to the output.
+  - LoRAs: a Draw Things model offers the server's LoRAs for its version through
+    `OptionConstraints.loras`, leaving out consistency, inpainting and alternative-decoder
+    LoRAs. The saved list keeps every LoRA the user added, by server filename; the sidebar
+    shows, and `plan` sends, the ones the selected model offers. Images record each as a
+    `lora` resource named by its filename.
 
 - Concurrency defaults (project settings):
   - `SWIFT_VERSION = 6.0`

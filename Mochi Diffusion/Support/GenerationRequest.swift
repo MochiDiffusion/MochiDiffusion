@@ -78,6 +78,9 @@ nonisolated struct GenerationRequest: Sendable, Identifiable {
     let seed: UInt32
     let numberOfImages: Int
     let imageDir: String
+    /// The LoRAs that will be applied, with their resolved weights. Empty for a
+    /// model that applies none.
+    var loras: [LoRASelection] = []
 }
 
 nonisolated struct GenerationResult: Sendable, Identifiable {
@@ -149,4 +152,6 @@ nonisolated struct GenerationMetadata: Sendable {
     let guidanceScale: Double?
     let generatedDate: Date
     let metadataFields: Set<MetadataField>
+    /// The LoRAs applied, by server filename, with their weights.
+    var loras: [LoRASelection] = []
 }

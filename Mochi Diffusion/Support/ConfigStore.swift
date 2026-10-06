@@ -34,6 +34,7 @@ import SwiftUI
         static let reduceMemory = "ReduceMemory"
         static let safetyChecker = "SafetyChecker"
         static let useTrash = "UseTrash"
+        static let loras = "LoRAs"
     }
 
     /// Declared once because `init(store:)` restates every default when it rebinds
@@ -84,6 +85,8 @@ import SwiftUI
     @ObservationIgnored @AppStorage(Key.safetyChecker) private var _safetyChecker =
         Default.safetyChecker
     @ObservationIgnored @AppStorage(Key.useTrash) private var _useTrash = Default.useTrash
+    /// JSON, because `@AppStorage` cannot hold an array of structs.
+    @ObservationIgnored @AppStorage(Key.loras) private var _loras = Data()
 
     /// The defaults this store reads and writes.
     ///
@@ -127,6 +130,7 @@ import SwiftUI
         __safetyChecker = AppStorage(
             wrappedValue: Default.safetyChecker, Key.safetyChecker, store: store)
         __useTrash = AppStorage(wrappedValue: Default.useTrash, Key.useTrash, store: store)
+        __loras = AppStorage(wrappedValue: Data(), Key.loras, store: store)
     }
 
     var imageDir: String {
@@ -362,6 +366,20 @@ import SwiftUI
         set {
             withMutation(keyPath: \.useTrash) {
                 _useTrash = newValue
+            }
+        }
+    }
+
+    /// Every LoRA the user has added, including ones the selected model cannot
+    /// use, in the order they were added. Unreadable saved data reads as none.
+    var loras: [LoRASelection] {
+        get {
+            access(keyPath: \.loras)
+            return (try? JSONDecoder().decode([LoRASelection].self, from: _loras)) ?? []
+        }
+        set {
+            withMutation(keyPath: \.loras) {
+                _loras = (try? JSONEncoder().encode(newValue)) ?? Data()
             }
         }
     }

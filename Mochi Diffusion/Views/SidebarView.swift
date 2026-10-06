@@ -34,6 +34,14 @@ struct SidebarView: View {
                         ModelView()
                         Spacer().frame(height: 6)
                     }
+                    // Only for a model whose server offers LoRAs for it. The rows
+                    // below move down by its height.
+                    if controller.currentConstraints.loras.isSupported {
+                        Group {
+                            LoRAView()
+                            Spacer().frame(height: 6)
+                        }
+                    }
                     Group {
                         SizeView()
                         Spacer().frame(height: 6)

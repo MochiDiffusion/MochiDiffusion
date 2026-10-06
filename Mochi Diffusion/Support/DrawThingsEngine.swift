@@ -98,6 +98,50 @@ nonisolated enum DrawThingsError: LocalizedError, ModelListMayBeOutdated {
     }
 }
 
+/// A LoRA the server publishes, with the specification it is sent back with.
+nonisolated struct DrawThingsLoRA: Sendable {
+    let option: LoRAOption
+    /// The model version it was trained for, such as `flux2_4b`.
+    let version: String
+    /// The server's entry for this LoRA as a JSON object, sent back with a
+    /// generation that uses it, including fields unknown to this build.
+    let specification: Data
+
+    /// The LoRAs in a server's list that Mochi can apply, in the server's order.
+    ///
+    /// Leaves out consistency, inpainting and alternative-decoder LoRAs, which
+    /// need options Mochi does not offer.
+    static func parse(_ data: Data) -> [Self] {
+        guard let entries = try? JSONSerialization.jsonObject(with: data) as? [Any] else {
+            return []
+        }
+        var seen: Set<String> = []
+        return entries.compactMap { entry in
+            guard let fields = entry as? [String: Any],
+                let file = fields["file"] as? String, !file.isEmpty,
+                let version = fields["version"] as? String,
+                fields["is_consistency_model"] as? Bool != true,
+                fields["alternative_decoder"] == nil,
+                (fields["modifier"] as? String ?? "none") == "none",
+                let specification = try? JSONSerialization.data(withJSONObject: fields)
+            else { return nil }
+            let weight = fields["weight"] as? [String: Any]
+            let lower = (weight?["lower_bound"] as? NSNumber)?.doubleValue ?? -1.5
+            let upper = (weight?["upper_bound"] as? NSNumber)?.doubleValue ?? 2.5
+            let value = (weight?["value"] as? NSNumber)?.doubleValue ?? 1
+            guard lower.isFinite, upper.isFinite, value.isFinite, lower <= upper,
+                seen.insert(file).inserted
+            else { return nil }
+            return Self(
+                option: LoRAOption(
+                    file: file, name: fields["name"] as? String ?? file,
+                    triggerWords: fields["prefix"] as? String ?? "",
+                    weightRange: lower...upper, defaultWeight: min(max(value, lower), upper)),
+                version: version, specification: specification)
+        }
+    }
+}
+
 nonisolated struct DrawThingsModel: EngineModel {
     let file: String
     let name: String
@@ -120,6 +164,8 @@ nonisolated struct DrawThingsModel: EngineModel {
     /// The model's recommended configuration, which supplies every value Mochi does
     /// not offer.
     let configuration: DrawThingsConfiguration
+    /// The server's LoRAs for this model's version.
+    var loras: [DrawThingsLoRA] = []
 
     var id: ModelID { ModelID(engine: .drawThings, key: file) }
     var tokenizerModelDir: URL? { nil }
@@ -169,7 +215,13 @@ nonisolated struct DrawThingsModel: EngineModel {
                 ? .supported(maxCount: maxReferenceImages) : .unsupported,
             controlNet: .unsupported,
             numberOfImages: .range(1...100, step: 1, acceptsBeyondUpperBound: true),
-            promptTokenLimit: nil
+            promptTokenLimit: nil,
+            loras: loras.isEmpty
+                ? .unsupported
+                : .supported(
+                    loras.map(\.option).sorted {
+                        $0.name.localizedStandardCompare($1.name) == .orderedAscending
+                    })
         )
     }
 }
@@ -185,6 +237,8 @@ nonisolated struct DrawThingsPayload: Sendable {
     let architecture: String?
     /// How to turn the model's preview latents into colours.
     let previewFamily: LatentModelFamily
+    /// The server's entries for the LoRAs in `configuration.loras`, as a JSON array.
+    var loraSpecifications = Data()
 }
 
 nonisolated struct DrawThingsEngine: GenerationEngineDescriptor {
@@ -218,12 +272,12 @@ nonisolated struct DrawThingsEngine: GenerationEngineDescriptor {
             connection: connection,
             sharedSecret: secrets.secret(for: DrawThingsConnection.secretAccount)
         )
-        return try Self.models(from: catalog.models, connection: connection)
+        return try Self.models(from: catalog.models, connection: connection, loras: catalog.loras)
     }
 
-    static func models(from data: Data, connection: DrawThingsConnection) throws
-        -> [DrawThingsModel]
-    {
+    static func models(
+        from data: Data, connection: DrawThingsConnection, loras: Data = Data()
+    ) throws -> [DrawThingsModel] {
         guard !data.isEmpty else {
             throw DrawThingsError.unusableModelList(
                 "The server publishes no models. Enable Model Browsing in Draw Things."
@@ -235,6 +289,7 @@ nonisolated struct DrawThingsEngine: GenerationEngineDescriptor {
         }
         var seen: Set<String> = []
         let presets = DrawThingsPresets.loadPresets()
+        let availableLoRAs = DrawThingsLoRA.parse(loras)
         let models = entries.compactMap { entry -> DrawThingsModel? in
             guard let fields = entry as? [String: Any],
                 let file = fields["file"] as? String, !file.isEmpty,
@@ -249,7 +304,8 @@ nonisolated struct DrawThingsEngine: GenerationEngineDescriptor {
                 modifier: fields["modifier"] as? String ?? "none",
                 isConsistencyModel: fields["is_consistency_model"] as? Bool ?? false,
                 usesGuidanceEmbedding: fields["guidance_embed"] as? Bool ?? false,
-                connection: connection, specification: specification, configuration: configuration
+                connection: connection, specification: specification, configuration: configuration,
+                loras: availableLoRAs.filter { $0.version == version }
             )
         }
         guard !models.isEmpty else {
@@ -298,13 +354,21 @@ nonisolated struct DrawThingsEngine: GenerationEngineDescriptor {
         let references = constraints.inputImages.prepared(draft.inputImages) { image, _ in
             Self.referenceSized(image, outputSize: size)
         }
+        let loras = constraints.loras.resolved(draft.loras)
+        configuration.loras = loras.map { LoRAConfig(file: $0.file, weight: Float($0.weight)) }
+        let loraSpecifications = loras.compactMap { selection in
+            model.loras.first { $0.option.file == selection.file }?.specification
+        }
         return GenerationPlan(
             payload: DrawThingsPayload(
                 connection: model.connection, specification: model.specification,
                 configuration: configuration,
                 negativePrompt: constraints.supportsNegativePrompt ? draft.negativePrompt : "",
                 architecture: DrawThingsPresets.familyNames[model.version],
-                previewFamily: LatentModelFamily.detect(from: model.version)
+                previewFamily: LatentModelFamily.detect(from: model.version),
+                loraSpecifications: Data("[".utf8)
+                    + Data(loraSpecifications.joined(separator: Data(",".utf8)))
+                    + Data("]".utf8)
             ),
             size: size,
             startingImageData: startingImage.data.first, inputImageData: references.data,
@@ -316,7 +380,8 @@ nonisolated struct DrawThingsEngine: GenerationEngineDescriptor {
             guidanceScale: guidanceScale.map(Float.init),
             numberOfImages: numberOfImages,
             mlComputeUnit: nil, startingImageName: startingImage.names.first ?? nil,
-            inputImageNames: references.names
+            inputImageNames: references.names,
+            loras: loras
         )
     }
 
@@ -450,7 +515,11 @@ actor DrawThingsRuntime: GenerationEngineRuntime {
             guidanceScale: fields.contains(.guidanceScale)
                 ? request.guidanceScale.map(Double.init) : nil,
             generatedDate: Date(),
-            metadataFields: fields
+            metadataFields: fields,
+            // The shortest decimal text of each `Float` weight, as for strength.
+            loras: payload.configuration.loras.map {
+                LoRASelection(file: $0.file, weight: Double($0.weight.description) ?? 0)
+            }
         )
     }
 }

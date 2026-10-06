@@ -115,6 +115,9 @@ nonisolated struct GenerationDraft: Sendable {
     /// Where the shared ControlNet bundles live. Only Core ML Stable Diffusion
     /// reads it.
     var controlNetDirectory: URL
+    /// Every saved LoRA, including ones the model cannot use. An engine applies
+    /// the ones its `LoRAsConstraint` offers.
+    var loras: [LoRASelection] = []
 }
 
 nonisolated struct ControlNetDraft: Sendable {
@@ -162,6 +165,8 @@ nonisolated struct GenerationPlan<Payload: Sendable>: Sendable {
     /// Positionally aligned with `inputImageData`; nil means those pixels had no
     /// source filename.
     var inputImageNames: [String?]
+    /// The LoRAs that will be applied, with their resolved weights.
+    var loras: [LoRASelection] = []
 }
 
 nonisolated extension GenerationPlan {
@@ -182,7 +187,8 @@ nonisolated extension GenerationPlan {
             numberOfImages: numberOfImages,
             mlComputeUnit: mlComputeUnit,
             startingImageName: startingImageName,
-            inputImageNames: inputImageNames
+            inputImageNames: inputImageNames,
+            loras: loras
         )
     }
 }

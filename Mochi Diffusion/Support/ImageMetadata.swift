@@ -48,6 +48,7 @@ nonisolated extension GenerationMetadata {
     func snapshot(appVersion: String = NSApplication.appVersion) -> MochiGenerationSnapshot {
         var resources: [GenerationResource] = []
         if let controlNet { resources.append(GenerationResource(kind: .control, name: controlNet)) }
+        resources += loras.map { GenerationResource(kind: .lora, name: $0.file, weight: $0.weight) }
 
         var parameters: [GenerationParameter] = []
         if let architecture {

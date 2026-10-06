@@ -91,6 +91,7 @@
 		AA3000000000000000000001 /* EngineIdentity.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1100000000000000000001 /* EngineIdentity.swift */; };
 		AA3000000000000000000031 /* OptionConstraints.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1100000000000000000031 /* OptionConstraints.swift */; };
 		AA3000000000000000000097 /* StartingImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1100000000000000000097 /* StartingImageView.swift */; };
+		AA30000000000000000000A0 /* LoRAView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA11000000000000000000A0 /* LoRAView.swift */; };
 		AA3000000000000000000098 /* IrisReferenceImageSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1100000000000000000098 /* IrisReferenceImageSupport.swift */; };
 		AA3000000000000000000099 /* InputImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA1100000000000000000099 /* InputImage.swift */; };
 		AA4000000000000000000002 /* PreferenceMigration.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA4000000000000000000001 /* PreferenceMigration.swift */; };
@@ -255,6 +256,7 @@
 		AA1100000000000000000001 /* EngineIdentity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngineIdentity.swift; sourceTree = "<group>"; };
 		AA1100000000000000000031 /* OptionConstraints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionConstraints.swift; sourceTree = "<group>"; };
 		AA1100000000000000000097 /* StartingImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartingImageView.swift; sourceTree = "<group>"; };
+		AA11000000000000000000A0 /* LoRAView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoRAView.swift; sourceTree = "<group>"; };
 		AA1100000000000000000098 /* IrisReferenceImageSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IrisReferenceImageSupport.swift; sourceTree = "<group>"; };
 		AA1100000000000000000099 /* InputImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputImage.swift; sourceTree = "<group>"; };
 		AA4000000000000000000001 /* PreferenceMigration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferenceMigration.swift; sourceTree = "<group>"; };
@@ -406,6 +408,7 @@
 				035EDFF9295A219200080D18 /* GuidanceScaleView.swift */,
 				035EDFFD295A220F00080D18 /* SeedView.swift */,
 				035EDFFF295A224900080D18 /* ModelView.swift */,
+				AA11000000000000000000A0 /* LoRAView.swift */,
 				58FF218729FAE96200A70C7C /* ControlNetView.swift */,
 				035EDFFB295A21D600080D18 /* SizeView.swift */,
 				C1220FBF2AFB122F007E5055 /* ImageWellView.swift */,
@@ -857,6 +860,7 @@
 				C1220FC02AFB122F007E5055 /* ImageWellView.swift in Sources */,
 				0380934329AD504600EDBC8E /* InputImagesView.swift in Sources */,
 				AA3000000000000000000097 /* StartingImageView.swift in Sources */,
+				AA30000000000000000000A0 /* LoRAView.swift in Sources */,
 				0EF066A162A2D255BF7624D3 /* ComputeUnitPreference.swift in Sources */,
 				463715C52EA79FC4AF642B78 /* GenerationController.swift in Sources */,
 				73F2FE036E51455A99DBC80B /* GenerationRequest.swift in Sources */,

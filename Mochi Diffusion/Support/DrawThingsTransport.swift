@@ -70,6 +70,7 @@ extension DrawThingsError {
 
 nonisolated struct DrawThingsCatalog: Sendable {
     var models: Data
+    var loras = Data()
 }
 
 /// A request's images as Draw Things tensors, converted once for every image in
@@ -164,7 +165,7 @@ actor GRPCDrawThingsTransport: DrawThingsTransport {
                         ? "Draw Things didn't accept the shared secret."
                         : "Draw Things requires a shared secret.")
             }
-            return DrawThingsCatalog(models: reply.override.models)
+            return DrawThingsCatalog(models: reply.override.models, loras: reply.override.loras)
         } catch {
             try? await channel.close().get()
             throw error
@@ -188,6 +189,7 @@ actor GRPCDrawThingsTransport: DrawThingsTransport {
             request.negativePrompt = payload.negativePrompt
             request.configuration = try configuration.toFlatBufferData()
             request.override.models = payload.specification
+            request.override.loras = payload.loraSpecifications
             Self.attach(inputs, to: &request)
             request.chunked = true
             if let sharedSecret { request.sharedSecret = sharedSecret }

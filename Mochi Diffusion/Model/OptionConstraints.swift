@@ -267,6 +267,62 @@ nonisolated enum ControlNetConstraint: Sendable, Equatable {
     }
 }
 
+/// A LoRA a model can apply, as its server describes it.
+nonisolated struct LoRAOption: Sendable, Equatable, Identifiable {
+    /// The server's filename, which identifies the LoRA.
+    let file: String
+    let name: String
+    /// Words the LoRA was trained to respond to, shown for the user to copy into
+    /// the prompt. Empty when the server names none.
+    let triggerWords: String
+    let weightRange: ClosedRange<Double>
+    /// The weight a newly added LoRA starts at.
+    let defaultWeight: Double
+
+    var id: String { file }
+}
+
+/// A LoRA the user chose, and its weight. The sidebar saves these across model
+/// switches and relaunch, and shows the ones the selected model can use.
+nonisolated struct LoRASelection: Codable, Sendable, Equatable, Identifiable {
+    /// The server's filename, matching `LoRAOption.file`.
+    var file: String
+    var weight: Double
+
+    var id: String { file }
+}
+
+/// Which LoRAs a model can apply. Per model, because a LoRA works only with
+/// models of the version it was trained for.
+nonisolated enum LoRAsConstraint: Sendable, Equatable {
+    case unsupported
+    case supported([LoRAOption])
+
+    var isSupported: Bool {
+        if case .supported = self { return true }
+        return false
+    }
+
+    var options: [LoRAOption] {
+        if case .supported(let options) = self { return options }
+        return []
+    }
+
+    /// The selections this model can use, in the order the user added them,
+    /// with each weight clamped to its LoRA's range.
+    func resolved(_ requested: [LoRASelection]) -> [LoRASelection] {
+        requested.compactMap { selection in
+            guard let option = options.first(where: { $0.file == selection.file }) else {
+                return nil
+            }
+            let range = option.weightRange
+            return LoRASelection(
+                file: selection.file,
+                weight: min(max(selection.weight, range.lowerBound), range.upperBound))
+        }
+    }
+}
+
 /// One choice from a fixed set, or one the model insists on.
 nonisolated enum ChoiceConstraint<Option: Hashable & Sendable>: Sendable, Equatable {
     case unsupported
@@ -337,6 +393,8 @@ nonisolated struct OptionConstraints: Sendable {
     /// Not a constraint the sidebar enforces — over-long prompts are truncated by
     /// the model, and warning is more useful than refusing to type.
     var promptTokenLimit: Int?
+    /// Only Draw Things models apply LoRAs, so the others leave this out.
+    var loras: LoRAsConstraint = .unsupported
 
     /// What the sidebar shows when no model is selected: every control visible,
     /// with permissive bounds.
