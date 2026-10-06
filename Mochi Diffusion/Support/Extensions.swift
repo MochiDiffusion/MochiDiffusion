@@ -87,6 +87,8 @@ extension CGImage {
         return CGImageSourceCreateImageAtIndex(source, index, nil)
     }
 
+    /// Converts to 8-bit sRGB while resizing, so CMYK and other source formats
+    /// do not need to support the destination's premultiplied alpha layout.
     nonisolated func scaledAndCroppedTo(size: CGSize) -> CGImage? {
         let sizeRatio = size.width / size.height
         let imageSizeRatio = Double(self.width) / Double(self.height)
@@ -105,10 +107,11 @@ extension CGImage {
                 data: nil,
                 width: Int(size.width),
                 height: Int(size.height),
-                bitsPerComponent: self.bitsPerComponent,
+                bitsPerComponent: 8,
                 bytesPerRow: 0,
-                space: self.colorSpace ?? CGColorSpaceCreateDeviceRGB(),
+                space: CGColorSpace(name: CGColorSpace.sRGB) ?? CGColorSpaceCreateDeviceRGB(),
                 bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+                    | CGBitmapInfo.byteOrder32Big.rawValue
             )
         else {
             return nil
