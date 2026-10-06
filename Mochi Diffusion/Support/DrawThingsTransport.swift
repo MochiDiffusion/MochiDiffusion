@@ -4,6 +4,7 @@
 //
 
 import CoreGraphics
+import CryptoKit
 import DrawThingsClient
 import Foundation
 import GRPC
@@ -71,13 +72,37 @@ nonisolated struct DrawThingsCatalog: Sendable {
     var models: Data
 }
 
+/// A request's images as Draw Things tensors, converted once for every image in
+/// the batch.
+nonisolated struct DrawThingsInputs: Sendable {
+    /// At the output size.
+    var startingImage: Data?
+    /// In the order the user added them.
+    var referenceImages: [Data] = []
+}
+
+nonisolated extension DrawThingsInputs {
+    init(request: GenerationRequest) throws {
+        func tensor(_ data: Data) throws -> Data {
+            guard let image = CGImage.fromData(data) else {
+                throw DrawThingsError.message("Mochi couldn't read an input image.")
+            }
+            // Draw Things reads a fourth channel as transparency to fill in.
+            return try ImageHelpers.imageToDTTensor(image, forceRGB: true)
+        }
+        try self.init(
+            startingImage: request.startingImageData.map(tensor),
+            referenceImages: request.inputImageData.map(tensor))
+    }
+}
+
 nonisolated protocol DrawThingsTransport: Sendable {
     func catalog(connection: DrawThingsConnection, sharedSecret: String?) async throws
         -> DrawThingsCatalog
     /// - Parameter showsPreview: whether to decode the previews Draw Things sends
     ///   and emit them to `session`.
     func generate(
-        payload: DrawThingsPayload, prompt: String, seed: UInt32,
+        payload: DrawThingsPayload, inputs: DrawThingsInputs, prompt: String, seed: UInt32,
         sharedSecret: String?, showsPreview: Bool, session: GenerationSession
     ) async throws -> CGImage?
 }
@@ -147,7 +172,7 @@ actor GRPCDrawThingsTransport: DrawThingsTransport {
     }
 
     func generate(
-        payload: DrawThingsPayload, prompt: String, seed: UInt32,
+        payload: DrawThingsPayload, inputs: DrawThingsInputs, prompt: String, seed: UInt32,
         sharedSecret: String?, showsPreview: Bool, session: GenerationSession
     ) async throws -> CGImage? {
         try Task.checkCancellation()
@@ -163,6 +188,7 @@ actor GRPCDrawThingsTransport: DrawThingsTransport {
             request.negativePrompt = payload.negativePrompt
             request.configuration = try configuration.toFlatBufferData()
             request.override.models = payload.specification
+            Self.attach(inputs, to: &request)
             request.chunked = true
             if let sharedSecret { request.sharedSecret = sharedSecret }
             let stream: GRPCAsyncResponseStream<ImageGenerationResponse> = Client(channel: channel)
@@ -203,6 +229,28 @@ actor GRPCDrawThingsTransport: DrawThingsTransport {
             try? await channel.close().get()
             throw error
         }
+    }
+
+    /// The starting image goes in the request's content store, named by its
+    /// SHA-256 as the protocol describes. References are moodboard (`shuffle`)
+    /// hints, which Draw Things keeps in order; Mochi offers no per-image weight.
+    nonisolated static func attach(
+        _ inputs: DrawThingsInputs, to request: inout ImageGenerationRequest
+    ) {
+        if let image = inputs.startingImage {
+            request.image = Data(SHA256.hash(data: image))
+            request.contents = [image]
+        }
+        guard !inputs.referenceImages.isEmpty else { return }
+        var hint = HintProto()
+        hint.hintType = HintType.shuffle.rawValue
+        hint.tensors = inputs.referenceImages.map { image in
+            var tensor = TensorAndWeight()
+            tensor.tensor = image
+            tensor.weight = 1
+            return tensor
+        }
+        request.hints = [hint]
     }
 
     /// - Parameter family: needed for a preview, whose latents are decoded with the

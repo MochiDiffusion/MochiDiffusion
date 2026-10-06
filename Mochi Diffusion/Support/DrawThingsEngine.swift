@@ -103,6 +103,10 @@ nonisolated struct DrawThingsModel: EngineModel {
     let name: String
     /// The Draw Things model version, such as `flux2_4b`, which names its family.
     let version: String
+    /// The catalog's `modifier`, which says how the model uses an input image:
+    /// `none` for a text-to-image model, `kontext` or `kontext_kv` for one that
+    /// attends to reference images.
+    let modifier: String
     /// Distilled models with no guidance at all, from the catalog's
     /// `is_consistency_model`. They use neither guidance nor a negative prompt.
     let isConsistencyModel: Bool
@@ -122,6 +126,16 @@ nonisolated struct DrawThingsModel: EngineModel {
 
     var supportsNegativePrompt: Bool { !isConsistencyModel && !usesGuidanceEmbedding }
 
+    /// A text-to-image model denoises from a starting image.
+    var takesStartingImage: Bool { modifier == "none" }
+
+    /// Draw Things passes these models its moodboard images, in order, as references.
+    var takesReferenceImages: Bool { ["kontext", "kontext_kv"].contains(modifier) }
+
+    /// Draw Things sets no limit of its own. These are Black Forest Labs' limits:
+    /// ten for FLUX.2 dev, four for Klein.
+    var maxReferenceImages: Int { version == "flux2" ? 10 : 4 }
+
     var recommendedSteps: Int? { Int(configuration.steps) }
     var recommendedGuidanceScale: Double? {
         guard !isConsistencyModel else { return nil }
@@ -135,6 +149,8 @@ nonisolated struct DrawThingsModel: EngineModel {
         ]
         if supportsNegativePrompt { fields.insert(.negativePrompt) }
         if !isConsistencyModel { fields.insert(.guidanceScale) }
+        if takesStartingImage { fields.formUnion([.startingImage, .strength]) }
+        if takesReferenceImages { fields.insert(.inputImages) }
         return fields
     }
 
@@ -147,8 +163,10 @@ nonisolated struct DrawThingsModel: EngineModel {
             steps: .range(1...50, step: 1, acceptsBeyondUpperBound: true),
             guidanceScale: isConsistencyModel ? .unsupported : .range(1...20, step: nil),
             scheduler: .unsupported,
-            startingImage: .unsupported,
-            inputImages: .unsupported,
+            startingImage: takesStartingImage
+                ? .supported(strength: .range(0...1, step: nil)) : .unsupported,
+            inputImages: takesReferenceImages
+                ? .supported(maxCount: maxReferenceImages) : .unsupported,
             controlNet: .unsupported,
             numberOfImages: .range(1...100, step: 1, acceptsBeyondUpperBound: true),
             promptTokenLimit: nil
@@ -228,6 +246,7 @@ nonisolated struct DrawThingsEngine: GenerationEngineDescriptor {
             else { return nil }
             return DrawThingsModel(
                 file: file, name: fields["name"] as? String ?? file, version: version,
+                modifier: fields["modifier"] as? String ?? "none",
                 isConsistencyModel: fields["is_consistency_model"] as? Bool ?? false,
                 usesGuidanceEmbedding: fields["guidance_embed"] as? Bool ?? false,
                 connection: connection, specification: specification, configuration: configuration
@@ -270,6 +289,15 @@ nonisolated struct DrawThingsEngine: GenerationEngineDescriptor {
         }
         let numberOfImages =
             constraints.numberOfImages.resolved(draft.numberOfImages) ?? draft.numberOfImages
+        let startingImage = constraints.startingImage.prepared(draft.startingImage, scaledTo: size)
+        let strength =
+            startingImage.data.isEmpty
+            ? nil : constraints.startingImage.strength.resolved(Double(draft.strength))
+        // Strength 1 ignores the image, which is what generating without one means.
+        configuration.strength = strength.map(Float.init) ?? 1
+        let references = constraints.inputImages.prepared(draft.inputImages) { image, _ in
+            Self.referenceSized(image, outputSize: size)
+        }
         return GenerationPlan(
             payload: DrawThingsPayload(
                 connection: model.connection, specification: model.specification,
@@ -279,14 +307,35 @@ nonisolated struct DrawThingsEngine: GenerationEngineDescriptor {
                 previewFamily: LatentModelFamily.detect(from: model.version)
             ),
             size: size,
-            startingImageData: nil, inputImageData: [], controlNetImageData: [],
+            startingImageData: startingImage.data.first, inputImageData: references.data,
+            controlNetImageData: [],
             controlNetNames: [],
             controlNetImageNames: [],
-            stepCount: Int(configuration.steps), scheduler: nil, strength: nil,
+            stepCount: Int(configuration.steps), scheduler: nil,
+            strength: strength.map(Float.init),
             guidanceScale: guidanceScale.map(Float.init),
             numberOfImages: numberOfImages,
-            mlComputeUnit: nil, startingImageName: nil, inputImageNames: []
+            mlComputeUnit: nil, startingImageName: startingImage.names.first ?? nil,
+            inputImageNames: references.names
         )
+    }
+
+    /// A reference scaled down to the output's pixel count, keeping its aspect
+    /// ratio, or `nil` when it is no larger and is sent as it is.
+    ///
+    /// Never cropped to the output's shape: Draw Things scales each reference to
+    /// the output's pixel count itself, keeping its aspect ratio
+    /// (`encodeImageCond` in draw-things-community's `LocalImageGenerator`).
+    /// Scaling down first sends no detail Draw Things would use, and keeps a
+    /// photo's tensor from running to tens of megabytes.
+    static func referenceSized(_ image: CGImage, outputSize: CGSize) -> CGImage? {
+        let pixels = Double(image.width * image.height)
+        let scale = (outputSize.width * outputSize.height / pixels).squareRoot()
+        guard scale < 1 else { return nil }
+        return image.scaledAndCroppedTo(
+            size: CGSize(
+                width: max(1, (Double(image.width) * scale).rounded()),
+                height: max(1, (Double(image.height) * scale).rounded())))
     }
 
     func makeRuntime() -> any GenerationEngineRuntime {
@@ -333,6 +382,7 @@ actor DrawThingsRuntime: GenerationEngineRuntime {
         onResult: @escaping @Sendable (GenerationResult) async throws -> Void
     ) async throws {
         let secret = secrets.secret(for: DrawThingsConnection.secretAccount)
+        let inputs = try DrawThingsInputs(request: request)
         var seed = request.seed
         for _ in 0..<request.numberOfImages {
             if session.isCancelled { return }
@@ -341,7 +391,7 @@ actor DrawThingsRuntime: GenerationEngineRuntime {
             let image: CGImage?
             do {
                 image = try await transport.generate(
-                    payload: payload, prompt: request.prompt, seed: imageSeed,
+                    payload: payload, inputs: inputs, prompt: request.prompt, seed: imageSeed,
                     sharedSecret: secret, showsPreview: request.useDenoisedIntermediates,
                     session: session
                 )
@@ -373,6 +423,7 @@ actor DrawThingsRuntime: GenerationEngineRuntime {
         request: GenerationRequest, payload: DrawThingsPayload, image: CGImage, seed: UInt32
     ) -> GenerationMetadata {
         let fields = request.metadataFields
+        let usedStartingImage = request.startingImageData != nil
         return GenerationMetadata(
             prompt: request.prompt,
             negativePrompt: fields.contains(.negativePrompt) ? payload.negativePrompt : nil,
@@ -382,11 +433,15 @@ actor DrawThingsRuntime: GenerationEngineRuntime {
             engine: request.modelID.engine.rawValue,
             modelKey: request.modelID.key,
             architecture: payload.architecture,
-            startingImage: nil,
-            strength: nil,
+            startingImage: usedStartingImage ? request.startingImageName : nil,
+            // The shortest decimal text of the `Float` is the value the user chose;
+            // widening it exposes binary noise.
+            strength: usedStartingImage ? request.strength.flatMap { Double($0.description) } : nil,
             controlNet: nil,
             controlNetImage: nil,
-            inputImages: nil,
+            // A reference without a filename keeps its place as an empty name.
+            inputImages: request.inputImageData.isEmpty
+                ? nil : request.inputImageNames.map { $0 ?? "" },
             scheduler: nil,
             samplerName: payload.configuration.sampler.displayName,
             mlComputeUnit: nil,

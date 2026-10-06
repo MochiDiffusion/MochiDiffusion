@@ -4,6 +4,7 @@
 //
 
 import CoreGraphics
+import CryptoKit
 import DrawThingsClient
 import Foundation
 import GRPC
@@ -18,6 +19,7 @@ private actor StubDrawThingsTransport: DrawThingsTransport {
     var capturedSeeds: [UInt32] = []
     var capturedSecret: String?
     var capturedPayload: DrawThingsPayload?
+    var capturedInputs: DrawThingsInputs?
     private(set) var releasedPreviousImages: [Bool] = []
     private(set) weak var lastImage: CGImage?
     var shouldWait = false
@@ -46,7 +48,7 @@ private actor StubDrawThingsTransport: DrawThingsTransport {
         return DrawThingsCatalog(models: catalog)
     }
     func generate(
-        payload: DrawThingsPayload, prompt: String, seed: UInt32,
+        payload: DrawThingsPayload, inputs: DrawThingsInputs, prompt: String, seed: UInt32,
         sharedSecret: String?, showsPreview: Bool, session: GenerationSession
     ) async throws -> CGImage? {
         if !capturedSeeds.isEmpty {
@@ -56,6 +58,7 @@ private actor StubDrawThingsTransport: DrawThingsTransport {
         capturedSeeds.append(seed)
         capturedSecret = sharedSecret
         capturedPayload = payload
+        capturedInputs = inputs
         if shouldFail {
             shouldFail = false
             throw DrawThingsError.message("Server unavailable")
@@ -182,22 +185,24 @@ struct DrawThingsTests {
         )
     }
     private func request(
-        model selectedModel: DrawThingsModel? = nil,
+        model selectedModel: DrawThingsModel? = nil, draft selectedDraft: GenerationDraft? = nil,
         imageDir: String = "/tmp", numberOfImages: Int = 1
     ) throws
         -> GenerationRequest
     {
         let model = try selectedModel ?? model()
-        var input = draft()
+        var input = selectedDraft ?? draft()
         input.numberOfImages = numberOfImages
         let plan = try DrawThingsEngine(secrets: NoSecretStore()).plan(draft: input, model: model)
         return GenerationRequest(
             modelID: model.id, displayName: model.name, metadataFields: model.metadataFields,
             payload: plan.payload, prompt: "a cat", negativePrompt: "", size: plan.size,
-            startingImageData: nil, inputImageData: [], startingImageName: nil,
+            startingImageData: plan.startingImageData, inputImageData: plan.inputImageData,
+            startingImageName: plan.startingImageName,
             controlNetImageData: [],
             controlNetNames: [],
-            controlNetImageNames: [], inputImageNames: [], strength: nil, stepCount: plan.stepCount,
+            controlNetImageNames: [], inputImageNames: plan.inputImageNames,
+            strength: plan.strength, stepCount: plan.stepCount,
             guidanceScale: plan.guidanceScale, scheduler: nil, mlComputeUnit: nil,
             useDenoisedIntermediates: false, seed: 7, numberOfImages: plan.numberOfImages,
             imageDir: imageDir
@@ -321,6 +326,197 @@ struct DrawThingsTests {
         #expect(plan.payload.configuration.guidanceScale == models[2].configuration.guidanceScale)
     }
 
+    private var imageCatalog: Data {
+        Data(
+            #"""
+            [
+              {"file":"sd_v1.5_f16.ckpt","name":"SD 1.5","version":"v1","default_scale":8},
+              {"file":"flux_2_klein_4b_q8p.ckpt","name":"Klein 4B","version":"flux2_4b","modifier":"kontext"},
+              {"file":"flux_2_klein_9b_kv_q8p.ckpt","name":"Klein 9B KV","version":"flux2_9b","modifier":"kontext_kv"},
+              {"file":"flux_2_dev_q8p.ckpt","name":"FLUX.2 dev","version":"flux2","modifier":"kontext"}
+            ]
+            """#.utf8)
+    }
+
+    @Test("A text-to-image model takes a starting image, and a FLUX.2 model takes references")
+    func imageRolesFromModifier() throws {
+        let models = try DrawThingsEngine.models(from: imageCatalog, connection: connection)
+        #expect(models.map(\.name) == ["SD 1.5", "Klein 4B", "Klein 9B KV", "FLUX.2 dev"])
+        let plain = models[0]
+        #expect(plain.constraints.startingImage == .supported(strength: .range(0...1, step: nil)))
+        #expect(!plain.constraints.inputImages.isSupported)
+        #expect(plain.metadataFields.isSuperset(of: [.startingImage, .strength]))
+        #expect(!plain.metadataFields.contains(.inputImages))
+        for model in models.dropFirst() {
+            #expect(!model.constraints.startingImage.isSupported)
+            #expect(model.metadataFields.contains(.inputImages))
+            #expect(model.metadataFields.isDisjoint(with: [.startingImage, .strength]))
+        }
+        #expect(models.dropFirst().map(\.constraints.inputImages.maxCount) == [4, 4, 10])
+    }
+
+    @Test("A starting image is cropped to the output size and sent with its strength")
+    func startingImagePlanning() throws {
+        let models = try DrawThingsEngine.models(from: imageCatalog, connection: connection)
+        let engine = DrawThingsEngine(secrets: NoSecretStore())
+        var input = draft()
+        input.configuredSize = CGSize(width: 512, height: 768)
+        input.strength = 0.42
+
+        let withoutImage = try engine.plan(draft: input, model: models[0])
+        #expect(withoutImage.startingImageData == nil)
+        #expect(withoutImage.strength == nil)
+        #expect(withoutImage.payload.configuration.strength == 1)
+
+        input.startingImage = InputImage(
+            image: makeCGImage(width: 300, height: 100), name: "start.png")
+        let plan = try engine.plan(draft: input, model: models[0])
+        let image = try #require(plan.startingImageData.flatMap(CGImage.fromData))
+        #expect(CGSize(width: image.width, height: image.height) == plan.size)
+        #expect(plan.startingImageName == "start.png")
+        #expect(plan.strength == 0.42)
+        #expect(plan.payload.configuration.strength == 0.42)
+
+        // Klein takes no starting image, so it generates from noise.
+        let klein = try engine.plan(draft: input, model: models[1])
+        #expect(klein.startingImageData == nil)
+        #expect(klein.startingImageName == nil)
+        #expect(klein.strength == nil)
+        #expect(klein.payload.configuration.strength == 1)
+    }
+
+    @Test("CMYK inputs are converted while resizing before reaching Draw Things")
+    func cmykInputResizing() throws {
+        let width = 2048
+        let height = 1024
+        let pixels = Data(repeating: 127, count: width * height * 4)
+        let provider = try #require(CGDataProvider(data: pixels as CFData))
+        let source = try #require(
+            CGImage(
+                width: width, height: height, bitsPerComponent: 8, bitsPerPixel: 32,
+                bytesPerRow: width * 4, space: CGColorSpaceCreateDeviceCMYK(),
+                bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.none.rawValue),
+                provider: provider, decode: nil, shouldInterpolate: false, intent: .defaultIntent))
+        var input = draft()
+        input.configuredSize = CGSize(width: 512, height: 512)
+        input.startingImage = InputImage(image: source, name: "cmyk.tiff")
+        input.inputImages = [InputImage(image: source, name: "cmyk.tiff")]
+        let models = try DrawThingsEngine.models(from: imageCatalog, connection: connection)
+
+        for (model, expectedSize) in [
+            (models[0], CGSize(width: 512, height: 512)),
+            (models[1], CGSize(width: 724, height: 362)),
+        ] {
+            let request = try request(model: model, draft: input)
+            let data = try #require(request.startingImageData ?? request.inputImageData.first)
+            let prepared = try #require(CGImage.fromData(data))
+            #expect(CGSize(width: prepared.width, height: prepared.height) == expectedSize)
+            #expect(prepared.colorSpace?.name == CGColorSpace.sRGB)
+            #expect(prepared.bitsPerComponent == 8)
+
+            let inputs = try DrawThingsInputs(request: request)
+            let tensor = try #require(inputs.startingImage ?? inputs.referenceImages.first)
+            let shape = tensor.withUnsafeBytes { bytes in
+                (6...8).map { bytes.loadUnaligned(fromByteOffset: $0 * 4, as: UInt32.self) }
+            }
+            #expect(shape == [UInt32(expectedSize.height), UInt32(expectedSize.width), 3])
+        }
+    }
+
+    @Test("References keep their order and shape, scaled down only to the output's pixel count")
+    func referencePlanning() throws {
+        let models = try DrawThingsEngine.models(from: imageCatalog, connection: connection)
+        let engine = DrawThingsEngine(secrets: NoSecretStore())
+        var input = draft()
+        input.configuredSize = CGSize(width: 512, height: 512)
+        input.inputImages = [
+            InputImage(image: makeCGImage(width: 2048, height: 1024), name: "wide.png"),
+            InputImage(image: makeCGImage(width: 100, height: 300)),
+            InputImage(image: makeCGImage(width: 64, height: 64), name: "three.png"),
+            InputImage(image: makeCGImage(width: 64, height: 64), name: "four.png"),
+            InputImage(image: makeCGImage(width: 64, height: 64), name: "five.png"),
+        ]
+        let plan = try engine.plan(draft: input, model: models[1])
+        let sizes = try plan.inputImageData.map { data in
+            let image = try #require(CGImage.fromData(data))
+            return CGSize(width: image.width, height: image.height)
+        }
+        // 2048×1024 is eight times 512×512's pixels, so each side scales by √⅛.
+        #expect(
+            sizes == [
+                CGSize(width: 724, height: 362), CGSize(width: 100, height: 300),
+                CGSize(width: 64, height: 64), CGSize(width: 64, height: 64),
+            ])
+        #expect(plan.inputImageNames == ["wide.png", nil, "three.png", "four.png"])
+        #expect(plan.startingImageData == nil)
+
+        // A text-to-image model takes no references.
+        let plain = try engine.plan(draft: input, model: models[0])
+        #expect(plain.inputImageData.isEmpty)
+        #expect(plain.inputImageNames.isEmpty)
+    }
+
+    @Test(
+        "Input images reach the transport as tensors in order, and each image records the ones it used"
+    )
+    @MainActor func inputImagesReachTransportAndMetadata() async throws {
+        let models = try DrawThingsEngine.models(from: imageCatalog, connection: connection)
+        var input = draft()
+        input.configuredSize = CGSize(width: 512, height: 512)
+        input.strength = 0.42
+        input.startingImage = InputImage(
+            image: makeCGImage(width: 64, height: 64), name: "start.png")
+        input.inputImages = [
+            InputImage(image: makeCGImage(width: 64, height: 32), name: "first.png"),
+            InputImage(image: makeCGImage(width: 32, height: 64)),
+        ]
+        /// Height, width and channels, from the tensor's header.
+        func shape(_ tensor: Data?) -> [UInt32] {
+            guard let tensor else { return [] }
+            return (6...8).map { index in
+                tensor.withUnsafeBytes { $0.load(fromByteOffset: index * 4, as: UInt32.self) }
+            }
+        }
+        func generate(with model: DrawThingsModel) async throws -> (
+            DrawThingsInputs, GenerationMetadata, ImageRecord
+        ) {
+            let transport = StubDrawThingsTransport(catalog: Data())
+            let runtime = DrawThingsRuntime(secrets: NoSecretStore(), transport: transport)
+            let request = try request(model: model, draft: input)
+            let results = ResultCollector()
+            try await runtime.run(
+                request: request, session: GenerationSession(requestID: request.id)
+            ) { await results.add($0) }
+            let result = try #require(await results.all.first)
+            let directory = try TempDirectory()
+            let url = directory.url.appendingPathComponent("inputs.png")
+            try result.imageData.write(to: url)
+            return (
+                try #require(await transport.capturedInputs), result.metadata,
+                try #require(createImageRecordFromURL(url))
+            )
+        }
+
+        let (plainInputs, plainMetadata, plainRecord) = try await generate(with: models[0])
+        #expect(shape(plainInputs.startingImage) == [512, 512, 3])
+        #expect(plainInputs.referenceImages.isEmpty)
+        #expect(plainMetadata.startingImage == "start.png")
+        #expect(plainMetadata.strength == 0.42)
+        #expect(plainMetadata.inputImages == nil)
+        #expect(plainRecord.startingImage == "start.png")
+        #expect(plainRecord.strength == 0.42)
+        #expect(plainRecord.metadataFields.isSuperset(of: [.startingImage, .strength]))
+
+        let (kleinInputs, kleinMetadata, kleinRecord) = try await generate(with: models[1])
+        #expect(kleinInputs.startingImage == nil)
+        #expect(kleinInputs.referenceImages.map(shape) == [[32, 64, 3], [64, 32, 3]])
+        #expect(kleinMetadata.startingImage == nil)
+        #expect(kleinMetadata.strength == nil)
+        #expect(kleinMetadata.inputImages == ["first.png", ""])
+        #expect(kleinRecord.inputImages == ["first.png", ""])
+        #expect(kleinRecord.metadataFields.isDisjoint(with: [.startingImage, .strength]))
+    }
+
     /// How a model applies guidance, from its catalog flags.
     enum GuidanceKind: CaseIterable {
         case cfg, embedded, consistency
@@ -335,7 +531,7 @@ struct DrawThingsTests {
         configuration.guidanceEmbed = 4.5
         configuration.speedUpWithGuidanceEmbed = false
         let model = DrawThingsModel(
-            file: "guidance.ckpt", name: "Guidance test", version: "flux1",
+            file: "guidance.ckpt", name: "Guidance test", version: "flux1", modifier: "none",
             isConsistencyModel: kind == .consistency,
             usesGuidanceEmbedding: kind == .embedded, connection: connection,
             specification: Data(), configuration: configuration)
@@ -642,11 +838,15 @@ private final class DrawThingsLoopbackService: CallHandlerProvider, Sendable {
     let catalog: Data
     let tensor: Data
     let expectedConfiguration: Data
+    let expectedInputs: DrawThingsInputs
 
-    init(catalog: Data, tensor: Data, expectedConfiguration: Data) {
+    init(
+        catalog: Data, tensor: Data, expectedConfiguration: Data, expectedInputs: DrawThingsInputs
+    ) {
         self.catalog = catalog
         self.tensor = tensor
         self.expectedConfiguration = expectedConfiguration
+        self.expectedInputs = expectedInputs
     }
 
     func handle(method name: Substring, context: CallHandlerContext) -> (
@@ -680,6 +880,14 @@ private final class DrawThingsLoopbackService: CallHandlerProvider, Sendable {
                 #expect(request.configuration == self.expectedConfiguration)
                 #expect(request.override.models == self.catalog)
                 #expect(request.chunked)
+                let image = self.expectedInputs.startingImage ?? Data()
+                #expect(request.image == Data(SHA256.hash(data: image)))
+                #expect(request.contents == [image])
+                #expect(request.hints.map(\.hintType) == ["shuffle"])
+                #expect(
+                    request.hints.first?.tensors.map(\.tensor)
+                        == self.expectedInputs.referenceImages)
+                #expect(request.hints.first?.tensors.map(\.weight) == [1, 1])
                 var first = ImageGenerationResponse()
                 first.previewImage = self.tensor
                 first.chunkState = .moreChunks
@@ -713,9 +921,16 @@ struct DrawThingsGRPCTests {
         configuration.width = 768
         configuration.height = 512
         let tensor = try ImageHelpers.imageToDTTensor(makeCGImage(width: 16, height: 16))
+        let inputs = DrawThingsInputs(
+            startingImage: try ImageHelpers.imageToDTTensor(
+                makeCGImage(width: 768, height: 512), forceRGB: true),
+            referenceImages: try [(8, 16), (16, 8)].map { width, height in
+                try ImageHelpers.imageToDTTensor(
+                    makeCGImage(width: width, height: height), forceRGB: true)
+            })
         let service = DrawThingsLoopbackService(
             catalog: model.specification, tensor: tensor,
-            expectedConfiguration: try configuration.toFlatBufferData()
+            expectedConfiguration: try configuration.toFlatBufferData(), expectedInputs: inputs
         )
         let server = try await Server.insecure(group: MultiThreadedEventLoopGroup.singleton)
             .withServiceProviders([service]).bind(host: "127.0.0.1", port: 0).get()
@@ -742,7 +957,7 @@ struct DrawThingsGRPCTests {
                 architecture: nil, previewFamily: .sd1)
             let session = GenerationSession(requestID: UUID())
             let image = try await transport.generate(
-                payload: payload, prompt: "transport test", seed: 123,
+                payload: payload, inputs: inputs, prompt: "transport test", seed: 123,
                 sharedSecret: "test-secret", showsPreview: true, session: session
             )
             #expect(image?.width == 16)
@@ -757,7 +972,7 @@ struct DrawThingsGRPCTests {
             // With Show Image Preview off, the server's previews are not decoded.
             let quiet = GenerationSession(requestID: UUID())
             _ = try await transport.generate(
-                payload: payload, prompt: "transport test", seed: 123,
+                payload: payload, inputs: inputs, prompt: "transport test", seed: 123,
                 sharedSecret: "test-secret", showsPreview: false, session: quiet
             )
             quiet.close()

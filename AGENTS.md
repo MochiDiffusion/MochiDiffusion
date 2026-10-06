@@ -161,7 +161,9 @@ The multi-engine foundation is implemented. Current ownership and contracts foll
     the concrete value from its own payload. Two copies exist by design;
     `GenerationRequestBuilderTests` pins them equal.
   - Starting images and reference inputs have separate constraints and controller state.
-    Iris accepts reference lists; Core ML uses a denoising starting image.
+    Iris accepts reference lists; Core ML uses a denoising starting image. A Draw Things
+    model takes one or the other by its catalog `modifier`: text-to-image models a starting
+    image, FLUX.2 models references, sent as moodboard hints and never cropped to the output.
 
 - Concurrency defaults (project settings):
   - `SWIFT_VERSION = 6.0`
