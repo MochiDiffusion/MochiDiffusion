@@ -67,12 +67,22 @@ final class GenerationState {
     /// requests failing the same way do not reopen the alert.
     private var acknowledged: Set<String> = []
 
+    /// Model lists the alert offers to refresh, because an unreported outcome may
+    /// be explained by one being out of date.
+    private(set) var outdatedModelListSources: Set<ModelListSource> = []
+
     /// The only way `state` changes, so an outcome cannot reach the UI without
     /// also being recorded for the alert to report.
-    func report(_ status: Status) {
+    ///
+    /// - Parameter outdatedModelListSource: a model list that may explain this
+    ///   outcome, which the alert then offers to refresh.
+    func report(_ status: Status, outdatedModelListSource: ModelListSource? = nil) {
         state = status
         guard let message = status.outcomeMessage else { return }
         guard !acknowledged.contains(message) else { return }
+        if let outdatedModelListSource {
+            outdatedModelListSources.insert(outdatedModelListSource)
+        }
         guard !unreportedOutcomes.contains(message) else { return }
         unreportedOutcomes.append(message)
     }
@@ -80,6 +90,7 @@ final class GenerationState {
     func clearUnreportedOutcomes() {
         acknowledged.formUnion(unreportedOutcomes)
         unreportedOutcomes = []
+        outdatedModelListSources = []
     }
 
     /// A batch starting forgets what was dismissed during the last one.

@@ -5,14 +5,25 @@
 
 import SwiftUI
 
-/// The Draw Things row in General settings: a switch, the status of Mochi's last
-/// contact with the server, and the Details sheet that edits the connection.
+/// The Draw Things row in General settings: a switch, the server with its Details
+/// sheet, and the result of the last model-list fetch with a refresh button.
 struct DrawThingsSettingsView: View {
     @Environment(GenerationController.self) private var controller
     @State private var showsDetails = false
 
+    /// "today at 8:41 PM", in the middle of a sentence.
+    private static let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        formatter.doesRelativeDateFormatting = true
+        formatter.formattingContext = .middleOfSentence
+        return formatter
+    }()
+
     var body: some View {
         let connection = controller.engineSettings.drawThings
+        let status = controller.drawThingsStatus
         GroupBox {
             VStack(alignment: .leading, spacing: 10) {
                 HStack {
@@ -25,11 +36,11 @@ struct DrawThingsSettingsView: View {
                 }
                 Divider()
                 HStack(spacing: 12) {
-                    if connection.isActive {
-                        DrawThingsStatusView(
-                            status: controller.drawThingsStatus,
-                            serverName: Self.serverName(connection)
-                        )
+                    if connection.host.isEmpty {
+                        Text("No server", comment: "Draw Things row when no host has been entered")
+                            .foregroundStyle(.secondary)
+                    } else {
+                        Text(verbatim: connection.serverName)
                     }
                     Spacer(minLength: 0)
                     Button {
@@ -42,6 +53,19 @@ struct DrawThingsSettingsView: View {
                     }
                     .disabled(!connection.enabled)
                 }
+                if connection.isActive {
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack(spacing: 6) {
+                            modelCount(status)
+                            refreshButton(isFetching: status.isFetching)
+                        }
+                        message(status)
+                            .font(.callout)
+                            .foregroundStyle(.secondary)
+                    }
+                    .textSelection(.enabled)
+                    .fixedSize(horizontal: false, vertical: true)
+                }
             }
             .padding(4)
         }
@@ -50,7 +74,7 @@ struct DrawThingsSettingsView: View {
         }
     }
 
-    /// Switching on contacts the saved server; switching off removes its models
+    /// Switching on fetches the saved server's models; switching off removes them
     /// without contacting it.
     private var enabled: Binding<Bool> {
         Binding {
@@ -61,91 +85,91 @@ struct DrawThingsSettingsView: View {
         }
     }
 
-    /// The host, with the port only when it is not Draw Things' default.
-    static func serverName(_ connection: DrawThingsConnection) -> String {
-        connection.port == DrawThingsConnection.defaultPort
-            ? connection.host : "\(connection.host):\(connection.port)"
+    /// How many models the last fetch gave the picker. Before the first fetch from
+    /// this server finishes, there is no count yet.
+    @ViewBuilder
+    private func modelCount(_ status: DrawThingsStatus) -> some View {
+        switch status.lastFetch {
+        case nil:
+            Text(
+                "Updating model list…",
+                comment: "Draw Things status while Mochi fetches the model list"
+            )
+        case .models(let count, _):
+            countText(count)
+        case .noModels, .failed:
+            countText(0)
+        }
     }
-}
 
-/// The status lines under the Draw Things switch, each with its icon in one column
-/// so the text lines up.
-private struct DrawThingsStatusView: View {
-    let status: DrawThingsStatus
-    let serverName: String
+    private func countText(_ count: Int) -> Text {
+        Text(
+            "^[\(count) model](inflect: true)",
+            comment: "How many Draw Things models the last fetch gave the model picker"
+        )
+    }
 
-    var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            switch status {
-            case .inactive:
+    /// A spinner in the button's place while the list is being fetched.
+    @ViewBuilder
+    private func refreshButton(isFetching: Bool) -> some View {
+        if isFetching {
+            ProgressView()
+                .controlSize(.small)
+                .scaleEffect(0.7)
+                .frame(width: 16, height: 16)
+        } else {
+            Button {
+                Task { await controller.loadModels(from: [.connection]) }
+            } label: {
+                Image(systemName: "arrow.clockwise")
+            }
+            .buttonStyle(.borderless)
+            .frame(width: 16, height: 16)
+            .help(
+                String(
+                    localized: "Refresh Model List",
+                    comment: "Help for the button that fetches the Draw Things model list again"
+                ))
+        }
+    }
+
+    /// The last fetch, under the count. Before the first fetch finishes, the count's
+    /// line already says the list is updating.
+    @ViewBuilder
+    private func message(_ status: DrawThingsStatus) -> some View {
+        if status.isFetching, status.lastFetch != nil {
+            Text(
+                "Updating model list…",
+                comment: "Draw Things status while Mochi fetches the model list"
+            )
+        } else {
+            switch status.lastFetch {
+            case nil:
                 EmptyView()
-            case .connecting:
-                line {
-                    ProgressView()
-                        .controlSize(.mini)
-                } text: {
+            case .models(_, let date):
+                updated(date)
+            case .noModels(let reason, let date):
+                VStack(alignment: .leading, spacing: 4) {
+                    updated(date)
+                    Text(verbatim: reason)
+                }
+            case .failed(let reason, let date):
+                VStack(alignment: .leading, spacing: 4) {
                     Text(
-                        "Connecting to \(serverName)…",
-                        comment: "Draw Things status while Mochi contacts the server"
+                        "Couldn’t update model list \(Self.dateFormatter.string(from: date))",
+                        comment: "When Mochi last failed to fetch the Draw Things model list"
                     )
-                }
-            case .connected(let warning):
-                line {
-                    StatusDot(color: .green)
-                } text: {
-                    Text(
-                        "Connected to \(serverName)",
-                        comment: "Draw Things status after the server last answered"
-                    )
-                }
-                if let warning {
-                    line {
-                        StatusDot(color: .yellow)
-                    } text: {
-                        Text(verbatim: warning)
-                    }
-                }
-            case .notConnected(let reason):
-                line {
-                    StatusDot(color: .red)
-                } text: {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(
-                            "Not connected to \(serverName)",
-                            comment: "Draw Things status after the server could not be reached"
-                        )
-                        Text(verbatim: reason)
-                    }
+                    Text(verbatim: reason)
                 }
             }
         }
-        .font(.callout)
-        .foregroundStyle(.secondary)
-        .textSelection(.enabled)
     }
 
-    private func line(
-        @ViewBuilder icon: () -> some View, @ViewBuilder text: () -> some View
-    ) -> some View {
-        HStack(alignment: .firstTextBaseline, spacing: 6) {
-            icon()
-                // Centred on the first line's lowercase letters rather than sitting
-                // on its baseline.
-                .alignmentGuide(.firstTextBaseline) { $0.height / 2 + 4 }
-                .frame(width: 14, alignment: .leading)
-            text()
-                .fixedSize(horizontal: false, vertical: true)
-        }
-    }
-}
-
-private struct StatusDot: View {
-    let color: Color
-
-    var body: some View {
-        Circle()
-            .fill(color)
-            .frame(width: 8, height: 8)
+    private func updated(_ date: Date) -> Text {
+        Text(
+            "Updated model list \(Self.dateFormatter.string(from: date))",
+            comment: "When the Draw Things model list was last fetched"
+        )
     }
 }
 

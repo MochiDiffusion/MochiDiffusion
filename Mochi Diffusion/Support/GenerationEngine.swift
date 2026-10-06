@@ -29,6 +29,13 @@ nonisolated enum ModelListSource: Sendable, Hashable, CaseIterable {
     case connection
 }
 
+/// A generation error that a fresh model list may explain, such as a model removed
+/// from a server. The generation alert offers to refresh that source's models.
+nonisolated protocol ModelListMayBeOutdated: Error {
+    /// The source to refresh, or `nil` when this error is not one a refresh explains.
+    var outdatedModelListSource: ModelListSource? { get }
+}
+
 /// One discovery pass, with the work that does not vary by engine done once.
 ///
 /// Every local engine scans the same models folder, so the enumeration is shared

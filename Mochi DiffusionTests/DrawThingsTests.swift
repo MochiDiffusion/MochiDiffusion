@@ -47,7 +47,7 @@ private actor StubDrawThingsTransport: DrawThingsTransport {
     }
     func generate(
         payload: DrawThingsPayload, prompt: String, seed: UInt32,
-        sharedSecret: String?, session: GenerationSession
+        sharedSecret: String?, showsPreview: Bool, session: GenerationSession
     ) async throws -> CGImage? {
         if !capturedSeeds.isEmpty {
             releasedPreviousImages.append(lastImage == nil)
@@ -497,29 +497,34 @@ struct DrawThingsTests {
         let (controller, _, _) = try statusController(transport: transport, connection: connection)
         #expect(controller.drawThingsStatus == .inactive)
         await controller.loadModels(from: [.connection])
-        #expect(controller.drawThingsStatus == .connected(warning: nil))
+        guard case .models(let count, _) = controller.drawThingsStatus.lastFetch else {
+            Issue.record("Expected models, got \(controller.drawThingsStatus)")
+            return
+        }
+        #expect(count == 2)
+        #expect(!controller.drawThingsStatus.isFetching)
+
+        // A server that answers with nothing usable is not a failed fetch.
+        let empty = "Draw Things returned an unreadable model list."
+        await transport.failCatalog(with: DrawThingsError.unusableModelList(empty))
+        await controller.loadModels(from: [.connection])
+        guard case .noModels(let reason, _) = controller.drawThingsStatus.lastFetch else {
+            Issue.record("Expected no models, got \(controller.drawThingsStatus)")
+            return
+        }
+        #expect(reason == empty)
 
         let refusal = "Draw Things requires a shared secret."
         await transport.failCatalog(with: DrawThingsError.message(refusal))
         await controller.loadModels(from: [.connection])
-        #expect(controller.drawThingsStatus == .notConnected(refusal))
+        #expect(failureReason(controller.drawThingsStatus) == refusal)
         #expect(!controller.hasModels(.drawThings))
         // Settings reports the server; the main window does not blame a models folder.
         #expect(controller.discoveryMessage?.contains("Couldn't read the models folder") != true)
 
-        // A server with nothing Mochi can use answered, so it is a warning.
-        let empty = "Draw Things returned an unreadable model list."
-        await transport.failCatalog(with: DrawThingsError.unusableModelList(empty))
-        await controller.loadModels(from: [.connection])
-        #expect(controller.drawThingsStatus == .connected(warning: empty))
-
         await transport.failCatalog(with: GRPCStatus(code: .unavailable, message: nil))
         await controller.loadModels(from: [.connection])
-        guard case .notConnected(let reason) = controller.drawThingsStatus else {
-            Issue.record("Expected Not connected, got \(controller.drawThingsStatus)")
-            return
-        }
-        #expect(reason.contains("didn't answer"))
+        #expect(failureReason(controller.drawThingsStatus)?.contains("didn't answer") == true)
 
         controller.engineSettings.drawThings.enabled = false
         await controller.loadModels(from: [.connection])
@@ -527,57 +532,49 @@ struct DrawThingsTests {
         #expect(await transport.catalogRequests == 4)
     }
 
-    @Test("Generations report whether they reached the server")
-    func generationContacts() async throws {
-        let transport = StubDrawThingsTransport(catalog: catalog)
-        let (contacts, continuation) = AsyncStream.makeStream(of: DrawThingsContact.self)
-        let runtime = DrawThingsRuntime(
-            secrets: NoSecretStore(), transport: transport, contacts: continuation)
-        let request = try request()
-        let run = { () async -> Void in
-            try? await runtime.run(
-                request: request, session: GenerationSession(requestID: request.id)
-            ) { _ in }
-        }
-        await run()
-        // Draw Things answering with its own error still means it was reached.
-        await transport.failGenerations(with: DrawThingsError.message("Out of memory"))
-        await run()
-        await transport.failGenerations(with: GRPCStatus(code: .unavailable, message: nil))
-        await run()
-        await transport.failGenerations(
-            with: GRPCStatus(code: .deadlineExceeded, message: nil))
-        await run()
-        // A stop says nothing about the server.
-        await transport.failGenerations(with: CancellationError())
-        await run()
-        continuation.finish()
-
-        var reports: [DrawThingsContact] = []
-        for await contact in contacts { reports.append(contact) }
-        #expect(reports.map { $0.failure == nil } == [true, true, false, false])
-        #expect(reports.allSatisfy { $0.connection == connection })
+    private func failureReason(_ status: DrawThingsStatus) -> String? {
+        if case .failed(let reason, _) = status.lastFetch { reason } else { nil }
     }
 
-    @Test("A generation's contact updates Settings only for the server it names")
-    @MainActor func statusFromGeneration() async throws {
+    @Test("Generation failures reach the alert as readable text")
+    func generationFailureWording() async throws {
+        var remote = connection
+        remote.host = "studio.local"
+        let unreachable = DrawThingsError.generationFailure(
+            GRPCConnectionPoolError(code: .deadlineExceeded), connection: remote)
+        #expect(
+            GenerationService.userDescription(of: unreachable)
+                == "Couldn't reach the Draw Things server at studio.local.")
+        let dropped = DrawThingsError.generationFailure(
+            GRPCStatus(code: .unavailable, message: "Transport became inactive"),
+            connection: remote)
+        #expect(GenerationService.userDescription(of: dropped).contains("closed the connection"))
+        // The alert offers to refresh the server's models for this one only.
+        #expect((dropped as? any ModelListMayBeOutdated)?.outdatedModelListSource == .connection)
+        #expect((unreachable as? any ModelListMayBeOutdated)?.outdatedModelListSource == nil)
+        let reported = DrawThingsError.generationFailure(
+            GRPCStatus(code: .internalError, message: "Out of memory"), connection: remote)
+        #expect(
+            GenerationService.userDescription(of: reported)
+                == "Draw Things reported an error: Out of memory")
+        let own = DrawThingsError.generationFailure(
+            DrawThingsError.message("Draw Things returned no finished image."),
+            connection: remote)
+        #expect(
+            GenerationService.userDescription(of: own) == "Draw Things returned no finished image.")
+        // The runtime throws the worded error.
         let transport = StubDrawThingsTransport(catalog: catalog)
-        let (controller, _, _) = try statusController(transport: transport, connection: connection)
-        await controller.loadModels(from: [.connection])
-
-        controller.apply(DrawThingsContact(connection: connection, failure: "No answer"))
-        #expect(controller.drawThingsStatus == .notConnected("No answer"))
-        // A failed generation leaves the model list and selection alone.
-        #expect(controller.hasModels(.drawThings))
-        #expect(controller.currentModelId?.engine == .drawThings)
-
-        controller.apply(DrawThingsContact(connection: connection, failure: nil))
-        #expect(controller.drawThingsStatus == .connected(warning: nil))
-
-        var other = connection
-        other.host = "studio.local"
-        controller.apply(DrawThingsContact(connection: other, failure: "No answer"))
-        #expect(controller.drawThingsStatus == .connected(warning: nil))
+        await transport.failGenerations(with: GRPCStatus(code: .unavailable, message: nil))
+        let runtime = DrawThingsRuntime(secrets: NoSecretStore(), transport: transport)
+        let request = try request()
+        do {
+            try await runtime.run(
+                request: request, session: GenerationSession(requestID: request.id)
+            ) { _ in }
+            Issue.record("Expected the generation to fail")
+        } catch {
+            #expect(GenerationService.userDescription(of: error).contains("closed the connection"))
+        }
     }
 
     @Test(
@@ -684,6 +681,7 @@ private final class DrawThingsLoopbackService: CallHandlerProvider, Sendable {
                 #expect(request.override.models == self.catalog)
                 #expect(request.chunked)
                 var first = ImageGenerationResponse()
+                first.previewImage = self.tensor
                 first.chunkState = .moreChunks
                 first.generatedImages = [self.tensor.prefix(self.tensor.count / 2)]
                 var last = ImageGenerationResponse()
@@ -701,7 +699,7 @@ private final class DrawThingsLoopbackService: CallHandlerProvider, Sendable {
 
 struct DrawThingsGRPCTests {
     @Test(
-        "Real gRPC Echo auth, request serialization, chunk assembly and tensor decode work over loopback"
+        "Real gRPC Echo auth, request serialization, chunk assembly, previews and tensor decode work over loopback"
     )
     func roundTrip() async throws {
         let catalog = Data(
@@ -724,22 +722,50 @@ struct DrawThingsGRPCTests {
         do {
             connection.port = try #require(server.channel.localAddress?.port)
             let transport = GRPCDrawThingsTransport()
-            await #expect(throws: DrawThingsError.self) {
-                try await transport.catalog(connection: connection, sharedSecret: nil)
+            for (secret, message) in [
+                (nil, "Draw Things requires a shared secret."),
+                ("wrong", "Draw Things didn't accept the shared secret."),
+            ] {
+                do {
+                    _ = try await transport.catalog(connection: connection, sharedSecret: secret)
+                    Issue.record("Expected the server to refuse \(secret ?? "no secret")")
+                } catch {
+                    #expect(error.localizedDescription == message)
+                }
             }
             let discovered = try await transport.catalog(
                 connection: connection, sharedSecret: "test-secret")
             #expect(discovered.models == model.specification)
+            let payload = DrawThingsPayload(
+                connection: connection, specification: discovered.models,
+                configuration: configuration, negativePrompt: "blurry",
+                architecture: nil, previewFamily: .sd1)
+            let session = GenerationSession(requestID: UUID())
             let image = try await transport.generate(
-                payload: DrawThingsPayload(
-                    connection: connection, specification: discovered.models,
-                    configuration: configuration, negativePrompt: "blurry",
-                    architecture: nil),
-                prompt: "transport test", seed: 123, sharedSecret: "test-secret",
-                session: GenerationSession(requestID: UUID())
+                payload: payload, prompt: "transport test", seed: 123,
+                sharedSecret: "test-secret", showsPreview: true, session: session
             )
             #expect(image?.width == 16)
             #expect(image?.height == 16)
+            session.close()
+            var previews: [CGImage] = []
+            for await event in session.events {
+                if case .preview(let preview?) = event { previews.append(preview) }
+            }
+            #expect(previews.map(\.width) == [16])
+
+            // With Show Image Preview off, the server's previews are not decoded.
+            let quiet = GenerationSession(requestID: UUID())
+            _ = try await transport.generate(
+                payload: payload, prompt: "transport test", seed: 123,
+                sharedSecret: "test-secret", showsPreview: false, session: quiet
+            )
+            quiet.close()
+            var quietPreviews = 0
+            for await event in quiet.events {
+                if case .preview = event { quietPreviews += 1 }
+            }
+            #expect(quietPreviews == 0)
             try await server.close().get()
         } catch {
             try? await server.close().get()

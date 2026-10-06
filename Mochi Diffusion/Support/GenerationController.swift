@@ -178,10 +178,12 @@ final class GenerationController {
     /// the generation banner rather than through it — see
     /// ``discoveryMessage(failures:engines:foundModels:modelDir:)``.
     private(set) var discoveryMessage: String?
-    /// What Settings says about the Draw Things server: the result of Mochi's last
-    /// contact with it, from a model-list fetch or a generation. Mochi does not poll,
-    /// so this can be out of date until the next contact.
+    /// What Settings says about the Draw Things model list: the result of the last
+    /// fetch. Generations do not change it.
     private(set) var drawThingsStatus = DrawThingsStatus.inactive
+    /// The server `drawThingsStatus.lastFetch` describes, so a fetch from a different
+    /// one starts without it.
+    private var lastFetchedDrawThingsConnection: DrawThingsConnection?
     private(set) var controlNet: [String] = []
     /// The image to denoise from, for a model that does img2img.
     ///
@@ -294,7 +296,6 @@ final class GenerationController {
     private var controlNetDirDebounceTask: Task<Void, Never>?
     private var generationUpdatesTask: Task<Void, Never>?
     private var generationResultsTask: Task<Void, Never>?
-    private var drawThingsContactsTask: Task<Void, Never>?
     /// Identifies the latest sidebar action that loads images: gallery reuse or
     /// Copy Options. Each such action, and each model change, advances it, so an
     /// older load that finishes later is discarded rather than overwriting the
@@ -347,7 +348,6 @@ final class GenerationController {
         observeControlNetDir()
         observeGenerationService()
         observeGenerationResults()
-        observeDrawThingsContacts()
     }
 
     /// Refreshes the models from `sources`, applying each source's result as soon as
@@ -369,7 +369,15 @@ final class GenerationController {
         }
         if sources.contains(.connection) {
             logger.info("Started loading models from connections")
-            drawThingsStatus = engineSettings.drawThings.isActive ? .connecting : .inactive
+            let connection = engineSettings.drawThings
+            if connection.isActive {
+                if connection != lastFetchedDrawThingsConnection {
+                    drawThingsStatus.lastFetch = nil
+                }
+                drawThingsStatus.isFetching = true
+            } else {
+                drawThingsStatus = .inactive
+            }
         }
         let settings = EngineSettings(
             modelDirectory: ModelRepository.modelDirectoryURL(fromPath: configStore.modelDir),
@@ -417,10 +425,15 @@ final class GenerationController {
         engineAvailability.merge(refresh.availability) { _, new in new }
 
         if source == .connection {
-            drawThingsStatus = Self.drawThingsStatus(
-                isActive: engineSettings.drawThings.isActive,
-                failure: discoveriesByEngine[.drawThings]?.failure
-            )
+            let connection = engineSettings.drawThings
+            if connection.isActive {
+                drawThingsStatus = DrawThingsStatus(
+                    lastFetch: Self.drawThingsFetch(
+                        discoveriesByEngine[.drawThings], at: .now))
+                lastFetchedDrawThingsConnection = connection
+            } else {
+                drawThingsStatus = .inactive
+            }
         }
 
         // Registration order, as one refresh of every engine would produce.
@@ -488,26 +501,18 @@ final class GenerationController {
         )
     }
 
-    /// The status after a model-list fetch from the Draw Things server.
-    nonisolated static func drawThingsStatus(isActive: Bool, failure: (any Error)?)
-        -> DrawThingsStatus
+    /// The result of a model-list fetch from the Draw Things server.
+    nonisolated static func drawThingsFetch(_ discovery: EngineRegistry.Discovery?, at date: Date)
+        -> DrawThingsStatus.Fetch
     {
-        guard isActive else { return .inactive }
-        guard let failure else { return .connected(warning: nil) }
-        if case DrawThingsError.unusableModelList(let warning) = failure {
-            return .connected(warning: warning)
+        switch discovery?.failure {
+        case nil:
+            .models(count: discovery?.models.count ?? 0, at: date)
+        case DrawThingsError.unusableModelList(let reason)?:
+            .noModels(reason, at: date)
+        case let failure?:
+            .failed(DrawThingsError.connectionFailureDescription(failure), at: date)
         }
-        return .notConnected(DrawThingsError.connectionFailureDescription(failure))
-    }
-
-    /// Applies what a generation learned about the server. A report about a server
-    /// the settings no longer name is ignored.
-    func apply(_ contact: DrawThingsContact) {
-        let connection = engineSettings.drawThings
-        guard connection.isActive, (try? connection.validated()) == contact.connection else {
-            return
-        }
-        drawThingsStatus = contact.failure.map { .notConnected($0) } ?? .connected(warning: nil)
     }
 
     /// Picks the exact model to show after a discovery pass: the saved one when it
@@ -1210,7 +1215,6 @@ final class GenerationController {
         initialLoadTask?.cancel()
         generationUpdatesTask?.cancel()
         generationResultsTask?.cancel()
-        drawThingsContactsTask?.cancel()
         modelFolderMonitorTask?.cancel()
         controlNetFolderMonitorTask?.cancel()
         modelDirDebounceTask?.cancel()
@@ -1218,7 +1222,6 @@ final class GenerationController {
         initialLoadTask = nil
         generationUpdatesTask = nil
         generationResultsTask = nil
-        drawThingsContactsTask = nil
         modelFolderMonitorTask = nil
         controlNetFolderMonitorTask = nil
         modelDirDebounceTask = nil
@@ -1246,16 +1249,6 @@ final class GenerationController {
             for await result in stream {
                 guard let self else { return }
                 self.apply(result)
-            }
-        }
-    }
-
-    private func observeDrawThingsContacts() {
-        drawThingsContactsTask?.cancel()
-        drawThingsContactsTask = Task { [weak self, contacts = engineRegistry.drawThingsContacts] in
-            for await contact in contacts {
-                guard let self else { return }
-                self.apply(contact)
             }
         }
     }

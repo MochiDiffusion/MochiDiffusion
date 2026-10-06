@@ -153,4 +153,20 @@ struct FailureReportingTests {
         state.report(.ready(nil))
         #expect(state.state == .ready(nil))
     }
+
+    @Test("An outcome a stale model list may explain offers a refresh until dismissed")
+    func modelListRefreshOffer() {
+        let state = GenerationState()
+
+        state.report(.error("other failure"))
+        #expect(state.outdatedModelListSources.isEmpty)
+        state.report(.error("connection closed"), outdatedModelListSource: .connection)
+        #expect(state.outdatedModelListSources == [.connection])
+
+        state.clearUnreportedOutcomes()
+        #expect(state.outdatedModelListSources.isEmpty)
+        // A dismissed outcome stays silent, offer included, for the rest of the batch.
+        state.report(.error("connection closed"), outdatedModelListSource: .connection)
+        #expect(state.outdatedModelListSources.isEmpty)
+    }
 }

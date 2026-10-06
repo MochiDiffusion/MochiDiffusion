@@ -10,11 +10,49 @@ import GRPC
 import NIO
 
 extension DrawThingsError {
-    /// Whether `error` means the server could not be reached, rather than that it
-    /// answered with an error of its own.
+    /// Whether `error` means there is no connection to the server, rather than that
+    /// it answered with an error of its own: Mochi could not connect, or the
+    /// connection closed during a call.
     static func isUnreachable(_ error: any Error) -> Bool {
-        let status = (error as? any GRPCStatusTransformable)?.makeGRPCStatus()
-        return status?.code == .unavailable || status?.code == .deadlineExceeded
+        isConnectionFailure(error)
+            || (error as? any GRPCStatusTransformable)?.makeGRPCStatus().code == .unavailable
+    }
+
+    /// Mochi could not open a connection. The channel pool reports this, as
+    /// `deadlineExceeded` once the call's deadline passes.
+    private static func isConnectionFailure(_ error: any Error) -> Bool {
+        error is GRPCConnectionPoolError
+    }
+
+    /// A failed generation's error, worded for the generation alert. Other errors,
+    /// including Draw Things' own, keep their text.
+    static func generationFailure(_ error: any Error, connection: DrawThingsConnection)
+        -> any Error
+    {
+        guard let status = (error as? any GRPCStatusTransformable)?.makeGRPCStatus() else {
+            return error
+        }
+        if isConnectionFailure(error) {
+            return DrawThingsError.message(
+                String(
+                    localized: "Couldn't reach the Draw Things server at \(connection.serverName).",
+                    comment: "Generation error when the Draw Things server cannot be reached"
+                ))
+        }
+        if isUnreachable(error) {
+            return DrawThingsError.connectionClosed(
+                String(
+                    localized:
+                        "Draw Things closed the connection before the image was finished.",
+                    comment: "Generation error when the connection closes during a generation"
+                ))
+        }
+        let detail = status.message.flatMap { $0.isEmpty ? nil : $0 } ?? "\(status.code)"
+        return DrawThingsError.message(
+            String(
+                localized: "Draw Things reported an error: \(detail)",
+                comment: "Generation error passing on the text Draw Things returned"
+            ))
     }
 
     /// What Settings shows when Mochi could not use the server.
@@ -36,9 +74,11 @@ nonisolated struct DrawThingsCatalog: Sendable {
 nonisolated protocol DrawThingsTransport: Sendable {
     func catalog(connection: DrawThingsConnection, sharedSecret: String?) async throws
         -> DrawThingsCatalog
+    /// - Parameter showsPreview: whether to decode the previews Draw Things sends
+    ///   and emit them to `session`.
     func generate(
         payload: DrawThingsPayload, prompt: String, seed: UInt32,
-        sharedSecret: String?, session: GenerationSession
+        sharedSecret: String?, showsPreview: Bool, session: GenerationSession
     ) async throws -> CGImage?
 }
 
@@ -92,9 +132,12 @@ actor GRPCDrawThingsTransport: DrawThingsTransport {
                 callOptions: options(seconds: 10)
             )
             try await channel.close().get()
+            // Draw Things gives the same answer for a missing secret and a wrong one.
             if reply.sharedSecretMissing {
                 throw DrawThingsError.message(
-                    "Draw Things requires a shared secret.")
+                    sharedSecret?.isEmpty == false
+                        ? "Draw Things didn't accept the shared secret."
+                        : "Draw Things requires a shared secret.")
             }
             return DrawThingsCatalog(models: reply.override.models)
         } catch {
@@ -105,7 +148,7 @@ actor GRPCDrawThingsTransport: DrawThingsTransport {
 
     func generate(
         payload: DrawThingsPayload, prompt: String, seed: UInt32,
-        sharedSecret: String?, session: GenerationSession
+        sharedSecret: String?, showsPreview: Bool, session: GenerationSession
     ) async throws -> CGImage? {
         try Task.checkCancellation()
         let channel = try channel(for: payload.connection)
@@ -130,6 +173,14 @@ actor GRPCDrawThingsTransport: DrawThingsTransport {
             var accumulator = DrawThingsImageAccumulator()
             for try await response in stream {
                 try Task.checkCancellation()
+                // Draw Things sends previews unasked. One that cannot be decoded is
+                // skipped: it is not part of the result.
+                if showsPreview, response.hasPreviewImage,
+                    let preview = try? await Self.decode(
+                        response.previewImage, family: payload.previewFamily)
+                {
+                    session.emit(.preview(preview))
+                }
                 if response.hasCurrentSignpost,
                     case .sampling(let sampling) = response.currentSignpost.signpost
                 {
@@ -154,9 +205,16 @@ actor GRPCDrawThingsTransport: DrawThingsTransport {
         }
     }
 
+    /// - Parameter family: needed for a preview, whose latents are decoded with the
+    ///   model family's colour coefficients; a finished image is already RGB.
     @MainActor
-    private static func decode(_ tensor: Data) throws -> CGImage {
-        guard let image = try ImageHelpers.dtTensorToImage(tensor).cgImageRepresentation else {
+    private static func decode(_ tensor: Data, family: LatentModelFamily? = nil) throws
+        -> CGImage
+    {
+        guard
+            let image = try ImageHelpers.dtTensorToImage(tensor, modelFamily: family)
+                .cgImageRepresentation
+        else {
             throw GenerationError.malformedResponse
         }
         return image
@@ -194,7 +252,7 @@ nonisolated struct DrawThingsImageAccumulator {
 
     func finishedImage() throws -> Data {
         guard pending.isEmpty, let image, !image.isEmpty else {
-            throw DrawThingsError.message("Draw Things ended the stream without a complete image.")
+            throw DrawThingsError.message("Draw Things stopped before sending a complete image.")
         }
         return image
     }

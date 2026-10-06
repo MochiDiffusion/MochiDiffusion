@@ -136,8 +136,10 @@ actor GenerationService {
         await updateGenerationState(.canceling)
     }
 
-    func updateStatus(_ status: GenerationState.Status) async {
-        await updateGenerationState(status)
+    func updateStatus(
+        _ status: GenerationState.Status, outdatedModelListSource: ModelListSource? = nil
+    ) async {
+        await updateGenerationState(status, outdatedModelListSource: outdatedModelListSource)
     }
 
     private func startProcessingIfNeeded() {
@@ -314,7 +316,10 @@ actor GenerationService {
             } catch {
                 logger.error("There was a problem generating images: \(error)")
                 await updateStatus(
-                    .error("There was a problem generating images: \(error)"))
+                    .error(Self.userDescription(of: error)),
+                    outdatedModelListSource: (error as? any ModelListMayBeOutdated)?
+                        .outdatedModelListSource
+                )
             }
 
             await finishCurrentRequest(
@@ -322,6 +327,13 @@ actor GenerationService {
                 restoreReadyAfterCancel: restoreReadyAfterCancel
             )
         }
+    }
+
+    /// An error's own user-facing text when it has one. Otherwise a general
+    /// sentence with the error's Swift description, which at least names it.
+    nonisolated static func userDescription(of error: any Error) -> String {
+        (error as? any LocalizedError)?.errorDescription
+            ?? "There was a problem generating images: \(error)"
     }
 
     /// Expires `session` once it has been quiet for `timeout`.
@@ -354,9 +366,12 @@ actor GenerationService {
         }
     }
 
-    private func updateGenerationState(_ status: GenerationState.Status) async {
+    private func updateGenerationState(
+        _ status: GenerationState.Status, outdatedModelListSource: ModelListSource? = nil
+    ) async {
         await MainActor.run {
-            GenerationState.shared.report(status)
+            GenerationState.shared.report(
+                status, outdatedModelListSource: outdatedModelListSource)
         }
     }
 

@@ -6,6 +6,7 @@
 import CoreGraphics
 import DrawThingsClient
 import Foundation
+import os
 
 /// One server for both this Mac (localhost) and another machine on the LAN.
 /// Credentials are deliberately absent from this persisted value.
@@ -24,6 +25,11 @@ nonisolated struct DrawThingsConnection: Codable, Equatable, Sendable {
     /// Whether Mochi may contact the server: switched on, with a host entered.
     /// Otherwise Mochi makes no network calls for Draw Things.
     var isActive: Bool { enabled && !host.isEmpty }
+
+    /// The host, with the port only when it is not Draw Things' default.
+    var serverName: String {
+        port == Self.defaultPort ? host : "\(host):\(port)"
+    }
 
     /// Keeps the characters a hostname or IPv4 address can contain.
     static func filteredHost(_ text: String) -> String {
@@ -50,37 +56,45 @@ nonisolated struct DrawThingsConnection: Codable, Equatable, Sendable {
     }
 }
 
-/// Whether one generation reached the Draw Things server.
-///
-/// Reported by the runtime so Settings shows the result of Mochi's last contact
-/// with the server, which can be a generation as well as a model-list fetch.
-nonisolated struct DrawThingsContact: Sendable, Equatable {
-    let connection: DrawThingsConnection
-    /// Why the server could not be reached; `nil` when it answered, even with an
-    /// error of its own.
-    let failure: String?
+/// What Settings says about the Draw Things model list: the result of the last
+/// fetch. Mochi holds no connection between fetches and generations, so this
+/// describes that fetch only, and stays true until the next one.
+nonisolated struct DrawThingsStatus: Equatable, Sendable {
+    nonisolated enum Fetch: Equatable, Sendable {
+        case models(count: Int, at: Date)
+        /// The server answered, but its list gives Mochi nothing to use; with why.
+        case noModels(String, at: Date)
+        case failed(String, at: Date)
+    }
+
+    /// Kept while the next fetch runs. `nil` before the first fetch from the server
+    /// the settings name.
+    var lastFetch: Fetch?
+    var isFetching = false
+
+    /// Switched off, or no host entered: Mochi does not fetch.
+    static let inactive = DrawThingsStatus()
 }
 
-/// What Settings says about the Draw Things server.
-nonisolated enum DrawThingsStatus: Equatable, Sendable {
-    /// Switched off, or no host entered: Mochi is not contacting a server.
-    case inactive
-    case connecting
-    /// The server answered. A warning says why Mochi still cannot use it, such as a
-    /// model list with no supported models.
-    case connected(warning: String?)
-    /// With the reason, to show under the status.
-    case notConnected(String)
-}
-
-nonisolated enum DrawThingsError: LocalizedError {
+nonisolated enum DrawThingsError: LocalizedError, ModelListMayBeOutdated {
     case message(String)
     /// The server answered, but its model list gives Mochi nothing to use.
     case unusableModelList(String)
+    /// The connection closed before the image was finished. Draw Things does this
+    /// when the model is no longer installed, and it is also what quitting looks
+    /// like, so Mochi cannot tell which.
+    case connectionClosed(String)
+
     var errorDescription: String? {
         switch self {
-        case .message(let message), .unusableModelList(let message): message
+        case .message(let message), .unusableModelList(let message),
+            .connectionClosed(let message):
+            message
         }
+    }
+
+    var outdatedModelListSource: ModelListSource? {
+        if case .connectionClosed = self { .connection } else { nil }
     }
 }
 
@@ -151,6 +165,8 @@ nonisolated struct DrawThingsPayload: Sendable {
     let negativePrompt: String
     /// The model's family, recorded as its architecture.
     let architecture: String?
+    /// How to turn the model's preview latents into colours.
+    let previewFamily: LatentModelFamily
 }
 
 nonisolated struct DrawThingsEngine: GenerationEngineDescriptor {
@@ -159,17 +175,10 @@ nonisolated struct DrawThingsEngine: GenerationEngineDescriptor {
     var displayName: String { "Draw Things" }
     private let secrets: any SecretStore
     private let transport: any DrawThingsTransport
-    private let contacts: AsyncStream<DrawThingsContact>.Continuation?
 
-    /// - Parameter contacts: where generations report whether they reached the
-    ///   server; `nil` reports nothing.
-    init(
-        secrets: any SecretStore, transport: any DrawThingsTransport = GRPCDrawThingsTransport(),
-        contacts: AsyncStream<DrawThingsContact>.Continuation? = nil
-    ) {
+    init(secrets: any SecretStore, transport: any DrawThingsTransport = GRPCDrawThingsTransport()) {
         self.secrets = secrets
         self.transport = transport
-        self.contacts = contacts
     }
 
     func availability(_ settings: EngineSettings) async -> EngineAvailability {
@@ -266,7 +275,8 @@ nonisolated struct DrawThingsEngine: GenerationEngineDescriptor {
                 connection: model.connection, specification: model.specification,
                 configuration: configuration,
                 negativePrompt: constraints.supportsNegativePrompt ? draft.negativePrompt : "",
-                architecture: DrawThingsPresets.familyNames[model.version]
+                architecture: DrawThingsPresets.familyNames[model.version],
+                previewFamily: LatentModelFamily.detect(from: model.version)
             ),
             size: size,
             startingImageData: nil, inputImageData: [], controlNetImageData: [],
@@ -280,22 +290,18 @@ nonisolated struct DrawThingsEngine: GenerationEngineDescriptor {
     }
 
     func makeRuntime() -> any GenerationEngineRuntime {
-        DrawThingsRuntime(secrets: secrets, transport: transport, contacts: contacts)
+        DrawThingsRuntime(secrets: secrets, transport: transport)
     }
 }
 
 actor DrawThingsRuntime: GenerationEngineRuntime {
+    private let logger = Logger()
     private let secrets: any SecretStore
     private let transport: any DrawThingsTransport
-    private let contacts: AsyncStream<DrawThingsContact>.Continuation?
 
-    init(
-        secrets: any SecretStore, transport: any DrawThingsTransport,
-        contacts: AsyncStream<DrawThingsContact>.Continuation? = nil
-    ) {
+    init(secrets: any SecretStore, transport: any DrawThingsTransport) {
         self.secrets = secrets
         self.transport = transport
-        self.contacts = contacts
     }
 
     nonisolated func idleTimeout(for request: GenerationRequest) -> Duration? { .seconds(300) }
@@ -336,16 +342,16 @@ actor DrawThingsRuntime: GenerationEngineRuntime {
             do {
                 image = try await transport.generate(
                     payload: payload, prompt: request.prompt, seed: imageSeed,
-                    sharedSecret: secret, session: session
+                    sharedSecret: secret, showsPreview: request.useDenoisedIntermediates,
+                    session: session
                 )
             } catch {
-                // A stop says nothing about the server.
                 if !session.isCancelled, !(error is CancellationError) {
-                    report(error, connection: payload.connection)
+                    // The alert shows a worded summary; the log keeps what happened.
+                    logger.error("Draw Things generation failed: \(error)")
                 }
-                throw error
+                throw DrawThingsError.generationFailure(error, connection: payload.connection)
             }
-            contacts?.yield(DrawThingsContact(connection: payload.connection, failure: nil))
             guard !session.isCancelled else { return }
             guard let image else {
                 throw DrawThingsError.message("Draw Things returned no finished image.")
@@ -359,15 +365,6 @@ actor DrawThingsRuntime: GenerationEngineRuntime {
             try await onResult(GenerationResult(metadata: metadata, imageData: data))
             seed = GenerationSeed.next(after: seed)
         }
-    }
-
-    /// An error Draw Things itself returned means the server answered, so only an
-    /// unreachable server is reported as a failure.
-    private func report(_ error: any Error, connection: DrawThingsConnection) {
-        let failure =
-            DrawThingsError.isUnreachable(error)
-            ? DrawThingsError.connectionFailureDescription(error) : nil
-        contacts?.yield(DrawThingsContact(connection: connection, failure: failure))
     }
 
     /// Records the values sent to Draw Things, with `nil` for the options the
