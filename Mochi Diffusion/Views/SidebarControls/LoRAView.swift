@@ -23,7 +23,11 @@ struct LoRAView: View {
                 title: \.name
             )
             .frame(maxWidth: 160)
+            // With nothing left to add, the picker is hidden but keeps its space,
+            // so the rows below do not move when it reappears.
+            .opacity(controller.addableLoRAs.isEmpty ? 0 : 1)
             .disabled(controller.addableLoRAs.isEmpty)
+            .accessibilityHidden(controller.addableLoRAs.isEmpty)
         }
         ForEach(controller.shownLoRAs, id: \.option.id) { option, selection in
             LoRARow(option: option, selection: selection)
