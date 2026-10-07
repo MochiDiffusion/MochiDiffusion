@@ -200,7 +200,7 @@ The multi-engine foundation is implemented. Current ownership and contracts foll
     compiler cannot see and a later change silently breaks.
 
 - Metadata lifecycle:
-  - Musubi (github.com/MochiDiffusion/Musubi, pinned to a revision) reads and writes all
+  - Musubi (github.com/MochiDiffusion/Musubi, pinned to an exact release) reads and writes all
     generation metadata. `ImageMetadata.swift` is the only adapter between Musubi and Mochi.
   - Writing: each runtime builds a `GenerationMetadata` from the values that reached the
     pipeline, with `nil` for anything the image did not use. `GenerationMetadata.snapshot()`

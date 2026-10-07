@@ -1316,8 +1316,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/MochiDiffusion/Musubi.git";
 			requirement = {
-				kind = revision;
-				revision = 3ea31276dd1fd48fb591d59d20951ff8860503b3;
+				kind = exactVersion;
+				version = 0.2.0;
 			};
 		};
 		AA7000000000000000000003 /* XCRemoteSwiftPackageReference "DT-gRPC-Swift-Client" */ = {isa = XCRemoteSwiftPackageReference; repositoryURL = "https://github.com/euphoriacyberware-ai/DT-gRPC-Swift-Client"; requirement = { kind = revision; revision = 2e44f4f99e742709eb90cfd96ff3fe10198421c1; }; };

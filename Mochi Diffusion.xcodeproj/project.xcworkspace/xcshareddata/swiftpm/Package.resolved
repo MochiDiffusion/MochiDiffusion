@@ -50,7 +50,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/MochiDiffusion/Musubi.git",
       "state" : {
-        "revision" : "3ea31276dd1fd48fb591d59d20951ff8860503b3"
+        "revision" : "20c106491b37f022724e6104bcf516f0edf1ece8",
+        "version" : "0.2.0"
       }
     },
     {
