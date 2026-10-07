@@ -211,6 +211,17 @@ nonisolated struct MetadataDetail: Sendable, Hashable {
     let value: String
 }
 
+/// A LoRA an image records: its name, which for a Draw Things image is the
+/// server's filename, and its weight when recorded.
+nonisolated struct RecordedLoRA: Sendable, Hashable, CustomStringConvertible {
+    let name: String
+    let weight: Double?
+
+    var description: String {
+        weight.map { "\(name) (\($0))" } ?? name
+    }
+}
+
 /// Reads generation metadata from image files through Musubi.
 nonisolated enum ImageMetadataReader {
     static let producerName = "Mochi Diffusion"
@@ -382,11 +393,11 @@ nonisolated enum ImageMetadataReader {
             record.generatedDate = generatedAt
             record.generatedDateIsRecorded = true
         }
-        let loras = generation.resources.filter { $0.kind == .lora }.compactMap { resource in
-            resource.name.map { name in resource.weight.map { "\(name) (\($0))" } ?? name }
+        record.loras = generation.resources.filter { $0.kind == .lora }.compactMap { resource in
+            resource.name.map { RecordedLoRA(name: $0, weight: resource.weight) }
         }
-        if !loras.isEmpty {
-            shown.append(MetadataDetail(label: "LoRAs", value: loras.joined(separator: "\n")))
+        if !record.loras.isEmpty {
+            fields.insert(.loras)
         }
 
         if let details {
@@ -410,6 +421,13 @@ nonisolated enum ImageMetadataReader {
             if let inputImages = details.inputImages {
                 record.inputImages = inputImages
                 fields.insert(.inputImages)
+            }
+            // Mochi records every LoRA a Draw Things image used, so listing none
+            // means it used none.
+            if details.engine == EngineID.drawThings.rawValue,
+                producer?.name == ImageMetadataReader.producerName
+            {
+                fields.insert(.loras)
             }
         }
 

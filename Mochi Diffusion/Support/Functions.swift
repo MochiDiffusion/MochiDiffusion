@@ -214,6 +214,7 @@ func createSDImage(from record: ImageRecord) -> SDImage? {
     sdi.guidanceScale = record.guidanceScale
     sdi.strength = record.strength
     sdi.generationSize = record.generationSize
+    sdi.loras = record.loras
     sdi.details = record.details
     sdi.note = record.note
     sdi.generatedDateIsRecorded = record.generatedDateIsRecorded

@@ -180,10 +180,12 @@ struct MetadataRoundTripTests {
         #expect(record.guidanceScale == 1)
         #expect(record.details.contains(MetadataDetail(label: "Sampler", value: "DDIM Trailing")))
         // Not a field, so Copy Options never restores it to the sidebar's scheduler.
+        // LoRAs are, because the image records that it used none.
         #expect(
             record.metadataFields == [
-                .prompt, .model, .engine, .modelKey, .size, .seed, .steps, .guidanceScale,
+                .prompt, .model, .engine, .modelKey, .size, .seed, .steps, .guidanceScale, .loras,
             ])
+        #expect(record.loras.isEmpty)
     }
 
     @Test(
@@ -345,7 +347,7 @@ struct MetadataRoundTripTests {
             ])
     }
 
-    @Test("A foreign prompt keeps its LoRA tags and lists the LoRAs")
+    @Test("A foreign prompt keeps its LoRA tags and records the LoRAs")
     func foreignLoRATags() throws {
         let url = try writeParametersImage(
             "a castle <lora:watercolor:0.8>\nSteps: 20, Seed: 1, Size: 8x8", name: "lora")
@@ -353,7 +355,8 @@ struct MetadataRoundTripTests {
         let record = try #require(createImageRecordFromURL(url))
 
         #expect(record.prompt == "a castle <lora:watercolor:0.8>")
-        #expect(record.details.contains(MetadataDetail(label: "LoRAs", value: "watercolor (0.8)")))
+        #expect(record.loras == [RecordedLoRA(name: "watercolor", weight: 0.8)])
+        #expect(record.metadataFields.contains(.loras))
     }
 
     @Test("A generation graph with several samplers is imported with a note and no settings")

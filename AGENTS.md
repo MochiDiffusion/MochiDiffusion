@@ -168,7 +168,9 @@ The multi-engine foundation is implemented. Current ownership and contracts foll
     `OptionConstraints.loras`, leaving out consistency, inpainting and alternative-decoder
     LoRAs. The saved list keeps every LoRA the user added, by server filename; the sidebar
     shows, and `plan` sends, the ones the selected model offers. Images record each as a
-    `lora` resource named by its filename.
+    `lora` resource named by its filename. Copy Options replaces the saved list with the
+    image's LoRAs that a Draw Things model offers; a LoRA's arrow in the Info panel adds it.
+    A Mochi Draw Things image that lists no LoRAs records that it used none.
 
 - Concurrency defaults (project settings):
   - `SWIFT_VERSION = 6.0`

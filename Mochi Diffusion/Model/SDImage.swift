@@ -49,6 +49,8 @@ struct SDImage: Identifiable, Hashable {
     /// The size the metadata says the image was generated at, which can differ
     /// from the pixel size.
     var generationSize: CGSize?
+    /// The LoRAs the image records, in order.
+    var loras: [RecordedLoRA] = []
     /// Settings shown but not restorable, such as an unknown sampler.
     var details: [MetadataDetail] = []
     /// Shown instead of settings when the metadata is ambiguous.
@@ -190,6 +192,11 @@ extension SDImage {
         }
         if metadataFields.contains(.mlComputeUnit) {
             append(Metadata.mlComputeUnit.rawValue, value: MLComputeUnits.toString(mlComputeUnit))
+        }
+        if metadataFields.contains(.loras) {
+            for lora in loras {
+                append(Metadata.lora.rawValue, value: lora.description)
+            }
         }
         for detail in details {
             append(detail.label, value: detail.value)

@@ -191,7 +191,7 @@ nonisolated struct DrawThingsModel: EngineModel {
 
     var metadataFields: Set<MetadataField> {
         var fields: Set<MetadataField> = [
-            .prompt, .model, .engine, .modelKey, .size, .seed, .steps,
+            .prompt, .model, .engine, .modelKey, .size, .seed, .steps, .loras,
         ]
         if supportsNegativePrompt { fields.insert(.negativePrompt) }
         if !isConsistencyModel { fields.insert(.guidanceScale) }

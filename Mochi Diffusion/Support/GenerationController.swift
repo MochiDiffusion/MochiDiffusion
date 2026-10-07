@@ -54,6 +54,8 @@ private struct SidebarRestoreSource {
     var computeUnits: MLComputeUnits?
     var seed: UInt32?
     var numberOfImages: Int?
+    /// `nil` when the source does not record LoRAs; empty when it records none.
+    var loras: [RecordedLoRA]?
 
     init(galleryImage: SDImage, metadataFields: Set<MetadataField>) {
         if metadataFields.contains(.engine) || metadataFields.contains(.modelKey) {
@@ -104,6 +106,7 @@ private struct SidebarRestoreSource {
             metadataFields.contains(.mlComputeUnit) ? galleryImage.mlComputeUnit : nil
         seed = metadataFields.contains(.seed) ? galleryImage.seed : nil
         numberOfImages = nil
+        loras = metadataFields.contains(.loras) ? galleryImage.loras : nil
     }
 
     init(request: GenerationRequest) {
@@ -137,6 +140,9 @@ private struct SidebarRestoreSource {
         computeUnits = request.mlComputeUnit
         seed = request.metadataFields.contains(.seed) ? request.seed : nil
         numberOfImages = request.numberOfImages
+        loras =
+            request.metadataFields.contains(.loras)
+            ? request.loras.map { RecordedLoRA(name: $0.file, weight: $0.weight) } : nil
     }
 }
 
@@ -1061,6 +1067,51 @@ final class GenerationController {
             let preference = source.computeUnits.flatMap(ComputeUnitPreference.init(exact:))
         {
             configStore.mlComputeUnitPreference = preference
+        }
+        // Replaces the saved list, including LoRAs the selected model cannot use,
+        // so the sidebar holds exactly the image's LoRAs.
+        if let loras = source.loras {
+            var restored: [LoRASelection] = []
+            for lora in loras {
+                guard let selection = loraSelection(for: lora),
+                    !restored.contains(where: { $0.file == selection.file })
+                else { continue }
+                restored.append(selection)
+            }
+            configStore.loras = restored
+        }
+    }
+
+    /// The server LoRA an image's LoRA names, with the image's weight or, when it
+    /// records none, the LoRA's default. `nil` when no Draw Things model offers
+    /// a LoRA of that name, as for a LoRA from another application.
+    private func loraSelection(for lora: RecordedLoRA) -> LoRASelection? {
+        guard let option = loraOption(named: lora.name) else { return nil }
+        return LoRASelection(file: option.file, weight: lora.weight ?? option.defaultWeight)
+    }
+
+    private func loraOption(named name: String) -> LoRAOption? {
+        for model in models {
+            if let option = model.constraints.loras.options.first(where: { $0.file == name }) {
+                return option
+            }
+        }
+        return nil
+    }
+
+    /// Whether `copyLoRAToPrompt(_:)` can add `lora`: a Draw Things model offers it.
+    func canCopyLoRA(_ lora: RecordedLoRA) -> Bool {
+        loraOption(named: lora.name) != nil
+    }
+
+    /// Adds one of an image's LoRAs to the saved list, or sets its weight when it
+    /// is already there. The other saved LoRAs stay.
+    func copyLoRAToPrompt(_ lora: RecordedLoRA) {
+        guard let selection = loraSelection(for: lora) else { return }
+        if let index = configStore.loras.firstIndex(where: { $0.file == selection.file }) {
+            configStore.loras[index].weight = selection.weight
+        } else {
+            configStore.loras.append(selection)
         }
     }
 

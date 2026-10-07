@@ -23,6 +23,9 @@ nonisolated enum MetadataField: String, CaseIterable, Sendable {
     case seed
     case steps
     case guidanceScale
+    /// The LoRAs applied. An image that records this field and lists none was
+    /// generated without LoRAs.
+    case loras
 }
 
 /// A model a particular engine can generate with.
