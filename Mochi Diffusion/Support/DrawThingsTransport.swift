@@ -21,7 +21,7 @@ extension DrawThingsError {
 
     /// Mochi could not open a connection. The channel pool reports this, as
     /// `deadlineExceeded` once the call's deadline passes.
-    private static func isConnectionFailure(_ error: any Error) -> Bool {
+    static func isConnectionFailure(_ error: any Error) -> Bool {
         error is GRPCConnectionPoolError
     }
 
@@ -145,8 +145,43 @@ actor GRPCDrawThingsTransport: DrawThingsTransport {
         return options
     }
 
+    /// How many times a call is made when its connection never opens. A server Mac
+    /// that is asleep wakes on the first attempt but may not answer within its wait.
+    static let connectionAttempts = 3
+
+    /// Runs `operation` again, up to `attempts` times in all, while it fails
+    /// because the connection never opened. Any other error, including a
+    /// connection that closed during the call, is thrown at once: by then the
+    /// server may already be working on the request.
+    static func retryingUnopenedConnection<T>(
+        attempts: Int = connectionAttempts,
+        isolation: isolated (any Actor)? = #isolation,
+        _ operation: () async throws -> T
+    ) async throws -> T {
+        var attempt = 1
+        while true {
+            try Task.checkCancellation()
+            do {
+                return try await operation()
+            } catch {
+                guard attempt < attempts, DrawThingsError.isConnectionFailure(error) else {
+                    throw error
+                }
+                attempt += 1
+            }
+        }
+    }
+
     func catalog(connection: DrawThingsConnection, sharedSecret: String?) async throws
         -> DrawThingsCatalog
+    {
+        try await Self.retryingUnopenedConnection {
+            try await catalogAttempt(connection: connection, sharedSecret: sharedSecret)
+        }
+    }
+
+    private func catalogAttempt(connection: DrawThingsConnection, sharedSecret: String?)
+        async throws -> DrawThingsCatalog
     {
         let channel = try channel(for: connection)
         do {
@@ -173,6 +208,19 @@ actor GRPCDrawThingsTransport: DrawThingsTransport {
     }
 
     func generate(
+        payload: DrawThingsPayload, inputs: DrawThingsInputs, prompt: String, seed: UInt32,
+        sharedSecret: String?, showsPreview: Bool, session: GenerationSession
+    ) async throws -> CGImage? {
+        // The pool fails a call before its stream opens, so a generation that has
+        // started is never sent twice.
+        try await Self.retryingUnopenedConnection {
+            try await generateAttempt(
+                payload: payload, inputs: inputs, prompt: prompt, seed: seed,
+                sharedSecret: sharedSecret, showsPreview: showsPreview, session: session)
+        }
+    }
+
+    private func generateAttempt(
         payload: DrawThingsPayload, inputs: DrawThingsInputs, prompt: String, seed: UInt32,
         sharedSecret: String?, showsPreview: Bool, session: GenerationSession
     ) async throws -> CGImage? {

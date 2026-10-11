@@ -1027,6 +1027,54 @@ struct DrawThingsTests {
         }
     }
 
+    @Test("A call is retried only while its connection never opens")
+    func unopenedConnectionRetry() async throws {
+        let unopened = GRPCConnectionPoolError(code: .deadlineExceeded)
+        // A sleeping server answers once the first attempt has woken it.
+        var attempts = 0
+        let answer = try await GRPCDrawThingsTransport.retryingUnopenedConnection {
+            attempts += 1
+            if attempts < 3 { throw unopened }
+            return "awake"
+        }
+        #expect(answer == "awake")
+        #expect(attempts == 3)
+
+        attempts = 0
+        await #expect(throws: GRPCConnectionPoolError.self) {
+            try await GRPCDrawThingsTransport.retryingUnopenedConnection {
+                attempts += 1
+                throw unopened
+            }
+        }
+        #expect(attempts == GRPCDrawThingsTransport.connectionAttempts)
+
+        // A connection that closed during the call may have started the work.
+        attempts = 0
+        await #expect(throws: GRPCStatus.self) {
+            try await GRPCDrawThingsTransport.retryingUnopenedConnection {
+                attempts += 1
+                throw GRPCStatus(code: .unavailable, message: "Transport became inactive")
+            }
+        }
+        #expect(attempts == 1)
+
+        let cancelled = Task {
+            var attempts = 0
+            do {
+                _ = try await GRPCDrawThingsTransport.retryingUnopenedConnection {
+                    attempts += 1
+                    withUnsafeCurrentTask { $0?.cancel() }
+                    throw unopened
+                }
+            } catch is CancellationError {
+                return attempts
+            }
+            return -1
+        }
+        #expect(try await cancelled.value == 1)
+    }
+
     @Test(
         "Runtime forwards the prompt/seed/credential and encodes a gallery image with honest metadata"
     )
