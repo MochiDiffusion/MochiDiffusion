@@ -275,6 +275,8 @@ nonisolated struct LoRAOption: Sendable, Equatable, Identifiable {
     /// Words the LoRA was trained to respond to, shown for the user to copy into
     /// the prompt. Empty when the server names none.
     let triggerWords: String
+    /// The weights the server suggests, which the slider spans. Draw Things only
+    /// uses it as a hint, so a weight typed outside it is still sent.
     let weightRange: ClosedRange<Double>
     /// The weight a newly added LoRA starts at.
     let defaultWeight: Double
@@ -308,8 +310,11 @@ nonisolated enum LoRAsConstraint: Sendable, Equatable {
         return []
     }
 
-    /// The selections this model can use, in the order the user added them,
-    /// with each weight clamped to its LoRA's range.
+    /// The selections this model can use, in the order the user added them.
+    ///
+    /// Weights are not clamped to the LoRA's range, which Draw Things treats as a
+    /// suggestion, except where the range is a single value: the sidebar shows that
+    /// LoRA's weight as pinned, so the request uses the pinned value.
     func resolved(_ requested: [LoRASelection]) -> [LoRASelection] {
         requested.compactMap { selection in
             guard let option = options.first(where: { $0.file == selection.file }) else {
@@ -318,7 +323,7 @@ nonisolated enum LoRAsConstraint: Sendable, Equatable {
             let range = option.weightRange
             return LoRASelection(
                 file: selection.file,
-                weight: min(max(selection.weight, range.lowerBound), range.upperBound))
+                weight: range.lowerBound == range.upperBound ? range.lowerBound : selection.weight)
         }
     }
 }

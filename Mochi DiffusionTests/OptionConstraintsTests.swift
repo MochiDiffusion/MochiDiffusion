@@ -176,6 +176,35 @@ struct OptionConstraintsTests {
         #expect(offered.resolved(.discreteFlowScheduler) == .pndmScheduler)
     }
 
+    // MARK: - LoRAs
+
+    /// Unlike the other options, a LoRA's range is only the server's suggestion:
+    /// Draw Things applies whatever weight it is sent.
+    @Test("A LoRA weight outside its range is kept unless the range is pinned")
+    func loraWeightsAreNotClamped() {
+        let constraint = LoRAsConstraint.supported([
+            LoRAOption(
+                file: "ranged.ckpt", name: "Ranged", triggerWords: "", weightRange: -1...2,
+                defaultWeight: 1),
+            LoRAOption(
+                file: "pinned.ckpt", name: "Pinned", triggerWords: "", weightRange: 0.8...0.8,
+                defaultWeight: 0.8),
+        ])
+
+        #expect(
+            constraint.resolved([
+                LoRASelection(file: "ranged.ckpt", weight: 5),
+                LoRASelection(file: "pinned.ckpt", weight: 5),
+            ]) == [
+                LoRASelection(file: "ranged.ckpt", weight: 5),
+                LoRASelection(file: "pinned.ckpt", weight: 0.8),
+            ])
+        #expect(
+            constraint.resolved([LoRASelection(file: "ranged.ckpt", weight: -3)]) == [
+                LoRASelection(file: "ranged.ckpt", weight: -3)
+            ])
+    }
+
     // MARK: - Starting image, input images and ControlNet
 
     /// Nesting strength inside the starting-image constraint is what makes

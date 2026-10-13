@@ -71,7 +71,11 @@ private struct LoRARow: View {
                         localized: "Remove \(option.name)", comment: "Tooltip for removing a LoRA"))
             }
             if option.weightRange.lowerBound < option.weightRange.upperBound {
-                MochiSlider(value: weight, bounds: option.weightRange, step: 0.05)
+                // Draw Things treats the range as a suggestion, so a typed weight
+                // beyond either end is kept.
+                MochiSlider(
+                    value: weight, bounds: option.weightRange, step: 0.05,
+                    strictUpperBound: false, strictLowerBound: false)
             } else {
                 PinnedValueField(
                     text: selection.weight.formatted(.number.precision(.fractionLength(2))))

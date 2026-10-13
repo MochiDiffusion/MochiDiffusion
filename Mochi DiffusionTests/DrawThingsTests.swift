@@ -559,7 +559,7 @@ struct DrawThingsTests {
                 .constraints.loras.isSupported)
     }
 
-    @Test("Planning sends the saved LoRAs the model can use, in order, with clamped weights")
+    @Test("Planning sends the saved LoRAs the model can use, in order, with their weights")
     func loraPlanning() throws {
         let models = try DrawThingsEngine.models(
             from: imageCatalog, connection: connection, loras: loraCatalog)
@@ -574,11 +574,11 @@ struct DrawThingsTests {
             draft: input, model: models[0])
         #expect(
             plan.loras == [
-                LoRASelection(file: "watercolor_lora_f16.ckpt", weight: 2),
+                LoRASelection(file: "watercolor_lora_f16.ckpt", weight: 5),
                 LoRASelection(file: "anime_lora_f16.ckpt", weight: -0.25),
             ])
         #expect(plan.payload.configuration.loras.map(\.file) == plan.loras.map(\.file))
-        #expect(plan.payload.configuration.loras.map(\.weight) == [2, -0.25])
+        #expect(plan.payload.configuration.loras.map(\.weight) == [5, -0.25])
         let specifications = try #require(
             JSONSerialization.jsonObject(with: plan.payload.loraSpecifications) as? [[String: Any]])
         #expect(specifications.map { $0["file"] as? String } == plan.loras.map(\.file))
@@ -759,16 +759,16 @@ struct DrawThingsTests {
             ])
     }
 
-    @Test("A saved weight outside its LoRA's range is shown as the weight that will be used")
-    @MainActor func savedWeightClamped() async throws {
+    @Test("A saved weight outside its LoRA's range is shown and sent unchanged")
+    @MainActor func savedWeightOutsideRange() async throws {
         let transport = StubDrawThingsTransport(catalog: imageCatalog, loras: loraCatalog)
         let (controller, _, _) = try statusController(transport: transport, connection: connection)
         defer { controller.shutdown() }
         controller.configStore.loras = [LoRASelection(file: "watercolor_lora_f16.ckpt", weight: -4)]
         await controller.loadModels(from: [.connection])
         controller.currentModelId = try #require(controller.models.first { $0.name == "SD 1.5" }).id
-        #expect(controller.shownLoRAs.map(\.selection.weight) == [-1])
-        #expect(controller.buildGenerationRequest()?.loras.map(\.weight) == [-1])
+        #expect(controller.shownLoRAs.map(\.selection.weight) == [-4])
+        #expect(controller.buildGenerationRequest()?.loras.map(\.weight) == [-4])
     }
 
     /// How a model applies guidance, from its catalog flags.
