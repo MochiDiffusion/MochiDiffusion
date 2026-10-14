@@ -233,6 +233,92 @@ struct ModelPickerTests {
             }
         }
     }
+
+    @Test("Local models name their family and folder, and recommend nothing")
+    func localModelDetails() async throws {
+        try makeMixedFolder()
+        let controller = makeController()
+        await controller.loadModels()
+
+        for name in ["a-coreml", "b-klein"] {
+            let item = try #require(controller.modelPickerItems.first { $0.name == name })
+            controller.currentModelId = item.id
+            let model = try #require(controller.currentModel)
+            #expect(model.familyName != nil)
+            guard case .directory(let url) = model.location else {
+                Issue.record("\(name) should be in a directory")
+                continue
+            }
+            #expect(url.lastPathComponent == name)
+
+            configStore.steps = 30
+            configStore.guidanceScale = 7
+            controller.applyRecommendedSettings()
+            #expect(configStore.steps == 30)
+            #expect(configStore.guidanceScale == 7)
+        }
+    }
+
+    @Test("Recommended settings apply only what the model recommends")
+    func applyingRecommendedSettings() async throws {
+        let controller = makeController(
+            engineRegistry: EngineRegistry(engines: [AnyGenerationEngine(RecommendingEngine())]))
+        await controller.loadModels()
+
+        controller.currentModelId = RecommendingEngine.withGuidance
+        configStore.steps = 30
+        configStore.guidanceScale = 7
+        controller.applyRecommendedSettings()
+        #expect(configStore.steps == 8)
+        #expect(configStore.guidanceScale == 3.5)
+
+        controller.currentModelId = RecommendingEngine.stepsOnly
+        configStore.guidanceScale = 7
+        controller.applyRecommendedSettings()
+        #expect(configStore.steps == 4)
+        #expect(configStore.guidanceScale == 7)
+    }
+}
+
+/// Lists one model that recommends steps and guidance, and one that recommends
+/// steps alone, as a distilled server model does.
+private struct RecommendingEngine: GenerationEngineDescriptor {
+    struct Model: EngineModel {
+        let id: ModelID
+        let name: String
+        let recommendedSteps: Int?
+        let recommendedGuidanceScale: Double?
+        var constraints: OptionConstraints { .unconstrained }
+        var metadataFields: Set<MetadataField> { [.prompt] }
+        var tokenizerModelDir: URL? { nil }
+    }
+    struct Payload: Sendable {}
+    struct NotRun: Error {}
+
+    static let id = EngineID(rawValue: "recommending")
+    static let modelListSource = ModelListSource.connection
+    static let withGuidance = ModelID(engine: id, key: "with-guidance")
+    static let stepsOnly = ModelID(engine: id, key: "steps-only")
+    var displayName: String { "Recommending" }
+
+    func availability(_ settings: EngineSettings) async -> EngineAvailability { .ready }
+
+    func discoverModels(_ context: ModelDiscoveryContext) async throws -> [Model] {
+        [
+            Model(
+                id: Self.withGuidance, name: "with-guidance",
+                recommendedSteps: 8, recommendedGuidanceScale: 3.5),
+            Model(
+                id: Self.stepsOnly, name: "steps-only",
+                recommendedSteps: 4, recommendedGuidanceScale: nil),
+        ]
+    }
+
+    func plan(draft: GenerationDraft, model: Model) throws -> GenerationPlan<Payload> {
+        throw NotRun()
+    }
+
+    func makeRuntime() -> any GenerationEngineRuntime { fatalError("never runs") }
 }
 
 /// Records how many engines were inside discovery at once, so concurrency is

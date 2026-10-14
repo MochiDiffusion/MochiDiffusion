@@ -293,6 +293,19 @@ final class GenerationController {
         currentModel?.constraints ?? .unconstrained
     }
 
+    /// Sets the sidebar's steps and guidance to the selected model's
+    /// recommendations, each only when the model has one. Runs only from the
+    /// model info popover's button; selecting a model never applies them.
+    func applyRecommendedSettings() {
+        guard let model = currentModel else { return }
+        if let steps = model.recommendedSteps {
+            configStore.steps = Double(steps)
+        }
+        if let guidanceScale = model.recommendedGuidanceScale {
+            configStore.guidanceScale = guidanceScale
+        }
+    }
+
     private(set) var currentControlNets: [ControlNetInput] = []
     private var pendingSelectedImageFilename: String?
 

@@ -28,10 +28,19 @@ nonisolated enum MetadataField: String, CaseIterable, Sendable {
     case loras
 }
 
+/// Where a model lives, as the model info popover shows it.
+nonisolated enum ModelLocation: Sendable, Equatable {
+    /// A model directory on this Mac.
+    case directory(URL)
+    /// A model file on a Draw Things server, named as Settings names the server.
+    case server(name: String, file: String)
+}
+
 /// A model a particular engine can generate with.
 ///
 /// Local models have a directory, but a server's models only a name,
-/// so the concrete types carry their own `url` and generic callers do not ask.
+/// so the concrete types carry their own `url` and generic callers ask for
+/// `location` instead.
 nonisolated protocol EngineModel: Identifiable, Sendable {
     var id: ModelID { get }
     var name: String { get }
@@ -47,10 +56,17 @@ nonisolated protocol EngineModel: Identifiable, Sendable {
     /// `recommendedSteps`. `nil` when there is no recommendation or the model does
     /// not use guidance.
     var recommendedGuidanceScale: Double? { get }
+    /// The architecture's name, such as Stable Diffusion XL or FLUX.2 Klein, as
+    /// image metadata records it. `nil` when it is not known.
+    var familyName: String? { get }
+    /// `nil` only for test doubles, which have nowhere to show.
+    var location: ModelLocation? { get }
 }
 
 nonisolated extension EngineModel {
     /// Local models carry no recommendation.
     var recommendedSteps: Int? { nil }
     var recommendedGuidanceScale: Double? { nil }
+    var familyName: String? { nil }
+    var location: ModelLocation? { nil }
 }

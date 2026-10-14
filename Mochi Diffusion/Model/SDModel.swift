@@ -61,6 +61,8 @@ nonisolated struct SDModel: EngineModel {
 
     var id: ModelID { ModelID(engine: .coreMLStableDiffusion, key: ModelID.localKey(for: url)) }
     var tokenizerModelDir: URL? { url }
+    var familyName: String? { type.displayName }
+    var location: ModelLocation? { .directory(url) }
 
     /// Per model, not per engine. A converted Core ML model has whatever
     /// resolution it was converted at, and only ControlNets converted to the same

@@ -169,6 +169,8 @@ nonisolated struct DrawThingsModel: EngineModel {
 
     var id: ModelID { ModelID(engine: .drawThings, key: file) }
     var tokenizerModelDir: URL? { nil }
+    var familyName: String? { DrawThingsPresets.familyNames[version] }
+    var location: ModelLocation? { .server(name: connection.serverName, file: file) }
 
     var supportsNegativePrompt: Bool { !isConsistencyModel && !usesGuidanceEmbedding }
 

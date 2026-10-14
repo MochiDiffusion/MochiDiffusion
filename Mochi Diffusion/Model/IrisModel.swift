@@ -143,6 +143,8 @@ nonisolated struct IrisModel: EngineModel {
 
     var id: ModelID { ModelID(engine: .iris, key: ModelID.localKey(for: url)) }
     var tokenizerModelDir: URL? { url.appending(path: "tokenizer") }
+    var familyName: String? { family.displayName }
+    var location: ModelLocation? { .directory(url) }
     var constraints: OptionConstraints { Self.constraints(for: family) }
     var metadataFields: Set<MetadataField> { Self.metadataFields(for: family) }
 

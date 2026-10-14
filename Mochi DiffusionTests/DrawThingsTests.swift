@@ -286,6 +286,17 @@ struct DrawThingsTests {
         #expect(plan.inputImageData.isEmpty)
     }
 
+    @Test("A model names its family, and its server and file as its location")
+    func modelDetails() throws {
+        var connection = connection
+        connection.port = 7860
+        let model = try #require(
+            DrawThingsEngine.models(from: catalog, connection: connection).first)
+        #expect(model.familyName == DrawThingsPresets.familyNames[model.version])
+        #expect(model.familyName != nil)
+        #expect(model.location == .server(name: "localhost:7860", file: model.file))
+    }
+
     @Test("Which options a model offers comes from its catalog flags")
     func optionsFromCatalogFlags() throws {
         let catalog = Data(
