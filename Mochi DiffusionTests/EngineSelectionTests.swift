@@ -256,10 +256,11 @@ struct ModelPickerTests {
             controller.applyRecommendedSettings()
             #expect(configStore.steps == 30)
             #expect(configStore.guidanceScale == 7)
+            #expect(controller.settingsDifferingFromRecommendations.isEmpty)
         }
     }
 
-    @Test("Recommended settings apply only what the model recommends")
+    @Test("Recommended settings apply, and are flagged, only for what the model recommends")
     func applyingRecommendedSettings() async throws {
         let controller = makeController(
             engineRegistry: EngineRegistry(engines: [AnyGenerationEngine(RecommendingEngine())]))
@@ -268,15 +269,19 @@ struct ModelPickerTests {
         controller.currentModelId = RecommendingEngine.withGuidance
         configStore.steps = 30
         configStore.guidanceScale = 7
+        #expect(controller.settingsDifferingFromRecommendations == [.steps, .guidanceScale])
         controller.applyRecommendedSettings()
         #expect(configStore.steps == 8)
         #expect(configStore.guidanceScale == 3.5)
+        #expect(controller.settingsDifferingFromRecommendations.isEmpty)
 
         controller.currentModelId = RecommendingEngine.stepsOnly
         configStore.guidanceScale = 7
+        #expect(controller.settingsDifferingFromRecommendations == [.steps])
         controller.applyRecommendedSettings()
         #expect(configStore.steps == 4)
         #expect(configStore.guidanceScale == 7)
+        #expect(controller.settingsDifferingFromRecommendations.isEmpty)
     }
 }
 

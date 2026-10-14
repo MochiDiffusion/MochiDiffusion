@@ -26,12 +26,23 @@ struct ModelView: View {
                 title: \.name
             )
 
+            let differsFromRecommendations =
+                !controller.settingsDifferingFromRecommendations.isEmpty
             Button {
                 isShowingInfo.toggle()
             } label: {
                 Image(systemName: "info.circle")
+                    .overlay(alignment: .topTrailing) {
+                        if differsFromRecommendations {
+                            RecommendationBadge()
+                        }
+                    }
             }
-            .help("Model Info")
+            .help(
+                differsFromRecommendations
+                    ? "Model Info: some settings differ from this model's recommendations"
+                    : "Model Info"
+            )
             .popover(isPresented: $isShowingInfo, arrowEdge: .trailing) {
                 ModelInfoView()
             }
@@ -49,6 +60,7 @@ private struct ModelInfoView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             if let model = controller.currentModel {
+                let differing = controller.settingsDifferingFromRecommendations
                 Text(model.name)
                     .font(.headline)
                     .textSelection(.enabled)
@@ -72,7 +84,7 @@ private struct ModelInfoView: View {
                             }
                         }
                     case .server(let name, let file):
-                        row("Runs On") { Text("Draw Things at \(name)") }
+                        row("Runs On") { Text(name) }
                         row("File") {
                             Text(file)
                                 .textSelection(.enabled)
@@ -88,12 +100,21 @@ private struct ModelInfoView: View {
                         .font(.headline)
                     Grid(alignment: .leadingFirstTextBaseline, verticalSpacing: 6) {
                         if let steps = model.recommendedSteps {
-                            row("Steps") { Text(steps, format: .number) }
+                            row("Steps") {
+                                RecommendedValue(
+                                    recommended: Double(steps),
+                                    current: configStore.steps,
+                                    differs: differing.contains(.steps),
+                                    format: .number.precision(.fractionLength(0))
+                                )
+                            }
                         }
                         if let guidanceScale = model.recommendedGuidanceScale {
                             row("Guidance Scale") {
-                                Text(
-                                    guidanceScale,
+                                RecommendedValue(
+                                    recommended: guidanceScale,
+                                    current: configStore.guidanceScale,
+                                    differs: differing.contains(.guidanceScale),
                                     format: .number.precision(.fractionLength(1))
                                 )
                             }
@@ -124,6 +145,38 @@ private struct ModelInfoView: View {
                 .gridColumnAlignment(.trailing)
             value()
                 .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+}
+
+/// A small dot on the info button while the sidebar differs from the model's
+/// recommended settings.
+private struct RecommendationBadge: View {
+    var body: some View {
+        Circle()
+            .fill(.orange)
+            .frame(width: 6, height: 6)
+            .offset(x: 2, y: -2)
+            .accessibilityLabel("Settings differ from recommendations")
+    }
+}
+
+/// A recommended value, marked with the sidebar's value when the two differ.
+private struct RecommendedValue: View {
+    let recommended: Double
+    let current: Double
+    let differs: Bool
+    let format: FloatingPointFormatStyle<Double>
+
+    var body: some View {
+        HStack(spacing: 4) {
+            Text(recommended, format: format)
+            if differs {
+                Image(systemName: "exclamationmark.circle.fill")
+                    .foregroundStyle(.orange)
+                Text("Sidebar: \(current.formatted(format))")
+                    .foregroundStyle(.secondary)
+            }
         }
     }
 }

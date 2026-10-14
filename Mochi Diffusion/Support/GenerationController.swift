@@ -306,6 +306,28 @@ final class GenerationController {
         }
     }
 
+    enum RecommendedSetting: Hashable {
+        case steps
+        case guidanceScale
+    }
+
+    /// The sidebar settings that differ from the selected model's recommendations,
+    /// which the model info button and popover point out. Empty when the model
+    /// recommends nothing.
+    var settingsDifferingFromRecommendations: Set<RecommendedSetting> {
+        guard let model = currentModel else { return [] }
+        var differing: Set<RecommendedSetting> = []
+        if let steps = model.recommendedSteps, Double(steps) != configStore.steps {
+            differing.insert(.steps)
+        }
+        if let guidanceScale = model.recommendedGuidanceScale,
+            guidanceScale != configStore.guidanceScale
+        {
+            differing.insert(.guidanceScale)
+        }
+        return differing
+    }
+
     private(set) var currentControlNets: [ControlNetInput] = []
     private var pendingSelectedImageFilename: String?
 
