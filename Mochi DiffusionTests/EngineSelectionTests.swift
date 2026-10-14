@@ -270,6 +270,10 @@ struct ModelPickerTests {
         configStore.steps = 30
         configStore.guidanceScale = 7
         #expect(controller.settingsDifferingFromRecommendations == [.steps, .guidanceScale])
+        controller.applyRecommendedSetting(.guidanceScale)
+        #expect(configStore.steps == 30)
+        #expect(configStore.guidanceScale == 3.5)
+        #expect(controller.settingsDifferingFromRecommendations == [.steps])
         controller.applyRecommendedSettings()
         #expect(configStore.steps == 8)
         #expect(configStore.guidanceScale == 3.5)

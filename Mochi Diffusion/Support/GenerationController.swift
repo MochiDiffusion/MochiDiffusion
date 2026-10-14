@@ -297,12 +297,22 @@ final class GenerationController {
     /// recommendations, each only when the model has one. Runs only from the
     /// model info popover's button; selecting a model never applies them.
     func applyRecommendedSettings() {
+        applyRecommendedSetting(.steps)
+        applyRecommendedSetting(.guidanceScale)
+    }
+
+    /// Sets one sidebar setting to the selected model's recommendation, if it has one.
+    func applyRecommendedSetting(_ setting: RecommendedSetting) {
         guard let model = currentModel else { return }
-        if let steps = model.recommendedSteps {
-            configStore.steps = Double(steps)
-        }
-        if let guidanceScale = model.recommendedGuidanceScale {
-            configStore.guidanceScale = guidanceScale
+        switch setting {
+        case .steps:
+            if let steps = model.recommendedSteps {
+                configStore.steps = Double(steps)
+            }
+        case .guidanceScale:
+            if let guidanceScale = model.recommendedGuidanceScale {
+                configStore.guidanceScale = guidanceScale
+            }
         }
     }
 
@@ -312,7 +322,7 @@ final class GenerationController {
     }
 
     /// The sidebar settings that differ from the selected model's recommendations,
-    /// which the model info button and popover point out. Empty when the model
+    /// which the model info button points out. Empty when the model
     /// recommends nothing.
     var settingsDifferingFromRecommendations: Set<RecommendedSetting> {
         guard let model = currentModel else { return [] }

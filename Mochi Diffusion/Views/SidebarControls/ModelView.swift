@@ -46,6 +46,7 @@ struct ModelView: View {
             .popover(isPresented: $isShowingInfo, arrowEdge: .trailing) {
                 ModelInfoView()
             }
+            .disabled(controller.currentModel == nil)
         }
     }
 
@@ -60,7 +61,6 @@ private struct ModelInfoView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             if let model = controller.currentModel {
-                let differing = controller.settingsDifferingFromRecommendations
                 Text(model.name)
                     .font(.headline)
                     .textSelection(.enabled)
@@ -98,36 +98,28 @@ private struct ModelInfoView: View {
                     Divider()
                     Text("Recommended Settings")
                         .font(.headline)
-                    Grid(alignment: .leadingFirstTextBaseline, verticalSpacing: 6) {
+                    Grid(alignment: .leading, horizontalSpacing: 4, verticalSpacing: 4) {
                         if let steps = model.recommendedSteps {
-                            row("Steps") {
-                                RecommendedValue(
-                                    recommended: Double(steps),
-                                    current: configStore.steps,
-                                    differs: differing.contains(.steps),
-                                    format: .number.precision(.fractionLength(0))
-                                )
-                            }
+                            InfoGridRow(
+                                type: "Steps",
+                                text: String(steps),
+                                showCopyToPromptOption: true,
+                                callback: { controller.applyRecommendedSetting(.steps) }
+                            )
                         }
                         if let guidanceScale = model.recommendedGuidanceScale {
-                            row("Guidance Scale") {
-                                RecommendedValue(
-                                    recommended: guidanceScale,
-                                    current: configStore.guidanceScale,
-                                    differs: differing.contains(.guidanceScale),
-                                    format: .number.precision(.fractionLength(1))
-                                )
-                            }
+                            InfoGridRow(
+                                type: "Guidance Scale",
+                                text: guidanceScale.formatted(
+                                    .number.precision(.fractionLength(1))),
+                                showCopyToPromptOption: true,
+                                callback: { controller.applyRecommendedSetting(.guidanceScale) }
+                            )
                         }
                     }
                     Button("Use Recommended Settings") {
                         controller.applyRecommendedSettings()
                     }
-                }
-            } else {
-                Text("No model is selected.")
-                Button("Show Models in Finder") {
-                    NSWorkspace.shared.open(URL(fileURLWithPath: configStore.modelDir))
                 }
             }
         }
@@ -154,29 +146,9 @@ private struct ModelInfoView: View {
 private struct RecommendationBadge: View {
     var body: some View {
         Circle()
-            .fill(.orange)
+            .fill(.yellow)
             .frame(width: 6, height: 6)
             .offset(x: 2, y: -2)
             .accessibilityLabel("Settings differ from recommendations")
-    }
-}
-
-/// A recommended value, marked with the sidebar's value when the two differ.
-private struct RecommendedValue: View {
-    let recommended: Double
-    let current: Double
-    let differs: Bool
-    let format: FloatingPointFormatStyle<Double>
-
-    var body: some View {
-        HStack(spacing: 4) {
-            Text(recommended, format: format)
-            if differs {
-                Image(systemName: "exclamationmark.circle.fill")
-                    .foregroundStyle(.orange)
-                Text("Sidebar: \(current.formatted(format))")
-                    .foregroundStyle(.secondary)
-            }
-        }
     }
 }
