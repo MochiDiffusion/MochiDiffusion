@@ -288,7 +288,7 @@ private struct InputImageEditPopover: View {
                     normalizedCropRect: normalizedCropRect,
                     onCropCommit: updateCropRect
                 )
-                .frame(height: 240)
+                .frame(height: 272)
 
                 if let predictedSize = controller.predictedInputImageSize(at: index) {
                     Text("Estimated final size: \(format(predictedSize))")
@@ -320,12 +320,17 @@ private struct CropSelectionView: View {
     let onCropCommit: (CGRect) -> Void
 
     private let minCropFraction: CGFloat = 0.05
+    private let edgeGutter: CGFloat = 16
     @State private var dragCropRect: CGRect?
 
     var body: some View {
         GeometryReader { geometry in
             let imageSize = CGSize(width: image.width, height: image.height)
-            let contentRect = aspectFitRect(imageSize: imageSize, in: geometry.size)
+            let contentRect = aspectFitRect(
+                imageSize: imageSize,
+                in: CGRect(origin: .zero, size: geometry.size).insetBy(
+                    dx: edgeGutter, dy: edgeGutter)
+            )
             let visibleCropRect = dragCropRect ?? normalizedCropRect
             let cropRect = denormalizedRect(visibleCropRect, in: contentRect)
 
@@ -333,6 +338,7 @@ private struct CropSelectionView: View {
                 Image(decorative: image, scale: 1)
                     .resizable()
                     .scaledToFit()
+                    .padding(edgeGutter)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .clipped()
 
@@ -348,45 +354,16 @@ private struct CropSelectionView: View {
                     .position(x: cropRect.midX, y: cropRect.midY)
 
             }
-            .contentShape(Rectangle())
-            .gesture(
-                DragGesture(minimumDistance: 0)
-                    .onChanged { value in
-                        let dragDelta = hypot(
-                            value.location.x - value.startLocation.x,
-                            value.location.y - value.startLocation.y
-                        )
-                        let rect = cropRectFromDrag(
-                            start: value.startLocation,
-                            end: value.location,
-                            contentRect: contentRect,
-                            applyMinimum: false
-                        )
-                        dragCropRect = rect
-                        if dragDelta > 1 {
-                            onCropCommit(normalized(rect: rect, in: contentRect))
-                        }
+            .overlay {
+                CropDragTracker(
+                    onChanged: { start, location in
+                        dragChanged(start: start, location: location, contentRect: contentRect)
+                    },
+                    onEnded: { start, location in
+                        dragEnded(start: start, location: location, contentRect: contentRect)
                     }
-                    .onEnded { value in
-                        let dragDelta = hypot(
-                            value.location.x - value.startLocation.x,
-                            value.location.y - value.startLocation.y
-                        )
-                        guard dragDelta > 1 else {
-                            dragCropRect = nil
-                            return
-                        }
-
-                        let rect = cropRectFromDrag(
-                            start: value.startLocation,
-                            end: value.location,
-                            contentRect: contentRect,
-                            applyMinimum: true
-                        )
-                        dragCropRect = nil
-                        onCropCommit(normalized(rect: rect, in: contentRect))
-                    }
-            )
+                )
+            }
             .onChange(of: normalizedCropRect) { _, _ in
                 dragCropRect = nil
             }
@@ -398,17 +375,49 @@ private struct CropSelectionView: View {
         }
     }
 
-    private func aspectFitRect(imageSize: CGSize, in containerSize: CGSize) -> CGRect {
+    private func dragChanged(start: CGPoint, location: CGPoint, contentRect: CGRect) {
+        let dragDelta = hypot(location.x - start.x, location.y - start.y)
+        let rect = cropRectFromDrag(
+            start: start,
+            end: location,
+            contentRect: contentRect,
+            applyMinimum: false
+        )
+        let normalizedRect = normalized(rect: rect, in: contentRect)
+        dragCropRect = normalizedRect
+        if dragDelta > 1 {
+            onCropCommit(normalizedRect)
+        }
+    }
+
+    private func dragEnded(start: CGPoint, location: CGPoint, contentRect: CGRect) {
+        let dragDelta = hypot(location.x - start.x, location.y - start.y)
+        guard dragDelta > 1 else {
+            dragCropRect = nil
+            return
+        }
+
+        let rect = cropRectFromDrag(
+            start: start,
+            end: location,
+            contentRect: contentRect,
+            applyMinimum: true
+        )
+        dragCropRect = nil
+        onCropCommit(normalized(rect: rect, in: contentRect))
+    }
+
+    private func aspectFitRect(imageSize: CGSize, in container: CGRect) -> CGRect {
         guard imageSize.width > 0, imageSize.height > 0 else {
-            return CGRect(origin: .zero, size: containerSize)
+            return container
         }
 
         let scale = min(
-            containerSize.width / imageSize.width, containerSize.height / imageSize.height)
+            container.width / imageSize.width, container.height / imageSize.height)
         let drawSize = CGSize(width: imageSize.width * scale, height: imageSize.height * scale)
         let origin = CGPoint(
-            x: (containerSize.width - drawSize.width) / 2,
-            y: (containerSize.height - drawSize.height) / 2
+            x: container.minX + (container.width - drawSize.width) / 2,
+            y: container.minY + (container.height - drawSize.height) / 2
         )
         return CGRect(origin: origin, size: drawSize)
     }
@@ -465,5 +474,48 @@ private struct CropSelectionView: View {
             width: rect.width / contentRect.width,
             height: rect.height / contentRect.height
         )
+    }
+}
+
+/// Tracks the crop drag in AppKit, which keeps delivering the drag to this view
+/// until mouse-up wherever the pointer goes, including outside the popover.
+private struct CropDragTracker: NSViewRepresentable {
+    let onChanged: (CGPoint, CGPoint) -> Void
+    let onEnded: (CGPoint, CGPoint) -> Void
+
+    func makeNSView(context: Context) -> TrackingView {
+        TrackingView()
+    }
+
+    func updateNSView(_ nsView: TrackingView, context: Context) {
+        nsView.onChanged = onChanged
+        nsView.onEnded = onEnded
+    }
+
+    final class TrackingView: NSView {
+        var onChanged: ((CGPoint, CGPoint) -> Void)?
+        var onEnded: ((CGPoint, CGPoint) -> Void)?
+        private var startLocation: CGPoint?
+
+        override var isFlipped: Bool { true }
+
+        override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
+
+        override func mouseDown(with event: NSEvent) {
+            let location = convert(event.locationInWindow, from: nil)
+            startLocation = location
+            onChanged?(location, location)
+        }
+
+        override func mouseDragged(with event: NSEvent) {
+            guard let startLocation else { return }
+            onChanged?(startLocation, convert(event.locationInWindow, from: nil))
+        }
+
+        override func mouseUp(with event: NSEvent) {
+            guard let startLocation else { return }
+            self.startLocation = nil
+            onEnded?(startLocation, convert(event.locationInWindow, from: nil))
+        }
     }
 }
