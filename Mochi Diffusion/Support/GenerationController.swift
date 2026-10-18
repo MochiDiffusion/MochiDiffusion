@@ -152,6 +152,9 @@ final class GenerationController {
     struct ModelPickerItem: Identifiable, Equatable {
         let id: ModelID?
         let name: String
+        /// The header the picker shows this model under, or `nil` when every model
+        /// is in one group and the picker shows no headers.
+        let section: String?
     }
 
     enum GalleryImageDestination: Equatable {
@@ -252,30 +255,56 @@ final class GenerationController {
     /// only its own engines' entries, so a folder change keeps the server's models.
     private var discoveriesByEngine: [EngineID: EngineRegistry.Discovery] = [:]
 
-    /// Every model shown by the combined model picker.
+    /// Every model shown by the combined model picker, in `models` order.
     ///
-    /// Discovery has already sorted the models. Names stay untouched unless two
-    /// models collide under the same case- and diacritic-insensitive comparison
-    /// used by that sort, in which case the engine name distinguishes them.
+    /// Models are grouped by where they come from: the models folder on this Mac,
+    /// or the Draw Things server. Headers appear only when more than one group has
+    /// models. Names stay untouched unless two models in the same group collide
+    /// under the same case- and diacritic-insensitive comparison used by the sort,
+    /// in which case the engine name distinguishes them.
     var modelPickerItems: [ModelPickerItem] {
-        let collisionCounts = Dictionary(grouping: models) { model in
-            model.name.folding(
-                options: [.caseInsensitive, .diacriticInsensitive],
-                locale: nil
-            )
-        }.mapValues(\.count)
+        let sources = Dictionary(uniqueKeysWithValues: engines.map { ($0.id, $0.modelListSource) })
         let engineNames = Dictionary(uniqueKeysWithValues: engines.map { ($0.id, $0.displayName) })
+        func groupKey(_ model: any EngineModel) -> GroupedName {
+            GroupedName(
+                source: sources[model.id.engine],
+                name: model.name.folding(
+                    options: [.caseInsensitive, .diacriticInsensitive],
+                    locale: nil
+                )
+            )
+        }
+        let collisionCounts = Dictionary(grouping: models, by: groupKey).mapValues(\.count)
+        let showsSections = Set(models.map { sources[$0.id.engine] }).count > 1
 
         return models.map { model in
-            let key = model.name.folding(
-                options: [.caseInsensitive, .diacriticInsensitive],
-                locale: nil
-            )
-            guard collisionCounts[key, default: 0] > 1 else {
-                return ModelPickerItem(id: model.id, name: model.name)
+            let source = sources[model.id.engine]
+            let section = showsSections ? source.map(Self.pickerSectionTitle) : nil
+            guard collisionCounts[groupKey(model), default: 0] > 1 else {
+                return ModelPickerItem(id: model.id, name: model.name, section: section)
             }
             let engineName = engineNames[model.id.engine] ?? model.id.engine.rawValue
-            return ModelPickerItem(id: model.id, name: "\(model.name) — \(engineName)")
+            return ModelPickerItem(
+                id: model.id, name: "\(model.name) — \(engineName)", section: section)
+        }
+    }
+
+    private struct GroupedName: Hashable {
+        let source: ModelListSource?
+        let name: String
+    }
+
+    /// The model picker's header for the models from one source.
+    nonisolated static func pickerSectionTitle(_ source: ModelListSource) -> String {
+        switch source {
+        case .modelsFolder:
+            String(
+                localized: "This Mac",
+                comment: "Model picker header above the models in the models folder")
+        case .connection:
+            String(
+                localized: "Draw Things",
+                comment: "Model picker header above the Draw Things server's models")
         }
     }
 
@@ -489,7 +518,13 @@ final class GenerationController {
 
         // Registration order, as one refresh of every engine would produce.
         let discoveries = engines.compactMap { discoveriesByEngine[$0.id] }
-        let discoveredModels = discoveries.allModels
+        // Grouped in the model picker's order, so the first model here is the first
+        // one the picker shows.
+        let discoveredModels = ModelListSource.allCases.flatMap { source in
+            discoveries.filter { discovery in
+                engines.first { $0.id == discovery.engine }?.modelListSource == source
+            }.allModels
+        }
         // Assigned before the check below, so a pass that finds nothing empties
         // the picker instead of leaving the previous pass's models on screen.
         self.models = discoveredModels
@@ -567,7 +602,7 @@ final class GenerationController {
     }
 
     /// Picks the exact model to show after a discovery pass: the saved one when it
-    /// is available, otherwise the first runnable model in discovery order.
+    /// is available, otherwise the first runnable model in the picker's order.
     private func restoreSelection() {
         if let selection = configStore.selectedModel,
             models.contains(where: { $0.id == selection }),

@@ -106,6 +106,50 @@ struct ModelPickerTests {
             controller.modelPickerItems.compactMap(\.id).map(\.engine)
                 == [.coreMLStableDiffusion, .iris]
         )
+        // Every model is on this Mac, so the picker shows no headers.
+        #expect(controller.modelPickerItems.allSatisfy { $0.section == nil })
+    }
+
+    @Test("Server models follow this Mac's models under their own header")
+    func pickerGroupsModelsBySource() async throws {
+        try makeSDModelFixture(at: modelDir.appending(path: "m-coreml"))
+        let controller = makeController(
+            engineRegistry: EngineRegistry(engines: [
+                AnyGenerationEngine(CoreMLStableDiffusionEngine()),
+                AnyGenerationEngine(NamedServerEngine(names: ["a-server", "z-server"])),
+            ]))
+
+        await controller.loadModels()
+
+        #expect(controller.modelPickerItems.map(\.name) == ["m-coreml", "a-server", "z-server"])
+        #expect(
+            controller.modelPickerItems.map(\.section)
+                == [
+                    GenerationController.pickerSectionTitle(.modelsFolder),
+                    GenerationController.pickerSectionTitle(.connection),
+                    GenerationController.pickerSectionTitle(.connection),
+                ]
+        )
+
+        // With every source's models known, a saved model that has gone falls back
+        // to the first model the picker shows, not the first by name.
+        configStore.selectedModel = ModelID(engine: .coreMLStableDiffusion, key: "removed")
+        await controller.loadModels(from: [.modelsFolder])
+        #expect(controller.currentModel?.name == "m-coreml")
+    }
+
+    @Test("A server model named like a local one keeps its name under its header")
+    func namesCollideOnlyWithinAGroup() async throws {
+        try makeSDModelFixture(at: modelDir.appending(path: "shared"))
+        let controller = makeController(
+            engineRegistry: EngineRegistry(engines: [
+                AnyGenerationEngine(CoreMLStableDiffusionEngine()),
+                AnyGenerationEngine(NamedServerEngine(names: ["Shared"])),
+            ]))
+
+        await controller.loadModels()
+
+        #expect(controller.modelPickerItems.map(\.name) == ["shared", "Shared"])
     }
 
     @Test("Only colliding model names include their engine")
@@ -321,6 +365,36 @@ private struct RecommendingEngine: GenerationEngineDescriptor {
                 id: Self.stepsOnly, name: "steps-only",
                 recommendedSteps: 4, recommendedGuidanceScale: nil),
         ]
+    }
+
+    func plan(draft: GenerationDraft, model: Model) throws -> GenerationPlan<Payload> {
+        throw NotRun()
+    }
+
+    func makeRuntime() -> any GenerationEngineRuntime { fatalError("never runs") }
+}
+
+/// A server whose models have the given names.
+private struct NamedServerEngine: GenerationEngineDescriptor {
+    struct Model: EngineModel {
+        let id: ModelID
+        let name: String
+        var constraints: OptionConstraints { .unconstrained }
+        var metadataFields: Set<MetadataField> { [.prompt] }
+        var tokenizerModelDir: URL? { nil }
+    }
+    struct Payload: Sendable {}
+    struct NotRun: Error {}
+
+    static let id = EngineID(rawValue: "named-server")
+    static let modelListSource = ModelListSource.connection
+    let names: [String]
+    var displayName: String { "Named Server" }
+
+    func availability(_ settings: EngineSettings) async -> EngineAvailability { .ready }
+
+    func discoverModels(_ context: ModelDiscoveryContext) async throws -> [Model] {
+        names.map { Model(id: ModelID(engine: Self.id, key: $0), name: $0) }
     }
 
     func plan(draft: GenerationDraft, model: Model) throws -> GenerationPlan<Payload> {

@@ -130,6 +130,10 @@ The multi-engine foundation is implemented. Current ownership and contracts foll
   - Selection does not wait for a source still loading. Each applied result restores the
     saved model if it is available and otherwise selects the first available model, which
     becomes the saved one.
+  - The combined picker groups models by source: This Mac (`.modelsFolder`), then Draw
+    Things (`.connection`), each sorted by name. Headers show only when both groups have
+    models, and an engine name is added only to tell apart same-named models in one group.
+    `models` is in picker order, so "first available" is the first model the picker shows.
   - **Engines never consult each other.** Each applies only its own recognition rules, and
     identity is engine-qualified, so two engines recognising the same directory both return a
     model. Registration order affects presentation order only — never ownership or validity.
