@@ -126,8 +126,8 @@ struct ModelPickerTests {
             controller.modelPickerItems.map(\.section)
                 == [
                     GenerationController.pickerSectionTitle(.modelsFolder),
-                    GenerationController.pickerSectionTitle(.connection),
-                    GenerationController.pickerSectionTitle(.connection),
+                    "Draw Things — studio.local",
+                    "Draw Things — studio.local",
                 ]
         )
 
@@ -382,6 +382,7 @@ private struct NamedServerEngine: GenerationEngineDescriptor {
         var constraints: OptionConstraints { .unconstrained }
         var metadataFields: Set<MetadataField> { [.prompt] }
         var tokenizerModelDir: URL? { nil }
+        var location: ModelLocation? { .server(name: "studio.local", file: name) }
     }
     struct Payload: Sendable {}
     struct NotRun: Error {}

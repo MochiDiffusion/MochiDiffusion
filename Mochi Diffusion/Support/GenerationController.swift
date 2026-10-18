@@ -279,7 +279,9 @@ final class GenerationController {
 
         return models.map { model in
             let source = sources[model.id.engine]
-            let section = showsSections ? source.map(Self.pickerSectionTitle) : nil
+            let section =
+                showsSections
+                ? source.map { Self.pickerSectionTitle($0, location: model.location) } : nil
             guard collisionCounts[groupKey(model), default: 0] > 1 else {
                 return ModelPickerItem(id: model.id, name: model.name, section: section)
             }
@@ -294,17 +296,28 @@ final class GenerationController {
         let name: String
     }
 
-    /// The model picker's header for the models from one source.
-    nonisolated static func pickerSectionTitle(_ source: ModelListSource) -> String {
+    /// The model picker's header for the models from one source. A server's
+    /// header names the server its models were fetched from.
+    nonisolated static func pickerSectionTitle(
+        _ source: ModelListSource, location: ModelLocation? = nil
+    ) -> String {
         switch source {
         case .modelsFolder:
             String(
                 localized: "This Mac",
                 comment: "Model picker header above the models in the models folder")
         case .connection:
-            String(
-                localized: "Draw Things",
-                comment: "Model picker header above the Draw Things server's models")
+            if case .server(let serverName, _) = location {
+                String(
+                    localized: "Draw Things — \(serverName)",
+                    comment:
+                        "Model picker header above the Draw Things server's models, naming the server"
+                )
+            } else {
+                String(
+                    localized: "Draw Things",
+                    comment: "Model picker header above the Draw Things server's models")
+            }
         }
     }
 
