@@ -23,7 +23,8 @@ struct ModelView: View {
                 String(localized: "Model"),
                 selection: $controller.currentModelId,
                 items: controller.modelPickerItems,
-                title: \.name
+                title: \.name,
+                section: \.section
             )
 
             let differsFromRecommendations =
