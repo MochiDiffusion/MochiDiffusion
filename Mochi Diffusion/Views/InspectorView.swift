@@ -208,6 +208,16 @@ struct InspectorView: View {
                                 callback: controller.copyModelToPrompt
                             )
                         }
+                        if metadataFields.contains(.loras) {
+                            ForEach(Array(sdi.loras.enumerated()), id: \.offset) { index, lora in
+                                InfoGridRow(
+                                    type: LocalizedStringKey(Metadata.lora.rawValue),
+                                    text: lora.description,
+                                    showCopyToPromptOption: controller.canCopyLoRA(lora),
+                                    callback: { controller.copyLoRAToPrompt(lora) }
+                                )
+                            }
+                        }
                         if metadataFields.contains(.size), let size = sdi.generationSize {
                             InfoGridRow(
                                 type: LocalizedStringKey(Metadata.size.rawValue),
@@ -328,19 +338,6 @@ struct InspectorView: View {
                                 text: MLComputeUnits.toString(sdi.mlComputeUnit),
                                 showCopyToPromptOption: false
                             )
-                        }
-                        if metadataFields.contains(.loras) {
-                            ForEach(Array(sdi.loras.enumerated()), id: \.offset) { index, lora in
-                                InfoGridRow(
-                                    type: LocalizedStringKey(
-                                        sdi.loras.count == 1
-                                            ? Metadata.lora.rawValue
-                                            : "\(Metadata.lora.rawValue) \(index + 1)"),
-                                    text: lora.description,
-                                    showCopyToPromptOption: controller.canCopyLoRA(lora),
-                                    callback: { controller.copyLoRAToPrompt(lora) }
-                                )
-                            }
                         }
                         ForEach(sdi.details, id: \.self) { detail in
                             InfoGridRow(

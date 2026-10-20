@@ -229,10 +229,7 @@ private struct InfoPopoverView: View {
                     }
                     ForEach(Array(loras.enumerated()), id: \.offset) { index, lora in
                         InfoGridRow(
-                            type: LocalizedStringKey(
-                                loras.count == 1
-                                    ? Metadata.lora.rawValue
-                                    : "\(Metadata.lora.rawValue) \(index + 1)"),
+                            type: LocalizedStringKey(Metadata.lora.rawValue),
                             text: lora.description,
                             showCopyToPromptOption: controller.canCopyLoRA(lora),
                             callback: { controller.copyLoRAToPrompt(lora) }
