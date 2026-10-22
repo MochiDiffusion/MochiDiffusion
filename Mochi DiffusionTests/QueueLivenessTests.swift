@@ -103,12 +103,16 @@ struct QueueLivenessTests {
         }
     }
 
-    private func makeRequest(prompt: String = "a cat") -> GenerationRequest {
+    private func makeRequest(
+        prompt: String = "a cat",
+        engine: EngineID = SignallingEngine.id,
+        payload: any Sendable = SignallingEngine.Payload()
+    ) -> GenerationRequest {
         GenerationRequest(
-            modelID: ModelID(engine: SignallingEngine.id, key: "model"),
+            modelID: ModelID(engine: engine, key: "model"),
             displayName: "model",
             metadataFields: [.prompt],
-            payload: SignallingEngine.Payload(),
+            payload: payload,
             prompt: prompt,
             negativePrompt: "",
             size: CGSize(width: 64, height: 64),
@@ -236,5 +240,157 @@ struct QueueLivenessTests {
         for await snapshot in stream {
             if snapshot.current == nil, snapshot.queue.isEmpty { return }
         }
+    }
+
+    // MARK: - Queue drained
+
+    /// What recording runtimes were asked to do, in order.
+    actor EventLog {
+        private(set) var events: [String] = []
+        private var waiters: [CheckedContinuation<Void, Never>] = []
+
+        func record(_ event: String) {
+            events.append(event)
+            for waiter in waiters {
+                waiter.resume()
+            }
+            waiters = []
+        }
+
+        /// Suspends until at least `count` events have been recorded.
+        func wait(untilCount count: Int) async {
+            while events.count < count {
+                await withCheckedContinuation { waiters.append($0) }
+            }
+        }
+    }
+
+    /// Holds the first run open until the test has queued everything it needs.
+    actor Gate {
+        private var isOpen = false
+        private var waiters: [CheckedContinuation<Void, Never>] = []
+
+        func open() {
+            isOpen = true
+            for waiter in waiters {
+                waiter.resume()
+            }
+            waiters = []
+        }
+
+        func pass() async {
+            guard !isOpen else { return }
+            await withCheckedContinuation { waiters.append($0) }
+        }
+    }
+
+    struct DrainRecordingRuntime: GenerationEngineRuntime {
+        let name: String
+        let log: EventLog
+        let gate: Gate
+
+        func run(
+            request: GenerationRequest,
+            session: GenerationSession,
+            onResult: @escaping @Sendable (GenerationResult) async throws -> Void
+        ) async throws {
+            await gate.pass()
+            await log.record("\(name) run")
+        }
+
+        func queueDrained() async {
+            await log.record("\(name) drained")
+        }
+    }
+
+    protocol RecordingEngineName {
+        static var name: String { get }
+    }
+    enum First: RecordingEngineName { static let name = "first" }
+    enum Second: RecordingEngineName { static let name = "second" }
+
+    struct RecordingEngine<Name: RecordingEngineName>: GenerationEngineDescriptor {
+        struct Model: EngineModel {
+            let id: ModelID
+            let url: URL
+            let name: String
+            var constraints: OptionConstraints { .unconstrained }
+            var metadataFields: Set<MetadataField> { [.prompt] }
+            var tokenizerModelDir: URL? { nil }
+        }
+        struct Payload: Sendable {}
+
+        static var id: EngineID { EngineID(rawValue: Name.name) }
+        let log: EventLog
+        let gate: Gate
+        var displayName: String { Name.name }
+
+        func availability(_ settings: EngineSettings) async -> EngineAvailability { .ready }
+
+        func discoverModels(_ context: ModelDiscoveryContext) async throws -> [Model] { [] }
+
+        func plan(draft: GenerationDraft, model: Model) throws -> GenerationPlan<Payload> {
+            throw EngineError.payloadDoesNotBelongToEngine(engine: Self.id)
+        }
+
+        func makeRuntime() -> any GenerationEngineRuntime {
+            DrainRecordingRuntime(name: Name.name, log: log, gate: gate)
+        }
+    }
+
+    private func makeRecordingService(log: EventLog, gate: Gate) -> GenerationService {
+        GenerationService(
+            engineRegistry: EngineRegistry(engines: [
+                AnyGenerationEngine(RecordingEngine<First>(log: log, gate: gate)),
+                AnyGenerationEngine(RecordingEngine<Second>(log: log, gate: gate)),
+            ]),
+            imageGallery: ImageGallery()
+        )
+    }
+
+    @Test("The queue reports itself drained once, after its last request")
+    func drainedOnceAfterTheLastRequest() async throws {
+        await MainActor.run { GenerationState.shared.report(.ready(nil)) }
+        let log = EventLog()
+        let gate = Gate()
+        let service = makeRecordingService(log: log, gate: gate)
+
+        await service.enqueue(
+            makeRequest(
+                engine: RecordingEngine<First>.id, payload: RecordingEngine<First>.Payload())
+        )
+        await service.enqueue(
+            makeRequest(
+                engine: RecordingEngine<First>.id, payload: RecordingEngine<First>.Payload())
+        )
+        await gate.open()
+
+        await log.wait(untilCount: 3)
+        await waitUntilIdle(service)
+        #expect(await log.events == ["first run", "first run", "first drained"])
+    }
+
+    @Test("A runtime hears the queue is drained for it when the next request is another engine's")
+    func drainedWhenTheNextRequestIsAnotherEngines() async throws {
+        await MainActor.run { GenerationState.shared.report(.ready(nil)) }
+        let log = EventLog()
+        let gate = Gate()
+        let service = makeRecordingService(log: log, gate: gate)
+
+        await service.enqueue(
+            makeRequest(
+                engine: RecordingEngine<First>.id, payload: RecordingEngine<First>.Payload())
+        )
+        await service.enqueue(
+            makeRequest(
+                engine: RecordingEngine<Second>.id, payload: RecordingEngine<Second>.Payload())
+        )
+        await gate.open()
+
+        await log.wait(untilCount: 4)
+        await waitUntilIdle(service)
+        #expect(
+            await log.events == ["first run", "first drained", "second run", "second drained"]
+        )
     }
 }

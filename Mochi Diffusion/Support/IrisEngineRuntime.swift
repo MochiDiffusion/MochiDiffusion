@@ -15,8 +15,39 @@ import Foundation
 /// actor. Actors are reentrant at every suspension point and `run` suspends four
 /// times, so a second call would otherwise interleave and reset the C library's
 /// process-global callback route and cancel flag under the first.
+///
+/// The loaded context is kept between requests for the same model directory, so
+/// a queue of them loads the transformer once. It is freed when a request names
+/// another directory, when a request fails or is cancelled, and when the queue
+/// holds no more Iris work.
 actor IrisEngineRuntime: GenerationEngineRuntime {
     private static let embeddingCache = FluxPromptEmbeddingCache(maxEntries: 16)
+
+    /// A loaded Iris context and the directory it was loaded from.
+    ///
+    /// Not `Sendable`: the pointer is only ever used on this actor, inside the
+    /// `IrisSingleFlight` lease.
+    nonisolated private struct LoadedContext {
+        let ctx: OpaquePointer
+        let modelDir: String
+    }
+
+    private var loaded: LoadedContext?
+
+    /// Whether a context loaded from `loadedModelDir` can run a request for
+    /// `modelDir`.
+    nonisolated static func canReuse(loadedModelDir: String?, for modelDir: String) -> Bool {
+        loadedModelDir == modelDir
+    }
+
+    func queueDrained() async {
+        guard loaded != nil else { return }
+        // The lease, because freeing touches the same process-wide Metal caches a
+        // generation holding it would be using.
+        await IrisSingleFlight.shared.acquire()
+        freeLoadedContext()
+        await IrisSingleFlight.shared.release()
+    }
 
     func run(
         request: GenerationRequest,
@@ -80,21 +111,23 @@ actor IrisEngineRuntime: GenerationEngineRuntime {
             IrisCallbackRouter.shared.end(session: session)
             session.emit(.preview(nil))
         }
-        guard let ctx = iris_load_dir(modelDir) else {
-            throw IrisRuntimeError.loadFailed(fluxErrorMessage())
-        }
+        let ctx = try context(for: modelDir)
         // Every reference the request carried, decoded below. Declared here so
         // the cleanup that follows owns each image as soon as it is appended.
         var referenceImages: [UnsafeMutablePointer<iris_image>] = []
+        // Set only once the request has run to the end uncancelled. A throw or a
+        // cancel can stop Iris part-way, so the context is not trusted for the
+        // next request.
+        var keepsContext = false
         // Registered straight after the context exists, so a throw from
         // reference decoding or prompt encoding frees it too.
         defer {
             iris_set_step_image_callback(ctx, nil)
             iris_set_step_callback(nil)
             iris_set_phase_callback(nil)
-            // Also clears the GPU copies of the model's weights, which are keyed by
-            // CPU address, so later allocations cannot match stale copies.
-            iris_free(ctx)
+            if !keepsContext {
+                freeLoadedContext()
+            }
             for image in referenceImages {
                 iris_image_free(image)
             }
@@ -252,6 +285,30 @@ actor IrisEngineRuntime: GenerationEngineRuntime {
             try await onResult(result)
             seed = GenerationSeed.next(after: seed)
         }
+        keepsContext = !session.isCancelled
+    }
+
+    /// The context for `modelDir`: the loaded one if it came from there, otherwise
+    /// a fresh load, freeing any other first so two models are never resident.
+    private func context(for modelDir: String) throws -> OpaquePointer {
+        if let loaded, Self.canReuse(loadedModelDir: loaded.modelDir, for: modelDir) {
+            return loaded.ctx
+        }
+        freeLoadedContext()
+        guard let ctx = iris_load_dir(modelDir) else {
+            throw IrisRuntimeError.loadFailed(fluxErrorMessage())
+        }
+        loaded = LoadedContext(ctx: ctx, modelDir: modelDir)
+        return ctx
+    }
+
+    /// Frees the loaded context, if any. `iris_free` also clears the GPU copies of
+    /// its weights, which are keyed by CPU address, so later allocations cannot
+    /// match stale copies.
+    private func freeLoadedContext() {
+        guard let loaded else { return }
+        iris_free(loaded.ctx)
+        self.loaded = nil
     }
 
     private static func generateWithEmbeddings(

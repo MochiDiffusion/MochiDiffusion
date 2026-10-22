@@ -112,4 +112,27 @@ struct IrisSingleFlightTests {
         #expect(await lease.isCurrentlyHeld)
         await lease.release()
     }
+
+    @Test(
+        "A loaded context is reused only for the directory it came from",
+        arguments: [
+            (loaded: "/models/klein", requested: "/models/klein", reuses: true),
+            (loaded: "/models/klein", requested: "/models/zimage", reuses: false),
+            (loaded: nil, requested: "/models/klein", reuses: false),
+        ] as [(loaded: String?, requested: String, reuses: Bool)]
+    )
+    func contextReuseFollowsTheModelDirectory(
+        loaded: String?, requested: String, reuses: Bool
+    ) {
+        #expect(IrisEngineRuntime.canReuse(loadedModelDir: loaded, for: requested) == reuses)
+    }
+
+    /// With nothing loaded there is nothing to free, so the drain must not wait for
+    /// a lease another generation may hold.
+    @Test("Draining with no context loaded does not wait for the lease", .timeLimit(.minutes(1)))
+    func drainWithNothingLoadedSkipsTheLease() async {
+        await IrisSingleFlight.shared.acquire()
+        await IrisEngineRuntime().queueDrained()
+        await IrisSingleFlight.shared.release()
+    }
 }
