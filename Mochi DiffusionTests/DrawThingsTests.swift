@@ -1086,6 +1086,18 @@ struct DrawThingsTests {
         #expect(try await cancelled.value == 1)
     }
 
+    @Test("Sampling progress stays within the step range, including the finished signpost")
+    func samplingProgressClamping() {
+        func progress(_ step: Int32, of steps: Int32) -> GenerationState.Progress? {
+            GRPCDrawThingsTransport.progress(samplingStep: step, steps: steps)
+        }
+        #expect(progress(5, of: 20) == GenerationState.Progress(step: 5, stepCount: 20))
+        // Draw Things signposts `steps` once sampling has finished.
+        #expect(progress(20, of: 20) == GenerationState.Progress(step: 19, stepCount: 20))
+        #expect(progress(-1, of: 20) == GenerationState.Progress(step: 0, stepCount: 20))
+        #expect(progress(0, of: 0) == nil)
+    }
+
     @Test(
         "Runtime forwards the prompt/seed/credential and encodes a gallery image with honest metadata"
     )

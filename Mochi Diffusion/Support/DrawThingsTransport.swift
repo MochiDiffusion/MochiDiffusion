@@ -149,6 +149,15 @@ actor GRPCDrawThingsTransport: DrawThingsTransport {
     /// that is asleep wakes on the first attempt but may not answer within its wait.
     static let connectionAttempts = 3
 
+    /// The zero-based progress for a sampling signpost. Draw Things sends one more
+    /// signpost, with `step` equal to `steps`, once sampling has finished.
+    static func progress(samplingStep: Int32, steps: Int32) -> GenerationState.Progress? {
+        guard steps > 0 else { return nil }
+        let stepCount = Int(steps)
+        return GenerationState.Progress(
+            step: max(0, min(Int(samplingStep), stepCount - 1)), stepCount: stepCount)
+    }
+
     /// Runs `operation` again, up to `attempts` times in all, while it fails
     /// because the connection never opened. Any other error, including a
     /// connection that closed during the call, is thrown at once: by then the
@@ -260,11 +269,11 @@ actor GRPCDrawThingsTransport: DrawThingsTransport {
                 if response.hasCurrentSignpost,
                     case .sampling(let sampling) = response.currentSignpost.signpost
                 {
-                    session.emit(
-                        .progress(
-                            GenerationState.Progress(
-                                step: Int(sampling.step), stepCount: Int(configuration.steps)
-                            )))
+                    if let progress = Self.progress(
+                        samplingStep: sampling.step, steps: configuration.steps)
+                    {
+                        session.emit(.progress(progress))
+                    }
                 } else {
                     session.emit(.state(.loading("Generating with Draw Things…")))
                 }
