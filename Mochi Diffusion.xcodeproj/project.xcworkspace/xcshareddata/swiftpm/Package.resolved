@@ -6,8 +6,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/gdbing/FilterablePicker.git",
       "state" : {
-        "revision" : "f1c49fef8f5d00ae317669c3006b939ef253fd16",
-        "version" : "1.0.1"
+        "revision" : "bec8c0f91fa37911cded8c7b3fd68595ea506a9b",
+        "version" : "1.1.0"
       }
     },
     {
