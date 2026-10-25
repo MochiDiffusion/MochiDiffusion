@@ -1313,7 +1313,7 @@
 			repositoryURL = "https://github.com/gdbing/FilterablePicker.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.1;
+				minimumVersion = 1.1.0;
 			};
 		};
 		AA8800000000000000000003 /* XCRemoteSwiftPackageReference "Musubi" */ = {
