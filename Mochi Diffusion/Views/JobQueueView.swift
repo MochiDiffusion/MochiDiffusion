@@ -40,31 +40,69 @@ struct JobQueueView: View {
         }
     }
 
+    private var isEmpty: Bool {
+        if controller.currentGeneration != nil || !controller.generationQueue.isEmpty {
+            return false
+        }
+        if case .canceling = generationState.state {
+            return false
+        }
+        return true
+    }
+
     var body: some View {
-        ScrollView {
-            VStack {
-                if let currentGeneration = controller.currentGeneration {
-                    JobView(request: currentGeneration, progress: progressData) {
-                        Task { await controller.stopCurrentGeneration() }
+        VStack(spacing: 0) {
+            Text(
+                "Generations",
+                comment: "Title of the generation queue"
+            )
+            .font(.headline)
+            .padding(.vertical, 8)
+            Divider()
+            if isEmpty {
+                ContentUnavailableView {
+                    Label {
+                        Text(
+                            "No Generations",
+                            comment:
+                                "Shown in the generation queue when nothing is running or queued"
+                        )
+                    } icon: {
+                        Image(systemName: "photo.stack")
                     }
-                } else if case .canceling(let stage) = generationState.state {
-                    CancelingJobView(
-                        label: stage
-                            ?? String(
-                                localized: "Canceling...",
-                                comment:
-                                    "Text displayed while waiting for generation cancellation cleanup"
-                            )
+                } description: {
+                    Text(
+                        "Queued generations appear here.",
+                        comment: "Explanation shown in the empty generation queue"
                     )
                 }
-                ForEach(controller.generationQueue) { generation in
-                    Divider()
-                    JobView(request: generation) {
-                        Task { await controller.removeQueued(generation.id) }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                ScrollView {
+                    VStack {
+                        if let currentGeneration = controller.currentGeneration {
+                            JobView(request: currentGeneration, progress: progressData) {
+                                Task { await controller.stopCurrentGeneration() }
+                            }
+                        } else if case .canceling = generationState.state {
+                            CancelingJobView(
+                                label: String(
+                                    localized: "Canceling...",
+                                    comment:
+                                        "Text displayed while waiting for generation cancellation cleanup"
+                                )
+                            )
+                        }
+                        ForEach(controller.generationQueue) { generation in
+                            Divider()
+                            JobView(request: generation) {
+                                Task { await controller.removeQueued(generation.id) }
+                            }
+                        }
                     }
+                    .padding()
                 }
             }
-            .padding()
         }
     }
 }
