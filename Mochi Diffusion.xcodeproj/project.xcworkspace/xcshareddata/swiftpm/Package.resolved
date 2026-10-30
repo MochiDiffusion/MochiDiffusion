@@ -6,8 +6,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/gdbing/FilterablePicker.git",
       "state" : {
-        "revision" : "f1c49fef8f5d00ae317669c3006b939ef253fd16",
-        "version" : "1.0.1"
+        "revision" : "bec8c0f91fa37911cded8c7b3fd68595ea506a9b",
+        "version" : "1.1.0"
       }
     },
     {
@@ -16,7 +16,7 @@
       "location" : "https://github.com/apple/ml-stable-diffusion",
       "state" : {
         "branch" : "main",
-        "revision" : "e12202c1f6405b83918b58a5d097cd61e3e1f702"
+        "revision" : "ea2805dc1945be20561c77e5f6d1d9a5a637cda2"
       }
     },
     {
@@ -32,8 +32,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/sparkle-project/Sparkle",
       "state" : {
-        "revision" : "21d8df80440b1ca3b65fa82e40782f1e5a9e6ba2",
-        "version" : "2.9.0"
+        "revision" : "eef1a539a373c1f1a320624b1130fc5de7b2e100",
+        "version" : "2.10.0"
       }
     },
     {
