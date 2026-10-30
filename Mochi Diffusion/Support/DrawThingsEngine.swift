@@ -312,7 +312,7 @@ nonisolated struct DrawThingsEngine: GenerationEngineDescriptor {
         }
         guard !models.isEmpty else {
             throw DrawThingsError.unusableModelList(
-                "No supported models were published. Video and editing models are not supported."
+                "No supported models were published."
             )
         }
         return models
