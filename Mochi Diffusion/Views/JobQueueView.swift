@@ -56,27 +56,9 @@ struct JobQueueView: View {
                 "Generations",
                 comment: "Title of the generation queue"
             )
-            .font(.headline)
             .padding(.vertical, 8)
-            Divider()
             if isEmpty {
-                ContentUnavailableView {
-                    Label {
-                        Text(
-                            "No Generations",
-                            comment:
-                                "Shown in the generation queue when nothing is running or queued"
-                        )
-                    } icon: {
-                        Image(systemName: "photo.stack")
-                    }
-                } description: {
-                    Text(
-                        "Queued generations appear here.",
-                        comment: "Explanation shown in the empty generation queue"
-                    )
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                Spacer()
             } else {
                 ScrollView {
                     VStack {
