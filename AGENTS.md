@@ -96,9 +96,10 @@ The multi-engine foundation is implemented. Current ownership and contracts foll
 
 - Engines:
   - `iris.c` is intentionally pinned to
-    `b832344c4caa71da00e16f2dab94571a72603477`, the baseline that provides the Iris APIs
-    Mochi uses. Do not advance the submodule automatically; any update requires an explicit
-    compatibility review.
+    `8337730034f1d81fe91c389b7210eadcc29c7bb7` on the fork's
+    `zimage-free-unfused-weights` branch, which adds the Z-Image memory and attention kernel
+    fixes to the Iris APIs Mochi uses. Do not advance the submodule automatically; any update
+    requires an explicit compatibility review.
   - Identity is `ModelID` (an `EngineID` plus a key), persisted as one value. A local key is
     the model directory's own name — see `EngineIdentity.swift` for why it is not a relative
     path computed against the models root.
