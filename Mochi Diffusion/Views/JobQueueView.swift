@@ -40,31 +40,51 @@ struct JobQueueView: View {
         }
     }
 
+    private var isEmpty: Bool {
+        if controller.currentGeneration != nil || !controller.generationQueue.isEmpty {
+            return false
+        }
+        if case .canceling = generationState.state {
+            return false
+        }
+        return true
+    }
+
     var body: some View {
-        ScrollView {
-            VStack {
-                if let currentGeneration = controller.currentGeneration {
-                    JobView(request: currentGeneration, progress: progressData) {
-                        Task { await controller.stopCurrentGeneration() }
-                    }
-                } else if case .canceling(let stage) = generationState.state {
-                    CancelingJobView(
-                        label: stage
-                            ?? String(
-                                localized: "Canceling...",
-                                comment:
-                                    "Text displayed while waiting for generation cancellation cleanup"
+        VStack(spacing: 0) {
+            Text(
+                "Generations",
+                comment: "Title of the generation queue"
+            )
+            .padding(.vertical, 8)
+            if isEmpty {
+                Spacer()
+            } else {
+                ScrollView {
+                    VStack {
+                        if let currentGeneration = controller.currentGeneration {
+                            JobView(request: currentGeneration, progress: progressData) {
+                                Task { await controller.stopCurrentGeneration() }
+                            }
+                        } else if case .canceling = generationState.state {
+                            CancelingJobView(
+                                label: String(
+                                    localized: "Canceling...",
+                                    comment:
+                                        "Text displayed while waiting for generation cancellation cleanup"
+                                )
                             )
-                    )
-                }
-                ForEach(controller.generationQueue) { generation in
-                    Divider()
-                    JobView(request: generation) {
-                        Task { await controller.removeQueued(generation.id) }
+                        }
+                        ForEach(controller.generationQueue) { generation in
+                            Divider()
+                            JobView(request: generation) {
+                                Task { await controller.removeQueued(generation.id) }
+                            }
+                        }
                     }
+                    .padding()
                 }
             }
-            .padding()
         }
     }
 }

@@ -110,7 +110,7 @@ nonisolated func makeControlNetFixture(
 
 // MARK: - Iris FLUX.2 Klein fixtures
 
-/// Every path `IrisFluxKleinModel.init?` requires, minus the transformer and
+/// Every path `IrisModel.init?` requires, minus the transformer and
 /// text encoder weights, which `weights` supplies in either layout.
 nonisolated enum KleinWeightLayout {
     /// A single `<base>.safetensors` file.
@@ -125,19 +125,12 @@ nonisolated enum KleinWeightLayout {
     case missing
 }
 
-/// Every non-weight path `IrisFluxKleinModel.init?` requires, declared once so a
+/// Every non-weight path `IrisModel.init?` requires, declared once so a
 /// test can assert that each one is load-bearing without restating the list and
 /// silently covering only part of it.
-nonisolated let kleinRequiredConfigPaths: [[String]] = [
+nonisolated let irisRequiredConfigPaths: [[String]] = [
     ["text_encoder", "config.json"],
-    ["text_encoder", "generation_config.json"],
-    ["tokenizer", "added_tokens.json"],
-    ["tokenizer", "chat_template.jinja"],
-    ["tokenizer", "merges.txt"],
-    ["tokenizer", "special_tokens_map.json"],
     ["tokenizer", "tokenizer.json"],
-    ["tokenizer", "tokenizer_config.json"],
-    ["tokenizer", "vocab.json"],
     ["transformer", "config.json"],
     ["vae", "config.json"],
     ["vae", "diffusion_pytorch_model.safetensors"],
@@ -148,7 +141,7 @@ nonisolated func makeKleinModelFixture(
     weights: KleinWeightLayout = .single,
     omitting omittedPaths: [[String]] = []
 ) throws {
-    var required = kleinRequiredConfigPaths
+    var required = irisRequiredConfigPaths
     required.removeAll { omittedPaths.contains($0) }
 
     for components in required {

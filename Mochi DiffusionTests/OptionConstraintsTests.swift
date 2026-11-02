@@ -304,7 +304,7 @@ struct OptionConstraintsTests {
         try makeKleinModelFixture(at: kleinURL)
 
         let sd = try #require(SDModel(url: sdURL, name: "sd", controlNet: []))
-        let klein = try #require(IrisFluxKleinModel(url: kleinURL, name: "klein"))
+        let klein = try #require(IrisModel(url: kleinURL, name: "klein"))
 
         #expect(!sd.constraints.quality.isSupported)
         #expect(!klein.constraints.quality.isSupported)
@@ -411,9 +411,9 @@ struct OptionConstraintsTests {
         #expect(both.inputImages.isSupported)
 
         // References only, and therefore no strength.
-        #expect(!IrisFluxKleinModel.constraints(for: .fluxKlein).startingImage.isSupported)
-        #expect(IrisFluxKleinModel.constraints(for: .fluxKlein).inputImages.isSupported)
-        #expect(!IrisFluxKleinModel.constraints(for: .fluxKlein).startingImage.strength.isSupported)
+        #expect(!IrisModel.constraints(for: .fluxKlein).startingImage.isSupported)
+        #expect(IrisModel.constraints(for: .fluxKlein).inputImages.isSupported)
+        #expect(!IrisModel.constraints(for: .fluxKlein).startingImage.strength.isSupported)
     }
 
     @Test("An unsupported constraint accepts nothing and counts zero")
@@ -507,7 +507,7 @@ struct ModelVisibilityTests {
 
     @Test("Klein hides everything a distilled model cannot use")
     func kleinHidesUnusableControls() {
-        let constraints = IrisFluxKleinModel.constraints(for: .fluxKlein)
+        let constraints = IrisModel.constraints(for: .fluxKlein)
 
         #expect(!constraints.supportsNegativePrompt)
         #expect(!constraints.controlNet.isSupported)
@@ -538,7 +538,7 @@ struct ModelVisibilityTests {
     func alwaysVisibleRowsHaveSomethingToShow() throws {
         let cases: [(String, OptionConstraints)] = [
             ("Core ML", try makeSDModel(inputSize: nil).constraints),
-            ("Klein", IrisFluxKleinModel.constraints(for: .fluxKlein)),
+            ("Klein", IrisModel.constraints(for: .fluxKlein)),
             ("OpenAI", OpenAIImageEngine.gptImage2.constraints),
             ("no model selected", OptionConstraints.unconstrained),
         ]
@@ -579,9 +579,9 @@ struct ModelVisibilityTests {
     func unsupportedMeansUnknown() {
         // Distilled: guidance is pinned at the identity scale, not hidden. What
         // Klein really lacks is a denoising origin and any ControlNet.
-        #expect(IrisFluxKleinModel.constraints(for: .fluxKlein).guidanceScale.isSupported)
-        #expect(!IrisFluxKleinModel.constraints(for: .fluxKlein).startingImage.isSupported)
-        #expect(!IrisFluxKleinModel.constraints(for: .fluxKlein).controlNet.isSupported)
+        #expect(IrisModel.constraints(for: .fluxKlein).guidanceScale.isSupported)
+        #expect(!IrisModel.constraints(for: .fluxKlein).startingImage.isSupported)
+        #expect(!IrisModel.constraints(for: .fluxKlein).controlNet.isSupported)
 
         // Hosted: the service does not disclose its sampler settings, so there is
         // no value to pin. This is the case `.unsupported` is for.

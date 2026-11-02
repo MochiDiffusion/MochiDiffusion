@@ -1,5 +1,5 @@
 {
-  "originHash" : "6544f28438d43cf2cc74da9510b07a3f5083fc9af35e1b16a94826635b5e969f",
+  "originHash" : "e470901e28cc5b354f01aed028d9b6c03ff5ce851f97bc423ef54529cfd92396",
   "pins" : [
     {
       "identity" : "filterablepicker",
@@ -16,7 +16,7 @@
       "location" : "https://github.com/apple/ml-stable-diffusion",
       "state" : {
         "branch" : "main",
-        "revision" : "e12202c1f6405b83918b58a5d097cd61e3e1f702"
+        "revision" : "ea2805dc1945be20561c77e5f6d1d9a5a637cda2"
       }
     },
     {
@@ -41,8 +41,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-argument-parser.git",
       "state" : {
-        "revision" : "6a52f3251125d74daf04fcbd5e6f08a75d074382",
-        "version" : "1.8.2"
+        "revision" : "c8ed701b513cf5177118a175d85fbbbcd707ab41",
+        "version" : "1.3.0"
       }
     },
     {
@@ -50,8 +50,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/huggingface/swift-transformers.git",
       "state" : {
-        "revision" : "48473106a93b2d8dfb114b82f0628ebbb71734e7",
-        "version" : "1.3.5"
+        "revision" : "fc6543263e4caed9bf6107466d625cfae9357f08",
+        "version" : "0.1.8"
       }
     }
   ],

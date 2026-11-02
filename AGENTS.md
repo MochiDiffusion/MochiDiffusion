@@ -32,28 +32,28 @@ Follow the commit conventions above as normal.
 
 ## Scope and Planning
 
-The next release is 6.2. It integrates Musubi for generation metadata and simplifies image
-output to PNG only. The shipped engines stay Core ML and Iris behind one combined model
-picker. The explicit engine picker, engine-oriented settings UI and OpenAI hosted generation
-stay out of the stable surface. Preserve the OpenAI implementation and multi-engine
-contracts for a later experimental beta rather than rolling back the architecture wholesale.
+The current release is 6.2. Mochi 7.0 is epic `MochiDiffusion-5xf`: generation on Draw
+Things servers, on this Mac or the local network, in the one combined picker. Engines stay an
+internal distinction; users configure the Draw Things server in Settings, and each model's
+sidebar options come from its own constraints. Hosted generation (OpenAI, Gemini) is the
+parked epic `MochiDiffusion-2lu`, assigned to no release. Concurrent queueing by where work
+runs is `MochiDiffusion-08l`, also unassigned.
 
-Before the 6.2 feature work starts, the post-6.1 backlog fixes land on develop. They ship
-with 6.2 and do not get a patch release of their own.
+Z-Image Turbo support is already on develop. Graham has not decided whether it ships in 7.0
+or in a 6.3 released while 7.0 is in progress; do not assume either.
+
+The shipped engines are Core ML and Iris behind one combined model picker. The
+engine-oriented settings UI and OpenAI hosted generation stay out of the stable surface.
 
 Image output is PNG only. Released JPEG and HEIC images stay readable, and exporting
 one converts it to PNG with its generation metadata.
 
-Draw Things interoperability is explicitly postponed by Graham. It is preserved on branch
-`codex/draw-things-prototype` at `e18663b3877bd42fac9fe169063a052b567a4f8a` and excluded
-from the release, including its exclusive dependencies. Musubi may still read images that
+Draw Things generation is in 7.0 scope (`MochiDiffusion-5xf.3`), ported from the prototype on
+branch `codex/draw-things-prototype` at `e18663b3877bd42fac9fe169063a052b567a4f8a` within
+the support policy decided in `MochiDiffusion-5xf.4`. Musubi may still read images that
 Draw Things wrote. The abandoned Iris LoRA experiments are not carry-over work.
 
-Beads owns task status, acceptance criteria and dependencies. `MochiDiffusion-bpb` is the
-finite 6.2 release epic: `MochiDiffusion-bpb.1` holds the backlog fixes,
-`MochiDiffusion-ruj` is PNG-only output, `MochiDiffusion-bpb.2` acts on the static analysis
-pass and `MochiDiffusion-e4v` is Musubi.
-`MochiDiffusion-2lu` is the beta line and is not part of 6.2. Use the existing
+Beads owns task status, acceptance criteria and dependencies. Use the existing
 database; do not create a replacement if access fails. Closed beads are historical and
 may describe abandoned work. They do not create obligations to restore it. Do not turn
 every research idea into a task or expand release scope without a concrete need.
@@ -96,9 +96,10 @@ The multi-engine foundation is implemented. Current ownership and contracts foll
 
 - Engines:
   - `iris.c` is intentionally pinned to
-    `b832344c4caa71da00e16f2dab94571a72603477`, the baseline that provides the Iris APIs
-    Mochi uses. Do not advance the submodule automatically; any update requires an explicit
-    compatibility review.
+    `8337730034f1d81fe91c389b7210eadcc29c7bb7` on the fork's
+    `zimage-free-unfused-weights` branch, which adds the Z-Image memory and attention kernel
+    fixes to the Iris APIs Mochi uses. Do not advance the submodule automatically; any update
+    requires an explicit compatibility review.
   - Identity is `ModelID` (an `EngineID` plus a key), persisted as one value. A local key is
     the model directory's own name — see `EngineIdentity.swift` for why it is not a relative
     path computed against the models root.
@@ -118,8 +119,9 @@ The multi-engine foundation is implemented. Current ownership and contracts foll
   - One shared models folder is a settled decision. `ModelDiscoveryContext` enumerates it
     once per discovery pass and hands the same candidate list to every engine.
   - Concrete descriptors live in `LocalEngines.swift` and `OpenAIImageEngine.swift`;
-    `EngineRegistry.shipped(secrets:)` registers them. OpenAI availability requires a
-    Keychain credential, and its model catalog is hand-maintained. `EngineModel` requires no
+    `EngineRegistry.shipped` lists Iris and Core ML, which the app registers.
+    `EngineRegistry.openAIBeta(secrets:)` adds OpenAI; the app does not call it. OpenAI
+    availability requires a Keychain credential, and its model catalog is hand-maintained. `EngineModel` requires no
     filesystem URL; its optional `tokenizerModelDir` is nil for hosted/server models.
 
 - Options, and where they are resolved:
@@ -223,11 +225,14 @@ The multi-engine foundation is implemented. Current ownership and contracts foll
   - Discovery and selection: `ModelDiscoveryTests`, `EngineDiscoveryTests`,
     `EngineSelectionTests`.
   - Resolution: `OptionConstraintsTests`, `GenerationRequestBuilderTests`,
-    `ComputeUnitPreferenceTests`.
+    `ComputeUnitPreferenceTests`, `GenerationSeedTests`, `GenerationConfigRestorationTests`.
+  - Engine conversions: `SchedulerTests`, `CoreMLPipelineCacheKeyTests`,
+    `IrisConversionTests`.
   - Queue and concurrency: `QueueLivenessTests`, `GenerationSessionTests`,
     `GenerationOwnershipTests`, `IrisSingleFlightTests`, `ControllerLifecycleTests`,
-    `IdleTimeoutTests` and `FailureReportingTests`.
-  - Gallery: `GalleryLoadingTests`, `GalleryImageProviderTests`.
+    `IdleTimeoutTests`, `FailureReportingTests`, `CancellationBindingTests` and
+    `GenerationResultPathTests`.
+  - Gallery: `GalleryLoadingTests`, `GalleryImageProviderTests`, `GalleryBrowsingTests`.
   - Hosted engine and credentials: `OpenAIImageEngineTests`, `OpenAIRuntimeTests`,
     `OpenAICredentialCheckTests`, `SecretStoreTests`.
   - Metadata: `GenerationMetadataTests`, `MetadataRoundTripTests`, `ImageExportTests`,

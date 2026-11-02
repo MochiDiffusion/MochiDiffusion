@@ -5,14 +5,17 @@
 //  Created by Joshua Park on 12/19/22.
 //
 
+import AppKit
 import SwiftUI
 
 struct GalleryToolbarView: View {
     @Environment(GenerationState.self) private var generationState: GenerationState
     @Environment(ImageGallery.self) private var store: ImageGallery
     @Environment(GalleryController.self) private var galleryController: GalleryController
+    @Environment(GenerationController.self) private var generationController: GenerationController
+    @Environment(ConfigStore.self) private var configStore: ConfigStore
     @Binding var isShowingInspector: Bool
-    @State private var isStatusPopoverShown = false
+    @State private var queuePopover = DetachablePopover()
 
     var body: some View {
         @Bindable var store = store
@@ -24,36 +27,35 @@ struct GalleryToolbarView: View {
                 let step = progress.step + 1
                 let stepValue = Double(step) / Double(progress.stepCount)
 
-                Button {
-                    self.isStatusPopoverShown.toggle()
-                } label: {
+                queueButton {
                     CircularProgressView(progress: stepValue)
-                        .frame(width: 16, height: 16)
                 }
             } else if case .loading(_) = generationState.state {
-                Button {
-                    self.isStatusPopoverShown.toggle()
-                } label: {
+                queueButton {
                     ProgressView()
                         .progressViewStyle(.circular)
                         .controlSize(.small)
-                        .frame(width: 16, height: 16)
                 }
             } else if case .canceling(_) = generationState.state {
-                Button {
-                    self.isStatusPopoverShown.toggle()
-                } label: {
+                queueButton {
                     ProgressView()
                         .progressViewStyle(.circular)
                         .controlSize(.small)
-                        .frame(width: 16, height: 16)
                 }
             }
         }
-        .popover(isPresented: self.$isStatusPopoverShown, arrowEdge: .bottom) {
-            JobQueueView()
-                .frame(width: 420, height: 240)
-        }
+        // On the ZStack rather than a button, so moving between loading and running
+        // keeps the same anchor. The popover outlives it: dragged off into a window, the
+        // queue stays open after generation finishes and the button hides.
+        .background(
+            PopoverAnchor(popover: queuePopover) {
+                JobQueueView()
+                    .frame(width: 420, height: 240)
+                    .environment(generationState)
+                    .environment(generationController)
+                    .environment(configStore)
+            }
+        )
 
         Picker("Sort", selection: $store.sortType) {
             Text(
@@ -122,6 +124,15 @@ struct GalleryToolbarView: View {
             .frame(minWidth: 300)
             .frame(maxWidth: 500)
             .frame(height: 40)
+    }
+
+    private func queueButton(@ViewBuilder label: () -> some View) -> some View {
+        Button {
+            queuePopover.toggle()
+        } label: {
+            label()
+                .frame(width: 16, height: 16)
+        }
     }
 
     /// Shares the file when there is one, and the pixels when there is not.
@@ -195,5 +206,91 @@ struct GalleryToolbarView: View {
             }
         }
         .disabled(true)
+    }
+}
+
+/// An `NSPopover` that, unlike SwiftUI's `.popover`, can be dragged off its anchor
+/// into a floating window, which stays open until closed.
+///
+/// It is owned apart from its anchor so that a detached window survives the anchor
+/// being removed; an attached popover closes with its anchor.
+private final class DetachablePopover: NSObject, NSPopoverDelegate {
+    private(set) lazy var hostingController = NSHostingController(rootView: AnyView(EmptyView()))
+    private lazy var popover: NSPopover = {
+        let popover = NSPopover()
+        hostingController.sizingOptions = .preferredContentSize
+        popover.contentViewController = hostingController
+        popover.behavior = .transient
+        popover.delegate = self
+        return popover
+    }()
+    weak var anchor: NSView?
+    private var isDetached = false
+
+    /// Shows the attached popover, closes it, or brings the detached window forward.
+    func toggle() {
+        if isDetached {
+            hostingController.view.window?.makeKeyAndOrderFront(nil)
+        } else if popover.isShown {
+            popover.close()
+        } else if let anchor {
+            popover.show(relativeTo: anchor.bounds, of: anchor, preferredEdge: .minY)
+        }
+    }
+
+    /// Called when `view` leaves the view hierarchy.
+    func anchorRemoved(_ view: NSView) {
+        guard anchor === view else { return }
+        anchor = nil
+        if !isDetached, popover.isShown {
+            popover.close()
+        }
+    }
+
+    func popoverShouldDetach(_ popover: NSPopover) -> Bool {
+        true
+    }
+
+    func popoverDidDetach(_ popover: NSPopover) {
+        isDetached = true
+    }
+
+    /// Keeps a click on the anchor from closing the popover, so the anchor's own
+    /// action closes it rather than closing and immediately reopening it.
+    func popoverShouldClose(_ popover: NSPopover) -> Bool {
+        guard let anchor, !isDetached, let event = NSApp.currentEvent,
+            event.type == .leftMouseDown, event.window === anchor.window
+        else {
+            return true
+        }
+        let location = anchor.convert(event.locationInWindow, from: nil)
+        return !anchor.bounds.contains(location)
+    }
+
+    func popoverDidClose(_ notification: Notification) {
+        isDetached = false
+    }
+}
+
+/// Positions a `DetachablePopover` on the view it backs and supplies its content.
+private struct PopoverAnchor<Content: View>: NSViewRepresentable {
+    let popover: DetachablePopover
+    @ViewBuilder let content: () -> Content
+
+    func makeCoordinator() -> DetachablePopover {
+        popover
+    }
+
+    func makeNSView(context: Context) -> NSView {
+        NSView()
+    }
+
+    func updateNSView(_ nsView: NSView, context: Context) {
+        popover.anchor = nsView
+        popover.hostingController.rootView = AnyView(content())
+    }
+
+    static func dismantleNSView(_ nsView: NSView, coordinator: DetachablePopover) {
+        coordinator.anchorRemoved(nsView)
     }
 }

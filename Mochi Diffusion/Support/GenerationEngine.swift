@@ -225,11 +225,19 @@ nonisolated protocol GenerationEngineRuntime: Sendable {
     /// A hosted service may finish an image we stopped waiting for, and bill for it,
     /// so the UI says so rather than implying a cancel is free.
     var cancellationMayLeaveWorkBilled: Bool { get }
+
+    /// Called when the queue holds no further request for this runtime: it has
+    /// emptied, or the next request belongs to another engine. A runtime that keeps
+    /// a model loaded between requests frees it here. The default does nothing.
+    ///
+    /// Never called while `run` is in progress on this runtime.
+    func queueDrained() async
 }
 
 nonisolated extension GenerationEngineRuntime {
     func idleTimeout(for request: GenerationRequest) -> Duration? { nil }
     var cancellationMayLeaveWorkBilled: Bool { false }
+    func queueDrained() async {}
 }
 
 /// The immutable half of an engine: what it is, what models it has, and how it

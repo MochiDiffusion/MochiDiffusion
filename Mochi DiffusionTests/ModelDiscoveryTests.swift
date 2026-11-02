@@ -11,7 +11,7 @@ import Testing
 
 /// Pins how a directory on disk is recognised as a particular kind of model.
 ///
-/// Recognition lives in `SDModel.init?` and `IrisFluxKleinModel.init?`. Each
+/// Recognition lives in `SDModel.init?` and `IrisModel.init?`. Each
 /// engine applies only its own rules — see `EngineDiscoveryTests` for the
 /// discovery those feed.
 struct SDModelDiscoveryTests {
@@ -170,7 +170,7 @@ struct SDModelDiscoveryTests {
     }
 }
 
-struct IrisFluxKleinDiscoveryTests {
+struct IrisDiscoveryTests {
     let temp: TempDirectory
 
     init() throws {
@@ -182,7 +182,7 @@ struct IrisFluxKleinDiscoveryTests {
         let url = try temp.subdirectory("klein")
         try makeKleinModelFixture(at: url, weights: .single)
 
-        let model = try #require(IrisFluxKleinModel(url: url, name: "klein"))
+        let model = try #require(IrisModel(url: url, name: "klein"))
         #expect(model.id == ModelID(engine: .iris, key: "klein"))
         #expect(model.constraints.promptTokenLimit == 512)
         #expect(model.tokenizerModelDir == url.appending(path: "tokenizer"))
@@ -193,7 +193,50 @@ struct IrisFluxKleinDiscoveryTests {
         let url = try temp.subdirectory("klein")
         try makeKleinModelFixture(at: url, weights: .sharded)
 
-        #expect(IrisFluxKleinModel(url: url, name: "klein") != nil)
+        #expect(IrisModel(url: url, name: "klein") != nil)
+    }
+
+    /// The file set Tongyi-MAI/Z-Image-Turbo publishes, written out in full rather
+    /// than derived from the required list, so the test fails if discovery ever
+    /// requires a file this download lacks.
+    @Test("A Z-Image Turbo directory as published is recognised as Z-Image")
+    func acceptsPublishedZImageTurboLayout() throws {
+        let url = try temp.subdirectory("zimage-turbo")
+        try writeFile(
+            #"{"_class_name": "ZImagePipeline"}"#, to: url.appending(path: "model_index.json"))
+        for components in [
+            ["scheduler", "scheduler_config.json"],
+            ["text_encoder", "config.json"],
+            ["text_encoder", "generation_config.json"],
+            ["text_encoder", "model.safetensors.index.json"],
+            ["tokenizer", "merges.txt"],
+            ["tokenizer", "tokenizer.json"],
+            ["tokenizer", "tokenizer_config.json"],
+            ["tokenizer", "vocab.json"],
+            ["transformer", "diffusion_pytorch_model.safetensors.index.json"],
+            ["vae", "config.json"],
+        ] {
+            try writeFile("{}", to: components.reduce(url) { $0.appending(path: $1) })
+        }
+        try writeFile(
+            #"{"cap_feat_dim": 2560, "dim": 3840}"#,
+            to: url.appending(components: "transformer", "config.json"))
+        for shard in 1...3 {
+            try writeFile(
+                "",
+                to: url.appending(
+                    components: "text_encoder", "model-0000\(shard)-of-00003.safetensors"))
+            try writeFile(
+                "",
+                to: url.appending(
+                    components: "transformer",
+                    "diffusion_pytorch_model-0000\(shard)-of-00003.safetensors"))
+        }
+        try writeFile(
+            "", to: url.appending(components: "vae", "diffusion_pytorch_model.safetensors"))
+
+        let model = try #require(IrisModel(url: url, name: "zimage-turbo"))
+        #expect(model.family == .zImageTurbo)
     }
 
     @Test("Klein weights are required")
@@ -201,18 +244,18 @@ struct IrisFluxKleinDiscoveryTests {
         let url = try temp.subdirectory("klein")
         try makeKleinModelFixture(at: url, weights: .missing)
 
-        #expect(IrisFluxKleinModel(url: url, name: "klein") == nil)
+        #expect(IrisModel(url: url, name: "klein") == nil)
     }
 
     @Test(
-        "Every required Klein config file is required",
-        arguments: kleinRequiredConfigPaths
+        "Every file Iris opens is required",
+        arguments: irisRequiredConfigPaths
     )
     func rejectsIncompleteDirectory(omitted: [String]) throws {
         let url = try temp.subdirectory("klein-\(omitted.joined(separator: "-"))")
         try makeKleinModelFixture(at: url, omitting: [omitted])
 
-        #expect(IrisFluxKleinModel(url: url, name: "klein") == nil)
+        #expect(IrisModel(url: url, name: "klein") == nil)
     }
 
     /// Klein is distilled, which is what makes most of these unsupported rather
@@ -221,7 +264,7 @@ struct IrisFluxKleinDiscoveryTests {
     /// properties of the distillation rather than choices.
     @Test("Klein declares only what it can honour")
     func declaresConstraints() {
-        let constraints = IrisFluxKleinModel.constraints(for: .fluxKlein)
+        let constraints = IrisModel.constraints(for: .fluxKlein)
 
         #expect(!constraints.supportsNegativePrompt)
         #expect(constraints.steps == .pinned(4))

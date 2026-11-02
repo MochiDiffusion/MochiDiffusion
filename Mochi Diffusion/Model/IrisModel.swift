@@ -1,5 +1,5 @@
 //
-//  IrisFluxKleinModel.swift
+//  IrisModel.swift
 //  Mochi Diffusion
 //
 
@@ -49,6 +49,15 @@ nonisolated enum IrisModelFamily: Sendable, Equatable, CaseIterable {
         }
     }
 
+    /// Whether the family attends to reference images. Iris's img2img and
+    /// multi-reference entry points return an error for a Z-Image model.
+    var acceptsReferenceImages: Bool {
+        switch self {
+        case .fluxKlein, .fluxKleinBase: true
+        case .zImageTurbo: false
+        }
+    }
+
     /// The family of the model in `directory`, by Iris's rules: a Z-Image
     /// pipeline is named in `model_index.json` or has a `cap_feat_dim`
     /// transformer setting; otherwise a model is distilled unless
@@ -79,11 +88,11 @@ nonisolated enum IrisModelFamily: Sendable, Equatable, CaseIterable {
     }
 }
 
-nonisolated struct IrisFluxKleinModel: EngineModel {
-    /// Iris models run flow matching with no negative prompt. They attend to
-    /// images as references rather than denoising from one, so they declare
-    /// input images and no starting image at all. Steps and guidance are pinned
-    /// to the family's own values, so the sidebar shows what the pipeline runs.
+nonisolated struct IrisModel: EngineModel {
+    /// Iris models run flow matching with no negative prompt. A family that uses
+    /// images attends to them as references rather than denoising from one, so
+    /// no Iris model declares a starting image. Steps and guidance are pinned to
+    /// the family's own values, so the sidebar shows what the pipeline runs.
     static func constraints(for family: IrisModelFamily) -> OptionConstraints {
         OptionConstraints(
             supportsNegativePrompt: false,
@@ -92,7 +101,8 @@ nonisolated struct IrisFluxKleinModel: EngineModel {
             guidanceScale: .pinned(family.guidanceScale),
             scheduler: .pinned(.discreteFlowScheduler),
             startingImage: .unsupported,
-            inputImages: .supported(maxCount: IrisEngine.maxReferenceImages),
+            inputImages: family.acceptsReferenceImages
+                ? .supported(maxCount: IrisEngine.maxReferenceImages) : .unsupported,
             controlNet: .unsupported,
             quality: .unsupported,
             numberOfImages: .range(1...100, step: 1, acceptsBeyondUpperBound: true),
@@ -100,19 +110,24 @@ nonisolated struct IrisFluxKleinModel: EngineModel {
         )
     }
 
-    static let metadataFields: Set<MetadataField> = [
-        .prompt,
-        .model,
-        .engine,
-        .modelKey,
-        .size,
-        .inputImages,
-        .scheduler,
-        .seed,
-        .steps,
-        // Pinned rather than absent, so the value the model ran at is recorded.
-        .guidanceScale,
-    ]
+    static func metadataFields(for family: IrisModelFamily) -> Set<MetadataField> {
+        var fields: Set<MetadataField> = [
+            .prompt,
+            .model,
+            .engine,
+            .modelKey,
+            .size,
+            .scheduler,
+            .seed,
+            .steps,
+            // Pinned rather than absent, so the value the model ran at is recorded.
+            .guidanceScale,
+        ]
+        if family.acceptsReferenceImages {
+            fields.insert(.inputImages)
+        }
+        return fields
+    }
 
     /// Fallback when the transformer config cannot be read. Klein's own value; a
     /// wrong head count only misestimates the reference budget, so guessing is
@@ -130,10 +145,10 @@ nonisolated struct IrisFluxKleinModel: EngineModel {
     var id: ModelID { ModelID(engine: .iris, key: ModelID.localKey(for: url)) }
     var tokenizerModelDir: URL? { url.appending(path: "tokenizer") }
     var constraints: OptionConstraints { Self.constraints(for: family) }
-    var metadataFields: Set<MetadataField> { Self.metadataFields }
+    var metadataFields: Set<MetadataField> { Self.metadataFields(for: family) }
 
     init?(url: URL, name: String) {
-        guard isIrisFluxKleinModelDirectory(url) else { return nil }
+        guard isIrisModelDirectory(url) else { return nil }
         self.url = url
         self.name = name
         self.attentionHeadCount = readAttentionHeadCount(from: url)
@@ -147,7 +162,7 @@ nonisolated private func readAttentionHeadCount(from modelURL: URL) -> Int {
         let data = try? Data(contentsOf: configURL),
         let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
     else {
-        return IrisFluxKleinModel.defaultAttentionHeadCount
+        return IrisModel.defaultAttentionHeadCount
     }
 
     if let value = json["num_attention_heads"] as? Int, value > 0 {
@@ -158,23 +173,18 @@ nonisolated private func readAttentionHeadCount(from modelURL: URL) -> Int {
         return value.intValue
     }
 
-    return IrisFluxKleinModel.defaultAttentionHeadCount
+    return IrisModel.defaultAttentionHeadCount
 }
 
-nonisolated private func isIrisFluxKleinModelDirectory(_ url: URL) -> Bool {
+/// Whether `url` holds the files Iris opens when it loads a model. Requiring
+/// anything more would hide models Iris can run, because each family's
+/// published download includes a different set of tokenizer extras.
+nonisolated private func isIrisModelDirectory(_ url: URL) -> Bool {
     let fm = FileManager.default
 
     for url in [
         url.appending(components: "text_encoder", "config.json"),
-        url.appending(components: "text_encoder", "generation_config.json"),
-        url.appending(components: "tokenizer", "added_tokens.json"),
-        url.appending(components: "tokenizer", "chat_template.jinja"),
-        url.appending(components: "tokenizer", "merges.txt"),
-        url.appending(components: "tokenizer", "special_tokens_map.json"),
         url.appending(components: "tokenizer", "tokenizer.json"),
-        url.appending(components: "tokenizer", "tokenizer_config.json"),
-        url.appending(components: "tokenizer", "vocab.json"),
-
         url.appending(components: "transformer", "config.json"),
         url.appending(components: "vae", "config.json"),
         url.appending(components: "vae", "diffusion_pytorch_model.safetensors"),

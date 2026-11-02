@@ -165,7 +165,7 @@ nonisolated struct CoreMLStableDiffusionEngine: GenerationEngineDescriptor {
 /// Iris: FLUX.2 and Z-Image models in diffusers layout, run through the bundled
 /// Iris library.
 nonisolated struct IrisEngine: GenerationEngineDescriptor {
-    typealias Model = IrisFluxKleinModel
+    typealias Model = IrisModel
     typealias Payload = IrisGenerationPayload
 
     static let id = EngineID.iris
@@ -196,12 +196,12 @@ nonisolated struct IrisEngine: GenerationEngineDescriptor {
         return .ready
     }
 
-    func discoverModels(_ context: ModelDiscoveryContext) async throws -> [IrisFluxKleinModel] {
+    func discoverModels(_ context: ModelDiscoveryContext) async throws -> [IrisModel] {
         try context.localModelDirectories()
-            .compactMap { IrisFluxKleinModel(url: $0, name: ModelID.localKey(for: $0)) }
+            .compactMap { IrisModel(url: $0, name: ModelID.localKey(for: $0)) }
     }
 
-    func plan(draft: GenerationDraft, model: IrisFluxKleinModel) throws
+    func plan(draft: GenerationDraft, model: IrisModel) throws
         -> GenerationPlan<IrisGenerationPayload>
     {
         // Read from the model's constraints, which is the same declaration the
@@ -236,7 +236,8 @@ nonisolated struct IrisEngine: GenerationEngineDescriptor {
                 stepCount: stepCount ?? model.family.stepCount,
                 guidanceScale: constraints.guidanceScale.resolved(Double(draft.guidanceScale))
                     ?? model.family.guidanceScale,
-                scheduler: scheduler ?? draft.scheduler
+                scheduler: scheduler ?? draft.scheduler,
+                reduceMemory: draft.reduceMemory
             ),
             size: size,
             startingImageData: nil,
@@ -246,9 +247,9 @@ nonisolated struct IrisEngine: GenerationEngineDescriptor {
             controlNetImageNames: [],
             stepCount: stepCount,
             scheduler: scheduler,
-            // Klein declares no starting image, so there is no strength to
-            // resolve. Its guidance is pinned rather than absent: distillation
-            // fixes the value, it does not remove the concept.
+            // No Iris family declares a starting image, so there is no strength
+            // to resolve. Guidance is pinned rather than absent: each family runs
+            // at a fixed scale, which is still a value the image used.
             strength: constraints.startingImage.strength.resolved(Double(draft.strength))
                 .map(Float.init),
             guidanceScale: constraints.guidanceScale.resolved(Double(draft.guidanceScale))
@@ -269,7 +270,7 @@ nonisolated struct IrisEngine: GenerationEngineDescriptor {
     /// request uses come from one calculation.
     static func budgetReport(
         for images: [InputImage],
-        model: IrisFluxKleinModel,
+        model: IrisModel,
         outputSize: CGSize,
         constraint: InputImagesConstraint
     ) -> IrisReferenceBudgetReport? {
@@ -319,4 +320,7 @@ nonisolated struct IrisGenerationPayload: Sendable {
     /// family's pinned value matches.
     let guidanceScale: Double
     let scheduler: Scheduler
+    /// Whether the runtime frees a kept model before loading the text encoder,
+    /// so the two are never resident together.
+    let reduceMemory: Bool
 }

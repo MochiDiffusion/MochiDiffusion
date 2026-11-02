@@ -400,10 +400,22 @@ struct GenerationRequestBuilderTests {
         // `iris_load_dir` therefore carries that trailing slash.
         // Downcast because `url` is not on `EngineModel`: where a model lives is
         // its own engine's business, and a hosted model has no path at all.
-        let model = try #require(controller.currentModel as? IrisFluxKleinModel)
+        let model = try #require(controller.currentModel as? IrisModel)
         #expect(payload.modelDirectory == model.url.path(percentEncoded: false))
         #expect(payload.modelDirectory.hasSuffix("/klein-model/"))
         #expect(request.modelID.engine == .iris)
+    }
+
+    @Test("An Iris pipeline carries the Reduce Memory Usage setting", arguments: [false, true])
+    func irisPipelineCarriesMemoryFlag(reduceMemory: Bool) async throws {
+        try makeKleinModelFixture(at: modelDir.appending(path: "klein-model"))
+        configStore.reduceMemory = reduceMemory
+        let controller = try await makeControllerSelecting("klein-model")
+
+        let request = try #require(controller.buildGenerationRequest())
+
+        let payload = try #require(request.payload as? IrisGenerationPayload)
+        #expect(payload.reduceMemory == reduceMemory)
     }
 
     @Test("A Klein base model runs and shows its own steps and guidance")
@@ -423,6 +435,31 @@ struct GenerationRequestBuilderTests {
         // The queue shows the values the payload runs with.
         #expect(request.stepCount == 50)
         #expect(request.guidanceScale == 4)
+    }
+
+    /// Iris rejects references for Z-Image, so references chosen for Klein are
+    /// held while Z-Image is selected and never reach its request.
+    @Test("A Z-Image model runs its own values and sends no references")
+    func zImageUsesFamilyValuesWithoutReferences() async throws {
+        try makeKleinModelFixture(at: modelDir.appending(path: "klein-model"))
+        let url = modelDir.appending(path: "zimage")
+        try makeKleinModelFixture(at: url)
+        try writeFile(
+            #"{"_class_name": "ZImagePipeline"}"#, to: url.appending(path: "model_index.json"))
+        let controller = try await makeControllerSelecting("klein-model")
+        controller.addInputImage(image: makeCGImage(width: 40, height: 20), filename: "in.png")
+
+        controller.setModel("zimage")
+        let request = try #require(controller.buildGenerationRequest())
+        let payload = try #require(request.payload as? IrisGenerationPayload)
+
+        #expect(payload.family == .zImageTurbo)
+        #expect(payload.stepCount == 9)
+        #expect(request.stepCount == 9)
+        #expect(request.inputImageData.isEmpty)
+        #expect(request.inputImageNames.isEmpty)
+        #expect(!request.metadataFields.contains(.inputImages))
+        #expect(controller.inputImages.map(\.name) == ["in.png"])
     }
 
     @Test("Klein records references, and no starting image")

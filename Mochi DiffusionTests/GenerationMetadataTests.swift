@@ -133,7 +133,7 @@ struct GenerationMetadataTests {
             try writeFile(transformer, to: url.appending(components: "transformer", "config.json"))
         }
 
-        let model = try #require(IrisFluxKleinModel(url: url, name: "model"))
+        let model = try #require(IrisModel(url: url, name: "model"))
 
         #expect(model.family == family)
         #expect(model.constraints.steps.resolved(1) == family.stepCount)
@@ -144,15 +144,17 @@ struct GenerationMetadataTests {
     func irisFamilyDefaults() {
         #expect(IrisModelFamily.allCases.map(\.stepCount) == [4, 50, 9])
         #expect(IrisModelFamily.allCases.map(\.guidanceScale) == [1, 4, 1])
+        #expect(IrisModelFamily.allCases.map(\.acceptsReferenceImages) == [true, true, false])
     }
 
     @Test("An Iris image records its family's values and keeps unnamed references in place")
     func irisMetadata() {
         let payload = IrisGenerationPayload(
             modelDirectory: "/models/base", family: .fluxKleinBase, stepCount: 50, guidanceScale: 4,
-            scheduler: .discreteFlowScheduler)
+            scheduler: .discreteFlowScheduler, reduceMemory: false)
         let request = Self.request(
-            engine: .iris, payload: payload, metadataFields: IrisFluxKleinModel.metadataFields,
+            engine: .iris, payload: payload,
+            metadataFields: IrisModel.metadataFields(for: .fluxKleinBase),
             inputImageNames: ["cat.png", nil, "dog.png"])
 
         let metadata = IrisEngineRuntime.metadata(

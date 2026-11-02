@@ -76,7 +76,7 @@ retained in that context, including descriptions of the code at the time.
 ### The problem Draw Things creates
 
 `EngineModel.metadataFields` is satisfied today by a literal set written into each concrete
-model type — a computed `var` on `SDModel`, a `static let` on `IrisFluxKleinModel`. That
+model type — a computed `var` on `SDModel`, a `static let` on `IrisModel`. That
 works while an engine has one model *kind*: thirteen fields for Core ML, nine for Klein, both
 maintained by hand.
 
@@ -485,7 +485,7 @@ already run through Iris. Catalog: `version: flux2_9b`, `modifier: kontext`,
 `flux_2_klein_9b_kv_q6p.ckpt`: `guidanceScale: 1`, `steps: 4`, `sampler: 16` (DDIMTrailing),
 `shift: 3`, `strength: 1`, `width`/`height: 1024`, `speedUpWithGuidanceEmbed: true`. Note
 that `padded_text_encoding_length: 512` is the same limit
-[Model/IrisFluxKleinModel.swift](Mochi%20Diffusion/Model/IrisFluxKleinModel.swift) hardcodes
+[Model/IrisModel.swift](Mochi%20Diffusion/Model/IrisModel.swift) hardcodes
 as `promptTokenLimit`, and that here it arrives from discovery. That is a partial answer to
 §6's deferred "prompt token counting is not part of this": for this engine the limit is
 catalog data, and no tokenizer directory is involved.
