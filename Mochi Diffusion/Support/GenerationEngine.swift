@@ -240,10 +240,18 @@ nonisolated protocol GenerationEngineRuntime: Sendable {
     /// an expiry releases the drain exactly as a completion does. Local runtimes
     /// leave this `nil`.
     func idleTimeout(for request: GenerationRequest) -> Duration?
+
+    /// Called when the queue holds no further request for this runtime: it has
+    /// emptied, or the next request belongs to another engine. A runtime that keeps
+    /// a model loaded between requests frees it here. The default does nothing.
+    ///
+    /// Never called while `run` is in progress on this runtime.
+    func queueDrained() async
 }
 
 nonisolated extension GenerationEngineRuntime {
     func idleTimeout(for request: GenerationRequest) -> Duration? { nil }
+    func queueDrained() async {}
 }
 
 /// The immutable half of an engine: what it is, what models it has, and how it

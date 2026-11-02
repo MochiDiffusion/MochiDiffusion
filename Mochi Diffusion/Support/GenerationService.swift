@@ -32,6 +32,9 @@ actor GenerationService {
     /// One runtime per engine, made on first use and kept, so a loaded pipeline
     /// stays warm between requests.
     private var runtimes: [EngineID: any GenerationEngineRuntime] = [:]
+    /// Engines whose runtime has been handed a request since it was last told the
+    /// queue holds no more work for it.
+    private var enginesWithQueuedWork: Set<EngineID> = []
     private var nextImageIndex = 1
     private var didEmitResultForCurrentRequest = false
     private var savedImageCount = 0
@@ -167,6 +170,9 @@ actor GenerationService {
             cancelingCurrentID = nil
             currentSession = nil
             broadcastSnapshot()
+            for engineID in enginesWithQueuedWork {
+                await notifyQueueDrained(engineID)
+            }
             if savedImageCount > 0 {
                 await notifyImagesReady(savedImageCount)
             }
@@ -187,6 +193,7 @@ actor GenerationService {
                 continue
             }
             let runtime = runtime(for: engine)
+            enginesWithQueuedWork.insert(engine.id)
 
             let session = GenerationSession(requestID: request.id)
             currentSession = session
@@ -204,6 +211,7 @@ actor GenerationService {
                         request.id,
                         restoreReadyAfterCancel: restoreReadyAfterCancel
                     )
+                    await notifyQueueDrainedIfNextRequestIsElsewhere(engine.id)
                     continue
                 }
 
@@ -326,6 +334,7 @@ actor GenerationService {
                 request.id,
                 restoreReadyAfterCancel: restoreReadyAfterCancel
             )
+            await notifyQueueDrainedIfNextRequestIsElsewhere(engine.id)
         }
     }
 
@@ -334,6 +343,24 @@ actor GenerationService {
     nonisolated static func userDescription(of error: any Error) -> String {
         (error as? any LocalizedError)?.errorDescription
             ?? "There was a problem generating images: \(error)"
+    }
+
+    /// Tells `engineID`'s runtime the queue holds no more work for it when the next
+    /// request belongs to another engine, so a model it keeps loaded does not sit
+    /// in memory under the other engine's. An empty queue is handled once the drain
+    /// ends, in `processQueue`.
+    private func notifyQueueDrainedIfNextRequestIsElsewhere(_ engineID: EngineID) async {
+        guard let next = queue.first, next.modelID.engine != engineID else { return }
+        await notifyQueueDrained(engineID)
+    }
+
+    /// Calls `queueDrained()` on `engineID`'s runtime, at most once for the requests
+    /// it has been handed since the last call.
+    private func notifyQueueDrained(_ engineID: EngineID) async {
+        guard enginesWithQueuedWork.remove(engineID) != nil,
+            let runtime = runtimes[engineID]
+        else { return }
+        await runtime.queueDrained()
     }
 
     /// Expires `session` once it has been quiet for `timeout`.

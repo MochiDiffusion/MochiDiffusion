@@ -9,6 +9,11 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    # Not Mochi's own dependencies: ml-stable-diffusion requires them, and pins
+    # swift-transformers to an exact version, so a newer release cannot resolve.
+    ignore:
+      - dependency-name: "github.com/huggingface/swift-transformers"
+      - dependency-name: "github.com/apple/swift-argument-parser"
 
   - package-ecosystem: "github-actions"
     directory: "/"

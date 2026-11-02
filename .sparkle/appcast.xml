@@ -5,6 +5,30 @@
     <language>en</language>
 
     <item>
+      <title>v6.3</title>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion</link>
+      <sparkle:shortVersionString>6.3</sparkle:shortVersionString>
+      <sparkle:version>995</sparkle:version>
+      <sparkle:minimumSystemVersion>15.6</sparkle:minimumSystemVersion>
+      <sparkle:fullReleaseNotesLink>https://github.com/MochiDiffusion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <pubDate>Mon, 02 Nov 2026 06:45:35 +0000</pubDate>
+      <enclosure
+        url="https://github.com/MochiDiffusion/MochiDiffusion/releases/download/v6.3/Mochi.Diffusion.6.3.dmg"
+        sparkle:edSignature="9LlcoZPfid98Jc+cebVtSAkWXoeVbq6RRhCle6XJO3Lb47dEwe/ilfKB0jMXb6K+pMXCNGsEnt17E8rbvqyfBA=="
+        length="4510230"
+        type="application/octet-stream" />
+      <description><![CDATA[
+      <ul>
+      <li>Adds support for Z-Image Turbo, using Tongyi's published download as is</li>
+      <li>Keeps FLUX.2 Klein and Z-Image Turbo loaded between queued generations that use the same model; with Reduce Memory Usage on, a new prompt reloads the model to save memory</li>
+      <li>The generation queue can be dragged off the toolbar into its own window</li>
+      <li>A crop drag can start outside the image</li>
+      </ul>
+      ]]>
+      </description>
+    </item>
+
+    <item>
       <title>v6.2</title>
       <link>https://github.com/MochiDiffusion/MochiDiffusion</link>
       <sparkle:shortVersionString>6.2</sparkle:shortVersionString>

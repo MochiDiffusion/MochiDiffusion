@@ -6,7 +6,8 @@ on:
 
 jobs:
   build:
-    runs-on: macos-26
+    # project.xcproj needs Xcode 27, which GitHub ships on its own image.
+    runs-on: xcode-27
     steps:
       - name: Checkout
         uses: actions/checkout@v7.0.1
@@ -16,7 +17,8 @@ jobs:
       - name: Setup Xcode Version
         uses: maxim-lobanov/setup-xcode@v1.7.0
         with:
-          xcode-version: latest-stable
+          # The newest non-beta 27.2.x on the image.
+          xcode-version: '27.2'
 
       - name: Install swift-format
         run: |
@@ -33,7 +35,7 @@ jobs:
           -disableAutomaticPackageResolution
           -project "Mochi Diffusion.xcodeproj"
           -scheme "Mochi Diffusion"
-          CODE_SIGNING_ALLOWED=NO | xcpretty && exit ${PIPESTATUS[0]}
+          CODE_SIGNING_ALLOWED=NO | xcbeautify && exit ${PIPESTATUS[0]}
 
       - name: Test
         run: >
@@ -43,4 +45,4 @@ jobs:
           -scheme "Mochi Diffusion"
           -destination "platform=macOS"
           -configuration Debug
-          CODE_SIGNING_ALLOWED=NO | xcpretty && exit ${PIPESTATUS[0]}
+          CODE_SIGNING_ALLOWED=NO | xcbeautify && exit ${PIPESTATUS[0]}

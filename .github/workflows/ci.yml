@@ -6,7 +6,8 @@ on:
 
 jobs:
   build:
-    runs-on: macos-26
+    # project.xcproj needs Xcode 27, which GitHub ships on its own image.
+    runs-on: xcode-27
     steps:
       - name: Checkout
         uses: actions/checkout@v7.0.1
@@ -16,7 +17,8 @@ jobs:
       - name: Setup Xcode Version
         uses: maxim-lobanov/setup-xcode@v1.7.0
         with:
-          xcode-version: latest-stable
+          # The newest non-beta 27.2.x on the image.
+          xcode-version: '27.2'
 
       - name: Build and Analyze
         run: >
@@ -25,7 +27,7 @@ jobs:
           -scheme "Mochi Diffusion"
           -configuration Debug
           -disableAutomaticPackageResolution
-          CODE_SIGNING_ALLOWED=NO | xcpretty && exit ${PIPESTATUS[0]}
+          CODE_SIGNING_ALLOWED=NO | xcbeautify && exit ${PIPESTATUS[0]}
 
       - name: Test
         run: >
@@ -35,7 +37,7 @@ jobs:
           -destination "platform=macOS"
           -configuration Debug
           -disableAutomaticPackageResolution
-          CODE_SIGNING_ALLOWED=NO | xcpretty && exit ${PIPESTATUS[0]}
+          CODE_SIGNING_ALLOWED=NO | xcbeautify && exit ${PIPESTATUS[0]}
 
       - name: Export Localizations
         run: >
@@ -46,10 +48,10 @@ jobs:
           -localizationPath "./locale"
           -exportLanguage en
           -disableAutomaticPackageResolution
-          CODE_SIGNING_ALLOWED=NO | xcpretty && exit ${PIPESTATUS[0]}
+          CODE_SIGNING_ALLOWED=NO | xcbeautify && exit ${PIPESTATUS[0]}
 
       - name: Upload source locale artifact
-        uses: actions/upload-artifact@v7.0.1
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: en-source-locale
           path: './locale/en.xcloc/Localized Contents/en.xliff'
@@ -58,13 +60,13 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - uses: actions/download-artifact@v8.0.1
+      - uses: actions/download-artifact@v8.0.2
         with:
           name: en-source-locale
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload source to Crowdin
-        uses: crowdin/github-action@v3.0.2
+        uses: crowdin/github-action@v3.5.0
         with:
           upload_sources: true
           upload_translations: false

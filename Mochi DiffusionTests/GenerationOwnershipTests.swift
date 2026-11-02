@@ -100,7 +100,8 @@ struct IrisCancelledWaiterTests {
                 family: .fluxKlein,
                 stepCount: 4,
                 guidanceScale: 1,
-                scheduler: .discreteFlowScheduler
+                scheduler: .discreteFlowScheduler,
+                reduceMemory: false
             ),
             prompt: "a cat",
             negativePrompt: "",

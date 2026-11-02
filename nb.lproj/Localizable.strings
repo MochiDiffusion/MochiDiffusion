@@ -117,10 +117,6 @@ Image
 Settings tab header label */
 "Image" = "Bilde";
 /* en.lproj/Localizable.strings
-Image Type
-No comment provided by engineer. */
-"Image Type" = "Bildetype";
-/* en.lproj/Localizable.strings
 Image file name:
 File name field label for save image panel */
 "Image file name:" = "Navn på bildefil:";

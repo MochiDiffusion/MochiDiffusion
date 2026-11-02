@@ -236,7 +236,8 @@ nonisolated struct IrisEngine: GenerationEngineDescriptor {
                 stepCount: stepCount ?? model.family.stepCount,
                 guidanceScale: constraints.guidanceScale.resolved(Double(draft.guidanceScale))
                     ?? model.family.guidanceScale,
-                scheduler: scheduler ?? draft.scheduler
+                scheduler: scheduler ?? draft.scheduler,
+                reduceMemory: draft.reduceMemory
             ),
             size: size,
             startingImageData: nil,
@@ -319,4 +320,7 @@ nonisolated struct IrisGenerationPayload: Sendable {
     /// family's pinned value matches.
     let guidanceScale: Double
     let scheduler: Scheduler
+    /// Whether the runtime frees a kept model before loading the text encoder,
+    /// so the two are never resident together.
+    let reduceMemory: Bool
 }
