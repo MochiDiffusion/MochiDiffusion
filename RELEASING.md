@@ -12,8 +12,8 @@ what must be true before the release.
 3. Make sure that the build, the full test suite and `swift format lint -s -p -r ./` pass on
    `develop`.
 4. Record a code health snapshot. See [Code health snapshot](#code-health-snapshot).
-5. Set `MARKETING_VERSION` in `Mochi Diffusion.xcodeproj` to the new version. The app target
-   has one value for Debug and one for Release. Change both values in one
+5. Set `MARKETING_VERSION` in `Mochi Diffusion.xcodeproj/project.xcproj` to the new version.
+   The app target has one value, which Debug and Release share. Change it in one
    `build: bump app version to <version>` commit.
 6. Add a section for the new version at the top of `CHANGELOG.md`.
 
