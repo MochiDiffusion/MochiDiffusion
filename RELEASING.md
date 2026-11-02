@@ -15,7 +15,13 @@ what must be true before the release.
 5. Set `MARKETING_VERSION` in `Mochi Diffusion.xcodeproj/project.xcproj` to the new version.
    The app target has one value, which Debug and Release share. Change it in one
    `build: bump app version to <version>` commit.
-6. Add a section for the new version at the top of `CHANGELOG.md`.
+6. Add a section for the new version at the top of `CHANGELOG.md`. Date it with the day you
+   will publish the release.
+7. Review the localizable strings that are new or changed since the previous release. Merging
+   to `main` uploads them to Crowdin for translation. See
+   [Localization review](#localization-review).
+
+Do these steps on a release branch, `release-<version>`, cut from `develop`.
 
 You do not set the build number. `scripts/set_build_version.sh` runs during the build and sets
 `CFBundleVersion` to the commit count of `HEAD`.
@@ -56,7 +62,21 @@ cannot ship updates to installed copies. To make a backup file, use `generate_ke
 
 ## Release
 
-1. Bring `main` up to date with `develop`.
+1. Merge the release branch into `main` through a pull request:
+   1. Push `release-<version>` and open a pull request into `main`.
+   2. Wait for the Gated Check-in workflow to pass. If it fails, fix the problem on the release
+      branch and push again.
+   3. Merge with Create a merge commit, not Squash and merge, so that the release commits keep
+      their history.
+   4. Check that the CI workflow passes on `main`. It also uploads the English strings to
+      Crowdin.
+   5. Fast-forward `develop` to `main`:
+
+      ```sh
+      git checkout develop
+      git merge --ff-only main
+      ```
+
 2. Build and notarize the app from `main`:
    1. In Xcode, select Product > Archive.
    2. In the Organizer, select Distribute App > Direct Distribution. Xcode signs the app and
@@ -97,6 +117,34 @@ cannot ship updates to installed copies. To make a backup file, use `generate_ke
    - `pubDate`: the time that GitHub published the release, in the same form as the other
      items. `gh release view v<version> --json publishedAt` prints it.
    - A short description of the changes.
+8. Fast-forward `develop` to `main` again, so that `develop` has the appcast commit.
+9. Close the release epic in Beads.
+
+## Localization review
+
+The app's English strings come from the code. The CI workflow on `main` exports them with
+`xcodebuild -exportLocalizations` and uploads the result to Crowdin, where translators see
+every new or changed string. Review them before they reach `main`, because a fix after the
+upload asks translators to translate the string again.
+
+1. List the strings that are new, changed or removed since the previous release tag:
+
+   ```sh
+   scripts/localization_diff.sh v<previous-version>
+   ```
+
+   The script exports the English strings at the tag and at `HEAD` in temporary worktrees, so
+   it does not change your checkout. It prints each new and changed string with the comment
+   that translators see.
+
+2. Check each new or changed string:
+   - The wording is final, and terms match the rest of the app.
+   - The string has a comment that tells translators where it appears, unless the text alone
+     makes that clear.
+   - The string is meant for users. Text that only developers see, such as log messages,
+     must not be localized.
+   - Format specifiers such as `%@` and `%lld` are correct and in the expected order.
+3. Fix problems on the release branch before you open the pull request.
 
 ## Comment and documentation review
 
