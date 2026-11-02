@@ -1,3 +1,22 @@
+# [v6.3](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v6.3) - 1 Nov 2026
+
+## Features
+
+- Added support for [Z-Image Turbo](https://huggingface.co/Tongyi-MAI/Z-Image-Turbo)
+  - Use Tongyi's published download as is; no conversion is needed (see the [README](README.md#z-image-turbo))
+  - Text to image only: Z-Image Turbo does not use input images or a starting image
+  - Needs a lot of memory: on a 24 GB M4, a 256x256 image peaks at about 28 GB and loads in under two minutes
+- The generation queue can be dragged off the toolbar into its own window, which stays open after generation finishes
+
+## Refactors and improvements
+
+- FLUX.2 Klein and Z-Image Turbo models stay loaded between queued generations that use the same model, so a queue loads the model once
+- A crop drag can start outside the image and stays clamped to the image edges
+
+## Bug fixes
+
+- Fixed FLUX.2 Klein keeping the model's GPU memory after generation finished
+
 # [v6.2](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v6.2) - 29 Sept 2026
 
 - Mochi uses the [Musubi](https://github.com/MochiDiffusion/Musubi) library for reading and writing generation settings image metadata
