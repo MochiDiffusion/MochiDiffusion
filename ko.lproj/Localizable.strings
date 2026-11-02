@@ -129,10 +129,6 @@ Image
 Settings tab header label */
 "Image" = "이미지";
 /* en.lproj/Localizable.strings
-Image Type
-No comment provided by engineer. */
-"Image Type" = "이미지 유형";
-/* en.lproj/Localizable.strings
 Image file name:
 File name field label for save image panel */
 "Image file name:" = "이미지 파일 이름";

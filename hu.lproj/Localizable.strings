@@ -120,10 +120,6 @@ Image
 Settings tab header label */
 "Image" = "Kép";
 /* en.lproj/Localizable.strings
-Image Type
-No comment provided by engineer. */
-"Image Type" = "Kép típusa";
-/* en.lproj/Localizable.strings
 Image file name:
 File name field label for save image panel */
 "Image file name:" = "Kép neve:";

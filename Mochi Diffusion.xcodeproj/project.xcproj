@@ -50,7 +50,7 @@
       "kind": "remote",
       "repository": "https://github.com/gdbing/FilterablePicker.git",
       "version": {
-        "up-to-next-major-version": "1.0.1",
+        "up-to-next-major-version": "1.1.0",
       },
     }, {
       "kind": "remote",
@@ -62,7 +62,7 @@
       "kind": "remote",
       "repository": "https://github.com/sparkle-project/Sparkle",
       "version": {
-        "up-to-next-major-version": "2.0.0",
+        "up-to-next-major-version": "2.10.1",
       },
     }, {
       "kind": "local",
