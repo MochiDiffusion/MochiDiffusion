@@ -114,17 +114,60 @@ struct IrisSingleFlightTests {
     }
 
     @Test(
-        "A loaded context is reused only for the directory it came from",
+        "A loaded context is kept only for the directory it came from",
         arguments: [
-            (loaded: "/models/klein", requested: "/models/klein", reuses: true),
-            (loaded: "/models/klein", requested: "/models/zimage", reuses: false),
-            (loaded: nil, requested: "/models/klein", reuses: false),
-        ] as [(loaded: String?, requested: String, reuses: Bool)]
+            (loaded: "/models/klein", requested: "/models/klein", keeps: true),
+            (loaded: "/models/klein", requested: "/models/zimage", keeps: false),
+            (loaded: nil, requested: "/models/klein", keeps: false),
+        ] as [(loaded: String?, requested: String, keeps: Bool)],
+        [false, true]
     )
     func contextReuseFollowsTheModelDirectory(
-        loaded: String?, requested: String, reuses: Bool
+        directories: (loaded: String?, requested: String, keeps: Bool), reduceMemory: Bool
     ) {
-        #expect(IrisEngineRuntime.canReuse(loadedModelDir: loaded, for: requested) == reuses)
+        // A cached prompt for a model that uses the cache, so only the directory
+        // decides.
+        let keeps = IrisEngineRuntime.keepsLoadedContext(
+            loadedModelDir: directories.loaded,
+            for: directories.requested,
+            reduceMemory: reduceMemory,
+            family: .zImageTurbo,
+            referenceCount: 0,
+            promptIsCached: true
+        )
+        #expect(keeps == directories.keeps)
+    }
+
+    /// With Reduce Memory Usage on, a kept model survives only a request that
+    /// leaves the text encoder unloaded; off, the same model is always kept.
+    @Test(
+        "Reduce Memory Usage keeps the model only when the text encoder stays unloaded",
+        arguments: [
+            (family: IrisModelFamily.zImageTurbo, references: 0, cached: true, keeps: true),
+            (family: .zImageTurbo, references: 0, cached: false, keeps: false),
+            (family: .fluxKlein, references: 1, cached: true, keeps: true),
+            (family: .fluxKlein, references: 1, cached: false, keeps: false),
+            // iris_multiref encodes the prompt itself.
+            (family: .fluxKlein, references: 2, cached: true, keeps: false),
+            // A guidance-running model encodes inside iris_generate.
+            (family: .fluxKleinBase, references: 0, cached: true, keeps: false),
+        ] as [(family: IrisModelFamily, references: Int, cached: Bool, keeps: Bool)]
+    )
+    func reduceMemoryFreesBeforeEncoding(
+        request: (family: IrisModelFamily, references: Int, cached: Bool, keeps: Bool)
+    ) {
+        func keeps(reduceMemory: Bool) -> Bool {
+            IrisEngineRuntime.keepsLoadedContext(
+                loadedModelDir: "/models/m",
+                for: "/models/m",
+                reduceMemory: reduceMemory,
+                family: request.family,
+                referenceCount: request.references,
+                promptIsCached: request.cached
+            )
+        }
+        #expect(keeps(reduceMemory: true) == request.keeps)
+        #expect(keeps(reduceMemory: false))
     }
 
     /// With nothing loaded there is nothing to free, so the drain must not wait for

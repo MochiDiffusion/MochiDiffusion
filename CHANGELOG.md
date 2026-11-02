@@ -11,6 +11,7 @@
 ## Refactors and improvements
 
 - FLUX.2 Klein and Z-Image Turbo models stay loaded between queued generations that use the same model, so a queue loads the model once
+  - With Reduce Memory Usage on, the model is reloaded for a queued generation with a new prompt, so the text encoder never loads beside it (on a 24 GB M4, a Z-Image Turbo queue then peaks at about 28 GB instead of 36 GB)
 - A crop drag can start outside the image and stays clamped to the image edges
 
 ## Bug fixes

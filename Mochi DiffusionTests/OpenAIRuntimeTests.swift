@@ -611,7 +611,7 @@ struct OpenAIRuntimeTests {
             metadataFields: [.prompt],
             payload: IrisGenerationPayload(
                 modelDirectory: "/models/klein", family: .fluxKlein, stepCount: 4, guidanceScale: 1,
-                scheduler: .discreteFlowScheduler),
+                scheduler: .discreteFlowScheduler, reduceMemory: false),
             prompt: "a cat",
             negativePrompt: "",
             size: CGSize(width: 64, height: 64),

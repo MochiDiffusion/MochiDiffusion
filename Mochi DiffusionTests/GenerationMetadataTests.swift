@@ -151,7 +151,7 @@ struct GenerationMetadataTests {
     func irisMetadata() {
         let payload = IrisGenerationPayload(
             modelDirectory: "/models/base", family: .fluxKleinBase, stepCount: 50, guidanceScale: 4,
-            scheduler: .discreteFlowScheduler)
+            scheduler: .discreteFlowScheduler, reduceMemory: false)
         let request = Self.request(
             engine: .iris, payload: payload,
             metadataFields: IrisModel.metadataFields(for: .fluxKleinBase),

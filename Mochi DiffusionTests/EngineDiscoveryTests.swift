@@ -198,7 +198,8 @@ struct EnginePayloadOwnershipTests {
             family: .fluxKlein,
             stepCount: 4,
             guidanceScale: 1,
-            scheduler: .discreteFlowScheduler
+            scheduler: .discreteFlowScheduler,
+            reduceMemory: false
         )
 
         #expect(iris.accepts(payload: irisPayload))
