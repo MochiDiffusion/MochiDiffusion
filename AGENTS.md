@@ -128,9 +128,12 @@ The multi-engine foundation is implemented. Current ownership and contracts foll
     switch, Refresh and OK in its Details sheet in General settings, and the alert's Refresh
     Models, refresh only `.connection`. `GenerationController` applies
     each source's result as it arrives and keeps the other source's models.
-  - Selection does not wait for a source still loading. Each applied result restores the
-    saved model if it is available and otherwise selects the first available model, which
-    becomes the saved one.
+  - Each applied result selects the saved model if it is available. While it is not, at
+    launch, with its source still loading, or after a reconnect that fails, nothing is
+    selected: the picker shows a placeholder, Generate is disabled, and the saved model is
+    kept, so a later result that has it selects it again. Choosing another model replaces
+    it. Only with nothing saved, as on a fresh install, is the first available model
+    selected (`MochiDiffusion-5xf.23`).
   - The combined picker groups models by source: This Mac (`.modelsFolder`), then Draw
     Things (`.connection`), each sorted by name. Headers show only when both groups have
     models, and an engine name is added only to tell apart same-named models in one group.

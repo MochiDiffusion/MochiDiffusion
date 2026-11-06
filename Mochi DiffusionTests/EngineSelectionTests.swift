@@ -131,9 +131,9 @@ struct ModelPickerTests {
                 ]
         )
 
-        // With every source's models known, a saved model that has gone falls back
-        // to the first model the picker shows, not the first by name.
-        configStore.selectedModel = ModelID(engine: .coreMLStableDiffusion, key: "removed")
+        // With nothing saved, the first model the picker shows is selected, not
+        // the first by name.
+        configStore.selectedModel = nil
         await controller.loadModels(from: [.modelsFolder])
         #expect(controller.currentModel?.name == "m-coreml")
     }
@@ -811,8 +811,8 @@ struct SourceRefreshTests {
         #expect(controller.models.map(\.id) == [localID, ServerEngine.modelID])
     }
 
-    @Test("A saved server model is not waited for: the first available model is selected")
-    func savedServerModelIsNotWaitedFor() async throws {
+    @Test("A saved server model still loading leaves nothing selected until it arrives")
+    func savedServerModelIsSelectedWhenItArrives() async throws {
         configStore.selectedModel = ServerEngine.modelID
         let sequencer = LoadSequencer()
         let controller = makeController(ServerEngine(state: ServerState(), sequencer: sequencer))
@@ -821,17 +821,17 @@ struct SourceRefreshTests {
         await sequencer.waitUntilStarted(1)
         while controller.models.isEmpty { await Task.yield() }
 
-        #expect(controller.currentModelId == localID)
-        #expect(configStore.selectedModel == localID)
+        #expect(controller.currentModelId == nil)
+        #expect(configStore.selectedModel == ServerEngine.modelID)
         #expect(controller.discoveryMessage == nil)
 
         await sequencer.release(1)
         _ = await load.value
-        #expect(controller.currentModelId == localID)
+        #expect(controller.currentModelId == ServerEngine.modelID)
     }
 
-    @Test("A saved server model falls back once its server fails to answer")
-    func unreachableServerAtLaunchFallsBack() async throws {
+    @Test("A saved server model whose server does not answer leaves nothing selected")
+    func unreachableServerAtLaunchSelectsNothing() async throws {
         configStore.selectedModel = ServerEngine.modelID
         let state = ServerState()
         await state.setReachable(false)
@@ -839,6 +839,32 @@ struct SourceRefreshTests {
 
         await controller.loadModels()
 
+        #expect(controller.models.map(\.id) == [localID])
+        #expect(controller.currentModelId == nil)
+        #expect(configStore.selectedModel == ServerEngine.modelID)
+
+        await state.setReachable(true)
+        await controller.loadModels(from: [.connection])
+
+        #expect(controller.currentModelId == ServerEngine.modelID)
+    }
+
+    @Test("A model chosen while the saved one is unavailable replaces it")
+    func choosingWhileUnavailableReplacesTheSavedModel() async throws {
+        configStore.selectedModel = ServerEngine.modelID
+        let state = ServerState()
+        await state.setReachable(false)
+        let controller = makeController(ServerEngine(state: state))
+        await controller.loadModels()
+        #expect(controller.currentModelId == nil)
+
+        controller.currentModelId = localID
+        #expect(configStore.selectedModel == localID)
+
+        await state.setReachable(true)
+        await controller.loadModels(from: [.connection])
+
+        #expect(controller.models.map(\.id) == [localID, ServerEngine.modelID])
         #expect(controller.currentModelId == localID)
         #expect(configStore.selectedModel == localID)
     }
@@ -857,8 +883,8 @@ struct SourceRefreshTests {
         #expect(await state.discoveryCount == 1)
     }
 
-    @Test("Reconnecting to an unreachable server falls back and saves the fallback")
-    func failedReconnectFallsBack() async throws {
+    @Test("Reconnecting to an unreachable server leaves nothing selected and keeps the saved model")
+    func failedReconnectSelectsNothing() async throws {
         let state = ServerState()
         let controller = makeController(ServerEngine(state: state))
         await controller.loadModels()
@@ -868,7 +894,12 @@ struct SourceRefreshTests {
         await controller.loadModels(from: [.connection])
 
         #expect(controller.models.map(\.id) == [localID])
-        #expect(controller.currentModelId == localID)
-        #expect(configStore.selectedModel == localID)
+        #expect(controller.currentModelId == nil)
+        #expect(configStore.selectedModel == ServerEngine.modelID)
+
+        await state.setReachable(true)
+        await controller.loadModels(from: [.connection])
+
+        #expect(controller.currentModelId == ServerEngine.modelID)
     }
 }

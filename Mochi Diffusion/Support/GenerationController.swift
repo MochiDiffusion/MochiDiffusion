@@ -614,26 +614,28 @@ final class GenerationController {
         }
     }
 
-    /// Picks the exact model to show after a discovery pass: the saved one when it
-    /// is available, otherwise the first runnable model in the picker's order.
+    /// Picks the exact model to show after a discovery pass.
+    ///
+    /// The saved model is selected whenever it is available. While it is not,
+    /// nothing is selected and the saved model is kept, so a later pass that finds
+    /// it, such as a server answering again, selects it without guessing how long
+    /// it might be unavailable. Choosing another model replaces it. Only with
+    /// nothing saved, as on a fresh install, is the first runnable model in the
+    /// picker's order selected, and saved.
     private func restoreSelection() {
-        if let selection = configStore.selectedModel,
-            models.contains(where: { $0.id == selection }),
-            engineAvailability[selection.engine] == .ready
-        {
-            currentModelId = selection
+        guard let selection = configStore.selectedModel else {
+            currentModelId =
+                models.first(where: {
+                    engineAvailability[$0.id.engine] == .ready
+                })?.id
             return
         }
-
-        guard
-            let firstModel = models.first(where: {
-                engineAvailability[$0.id.engine] == .ready
-            })
-        else {
-            currentModelId = nil
-            return
-        }
-        currentModelId = firstModel.id
+        let isAvailable =
+            models.contains(where: { $0.id == selection })
+            && engineAvailability[selection.engine] == .ready
+        // Setting nil leaves `configStore.selectedModel` alone: `currentModelId`'s
+        // didSet saves only a model that is in the list.
+        currentModelId = isAvailable ? selection : nil
     }
 
     func generate() async {

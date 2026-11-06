@@ -143,26 +143,35 @@ struct ModelSelectionPersistenceTests {
     func selectionIsEngineQualified() async throws {
         try makeTwoModels()
         // Same key, wrong engine: these are Core ML directories, not Iris ones.
-        configStore.selectedModel = ModelID(engine: .iris, key: "b-model")
+        let saved = ModelID(engine: .iris, key: "b-model")
+        configStore.selectedModel = saved
 
         let controller = makeController()
         await controller.loadModels()
 
-        #expect(controller.currentModel?.name == "a-model")
+        #expect(controller.currentModelId == nil)
+        #expect(configStore.selectedModel == saved)
     }
 
-    @Test("A selection that no longer exists falls back to the first model")
-    func missingSelectionFallsBackToFirst() async throws {
+    @Test("A selection that is not available selects nothing and is kept")
+    func missingSelectionSelectsNothing() async throws {
         try makeTwoModels()
-        configStore.selectedModel = ModelID(engine: .coreMLStableDiffusion, key: "deleted-model")
+        let saved = ModelID(engine: .coreMLStableDiffusion, key: "deleted-model")
+        configStore.selectedModel = saved
 
         let controller = makeController()
         await controller.loadModels()
 
-        #expect(controller.currentModel?.name == "a-model")
-        // The stale key is replaced rather than left to fail again next launch.
-        #expect(configStore.selectedModel == controller.currentModelId)
-        #expect(persistedSelection(controller) == controller.currentModelId)
+        #expect(controller.currentModelId == nil)
+        // Kept rather than replaced by a fallback, so the model is selected again
+        // once it is back.
+        #expect(configStore.selectedModel == saved)
+        #expect(persistedSelection(controller) == saved)
+
+        try makeSDModelFixture(at: modelDir.appending(path: "deleted-model"))
+        await controller.loadModels()
+
+        #expect(controller.currentModelId == saved)
     }
 
     @Test("A selection survives a fresh controller over the same preferences")
