@@ -86,6 +86,7 @@ struct SizeView: View {
                     "Width:",
                     comment: "Label for image width picker"
                 )
+                .sidebarLabelFormat()
                 if let bounds = size.bounds, let step = size.step {
                     NumericTextField(
                         value: Binding(
@@ -126,6 +127,7 @@ struct SizeView: View {
                     "Height:",
                     comment: "Label for image height picker"
                 )
+                .sidebarLabelFormat()
                 if let bounds = size.bounds, let step = size.step {
                     NumericTextField(
                         value: Binding(
