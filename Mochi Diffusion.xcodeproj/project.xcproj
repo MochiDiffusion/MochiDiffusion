@@ -74,8 +74,7 @@
       "kind": "remote",
       "repository": "https://github.com/MochiDiffusion/Musubi.git",
       "version": {
-        "version-range-min": "0.2.0",
-        "version-range-max": "0.2.1",
+        "version-range": "0.2.0..<0.2.1",
       },
     }, {
       "kind": "remote",
@@ -396,20 +395,12 @@
       ],
       "package-product-members": [
         {
-          "package": "DT-gRPC-Swift-Client",
-          "product-name": "DrawThingsClient",
-          "build-phase": { "build-phase": "frameworks" },
-        }, {
-          "package": "grpc-swift",
-          "product-name": "GRPC",
-          "build-phase": { "build-phase": "frameworks" },
-        }, {
-          "package": "swift-nio",
-          "product-name": "NIO",
-          "build-phase": { "build-phase": "frameworks" },
-        }, {
           "package": "CompactSlider",
           "product-name": "CompactSlider",
+          "build-phase": { "build-phase": "frameworks" },
+        }, {
+          "package": "DT-gRPC-Swift-Client",
+          "product-name": "DrawThingsClient",
           "build-phase": { "build-phase": "frameworks" },
         }, {
           "package": "FilterablePicker",
@@ -424,8 +415,16 @@
           "product-name": "Sparkle",
           "build-phase": { "build-phase": "frameworks" },
         }, {
+          "package": "grpc-swift",
+          "product-name": "GRPC",
+          "build-phase": { "build-phase": "frameworks" },
+        }, {
           "package": "ml-stable-diffusion",
           "product-name": "StableDiffusion",
+          "build-phase": { "build-phase": "frameworks" },
+        }, {
+          "package": "swift-nio",
+          "product-name": "NIO",
           "build-phase": { "build-phase": "frameworks" },
         },
       ],
