@@ -30,17 +30,22 @@ struct GalleryBrowsingTests {
         image.seed = 42
         image.steps = 28
         image.guidanceScale = 7.5
+        image.loras = [
+            RecordedLoRA(name: "detail-tweaker", weight: 0.8),
+            RecordedLoRA(name: "film-grain", weight: nil),
+        ]
 
-        let expected: String =
+        let expected: [String] =
             switch element {
-            case .prompt: "a cat"
-            case .negativePrompt: "blurry"
-            case .model: "sd-model"
-            case .seed: "42"
-            case .steps: "28"
-            case .guidanceScale: "7.5"
+            case .prompt: ["a cat"]
+            case .negativePrompt: ["blurry"]
+            case .model: ["sd-model"]
+            case .seed: ["42"]
+            case .steps: ["28"]
+            case .guidanceScale: ["7.5"]
+            case .lora: ["detail-tweaker", "film-grain"]
             }
-        #expect(element.getFilterValueFrom(image) == expected)
+        #expect(element.filterValues(from: image) == expected)
     }
 
     /// Typing a plain word finds it whatever its case, accents or character width.
@@ -70,6 +75,38 @@ struct GalleryBrowsingTests {
 
         #expect(!filter.validate(makeImage(prompt: "a cat")))
         #expect(filter.validate(makeImage(prompt: "a dog")))
+    }
+
+    private func makeImage(loras names: [String]) -> SDImage {
+        var image = SDImage()
+        image.loras = names.map { RecordedLoRA(name: $0, weight: 1) }
+        return image
+    }
+
+    /// A LoRA filter looks at every LoRA an image used, by name, not its weight.
+    @Test("A LoRA filter matches any of the image's LoRAs")
+    func loraMatchesAnyLoRA() {
+        let contains = Filter(text: "TWEAK", element: .lora, type: .contains)
+        let equals = Filter(text: "detail-tweaker", element: .lora, type: .equals)
+
+        for filter in [contains, equals] {
+            #expect(filter.validate(makeImage(loras: ["film-grain", "detail-tweaker"])))
+            #expect(!filter.validate(makeImage(loras: ["film-grain"])))
+            #expect(!filter.validate(makeImage(loras: [])))
+        }
+        #expect(!Filter(text: "1", element: .lora).validate(makeImage(loras: ["film-grain"])))
+        #expect(!equals.validate(makeImage(loras: ["detail-tweaker-v2"])))
+    }
+
+    /// "Is not" keeps the images that used none of the matching LoRAs, including
+    /// images that used no LoRA at all.
+    @Test("A LoRA filter's is not keeps images without that LoRA")
+    func loraIsNotExcludesAnyMatch() {
+        let filter = Filter(text: "grain", element: .lora, condition: .isNotEqual)
+
+        #expect(!filter.validate(makeImage(loras: ["detail-tweaker", "film-grain"])))
+        #expect(filter.validate(makeImage(loras: ["detail-tweaker"])))
+        #expect(filter.validate(makeImage(loras: [])))
     }
 
     @Test("A gallery shows only the images that pass every filter")
