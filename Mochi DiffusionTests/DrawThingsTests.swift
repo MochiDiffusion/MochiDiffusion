@@ -1240,6 +1240,19 @@ private final class DrawThingsLoopbackService: RegistrableRPCService, Sendable {
 }
 
 struct DrawThingsGRPCTests {
+    @Test("A host name's IPv4 addresses are tried first")
+    func ipv4First() async throws {
+        let resolver = IPv4FirstHost.Factory().resolver(
+            for: IPv4FirstHost(host: "localhost", port: 7859))
+        var names = resolver.names.makeAsyncIterator()
+        let addresses = try #require(try await names.next()?.endpoints.first?.addresses)
+        // localhost resolves to ::1 as well as 127.0.0.1.
+        #expect(addresses.contains { $0.ipv6 != nil })
+        let firstIPv6 = try #require(addresses.firstIndex { $0.ipv6 != nil })
+        #expect(addresses[..<firstIPv6].contains { $0.ipv4?.host == "127.0.0.1" })
+        #expect(!addresses[firstIPv6...].contains { $0.ipv4 != nil })
+    }
+
     @Test("A refused connection is a call that never opened")
     func refusedConnection() async throws {
         // Nothing listens on port 1, so the connection is refused at once.

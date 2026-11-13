@@ -133,19 +133,22 @@ actor GRPCDrawThingsTransport: DrawThingsTransport {
         } else {
             security = .plaintext
         }
-        // A DNS target would send an IPv4 address as the TLS server name, which TLS
-        // forbids.
+        // A host name's target would send an IPv4 address as the TLS server name,
+        // which TLS forbids.
         var address = in_addr()
         let target: any ResolvableTarget =
             inet_pton(AF_INET, connection.host, &address) == 1
             ? .ipv4(address: connection.host, port: connection.port)
-            : .dns(host: connection.host, port: connection.port)
+            : IPv4FirstHost(host: connection.host, port: connection.port)
+        var resolvers = NameResolverRegistry.defaults
+        resolvers.registerFactory(IPv4FirstHost.Factory())
         return try HTTP2ClientTransport.Posix(
             target: target, transportSecurity: security,
             config: .defaults {
                 // Draw Things compresses large responses.
                 $0.compression.enabledAlgorithms = .all
-            })
+            },
+            resolverRegistry: resolvers)
     }
 
     private static func options(seconds: Int64) -> CallOptions {
@@ -354,6 +357,34 @@ actor GRPCDrawThingsTransport: DrawThingsTransport {
             throw GenerationError.malformedResponse
         }
         return image
+    }
+}
+
+/// A host name whose IPv4 addresses are tried before its IPv6 ones. gRPC tries a
+/// host's addresses one at a time, and a Draw Things server may listen on IPv4
+/// only: a `.local` name that resolves to IPv6 addresses first would otherwise
+/// spend the call's deadline on addresses that never answer.
+nonisolated struct IPv4FirstHost: ResolvableTarget, Sendable {
+    var host: String
+    var port: Int
+
+    struct Factory: NameResolverFactory, Sendable {
+        func resolver(for target: IPv4FirstHost) -> NameResolver {
+            let dns = NameResolvers.DNS().resolver(
+                for: .dns(host: target.host, port: target.port))
+            let names = dns.names.map { @Sendable result in
+                var result = result
+                for index in result.endpoints.indices {
+                    let addresses = result.endpoints[index].addresses
+                    result.endpoints[index].addresses =
+                        addresses.filter { $0.ipv4 != nil } + addresses.filter { $0.ipv4 == nil }
+                }
+                return result
+            }
+            return NameResolver(
+                names: RPCAsyncSequence(wrapping: names), updateMode: dns.updateMode,
+                authority: dns.authority)
+        }
     }
 }
 
