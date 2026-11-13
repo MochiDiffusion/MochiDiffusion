@@ -187,8 +187,9 @@ nonisolated struct DrawThingsModel: EngineModel {
     var recommendedSteps: Int? { Int(configuration.steps) }
     var recommendedGuidanceScale: Double? {
         guard !isConsistencyModel else { return nil }
-        return Double(
-            usesGuidanceEmbedding ? configuration.guidanceEmbed : configuration.guidanceScale)
+        // Mochi always runs a guidance-embedding model with the speed-up on, where
+        // Draw Things uses the text guidance as the embed.
+        return Double(configuration.guidanceScale)
     }
 
     var metadataFields: Set<MetadataField> {
@@ -338,11 +339,12 @@ nonisolated struct DrawThingsEngine: GenerationEngineDescriptor {
         }
         let guidanceScale = constraints.guidanceScale.resolved(Double(draft.guidanceScale))
         if let guidanceScale {
+            // With the guidance embed speed-up on, Draw Things feeds the text guidance
+            // into a guidance-embedding model's embed in a single pass and ignores
+            // guidanceEmbed, so guidance always goes to guidanceScale.
+            configuration.guidanceScale = Float(guidanceScale)
             if model.usesGuidanceEmbedding {
                 configuration.speedUpWithGuidanceEmbed = true
-                configuration.guidanceEmbed = Float(guidanceScale)
-            } else {
-                configuration.guidanceScale = Float(guidanceScale)
             }
         }
         let numberOfImages =

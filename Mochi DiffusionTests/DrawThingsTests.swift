@@ -810,10 +810,11 @@ struct DrawThingsTests {
         let sent = try #require(await transport.capturedPayload).configuration
         switch kind {
         case .embedded:
-            #expect(model.recommendedGuidanceScale == 4.5)
+            // Draw Things reads the embed from guidanceScale while the speed-up is on.
+            #expect(model.recommendedGuidanceScale == 2)
             #expect(sent.speedUpWithGuidanceEmbed)
-            #expect(sent.guidanceEmbed == 11)
-            #expect(sent.guidanceScale == 2)
+            #expect(sent.guidanceScale == 11)
+            #expect(sent.guidanceEmbed == 4.5)
         case .cfg:
             #expect(model.recommendedGuidanceScale == 2)
             #expect(sent.guidanceScale == 11)
