@@ -48,21 +48,27 @@
   "packages": [
     {
       "kind": "remote",
-      "repository": "https://github.com/euphoriacyberware-ai/DT-gRPC-Swift-Client",
+      "repository": "https://github.com/euphoriacyberware-ai/DrawThings-Swift",
       "version": {
-        "revision": "2e44f4f99e742709eb90cfd96ff3fe10198421c1",
+        "version-range": "2.3.0..<2.3.1",
       },
     }, {
       "kind": "remote",
-      "repository": "https://github.com/grpc/grpc-swift.git",
+      "repository": "https://github.com/grpc/grpc-swift-2.git",
       "version": {
-        "up-to-next-major-version": "1.23.0",
+        "up-to-next-major-version": "2.4.0",
       },
     }, {
       "kind": "remote",
-      "repository": "https://github.com/apple/swift-nio.git",
+      "repository": "https://github.com/grpc/grpc-swift-nio-transport.git",
       "version": {
-        "up-to-next-major-version": "2.65.0",
+        "up-to-next-major-version": "2.10.0",
+      },
+    }, {
+      "kind": "remote",
+      "repository": "https://github.com/grpc/grpc-swift-protobuf.git",
+      "version": {
+        "up-to-next-major-version": "2.4.0",
       },
     }, {
       "kind": "remote",
@@ -399,7 +405,7 @@
           "product-name": "CompactSlider",
           "build-phase": { "build-phase": "frameworks" },
         }, {
-          "package": "DT-gRPC-Swift-Client",
+          "package": "DrawThings-Swift",
           "product-name": "DrawThingsClient",
           "build-phase": { "build-phase": "frameworks" },
         }, {
@@ -415,16 +421,20 @@
           "product-name": "Sparkle",
           "build-phase": { "build-phase": "frameworks" },
         }, {
-          "package": "grpc-swift",
-          "product-name": "GRPC",
+          "package": "grpc-swift-2",
+          "product-name": "GRPCCore",
+          "build-phase": { "build-phase": "frameworks" },
+        }, {
+          "package": "grpc-swift-nio-transport",
+          "product-name": "GRPCNIOTransportHTTP2",
+          "build-phase": { "build-phase": "frameworks" },
+        }, {
+          "package": "grpc-swift-protobuf",
+          "product-name": "GRPCProtobuf",
           "build-phase": { "build-phase": "frameworks" },
         }, {
           "package": "ml-stable-diffusion",
           "product-name": "StableDiffusion",
-          "build-phase": { "build-phase": "frameworks" },
-        }, {
-          "package": "swift-nio",
-          "product-name": "NIO",
           "build-phase": { "build-phase": "frameworks" },
         },
       ],

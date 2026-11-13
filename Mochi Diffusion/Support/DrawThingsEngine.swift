@@ -239,7 +239,7 @@ nonisolated struct DrawThingsPayload: Sendable {
     /// The model's family, recorded as its architecture.
     let architecture: String?
     /// How to turn the model's preview latents into colours.
-    let previewFamily: LatentModelFamily
+    let previewFamily: ModelFamily
     /// The server's entries for the LoRAs in `configuration.loras`, as a JSON array.
     var loraSpecifications = Data()
 }
@@ -369,7 +369,7 @@ nonisolated struct DrawThingsEngine: GenerationEngineDescriptor {
                 configuration: configuration,
                 negativePrompt: constraints.supportsNegativePrompt ? draft.negativePrompt : "",
                 architecture: DrawThingsPresets.familyNames[model.version],
-                previewFamily: LatentModelFamily.detect(from: model.version),
+                previewFamily: ModelFamily.detect(from: model.version),
                 loraSpecifications: Data("[".utf8)
                     + Data(loraSpecifications.joined(separator: Data(",".utf8)))
                     + Data("]".utf8)

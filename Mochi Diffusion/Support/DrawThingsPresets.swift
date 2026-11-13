@@ -66,6 +66,14 @@ nonisolated enum DrawThingsPresets {
                 return modelStem(config?["model"] as? String ?? "") == stem
             } ?? presets.first { $0["version"] as? String == version }
         var config = DrawThingsConfiguration(model: file, numFrames: 1)
+        // The values a preset leaves out. `DrawThingsConfiguration`'s own defaults
+        // are Z-Image Turbo's; these are Draw Things' configuration defaults instead,
+        // with the steps and guidance of a Stable Diffusion model.
+        config.steps = 20
+        config.guidanceScale = 7
+        config.sampler = .dpmpp2mkarras
+        config.shift = 1
+        config.resolutionDependentShift = true
         if let values = selected?["configuration"] as? [String: Any] {
             apply(values, to: &config)
         } else {
@@ -167,7 +175,11 @@ nonisolated enum DrawThingsPresets {
         {
             config.sampler = option
         }
-        if let value = fields["seedMode"] as? NSNumber { config.seedMode = value.int32Value }
+        if let value = fields["seedMode"] as? NSNumber,
+            let option = SeedMode(rawValue: value.int8Value)
+        {
+            config.seedMode = option
+        }
         if let value = fields["separateClipL"] as? NSNumber {
             config.separateClipL = value.boolValue
         }

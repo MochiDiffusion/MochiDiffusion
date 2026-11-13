@@ -7,22 +7,22 @@ import CoreGraphics
 import CryptoKit
 import DrawThingsClient
 import Foundation
-import GRPC
-import NIO
+import GRPCCore
+import GRPCNIOTransportHTTP2
+import GRPCProtobuf
+import Synchronization
 
 extension DrawThingsError {
     /// Whether `error` means there is no connection to the server, rather than that
     /// it answered with an error of its own: Mochi could not connect, or the
     /// connection closed during a call.
     static func isUnreachable(_ error: any Error) -> Bool {
-        isConnectionFailure(error)
-            || (error as? any GRPCStatusTransformable)?.makeGRPCStatus().code == .unavailable
+        isConnectionFailure(error) || (error as? RPCError)?.code == .unavailable
     }
 
-    /// Mochi could not open a connection. The channel pool reports this, as
-    /// `deadlineExceeded` once the call's deadline passes.
+    /// Mochi could not open a connection, so the call never started.
     static func isConnectionFailure(_ error: any Error) -> Bool {
-        error is GRPCConnectionPoolError
+        error is DrawThingsUnopenedCall
     }
 
     /// A failed generation's error, worded for the generation alert. Other errors,
@@ -30,9 +30,6 @@ extension DrawThingsError {
     static func generationFailure(_ error: any Error, connection: DrawThingsConnection)
         -> any Error
     {
-        guard let status = (error as? any GRPCStatusTransformable)?.makeGRPCStatus() else {
-            return error
-        }
         if isConnectionFailure(error) {
             return DrawThingsError.message(
                 String(
@@ -40,6 +37,7 @@ extension DrawThingsError {
                     comment: "Generation error when the Draw Things server cannot be reached"
                 ))
         }
+        guard let status = error as? RPCError else { return error }
         if isUnreachable(error) {
             return DrawThingsError.connectionClosed(
                 String(
@@ -48,7 +46,7 @@ extension DrawThingsError {
                     comment: "Generation error when the connection closes during a generation"
                 ))
         }
-        let detail = status.message.flatMap { $0.isEmpty ? nil : $0 } ?? "\(status.code)"
+        let detail = status.message.isEmpty ? "\(status.code)" : status.message
         return DrawThingsError.message(
             String(
                 localized: "Draw Things reported an error: \(detail)",
@@ -66,6 +64,12 @@ extension DrawThingsError {
                 "Reason shown under 'Not connected' when the Draw Things server cannot be reached"
         )
     }
+}
+
+/// A call that failed before its stream opened, because the connection never did
+/// or its deadline passed first. The server has not seen the request.
+nonisolated struct DrawThingsUnopenedCall: Error {
+    var error: RPCError
 }
 
 nonisolated struct DrawThingsCatalog: Sendable {
@@ -108,41 +112,68 @@ nonisolated protocol DrawThingsTransport: Sendable {
     ) async throws -> CGImage?
 }
 
-/// Uses the package's public protobuf messages with gRPC's async calls. The package's
-/// higher-level service doesn't expose an Echo deadline; a task-group timeout around
-/// its uncancellable future would still wait for that child forever on scope exit.
+/// Uses the package's public protobuf messages with gRPC's calls directly: the
+/// package's generated client is internal, and its higher-level service keeps a
+/// connection open, fetches its own catalog and echoes before every generation.
 actor GRPCDrawThingsTransport: DrawThingsTransport {
-    nonisolated private struct Client: GRPCClient {
-        var channel: any GRPCChannel
-        var defaultCallOptions = CallOptions()
-    }
+    private static let echo = MethodDescriptor(
+        fullyQualifiedService: "ImageGenerationService", method: "Echo")
+    private static let generateImage = MethodDescriptor(
+        fullyQualifiedService: "ImageGenerationService", method: "GenerateImage")
 
-    private func channel(for connection: DrawThingsConnection) throws -> any GRPCChannel {
-        let security: GRPCChannelPool.Configuration.TransportSecurity
+    /// One connection per call: Mochi holds none between them.
+    private static func transport(for connection: DrawThingsConnection) throws
+        -> HTTP2ClientTransport.Posix
+    {
+        let security: HTTP2ClientTransport.Posix.TransportSecurity
         if connection.useTLS {
             // Draw Things uses a self-signed server certificate, so TLS encrypts the
             // connection but does not authenticate the host. Settings says so.
-            security = .tls(
-                .makeClientConfigurationBackedByNIOSSL(certificateVerification: .none))
+            security = .tls { $0.serverCertificateVerification = .noVerification }
         } else {
             security = .plaintext
         }
-        return try GRPCChannelPool.with(
-            target: .host(connection.host, port: connection.port),
-            transportSecurity: security,
-            eventLoopGroup: MultiThreadedEventLoopGroup.singleton
-        ) { configuration in
-            configuration.maximumReceiveMessageLength = 64 * 1024 * 1024
-        }
+        // A DNS target would send an IPv4 address as the TLS server name, which TLS
+        // forbids.
+        var address = in_addr()
+        let target: any ResolvableTarget =
+            inet_pton(AF_INET, connection.host, &address) == 1
+            ? .ipv4(address: connection.host, port: connection.port)
+            : .dns(host: connection.host, port: connection.port)
+        return try HTTP2ClientTransport.Posix(
+            target: target, transportSecurity: security,
+            config: .defaults {
+                // Draw Things compresses large responses.
+                $0.compression.enabledAlgorithms = .all
+            })
     }
 
-    private func options(seconds: Int64) -> CallOptions {
-        var options = CallOptions(timeLimit: .timeout(.seconds(seconds)))
-        options.messageEncoding = .enabled(
-            .init(
-                forRequests: nil, decompressionLimit: .absolute(64 * 1024 * 1024)
-            ))
+    private static func options(seconds: Int64) -> CallOptions {
+        var options = CallOptions.defaults
+        options.timeout = .seconds(seconds)
+        // Requests carry uncompressed input tensors.
+        options.maxRequestMessageBytes = 256 * 1024 * 1024
+        options.maxResponseMessageBytes = 64 * 1024 * 1024
         return options
+    }
+
+    /// Makes one call on its own connection. A call whose stream never opened throws
+    /// `DrawThingsUnopenedCall`, so it can be made again safely.
+    private static func call<Result: Sendable>(
+        _ connection: DrawThingsConnection,
+        isolation: isolated (any Actor)? = #isolation,
+        _ body: (GRPCClient<HTTP2ClientTransport.Posix>, StreamOpening) async throws -> Result
+    ) async throws -> Result {
+        let opening = StreamOpening()
+        do {
+            return try await withGRPCClient(transport: transport(for: connection)) { client in
+                try await body(client, opening)
+            }
+        } catch let error as RPCError
+            where !opening.isOpen && [.unavailable, .deadlineExceeded].contains(error.code)
+        {
+            throw DrawThingsUnopenedCall(error: error)
+        }
     }
 
     /// How many times a call is made when its connection never opens. A server Mac
@@ -192,36 +223,36 @@ actor GRPCDrawThingsTransport: DrawThingsTransport {
     private func catalogAttempt(connection: DrawThingsConnection, sharedSecret: String?)
         async throws -> DrawThingsCatalog
     {
-        let channel = try channel(for: connection)
-        do {
-            var request = EchoRequest()
-            request.name = "Mochi Diffusion"
-            if let sharedSecret { request.sharedSecret = sharedSecret }
-            let reply: EchoReply = try await Client(channel: channel).performAsyncUnaryCall(
-                path: "/ImageGenerationService/Echo", request: request,
-                callOptions: options(seconds: 10)
-            )
-            try await channel.close().get()
-            // Draw Things gives the same answer for a missing secret and a wrong one.
-            if reply.sharedSecretMissing {
-                throw DrawThingsError.message(
-                    sharedSecret?.isEmpty == false
-                        ? "Draw Things didn't accept the shared secret."
-                        : "Draw Things requires a shared secret.")
+        var request = EchoRequest()
+        request.name = "Mochi Diffusion"
+        if let sharedSecret { request.sharedSecret = sharedSecret }
+        let reply = try await Self.call(connection) { client, opening in
+            try await client.unary(
+                request: ClientRequest(message: request), descriptor: Self.echo,
+                serializer: ProtobufSerializer<EchoRequest>(),
+                deserializer: ProtobufDeserializer<EchoReply>(),
+                options: Self.options(seconds: 10)
+            ) { response in
+                opening.open()
+                return try response.message
             }
-            return DrawThingsCatalog(models: reply.override.models, loras: reply.override.loras)
-        } catch {
-            try? await channel.close().get()
-            throw error
         }
+        // Draw Things gives the same answer for a missing secret and a wrong one.
+        if reply.sharedSecretMissing {
+            throw DrawThingsError.message(
+                sharedSecret?.isEmpty == false
+                    ? "Draw Things didn't accept the shared secret."
+                    : "Draw Things requires a shared secret.")
+        }
+        return DrawThingsCatalog(models: reply.override.models, loras: reply.override.loras)
     }
 
     func generate(
         payload: DrawThingsPayload, inputs: DrawThingsInputs, prompt: String, seed: UInt32,
         sharedSecret: String?, showsPreview: Bool, session: GenerationSession
     ) async throws -> CGImage? {
-        // The pool fails a call before its stream opens, so a generation that has
-        // started is never sent twice.
+        // Only a call whose stream never opened is made again, so a generation that
+        // has started is never sent twice.
         try await Self.retryingUnopenedConnection {
             try await generateAttempt(
                 payload: payload, inputs: inputs, prompt: prompt, seed: seed,
@@ -234,60 +265,58 @@ actor GRPCDrawThingsTransport: DrawThingsTransport {
         sharedSecret: String?, showsPreview: Bool, session: GenerationSession
     ) async throws -> CGImage? {
         try Task.checkCancellation()
-        let channel = try channel(for: payload.connection)
-        do {
-            var configuration = payload.configuration
-            configuration.seed = Int64(seed)
-            var request = ImageGenerationRequest()
-            request.user = "Mochi Diffusion"
-            request.device = .laptop
-            request.scaleFactor = 1
-            request.prompt = prompt
-            request.negativePrompt = payload.negativePrompt
-            request.configuration = try configuration.toFlatBufferData()
-            request.override.models = payload.specification
-            request.override.loras = payload.loraSpecifications
-            Self.attach(inputs, to: &request)
-            request.chunked = true
-            if let sharedSecret { request.sharedSecret = sharedSecret }
-            let stream: GRPCAsyncResponseStream<ImageGenerationResponse> = Client(channel: channel)
-                .performAsyncServerStreamingCall(
-                    path: "/ImageGenerationService/GenerateImage", request: request,
-                    callOptions: options(seconds: 1800)
-                )
-            var accumulator = DrawThingsImageAccumulator()
-            for try await response in stream {
-                try Task.checkCancellation()
-                // Draw Things sends previews unasked. One that cannot be decoded is
-                // skipped: it is not part of the result.
-                if showsPreview, response.hasPreviewImage,
-                    let preview = try? await Self.decode(
-                        response.previewImage, family: payload.previewFamily)
-                {
-                    session.emit(.preview(preview))
-                }
-                if response.hasCurrentSignpost,
-                    case .sampling(let sampling) = response.currentSignpost.signpost
-                {
-                    if let progress = Self.progress(
-                        samplingStep: sampling.step, steps: configuration.steps)
+        var configuration = payload.configuration
+        configuration.seed = seed
+        var request = ImageGenerationRequest()
+        request.user = "Mochi Diffusion"
+        request.device = .laptop
+        request.scaleFactor = 1
+        request.prompt = prompt
+        request.negativePrompt = payload.negativePrompt
+        request.configuration = try configuration.toFlatBufferData()
+        request.override.models = payload.specification
+        request.override.loras = payload.loraSpecifications
+        Self.attach(inputs, to: &request)
+        request.chunked = true
+        if let sharedSecret { request.sharedSecret = sharedSecret }
+        let steps = configuration.steps
+        let previewFamily = payload.previewFamily
+        let tensor = try await Self.call(payload.connection) { client, opening in
+            try await client.serverStreaming(
+                request: ClientRequest(message: request), descriptor: Self.generateImage,
+                serializer: ProtobufSerializer<ImageGenerationRequest>(),
+                deserializer: ProtobufDeserializer<ImageGenerationResponse>(),
+                options: Self.options(seconds: 1800)
+            ) { response in
+                opening.open()
+                var accumulator = DrawThingsImageAccumulator()
+                for try await response in response.messages {
+                    try Task.checkCancellation()
+                    // Draw Things sends previews unasked. One that cannot be decoded is
+                    // skipped: it is not part of the result.
+                    if showsPreview, response.hasPreviewImage,
+                        let preview = try? await Self.decode(
+                            response.previewImage, family: previewFamily)
                     {
-                        session.emit(.progress(progress))
+                        session.emit(.preview(preview))
                     }
-                } else {
-                    session.emit(.state(.loading("Generating with Draw Things…")))
+                    if response.hasCurrentSignpost,
+                        case .sampling(let sampling) = response.currentSignpost.signpost
+                    {
+                        if let progress = Self.progress(samplingStep: sampling.step, steps: steps) {
+                            session.emit(.progress(progress))
+                        }
+                    } else {
+                        session.emit(.state(.loading("Generating with Draw Things…")))
+                    }
+                    try accumulator.append(
+                        response.generatedImages, isLastChunk: response.chunkState == .lastChunk)
                 }
-                try accumulator.append(
-                    response.generatedImages, isLastChunk: response.chunkState == .lastChunk)
+                return try accumulator.finishedImage()
             }
-            try await channel.close().get()
-            try Task.checkCancellation()
-            let tensor = try accumulator.finishedImage()
-            return try await Self.decode(tensor)
-        } catch {
-            try? await channel.close().get()
-            throw error
         }
+        try Task.checkCancellation()
+        return try await Self.decode(tensor)
     }
 
     /// The starting image goes in the request's content store, named by its
@@ -315,7 +344,7 @@ actor GRPCDrawThingsTransport: DrawThingsTransport {
     /// - Parameter family: needed for a preview, whose latents are decoded with the
     ///   model family's colour coefficients; a finished image is already RGB.
     @MainActor
-    private static func decode(_ tensor: Data, family: LatentModelFamily? = nil) throws
+    private static func decode(_ tensor: Data, family: ModelFamily? = nil) throws
         -> CGImage
     {
         guard
@@ -326,6 +355,15 @@ actor GRPCDrawThingsTransport: DrawThingsTransport {
         }
         return image
     }
+}
+
+/// Whether a call's stream has opened: the server has the request once it has.
+nonisolated final class StreamOpening: Sendable {
+    private let opened = Mutex(false)
+
+    var isOpen: Bool { opened.withLock { $0 } }
+
+    func open() { opened.withLock { $0 = true } }
 }
 
 /// Final images only: a preview must never turn a truncated/failed stream into success.

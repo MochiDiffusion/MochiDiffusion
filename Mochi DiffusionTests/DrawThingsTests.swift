@@ -7,11 +7,16 @@ import CoreGraphics
 import CryptoKit
 import DrawThingsClient
 import Foundation
-import GRPC
-import NIO
+import GRPCCore
+import GRPCNIOTransportHTTP2
+import GRPCProtobuf
 import Testing
 
 @testable import Mochi_Diffusion
+
+// DrawThingsClient declares types with these names too.
+private typealias DrawThingsError = Mochi_Diffusion.DrawThingsError
+private typealias GenerationRequest = Mochi_Diffusion.GenerationRequest
 
 private actor StubDrawThingsTransport: DrawThingsTransport {
     let catalog: Data
@@ -984,7 +989,7 @@ struct DrawThingsTests {
         // Settings reports the server; the main window does not blame a models folder.
         #expect(controller.discoveryMessage?.contains("Couldn't read the models folder") != true)
 
-        await transport.failCatalog(with: GRPCStatus(code: .unavailable, message: nil))
+        await transport.failCatalog(with: RPCError(code: .unavailable, message: ""))
         await controller.loadModels(from: [.connection])
         #expect(failureReason(controller.drawThingsStatus)?.contains("didn't answer") == true)
 
@@ -1003,19 +1008,22 @@ struct DrawThingsTests {
         var remote = connection
         remote.host = "studio.local"
         let unreachable = DrawThingsError.generationFailure(
-            GRPCConnectionPoolError(code: .deadlineExceeded), connection: remote)
+            DrawThingsUnopenedCall(
+                error: RPCError(
+                    code: .unavailable, message: "Channel is in a transient failure state")),
+            connection: remote)
         #expect(
             GenerationService.userDescription(of: unreachable)
                 == "Couldn't reach the Draw Things server at studio.local.")
         let dropped = DrawThingsError.generationFailure(
-            GRPCStatus(code: .unavailable, message: "Transport became inactive"),
+            RPCError(code: .unavailable, message: "Transport became inactive"),
             connection: remote)
         #expect(GenerationService.userDescription(of: dropped).contains("closed the connection"))
         // The alert offers to refresh the server's models for this one only.
         #expect((dropped as? any ModelListMayBeOutdated)?.outdatedModelListSource == .connection)
         #expect((unreachable as? any ModelListMayBeOutdated)?.outdatedModelListSource == nil)
         let reported = DrawThingsError.generationFailure(
-            GRPCStatus(code: .internalError, message: "Out of memory"), connection: remote)
+            RPCError(code: .internalError, message: "Out of memory"), connection: remote)
         #expect(
             GenerationService.userDescription(of: reported)
                 == "Draw Things reported an error: Out of memory")
@@ -1026,7 +1034,7 @@ struct DrawThingsTests {
             GenerationService.userDescription(of: own) == "Draw Things returned no finished image.")
         // The runtime throws the worded error.
         let transport = StubDrawThingsTransport(catalog: catalog)
-        await transport.failGenerations(with: GRPCStatus(code: .unavailable, message: nil))
+        await transport.failGenerations(with: RPCError(code: .unavailable, message: ""))
         let runtime = DrawThingsRuntime(secrets: NoSecretStore(), transport: transport)
         let request = try request()
         do {
@@ -1041,7 +1049,8 @@ struct DrawThingsTests {
 
     @Test("A call is retried only while its connection never opens")
     func unopenedConnectionRetry() async throws {
-        let unopened = GRPCConnectionPoolError(code: .deadlineExceeded)
+        let unopened = DrawThingsUnopenedCall(
+            error: RPCError(code: .unavailable, message: "Channel is in a transient failure state"))
         // A sleeping server answers once the first attempt has woken it.
         var attempts = 0
         let answer = try await GRPCDrawThingsTransport.retryingUnopenedConnection {
@@ -1053,7 +1062,7 @@ struct DrawThingsTests {
         #expect(attempts == 3)
 
         attempts = 0
-        await #expect(throws: GRPCConnectionPoolError.self) {
+        await #expect(throws: DrawThingsUnopenedCall.self) {
             try await GRPCDrawThingsTransport.retryingUnopenedConnection {
                 attempts += 1
                 throw unopened
@@ -1063,10 +1072,10 @@ struct DrawThingsTests {
 
         // A connection that closed during the call may have started the work.
         attempts = 0
-        await #expect(throws: GRPCStatus.self) {
+        await #expect(throws: RPCError.self) {
             try await GRPCDrawThingsTransport.retryingUnopenedConnection {
                 attempts += 1
-                throw GRPCStatus(code: .unavailable, message: "Transport became inactive")
+                throw RPCError(code: .unavailable, message: "Transport became inactive")
             }
         }
         #expect(attempts == 1)
@@ -1159,8 +1168,7 @@ struct DrawThingsTests {
 
 // Exercise the actual HTTP/2 + protobuf transport without requiring model weights.
 // This server returns a synthetic tensor; it is not evidence of real inference.
-private final class DrawThingsLoopbackService: CallHandlerProvider, Sendable {
-    let serviceName: Substring = "ImageGenerationService"
+private final class DrawThingsLoopbackService: RegistrableRPCService, Sendable {
     let catalog: Data
     let tensor: Data
     let expectedConfiguration: Data
@@ -1178,65 +1186,71 @@ private final class DrawThingsLoopbackService: CallHandlerProvider, Sendable {
         self.expectedInputs = expectedInputs
     }
 
-    func handle(method name: Substring, context: CallHandlerContext) -> (
-        any GRPCServerHandlerProtocol
-    )? {
-        switch name {
-        case "Echo":
-            return UnaryServerHandler(
-                context: context,
-                requestDeserializer: ProtobufDeserializer<EchoRequest>(),
-                responseSerializer: ProtobufSerializer<EchoReply>(),
-                interceptors: []
-            ) { request, context in
-                var reply = EchoReply()
-                reply.sharedSecretMissing = request.sharedSecret != "test-secret"
-                if !reply.sharedSecretMissing {
-                    reply.override.models = self.catalog
-                    reply.override.loras = self.loras
-                }
-                return context.eventLoop.makeSucceededFuture(reply)
+    func registerMethods<Transport: ServerTransport>(with router: inout RPCRouter<Transport>) {
+        router.registerHandler(
+            forMethod: MethodDescriptor(
+                fullyQualifiedService: "ImageGenerationService", method: "Echo"),
+            deserializer: ProtobufDeserializer<EchoRequest>(),
+            serializer: ProtobufSerializer<EchoReply>()
+        ) { request, _ in
+            let request = try await ServerRequest(stream: request)
+            var reply = EchoReply()
+            reply.sharedSecretMissing = request.message.sharedSecret != "test-secret"
+            if !reply.sharedSecretMissing {
+                reply.override.models = self.catalog
+                reply.override.loras = self.loras
             }
-        case "GenerateImage":
-            return ServerStreamingServerHandler(
-                context: context,
-                requestDeserializer: ProtobufDeserializer<ImageGenerationRequest>(),
-                responseSerializer: ProtobufSerializer<ImageGenerationResponse>(),
-                interceptors: []
-            ) { request, context in
-                #expect(request.prompt == "transport test")
-                #expect(request.negativePrompt == "blurry")
-                #expect(request.sharedSecret == "test-secret")
-                #expect(request.configuration == self.expectedConfiguration)
-                #expect(request.override.models == self.catalog)
-                #expect(request.override.loras == self.loras)
-                #expect(request.chunked)
-                let image = self.expectedInputs.startingImage ?? Data()
-                #expect(request.image == Data(SHA256.hash(data: image)))
-                #expect(request.contents == [image])
-                #expect(request.hints.map(\.hintType) == ["shuffle"])
-                #expect(
-                    request.hints.first?.tensors.map(\.tensor)
-                        == self.expectedInputs.referenceImages)
-                #expect(request.hints.first?.tensors.map(\.weight) == [1, 1])
-                var first = ImageGenerationResponse()
-                first.previewImage = self.tensor
-                first.chunkState = .moreChunks
-                first.generatedImages = [self.tensor.prefix(self.tensor.count / 2)]
-                var last = ImageGenerationResponse()
-                last.chunkState = .lastChunk
-                last.generatedImages = [
-                    self.tensor.suffix(self.tensor.count - self.tensor.count / 2)
-                ]
-                return context.sendResponses([first, last]).map { GRPCStatus.ok }
+            return StreamingServerResponse(single: ServerResponse(message: reply))
+        }
+        router.registerHandler(
+            forMethod: MethodDescriptor(
+                fullyQualifiedService: "ImageGenerationService", method: "GenerateImage"),
+            deserializer: ProtobufDeserializer<ImageGenerationRequest>(),
+            serializer: ProtobufSerializer<ImageGenerationResponse>()
+        ) { request, _ in
+            let request = try await ServerRequest(stream: request).message
+            #expect(request.prompt == "transport test")
+            #expect(request.negativePrompt == "blurry")
+            #expect(request.sharedSecret == "test-secret")
+            #expect(request.configuration == self.expectedConfiguration)
+            #expect(request.override.models == self.catalog)
+            #expect(request.override.loras == self.loras)
+            #expect(request.chunked)
+            let image = self.expectedInputs.startingImage ?? Data()
+            #expect(request.image == Data(SHA256.hash(data: image)))
+            #expect(request.contents == [image])
+            #expect(request.hints.map(\.hintType) == ["shuffle"])
+            #expect(
+                request.hints.first?.tensors.map(\.tensor) == self.expectedInputs.referenceImages)
+            #expect(request.hints.first?.tensors.map(\.weight) == [1, 1])
+            var first = ImageGenerationResponse()
+            first.previewImage = self.tensor
+            first.chunkState = .moreChunks
+            first.generatedImages = [self.tensor.prefix(self.tensor.count / 2)]
+            var last = ImageGenerationResponse()
+            last.chunkState = .lastChunk
+            last.generatedImages = [self.tensor.suffix(self.tensor.count - self.tensor.count / 2)]
+            let responses = [first, last]
+            return StreamingServerResponse { writer in
+                try await writer.write(contentsOf: responses)
+                return [:]
             }
-        default:
-            return nil
         }
     }
 }
 
 struct DrawThingsGRPCTests {
+    @Test("A refused connection is a call that never opened")
+    func refusedConnection() async throws {
+        // Nothing listens on port 1, so the connection is refused at once.
+        let connection = DrawThingsConnection(
+            enabled: true, host: "127.0.0.1", port: 1, useTLS: false)
+        await #expect(throws: DrawThingsUnopenedCall.self) {
+            _ = try await GRPCDrawThingsTransport().catalog(
+                connection: connection, sharedSecret: nil)
+        }
+    }
+
     @Test(
         "Real gRPC Echo auth, request serialization, chunk assembly, previews and tensor decode work over loopback"
     )
@@ -1265,10 +1279,10 @@ struct DrawThingsGRPCTests {
             expectedConfiguration: try configuration.toFlatBufferData(), expectedInputs: inputs,
             loras: loras
         )
-        let server = try await Server.insecure(group: MultiThreadedEventLoopGroup.singleton)
-            .withServiceProviders([service]).bind(host: "127.0.0.1", port: 0).get()
-        do {
-            connection.port = try #require(server.channel.localAddress?.port)
+        let server = HTTP2ServerTransport.Posix(
+            address: .ipv4(host: "127.0.0.1", port: 0), transportSecurity: .plaintext)
+        try await withGRPCServer(transport: server, services: [service]) { server in
+            connection.port = try #require(await server.listeningAddress?.ipv4?.port)
             let transport = GRPCDrawThingsTransport()
             for (secret, message) in [
                 (nil, "Draw Things requires a shared secret."),
@@ -1315,10 +1329,7 @@ struct DrawThingsGRPCTests {
                 if case .preview = event { quietPreviews += 1 }
             }
             #expect(quietPreviews == 0)
-            try await server.close().get()
-        } catch {
-            try? await server.close().get()
-            throw error
+            server.beginGracefulShutdown()
         }
     }
 }

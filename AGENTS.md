@@ -145,10 +145,12 @@ The multi-engine foundation is implemented. Current ownership and contracts foll
     once per discovery pass and hands the same candidate list to every engine.
   - Concrete descriptors live in `LocalEngines.swift` and `DrawThingsEngine.swift`;
     `EngineRegistry.shipped` lists Iris, Core ML and Draw Things,
-    which the app registers. Draw Things talks gRPC through `DrawThingsTransport.swift`, and
-    DT-gRPC-Swift-Client is pinned to a revision; updating it requires a compatibility
-    review, like `iris.c`. Its recommended configurations come from the bundled
-    `DrawThingsPresets.json` snapshot of Draw Things' `configs.json`. Its shared secret is
+    which the app registers. Draw Things talks gRPC-Swift 2 through
+    `DrawThingsTransport.swift`, one connection per call, using DrawThings-Swift's protobuf
+    messages, configuration encoder and tensor codec but not its service. DrawThings-Swift is
+    pinned to an exact version; updating it requires a compatibility review, like `iris.c`.
+    Its recommended configurations come from the bundled `DrawThingsPresets.json` snapshot of
+    Draw Things' `configs.json`, over Draw Things' own defaults rather than the package's. Its shared secret is
     kept in the Keychain through `SecretStore`. `EngineModel` requires no filesystem URL; its
     optional `tokenizerModelDir` is nil for server models.
 
