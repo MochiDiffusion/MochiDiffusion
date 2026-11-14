@@ -133,12 +133,16 @@ import SwiftUI
         __loras = AppStorage(wrappedValue: Data(), Key.loras, store: store)
     }
 
+    // The folder settings ignore a write of the value they already hold, such as
+    // a Settings text field committing unchanged text: each change reloads the
+    // gallery or rediscovers the models.
     var imageDir: String {
         get {
             access(keyPath: \.imageDir)
             return _imageDir
         }
         set {
+            guard newValue != _imageDir else { return }
             withMutation(keyPath: \.imageDir) {
                 _imageDir = newValue
             }
@@ -151,6 +155,7 @@ import SwiftUI
             return _modelDir
         }
         set {
+            guard newValue != _modelDir else { return }
             withMutation(keyPath: \.modelDir) {
                 _modelDir = newValue
             }
@@ -163,6 +168,7 @@ import SwiftUI
             return _controlNetDir
         }
         set {
+            guard newValue != _controlNetDir else { return }
             withMutation(keyPath: \.controlNetDir) {
                 _controlNetDir = newValue
             }
