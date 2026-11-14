@@ -903,13 +903,14 @@ struct DrawThingsTests {
         #expect(throws: DrawThingsError.self) { try value.validated() }
     }
 
-    @Test("Settings persist without a secret, and start switched off with no host")
+    @Test("Settings persist without a secret, and start switched off on localhost")
     @MainActor func persistence() throws {
         let suite = "DrawThingsTests.\(UUID())"
         let defaults = try #require(UserDefaults(suiteName: suite))
         defer { defaults.removePersistentDomain(forName: suite) }
         let store = EngineSettingsStore(store: defaults)
-        #expect(store.drawThings == DrawThingsConnection(enabled: false, host: "", port: 7859))
+        #expect(
+            store.drawThings == DrawThingsConnection(enabled: false, host: "localhost", port: 7859))
         store.drawThings = connection
         let restored = EngineSettingsStore(store: defaults)
         #expect(restored.drawThings == connection)

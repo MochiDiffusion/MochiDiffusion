@@ -191,7 +191,7 @@ struct DrawThingsDetailsView: View {
         VStack(spacing: 0) {
             Form {
                 Section {
-                    TextField(text: $host, prompt: Text(verbatim: "studio.local")) {
+                    TextField(text: $host, prompt: Text(verbatim: "localhost")) {
                         Text("Host", comment: "Draw Things server host name field label")
                     }
                     TextField(text: $port) {

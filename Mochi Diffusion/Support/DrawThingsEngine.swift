@@ -17,8 +17,9 @@ nonisolated struct DrawThingsConnection: Codable, Equatable, Sendable {
     static let secretAccount = "drawthings"
 
     var enabled = false
-    /// Empty until the user enters a server. Mochi does not assume one.
-    var host = ""
+    /// Draw Things on this Mac until the user enters another server. Mochi makes no
+    /// network calls until Draw Things is switched on.
+    var host = "localhost"
     var port = DrawThingsConnection.defaultPort
     var useTLS = true
 
