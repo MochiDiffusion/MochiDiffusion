@@ -3,6 +3,396 @@
     "configuration": {
       "batchCount": 1,
       "seedMode": 2,
+      "height": 512,
+      "sampler": 9,
+      "strength": 1,
+      "sharpness": 0,
+      "tiledDecoding": true,
+      "decodingTileWidth": 256,
+      "decodingTileHeight": 256,
+      "decodingTileOverlap": 64,
+      "batchSize": 1,
+      "tiledDiffusion": false,
+      "guidanceScale": 1,
+      "loras": [],
+      "controls": [],
+      "clipSkip": 1,
+      "maskBlur": 1.5,
+      "resolutionDependentShift": false,
+      "shift": 4,
+      "shiftForAudio": 1,
+      "preserveOriginalAfterInpaint": true,
+      "width": 832,
+      "model": "pika_h3_flex_fl2va_i8x.ckpt",
+      "steps": 6,
+      "numFrames": 124,
+      "fps": 24,
+      "upscalerScaleFactor": 0,
+      "maskBlurOutset": 0,
+      "hiresFix": false,
+      "teaCache": false,
+      "causalInference": 0,
+      "compressionArtifacts": "disabled",
+      "stochasticSamplingGamma": 1
+    },
+    "name": "Pika H3 Flex"
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "seedMode": 2,
+      "height": 512,
+      "sampler": 9,
+      "strength": 1,
+      "sharpness": 0,
+      "tiledDecoding": true,
+      "decodingTileWidth": 256,
+      "decodingTileHeight": 256,
+      "decodingTileOverlap": 64,
+      "batchSize": 1,
+      "tiledDiffusion": false,
+      "guidanceScale": 1,
+      "loras": [],
+      "controls": [],
+      "clipSkip": 1,
+      "maskBlur": 1.5,
+      "resolutionDependentShift": false,
+      "shift": 4,
+      "shiftForAudio": 1,
+      "preserveOriginalAfterInpaint": true,
+      "width": 832,
+      "model": "pika_h3_flex_ref2va_i8x.ckpt",
+      "steps": 6,
+      "numFrames": 124,
+      "fps": 24,
+      "upscalerScaleFactor": 0,
+      "maskBlurOutset": 0,
+      "hiresFix": false,
+      "teaCache": false,
+      "causalInference": 0,
+      "compressionArtifacts": "disabled",
+      "stochasticSamplingGamma": 1
+    },
+    "name": "Pika H3 Flex [ref2va]"
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "seedMode": 2,
+      "sampler": 16,
+      "strength": 1,
+      "sharpness": 0,
+      "tiledDecoding": false,
+      "batchSize": 1,
+      "tiledDiffusion": false,
+      "guidanceScale": 3,
+      "loras": [],
+      "controls": [],
+      "clipSkip": 1,
+      "maskBlur": 1.5,
+      "shift": 5,
+      "preserveOriginalAfterInpaint": true,
+      "model": "moss_image_sft_q8p.ckpt",
+      "steps": 30,
+      "upscalerScaleFactor": 0,
+      "maskBlurOutset": 0,
+      "hiresFix": false,
+      "teaCache": false,
+      "causalInference": 0,
+      "teaCacheThreshold": 0.2,
+      "teaCacheStart": 5,
+      "teaCacheEnd": -1,
+      "teaCacheMaxSkipSteps": 3,
+      "resolutionDependentShift": false
+    },
+    "name": "MOSS Image SFT",
+    "version": "moss_image",
+    "negative": "nsfw, worst quality, bad anatomy, watermark, jpeg artifact"
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "seedMode": 2,
+      "sampler": 16,
+      "strength": 1,
+      "sharpness": 0,
+      "tiledDecoding": false,
+      "batchSize": 1,
+      "tiledDiffusion": false,
+      "guidanceScale": 3,
+      "loras": [],
+      "controls": [],
+      "clipSkip": 1,
+      "maskBlur": 1.5,
+      "shift": 5,
+      "preserveOriginalAfterInpaint": true,
+      "model": "moss_image_base_q8p.ckpt",
+      "steps": 30,
+      "upscalerScaleFactor": 0,
+      "maskBlurOutset": 0,
+      "hiresFix": false,
+      "teaCache": false,
+      "causalInference": 0,
+      "teaCacheThreshold": 0.2,
+      "teaCacheStart": 5,
+      "teaCacheEnd": -1,
+      "teaCacheMaxSkipSteps": 3,
+      "resolutionDependentShift": false
+    },
+    "name": "MOSS Image Base",
+    "negative": "nsfw, worst quality, bad anatomy, watermark, jpeg artifact"
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "seedMode": 2,
+      "sampler": 16,
+      "strength": 1,
+      "sharpness": 0,
+      "tiledDecoding": false,
+      "batchSize": 1,
+      "tiledDiffusion": false,
+      "guidanceScale": 4,
+      "loras": [],
+      "controls": [],
+      "clipSkip": 1,
+      "maskBlur": 1.5,
+      "shift": 16,
+      "preserveOriginalAfterInpaint": true,
+      "model": "flux_3_klein_base_q8p.ckpt",
+      "steps": 50,
+      "upscalerScaleFactor": 0,
+      "maskBlurOutset": 0,
+      "hiresFix": false,
+      "teaCache": false,
+      "causalInference": 0,
+      "teaCacheThreshold": 0.2,
+      "teaCacheStart": 5,
+      "teaCacheEnd": -1,
+      "teaCacheMaxSkipSteps": 3,
+      "resolutionDependentShift": false
+    },
+    "name": "FLUX.3 [klein] 5.6B Base",
+    "negative": ""
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "seedMode": 2,
+      "sampler": 16,
+      "strength": 1,
+      "sharpness": 0,
+      "tiledDecoding": false,
+      "batchSize": 1,
+      "tiledDiffusion": false,
+      "guidanceScale": 1,
+      "loras": [],
+      "controls": [],
+      "clipSkip": 1,
+      "maskBlur": 1.5,
+      "shift": 16,
+      "preserveOriginalAfterInpaint": true,
+      "model": "flux_3_klein_q8p.ckpt",
+      "steps": 16,
+      "upscalerScaleFactor": 0,
+      "maskBlurOutset": 0,
+      "hiresFix": false,
+      "teaCache": false,
+      "causalInference": 0,
+      "teaCacheThreshold": 0.2,
+      "teaCacheStart": 5,
+      "teaCacheEnd": -1,
+      "teaCacheMaxSkipSteps": 3,
+      "resolutionDependentShift": false
+    },
+    "name": "FLUX.3 [klein] 5.6B",
+    "version": "flux3_5b"
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "seedMode": 2,
+      "height": 512,
+      "sampler": 16,
+      "strength": 1,
+      "sharpness": 0,
+      "tiledDecoding": true,
+      "decodingTileWidth": 256,
+      "decodingTileHeight": 256,
+      "decodingTileOverlap": 64,
+      "batchSize": 1,
+      "tiledDiffusion": false,
+      "guidanceScale": 1,
+      "loras": [],
+      "controls": [],
+      "clipSkip": 1,
+      "maskBlur": 1.5,
+      "resolutionDependentShift": false,
+      "shift": 12,
+      "shiftForAudio": 3,
+      "preserveOriginalAfterInpaint": true,
+      "width": 832,
+      "model": "fasth3_omni_i8x.ckpt",
+      "steps": 8,
+      "numFrames": 124,
+      "fps": 24,
+      "upscalerScaleFactor": 0,
+      "maskBlurOutset": 0,
+      "hiresFix": false,
+      "teaCache": false,
+      "causalInference": 0,
+      "compressionArtifacts": "disabled"
+    },
+    "name": "FastH3 Omni"
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "seedMode": 2,
+      "sampler": 16,
+      "strength": 1,
+      "sharpness": 0,
+      "tiledDecoding": false,
+      "batchSize": 1,
+      "tiledDiffusion": false,
+      "guidanceScale": 1,
+      "loras": [],
+      "controls": [],
+      "clipSkip": 1,
+      "maskBlur": 1.5,
+      "shift": 6.5,
+      "preserveOriginalAfterInpaint": true,
+      "model": "qwen_image_2.1_turbo_q8p.ckpt",
+      "steps": 8,
+      "upscalerScaleFactor": 0,
+      "maskBlurOutset": 0,
+      "hiresFix": false,
+      "teaCache": false,
+      "causalInference": 0,
+      "teaCacheThreshold": 0.2,
+      "teaCacheStart": 5,
+      "teaCacheEnd": -1,
+      "teaCacheMaxSkipSteps": 3,
+      "resolutionDependentShift": false
+    },
+    "name": "Qwen Image 2.1 Turbo",
+    "version": "qwen_image_2.1",
+    "negative": ""
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "seedMode": 2,
+      "sampler": 16,
+      "strength": 1,
+      "sharpness": 0,
+      "tiledDecoding": false,
+      "batchSize": 1,
+      "tiledDiffusion": false,
+      "guidanceScale": 1,
+      "loras": [],
+      "controls": [],
+      "clipSkip": 1,
+      "maskBlur": 1.5,
+      "shift": 1,
+      "preserveOriginalAfterInpaint": true,
+      "model": "qwen_image_2.1_q8p.ckpt",
+      "steps": 40,
+      "upscalerScaleFactor": 0,
+      "maskBlurOutset": 0,
+      "hiresFix": false,
+      "teaCache": false,
+      "causalInference": 0,
+      "teaCacheThreshold": 0.2,
+      "teaCacheStart": 5,
+      "teaCacheEnd": -1,
+      "teaCacheMaxSkipSteps": 3,
+      "resolutionDependentShift": true
+    },
+    "name": "Qwen Image 2.1",
+    "version": "qwen_image_2.1",
+    "negative": ""
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "seedMode": 2,
+      "height": 512,
+      "sampler": 16,
+      "strength": 1,
+      "sharpness": 0,
+      "tiledDecoding": true,
+      "decodingTileWidth": 256,
+      "decodingTileHeight": 256,
+      "decodingTileOverlap": 64,
+      "batchSize": 1,
+      "tiledDiffusion": false,
+      "guidanceScale": 1,
+      "loras": [],
+      "controls": [],
+      "clipSkip": 1,
+      "maskBlur": 1.5,
+      "resolutionDependentShift": false,
+      "shift": 12,
+      "shiftForAudio": 3,
+      "preserveOriginalAfterInpaint": true,
+      "width": 832,
+      "model": "minimax_h3_fl2va_i8x.ckpt",
+      "steps": 50,
+      "numFrames": 124,
+      "fps": 24,
+      "upscalerScaleFactor": 0,
+      "maskBlurOutset": 0,
+      "hiresFix": false,
+      "teaCache": false,
+      "causalInference": 0,
+      "compressionArtifacts": "disabled"
+    },
+    "name": "MiniMax H3",
+    "version": "minimax_h3"
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "seedMode": 2,
+      "height": 512,
+      "sampler": 16,
+      "strength": 1,
+      "sharpness": 0,
+      "tiledDecoding": true,
+      "decodingTileWidth": 256,
+      "decodingTileHeight": 256,
+      "decodingTileOverlap": 64,
+      "batchSize": 1,
+      "tiledDiffusion": false,
+      "guidanceScale": 1,
+      "loras": [],
+      "controls": [],
+      "clipSkip": 1,
+      "maskBlur": 1.5,
+      "resolutionDependentShift": false,
+      "shift": 12,
+      "shiftForAudio": 3,
+      "preserveOriginalAfterInpaint": true,
+      "width": 832,
+      "model": "minimax_h3_ref2va_i8x.ckpt",
+      "steps": 50,
+      "numFrames": 124,
+      "fps": 24,
+      "upscalerScaleFactor": 0,
+      "maskBlurOutset": 0,
+      "hiresFix": false,
+      "teaCache": false,
+      "causalInference": 0,
+      "compressionArtifacts": "disabled"
+    },
+    "name": "MiniMax H3 [ref2va]",
+    "version": "minimax_h3"
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
+      "seedMode": 2,
       "sampler": 10,
       "strength": 1,
       "sharpness": 0,
@@ -10,12 +400,8 @@
       "batchSize": 1,
       "tiledDiffusion": false,
       "guidanceScale": 1,
-      "loras": [
-
-      ],
-      "controls": [
-
-      ],
+      "loras": [],
+      "controls": [],
       "clipSkip": 1,
       "maskBlur": 1.5,
       "shift": 3,
@@ -47,12 +433,8 @@
       "batchSize": 1,
       "tiledDiffusion": false,
       "guidanceScale": 3.5,
-      "loras": [
-
-      ],
-      "controls": [
-
-      ],
+      "loras": [],
+      "controls": [],
       "clipSkip": 1,
       "maskBlur": 1.5,
       "resolutionDependentShift": true,
@@ -82,12 +464,8 @@
       "batchSize": 1,
       "tiledDiffusion": false,
       "guidanceScale": 7,
-      "loras": [
-
-      ],
-      "controls": [
-
-      ],
+      "loras": [],
+      "controls": [],
       "clipSkip": 1,
       "maskBlur": 1.5,
       "shift": 1,
@@ -121,12 +499,8 @@
       "batchSize": 1,
       "tiledDiffusion": false,
       "guidanceScale": 1,
-      "loras": [
-
-      ],
-      "controls": [
-
-      ],
+      "loras": [],
+      "controls": [],
       "clipSkip": 1,
       "maskBlur": 1.5,
       "shift": 1,
@@ -159,12 +533,8 @@
       "batchSize": 1,
       "tiledDiffusion": false,
       "guidanceScale": 1,
-      "loras": [
-
-      ],
-      "controls": [
-
-      ],
+      "loras": [],
+      "controls": [],
       "clipSkip": 1,
       "maskBlur": 1.5,
       "shift": 1,
@@ -197,12 +567,8 @@
       "batchSize": 1,
       "tiledDiffusion": false,
       "guidanceScale": 1,
-      "loras": [
-
-      ],
-      "controls": [
-
-      ],
+      "loras": [],
+      "controls": [],
       "clipSkip": 1,
       "maskBlur": 1.5,
       "shift": 4,
@@ -235,12 +601,8 @@
       "batchSize": 1,
       "tiledDiffusion": false,
       "guidanceScale": 4,
-      "loras": [
-
-      ],
-      "controls": [
-
-      ],
+      "loras": [],
+      "controls": [],
       "clipSkip": 1,
       "maskBlur": 1.5,
       "resolutionDependentShift": true,
@@ -265,15 +627,11 @@
       "batchCount": 1,
       "batchSize": 1,
       "clipSkip": 2,
-      "controls": [
-
-      ],
+      "controls": [],
       "guidanceScale": 4,
       "height": 1024,
       "hiresFix": false,
-      "loras": [
-
-      ],
+      "loras": [],
       "maskBlur": 2.5,
       "maskBlurOutset": 0,
       "model": "anima_base_1.0_f16.ckpt",
@@ -305,15 +663,11 @@
       "batchCount": 1,
       "batchSize": 1,
       "clipSkip": 2,
-      "controls": [
-
-      ],
+      "controls": [],
       "guidanceScale": 4,
       "height": 1024,
       "hiresFix": false,
-      "loras": [
-
-      ],
+      "loras": [],
       "maskBlur": 2.5,
       "maskBlurOutset": 0,
       "model": "anima_aesthetic_1.1_f16.ckpt",
@@ -342,6 +696,41 @@
   {
     "configuration": {
       "batchCount": 1,
+      "batchSize": 1,
+      "clipSkip": 2,
+      "controls": [],
+      "guidanceScale": 1,
+      "height": 1024,
+      "hiresFix": false,
+      "loras": [],
+      "maskBlur": 2.5,
+      "maskBlurOutset": 0,
+      "model": "anima_turbo_1.0_f16.ckpt",
+      "resolutionDependentShift": true,
+      "sampler": 16,
+      "seedMode": 2,
+      "separateClipL": false,
+      "separateOpenClipG": false,
+      "sharpness": 0,
+      "steps": 8,
+      "strength": 1,
+      "teaCache": false,
+      "t5TextEncoder": true,
+      "tiledDecoding": false,
+      "tiledDiffusion": false,
+      "upscalerScaleFactor": 0,
+      "width": 1024,
+      "teaCacheThreshold": 0.3,
+      "teaCacheStart": 5,
+      "teaCacheEnd": -1,
+      "teaCacheMaxSkipSteps": 3
+    },
+    "name": "Anima Turbo 1.0",
+    "negative": "worst quality, low quality, score_1, score_2, score_3, artist name"
+  },
+  {
+    "configuration": {
+      "batchCount": 1,
       "seedMode": 2,
       "sampler": 17,
       "strength": 1,
@@ -350,12 +739,8 @@
       "batchSize": 1,
       "tiledDiffusion": false,
       "guidanceScale": 4,
-      "loras": [
-
-      ],
-      "controls": [
-
-      ],
+      "loras": [],
+      "controls": [],
       "clipSkip": 1,
       "maskBlur": 1.5,
       "shift": 2,
@@ -374,7 +759,7 @@
     },
     "name": "Qwen Image 2512",
     "version": "qwen_image",
-    "negative": "低分辨率，低画质，肢体畸形，手指畸形，画面过饱和，蜡像感，人脸无细节，过度光滑，画面具有AI感。构图混乱。文字模糊，扭曲。"
+    "negative": "\u4f4e\u5206\u8fa8\u7387\uff0c\u4f4e\u753b\u8d28\uff0c\u80a2\u4f53\u7578\u5f62\uff0c\u624b\u6307\u7578\u5f62\uff0c\u753b\u9762\u8fc7\u9971\u548c\uff0c\u8721\u50cf\u611f\uff0c\u4eba\u8138\u65e0\u7ec6\u8282\uff0c\u8fc7\u5ea6\u5149\u6ed1\uff0c\u753b\u9762\u5177\u6709AI\u611f\u3002\u6784\u56fe\u6df7\u4e71\u3002\u6587\u5b57\u6a21\u7cca\uff0c\u626d\u66f2\u3002"
   },
   {
     "configuration": {
@@ -387,12 +772,8 @@
       "batchSize": 1,
       "tiledDiffusion": false,
       "guidanceScale": 4,
-      "loras": [
-
-      ],
-      "controls": [
-
-      ],
+      "loras": [],
+      "controls": [],
       "clipSkip": 1,
       "maskBlur": 1.5,
       "shift": 2,
@@ -423,12 +804,8 @@
       "batchSize": 1,
       "tiledDiffusion": false,
       "guidanceScale": 1,
-      "loras": [
-
-      ],
-      "controls": [
-
-      ],
+      "loras": [],
+      "controls": [],
       "clipSkip": 1,
       "maskBlur": 1.5,
       "shift": 3,
@@ -461,12 +838,8 @@
       "batchSize": 1,
       "tiledDiffusion": false,
       "guidanceScale": 4,
-      "loras": [
-
-      ],
-      "controls": [
-
-      ],
+      "loras": [],
+      "controls": [],
       "clipSkip": 1,
       "maskBlur": 1.5,
       "resolutionDependentShift": true,
@@ -491,15 +864,11 @@
       "batchCount": 1,
       "batchSize": 1,
       "clipSkip": 2,
-      "controls": [
-
-      ],
+      "controls": [],
       "guidanceScale": 1,
       "height": 1024,
       "hiresFix": false,
-      "loras": [
-
-      ],
+      "loras": [],
       "maskBlur": 2.5,
       "maskBlurOutset": 0,
       "model": "flux_2_klein_9b_kv_q6p.ckpt",
@@ -531,15 +900,11 @@
       "batchCount": 1,
       "batchSize": 1,
       "clipSkip": 2,
-      "controls": [
-
-      ],
+      "controls": [],
       "guidanceScale": 1,
       "height": 1024,
       "hiresFix": false,
-      "loras": [
-
-      ],
+      "loras": [],
       "maskBlur": 2.5,
       "maskBlurOutset": 0,
       "model": "flux_2_klein_9b_q6p.ckpt",
@@ -572,15 +937,11 @@
       "batchCount": 1,
       "batchSize": 1,
       "clipSkip": 2,
-      "controls": [
-
-      ],
+      "controls": [],
       "guidanceScale": 4,
       "height": 1024,
       "hiresFix": false,
-      "loras": [
-
-      ],
+      "loras": [],
       "maskBlur": 2.5,
       "maskBlurOutset": 0,
       "model": "flux_2_klein_base_9b_q6p.ckpt",
@@ -611,15 +972,11 @@
       "batchCount": 1,
       "batchSize": 1,
       "clipSkip": 2,
-      "controls": [
-
-      ],
+      "controls": [],
       "guidanceScale": 1,
       "height": 1024,
       "hiresFix": false,
-      "loras": [
-
-      ],
+      "loras": [],
       "maskBlur": 2.5,
       "maskBlurOutset": 0,
       "model": "flux_2_klein_4b_q6p.ckpt",
@@ -652,15 +1009,11 @@
       "batchCount": 1,
       "batchSize": 1,
       "clipSkip": 2,
-      "controls": [
-
-      ],
+      "controls": [],
       "guidanceScale": 4,
       "height": 1024,
       "hiresFix": false,
-      "loras": [
-
-      ],
+      "loras": [],
       "maskBlur": 2.5,
       "maskBlurOutset": 0,
       "model": "flux_2_klein_base_4b_q6p.ckpt",
@@ -698,12 +1051,8 @@
       "batchSize": 1,
       "tiledDiffusion": false,
       "guidanceScale": 1,
-      "loras": [
-
-      ],
-      "controls": [
-
-      ],
+      "loras": [],
+      "controls": [],
       "clipSkip": 1,
       "maskBlur": 1.5,
       "shift": 5,
@@ -737,12 +1086,8 @@
       "batchSize": 1,
       "tiledDiffusion": false,
       "guidanceScale": 5,
-      "loras": [
-
-      ],
-      "controls": [
-
-      ],
+      "loras": [],
+      "controls": [],
       "clipSkip": 1,
       "maskBlur": 1.5,
       "shift": 5,
@@ -778,12 +1123,8 @@
       "batchSize": 1,
       "tiledDiffusion": false,
       "guidanceScale": 1,
-      "loras": [
-
-      ],
-      "controls": [
-
-      ],
+      "loras": [],
+      "controls": [],
       "clipSkip": 1,
       "maskBlur": 1.5,
       "shift": 5,
@@ -814,12 +1155,8 @@
       "batchSize": 1,
       "tiledDiffusion": false,
       "guidanceScale": 5,
-      "loras": [
-
-      ],
-      "controls": [
-
-      ],
+      "loras": [],
+      "controls": [],
       "clipSkip": 1,
       "maskBlur": 1.5,
       "shift": 5,
@@ -845,16 +1182,12 @@
       "batchCount": 1,
       "batchSize": 1,
       "clipSkip": 2,
-      "controls": [
-
-      ],
+      "controls": [],
       "guidanceEmbed": 4.5,
       "guidanceScale": 4.5,
       "height": 1024,
       "hiresFix": false,
-      "loras": [
-
-      ],
+      "loras": [],
       "maskBlur": 2.5,
       "maskBlurOutset": 0,
       "model": "flux_2_dev_q6p.ckpt",
@@ -894,12 +1227,8 @@
       "batchSize": 1,
       "tiledDiffusion": false,
       "guidanceScale": 4,
-      "loras": [
-
-      ],
-      "controls": [
-
-      ],
+      "loras": [],
+      "controls": [],
       "clipSkip": 1,
       "maskBlur": 1.5,
       "shift": 8,
@@ -921,7 +1250,7 @@
       "teaCacheMaxSkipSteps": 3
     },
     "name": "Wan v2.2 T2V 14B",
-    "negative": "色调艳丽，过曝，静态，细节模糊不清，字幕，风格，作品，画作，画面，静止，整体发灰，最差质量，低质量，JPEG压缩残留，丑陋的，残缺的，多余的手指，画得不好的手部，画得不好的脸部，畸形的，毁容的，形态畸形的肢体，手指融合，静止不动的画面，杂乱的背景，三条腿，背景人很多，倒着走"
+    "negative": "\u8272\u8c03\u8273\u4e3d\uff0c\u8fc7\u66dd\uff0c\u9759\u6001\uff0c\u7ec6\u8282\u6a21\u7cca\u4e0d\u6e05\uff0c\u5b57\u5e55\uff0c\u98ce\u683c\uff0c\u4f5c\u54c1\uff0c\u753b\u4f5c\uff0c\u753b\u9762\uff0c\u9759\u6b62\uff0c\u6574\u4f53\u53d1\u7070\uff0c\u6700\u5dee\u8d28\u91cf\uff0c\u4f4e\u8d28\u91cf\uff0cJPEG\u538b\u7f29\u6b8b\u7559\uff0c\u4e11\u964b\u7684\uff0c\u6b8b\u7f3a\u7684\uff0c\u591a\u4f59\u7684\u624b\u6307\uff0c\u753b\u5f97\u4e0d\u597d\u7684\u624b\u90e8\uff0c\u753b\u5f97\u4e0d\u597d\u7684\u8138\u90e8\uff0c\u7578\u5f62\u7684\uff0c\u6bc1\u5bb9\u7684\uff0c\u5f62\u6001\u7578\u5f62\u7684\u80a2\u4f53\uff0c\u624b\u6307\u878d\u5408\uff0c\u9759\u6b62\u4e0d\u52a8\u7684\u753b\u9762\uff0c\u6742\u4e71\u7684\u80cc\u666f\uff0c\u4e09\u6761\u817f\uff0c\u80cc\u666f\u4eba\u5f88\u591a\uff0c\u5012\u7740\u8d70"
   },
   {
     "configuration": {
@@ -935,12 +1264,8 @@
       "batchSize": 1,
       "tiledDiffusion": false,
       "guidanceScale": 3.5,
-      "loras": [
-
-      ],
-      "controls": [
-
-      ],
+      "loras": [],
+      "controls": [],
       "clipSkip": 1,
       "maskBlur": 1.5,
       "shift": 5,
@@ -962,7 +1287,7 @@
       "teaCacheMaxSkipSteps": 3
     },
     "name": "Wan v2.2 I2V 14B",
-    "negative": "色调艳丽，过曝，静态，细节模糊不清，字幕，风格，作品，画作，画面，静止，整体发灰，最差质量，低质量，JPEG压缩残留，丑陋的，残缺的，多余的手指，画得不好的手部，画得不好的脸部，畸形的，毁容的，形态畸形的肢体，手指融合，静止不动的画面，杂乱的背景，三条腿，背景人很多，倒着走"
+    "negative": "\u8272\u8c03\u8273\u4e3d\uff0c\u8fc7\u66dd\uff0c\u9759\u6001\uff0c\u7ec6\u8282\u6a21\u7cca\u4e0d\u6e05\uff0c\u5b57\u5e55\uff0c\u98ce\u683c\uff0c\u4f5c\u54c1\uff0c\u753b\u4f5c\uff0c\u753b\u9762\uff0c\u9759\u6b62\uff0c\u6574\u4f53\u53d1\u7070\uff0c\u6700\u5dee\u8d28\u91cf\uff0c\u4f4e\u8d28\u91cf\uff0cJPEG\u538b\u7f29\u6b8b\u7559\uff0c\u4e11\u964b\u7684\uff0c\u6b8b\u7f3a\u7684\uff0c\u591a\u4f59\u7684\u624b\u6307\uff0c\u753b\u5f97\u4e0d\u597d\u7684\u624b\u90e8\uff0c\u753b\u5f97\u4e0d\u597d\u7684\u8138\u90e8\uff0c\u7578\u5f62\u7684\uff0c\u6bc1\u5bb9\u7684\uff0c\u5f62\u6001\u7578\u5f62\u7684\u80a2\u4f53\uff0c\u624b\u6307\u878d\u5408\uff0c\u9759\u6b62\u4e0d\u52a8\u7684\u753b\u9762\uff0c\u6742\u4e71\u7684\u80cc\u666f\uff0c\u4e09\u6761\u817f\uff0c\u80cc\u666f\u4eba\u5f88\u591a\uff0c\u5012\u7740\u8d70"
   },
   {
     "configuration": {
@@ -982,9 +1307,7 @@
           "weight": 1
         }
       ],
-      "controls": [
-
-      ],
+      "controls": [],
       "clipSkip": 1,
       "maskBlur": 1.5,
       "shift": 3,
@@ -1003,7 +1326,7 @@
       "teaCacheMaxSkipSteps": 3
     },
     "name": "Qwen Image 2512 with Lightning 4-Step v1.0",
-    "negative": "低分辨率，低画质，肢体畸形，手指畸形，画面过饱和，蜡像感，人脸无细节，过度光滑，画面具有AI感。构图混乱。文字模糊，扭曲。"
+    "negative": "\u4f4e\u5206\u8fa8\u7387\uff0c\u4f4e\u753b\u8d28\uff0c\u80a2\u4f53\u7578\u5f62\uff0c\u624b\u6307\u7578\u5f62\uff0c\u753b\u9762\u8fc7\u9971\u548c\uff0c\u8721\u50cf\u611f\uff0c\u4eba\u8138\u65e0\u7ec6\u8282\uff0c\u8fc7\u5ea6\u5149\u6ed1\uff0c\u753b\u9762\u5177\u6709AI\u611f\u3002\u6784\u56fe\u6df7\u4e71\u3002\u6587\u5b57\u6a21\u7cca\uff0c\u626d\u66f2\u3002"
   },
   {
     "configuration": {
@@ -1023,9 +1346,7 @@
           "weight": 1
         }
       ],
-      "controls": [
-
-      ],
+      "controls": [],
       "clipSkip": 1,
       "maskBlur": 1.5,
       "shift": 3,
@@ -1051,9 +1372,7 @@
       "batchCount": 1,
       "batchSize": 1,
       "clipSkip": 2,
-      "controls": [
-
-      ],
+      "controls": [],
       "guidanceEmbed": 4.5,
       "guidanceScale": 4.5,
       "height": 1024,
@@ -1115,9 +1434,7 @@
           "weight": 1
         }
       ],
-      "controls": [
-
-      ],
+      "controls": [],
       "clipSkip": 1,
       "maskBlur": 1.5,
       "shift": 5,
@@ -1139,7 +1456,7 @@
       "teaCacheMaxSkipSteps": 3
     },
     "name": "Wan v2.2 T2V 14B with Lightning v1.1",
-    "negative": "色调艳丽，过曝，静态，细节模糊不清，字幕，风格，作品，画作，画面，静止，整体发灰，最差质量，低质量，JPEG压缩残留，丑陋的，残缺的，多余的手指，画得不好的手部，画得不好的脸部，畸形的，毁容的，形态畸形的肢体，手指融合，静止不动的画面，杂乱的背景，三条腿，背景人很多，倒着走"
+    "negative": "\u8272\u8c03\u8273\u4e3d\uff0c\u8fc7\u66dd\uff0c\u9759\u6001\uff0c\u7ec6\u8282\u6a21\u7cca\u4e0d\u6e05\uff0c\u5b57\u5e55\uff0c\u98ce\u683c\uff0c\u4f5c\u54c1\uff0c\u753b\u4f5c\uff0c\u753b\u9762\uff0c\u9759\u6b62\uff0c\u6574\u4f53\u53d1\u7070\uff0c\u6700\u5dee\u8d28\u91cf\uff0c\u4f4e\u8d28\u91cf\uff0cJPEG\u538b\u7f29\u6b8b\u7559\uff0c\u4e11\u964b\u7684\uff0c\u6b8b\u7f3a\u7684\uff0c\u591a\u4f59\u7684\u624b\u6307\uff0c\u753b\u5f97\u4e0d\u597d\u7684\u624b\u90e8\uff0c\u753b\u5f97\u4e0d\u597d\u7684\u8138\u90e8\uff0c\u7578\u5f62\u7684\uff0c\u6bc1\u5bb9\u7684\uff0c\u5f62\u6001\u7578\u5f62\u7684\u80a2\u4f53\uff0c\u624b\u6307\u878d\u5408\uff0c\u9759\u6b62\u4e0d\u52a8\u7684\u753b\u9762\uff0c\u6742\u4e71\u7684\u80cc\u666f\uff0c\u4e09\u6761\u817f\uff0c\u80cc\u666f\u4eba\u5f88\u591a\uff0c\u5012\u7740\u8d70"
   },
   {
     "configuration": {
@@ -1165,9 +1482,7 @@
           "weight": 1
         }
       ],
-      "controls": [
-
-      ],
+      "controls": [],
       "clipSkip": 1,
       "maskBlur": 1.5,
       "shift": 5,
@@ -1189,7 +1504,7 @@
       "teaCacheMaxSkipSteps": 3
     },
     "name": "Wan v2.2 I2V 14B with Lightning v1.0",
-    "negative": "色调艳丽，过曝，静态，细节模糊不清，字幕，风格，作品，画作，画面，静止，整体发灰，最差质量，低质量，JPEG压缩残留，丑陋的，残缺的，多余的手指，画得不好的手部，画得不好的脸部，畸形的，毁容的，形态畸形的肢体，手指融合，静止不动的画面，杂乱的背景，三条腿，背景人很多，倒着走"
+    "negative": "\u8272\u8c03\u8273\u4e3d\uff0c\u8fc7\u66dd\uff0c\u9759\u6001\uff0c\u7ec6\u8282\u6a21\u7cca\u4e0d\u6e05\uff0c\u5b57\u5e55\uff0c\u98ce\u683c\uff0c\u4f5c\u54c1\uff0c\u753b\u4f5c\uff0c\u753b\u9762\uff0c\u9759\u6b62\uff0c\u6574\u4f53\u53d1\u7070\uff0c\u6700\u5dee\u8d28\u91cf\uff0c\u4f4e\u8d28\u91cf\uff0cJPEG\u538b\u7f29\u6b8b\u7559\uff0c\u4e11\u964b\u7684\uff0c\u6b8b\u7f3a\u7684\uff0c\u591a\u4f59\u7684\u624b\u6307\uff0c\u753b\u5f97\u4e0d\u597d\u7684\u624b\u90e8\uff0c\u753b\u5f97\u4e0d\u597d\u7684\u8138\u90e8\uff0c\u7578\u5f62\u7684\uff0c\u6bc1\u5bb9\u7684\uff0c\u5f62\u6001\u7578\u5f62\u7684\u80a2\u4f53\uff0c\u624b\u6307\u878d\u5408\uff0c\u9759\u6b62\u4e0d\u52a8\u7684\u753b\u9762\uff0c\u6742\u4e71\u7684\u80cc\u666f\uff0c\u4e09\u6761\u817f\uff0c\u80cc\u666f\u4eba\u5f88\u591a\uff0c\u5012\u7740\u8d70"
   },
   {
     "configuration": {
@@ -1202,12 +1517,8 @@
       "batchSize": 1,
       "tiledDiffusion": false,
       "guidanceScale": 4,
-      "loras": [
-
-      ],
-      "controls": [
-
-      ],
+      "loras": [],
+      "controls": [],
       "clipSkip": 1,
       "maskBlur": 1.5,
       "shift": 2,
@@ -1238,12 +1549,8 @@
       "batchSize": 1,
       "tiledDiffusion": false,
       "guidanceScale": 4,
-      "loras": [
-
-      ],
-      "controls": [
-
-      ],
+      "loras": [],
+      "controls": [],
       "clipSkip": 1,
       "maskBlur": 1.5,
       "shift": 2,
@@ -1275,12 +1582,8 @@
       "batchSize": 1,
       "tiledDiffusion": false,
       "guidanceScale": 4,
-      "loras": [
-
-      ],
-      "controls": [
-
-      ],
+      "loras": [],
+      "controls": [],
       "clipSkip": 1,
       "maskBlur": 1.5,
       "shift": 2,
@@ -1305,15 +1608,11 @@
       "batchCount": 1,
       "batchSize": 1,
       "clipSkip": 2,
-      "controls": [
-
-      ],
+      "controls": [],
       "guidanceScale": 1,
       "height": 1024,
       "hiresFix": false,
-      "loras": [
-
-      ],
+      "loras": [],
       "maskBlur": 2.5,
       "maskBlurOutset": 0,
       "model": "hidream_i1_fast_q5p.ckpt",
@@ -1340,15 +1639,11 @@
       "batchCount": 1,
       "batchSize": 1,
       "clipSkip": 2,
-      "controls": [
-
-      ],
+      "controls": [],
       "guidanceScale": 1,
       "height": 1024,
       "hiresFix": false,
-      "loras": [
-
-      ],
+      "loras": [],
       "maskBlur": 2.5,
       "maskBlurOutset": 0,
       "model": "hidream_i1_dev_q5p.ckpt",
@@ -1375,15 +1670,11 @@
       "batchCount": 1,
       "batchSize": 1,
       "clipSkip": 2,
-      "controls": [
-
-      ],
+      "controls": [],
       "guidanceScale": 5,
       "height": 1024,
       "hiresFix": false,
-      "loras": [
-
-      ],
+      "loras": [],
       "maskBlur": 2.5,
       "maskBlurOutset": 0,
       "model": "hidream_i1_full_q5p.ckpt",
@@ -1415,16 +1706,12 @@
       "batchCount": 1,
       "batchSize": 1,
       "clipSkip": 2,
-      "controls": [
-
-      ],
+      "controls": [],
       "guidanceEmbed": 3.5,
       "guidanceScale": 4.5,
       "height": 1024,
       "hiresFix": false,
-      "loras": [
-
-      ],
+      "loras": [],
       "maskBlur": 2.5,
       "maskBlurOutset": 0,
       "model": "flux_1_schnell_q5p.ckpt",
@@ -1452,16 +1739,12 @@
       "batchCount": 1,
       "batchSize": 1,
       "clipSkip": 2,
-      "controls": [
-
-      ],
+      "controls": [],
       "guidanceEmbed": 4.5,
       "guidanceScale": 4.5,
       "height": 1024,
       "hiresFix": false,
-      "loras": [
-
-      ],
+      "loras": [],
       "maskBlur": 2.5,
       "maskBlurOutset": 0,
       "model": "flux_1_dev_q5p.ckpt",
@@ -1494,16 +1777,12 @@
       "batchCount": 1,
       "batchSize": 1,
       "clipSkip": 2,
-      "controls": [
-
-      ],
+      "controls": [],
       "guidanceEmbed": 50,
       "guidanceScale": 50,
       "height": 1024,
       "hiresFix": false,
-      "loras": [
-
-      ],
+      "loras": [],
       "maskBlur": 2.5,
       "maskBlurOutset": 0,
       "model": "flux_1_fill_dev_q5p.ckpt",
@@ -1544,9 +1823,7 @@
           "weight": 1
         }
       ],
-      "controls": [
-
-      ],
+      "controls": [],
       "clipSkip": 1,
       "maskBlur": 1.5,
       "shift": 3,
@@ -1585,9 +1862,7 @@
           "weight": 1
         }
       ],
-      "controls": [
-
-      ],
+      "controls": [],
       "clipSkip": 1,
       "maskBlur": 1.5,
       "shift": 3,
@@ -1626,9 +1901,7 @@
           "weight": 1
         }
       ],
-      "controls": [
-
-      ],
+      "controls": [],
       "clipSkip": 1,
       "maskBlur": 1.5,
       "shift": 3,
@@ -1667,9 +1940,7 @@
           "weight": 1
         }
       ],
-      "controls": [
-
-      ],
+      "controls": [],
       "clipSkip": 1,
       "maskBlur": 1.5,
       "shift": 3,
@@ -1708,9 +1979,7 @@
           "weight": 1
         }
       ],
-      "controls": [
-
-      ],
+      "controls": [],
       "clipSkip": 1,
       "maskBlur": 1.5,
       "shift": 3,
@@ -1749,9 +2018,7 @@
           "weight": 1
         }
       ],
-      "controls": [
-
-      ],
+      "controls": [],
       "clipSkip": 1,
       "maskBlur": 1.5,
       "shift": 3,
@@ -1777,16 +2044,12 @@
       "batchCount": 1,
       "batchSize": 1,
       "clipSkip": 2,
-      "controls": [
-
-      ],
+      "controls": [],
       "guidanceEmbed": 6,
       "guidanceScale": 6,
       "height": 512,
       "hiresFix": false,
-      "loras": [
-
-      ],
+      "loras": [],
       "maskBlur": 2.5,
       "maskBlurOutset": 0,
       "model": "hunyuan_video_t2v_720p_q5p_svd.ckpt",
@@ -1827,12 +2090,8 @@
       "batchSize": 1,
       "tiledDiffusion": false,
       "guidanceScale": 5,
-      "loras": [
-
-      ],
-      "controls": [
-
-      ],
+      "loras": [],
+      "controls": [],
       "clipSkip": 1,
       "maskBlur": 1.5,
       "shift": 5,
@@ -1852,7 +2111,7 @@
       "teaCacheMaxSkipSteps": 3
     },
     "name": "Wan v2.1 T2V 1.3B 480p",
-    "negative": "色调艳丽，过曝，静态，细节模糊不清，字幕，风格，作品，画作，画面，静止，整体发灰，最差质量，低质量，JPEG压缩残留，丑陋的，残缺的，多余的手指，画得不好的手部，画得不好的脸部，畸形的，毁容的，形态畸形的肢体，手指融合，静止不动的画面，杂乱的背景，三条腿，背景人很多，倒着走"
+    "negative": "\u8272\u8c03\u8273\u4e3d\uff0c\u8fc7\u66dd\uff0c\u9759\u6001\uff0c\u7ec6\u8282\u6a21\u7cca\u4e0d\u6e05\uff0c\u5b57\u5e55\uff0c\u98ce\u683c\uff0c\u4f5c\u54c1\uff0c\u753b\u4f5c\uff0c\u753b\u9762\uff0c\u9759\u6b62\uff0c\u6574\u4f53\u53d1\u7070\uff0c\u6700\u5dee\u8d28\u91cf\uff0c\u4f4e\u8d28\u91cf\uff0cJPEG\u538b\u7f29\u6b8b\u7559\uff0c\u4e11\u964b\u7684\uff0c\u6b8b\u7f3a\u7684\uff0c\u591a\u4f59\u7684\u624b\u6307\uff0c\u753b\u5f97\u4e0d\u597d\u7684\u624b\u90e8\uff0c\u753b\u5f97\u4e0d\u597d\u7684\u8138\u90e8\uff0c\u7578\u5f62\u7684\uff0c\u6bc1\u5bb9\u7684\uff0c\u5f62\u6001\u7578\u5f62\u7684\u80a2\u4f53\uff0c\u624b\u6307\u878d\u5408\uff0c\u9759\u6b62\u4e0d\u52a8\u7684\u753b\u9762\uff0c\u6742\u4e71\u7684\u80cc\u666f\uff0c\u4e09\u6761\u817f\uff0c\u80cc\u666f\u4eba\u5f88\u591a\uff0c\u5012\u7740\u8d70"
   },
   {
     "configuration": {
@@ -1866,12 +2125,8 @@
       "batchSize": 1,
       "tiledDiffusion": false,
       "guidanceScale": 5,
-      "loras": [
-
-      ],
-      "controls": [
-
-      ],
+      "loras": [],
+      "controls": [],
       "clipSkip": 1,
       "maskBlur": 1.5,
       "shift": 5,
@@ -1892,7 +2147,7 @@
     },
     "name": "Wan v2.1 T2V 14B 720p",
     "version": "wan_v2.1_14b",
-    "negative": "色调艳丽，过曝，静态，细节模糊不清，字幕，风格，作品，画作，画面，静止，整体发灰，最差质量，低质量，JPEG压缩残留，丑陋的，残缺的，多余的手指，画得不好的手部，画得不好的脸部，畸形的，毁容的，形态畸形的肢体，手指融合，静止不动的画面，杂乱的背景，三条腿，背景人很多，倒着走"
+    "negative": "\u8272\u8c03\u8273\u4e3d\uff0c\u8fc7\u66dd\uff0c\u9759\u6001\uff0c\u7ec6\u8282\u6a21\u7cca\u4e0d\u6e05\uff0c\u5b57\u5e55\uff0c\u98ce\u683c\uff0c\u4f5c\u54c1\uff0c\u753b\u4f5c\uff0c\u753b\u9762\uff0c\u9759\u6b62\uff0c\u6574\u4f53\u53d1\u7070\uff0c\u6700\u5dee\u8d28\u91cf\uff0c\u4f4e\u8d28\u91cf\uff0cJPEG\u538b\u7f29\u6b8b\u7559\uff0c\u4e11\u964b\u7684\uff0c\u6b8b\u7f3a\u7684\uff0c\u591a\u4f59\u7684\u624b\u6307\uff0c\u753b\u5f97\u4e0d\u597d\u7684\u624b\u90e8\uff0c\u753b\u5f97\u4e0d\u597d\u7684\u8138\u90e8\uff0c\u7578\u5f62\u7684\uff0c\u6bc1\u5bb9\u7684\uff0c\u5f62\u6001\u7578\u5f62\u7684\u80a2\u4f53\uff0c\u624b\u6307\u878d\u5408\uff0c\u9759\u6b62\u4e0d\u52a8\u7684\u753b\u9762\uff0c\u6742\u4e71\u7684\u80cc\u666f\uff0c\u4e09\u6761\u817f\uff0c\u80cc\u666f\u4eba\u5f88\u591a\uff0c\u5012\u7740\u8d70"
   },
   {
     "configuration": {
@@ -1906,12 +2161,8 @@
       "batchSize": 1,
       "tiledDiffusion": false,
       "guidanceScale": 5,
-      "loras": [
-
-      ],
-      "controls": [
-
-      ],
+      "loras": [],
+      "controls": [],
       "clipSkip": 1,
       "maskBlur": 1.5,
       "shift": 3,
@@ -1927,7 +2178,7 @@
       "causalInference": 0
     },
     "name": "Wan v2.1 I2V 14B 480p",
-    "negative": "色调艳丽，过曝，静态，细节模糊不清，字幕，风格，作品，画作，画面，静止，整体发灰，最差质量，低质量，JPEG压缩残留，丑陋的，残缺的，多余的手指，画得不好的手部，画得不好的脸部，畸形的，毁容的，形态畸形的肢体，手指融合，静止不动的画面，杂乱的背景，三条腿，背景人很多，倒着走"
+    "negative": "\u8272\u8c03\u8273\u4e3d\uff0c\u8fc7\u66dd\uff0c\u9759\u6001\uff0c\u7ec6\u8282\u6a21\u7cca\u4e0d\u6e05\uff0c\u5b57\u5e55\uff0c\u98ce\u683c\uff0c\u4f5c\u54c1\uff0c\u753b\u4f5c\uff0c\u753b\u9762\uff0c\u9759\u6b62\uff0c\u6574\u4f53\u53d1\u7070\uff0c\u6700\u5dee\u8d28\u91cf\uff0c\u4f4e\u8d28\u91cf\uff0cJPEG\u538b\u7f29\u6b8b\u7559\uff0c\u4e11\u964b\u7684\uff0c\u6b8b\u7f3a\u7684\uff0c\u591a\u4f59\u7684\u624b\u6307\uff0c\u753b\u5f97\u4e0d\u597d\u7684\u624b\u90e8\uff0c\u753b\u5f97\u4e0d\u597d\u7684\u8138\u90e8\uff0c\u7578\u5f62\u7684\uff0c\u6bc1\u5bb9\u7684\uff0c\u5f62\u6001\u7578\u5f62\u7684\u80a2\u4f53\uff0c\u624b\u6307\u878d\u5408\uff0c\u9759\u6b62\u4e0d\u52a8\u7684\u753b\u9762\uff0c\u6742\u4e71\u7684\u80cc\u666f\uff0c\u4e09\u6761\u817f\uff0c\u80cc\u666f\u4eba\u5f88\u591a\uff0c\u5012\u7740\u8d70"
   },
   {
     "configuration": {
@@ -1941,12 +2192,8 @@
       "batchSize": 1,
       "tiledDiffusion": false,
       "guidanceScale": 5,
-      "loras": [
-
-      ],
-      "controls": [
-
-      ],
+      "loras": [],
+      "controls": [],
       "clipSkip": 1,
       "maskBlur": 1.5,
       "shift": 5,
@@ -1962,22 +2209,18 @@
       "causalInference": 0
     },
     "name": "Wan v2.1 I2V 14B 720p",
-    "negative": "色调艳丽，过曝，静态，细节模糊不清，字幕，风格，作品，画作，画面，静止，整体发灰，最差质量，低质量，JPEG压缩残留，丑陋的，残缺的，多余的手指，画得不好的手部，画得不好的脸部，畸形的，毁容的，形态畸形的肢体，手指融合，静止不动的画面，杂乱的背景，三条腿，背景人很多，倒着走"
+    "negative": "\u8272\u8c03\u8273\u4e3d\uff0c\u8fc7\u66dd\uff0c\u9759\u6001\uff0c\u7ec6\u8282\u6a21\u7cca\u4e0d\u6e05\uff0c\u5b57\u5e55\uff0c\u98ce\u683c\uff0c\u4f5c\u54c1\uff0c\u753b\u4f5c\uff0c\u753b\u9762\uff0c\u9759\u6b62\uff0c\u6574\u4f53\u53d1\u7070\uff0c\u6700\u5dee\u8d28\u91cf\uff0c\u4f4e\u8d28\u91cf\uff0cJPEG\u538b\u7f29\u6b8b\u7559\uff0c\u4e11\u964b\u7684\uff0c\u6b8b\u7f3a\u7684\uff0c\u591a\u4f59\u7684\u624b\u6307\uff0c\u753b\u5f97\u4e0d\u597d\u7684\u624b\u90e8\uff0c\u753b\u5f97\u4e0d\u597d\u7684\u8138\u90e8\uff0c\u7578\u5f62\u7684\uff0c\u6bc1\u5bb9\u7684\uff0c\u5f62\u6001\u7578\u5f62\u7684\u80a2\u4f53\uff0c\u624b\u6307\u878d\u5408\uff0c\u9759\u6b62\u4e0d\u52a8\u7684\u753b\u9762\uff0c\u6742\u4e71\u7684\u80cc\u666f\uff0c\u4e09\u6761\u817f\uff0c\u80cc\u666f\u4eba\u5f88\u591a\uff0c\u5012\u7740\u8d70"
   },
   {
     "configuration": {
       "batchCount": 1,
       "batchSize": 1,
       "clipSkip": 1,
-      "controls": [
-
-      ],
+      "controls": [],
       "guidanceScale": 5,
       "height": 512,
       "hiresFix": false,
-      "loras": [
-
-      ],
+      "loras": [],
       "maskBlur": 2.5,
       "maskBlurOutset": 0,
       "model": "sd_v1.5_f16.ckpt",
@@ -2002,15 +2245,11 @@
       "batchCount": 1,
       "batchSize": 1,
       "clipSkip": 2,
-      "controls": [
-
-      ],
+      "controls": [],
       "guidanceScale": 5,
       "height": 1024,
       "hiresFix": false,
-      "loras": [
-
-      ],
+      "loras": [],
       "maskBlur": 2.5,
       "maskBlurOutset": 0,
       "model": "sd_xl_base_1.0_f16.ckpt",
@@ -2046,16 +2285,12 @@
       "batchCount": 1,
       "batchSize": 1,
       "clipSkip": 2,
-      "controls": [
-
-      ],
+      "controls": [],
       "guidanceEmbed": 1,
       "guidanceScale": 6,
       "height": 512,
       "hiresFix": false,
-      "loras": [
-
-      ],
+      "loras": [],
       "maskBlur": 2.5,
       "maskBlurOutset": 0,
       "model": "skyreels_v1_hunyuan_t2v_q5p_svd.ckpt",
@@ -2085,16 +2320,12 @@
       "batchCount": 1,
       "batchSize": 1,
       "clipSkip": 2,
-      "controls": [
-
-      ],
+      "controls": [],
       "guidanceEmbed": 1,
       "guidanceScale": 6,
       "height": 960,
       "hiresFix": false,
-      "loras": [
-
-      ],
+      "loras": [],
       "maskBlur": 2.5,
       "maskBlurOutset": 0,
       "model": "skyreels_v1_hunyuan_i2v_q5p_svd.ckpt",

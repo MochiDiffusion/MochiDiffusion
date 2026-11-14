@@ -7,7 +7,7 @@ import DrawThingsClient
 import Foundation
 
 /// Recommended configurations from a bundled snapshot of
-/// https://models.drawthings.ai/configs.json (2026-09-06), refreshed each release.
+/// https://models.drawthings.ai/configs.json (2026-11-13), refreshed each release.
 /// A model with no entry of its own uses its family's.
 nonisolated enum DrawThingsPresets {
     /// The allowlist: the Draw Things model versions Mochi offers, with the family
