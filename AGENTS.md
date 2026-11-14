@@ -12,7 +12,10 @@
 - Commit message format (from `CONTRIBUTING.md`):  
   `type: short summary` with types `build|ci|docs|feat|fix|perf|refactor|test`.  
   Include a body (≥20 characters) except for `docs` commits.
-- Pull requests are squash-merged and must pass the gated check-in (build + `swift format` lint).  
+- Pull requests are squash-merged, except a release branch's pull request into `main`, which
+  is merged with a merge commit so the release commits keep their history (see
+  [RELEASING.md](RELEASING.md)). Every pull request must pass the gated check-in (build +
+  `swift format` lint).  
   Include a clear description of changes; for UI changes, attach a brief screenshot when helpful.
 
 ## Localization
