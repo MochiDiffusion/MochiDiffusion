@@ -156,7 +156,7 @@ struct DrawThingsSettingsView: View {
             case .failed(let reason, let date):
                 VStack(alignment: .leading, spacing: 4) {
                     Text(
-                        "Couldn’t update model list \(Self.dateFormatter.string(from: date))",
+                        "Couldn't update model list \(Self.dateFormatter.string(from: date))",
                         comment: "When Mochi last failed to fetch the Draw Things model list"
                     )
                     Text(verbatim: reason)
@@ -225,7 +225,7 @@ struct DrawThingsDetailsView: View {
                     }
                 } footer: {
                     Text(
-                        "Match the server’s settings in Draw Things. TLS encrypts the connection but doesn’t verify the server’s identity, so use a trusted network.",
+                        "Match the server's settings in Draw Things. TLS encrypts the connection but doesn't verify the server's identity, so use a trusted network.",
                         comment: "Help text for the Draw Things TLS and shared secret settings"
                     )
                     .helpTextFormat()
@@ -246,7 +246,10 @@ struct DrawThingsDetailsView: View {
                 Button(role: .cancel) {
                     dismiss()
                 } label: {
-                    Text("Cancel")
+                    Text(
+                        "Cancel",
+                        comment:
+                            "Button that closes the Draw Things connection settings without saving")
                 }
                 .keyboardShortcut(.cancelAction)
                 Button {
@@ -279,7 +282,7 @@ struct DrawThingsDetailsView: View {
             try secrets.setSecret(sharedSecret, for: DrawThingsConnection.secretAccount)
         } catch {
             saveError = String(
-                localized: "Couldn’t save the shared secret in the Keychain.",
+                localized: "Couldn't save the shared secret in the Keychain.",
                 comment: "Shown when the Draw Things shared secret cannot be saved"
             )
             return

@@ -41,8 +41,14 @@ struct ModelView: View {
             }
             .help(
                 differsFromRecommendations
-                    ? "Model Info: some settings differ from this model's recommendations"
-                    : "Model Info"
+                    ? Text(
+                        "Model Info: some settings differ from this model's recommendations",
+                        comment:
+                            "Help for the model info button while the sidebar differs from the model's recommended settings"
+                    )
+                    : Text(
+                        "Model Info",
+                        comment: "Help for the button that shows the selected model's details")
             )
             .popover(isPresented: $isShowingInfo, arrowEdge: .trailing) {
                 ModelInfoView()
@@ -68,25 +74,45 @@ private struct ModelInfoView: View {
 
                 Grid(alignment: .leadingFirstTextBaseline, verticalSpacing: 6) {
                     if let familyName = model.familyName {
-                        row("Family") { Text(familyName) }
+                        row(
+                            Text(
+                                "Family",
+                                comment: "Model info label for the model's family, such as FLUX.2")
+                        ) { Text(familyName) }
                     }
                     switch model.location {
                     case .directory(let url):
-                        row("Runs On") { Text("This Mac") }
-                        row("Location") {
+                        row(runsOn) { Text("This Mac") }
+                        row(
+                            Text(
+                                "Location",
+                                comment: "Model info label for the model's folder on this Mac")
+                        ) {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(url.path(percentEncoded: false))
                                     .lineLimit(3)
                                     .truncationMode(.middle)
                                     .textSelection(.enabled)
-                                Button("Reveal in Finder") {
+                                Button {
                                     NSWorkspace.shared.activateFileViewerSelecting([url])
+                                } label: {
+                                    Text(
+                                        "Reveal in Finder",
+                                        comment:
+                                            "Model info button that shows the model's folder in Finder"
+                                    )
                                 }
                             }
                         }
                     case .server(let name, let file):
-                        row("Runs On") { Text(name) }
-                        row("File") {
+                        row(runsOn) { Text(name) }
+                        row(
+                            Text(
+                                "File",
+                                comment:
+                                    "Model info label for the model's file name on the Draw Things server"
+                            )
+                        ) {
                             Text(file)
                                 .textSelection(.enabled)
                         }
@@ -97,8 +123,12 @@ private struct ModelInfoView: View {
 
                 if model.recommendedSteps != nil || model.recommendedGuidanceScale != nil {
                     Divider()
-                    Text("Recommended Settings")
-                        .font(.headline)
+                    Text(
+                        "Recommended Settings",
+                        comment:
+                            "Model info heading above the settings the model's publisher recommends"
+                    )
+                    .font(.headline)
                     Grid(alignment: .leading, horizontalSpacing: 4, verticalSpacing: 4) {
                         if let steps = model.recommendedSteps {
                             InfoGridRow(
@@ -118,8 +148,14 @@ private struct ModelInfoView: View {
                             )
                         }
                     }
-                    Button("Use Recommended Settings") {
+                    Button {
                         controller.applyRecommendedSettings()
+                    } label: {
+                        Text(
+                            "Use Recommended Settings",
+                            comment:
+                                "Model info button that applies all of the model's recommended settings to the sidebar"
+                        )
                     }
                 }
             }
@@ -128,12 +164,19 @@ private struct ModelInfoView: View {
         .frame(width: 320, alignment: .leading)
     }
 
+    private var runsOn: Text {
+        Text(
+            "Runs On",
+            comment: "Model info label for where the model generates: This Mac or the server's name"
+        )
+    }
+
     private func row(
-        _ label: LocalizedStringKey,
+        _ label: Text,
         @ViewBuilder value: () -> some View
     ) -> some View {
         GridRow {
-            Text(label)
+            label
                 .foregroundStyle(.secondary)
                 .gridColumnAlignment(.trailing)
             value()
@@ -150,6 +193,11 @@ private struct RecommendationBadge: View {
             .fill(.yellow)
             .frame(width: 6, height: 6)
             .offset(x: 2, y: -2)
-            .accessibilityLabel("Settings differ from recommendations")
+            .accessibilityLabel(
+                Text(
+                    "Settings differ from recommendations",
+                    comment: "Accessibility label for the dot on the model info button"
+                )
+            )
     }
 }
