@@ -197,20 +197,6 @@ struct DrawThingsDetailsView: View {
                     TextField(text: $port) {
                         Text("Port", comment: "Draw Things server port field label")
                     }
-                } header: {
-                    Text(
-                        "In Draw Things, turn on the gRPC API server and Model Browsing.",
-                        comment: "Draw Things connection settings instructions"
-                    )
-                    .font(.body)
-                    .foregroundStyle(.secondary)
-                } footer: {
-                    Text(
-                        "Use localhost for Draw Things on this Mac, or the hostname of a machine on the local network, such as studio.local",
-                        comment: "Help text for the Draw Things host field"
-                    )
-                    .helpTextFormat()
-                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
 
                 Section {
@@ -225,13 +211,6 @@ struct DrawThingsDetailsView: View {
                             "Shared Secret", comment: "Draw Things server shared secret field label"
                         )
                     }
-                } footer: {
-                    Text(
-                        "Match the server's settings in Draw Things. TLS encrypts the connection but doesn't verify the server's identity, so use a trusted network.",
-                        comment: "Help text for the Draw Things TLS and shared secret settings"
-                    )
-                    .helpTextFormat()
-                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
             .formStyle(.grouped)

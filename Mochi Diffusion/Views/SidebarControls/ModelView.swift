@@ -40,15 +40,9 @@ struct ModelView: View {
                     }
             }
             .help(
-                differsFromRecommendations
-                    ? Text(
-                        "Model Info: some settings differ from this model's recommendations",
-                        comment:
-                            "Help for the model info button while the sidebar differs from the model's recommended settings"
-                    )
-                    : Text(
-                        "Model Info",
-                        comment: "Help for the button that shows the selected model's details")
+                Text(
+                    "Model Info",
+                    comment: "Help for the button that shows the selected model's details")
             )
             .popover(isPresented: $isShowingInfo, arrowEdge: .trailing) {
                 ModelInfoView()
