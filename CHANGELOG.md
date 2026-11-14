@@ -1,3 +1,24 @@
+# [v7.0](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v7.0) - 14 Nov 2026
+
+## Features
+
+- Added generation with [Draw Things](https://drawthings.ai), the app or its standalone gRPC server, on this Mac or another machine on the local network (see the [README](README.md#draw-things))
+  - Set up the connection in Settings > General; TLS encrypts it but doesn't verify the server's identity, so use a trusted network
+  - Draw Things models appear in the model picker under their own header, after the models on this Mac
+  - Select the server's LoRAs for models that accept them, with weights outside the server's suggested range
+  - Send a starting image to text-to-image models, or reference images to FLUX.2 models
+  - Images record the sampler and LoRAs they used, and Copy Options restores the LoRAs
+  - Tested with Krea 2, Z-Image, FLUX.2 Klein, FLUX.2 dev and Stable Diffusion 1.5; image-editing models such as FLUX.1 Kontext and Qwen-Image-Edit are not supported yet
+- An info button beside the model picker shows the model's details and recommended settings, and points out settings that differ from them
+- The gallery can be filtered by LoRA
+- The sidebar shows only the options the selected model uses
+
+## Refactors and improvements
+
+- While the saved model is unavailable, such as when its Draw Things server is not running, no model is selected instead of the first one, and the saved model is selected again once it is available
+
+New text is in English; translations follow in a later release.
+
 # [v6.3](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v6.3) - 1 Nov 2026
 
 ## Features
