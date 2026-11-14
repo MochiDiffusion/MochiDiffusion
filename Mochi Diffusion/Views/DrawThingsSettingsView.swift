@@ -92,7 +92,7 @@ struct DrawThingsSettingsView: View {
         switch status.lastFetch {
         case nil:
             Text(
-                "Updating model list…",
+                "Refreshing models…",
                 comment: "Draw Things status while Mochi fetches the model list"
             )
         case .models(let count, _):
@@ -127,7 +127,7 @@ struct DrawThingsSettingsView: View {
             .frame(width: 16, height: 16)
             .help(
                 String(
-                    localized: "Refresh Model List",
+                    localized: "Refresh Models",
                     comment: "Help for the button that fetches the Draw Things model list again"
                 ))
         }
@@ -139,7 +139,7 @@ struct DrawThingsSettingsView: View {
     private func message(_ status: DrawThingsStatus) -> some View {
         if status.isFetching, status.lastFetch != nil {
             Text(
-                "Updating model list…",
+                "Refreshing models…",
                 comment: "Draw Things status while Mochi fetches the model list"
             )
         } else {
@@ -156,8 +156,9 @@ struct DrawThingsSettingsView: View {
             case .failed(let reason, let date):
                 VStack(alignment: .leading, spacing: 4) {
                     Text(
-                        "Couldn't update model list \(Self.dateFormatter.string(from: date))",
-                        comment: "When Mochi last failed to fetch the Draw Things model list"
+                        "Couldn't refresh models \(Self.dateFormatter.string(from: date))",
+                        comment:
+                            "When Mochi last failed to fetch the Draw Things model list. %@ is a date and time, such as today at 9:41 PM."
                     )
                     Text(verbatim: reason)
                 }
@@ -167,8 +168,9 @@ struct DrawThingsSettingsView: View {
 
     private func updated(_ date: Date) -> Text {
         Text(
-            "Updated model list \(Self.dateFormatter.string(from: date))",
-            comment: "When the Draw Things model list was last fetched"
+            "Refreshed models \(Self.dateFormatter.string(from: date))",
+            comment:
+                "When the Draw Things model list was last fetched. %@ is a date and time, such as today at 9:41 PM."
         )
     }
 }
