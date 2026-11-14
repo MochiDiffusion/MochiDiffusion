@@ -27,7 +27,7 @@ struct DrawThingsSettingsView: View {
         GroupBox {
             VStack(alignment: .leading, spacing: 10) {
                 HStack {
-                    Text("Draw Things")
+                    Text(verbatim: "Draw Things")
                     Spacer()
                     Toggle("", isOn: enabled)
                         .labelsHidden()
@@ -104,7 +104,7 @@ struct DrawThingsSettingsView: View {
 
     private func countText(_ count: Int) -> Text {
         Text(
-            "^[\(count) model](inflect: true)",
+            "\(count) model(s)",
             comment: "How many Draw Things models the last fetch gave the model picker"
         )
     }

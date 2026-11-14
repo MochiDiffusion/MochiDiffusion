@@ -307,16 +307,11 @@ final class GenerationController {
                 localized: "This Mac",
                 comment: "Model picker header above the models in the models folder")
         case .connection:
+            // A name, so it is not localized.
             if case .server(let serverName, _) = location {
-                String(
-                    localized: "Draw Things — \(serverName)",
-                    comment:
-                        "Model picker header above the Draw Things server's models, naming the server"
-                )
+                "Draw Things — \(serverName)"
             } else {
-                String(
-                    localized: "Draw Things",
-                    comment: "Model picker header above the Draw Things server's models")
+                "Draw Things"
             }
         }
     }

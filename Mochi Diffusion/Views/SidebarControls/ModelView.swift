@@ -97,7 +97,7 @@ private struct ModelInfoView: View {
                                     NSWorkspace.shared.activateFileViewerSelecting([url])
                                 } label: {
                                     Text(
-                                        "Reveal in Finder",
+                                        "Show in Finder",
                                         comment:
                                             "Model info button that shows the model's folder in Finder"
                                     )

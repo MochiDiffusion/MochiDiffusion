@@ -13,8 +13,12 @@ struct LoRAView: View {
 
     var body: some View {
         HStack {
-            Text("LoRAs", comment: "Sidebar label above the selected LoRAs")
-                .sidebarLabelFormat()
+            Text(
+                "LoRAs",
+                comment:
+                    "Sidebar label above the selected LoRAs. Technical term (Low-Rank Adaptation); usually left untranslated."
+            )
+            .sidebarLabelFormat()
             Spacer()
             FilterablePicker(
                 String(localized: "Add LoRA", comment: "Picker that adds a LoRA to the sidebar"),
