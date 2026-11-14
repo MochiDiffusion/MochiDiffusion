@@ -51,7 +51,7 @@ struct NumericTextField: View {
             return String(prefixMatch.1)
         }
 
-        return s.filter { $0.isNumber || $0 == "." } // sorry to decimal comma locales
+        return s.filter { $0.isNumber || $0 == "." }
     }
 
     func commit() {
