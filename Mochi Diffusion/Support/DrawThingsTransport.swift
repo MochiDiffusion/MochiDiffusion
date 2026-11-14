@@ -34,7 +34,8 @@ extension DrawThingsError {
             return DrawThingsError.message(
                 String(
                     localized: "Couldn't reach the Draw Things server at \(connection.serverName).",
-                    comment: "Generation error when the Draw Things server cannot be reached"
+                    comment:
+                        "Generation error when the Draw Things server cannot be reached. %@ is its host name or address, with the port when it is not the default."
                 ))
         }
         guard let status = error as? RPCError else { return error }

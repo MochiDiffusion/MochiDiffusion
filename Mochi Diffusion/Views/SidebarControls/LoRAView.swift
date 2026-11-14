@@ -72,7 +72,8 @@ private struct LoRARow: View {
                 .buttonStyle(.plain)
                 .help(
                     String(
-                        localized: "Remove \(option.name)", comment: "Tooltip for removing a LoRA"))
+                        localized: "Remove \(option.name)",
+                        comment: "Tooltip for removing a LoRA. %@ is the LoRA's name."))
             }
             if option.weightRange.lowerBound < option.weightRange.upperBound {
                 // Draw Things treats the range as a suggestion, so a typed weight
@@ -85,10 +86,14 @@ private struct LoRARow: View {
                     text: selection.weight.formatted(.number.precision(.fractionLength(2))))
             }
             if !option.triggerWords.isEmpty {
-                Text("Trigger words: \(option.triggerWords)", comment: "A LoRA's trigger words")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .textSelection(.enabled)
+                Text(
+                    "Trigger words: \(option.triggerWords)",
+                    comment:
+                        "A LoRA's trigger words. %@ is the words the LoRA was trained on, as the server lists them."
+                )
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .textSelection(.enabled)
             }
         }
     }
