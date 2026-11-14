@@ -3,7 +3,7 @@
 ## Features
 
 - Added generation with [Draw Things](https://drawthings.ai), the app or its standalone gRPC server, on this Mac or another machine on the local network (see the [README](README.md#draw-things))
-  - Set up the connection in Settings > General; TLS encrypts it but doesn't verify the server's identity, so use a trusted network
+  - Set up the connection in Settings > General
   - Draw Things models appear in the model picker under their own header, after the models on this Mac
   - Select the server's LoRAs for models that accept them, with weights outside the server's suggested range
   - Send a starting image to text-to-image models, or reference images to FLUX.2 models

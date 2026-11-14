@@ -129,7 +129,7 @@ actor GRPCDrawThingsTransport: DrawThingsTransport {
         let security: HTTP2ClientTransport.Posix.TransportSecurity
         if connection.useTLS {
             // Draw Things uses a self-signed server certificate, so TLS encrypts the
-            // connection but does not authenticate the host. Settings says so.
+            // connection but does not authenticate the host. The README says so.
             security = .tls { $0.serverCertificateVerification = .noVerification }
         } else {
             security = .plaintext

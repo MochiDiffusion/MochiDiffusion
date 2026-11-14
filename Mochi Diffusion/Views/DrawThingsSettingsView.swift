@@ -134,7 +134,7 @@ struct DrawThingsSettingsView: View {
     }
 
     /// The last fetch, under the count. Before the first fetch finishes, the count's
-    /// line already says the list is updating.
+    /// line already says the models are refreshing.
     @ViewBuilder
     private func message(_ status: DrawThingsStatus) -> some View {
         if status.isFetching, status.lastFetch != nil {

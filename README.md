@@ -152,7 +152,7 @@ Tested with Krea 2, Z-Image, FLUX.2 Klein, FLUX.2 dev, and Stable Diffusion 1.5,
 #### Usage
 
 1. In Draw Things, turn on the gRPC API server and Model Browsing
-2. In Mochi, open Settings > General, turn on Draw Things, and enter the server's host and port
+2. In Mochi, open Settings > General and turn on Draw Things. For a server on another machine, enter its host and port in Details
 3. Match the server's TLS and shared secret settings
 
 TLS encrypts the connection but does not verify the server's identity, so only connect over a network you trust.
