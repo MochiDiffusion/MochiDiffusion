@@ -134,7 +134,6 @@ if has periphery && [ -d "$index_store" ]; then
   test_only=$(comm -13 <(sort "$out_dir/periphery.txt") \
     <(sort "$out_dir/periphery-without-tests.txt") | grep -c ': warning: ')
   note "Periphery: $unused unused declarations, $test_only more used only by tests"
-  note "  This count includes the preserved OpenAI and engine-picker code."
 else
   note "Periphery: skipped (not installed, or the coverage build failed)"
 fi
