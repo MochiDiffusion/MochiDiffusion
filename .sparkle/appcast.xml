@@ -5,6 +5,30 @@
     <language>en</language>
 
     <item>
+      <title>v7.0</title>
+      <link>https://github.com/MochiDiffusion/MochiDiffusion</link>
+      <sparkle:shortVersionString>7.0</sparkle:shortVersionString>
+      <sparkle:version>1056</sparkle:version>
+      <sparkle:minimumSystemVersion>15.6</sparkle:minimumSystemVersion>
+      <sparkle:fullReleaseNotesLink>https://github.com/MochiDiffusion/MochiDiffusion/releases</sparkle:fullReleaseNotesLink>
+      <pubDate>Sun, 15 Nov 2026 06:31:26 +0000</pubDate>
+      <enclosure
+        url="https://github.com/MochiDiffusion/MochiDiffusion/releases/download/v7.0/Mochi.Diffusion.7.0.dmg"
+        sparkle:edSignature="tm3UJ/N+KJRuNoR/fV/BP8Arhdr/0P9zlhebLY6+qCqfB215yDhtflVPUVQmnhvT8x3Ks1rU9FmvO8NrsuozBQ=="
+        length="11224593"
+        type="application/octet-stream" />
+      <description><![CDATA[
+      <ul>
+      <li>Adds generation with Draw Things, the app or its gRPC server, on this Mac or another machine on the local network; set it up in Settings &gt; General</li>
+      <li>Draw Things models appear in the model picker under their own header, with LoRAs, a starting image for text-to-image models, and reference images for FLUX.2</li>
+      <li>An info button beside the model picker shows the model's details and recommended settings</li>
+      <li>The gallery can be filtered by LoRA, and the sidebar shows only the options the selected model uses</li>
+      </ul>
+      ]]>
+      </description>
+    </item>
+
+    <item>
       <title>v6.3</title>
       <link>https://github.com/MochiDiffusion/MochiDiffusion</link>
       <sparkle:shortVersionString>6.3</sparkle:shortVersionString>
