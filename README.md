@@ -24,7 +24,7 @@ Mochi Diffusion is a native macOS app for generating images locally using [Apple
 
 ## Features
 
-- Generate images locally and offline, or with Draw Things on your Mac or local network
+- Generate images locally and completely offline
 - Generated images are saved as PNG with their generation settings, which AUTOMATIC1111-compatible tools and Civitai uploads can read (view in Finder's Get Info window)
 - Built-in gallery with import/save/sync support
 - macOS native app using SwiftUI
@@ -143,16 +143,14 @@ The "recommended" full precision download of Z-Image Turbo is large, about 32 GB
 
 ### Draw Things
 
-Mochi can generate with [Draw Things](https://drawthings.ai), running as the app or as the standalone gRPC server, on this Mac or on another machine on your local network. Draw Things models appear in the model picker under their own header, and each model shows only the options it uses. Images are generated on the server's hardware; Mochi does not use Draw Things' cloud compute.
+Mochi can generate with [Draw Things](https://drawthings.ai), running as the app or as the standalone gRPC server, on the same Mac or another machine on the local network. Draw Things models appear in the model picker under their own header, and each model shows only the options it uses. Images are generated on the server's hardware; Mochi does not use Draw Things' cloud compute.
 
 Mochi offers Draw Things' text-to-image models, LoRAs for models that accept them, a starting image for text-to-image models, and reference images for FLUX.2 models. Image-editing models, such as FLUX.1 Kontext and Qwen-Image-Edit, are not supported yet.
-
-Tested with Krea 2, Z-Image, FLUX.2 Klein, FLUX.2 dev, and Stable Diffusion 1.5, on Draw Things 26.1020.0 and the Draw Things gRPC server 26.1023.0. Other models in the same families should work but have not been tested.
 
 #### Usage
 
 1. In Draw Things, turn on the gRPC API server and Model Browsing
-2. In Mochi, open Settings > General and turn on Draw Things. For a server on another machine, enter its host and port in Details
+2. In Mochi, open Settings > General, turn on Draw Things, and enter the server's host and port
 3. Match the server's TLS and shared secret settings
 
 TLS encrypts the connection but does not verify the server's identity, so only connect over a network you trust.
@@ -189,7 +187,7 @@ PRODUCT_BUNDLE_IDENTIFIER = com.example.Mochi-Diffusion
 
 ## Privacy
 
-Mochi Diffusion doesn’t collect any data or telemetry. All generation happens on your Mac, or on a Draw Things server you choose on your local network, and absolutely nothing is sent to the cloud.
+Mochi Diffusion doesn’t collect any data or telemetry. All generation happens on your Mac or local network, and absolutely nothing is sent to the cloud.
 
 ## Contributing
 
