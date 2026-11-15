@@ -100,8 +100,8 @@ struct PreferenceMigrationTests {
             discovered: [ModelID(engine: EngineID.coreMLStableDiffusion, key: "sd-model")]
         )
 
-        // Not an error: the app already falls back to the first model for a
-        // selection that does not resolve.
+        // Not an error: with no selection to restore, the app selects the first
+        // model.
         #expect(outcome == .unresolvable)
     }
 

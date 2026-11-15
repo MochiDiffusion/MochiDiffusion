@@ -1,0 +1,1349 @@
+//
+//  DrawThingsTests.swift
+//  Mochi DiffusionTests
+//
+
+import CoreGraphics
+import CryptoKit
+import DrawThingsClient
+import Foundation
+import GRPCCore
+import GRPCNIOTransportHTTP2
+import GRPCProtobuf
+import Testing
+
+@testable import Mochi_Diffusion
+
+// DrawThingsClient declares types with these names too.
+private typealias DrawThingsError = Mochi_Diffusion.DrawThingsError
+private typealias GenerationRequest = Mochi_Diffusion.GenerationRequest
+
+private actor StubDrawThingsTransport: DrawThingsTransport {
+    let catalog: Data
+    let loras: Data
+    var capturedPrompt: String?
+    var capturedSeeds: [UInt32] = []
+    var capturedSecret: String?
+    var capturedPayload: DrawThingsPayload?
+    var capturedInputs: DrawThingsInputs?
+    private(set) var releasedPreviousImages: [Bool] = []
+    private(set) weak var lastImage: CGImage?
+    var shouldWait = false
+    var didCancel = false
+    var shouldFail = false
+    var returnsNoImage = false
+    private(set) var catalogRequests = 0
+    var catalogError: (any Error)?
+    var generationError: (any Error)?
+
+    init(catalog: Data, loras: Data = Data()) {
+        self.catalog = catalog
+        self.loras = loras
+    }
+    func waitForCancellation() { shouldWait = true }
+    func failNextGeneration() { shouldFail = true }
+    func returnNoImageOnce() { returnsNoImage = true }
+    func resumeImmediately() { shouldWait = false }
+    func failCatalog(with error: any Error) { catalogError = error }
+    func failGenerations(with error: any Error) { generationError = error }
+    func catalog(connection: DrawThingsConnection, sharedSecret: String?) async throws
+        -> DrawThingsCatalog
+    {
+        catalogRequests += 1
+        capturedSecret = sharedSecret
+        if let catalogError { throw catalogError }
+        return DrawThingsCatalog(models: catalog, loras: loras)
+    }
+    func generate(
+        payload: DrawThingsPayload, inputs: DrawThingsInputs, prompt: String, seed: UInt32,
+        sharedSecret: String?, showsPreview: Bool, session: GenerationSession
+    ) async throws -> CGImage? {
+        if !capturedSeeds.isEmpty {
+            releasedPreviousImages.append(lastImage == nil)
+        }
+        capturedPrompt = prompt
+        capturedSeeds.append(seed)
+        capturedSecret = sharedSecret
+        capturedPayload = payload
+        capturedInputs = inputs
+        if shouldFail {
+            shouldFail = false
+            throw DrawThingsError.message("Server unavailable")
+        }
+        if let generationError { throw generationError }
+        if returnsNoImage {
+            returnsNoImage = false
+            return nil
+        }
+        if shouldWait {
+            do { try await Task.sleep(for: .seconds(60)) } catch {
+                didCancel = true
+                throw error
+            }
+        }
+        let image = makeCGImage(width: 16, height: 16)
+        lastImage = image
+        return image
+    }
+}
+
+@Suite(.timeLimit(.minutes(1)))
+struct DrawThingsTests {
+    private var connection: DrawThingsConnection {
+        DrawThingsConnection(enabled: true, host: "localhost", port: 7859, useTLS: false)
+    }
+    private var catalog: Data {
+        Data(
+            #"""
+            [
+              {"file":"flux_2_klein_4b_q8p.ckpt","name":"Klein","version":"flux2_4b","modifier":"kontext","default_scale":16,"future_field":{"x":42}},
+              {"file":"sd_v1.5_f16.ckpt","name":"SD 1.5","version":"v1","default_scale":8},
+              {"file":"flux_2_klein_4b_q8p.ckpt","name":"duplicate","version":"flux2_4b"},
+              {"file":"video.ckpt","version":"wan_v2.1_14b"},
+              {"file":"qwen_image_edit_2511_q6p.ckpt","version":"qwen_image","modifier":"qwenimage_edit_plus"},
+              {"file":"broken.ckpt"},
+              "malformed entry"
+            ]
+            """#.utf8)
+    }
+    private func model() throws -> DrawThingsModel {
+        try #require(
+            DrawThingsEngine.models(from: catalog, connection: connection).first
+        )
+    }
+
+    @Test(
+        "Image dimensions resolve identically in the plan and wire configuration",
+        arguments: [
+            CGSize(width: 1024, height: 768), CGSize(width: 777, height: 333),
+            CGSize(width: 1, height: 9000),
+        ])
+    func sizes(size: CGSize) throws {
+        var input = draft()
+        input.configuredSize = size
+        let plan = try DrawThingsEngine(secrets: NoSecretStore()).plan(draft: input, model: model())
+        #expect(
+            CGSize(
+                width: Int(plan.payload.configuration.width),
+                height: Int(plan.payload.configuration.height)) == plan.size)
+        #expect((64...2048).contains(Int(plan.size.width)))
+        #expect((64...2048).contains(Int(plan.size.height)))
+        #expect(Int(plan.size.width) % 64 == 0)
+        #expect(Int(plan.size.height) % 64 == 0)
+    }
+
+    private actor Notifications {
+        var counts: [Int] = []
+        func record(_ count: Int) { counts.append(count) }
+    }
+
+    @Test(
+        "Failed, empty and cancelled generations return the button to Generate without a success notification",
+        arguments: ["failure", "empty", "cancellation"])
+    @MainActor func recovery(outcome: String) async throws {
+        let transport = StubDrawThingsTransport(catalog: catalog)
+        if outcome == "failure" { await transport.failNextGeneration() }
+        if outcome == "empty" { await transport.returnNoImageOnce() }
+        if outcome == "cancellation" { await transport.waitForCancellation() }
+        let registry = EngineRegistry(engines: [
+            AnyGenerationEngine(DrawThingsEngine(secrets: NoSecretStore(), transport: transport))
+        ])
+        let gallery = ImageGallery()
+        let notifications = Notifications()
+        let service = GenerationService(
+            engineRegistry: registry, imageGallery: gallery,
+            notifyImagesReady: { await notifications.record($0) })
+        let defaults = TempDefaults()
+        let directory = try TempDirectory()
+        let config = ConfigStore(store: defaults.defaults)
+        config.modelDir = directory.url.path
+        config.controlNetDir = directory.url.path
+        let controller = GenerationController(
+            configStore: config, imageGallery: gallery, generationService: service,
+            engineRegistry: registry)
+        defer { controller.shutdown() }
+        let first = try request(imageDir: directory.url.path)
+        await service.enqueue(first)
+        while await transport.capturedPrompt == nil { await Task.yield() }
+        if outcome == "cancellation" {
+            while !controller.hasGenerationWork { await Task.yield() }
+            #expect(controller.hasGenerationWork)
+            await service.stopCurrentGeneration()
+            await transport.resumeImmediately()
+        }
+        await QueueLivenessTests().waitUntilIdle(service)
+        while controller.hasGenerationWork { await Task.yield() }
+        #expect(!controller.hasGenerationWork)
+        let second = try request(imageDir: directory.url.path)
+        await service.enqueue(second)
+        while !(await notifications.counts.contains(1)) { await Task.yield() }
+        await QueueLivenessTests().waitUntilIdle(service)
+        #expect(await notifications.counts == [1])
+    }
+    private func draft() -> GenerationDraft {
+        GenerationDraft(
+            prompt: "a cat", negativePrompt: "blurry",
+            configuredSize: CGSize(width: 777, height: 333),
+            inputImages: [], controlNets: [], strength: 0.5, stepCount: 99, guidanceScale: 11,
+            scheduler: .pndmScheduler, seed: 7, numberOfImages: 8,
+            computeUnitPreference: .auto, reduceMemory: false, safetyChecker: false,
+            showGenerationPreview: false, imageDir: "/tmp",
+            controlNetDirectory: URL(fileURLWithPath: "/nonexistent")
+        )
+    }
+    private func request(
+        model selectedModel: DrawThingsModel? = nil, draft selectedDraft: GenerationDraft? = nil,
+        imageDir: String = "/tmp", numberOfImages: Int = 1
+    ) throws
+        -> GenerationRequest
+    {
+        let model = try selectedModel ?? model()
+        var input = selectedDraft ?? draft()
+        input.numberOfImages = numberOfImages
+        let plan = try DrawThingsEngine(secrets: NoSecretStore()).plan(draft: input, model: model)
+        return GenerationRequest(
+            modelID: model.id, displayName: model.name, metadataFields: model.metadataFields,
+            payload: plan.payload, prompt: "a cat", negativePrompt: "", size: plan.size,
+            startingImageData: plan.startingImageData, inputImageData: plan.inputImageData,
+            startingImageName: plan.startingImageName,
+            controlNetImageData: [],
+            controlNetNames: [],
+            controlNetImageNames: [], inputImageNames: plan.inputImageNames,
+            strength: plan.strength, stepCount: plan.stepCount,
+            guidanceScale: plan.guidanceScale, scheduler: nil, mlComputeUnit: nil,
+            useDenoisedIntermediates: false, seed: 7, numberOfImages: plan.numberOfImages,
+            imageDir: imageDir, loras: plan.loras
+        )
+    }
+
+    @Test(
+        "Discovery tolerates newer fields and malformed entries, excludes video/editing, and deduplicates"
+    )
+    func discovery() throws {
+        let models = try DrawThingsEngine.models(from: catalog, connection: connection)
+        #expect(models.map(\.name) == ["Klein", "SD 1.5"])
+        let model = try #require(models.first)
+        let echoed = try #require(
+            JSONSerialization.jsonObject(with: model.specification) as? [[String: Any]])
+        #expect((echoed.first?["future_field"] as? [String: Int])?["x"] == 42)
+        #expect(model.configuration.model == "flux_2_klein_4b_q8p.ckpt")
+        #expect(model.configuration.steps == 4)
+        #expect(model.configuration.guidanceScale == 1)
+        #expect(model.configuration.width == 1024)
+        #expect(models[1].configuration.steps == 16)
+        #expect(models[1].configuration.width == 512)
+    }
+
+    @Test("A disabled engine performs no network discovery")
+    func disabled() async throws {
+        let transport = StubDrawThingsTransport(catalog: catalog)
+        let engine = DrawThingsEngine(secrets: NoSecretStore(), transport: transport)
+        let settings = EngineSettings(
+            modelDirectory: URL(fileURLWithPath: "/missing"),
+            controlNetDirectory: URL(fileURLWithPath: "/missing"))
+        #expect(try await engine.discoverModels(ModelDiscoveryContext(settings: settings)).isEmpty)
+        #expect(await engine.availability(settings) != .ready)
+    }
+
+    @Test("Missing local folders cannot prevent Draw Things discovery")
+    func remoteDiscovery() async throws {
+        let transport = StubDrawThingsTransport(catalog: catalog)
+        let secrets = InMemorySecretStore([DrawThingsConnection.secretAccount: "secret"])
+        let engine = DrawThingsEngine(secrets: secrets, transport: transport)
+        let settings = EngineSettings(
+            modelDirectory: URL(fileURLWithPath: "/missing"),
+            controlNetDirectory: URL(fileURLWithPath: "/missing"),
+            drawThings: connection
+        )
+        let models = try await engine.discoverModels(ModelDiscoveryContext(settings: settings))
+        #expect(models.count == 2)
+        #expect(await transport.capturedSecret == "secret")
+    }
+
+    @Test(
+        "Empty catalog explains the server setup requirement", arguments: [Data(), Data("[]".utf8)])
+    func emptyCatalog(data: Data) {
+        #expect(throws: DrawThingsError.self) {
+            try DrawThingsEngine.models(from: data, connection: connection)
+        }
+    }
+
+    @Test("Planning applies the sidebar's values and retains the endpoint and specification")
+    func planning() throws {
+        let model = try model()
+        let plan = try DrawThingsEngine(secrets: NoSecretStore()).plan(draft: draft(), model: model)
+        #expect(plan.size == CGSize(width: 768, height: 320))
+        #expect(plan.payload.configuration.width == 768)
+        #expect(plan.payload.configuration.height == 320)
+        #expect(plan.payload.configuration.originalImageWidth == 768)
+        #expect(plan.payload.configuration.targetImageHeight == 320)
+        #expect(plan.numberOfImages == 8)
+        #expect(plan.stepCount == 99)
+        #expect(plan.payload.configuration.steps == 99)
+        #expect(plan.guidanceScale == 11)
+        #expect(plan.payload.configuration.guidanceScale == 11)
+        #expect(plan.payload.negativePrompt == "blurry")
+        #expect(plan.payload.architecture == "FLUX.2 Klein 4B")
+        #expect(plan.payload.connection == connection)
+        #expect(plan.payload.specification == model.specification)
+        #expect(plan.scheduler == nil)
+        #expect(!model.metadataFields.contains(.scheduler))
+        #expect(plan.inputImageData.isEmpty)
+    }
+
+    @Test("A model names its family, and its server and file as its location")
+    func modelDetails() throws {
+        var connection = connection
+        connection.port = 7860
+        let model = try #require(
+            DrawThingsEngine.models(from: catalog, connection: connection).first)
+        #expect(model.familyName == DrawThingsPresets.familyNames[model.version])
+        #expect(model.familyName != nil)
+        #expect(model.location == .server(name: "localhost:7860", file: model.file))
+    }
+
+    @Test("Which options a model offers comes from its catalog flags")
+    func optionsFromCatalogFlags() throws {
+        let catalog = Data(
+            #"""
+            [
+              {"file":"z_image_turbo_1.0_q6p.ckpt","name":"Z-Image Turbo","version":"z_image"},
+              {"file":"flux_1_dev_q5p.ckpt","name":"FLUX.1 dev","version":"flux1","guidance_embed":true},
+              {"file":"flux_1_schnell_q5p.ckpt","name":"FLUX.1 schnell","version":"flux1","is_consistency_model":true},
+              {"file":"ideogram_4_q8p.ckpt","name":"Ideogram 4","version":"ideogram_4"},
+              {"file":"future.ckpt","name":"Future","version":"some_future_family"}
+            ]
+            """#.utf8)
+        let models = try DrawThingsEngine.models(from: catalog, connection: connection)
+        #expect(
+            models.map(\.name) == ["Z-Image Turbo", "FLUX.1 dev", "FLUX.1 schnell", "Ideogram 4"])
+
+        let plain = models[0].constraints
+        #expect(plain.supportsNegativePrompt)
+        #expect(plain.guidanceScale.isSupported)
+        #expect(models[0].metadataFields.isSuperset(of: [.negativePrompt, .guidanceScale]))
+
+        let embedded = models[1].constraints
+        #expect(!embedded.supportsNegativePrompt)
+        #expect(embedded.guidanceScale.isSupported)
+        #expect(!models[1].metadataFields.contains(.negativePrompt))
+
+        #expect(models[0].recommendedGuidanceScale != nil)
+        #expect(models[2].recommendedGuidanceScale == nil)
+        #expect(models[2].recommendedSteps == Int(models[2].configuration.steps))
+
+        let consistency = models[2].constraints
+        #expect(!consistency.supportsNegativePrompt)
+        #expect(!consistency.guidanceScale.isSupported)
+        #expect(models[2].metadataFields.isDisjoint(with: [.negativePrompt, .guidanceScale]))
+
+        let plan = try DrawThingsEngine(secrets: NoSecretStore()).plan(
+            draft: draft(), model: models[2])
+        #expect(plan.payload.negativePrompt.isEmpty)
+        #expect(plan.guidanceScale == nil)
+        #expect(plan.payload.configuration.guidanceScale == models[2].configuration.guidanceScale)
+    }
+
+    private var imageCatalog: Data {
+        Data(
+            #"""
+            [
+              {"file":"sd_v1.5_f16.ckpt","name":"SD 1.5","version":"v1","default_scale":8},
+              {"file":"flux_2_klein_4b_q8p.ckpt","name":"Klein 4B","version":"flux2_4b","modifier":"kontext"},
+              {"file":"flux_2_klein_9b_kv_q8p.ckpt","name":"Klein 9B KV","version":"flux2_9b","modifier":"kontext_kv"},
+              {"file":"flux_2_dev_q8p.ckpt","name":"FLUX.2 dev","version":"flux2","modifier":"kontext"}
+            ]
+            """#.utf8)
+    }
+
+    @Test("A text-to-image model takes a starting image, and a FLUX.2 model takes references")
+    func imageRolesFromModifier() throws {
+        let models = try DrawThingsEngine.models(from: imageCatalog, connection: connection)
+        #expect(models.map(\.name) == ["SD 1.5", "Klein 4B", "Klein 9B KV", "FLUX.2 dev"])
+        let plain = models[0]
+        #expect(plain.constraints.startingImage == .supported(strength: .range(0...1, step: nil)))
+        #expect(!plain.constraints.inputImages.isSupported)
+        #expect(plain.metadataFields.isSuperset(of: [.startingImage, .strength]))
+        #expect(!plain.metadataFields.contains(.inputImages))
+        for model in models.dropFirst() {
+            #expect(!model.constraints.startingImage.isSupported)
+            #expect(model.metadataFields.contains(.inputImages))
+            #expect(model.metadataFields.isDisjoint(with: [.startingImage, .strength]))
+        }
+        #expect(models.dropFirst().map(\.constraints.inputImages.maxCount) == [4, 4, 10])
+    }
+
+    @Test("A starting image is cropped to the output size and sent with its strength")
+    func startingImagePlanning() throws {
+        let models = try DrawThingsEngine.models(from: imageCatalog, connection: connection)
+        let engine = DrawThingsEngine(secrets: NoSecretStore())
+        var input = draft()
+        input.configuredSize = CGSize(width: 512, height: 768)
+        input.strength = 0.42
+
+        let withoutImage = try engine.plan(draft: input, model: models[0])
+        #expect(withoutImage.startingImageData == nil)
+        #expect(withoutImage.strength == nil)
+        #expect(withoutImage.payload.configuration.strength == 1)
+
+        input.startingImage = InputImage(
+            image: makeCGImage(width: 300, height: 100), name: "start.png")
+        let plan = try engine.plan(draft: input, model: models[0])
+        let image = try #require(plan.startingImageData.flatMap(CGImage.fromData))
+        #expect(CGSize(width: image.width, height: image.height) == plan.size)
+        #expect(plan.startingImageName == "start.png")
+        #expect(plan.strength == 0.42)
+        #expect(plan.payload.configuration.strength == 0.42)
+
+        // Klein takes no starting image, so it generates from noise.
+        let klein = try engine.plan(draft: input, model: models[1])
+        #expect(klein.startingImageData == nil)
+        #expect(klein.startingImageName == nil)
+        #expect(klein.strength == nil)
+        #expect(klein.payload.configuration.strength == 1)
+    }
+
+    @Test("CMYK inputs are converted while resizing before reaching Draw Things")
+    func cmykInputResizing() throws {
+        let width = 2048
+        let height = 1024
+        let pixels = Data(repeating: 127, count: width * height * 4)
+        let provider = try #require(CGDataProvider(data: pixels as CFData))
+        let source = try #require(
+            CGImage(
+                width: width, height: height, bitsPerComponent: 8, bitsPerPixel: 32,
+                bytesPerRow: width * 4, space: CGColorSpaceCreateDeviceCMYK(),
+                bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.none.rawValue),
+                provider: provider, decode: nil, shouldInterpolate: false, intent: .defaultIntent))
+        var input = draft()
+        input.configuredSize = CGSize(width: 512, height: 512)
+        input.startingImage = InputImage(image: source, name: "cmyk.tiff")
+        input.inputImages = [InputImage(image: source, name: "cmyk.tiff")]
+        let models = try DrawThingsEngine.models(from: imageCatalog, connection: connection)
+
+        for (model, expectedSize) in [
+            (models[0], CGSize(width: 512, height: 512)),
+            (models[1], CGSize(width: 724, height: 362)),
+        ] {
+            let request = try request(model: model, draft: input)
+            let data = try #require(request.startingImageData ?? request.inputImageData.first)
+            let prepared = try #require(CGImage.fromData(data))
+            #expect(CGSize(width: prepared.width, height: prepared.height) == expectedSize)
+            #expect(prepared.colorSpace?.name == CGColorSpace.sRGB)
+            #expect(prepared.bitsPerComponent == 8)
+
+            let inputs = try DrawThingsInputs(request: request)
+            let tensor = try #require(inputs.startingImage ?? inputs.referenceImages.first)
+            let shape = tensor.withUnsafeBytes { bytes in
+                (6...8).map { bytes.loadUnaligned(fromByteOffset: $0 * 4, as: UInt32.self) }
+            }
+            #expect(shape == [UInt32(expectedSize.height), UInt32(expectedSize.width), 3])
+        }
+    }
+
+    @Test("References keep their order and shape, scaled down only to the output's pixel count")
+    func referencePlanning() throws {
+        let models = try DrawThingsEngine.models(from: imageCatalog, connection: connection)
+        let engine = DrawThingsEngine(secrets: NoSecretStore())
+        var input = draft()
+        input.configuredSize = CGSize(width: 512, height: 512)
+        input.inputImages = [
+            InputImage(image: makeCGImage(width: 2048, height: 1024), name: "wide.png"),
+            InputImage(image: makeCGImage(width: 100, height: 300)),
+            InputImage(image: makeCGImage(width: 64, height: 64), name: "three.png"),
+            InputImage(image: makeCGImage(width: 64, height: 64), name: "four.png"),
+            InputImage(image: makeCGImage(width: 64, height: 64), name: "five.png"),
+        ]
+        let plan = try engine.plan(draft: input, model: models[1])
+        let sizes = try plan.inputImageData.map { data in
+            let image = try #require(CGImage.fromData(data))
+            return CGSize(width: image.width, height: image.height)
+        }
+        // 2048×1024 is eight times 512×512's pixels, so each side scales by √⅛.
+        #expect(
+            sizes == [
+                CGSize(width: 724, height: 362), CGSize(width: 100, height: 300),
+                CGSize(width: 64, height: 64), CGSize(width: 64, height: 64),
+            ])
+        #expect(plan.inputImageNames == ["wide.png", nil, "three.png", "four.png"])
+        #expect(plan.startingImageData == nil)
+
+        // A text-to-image model takes no references.
+        let plain = try engine.plan(draft: input, model: models[0])
+        #expect(plain.inputImageData.isEmpty)
+        #expect(plain.inputImageNames.isEmpty)
+    }
+
+    @Test(
+        "Input images reach the transport as tensors in order, and each image records the ones it used"
+    )
+    @MainActor func inputImagesReachTransportAndMetadata() async throws {
+        let models = try DrawThingsEngine.models(from: imageCatalog, connection: connection)
+        var input = draft()
+        input.configuredSize = CGSize(width: 512, height: 512)
+        input.strength = 0.42
+        input.startingImage = InputImage(
+            image: makeCGImage(width: 64, height: 64), name: "start.png")
+        input.inputImages = [
+            InputImage(image: makeCGImage(width: 64, height: 32), name: "first.png"),
+            InputImage(image: makeCGImage(width: 32, height: 64)),
+        ]
+        /// Height, width and channels, from the tensor's header.
+        func shape(_ tensor: Data?) -> [UInt32] {
+            guard let tensor else { return [] }
+            return (6...8).map { index in
+                tensor.withUnsafeBytes { $0.load(fromByteOffset: index * 4, as: UInt32.self) }
+            }
+        }
+        func generate(with model: DrawThingsModel) async throws -> (
+            DrawThingsInputs, GenerationMetadata, ImageRecord
+        ) {
+            let transport = StubDrawThingsTransport(catalog: Data())
+            let runtime = DrawThingsRuntime(secrets: NoSecretStore(), transport: transport)
+            let request = try request(model: model, draft: input)
+            let results = ResultCollector()
+            try await runtime.run(
+                request: request, session: GenerationSession(requestID: request.id)
+            ) { await results.add($0) }
+            let result = try #require(await results.all.first)
+            let directory = try TempDirectory()
+            let url = directory.url.appendingPathComponent("inputs.png")
+            try result.imageData.write(to: url)
+            return (
+                try #require(await transport.capturedInputs), result.metadata,
+                try #require(createImageRecordFromURL(url))
+            )
+        }
+
+        let (plainInputs, plainMetadata, plainRecord) = try await generate(with: models[0])
+        #expect(shape(plainInputs.startingImage) == [512, 512, 3])
+        #expect(plainInputs.referenceImages.isEmpty)
+        #expect(plainMetadata.startingImage == "start.png")
+        #expect(plainMetadata.strength == 0.42)
+        #expect(plainMetadata.inputImages == nil)
+        #expect(plainRecord.startingImage == "start.png")
+        #expect(plainRecord.strength == 0.42)
+        #expect(plainRecord.metadataFields.isSuperset(of: [.startingImage, .strength]))
+
+        let (kleinInputs, kleinMetadata, kleinRecord) = try await generate(with: models[1])
+        #expect(kleinInputs.startingImage == nil)
+        #expect(kleinInputs.referenceImages.map(shape) == [[32, 64, 3], [64, 32, 3]])
+        #expect(kleinMetadata.startingImage == nil)
+        #expect(kleinMetadata.strength == nil)
+        #expect(kleinMetadata.inputImages == ["first.png", ""])
+        #expect(kleinRecord.inputImages == ["first.png", ""])
+        #expect(kleinRecord.metadataFields.isDisjoint(with: [.startingImage, .strength]))
+    }
+
+    /// Two SD 1.5 LoRAs (one with no weight range of its own), a Klein LoRA, and
+    /// LoRAs Mochi cannot apply.
+    private var loraCatalog: Data {
+        Data(
+            #"""
+            [
+              {"file":"watercolor_lora_f16.ckpt","name":"Watercolor","version":"v1","prefix":"wtrclr style","weight":{"value":0.6,"lower_bound":-1,"upper_bound":2},"future_field":7},
+              {"file":"anime_lora_f16.ckpt","name":"anime","version":"v1"},
+              {"file":"klein_detail_lora_f16.ckpt","name":"Klein Detail","version":"flux2_4b"},
+              {"file":"hyper_sd_lora_f16.ckpt","name":"Hyper SD","version":"v1","is_consistency_model":true},
+              {"file":"inpaint_lora_f16.ckpt","name":"Inpaint","version":"v1","modifier":"inpainting"},
+              {"file":"decoder_lora_f16.ckpt","name":"Decoder","version":"v1","alternative_decoder":"x"},
+              {"file":"watercolor_lora_f16.ckpt","name":"duplicate","version":"v1"},
+              {"file":"no_version.ckpt"}
+            ]
+            """#.utf8)
+    }
+
+    @Test("Each model offers the server's LoRAs for its version that Mochi can apply")
+    func loraDiscovery() throws {
+        let models = try DrawThingsEngine.models(
+            from: imageCatalog, connection: connection, loras: loraCatalog)
+        let sd = models[0].constraints.loras
+        #expect(
+            sd.options == [
+                LoRAOption(
+                    file: "anime_lora_f16.ckpt", name: "anime", triggerWords: "",
+                    weightRange: -1.5...2.5, defaultWeight: 1),
+                LoRAOption(
+                    file: "watercolor_lora_f16.ckpt", name: "Watercolor",
+                    triggerWords: "wtrclr style", weightRange: -1...2, defaultWeight: 0.6),
+            ])
+        #expect(models[1].constraints.loras.options.map(\.file) == ["klein_detail_lora_f16.ckpt"])
+        // No LoRAs for its version, so the model offers none.
+        #expect(!models[2].constraints.loras.isSupported)
+        #expect(
+            !(try DrawThingsEngine.models(from: imageCatalog, connection: connection))[0]
+                .constraints.loras.isSupported)
+    }
+
+    @Test("Planning sends the saved LoRAs the model can use, in order, with their weights")
+    func loraPlanning() throws {
+        let models = try DrawThingsEngine.models(
+            from: imageCatalog, connection: connection, loras: loraCatalog)
+        var input = draft()
+        input.loras = [
+            LoRASelection(file: "watercolor_lora_f16.ckpt", weight: 5),
+            LoRASelection(file: "klein_detail_lora_f16.ckpt", weight: 0.5),
+            LoRASelection(file: "anime_lora_f16.ckpt", weight: -0.25),
+            LoRASelection(file: "removed_from_server.ckpt", weight: 1),
+        ]
+        let plan = try DrawThingsEngine(secrets: NoSecretStore()).plan(
+            draft: input, model: models[0])
+        #expect(
+            plan.loras == [
+                LoRASelection(file: "watercolor_lora_f16.ckpt", weight: 5),
+                LoRASelection(file: "anime_lora_f16.ckpt", weight: -0.25),
+            ])
+        #expect(plan.payload.configuration.loras.map(\.file) == plan.loras.map(\.file))
+        #expect(plan.payload.configuration.loras.map(\.weight) == [5, -0.25])
+        let specifications = try #require(
+            JSONSerialization.jsonObject(with: plan.payload.loraSpecifications) as? [[String: Any]])
+        #expect(specifications.map { $0["file"] as? String } == plan.loras.map(\.file))
+        #expect(specifications.first?["future_field"] as? Int == 7)
+
+        let none = try DrawThingsEngine(secrets: NoSecretStore()).plan(
+            draft: draft(), model: models[0])
+        #expect(none.loras.isEmpty)
+        #expect(none.payload.configuration.loras.isEmpty)
+        #expect(
+            (try JSONSerialization.jsonObject(with: none.payload.loraSpecifications) as? [Any])?
+                .isEmpty == true)
+    }
+
+    @Test("Each image records its LoRAs and weights")
+    @MainActor func loraMetadata() async throws {
+        let models = try DrawThingsEngine.models(
+            from: imageCatalog, connection: connection, loras: loraCatalog)
+        var input = draft()
+        input.loras = [
+            LoRASelection(file: "watercolor_lora_f16.ckpt", weight: 0.7),
+            LoRASelection(file: "anime_lora_f16.ckpt", weight: 1),
+        ]
+        let transport = StubDrawThingsTransport(catalog: Data())
+        let runtime = DrawThingsRuntime(secrets: NoSecretStore(), transport: transport)
+        let request = try request(model: models[0], draft: input)
+        #expect(request.loras.map(\.file) == ["watercolor_lora_f16.ckpt", "anime_lora_f16.ckpt"])
+        let results = ResultCollector()
+        try await runtime.run(request: request, session: GenerationSession(requestID: request.id)) {
+            await results.add($0)
+        }
+        let result = try #require(await results.all.first)
+        #expect(
+            result.metadata.loras == [
+                LoRASelection(file: "watercolor_lora_f16.ckpt", weight: 0.7),
+                LoRASelection(file: "anime_lora_f16.ckpt", weight: 1),
+            ])
+        let directory = try TempDirectory()
+        let url = directory.url.appendingPathComponent("loras.png")
+        try result.imageData.write(to: url)
+        let record = try #require(createImageRecordFromURL(url))
+        #expect(record.prompt == "a cat")
+        #expect(
+            record.loras == [
+                RecordedLoRA(name: "watercolor_lora_f16.ckpt", weight: 0.7),
+                RecordedLoRA(name: "anime_lora_f16.ckpt", weight: 1),
+            ])
+        #expect(record.metadataFields.contains(.loras))
+    }
+
+    /// A gallery image generated by `model` with `loras`, read back from its file.
+    @MainActor private func galleryImage(
+        model: DrawThingsModel, loras: [LoRASelection], gallery: ImageGallery,
+        directory: TempDirectory
+    ) async throws -> SDImage {
+        var input = draft()
+        input.loras = loras
+        let runtime = DrawThingsRuntime(
+            secrets: NoSecretStore(), transport: StubDrawThingsTransport(catalog: Data()))
+        let request = try request(model: model, draft: input)
+        let results = ResultCollector()
+        try await runtime.run(request: request, session: GenerationSession(requestID: request.id)) {
+            await results.add($0)
+        }
+        let url = directory.url.appendingPathComponent("\(UUID()).png")
+        try #require(await results.all.first).imageData.write(to: url)
+        let record = try #require(createImageRecordFromURL(url))
+        let sdi = try #require(createSDImage(from: record))
+        gallery.add(sdi, metadataFields: record.metadataFields, animate: false)
+        return sdi
+    }
+
+    @Test("Copy Options replaces the saved LoRAs, and one LoRA's arrow adds it to them")
+    @MainActor func copyLoRAs() async throws {
+        let transport = StubDrawThingsTransport(catalog: imageCatalog, loras: loraCatalog)
+        let registry = EngineRegistry(engines: [
+            AnyGenerationEngine(DrawThingsEngine(secrets: NoSecretStore(), transport: transport))
+        ])
+        let defaults = TempDefaults()
+        let directory = try TempDirectory()
+        let config = ConfigStore(store: defaults.defaults)
+        config.modelDir = directory.url.path
+        let settings = EngineSettingsStore(store: defaults.defaults)
+        settings.drawThings = connection
+        let gallery = ImageGallery()
+        let controller = makeTestGenerationController(
+            configStore: config, imageGallery: gallery, engineRegistry: registry,
+            engineSettings: settings, startsObserving: false)
+        defer { controller.shutdown() }
+        await controller.loadModels(from: [.connection])
+        let models = try DrawThingsEngine.models(
+            from: imageCatalog, connection: connection, loras: loraCatalog)
+
+        let withLoRAs = try await galleryImage(
+            model: models[0],
+            loras: [
+                LoRASelection(file: "watercolor_lora_f16.ckpt", weight: 0.7),
+                LoRASelection(file: "anime_lora_f16.ckpt", weight: 1.5),
+            ],
+            gallery: gallery, directory: directory)
+        let withoutLoRAs = try await galleryImage(
+            model: models[0], loras: [], gallery: gallery, directory: directory)
+
+        // Replaced, including a LoRA the selected model cannot use.
+        config.loras = [LoRASelection(file: "klein_detail_lora_f16.ckpt", weight: 1)]
+        await controller.copyToPrompt(withLoRAs)
+        #expect(
+            config.loras == [
+                LoRASelection(file: "watercolor_lora_f16.ckpt", weight: 0.7),
+                LoRASelection(file: "anime_lora_f16.ckpt", weight: 1.5),
+            ])
+
+        // A Draw Things image made without LoRAs leaves none.
+        await controller.copyToPrompt(withoutLoRAs)
+        #expect(config.loras.isEmpty)
+
+        // One LoRA's arrow adds it, keeping the others, or sets its weight.
+        config.loras = [LoRASelection(file: "klein_detail_lora_f16.ckpt", weight: 1)]
+        let watercolor = RecordedLoRA(name: "watercolor_lora_f16.ckpt", weight: 0.7)
+        #expect(controller.canCopyLoRA(watercolor))
+        controller.copyLoRAToPrompt(watercolor)
+        controller.copyLoRAToPrompt(RecordedLoRA(name: "watercolor_lora_f16.ckpt", weight: 1.2))
+        controller.copyLoRAToPrompt(RecordedLoRA(name: "anime_lora_f16.ckpt", weight: nil))
+        #expect(
+            config.loras == [
+                LoRASelection(file: "klein_detail_lora_f16.ckpt", weight: 1),
+                LoRASelection(file: "watercolor_lora_f16.ckpt", weight: 1.2),
+                LoRASelection(file: "anime_lora_f16.ckpt", weight: 1),
+            ])
+
+        // A name no Draw Things model offers, as from another application, has no
+        // arrow and is not restored.
+        let foreign = RecordedLoRA(name: "watercolor", weight: 0.8)
+        #expect(!controller.canCopyLoRA(foreign))
+        controller.copyLoRAToPrompt(foreign)
+        #expect(config.loras.count == 3)
+    }
+
+    @Test("The sidebar shows the saved LoRAs the model can use, and keeps the others saved")
+    @MainActor func savedLoRAs() async throws {
+        let transport = StubDrawThingsTransport(catalog: imageCatalog, loras: loraCatalog)
+        let (controller, _, defaults) = try statusController(
+            transport: transport, connection: connection)
+        defer { controller.shutdown() }
+        await controller.loadModels(from: [.connection])
+        let sd = try #require(controller.models.first { $0.name == "SD 1.5" })
+        let klein = try #require(controller.models.first { $0.name == "Klein 4B" })
+        let klein9B = try #require(controller.models.first { $0.name == "Klein 9B KV" })
+
+        controller.currentModelId = sd.id
+        #expect(controller.addableLoRAs.map(\.name) == ["anime", "Watercolor"])
+        controller.addLoRA(controller.addableLoRAs[1])
+        controller.setLoRAWeight(1.25, file: "watercolor_lora_f16.ckpt")
+        #expect(controller.addableLoRAs.map(\.name) == ["anime"])
+
+        controller.currentModelId = klein.id
+        #expect(controller.shownLoRAs.isEmpty)
+        controller.addLoRA(controller.addableLoRAs[0])
+        #expect(controller.shownLoRAs.map(\.option.name) == ["Klein Detail"])
+
+        // A model with no LoRAs offers none and shows none.
+        controller.currentModelId = klein9B.id
+        #expect(!controller.currentConstraints.loras.isSupported)
+        #expect(controller.shownLoRAs.isEmpty)
+
+        controller.currentModelId = sd.id
+        #expect(
+            controller.shownLoRAs.map(\.selection) == [
+                LoRASelection(file: "watercolor_lora_f16.ckpt", weight: 1.25)
+            ])
+        controller.removeLoRA(file: "watercolor_lora_f16.ckpt")
+        #expect(controller.shownLoRAs.isEmpty)
+
+        // The saved list survives relaunch, with the LoRA the SD model cannot use.
+        #expect(
+            ConfigStore(store: defaults.defaults).loras == [
+                LoRASelection(file: "klein_detail_lora_f16.ckpt", weight: 1)
+            ])
+    }
+
+    @Test("A saved weight outside its LoRA's range is shown and sent unchanged")
+    @MainActor func savedWeightOutsideRange() async throws {
+        let transport = StubDrawThingsTransport(catalog: imageCatalog, loras: loraCatalog)
+        let (controller, _, _) = try statusController(transport: transport, connection: connection)
+        defer { controller.shutdown() }
+        controller.configStore.loras = [LoRASelection(file: "watercolor_lora_f16.ckpt", weight: -4)]
+        await controller.loadModels(from: [.connection])
+        controller.currentModelId = try #require(controller.models.first { $0.name == "SD 1.5" }).id
+        #expect(controller.shownLoRAs.map(\.selection.weight) == [-4])
+        #expect(controller.buildGenerationRequest()?.loras.map(\.weight) == [-4])
+    }
+
+    /// How a model applies guidance, from its catalog flags.
+    enum GuidanceKind: CaseIterable {
+        case cfg, embedded, consistency
+    }
+
+    @Test(
+        "Guidance recommendations, wire values and PNG metadata use the model's active guidance",
+        arguments: GuidanceKind.allCases)
+    @MainActor func guidanceResolution(kind: GuidanceKind) async throws {
+        var configuration = DrawThingsConfiguration(model: "guidance.ckpt")
+        configuration.guidanceScale = 2
+        configuration.guidanceEmbed = 4.5
+        configuration.speedUpWithGuidanceEmbed = false
+        let model = DrawThingsModel(
+            file: "guidance.ckpt", name: "Guidance test", version: "flux1", modifier: "none",
+            isConsistencyModel: kind == .consistency,
+            usesGuidanceEmbedding: kind == .embedded, connection: connection,
+            specification: Data(), configuration: configuration)
+        let transport = StubDrawThingsTransport(catalog: Data())
+        let runtime = DrawThingsRuntime(secrets: NoSecretStore(), transport: transport)
+        let request = try request(model: model)
+        let results = ResultCollector()
+        try await runtime.run(request: request, session: GenerationSession(requestID: request.id)) {
+            await results.add($0)
+        }
+        let sent = try #require(await transport.capturedPayload).configuration
+        switch kind {
+        case .embedded:
+            // Draw Things reads the embed from guidanceScale while the speed-up is on.
+            #expect(model.recommendedGuidanceScale == 2)
+            #expect(sent.speedUpWithGuidanceEmbed)
+            #expect(sent.guidanceScale == 11)
+            #expect(sent.guidanceEmbed == 4.5)
+        case .cfg:
+            #expect(model.recommendedGuidanceScale == 2)
+            #expect(sent.guidanceScale == 11)
+            #expect(sent.guidanceEmbed == 4.5)
+        case .consistency:
+            #expect(model.recommendedGuidanceScale == nil)
+            #expect(sent.guidanceScale == 2)
+            #expect(sent.guidanceEmbed == 4.5)
+        }
+        let expectedGuidance: Double? = kind == .consistency ? nil : 11
+        #expect(request.guidanceScale.map(Double.init) == expectedGuidance)
+        let result = try #require(await results.all.first)
+        #expect(result.metadata.guidanceScale == expectedGuidance)
+        let directory = try TempDirectory()
+        let url = directory.url.appendingPathComponent("guidance.png")
+        try result.imageData.write(to: url)
+        let record = try #require(createImageRecordFromURL(url))
+        #expect(record.metadataFields.contains(.guidanceScale) == (expectedGuidance != nil))
+        if let expectedGuidance {
+            #expect(record.guidanceScale == expectedGuidance)
+        }
+    }
+
+    @Test("A batch releases completed images before generating the next image")
+    func batchImageLifetime() async throws {
+        let transport = StubDrawThingsTransport(catalog: catalog)
+        let runtime = DrawThingsRuntime(secrets: NoSecretStore(), transport: transport)
+        let request = try request(numberOfImages: 3)
+        let session = GenerationSession(requestID: request.id)
+        defer { session.close() }
+        try await runtime.run(request: request, session: session) { _ in }
+        #expect(await transport.releasedPreviousImages == [true, true])
+        // The session is still open and retains its cancellation handler here.
+        #expect(await transport.lastImage == nil)
+    }
+
+    @Test("Cancelling after a batch result interrupts the next image and skips the remainder")
+    func cancellationDuringBatch() async throws {
+        let transport = StubDrawThingsTransport(catalog: catalog)
+        let runtime = DrawThingsRuntime(secrets: NoSecretStore(), transport: transport)
+        let request = try request(numberOfImages: 3)
+        let session = GenerationSession(requestID: request.id)
+        defer { session.close() }
+        let results = ResultCollector()
+        let work = Task {
+            try await runtime.run(request: request, session: session) {
+                await results.add($0)
+                await transport.waitForCancellation()
+            }
+        }
+        while await transport.capturedSeeds.count < 2 { await Task.yield() }
+        session.cancel()
+        try await work.value
+        #expect(await transport.didCancel)
+        #expect(await transport.capturedSeeds == [7, 8])
+        #expect(await results.all.count == 1)
+    }
+
+    @Test("Only a complete final image can succeed")
+    func chunks() throws {
+        var accumulator = DrawThingsImageAccumulator()
+        #expect(throws: DrawThingsError.self) { try accumulator.finishedImage() }
+        try accumulator.append([Data([1, 2])], isLastChunk: false)
+        #expect(throws: DrawThingsError.self) { try accumulator.finishedImage() }
+        try accumulator.append([Data([3, 4])], isLastChunk: true)
+        #expect(try accumulator.finishedImage() == Data([1, 2, 3, 4]))
+        #expect(throws: DrawThingsError.self) {
+            try accumulator.append([Data([5])], isLastChunk: true)
+        }
+    }
+
+    @Test("Endpoint validation rejects URLs and invalid ports")
+    func connectionValidation() throws {
+        var value = connection
+        value.host = "  studio.local  "
+        #expect(try value.validated().host == "studio.local")
+        value.host = "https://studio.local"
+        #expect(throws: DrawThingsError.self) { try value.validated() }
+        value.host = "studio.local"
+        value.port = 0
+        #expect(throws: DrawThingsError.self) { try value.validated() }
+    }
+
+    @Test("Settings persist without a secret, and start switched off on localhost")
+    @MainActor func persistence() throws {
+        let suite = "DrawThingsTests.\(UUID())"
+        let defaults = try #require(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let store = EngineSettingsStore(store: defaults)
+        #expect(
+            store.drawThings == DrawThingsConnection(enabled: false, host: "localhost", port: 7859))
+        store.drawThings = connection
+        let restored = EngineSettingsStore(store: defaults)
+        #expect(restored.drawThings == connection)
+    }
+
+    @Test("Switched on with no host, Draw Things makes no network call")
+    func noHost() async throws {
+        let transport = StubDrawThingsTransport(catalog: catalog)
+        let engine = DrawThingsEngine(secrets: NoSecretStore(), transport: transport)
+        var empty = connection
+        empty.host = ""
+        let settings = EngineSettings(
+            modelDirectory: URL(fileURLWithPath: "/missing"),
+            controlNetDirectory: URL(fileURLWithPath: "/missing"), drawThings: empty)
+        #expect(try await engine.discoverModels(ModelDiscoveryContext(settings: settings)).isEmpty)
+        #expect(await engine.availability(settings) != .ready)
+        #expect(await transport.catalogRequests == 0)
+    }
+
+    @Test("Host and port fields keep only the characters they can use")
+    func fieldFilters() {
+        #expect(DrawThingsConnection.filteredHost("studio.local") == "studio.local")
+        #expect(DrawThingsConnection.filteredHost("192.168.1.5") == "192.168.1.5")
+        #expect(DrawThingsConnection.filteredHost("my-mac.local") == "my-mac.local")
+        #expect(DrawThingsConnection.filteredHost(" http://stüdio_1:80/ ") == "httpstdio180")
+        #expect(DrawThingsConnection.filteredPort("78a59") == "7859")
+        #expect(DrawThingsConnection.filteredPort("1234567") == "12345")
+    }
+
+    /// Builds a controller whose only engine is Draw Things, with no local models.
+    @MainActor private func statusController(
+        transport: StubDrawThingsTransport, connection: DrawThingsConnection
+    ) throws -> (GenerationController, TempDirectory, TempDefaults) {
+        let registry = EngineRegistry(engines: [
+            AnyGenerationEngine(DrawThingsEngine(secrets: NoSecretStore(), transport: transport))
+        ])
+        let defaults = TempDefaults()
+        let directory = try TempDirectory()
+        let config = ConfigStore(store: defaults.defaults)
+        config.modelDir = directory.url.path
+        let settings = EngineSettingsStore(store: defaults.defaults)
+        settings.drawThings = connection
+        let controller = makeTestGenerationController(
+            configStore: config, engineRegistry: registry, engineSettings: settings,
+            startsObserving: false)
+        return (controller, directory, defaults)
+    }
+
+    @Test("Settings shows the result of the last model-list fetch, with the server's reason")
+    @MainActor func statusFromFetch() async throws {
+        let transport = StubDrawThingsTransport(catalog: catalog)
+        let (controller, _, _) = try statusController(transport: transport, connection: connection)
+        #expect(controller.drawThingsStatus == .inactive)
+        await controller.loadModels(from: [.connection])
+        guard case .models(let count, _) = controller.drawThingsStatus.lastFetch else {
+            Issue.record("Expected models, got \(controller.drawThingsStatus)")
+            return
+        }
+        #expect(count == 2)
+        #expect(!controller.drawThingsStatus.isFetching)
+
+        // A server that answers with nothing usable is not a failed fetch.
+        let empty = "Draw Things returned an unreadable model list."
+        await transport.failCatalog(with: DrawThingsError.unusableModelList(empty))
+        await controller.loadModels(from: [.connection])
+        guard case .noModels(let reason, _) = controller.drawThingsStatus.lastFetch else {
+            Issue.record("Expected no models, got \(controller.drawThingsStatus)")
+            return
+        }
+        #expect(reason == empty)
+
+        let refusal = "Draw Things requires a shared secret."
+        await transport.failCatalog(with: DrawThingsError.message(refusal))
+        await controller.loadModels(from: [.connection])
+        #expect(failureReason(controller.drawThingsStatus) == refusal)
+        #expect(!controller.hasModels(.drawThings))
+        // Settings reports the server; the main window does not blame a models folder.
+        #expect(controller.discoveryMessage?.contains("Couldn't read the models folder") != true)
+
+        await transport.failCatalog(with: RPCError(code: .unavailable, message: ""))
+        await controller.loadModels(from: [.connection])
+        #expect(failureReason(controller.drawThingsStatus)?.contains("didn't answer") == true)
+
+        controller.engineSettings.drawThings.enabled = false
+        await controller.loadModels(from: [.connection])
+        #expect(controller.drawThingsStatus == .inactive)
+        #expect(await transport.catalogRequests == 4)
+    }
+
+    private func failureReason(_ status: DrawThingsStatus) -> String? {
+        if case .failed(let reason, _) = status.lastFetch { reason } else { nil }
+    }
+
+    @Test("Generation failures reach the alert as readable text")
+    func generationFailureWording() async throws {
+        var remote = connection
+        remote.host = "studio.local"
+        let unreachable = DrawThingsError.generationFailure(
+            DrawThingsUnopenedCall(
+                error: RPCError(
+                    code: .unavailable, message: "Channel is in a transient failure state")),
+            connection: remote)
+        #expect(
+            GenerationService.userDescription(of: unreachable)
+                == "Couldn't reach the Draw Things server at studio.local.")
+        let dropped = DrawThingsError.generationFailure(
+            RPCError(code: .unavailable, message: "Transport became inactive"),
+            connection: remote)
+        #expect(GenerationService.userDescription(of: dropped).contains("closed the connection"))
+        // The alert offers to refresh the server's models for this one only.
+        #expect((dropped as? any ModelListMayBeOutdated)?.outdatedModelListSource == .connection)
+        #expect((unreachable as? any ModelListMayBeOutdated)?.outdatedModelListSource == nil)
+        let reported = DrawThingsError.generationFailure(
+            RPCError(code: .internalError, message: "Out of memory"), connection: remote)
+        #expect(
+            GenerationService.userDescription(of: reported)
+                == "Draw Things reported an error: Out of memory")
+        let own = DrawThingsError.generationFailure(
+            DrawThingsError.message("Draw Things returned no finished image."),
+            connection: remote)
+        #expect(
+            GenerationService.userDescription(of: own) == "Draw Things returned no finished image.")
+        // The runtime throws the worded error.
+        let transport = StubDrawThingsTransport(catalog: catalog)
+        await transport.failGenerations(with: RPCError(code: .unavailable, message: ""))
+        let runtime = DrawThingsRuntime(secrets: NoSecretStore(), transport: transport)
+        let request = try request()
+        do {
+            try await runtime.run(
+                request: request, session: GenerationSession(requestID: request.id)
+            ) { _ in }
+            Issue.record("Expected the generation to fail")
+        } catch {
+            #expect(GenerationService.userDescription(of: error).contains("closed the connection"))
+        }
+    }
+
+    @Test("A call is retried only while its connection never opens")
+    func unopenedConnectionRetry() async throws {
+        let unopened = DrawThingsUnopenedCall(
+            error: RPCError(code: .unavailable, message: "Channel is in a transient failure state"))
+        // A sleeping server answers once the first attempt has woken it.
+        var attempts = 0
+        let answer = try await GRPCDrawThingsTransport.retryingUnopenedConnection {
+            attempts += 1
+            if attempts < 3 { throw unopened }
+            return "awake"
+        }
+        #expect(answer == "awake")
+        #expect(attempts == 3)
+
+        attempts = 0
+        await #expect(throws: DrawThingsUnopenedCall.self) {
+            try await GRPCDrawThingsTransport.retryingUnopenedConnection {
+                attempts += 1
+                throw unopened
+            }
+        }
+        #expect(attempts == GRPCDrawThingsTransport.connectionAttempts)
+
+        // A connection that closed during the call may have started the work.
+        attempts = 0
+        await #expect(throws: RPCError.self) {
+            try await GRPCDrawThingsTransport.retryingUnopenedConnection {
+                attempts += 1
+                throw RPCError(code: .unavailable, message: "Transport became inactive")
+            }
+        }
+        #expect(attempts == 1)
+
+        let cancelled = Task {
+            var attempts = 0
+            do {
+                _ = try await GRPCDrawThingsTransport.retryingUnopenedConnection {
+                    attempts += 1
+                    withUnsafeCurrentTask { $0?.cancel() }
+                    throw unopened
+                }
+            } catch is CancellationError {
+                return attempts
+            }
+            return -1
+        }
+        #expect(try await cancelled.value == 1)
+    }
+
+    @Test("Sampling progress stays within the step range, including the finished signpost")
+    func samplingProgressClamping() {
+        func progress(_ step: Int32, of steps: Int32) -> GenerationState.Progress? {
+            GRPCDrawThingsTransport.progress(samplingStep: step, steps: steps)
+        }
+        #expect(progress(5, of: 20) == GenerationState.Progress(step: 5, stepCount: 20))
+        // Draw Things signposts `steps` once sampling has finished.
+        #expect(progress(20, of: 20) == GenerationState.Progress(step: 19, stepCount: 20))
+        #expect(progress(-1, of: 20) == GenerationState.Progress(step: 0, stepCount: 20))
+        #expect(progress(0, of: 0) == nil)
+    }
+
+    @Test(
+        "Runtime forwards the prompt/seed/credential and encodes a gallery image with honest metadata"
+    )
+    @MainActor func runtime() async throws {
+        let transport = StubDrawThingsTransport(catalog: catalog)
+        let runtime = DrawThingsRuntime(
+            secrets: InMemorySecretStore([DrawThingsConnection.secretAccount: "secret"]),
+            transport: transport
+        )
+        let request = try request(numberOfImages: 3)
+        let results = ResultCollector()
+        try await runtime.run(request: request, session: GenerationSession(requestID: request.id)) {
+            await results.add($0)
+        }
+        #expect(await transport.capturedPrompt == "a cat")
+        #expect(await transport.capturedSeeds == [7, 8, 9])
+        #expect(await transport.capturedPayload?.negativePrompt == "blurry")
+        #expect(await transport.capturedSecret == "secret")
+        #expect(await results.all.map(\.metadata.seed) == [7, 8, 9])
+        let result = try #require(await results.all.first)
+        #expect(pixelSize(of: result.imageData) == CGSize(width: 16, height: 16))
+        #expect(result.metadata.engine == "drawthings")
+        #expect(result.metadata.steps == 99)
+        let directory = try TempDirectory()
+        let url = directory.url.appendingPathComponent("drawthings.png")
+        try result.imageData.write(to: url)
+        let record = try #require(createImageRecordFromURL(url))
+        #expect(record.engine == "drawthings")
+        #expect(record.modelKey == "flux_2_klein_4b_q8p.ckpt")
+        #expect(record.seed == 7)
+        #expect(record.steps == 99)
+        #expect(record.guidanceScale == 11)
+        #expect(record.negativePrompt == "blurry")
+        // The recommended configuration's sampler for Klein 4B, under its own name.
+        #expect(result.metadata.samplerName == "DDIM Trailing")
+        #expect(record.details.contains(MetadataDetail(label: "Sampler", value: "DDIM Trailing")))
+        #expect(!record.metadataFields.contains(.scheduler))
+    }
+
+    @Test("Cancelling a session cancels suspended transport work without publishing a result")
+    func cancellation() async throws {
+        let transport = StubDrawThingsTransport(catalog: catalog)
+        await transport.waitForCancellation()
+        let runtime = DrawThingsRuntime(secrets: NoSecretStore(), transport: transport)
+        let request = try request()
+        let session = GenerationSession(requestID: request.id)
+        let results = ResultCollector()
+        let work = Task {
+            try await runtime.run(request: request, session: session) { await results.add($0) }
+        }
+        while await transport.capturedPrompt == nil { await Task.yield() }
+        session.cancel()
+        try await work.value
+        #expect(await transport.didCancel)
+        #expect(await results.all.isEmpty)
+    }
+}
+
+// Exercise the actual HTTP/2 + protobuf transport without requiring model weights.
+// This server returns a synthetic tensor; it is not evidence of real inference.
+private final class DrawThingsLoopbackService: RegistrableRPCService, Sendable {
+    let catalog: Data
+    let tensor: Data
+    let expectedConfiguration: Data
+    let expectedInputs: DrawThingsInputs
+    let loras: Data
+
+    init(
+        catalog: Data, tensor: Data, expectedConfiguration: Data, expectedInputs: DrawThingsInputs,
+        loras: Data
+    ) {
+        self.catalog = catalog
+        self.loras = loras
+        self.tensor = tensor
+        self.expectedConfiguration = expectedConfiguration
+        self.expectedInputs = expectedInputs
+    }
+
+    func registerMethods<Transport: ServerTransport>(with router: inout RPCRouter<Transport>) {
+        router.registerHandler(
+            forMethod: MethodDescriptor(
+                fullyQualifiedService: "ImageGenerationService", method: "Echo"),
+            deserializer: ProtobufDeserializer<EchoRequest>(),
+            serializer: ProtobufSerializer<EchoReply>()
+        ) { request, _ in
+            let request = try await ServerRequest(stream: request)
+            var reply = EchoReply()
+            reply.sharedSecretMissing = request.message.sharedSecret != "test-secret"
+            if !reply.sharedSecretMissing {
+                reply.override.models = self.catalog
+                reply.override.loras = self.loras
+            }
+            return StreamingServerResponse(single: ServerResponse(message: reply))
+        }
+        router.registerHandler(
+            forMethod: MethodDescriptor(
+                fullyQualifiedService: "ImageGenerationService", method: "GenerateImage"),
+            deserializer: ProtobufDeserializer<ImageGenerationRequest>(),
+            serializer: ProtobufSerializer<ImageGenerationResponse>()
+        ) { request, _ in
+            let request = try await ServerRequest(stream: request).message
+            #expect(request.prompt == "transport test")
+            #expect(request.negativePrompt == "blurry")
+            #expect(request.sharedSecret == "test-secret")
+            #expect(request.configuration == self.expectedConfiguration)
+            #expect(request.override.models == self.catalog)
+            #expect(request.override.loras == self.loras)
+            #expect(request.chunked)
+            let image = self.expectedInputs.startingImage ?? Data()
+            #expect(request.image == Data(SHA256.hash(data: image)))
+            #expect(request.contents == [image])
+            #expect(request.hints.map(\.hintType) == ["shuffle"])
+            #expect(
+                request.hints.first?.tensors.map(\.tensor) == self.expectedInputs.referenceImages)
+            #expect(request.hints.first?.tensors.map(\.weight) == [1, 1])
+            var first = ImageGenerationResponse()
+            first.previewImage = self.tensor
+            first.chunkState = .moreChunks
+            first.generatedImages = [self.tensor.prefix(self.tensor.count / 2)]
+            var last = ImageGenerationResponse()
+            last.chunkState = .lastChunk
+            last.generatedImages = [self.tensor.suffix(self.tensor.count - self.tensor.count / 2)]
+            let responses = [first, last]
+            return StreamingServerResponse { writer in
+                try await writer.write(contentsOf: responses)
+                return [:]
+            }
+        }
+    }
+}
+
+struct DrawThingsGRPCTests {
+    @Test("A host name's IPv4 addresses are tried first")
+    func ipv4First() async throws {
+        let resolver = IPv4FirstHost.Factory().resolver(
+            for: IPv4FirstHost(host: "localhost", port: 7859))
+        var names = resolver.names.makeAsyncIterator()
+        let addresses = try #require(try await names.next()?.endpoints.first?.addresses)
+        // localhost resolves to ::1 as well as 127.0.0.1.
+        #expect(addresses.contains { $0.ipv6 != nil })
+        let firstIPv6 = try #require(addresses.firstIndex { $0.ipv6 != nil })
+        #expect(addresses[..<firstIPv6].contains { $0.ipv4?.host == "127.0.0.1" })
+        #expect(!addresses[firstIPv6...].contains { $0.ipv4 != nil })
+    }
+
+    @Test("A refused connection is a call that never opened")
+    func refusedConnection() async throws {
+        // Nothing listens on port 1, so the connection is refused at once.
+        let connection = DrawThingsConnection(
+            enabled: true, host: "127.0.0.1", port: 1, useTLS: false)
+        await #expect(throws: DrawThingsUnopenedCall.self) {
+            _ = try await GRPCDrawThingsTransport().catalog(
+                connection: connection, sharedSecret: nil)
+        }
+    }
+
+    @Test(
+        "Real gRPC Echo auth, request serialization, chunk assembly, previews and tensor decode work over loopback"
+    )
+    func roundTrip() async throws {
+        let catalog = Data(
+            #"[{"file":"sd_v1.5_f16.ckpt","name":"SD","version":"v1","default_scale":8}]"#.utf8)
+        var connection = DrawThingsConnection(
+            enabled: true, host: "127.0.0.1", port: 7859, useTLS: false)
+        let model = try #require(
+            DrawThingsEngine.models(from: catalog, connection: connection).first)
+        var configuration = model.configuration
+        configuration.seed = 123
+        configuration.width = 768
+        configuration.height = 512
+        let tensor = try ImageHelpers.imageToDTTensor(makeCGImage(width: 16, height: 16))
+        let inputs = DrawThingsInputs(
+            startingImage: try ImageHelpers.imageToDTTensor(
+                makeCGImage(width: 768, height: 512), forceRGB: true),
+            referenceImages: try [(8, 16), (16, 8)].map { width, height in
+                try ImageHelpers.imageToDTTensor(
+                    makeCGImage(width: width, height: height), forceRGB: true)
+            })
+        let loras = Data(#"[{"file":"lora_f16.ckpt","version":"v1"}]"#.utf8)
+        let service = DrawThingsLoopbackService(
+            catalog: model.specification, tensor: tensor,
+            expectedConfiguration: try configuration.toFlatBufferData(), expectedInputs: inputs,
+            loras: loras
+        )
+        let server = HTTP2ServerTransport.Posix(
+            address: .ipv4(host: "127.0.0.1", port: 0), transportSecurity: .plaintext)
+        try await withGRPCServer(transport: server, services: [service]) { server in
+            connection.port = try #require(await server.listeningAddress?.ipv4?.port)
+            let transport = GRPCDrawThingsTransport()
+            for (secret, message) in [
+                (nil, "Draw Things requires a shared secret."),
+                ("wrong", "Draw Things didn't accept the shared secret."),
+            ] {
+                do {
+                    _ = try await transport.catalog(connection: connection, sharedSecret: secret)
+                    Issue.record("Expected the server to refuse \(secret ?? "no secret")")
+                } catch {
+                    #expect(error.localizedDescription == message)
+                }
+            }
+            let discovered = try await transport.catalog(
+                connection: connection, sharedSecret: "test-secret")
+            #expect(discovered.models == model.specification)
+            #expect(discovered.loras == loras)
+            let payload = DrawThingsPayload(
+                connection: connection, specification: discovered.models,
+                configuration: configuration, negativePrompt: "blurry",
+                architecture: nil, previewFamily: .sd1, loraSpecifications: discovered.loras)
+            let session = GenerationSession(requestID: UUID())
+            let image = try await transport.generate(
+                payload: payload, inputs: inputs, prompt: "transport test", seed: 123,
+                sharedSecret: "test-secret", showsPreview: true, session: session
+            )
+            #expect(image?.width == 16)
+            #expect(image?.height == 16)
+            session.close()
+            var previews: [CGImage] = []
+            for await event in session.events {
+                if case .preview(let preview?) = event { previews.append(preview) }
+            }
+            #expect(previews.map(\.width) == [16])
+
+            // With Show Image Preview off, the server's previews are not decoded.
+            let quiet = GenerationSession(requestID: UUID())
+            _ = try await transport.generate(
+                payload: payload, inputs: inputs, prompt: "transport test", seed: 123,
+                sharedSecret: "test-secret", showsPreview: false, session: quiet
+            )
+            quiet.close()
+            var quietPreviews = 0
+            for await event in quiet.events {
+                if case .preview = event { quietPreviews += 1 }
+            }
+            #expect(quietPreviews == 0)
+            server.beginGracefulShutdown()
+        }
+    }
+}

@@ -32,7 +32,6 @@ struct SDImage: Identifiable, Hashable {
     /// imported image can name a model exactly rather than by display name alone.
     var engine = ""
     var modelKey = ""
-    var quality = ""
     var startingImage = ""
     var controlNetImage = ""
     var inputImages: [String] = []
@@ -50,6 +49,8 @@ struct SDImage: Identifiable, Hashable {
     /// The size the metadata says the image was generated at, which can differ
     /// from the pixel size.
     var generationSize: CGSize?
+    /// The LoRAs the image records, in order.
+    var loras: [RecordedLoRA] = []
     /// Settings shown but not restorable, such as an unknown sampler.
     var details: [MetadataDetail] = []
     /// Shown instead of settings when the metadata is ambiguous.
@@ -156,9 +157,6 @@ extension SDImage {
                 Metadata.size.rawValue,
                 value: "\(Int(generationSize.width)) x \(Int(generationSize.height))")
         }
-        if metadataFields.contains(.quality), !quality.isEmpty {
-            append(Metadata.quality.rawValue, value: quality)
-        }
         if metadataFields.contains(.startingImage), !startingImage.isEmpty {
             append(Metadata.startingImage.rawValue, value: startingImage)
         }
@@ -194,6 +192,11 @@ extension SDImage {
         }
         if metadataFields.contains(.mlComputeUnit) {
             append(Metadata.mlComputeUnit.rawValue, value: MLComputeUnits.toString(mlComputeUnit))
+        }
+        if metadataFields.contains(.loras) {
+            for lora in loras {
+                append(Metadata.lora.rawValue, value: lora.description)
+            }
         }
         for detail in details {
             append(detail.label, value: detail.value)

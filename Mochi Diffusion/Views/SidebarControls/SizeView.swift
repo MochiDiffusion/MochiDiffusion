@@ -11,13 +11,15 @@ struct NumericTextField: View {
     @Binding var value: Int
     let bounds: ClosedRange<Int>
     let step: Int
+    let ratioBase: Double
     @State private var text: String
     @FocusState private var isFocused: Bool
 
-    init(value: Binding<Int>, bounds: ClosedRange<Int>, step: Int) {
+    init(value: Binding<Int>, bounds: ClosedRange<Int>, step: Int, relativeTo ratioBase: Double) {
         self._value = value
         self.bounds = bounds
         self.step = step
+        self.ratioBase = ratioBase
         self._text = State(initialValue: String(value.wrappedValue))
     }
 
@@ -39,14 +41,31 @@ struct NumericTextField: View {
             .onSubmit(commit)
             .onChange(of: isFocused) { _, newFocus in if !newFocus { commit() } }
             .onReceive(text.publisher.collect()) { _ in
-                // Allow digits only
-                let filtered = text.filter { $0.isNumber }
+                let filtered = filter(text)
                 if text != filtered { text = filtered }
             }
     }
+
+    func filter(_ s: String) -> String {
+        if let prefixMatch = s.prefixMatch(of: /(\d*\.?\d*x)/) {
+            return String(prefixMatch.1)
+        }
+
+        return s.filter { $0.isNumber || $0 == "." }
+    }
+
     func commit() {
-        if let input = Int(text) {
-            let valid = correct(input)
+        let requested: Double?
+
+        if text.last == "x", let ratio = Double(text.dropLast()) {
+            requested = ratio * ratioBase
+        } else {
+            requested = Double(text)
+        }
+
+        if let requested {
+            let clamped = min(max(requested, Double(bounds.lowerBound)), Double(bounds.upperBound))
+            let valid = correct(Int(clamped.rounded()))
             value = valid
             text = String(valid)
         } else {
@@ -86,6 +105,7 @@ struct SizeView: View {
                     "Width:",
                     comment: "Label for image width picker"
                 )
+                .sidebarLabelFormat()
                 if let bounds = size.bounds, let step = size.step {
                     NumericTextField(
                         value: Binding(
@@ -93,7 +113,8 @@ struct SizeView: View {
                             set: { configStore.width = $0 }
                         ),
                         bounds: bounds,
-                        step: step
+                        step: step,
+                        relativeTo: resolvedSize.height
                     )
                 } else {
                     PinnedValueField(text: String(Int(resolvedSize.width)))
@@ -126,6 +147,7 @@ struct SizeView: View {
                     "Height:",
                     comment: "Label for image height picker"
                 )
+                .sidebarLabelFormat()
                 if let bounds = size.bounds, let step = size.step {
                     NumericTextField(
                         value: Binding(
@@ -133,7 +155,8 @@ struct SizeView: View {
                             set: { configStore.height = $0 }
                         ),
                         bounds: bounds,
-                        step: step
+                        step: step,
+                        relativeTo: resolvedSize.width
                     )
                 } else {
                     PinnedValueField(text: String(Int(resolvedSize.height)))

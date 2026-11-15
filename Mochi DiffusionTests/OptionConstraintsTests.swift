@@ -153,217 +153,6 @@ struct OptionConstraintsTests {
         #expect(constraint.isEditable)
     }
 
-    // MARK: - Joint size limits
-
-    /// The shape a hosted model needs: an arbitrary size on a 16px grid, but
-    /// capped in elongation and in total pixels. Numbers follow the OpenAI image
-    /// API.
-    private static let hosted = SizeConstraint.freeform(
-        range: 512...3_840,
-        step: 16,
-        limits: SizeLimits(maxAspectRatio: 3, pixelBounds: 655_360...8_294_400)
-    )
-
-    private func isLegal(_ size: CGSize, _ limits: SizeLimits) -> Bool {
-        let long = max(Int(size.width), Int(size.height))
-        let short = min(Int(size.width), Int(size.height))
-        if let ratio = limits.maxAspectRatio, Double(long) / Double(short) > ratio + 0.0001 {
-            return false
-        }
-        if let pixels = limits.pixelBounds, !pixels.contains(Int(size.width) * Int(size.height)) {
-            return false
-        }
-        return Int(size.width) % 16 == 0 && Int(size.height) % 16 == 0
-    }
-
-    @Test("No limits leaves a size exactly as per-dimension bounds left it")
-    func noLimitsIsPassthrough() {
-        let plain = SizeConstraint.freeform(range: 512...3_840, step: 16)
-
-        #expect(plain.limits.isEmpty)
-        // 3840x512 is 7.5:1 and only 1.97M pixels — illegal for the hosted
-        // constraint, untouched without limits.
-        #expect(
-            plain.resolved(CGSize(width: 3_840, height: 512))
-                == CGSize(width: 3_840, height: 512))
-    }
-
-    @Test(
-        "An already-legal size is returned unchanged",
-        arguments: [
-            CGSize(width: 1_024, height: 1_024),
-            CGSize(width: 1_536, height: 1_024),
-            CGSize(width: 1_024, height: 1_536),
-            CGSize(width: 2_048, height: 2_048),
-            CGSize(width: 3_840, height: 2_160),
-        ]
-    )
-    func legalSizeUnchanged(size: CGSize) {
-        #expect(Self.hosted.resolved(size) == size)
-    }
-
-    /// Correcting elongation reduces the long edge and leaves the short one, so
-    /// the result is never larger than what was asked for.
-    @Test(
-        "An over-elongated size has its long edge brought in",
-        arguments: [
-            (CGSize(width: 3_840, height: 512), CGSize(width: 1_536, height: 512)),
-            (CGSize(width: 512, height: 3_840), CGSize(width: 512, height: 1_536)),
-        ]
-    )
-    func elongationCorrected(requested: CGSize, expected: CGSize) {
-        let resolved = Self.hosted.resolved(requested)
-
-        #expect(resolved == expected)
-        #expect(isLegal(resolved, Self.hosted.limits))
-    }
-
-    /// Over-budget scales both edges, so the shape survives. Nibbling one edge
-    /// would hand back something squarer than the user asked for.
-    @Test("An over-budget size is scaled down, keeping its shape")
-    func pixelCeilingScalesProportionally() {
-        let requested = CGSize(width: 3_840, height: 2_400)  // 1.6:1, 9.2M pixels
-        let resolved = Self.hosted.resolved(requested)
-
-        #expect(Int(resolved.width) * Int(resolved.height) <= 8_294_400)
-        #expect(isLegal(resolved, Self.hosted.limits))
-        let requestedRatio = 3_840.0 / 2_400.0
-        let resolvedRatio = Double(resolved.width) / Double(resolved.height)
-        #expect(abs(resolvedRatio - requestedRatio) < 0.05)
-        // Scaled down, not up.
-        #expect(resolved.width <= requested.width && resolved.height <= requested.height)
-    }
-
-    /// The one case that enlarges. A floor cannot be met by shrinking, and the
-    /// alternative is a request the service rejects.
-    @Test("An under-budget size is scaled up to reach the floor")
-    func pixelFloorScalesUp() {
-        let requested = CGSize(width: 512, height: 512)  // 262k pixels, below the floor
-        let resolved = Self.hosted.resolved(requested)
-
-        #expect(Int(resolved.width) * Int(resolved.height) >= 655_360)
-        #expect(isLegal(resolved, Self.hosted.limits))
-        #expect(resolved.width >= requested.width && resolved.height >= requested.height)
-    }
-
-    /// Both corrections at once, and in the order that matters: the ratio step
-    /// moves one edge, the budget steps scale both, so satisfying the budget
-    /// cannot undo the ratio.
-    @Test("A size violating both rules ends up legal")
-    func bothRulesCorrected() {
-        // 12:1 and far under the pixel floor.
-        let resolved = Self.hosted.resolved(CGSize(width: 6_144, height: 512))
-
-        #expect(isLegal(resolved, Self.hosted.limits))
-    }
-
-    @Test(
-        "Every corrected size is legal, whatever was asked for",
-        arguments: [
-            CGSize(width: 1, height: 1),
-            CGSize(width: 10_000, height: 10_000),
-            CGSize(width: 10_000, height: 1),
-            CGSize(width: 1, height: 10_000),
-            CGSize(width: 640, height: 4_000),
-            CGSize(width: 3_000, height: 700),
-            CGSize(width: 1_023, height: 1_025),
-            CGSize(width: 2_560, height: 1_440),
-        ]
-    )
-    func correctionAlwaysLands(requested: CGSize) {
-        let resolved = Self.hosted.resolved(requested)
-
-        #expect(isLegal(resolved, Self.hosted.limits))
-        #expect((512...3_840).contains(Int(resolved.width)))
-        #expect((512...3_840).contains(Int(resolved.height)))
-    }
-
-    @Test("Resolving is idempotent: a corrected size does not move again")
-    func correctionIsIdempotent() {
-        for requested in [
-            CGSize(width: 1, height: 1),
-            CGSize(width: 10_000, height: 1),
-            CGSize(width: 3_840, height: 2_400),
-            CGSize(width: 640, height: 4_000),
-        ] {
-            let once = Self.hosted.resolved(requested)
-            #expect(Self.hosted.resolved(once) == once)
-        }
-    }
-
-    // MARK: - Quality
-
-    /// Hosted vocabulary. Both local engines declare it unsupported, so `plan`
-    /// resolves it to nothing and no image records a quality it did not have.
-    @Test("Neither local model claims a quality")
-    func localModelsHaveNoQuality() throws {
-        let temp = try TempDirectory()
-        let sdURL = try temp.subdirectory("sd")
-        try makeSDModelFixture(at: sdURL)
-        let kleinURL = try temp.subdirectory("klein")
-        try makeKleinModelFixture(at: kleinURL)
-
-        let sd = try #require(SDModel(url: sdURL, name: "sd", controlNet: []))
-        let klein = try #require(IrisModel(url: kleinURL, name: "klein"))
-
-        #expect(!sd.constraints.quality.isSupported)
-        #expect(!klein.constraints.quality.isSupported)
-        #expect(sd.constraints.quality.resolved(.high) == nil)
-        #expect(klein.constraints.quality.resolved(.high) == nil)
-    }
-
-    /// Raw values reach the wire and the image metadata, so they are pinned, and
-    /// kept separate from display strings.
-    @Test("Quality identifiers are stable and distinct from their labels")
-    func qualityIdentifiersAreStable() {
-        #expect(ImageQuality.auto.rawValue == "auto")
-        #expect(ImageQuality.low.rawValue == "low")
-        #expect(ImageQuality.medium.rawValue == "medium")
-        #expect(ImageQuality.high.rawValue == "high")
-        #expect(ImageQuality.xhigh.rawValue == "xhigh")
-        #expect(ImageQuality.max.rawValue == "max")
-        #expect(ImageQuality.allCases.count == 6)
-        // A label is free to be reworded or localized; an identifier is not.
-        #expect(ImageQuality.auto.displayName != ImageQuality.auto.rawValue)
-    }
-
-    /// The forward-compatibility rule. An image written by a later build naming a
-    /// quality this one does not have must leave the sidebar alone rather than be
-    /// read as `auto`, which would show a value the image never used.
-    @Test(
-        "Only a recognised recorded quality is read back",
-        arguments: [
-            ("auto", ImageQuality.auto),
-            ("low", .low),
-            ("medium", .medium),
-            ("high", .high),
-            ("xhigh", .xhigh),
-            ("max", .max),
-        ]
-    )
-    func recognisedQualityIsRead(recorded: String, expected: ImageQuality) {
-        #expect(ImageQuality(recorded) == expected)
-    }
-
-    @Test(
-        "An unrecognised or absent quality reads as nothing",
-        arguments: ["", "ultra", "Auto", "HIGH", "low ", "0"]
-    )
-    func unrecognisedQualityIsNil(recorded: String) {
-        #expect(ImageQuality(recorded) == nil)
-    }
-
-    @Test("An offered quality is honoured and an unoffered one falls back")
-    func qualityChoiceResolution() {
-        let offered = ChoiceConstraint<ImageQuality>.oneOf([.auto, .low, .high])
-
-        #expect(offered.resolved(.high) == .high)
-        // Not offered, so the first is used rather than the request being rejected
-        // — the same rule every other choice constraint follows.
-        #expect(offered.resolved(.medium) == .auto)
-        #expect(ChoiceConstraint<ImageQuality>.pinned(.low).resolved(.high) == .low)
-    }
-
     // MARK: - Choices
 
     @Test("A pinned choice ignores the request, an offered one is honoured")
@@ -385,6 +174,35 @@ struct OptionConstraintsTests {
         let offered = ChoiceConstraint<Scheduler>.oneOf([.pndmScheduler])
 
         #expect(offered.resolved(.discreteFlowScheduler) == .pndmScheduler)
+    }
+
+    // MARK: - LoRAs
+
+    /// Unlike the other options, a LoRA's range is only the server's suggestion:
+    /// Draw Things applies whatever weight it is sent.
+    @Test("A LoRA weight outside its range is kept unless the range is pinned")
+    func loraWeightsAreNotClamped() {
+        let constraint = LoRAsConstraint.supported([
+            LoRAOption(
+                file: "ranged.ckpt", name: "Ranged", triggerWords: "", weightRange: -1...2,
+                defaultWeight: 1),
+            LoRAOption(
+                file: "pinned.ckpt", name: "Pinned", triggerWords: "", weightRange: 0.8...0.8,
+                defaultWeight: 0.8),
+        ])
+
+        #expect(
+            constraint.resolved([
+                LoRASelection(file: "ranged.ckpt", weight: 5),
+                LoRASelection(file: "pinned.ckpt", weight: 5),
+            ]) == [
+                LoRASelection(file: "ranged.ckpt", weight: 5),
+                LoRASelection(file: "pinned.ckpt", weight: 0.8),
+            ])
+        #expect(
+            constraint.resolved([LoRASelection(file: "ranged.ckpt", weight: -3)]) == [
+                LoRASelection(file: "ranged.ckpt", weight: -3)
+            ])
     }
 
     // MARK: - Starting image, input images and ControlNet
@@ -527,44 +345,46 @@ struct ModelVisibilityTests {
         #expect(constraints.inputImages.maxCount == IrisEngine.maxReferenceImages)
     }
 
-    /// The sidebar shows these three rows for every model, so each one has to
-    /// have something to display no matter which engine is selected: a range to
-    /// slide, a pinned value to show disabled, or the em-dash placeholder.
+    /// The sidebar shows the steps and number-of-images rows for every model, and
+    /// the guidance row for every model that uses guidance. A shown row has no
+    /// placeholder, so each one must have something to display: a range to slide
+    /// or a pinned value to show disabled.
     ///
     /// Recorded per engine because the failure this guards against is silent —
     /// a constraint changing shape does not break the build, it just empties a
-    /// row and slides the sidebar.
-    @Test("Every engine has something to show in the always-visible rows")
-    func alwaysVisibleRowsHaveSomethingToShow() throws {
+    /// row.
+    @Test("Every engine has something to show in every row it shows")
+    func shownRowsHaveSomethingToShow() throws {
+        let drawThings = try #require(
+            DrawThingsEngine.models(
+                from: Data(
+                    #"[{"file":"flux_1_schnell_q5p.ckpt","version":"flux1","is_consistency_model":true}]"#
+                        .utf8),
+                connection: DrawThingsConnection()
+            ).first)
         let cases: [(String, OptionConstraints)] = [
             ("Core ML", try makeSDModel(inputSize: nil).constraints),
             ("Klein", IrisModel.constraints(for: .fluxKlein)),
-            ("OpenAI", OpenAIImageEngine.gptImage2.constraints),
+            ("Draw Things consistency model", drawThings.constraints),
             ("no model selected", OptionConstraints.unconstrained),
         ]
 
-        // Mirrors what each view asks: a range first, then a pinned value, then
-        // the placeholder. The placeholder is always available, so the check is
-        // that a constraint declaring support can actually produce a value.
+        // Mirrors what each view asks: a range first, then a pinned value.
         for (named, constraints) in cases {
-            if constraints.steps.isSupported {
-                #expect(
-                    constraints.steps.bounds != nil || constraints.steps.resolved(20) != nil,
-                    "\(named) declares steps supported but shows nothing"
-                )
-            }
+            #expect(
+                constraints.steps.bounds != nil || constraints.steps.resolved(20) != nil,
+                "\(named) shows a steps row with nothing in it"
+            )
+            #expect(
+                constraints.numberOfImages.bounds != nil
+                    || constraints.numberOfImages.resolved(1) != nil,
+                "\(named) shows a number-of-images row with nothing in it"
+            )
             if constraints.guidanceScale.isSupported {
                 #expect(
                     constraints.guidanceScale.bounds != nil
                         || constraints.guidanceScale.resolved(7.5) != nil,
-                    "\(named) declares a guidance scale but shows nothing"
-                )
-            }
-            if constraints.numberOfImages.isSupported {
-                #expect(
-                    constraints.numberOfImages.bounds != nil
-                        || constraints.numberOfImages.resolved(1) != nil,
-                    "\(named) declares a number of images but shows nothing"
+                    "\(named) shows a guidance row with nothing in it"
                 )
             }
         }
@@ -582,15 +402,6 @@ struct ModelVisibilityTests {
         #expect(IrisModel.constraints(for: .fluxKlein).guidanceScale.isSupported)
         #expect(!IrisModel.constraints(for: .fluxKlein).startingImage.isSupported)
         #expect(!IrisModel.constraints(for: .fluxKlein).controlNet.isSupported)
-
-        // Hosted: the service does not disclose its sampler settings, so there is
-        // no value to pin. This is the case `.unsupported` is for.
-        let hosted = OpenAIImageEngine.gptImage2.constraints
-        #expect(!hosted.steps.isSupported)
-        #expect(!hosted.guidanceScale.isSupported)
-        #expect(!hosted.scheduler.isSupported)
-        // Quality is the inverse: hosted vocabulary the local engines do not have.
-        #expect(hosted.quality.isSupported)
     }
 
     @Test("A fixed-size Core ML model shows its size read-only")

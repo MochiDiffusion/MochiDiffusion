@@ -1,3 +1,10 @@
+# [v7.0](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v7.0) - 14 Nov 2026
+
+## Features
+
+- Can connect to local [Draw Things](https://drawthings.ai) servers, browse available models and generate images with metadata
+- type-to-filter Model and LoRA pickers
+
 # [v6.3](https://github.com/MochiDiffusion/MochiDiffusion/releases/tag/v6.3) - 1 Nov 2026
 
 ## Features

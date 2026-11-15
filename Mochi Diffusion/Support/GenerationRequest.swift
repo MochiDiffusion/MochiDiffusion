@@ -60,9 +60,9 @@ nonisolated struct GenerationRequest: Sendable, Identifiable {
     let strength: Float?
     /// Resolved by `plan`; `nil` when the model does not use it at all.
     ///
-    /// Optional for the same reason `strength` is, and specifically so a hosted
-    /// engine is not forced to invent a step count or a sampler it has no concept
-    /// of. Runtimes that use these take them from their own payload.
+    /// Optional for the same reason `strength` is, so an engine is not forced to
+    /// invent a value it does not use. Runtimes that use these take them from their
+    /// own payload.
     let stepCount: Int?
     /// Resolved by `plan`; `nil` when the model does not use it at all, so the
     /// queue can leave the row out rather than print a number that had no effect.
@@ -70,9 +70,6 @@ nonisolated struct GenerationRequest: Sendable, Identifiable {
     /// Resolved by `plan`; `nil` when the model does not use it at all. See
     /// `stepCount`.
     let scheduler: Scheduler?
-    /// Resolved by `plan`; `nil` for every model that has no notion of quality,
-    /// which is both local engines.
-    let quality: ImageQuality?
     /// Core ML only, but the queue displays it when the model records it, so it
     /// is a plain field rather than something the queue has to unwrap a payload
     /// for.
@@ -81,6 +78,9 @@ nonisolated struct GenerationRequest: Sendable, Identifiable {
     let seed: UInt32
     let numberOfImages: Int
     let imageDir: String
+    /// The LoRAs that will be applied, with their resolved weights. Empty for a
+    /// model that applies none.
+    var loras: [LoRASelection] = []
 }
 
 nonisolated struct GenerationResult: Sendable, Identifiable {
@@ -128,7 +128,6 @@ nonisolated struct GenerationMetadata: Sendable {
     let modelKey: String
     /// The model's architecture or family, such as `SDXL` or `FLUX.2 Klein`.
     let architecture: String?
-    let quality: String?
     /// The starting image's filename. Empty when the image had none; `nil`
     /// when no starting image was used.
     let startingImage: String?
@@ -144,10 +143,15 @@ nonisolated struct GenerationMetadata: Sendable {
     /// for a reference that had no filename. `nil` when the model takes none.
     let inputImages: [String]?
     let scheduler: Scheduler?
+    /// The sampler under its engine's own name, for an engine whose samplers are
+    /// not Mochi's schedulers. `nil` when `scheduler` names it or none is known.
+    let samplerName: String?
     let mlComputeUnit: MLComputeUnits?
     let seed: UInt32?
     let steps: Int?
     let guidanceScale: Double?
     let generatedDate: Date
     let metadataFields: Set<MetadataField>
+    /// The LoRAs applied, by server filename, with their weights.
+    var loras: [LoRASelection] = []
 }

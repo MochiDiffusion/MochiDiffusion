@@ -6,6 +6,8 @@
 import CoreGraphics
 import Foundation
 import ImageIO
+import Observation
+import Synchronization
 import Testing
 import UniformTypeIdentifiers
 
@@ -884,5 +886,51 @@ struct ImageRepositoryTests {
 
         #expect(try Data(contentsOf: original) == Data([1]))
         #expect(try Data(contentsOf: directory.appending(path: "A cat.1.42-2.png")) == Data([2]))
+    }
+}
+
+/// Writing a folder setting the value it already holds is not a change, so it
+/// reloads neither the gallery nor the model list.
+@MainActor
+struct FolderSettingWriteTests {
+    enum Folder: CaseIterable, Sendable {
+        case images, models, controlNets
+    }
+
+    private func value(of folder: Folder, in store: ConfigStore) -> String {
+        switch folder {
+        case .images: store.imageDir
+        case .models: store.modelDir
+        case .controlNets: store.controlNetDir
+        }
+    }
+
+    private func set(_ folder: Folder, to path: String, in store: ConfigStore) {
+        switch folder {
+        case .images: store.imageDir = path
+        case .models: store.modelDir = path
+        case .controlNets: store.controlNetDir = path
+        }
+    }
+
+    @Test(
+        "Writing a folder setting its current value notifies no observer",
+        arguments: Folder.allCases)
+    func unchangedWriteIsSilent(folder: Folder) {
+        let defaults = TempDefaults()
+        let store = ConfigStore(store: defaults.defaults)
+        set(folder, to: "/tmp/mochi-folder", in: store)
+        let changed = Mutex(false)
+        withObservationTracking {
+            _ = value(of: folder, in: store)
+        } onChange: {
+            changed.withLock { $0 = true }
+        }
+
+        set(folder, to: "/tmp/mochi-folder", in: store)
+        #expect(!changed.withLock { $0 })
+
+        set(folder, to: "/tmp/mochi-other-folder", in: store)
+        #expect(changed.withLock { $0 })
     }
 }

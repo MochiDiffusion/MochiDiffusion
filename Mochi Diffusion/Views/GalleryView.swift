@@ -10,6 +10,7 @@ import SwiftUI
 struct GalleryView: View {
 
     @Environment(GenerationState.self) private var generationState: GenerationState
+    @Environment(GenerationController.self) private var generationController: GenerationController
     @Environment(ImageGallery.self) private var store: ImageGallery
     @Environment(GalleryController.self) private var galleryController: GalleryController
     @Environment(QuickLookState.self) private var quickLook: QuickLookState
@@ -67,11 +68,24 @@ struct GalleryView: View {
             ),
             isPresented: isShowingOutcomeAlert
         ) {
+            let sources = generationState.outdatedModelListSources
+            if !sources.isEmpty {
+                Button {
+                    generationState.clearUnreportedOutcomes()
+                    Task { await generationController.loadModels(from: sources) }
+                } label: {
+                    Text(
+                        "Refresh Models",
+                        comment: "Alert button that fetches the model list again after a failure"
+                    )
+                }
+            }
             Button {
                 generationState.clearUnreportedOutcomes()
             } label: {
                 Text("OK")
             }
+            .keyboardShortcut(.defaultAction)
         } message: {
             // Blank line between them: these are separate outcomes, not a
             // paragraph, and a batch can end more than one way.

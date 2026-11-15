@@ -34,6 +34,14 @@ struct SidebarView: View {
                         ModelView()
                         Spacer().frame(height: 6)
                     }
+                    // Only for a model whose server offers LoRAs for it. The rows
+                    // below move down by its height.
+                    if controller.currentConstraints.loras.isSupported {
+                        Group {
+                            LoRAView()
+                            Spacer().frame(height: 6)
+                        }
+                    }
                     Group {
                         SizeView()
                         Spacer().frame(height: 6)
@@ -58,9 +66,14 @@ struct SidebarView: View {
                         StepsView()
                         Spacer().frame(height: 6)
                     }
-                    Group {
-                        GuidanceScaleView()
-                        Spacer().frame(height: 6)
+                    // Hidden for a model with no guidance, and the rows below move up.
+                    // The image rows above already come and go by model, so holding
+                    // this row's space would not keep the rows below in place.
+                    if controller.currentConstraints.guidanceScale.isSupported {
+                        Group {
+                            GuidanceScaleView()
+                            Spacer().frame(height: 6)
+                        }
                     }
                     Group {
                         SeedView()

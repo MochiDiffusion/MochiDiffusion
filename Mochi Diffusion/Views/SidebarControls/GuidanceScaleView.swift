@@ -16,7 +16,7 @@ struct GuidanceScaleView: View {
 
         let guidanceScale = controller.currentConstraints.guidanceScale
 
-        // Shown for every model, so the controls below keep their positions.
+        // Only shown for a model that uses guidance; see `SidebarView`.
         Text("Guidance Scale")
             .sidebarLabelFormat()
         if let bounds = guidanceScale.bounds {
@@ -31,8 +31,6 @@ struct GuidanceScaleView: View {
             PinnedValueField(
                 text: pinned.formatted(.number.precision(.fractionLength(1)))
             )
-        } else {
-            UnsupportedValueField()
         }
     }
 }

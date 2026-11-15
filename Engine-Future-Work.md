@@ -5,12 +5,11 @@ The next release is tracked by Beads epic `MochiDiffusion-q73`; current architec
 and scope live in [AGENTS.md](AGENTS.md). This file preserves reasoning that may be
 useful when Graham chooses to return to a feature. It is not a parallel backlog.
 
-Draw Things is postponed in its entirety for this release, including the current
-gRPC prototype. [Draw-Things-Proof-of-Concept.md](Draw-Things-Proof-of-Concept.md)
-records its scope and validation. Beads task `MochiDiffusion-fwu` owns preserving
-that work on a feature branch and excluding its integration and exclusive dependencies
-from the release. The prototype is preserved on branch `codex/draw-things-prototype` at
+Draw Things generation is Mochi 7.0 scope (epic `MochiDiffusion-5xf`), ported from the
+gRPC prototype preserved on branch `codex/draw-things-prototype` at
 `e18663b3877bd42fac9fe169063a052b567a4f8a`.
+[Draw-Things-Proof-of-Concept.md](Draw-Things-Proof-of-Concept.md) records the prototype's
+scope and validation; `MochiDiffusion-5xf.4` records the 7.0 support policy.
 
 Musubi interoperability is also postponed. Epic `MochiDiffusion-e4v` and its unfinished
 children are deferred without a resume date. Its completed wire-contract spike and

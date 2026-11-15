@@ -14,16 +14,18 @@ struct MochiSlider: View {
     private let step: Double
     private let fractionLength: Int
     private let strictUpperBound: Bool
+    private let strictLowerBound: Bool
 
     init(
         value: Binding<Double>, bounds: ClosedRange<Double>, step: Decimal,
-        strictUpperBound: Bool = true
+        strictUpperBound: Bool = true, strictLowerBound: Bool = true
     ) {
         _value = value
         self.bounds = bounds
         self.step = (step as NSDecimalNumber).doubleValue
         self.fractionLength = max(0, -step.exponent)
         self.strictUpperBound = strictUpperBound
+        self.strictLowerBound = strictLowerBound
     }
 
     @State private var text: String = ""
@@ -32,7 +34,10 @@ struct MochiSlider: View {
 
     func stringToDouble(_ string: String) -> Double? {
         if let doubleValue = Double(string.replacingOccurrences(of: ",", with: ".")) {
-            var newValue = max(doubleValue, bounds.lowerBound)
+            var newValue = doubleValue
+            if strictLowerBound {
+                newValue = max(newValue, bounds.lowerBound)
+            }
             if strictUpperBound {
                 newValue = min(newValue, bounds.upperBound)
             }

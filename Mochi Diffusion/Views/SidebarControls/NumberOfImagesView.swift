@@ -26,8 +26,6 @@ struct NumberOfImagesView: View {
             )
         } else if let pinned = numberOfImages.resolved(Int(controller.numberOfImages)) {
             PinnedValueField(text: String(pinned))
-        } else {
-            UnsupportedValueField()
         }
     }
 }

@@ -48,15 +48,39 @@
   "packages": [
     {
       "kind": "remote",
+      "repository": "https://github.com/euphoriacyberware-ai/DrawThings-Swift",
+      "version": {
+        "version-range": "2.3.0..<2.3.1",
+      },
+    }, {
+      "kind": "remote",
+      "repository": "https://github.com/grpc/grpc-swift-2.git",
+      "version": {
+        "up-to-next-major-version": "2.4.0",
+      },
+    }, {
+      "kind": "remote",
+      "repository": "https://github.com/grpc/grpc-swift-nio-transport.git",
+      "version": {
+        "up-to-next-major-version": "2.10.0",
+      },
+    }, {
+      "kind": "remote",
+      "repository": "https://github.com/grpc/grpc-swift-protobuf.git",
+      "version": {
+        "up-to-next-major-version": "2.4.0",
+      },
+    }, {
+      "kind": "remote",
       "repository": "https://github.com/gdbing/FilterablePicker.git",
       "version": {
-        "up-to-next-major-version": "1.1.0",
+        "up-to-next-major-version": "1.2.1",
       },
     }, {
       "kind": "remote",
       "repository": "https://github.com/MochiDiffusion/Musubi.git",
       "version": {
-        "revision": "3ea31276dd1fd48fb591d59d20951ff8860503b3",
+        "version-range": "0.2.0..<0.2.1",
       },
     }, {
       "kind": "remote",
@@ -159,7 +183,6 @@
             { "path": "EngineIdentity.swift", "target-membership": [ "Mochi Diffusion/compile-sources" ] },
             { "path": "OptionConstraints.swift", "target-membership": [ "Mochi Diffusion/compile-sources" ] },
             { "path": "InputImage.swift", "target-membership": [ "Mochi Diffusion/compile-sources" ] },
-            { "path": "ImageQuality.swift", "target-membership": [ "Mochi Diffusion/compile-sources" ] },
             { "path": "IrisModel.swift", "target-membership": [ "Mochi Diffusion/compile-sources" ] },
             { "path": "SDModelAttentionType.swift", "target-membership": [ "Mochi Diffusion/compile-sources" ] },
             { "path": "SDModel.swift", "target-membership": [ "Mochi Diffusion/compile-sources" ] },
@@ -176,6 +199,7 @@
           "path": "Resources",
           "children": [
             { "path": "Assets.xcassets", "target-membership": [ "Mochi Diffusion/resources" ] },
+            { "path": "DrawThingsPresets.json", "target-membership": [ "Mochi Diffusion/resources" ] },
           ],
         }, {
           "kind": "group",
@@ -205,10 +229,9 @@
             { "path": "EngineSettingsStore.swift", "target-membership": [ "Mochi Diffusion/compile-sources" ] },
             { "path": "ControlNetLink.swift", "target-membership": [ "Mochi Diffusion/compile-sources" ] },
             { "path": "SecretStore.swift", "target-membership": [ "Mochi Diffusion/compile-sources" ] },
-            { "path": "OpenAIEngineRuntime.swift", "target-membership": [ "Mochi Diffusion/compile-sources" ] },
-            { "path": "OpenAICredentialCheck.swift", "target-membership": [ "Mochi Diffusion/compile-sources" ] },
-            { "path": "OpenAIImageEngine.swift", "target-membership": [ "Mochi Diffusion/compile-sources" ] },
-            { "path": "HTTPSession.swift", "target-membership": [ "Mochi Diffusion/compile-sources" ] },
+            { "path": "DrawThingsEngine.swift", "target-membership": [ "Mochi Diffusion/compile-sources" ] },
+            { "path": "DrawThingsTransport.swift", "target-membership": [ "Mochi Diffusion/compile-sources" ] },
+            { "path": "DrawThingsPresets.swift", "target-membership": [ "Mochi Diffusion/compile-sources" ] },
             { "path": "GenerationError.swift", "target-membership": [ "Mochi Diffusion/compile-sources" ] },
             { "path": "GenerationSession.swift", "target-membership": [ "Mochi Diffusion/compile-sources" ] },
             { "path": "LocalEngines.swift", "target-membership": [ "Mochi Diffusion/compile-sources" ] },
@@ -230,11 +253,10 @@
                 { "path": "StartingImageView.swift", "target-membership": [ "Mochi Diffusion/compile-sources" ] },
                 { "path": "NumberOfImagesView.swift", "target-membership": [ "Mochi Diffusion/compile-sources" ] },
                 { "path": "StepsView.swift", "target-membership": [ "Mochi Diffusion/compile-sources" ] },
-                { "path": "QualityView.swift", "target-membership": [ "Mochi Diffusion/compile-sources" ] },
                 { "path": "GuidanceScaleView.swift", "target-membership": [ "Mochi Diffusion/compile-sources" ] },
                 { "path": "SeedView.swift", "target-membership": [ "Mochi Diffusion/compile-sources" ] },
                 { "path": "ModelView.swift", "target-membership": [ "Mochi Diffusion/compile-sources" ] },
-                { "path": "EngineView.swift", "target-membership": [ "Mochi Diffusion/compile-sources" ] },
+                { "path": "LoRAView.swift", "target-membership": [ "Mochi Diffusion/compile-sources" ] },
                 { "path": "ControlNetView.swift", "target-membership": [ "Mochi Diffusion/compile-sources" ] },
                 { "path": "SizeView.swift", "target-membership": [ "Mochi Diffusion/compile-sources" ] },
                 { "path": "ImageWellView.swift", "target-membership": [ "Mochi Diffusion/compile-sources" ] },
@@ -249,8 +271,8 @@
             { "path": "GalleryToolbarView.swift", "target-membership": [ "Mochi Diffusion/compile-sources" ] },
             { "path": "GalleryView.swift", "target-membership": [ "Mochi Diffusion/compile-sources" ] },
             { "path": "InspectorView.swift", "target-membership": [ "Mochi Diffusion/compile-sources" ] },
+            { "path": "DrawThingsSettingsView.swift", "target-membership": [ "Mochi Diffusion/compile-sources" ] },
             { "path": "SettingsView.swift", "target-membership": [ "Mochi Diffusion/compile-sources" ] },
-            { "path": "APIKeySheet.swift", "target-membership": [ "Mochi Diffusion/compile-sources" ] },
             { "path": "SidebarView.swift", "target-membership": [ "Mochi Diffusion/compile-sources" ] },
             { "path": "FilterTextFieldView.swift", "target-membership": [ "Mochi Diffusion/compile-sources" ] },
             { "path": "FilterTagView.swift", "target-membership": [ "Mochi Diffusion/compile-sources" ] },
@@ -290,9 +312,7 @@
         { "path": "IdleTimeoutTests.swift", "target-membership": [ "Mochi DiffusionTests/compile-sources" ] },
         { "path": "CancellationBindingTests.swift", "target-membership": [ "Mochi DiffusionTests/compile-sources" ] },
         { "path": "SecretStoreTests.swift", "target-membership": [ "Mochi DiffusionTests/compile-sources" ] },
-        { "path": "OpenAIImageEngineTests.swift", "target-membership": [ "Mochi DiffusionTests/compile-sources" ] },
-        { "path": "OpenAICredentialCheckTests.swift", "target-membership": [ "Mochi DiffusionTests/compile-sources" ] },
-        { "path": "OpenAIRuntimeTests.swift", "target-membership": [ "Mochi DiffusionTests/compile-sources" ] },
+        { "path": "DrawThingsTests.swift", "target-membership": [ "Mochi DiffusionTests/compile-sources" ] },
         { "path": "ControlNetLinkTests.swift", "target-membership": [ "Mochi DiffusionTests/compile-sources" ] },
         { "path": "GenerationSessionTests.swift", "target-membership": [ "Mochi DiffusionTests/compile-sources" ] },
         { "path": "MetadataRoundTripTests.swift", "target-membership": [ "Mochi DiffusionTests/compile-sources" ] },
@@ -385,6 +405,10 @@
           "product-name": "CompactSlider",
           "build-phase": { "build-phase": "frameworks" },
         }, {
+          "package": "DrawThings-Swift",
+          "product-name": "DrawThingsClient",
+          "build-phase": { "build-phase": "frameworks" },
+        }, {
           "package": "FilterablePicker",
           "product-name": "FilterablePicker",
           "build-phase": { "build-phase": "frameworks" },
@@ -395,6 +419,18 @@
         }, {
           "package": "Sparkle",
           "product-name": "Sparkle",
+          "build-phase": { "build-phase": "frameworks" },
+        }, {
+          "package": "grpc-swift-2",
+          "product-name": "GRPCCore",
+          "build-phase": { "build-phase": "frameworks" },
+        }, {
+          "package": "grpc-swift-nio-transport",
+          "product-name": "GRPCNIOTransportHTTP2",
+          "build-phase": { "build-phase": "frameworks" },
+        }, {
+          "package": "grpc-swift-protobuf",
+          "product-name": "GRPCProtobuf",
           "build-phase": { "build-phase": "frameworks" },
         }, {
           "package": "ml-stable-diffusion",
@@ -423,7 +459,7 @@
           "@executable_path/../Frameworks",
         ],
         "MACOSX_DEPLOYMENT_TARGET": "15.6",
-        "MARKETING_VERSION": "6.3",
+        "MARKETING_VERSION": "7.0",
         "OTHER_LDFLAGS": "$(BUILD_DIR)/vendor/iris/$(CONFIGURATION)/libiris_mps.a",
         "PRODUCT_NAME": "$(TARGET_NAME)",
         "SWIFT_DEFAULT_ACTOR_ISOLATION": "MainActor",

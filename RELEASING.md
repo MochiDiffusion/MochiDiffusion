@@ -4,6 +4,25 @@ This document lists the steps to release a new version of Mochi Diffusion. Beads
 release epic for each version. The epic records the scope, and its acceptance criteria list
 what must be true before the release.
 
+## Sign-off
+
+Three steps are reviews that the maintainer signs off on personally: the
+[comment and documentation review](#comment-and-documentation-review), the
+[localization review](#localization-review) and the [code health snapshot](#code-health-snapshot).
+They exist so that the maintainer approves everything before it reaches users and translators.
+
+Someone who helps with a release, such as a coding agent, prepares each review but does not
+complete it. To prepare a review:
+
+1. Run its script or command, and list every item it found. Do not leave out items that look
+   fine.
+2. Give a recommendation for each item that needs a decision, and say why.
+3. Go through the list with the maintainer, and make only the changes the maintainer decides
+   on. Show changes to documentation and guidance as a diff for review.
+
+A review is done when the maintainer signs it off. Record each sign-off in the notes of the
+release epic, with the date.
+
 ## Before the release build
 
 1. Make sure that every child of the release epic is closed or explicitly dropped.
@@ -138,7 +157,11 @@ upload asks translators to translate the string again.
    that translators see.
 
 2. Check each new or changed string:
-   - The wording is final, and terms match the rest of the app.
+   - The wording is final, and terms match the rest of the app. Reuse an existing string
+     where one says the same thing, such as `Show in Finder`, rather than adding a new
+     wording.
+   - Names such as `Draw Things` and `Mochi Diffusion` are not localized on their own. Show
+     them with `Text(verbatim:)` or a plain `String`.
    - The string has a comment that tells translators where it appears, unless the text alone
      makes that clear.
    - The string is meant for users. Text that only developers see, such as log messages,
@@ -213,8 +236,7 @@ The summary contains these values:
 
 - Test totals and the line coverage of the app target. The test bundle runs inside the app,
   so view coverage comes mostly from the app launch.
-- Unused declarations from Periphery, and declarations that only the tests use. The count
-  includes the OpenAI engine and the engine picker, which the app does not show.
+- Unused declarations from Periphery, and declarations that only the tests use.
 - Unused imports and force unwraps from SwiftLint.
 - The number of functions, their average cyclomatic complexity and the functions above 15.
   Cyclomatic complexity is the number of independent paths through a function.

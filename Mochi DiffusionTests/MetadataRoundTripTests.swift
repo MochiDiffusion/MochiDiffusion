@@ -32,11 +32,12 @@ struct MetadataRoundTripTests {
             prompt: prompt, negativePrompt: "blurry, low quality", width: 24, height: 16,
             model: "sdxl_1024x1024", engine: EngineID.coreMLStableDiffusion.rawValue,
             modelKey: "sdxl_1024x1024",
-            architecture: SDModel.ModelType.sdxl.displayName, quality: nil,
+            architecture: SDModel.ModelType.sdxl.displayName,
             startingImage: startingImage,
             strength: strength, controlNet: "canny", controlNetImage: "control.png",
             inputImages: nil,
-            scheduler: .dpmSolverMultistepScheduler, mlComputeUnit: .cpuAndNeuralEngine,
+            scheduler: .dpmSolverMultistepScheduler, samplerName: nil,
+            mlComputeUnit: .cpuAndNeuralEngine,
             seed: 123_456_789,
             steps: 17, guidanceScale: 7.5,
             generatedDate: Date(timeIntervalSince1970: 1_790_000_000.25),
@@ -146,8 +147,9 @@ struct MetadataRoundTripTests {
             prompt: "a fox", negativePrompt: nil, width: 24, height: 16, model: "klein",
             engine: EngineID.iris.rawValue, modelKey: "klein",
             architecture: IrisModelFamily.fluxKlein.displayName,
-            quality: nil, startingImage: nil, strength: nil, controlNet: nil, controlNetImage: nil,
+            startingImage: nil, strength: nil, controlNet: nil, controlNetImage: nil,
             inputImages: ["cat.png", "", "dog.png"], scheduler: .discreteFlowScheduler,
+            samplerName: nil,
             mlComputeUnit: nil,
             seed: 9, steps: 4, guidanceScale: 1, generatedDate: Date(), metadataFields: [])
 
@@ -159,24 +161,31 @@ struct MetadataRoundTripTests {
         #expect(record.guidanceScale == 1)
     }
 
-    @Test("A hosted image records no seed, steps, sampler or guidance")
-    func sparseHostedRoundTrip() async throws {
+    @Test("A Draw Things image shows its sampler without offering it as a scheduler")
+    func drawThingsRoundTrip() async throws {
         let metadata = GenerationMetadata(
-            prompt: "a bird", negativePrompt: nil, width: 24, height: 16, model: "gpt-image-2",
-            engine: EngineID.openAI.rawValue, modelKey: "gpt-image-2", architecture: nil,
-            quality: "high",
-            startingImage: nil, strength: nil, controlNet: nil, controlNetImage: nil,
-            inputImages: [],
-            scheduler: nil, mlComputeUnit: nil, seed: nil, steps: nil, guidanceScale: nil,
-            generatedDate: Date(),
+            prompt: "a lighthouse", negativePrompt: nil, width: 24, height: 16, model: "Klein",
+            engine: EngineID.drawThings.rawValue, modelKey: "flux_2_klein_4b_q8p.ckpt",
+            architecture: nil, startingImage: nil, strength: nil, controlNet: nil,
+            controlNetImage: nil, inputImages: nil, scheduler: nil, samplerName: "DDIM Trailing",
+            mlComputeUnit: nil, seed: 11, steps: 4, guidanceScale: 1, generatedDate: Date(),
             metadataFields: [])
 
         let record = try await roundTrip(metadata)
 
+        #expect(record.engine == "drawthings")
+        #expect(record.modelKey == "flux_2_klein_4b_q8p.ckpt")
+        #expect(record.seed == 11)
+        #expect(record.steps == 4)
+        #expect(record.guidanceScale == 1)
+        #expect(record.details.contains(MetadataDetail(label: "Sampler", value: "DDIM Trailing")))
+        // Not a field, so Copy Options never restores it to the sidebar's scheduler.
+        // LoRAs are, because the image records that it used none.
         #expect(
             record.metadataFields == [
-                .prompt, .model, .engine, .modelKey, .size, .quality, .inputImages,
+                .prompt, .model, .engine, .modelKey, .size, .seed, .steps, .guidanceScale, .loras,
             ])
+        #expect(record.loras.isEmpty)
     }
 
     @Test(
@@ -338,7 +347,7 @@ struct MetadataRoundTripTests {
             ])
     }
 
-    @Test("A foreign prompt keeps its LoRA tags and lists the LoRAs")
+    @Test("A foreign prompt keeps its LoRA tags and records the LoRAs")
     func foreignLoRATags() throws {
         let url = try writeParametersImage(
             "a castle <lora:watercolor:0.8>\nSteps: 20, Seed: 1, Size: 8x8", name: "lora")
@@ -346,7 +355,8 @@ struct MetadataRoundTripTests {
         let record = try #require(createImageRecordFromURL(url))
 
         #expect(record.prompt == "a castle <lora:watercolor:0.8>")
-        #expect(record.details.contains(MetadataDetail(label: "LoRAs", value: "watercolor (0.8)")))
+        #expect(record.loras == [RecordedLoRA(name: "watercolor", weight: 0.8)])
+        #expect(record.metadataFields.contains(.loras))
     }
 
     @Test("A generation graph with several samplers is imported with a note and no settings")

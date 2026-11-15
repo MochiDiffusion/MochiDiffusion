@@ -26,10 +26,6 @@ actor GenerationService {
     /// `stopCurrentGeneration()` can cancel without calling into a runtime that
     /// is blocked inside a synchronous generate.
     private var currentSession: GenerationSession?
-    /// Whether the running request's work may outlive a cancel. Recorded when the
-    /// runtime is chosen, because `stopCurrentGeneration` has the request but not
-    /// the runtime.
-    private var currentRuntimeMayLeaveWorkBilled = false
     private var processingTask: Task<Void, Never>?
     private var continuations: [UUID: AsyncStream<Snapshot>.Continuation] = [:]
     private var resultContinuations: [UUID: AsyncStream<GenerationResult>.Continuation] = [:]
@@ -140,19 +136,13 @@ actor GenerationService {
         // Synchronous, and it does not touch the runtime: one blocked inside
         // `generateImages` or `iris_generate` could not accept a call.
         session?.cancel()
-        // Stopping a hosted request stops us waiting; the service may still finish
-        // and charge for the image.
-        await updateGenerationState(
-            .canceling(
-                currentRuntimeMayLeaveWorkBilled
-                    ? "Stopping. \(current.displayName) may still finish and charge for this image."
-                    : nil
-            )
-        )
+        await updateGenerationState(.canceling)
     }
 
-    func updateStatus(_ status: GenerationState.Status) async {
-        await updateGenerationState(status)
+    func updateStatus(
+        _ status: GenerationState.Status, outdatedModelListSource: ModelListSource? = nil
+    ) async {
+        await updateGenerationState(status, outdatedModelListSource: outdatedModelListSource)
     }
 
     private func startProcessingIfNeeded() {
@@ -203,7 +193,6 @@ actor GenerationService {
                 continue
             }
             let runtime = runtime(for: engine)
-            currentRuntimeMayLeaveWorkBilled = runtime.cancellationMayLeaveWorkBilled
             enginesWithQueuedWork.insert(engine.id)
 
             let session = GenerationSession(requestID: request.id)
@@ -296,36 +285,6 @@ actor GenerationService {
                     await updateStatus(.ready(nil))
                 }
                 restoreReadyAfterCancel = true
-            } catch GenerationError.refused(let reason) {
-                // Reported through `.ready` rather than `.error`: the call
-                // succeeded and the service declined, so this is not a
-                // malfunction. The outcome alert reports it either way.
-                logger.info("\(request.displayName) declined the prompt: \(reason)")
-                await updateStatus(.ready(reason))
-            } catch GenerationError.authenticationFailed {
-                logger.error("\(request.displayName) rejected the stored credential.")
-                await updateStatus(
-                    .error(
-                        "Couldn't sign in to \(request.displayName). Check the API key in Settings."
-                    )
-                )
-            } catch GenerationError.rateLimited {
-                // Not a malfunction either: the service asked us to slow down, and
-                // the next request may well succeed.
-                logger.info("\(request.displayName) is rate limiting requests.")
-                await updateStatus(
-                    .ready("\(request.displayName) is rate limiting requests. Try again shortly.")
-                )
-            } catch GenerationError.insufficientQuota {
-                logger.info("\(request.displayName) has insufficient API credits.")
-                await updateStatus(
-                    .error(
-                        "OpenAI account has insufficient API credits. Add credits in OpenAI billing settings."
-                    )
-                )
-            } catch GenerationError.serviceFailure(let message) {
-                logger.error("\(request.displayName) failed: \(message)")
-                await updateStatus(.error(message))
             } catch GenerationError.malformedResponse {
                 logger.error("\(request.displayName) returned something unexpected.")
                 await updateStatus(
@@ -336,7 +295,7 @@ actor GenerationService {
                 await updateStatus(
                     .error(
                         "Stopped waiting for \(request.displayName): no response for too "
-                            + "long. A remote service may still finish and charge for this image."
+                            + "long."
                     )
                 )
             } catch GenerationError.requestedModelNotFound {
@@ -365,7 +324,10 @@ actor GenerationService {
             } catch {
                 logger.error("There was a problem generating images: \(error)")
                 await updateStatus(
-                    .error("There was a problem generating images: \(error)"))
+                    .error(Self.userDescription(of: error)),
+                    outdatedModelListSource: (error as? any ModelListMayBeOutdated)?
+                        .outdatedModelListSource
+                )
             }
 
             await finishCurrentRequest(
@@ -374,6 +336,13 @@ actor GenerationService {
             )
             await notifyQueueDrainedIfNextRequestIsElsewhere(engine.id)
         }
+    }
+
+    /// An error's own user-facing text when it has one. Otherwise a general
+    /// sentence with the error's Swift description, which at least names it.
+    nonisolated static func userDescription(of error: any Error) -> String {
+        (error as? any LocalizedError)?.errorDescription
+            ?? "There was a problem generating images: \(error)"
     }
 
     /// Tells `engineID`'s runtime the queue holds no more work for it when the next
@@ -424,9 +393,12 @@ actor GenerationService {
         }
     }
 
-    private func updateGenerationState(_ status: GenerationState.Status) async {
+    private func updateGenerationState(
+        _ status: GenerationState.Status, outdatedModelListSource: ModelListSource? = nil
+    ) async {
         await MainActor.run {
-            GenerationState.shared.report(status)
+            GenerationState.shared.report(
+                status, outdatedModelListSource: outdatedModelListSource)
         }
     }
 

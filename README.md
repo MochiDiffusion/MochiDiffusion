@@ -41,10 +41,13 @@ Mochi Diffusion is a native macOS app for generating images locally using [Apple
     - [FLUX.2-klein-4B (distilled)](https://huggingface.co/black-forest-labs/FLUX.2-klein-4B)
     - [FLUX.2-klein-9B (distilled)](https://huggingface.co/black-forest-labs/FLUX.2-klein-9B)
 - [Z-Image Turbo](https://huggingface.co/Tongyi-MAI/Z-Image-Turbo)
+- Draw Things
+    - [Draw Things app](https://drawthings.ai)
+    - [Draw Things gRPC server](https://github.com/drawthingsai/draw-things-community/releases)
 
 ## Models
 
-You will need model files. Mochi Diffusion supports Core ML Stable Diffusion, FLUX.2 Klein, and Z-Image Turbo.
+You will need model files. Mochi Diffusion supports Core ML Stable Diffusion, FLUX.2 Klein, and Z-Image Turbo, and can also generate with the models on a Draw Things server.
 
 ### Core ML Stable Diffusion
 
@@ -138,11 +141,25 @@ The "recommended" full precision download of Z-Image Turbo is large, about 32 GB
         └── ...        
 ```
 
+### Draw Things
+
+Mochi can generate with [Draw Things](https://drawthings.ai), running as the app or as the standalone gRPC server, on the same Mac or another machine on the local network. Draw Things models appear in the model picker under their own header, and each model shows only the options it uses. Images are generated on the server's hardware; Mochi does not use Draw Things' cloud compute.
+
+Mochi offers Draw Things' text-to-image models, LoRAs for models that accept them, a starting image for text-to-image models, and reference images for FLUX.2 models. Image-editing models, such as FLUX.1 Kontext and Qwen-Image-Edit, are not supported yet.
+
+#### Usage
+
+1. In Draw Things, turn on the gRPC API server and Model Browsing
+2. In Mochi, open Settings > General, turn on Draw Things, and enter the server's host and port
+3. Match the server's TLS and shared secret settings
+
+TLS encrypts the connection but does not verify the server's identity, so only connect over a network you trust.
+
 ## Compatibility
 
 - Apple Silicon (M1 and later)
 - macOS 15.6 and later
-- Xcode 26.0 or later (to build)
+- Xcode 27 or later (to build)
 
 ## Building From Source
 
@@ -170,7 +187,7 @@ PRODUCT_BUNDLE_IDENTIFIER = com.example.Mochi-Diffusion
 
 ## Privacy
 
-Mochi Diffusion doesn’t collect any data or telemetry. All generation happens locally and absolutely nothing is sent to the cloud.
+Mochi Diffusion doesn’t collect any data or telemetry. All generation happens on your Mac or local network, and absolutely nothing is sent to the cloud.
 
 ## Contributing
 

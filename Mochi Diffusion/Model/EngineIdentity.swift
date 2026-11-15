@@ -16,13 +16,13 @@ nonisolated extension EngineID: CustomStringConvertible {
 nonisolated extension EngineID {
     static let coreMLStableDiffusion = EngineID(rawValue: "coreml-sd")
     static let iris = EngineID(rawValue: "iris")
-    static let openAI = EngineID(rawValue: "openai")
+    static let drawThings = EngineID(rawValue: "drawthings")
 }
 
 /// Identifies a model within an engine.
 ///
 /// For a local engine, `key` is the name of a direct child of the model directory.
-/// For a hosted engine, `key` is the API's own model name.
+/// For Draw Things, `key` is the model's filename on the server.
 nonisolated struct ModelID: Hashable, Codable, Sendable {
     let engine: EngineID
     let key: String

@@ -61,6 +61,8 @@ nonisolated struct SDModel: EngineModel {
 
     var id: ModelID { ModelID(engine: .coreMLStableDiffusion, key: ModelID.localKey(for: url)) }
     var tokenizerModelDir: URL? { url }
+    var familyName: String? { type.displayName }
+    var location: ModelLocation? { .directory(url) }
 
     /// Per model, not per engine. A converted Core ML model has whatever
     /// resolution it was converted at, and only ControlNets converted to the same
@@ -80,7 +82,6 @@ nonisolated struct SDModel: EngineModel {
             startingImage: .supported(strength: .range(0...1, step: nil)),
             inputImages: .unsupported,
             controlNet: controlNet.isEmpty ? .unsupported : .supported(names: controlNet),
-            quality: .unsupported,
             numberOfImages: .range(1...100, step: 1, acceptsBeyondUpperBound: true),
             promptTokenLimit: 75
         )

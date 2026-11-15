@@ -29,12 +29,12 @@ import SwiftUI
         static let width = "ImageWidth"
         static let height = "ImageHeight"
         static let scheduler = "Scheduler"
-        static let quality = "ImageQuality"
         static let showGenerationPreview = "ShowGenerationPreview"
         static let mlComputeUnitPreference = "MLComputeUnitPreference"
         static let reduceMemory = "ReduceMemory"
         static let safetyChecker = "SafetyChecker"
         static let useTrash = "UseTrash"
+        static let loras = "LoRAs"
     }
 
     /// Declared once because `init(store:)` restates every default when it rebinds
@@ -53,7 +53,6 @@ import SwiftUI
         static let height = 512
         static let scheduler = Scheduler.dpmSolverMultistepScheduler
         /// What the service picks unless the user says otherwise.
-        static let quality = ImageQuality.auto
         static let showGenerationPreview = true
         static let mlComputeUnitPreference = ComputeUnitPreference.auto
         static let reduceMemory = false
@@ -77,7 +76,6 @@ import SwiftUI
     @ObservationIgnored @AppStorage(Key.width) private var _width = Default.width
     @ObservationIgnored @AppStorage(Key.height) private var _height = Default.height
     @ObservationIgnored @AppStorage(Key.scheduler) private var _scheduler = Default.scheduler
-    @ObservationIgnored @AppStorage(Key.quality) private var _quality = Default.quality
     @ObservationIgnored @AppStorage(Key.showGenerationPreview) private var _showGenPreview =
         Default.showGenerationPreview
     @ObservationIgnored @AppStorage(Key.mlComputeUnitPreference)
@@ -87,6 +85,8 @@ import SwiftUI
     @ObservationIgnored @AppStorage(Key.safetyChecker) private var _safetyChecker =
         Default.safetyChecker
     @ObservationIgnored @AppStorage(Key.useTrash) private var _useTrash = Default.useTrash
+    /// JSON, because `@AppStorage` cannot hold an array of structs.
+    @ObservationIgnored @AppStorage(Key.loras) private var _loras = Data()
 
     /// The defaults this store reads and writes.
     ///
@@ -118,7 +118,6 @@ import SwiftUI
         __width = AppStorage(wrappedValue: Default.width, Key.width, store: store)
         __height = AppStorage(wrappedValue: Default.height, Key.height, store: store)
         __scheduler = AppStorage(wrappedValue: Default.scheduler, Key.scheduler, store: store)
-        __quality = AppStorage(wrappedValue: Default.quality, Key.quality, store: store)
         __showGenPreview = AppStorage(
             wrappedValue: Default.showGenerationPreview, Key.showGenerationPreview, store: store)
         __mlComputeUnitPreference = AppStorage(
@@ -131,14 +130,19 @@ import SwiftUI
         __safetyChecker = AppStorage(
             wrappedValue: Default.safetyChecker, Key.safetyChecker, store: store)
         __useTrash = AppStorage(wrappedValue: Default.useTrash, Key.useTrash, store: store)
+        __loras = AppStorage(wrappedValue: Data(), Key.loras, store: store)
     }
 
+    // The folder settings ignore a write of the value they already hold, such as
+    // a Settings text field committing unchanged text: each change reloads the
+    // gallery or rediscovers the models.
     var imageDir: String {
         get {
             access(keyPath: \.imageDir)
             return _imageDir
         }
         set {
+            guard newValue != _imageDir else { return }
             withMutation(keyPath: \.imageDir) {
                 _imageDir = newValue
             }
@@ -151,6 +155,7 @@ import SwiftUI
             return _modelDir
         }
         set {
+            guard newValue != _modelDir else { return }
             withMutation(keyPath: \.modelDir) {
                 _modelDir = newValue
             }
@@ -163,6 +168,7 @@ import SwiftUI
             return _controlNetDir
         }
         set {
+            guard newValue != _controlNetDir else { return }
             withMutation(keyPath: \.controlNetDir) {
                 _controlNetDir = newValue
             }
@@ -310,19 +316,6 @@ import SwiftUI
         }
     }
 
-    /// Global rather than per-engine; only a hosted model honours it
-    var quality: ImageQuality {
-        get {
-            access(keyPath: \.quality)
-            return _quality
-        }
-        set {
-            withMutation(keyPath: \.quality) {
-                _quality = newValue
-            }
-        }
-    }
-
     var showGenerationPreview: Bool {
         get {
             access(keyPath: \.showGenerationPreview)
@@ -379,6 +372,20 @@ import SwiftUI
         set {
             withMutation(keyPath: \.useTrash) {
                 _useTrash = newValue
+            }
+        }
+    }
+
+    /// Every LoRA the user has added, including ones the selected model cannot
+    /// use, in the order they were added. Unreadable saved data reads as none.
+    var loras: [LoRASelection] {
+        get {
+            access(keyPath: \.loras)
+            return (try? JSONDecoder().decode([LoRASelection].self, from: _loras)) ?? []
+        }
+        set {
+            withMutation(keyPath: \.loras) {
+                _loras = (try? JSONEncoder().encode(newValue)) ?? Data()
             }
         }
     }

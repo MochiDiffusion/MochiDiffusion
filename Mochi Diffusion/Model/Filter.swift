@@ -20,9 +20,9 @@ enum FilterElement: String, CaseIterable {
     case seed = "Seed"
     case negativePrompt = "Negative Prompt"
     case model = "Model"
-    case quality = "Quality"
     case steps = "Steps"
     case guidanceScale = "Guidance Scale"
+    case lora = "LoRA"
 }
 
 enum FilterType: String, CaseIterable {
@@ -37,15 +37,19 @@ enum FilterCondition: String, CaseIterable {
 
 extension Filter {
     func validate(_ sdImage: SDImage) -> Bool {
-        let filterValue = element.getFilterValueFrom(sdImage)
-        let isContainsType = type == .contains
-
-        let result =
-            isContainsType
-            ? filterValue.range(
-                of: text, options: [.caseInsensitive, .diacriticInsensitive, .widthInsensitive])
-                != nil
-            : filterValue == text
+        // An image passes when any of its values for the element matches, so a
+        // LoRA filter finds every image that used that LoRA among others, and
+        // "is not" keeps only the images where none of them match.
+        let result = element.filterValues(from: sdImage).contains { value in
+            switch type {
+            case .contains:
+                value.range(
+                    of: text, options: [.caseInsensitive, .diacriticInsensitive, .widthInsensitive])
+                    != nil
+            case .equals:
+                value == text
+            }
+        }
 
         return condition == .isEqual ? result : !result
     }
@@ -62,15 +66,17 @@ extension Array where Element == Filter {
 }
 
 extension FilterElement {
-    func getFilterValueFrom(_ sdImage: SDImage) -> String {
+    /// The image's values for this element. Most elements have one; an image
+    /// has one per LoRA it used, matched by name without the weight.
+    func filterValues(from sdImage: SDImage) -> [String] {
         switch self {
-        case .prompt: sdImage.prompt
-        case .seed: String(sdImage.seed)
-        case .negativePrompt: sdImage.negativePrompt
-        case .model: sdImage.model
-        case .quality: sdImage.quality
-        case .steps: String(sdImage.steps)
-        case .guidanceScale: String(sdImage.guidanceScale)
+        case .prompt: [sdImage.prompt]
+        case .seed: [String(sdImage.seed)]
+        case .negativePrompt: [sdImage.negativePrompt]
+        case .model: [sdImage.model]
+        case .steps: [String(sdImage.steps)]
+        case .guidanceScale: [String(sdImage.guidanceScale)]
+        case .lora: sdImage.loras.map(\.name)
         }
     }
 }

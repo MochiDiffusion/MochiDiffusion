@@ -208,6 +208,16 @@ struct InspectorView: View {
                                 callback: controller.copyModelToPrompt
                             )
                         }
+                        if metadataFields.contains(.loras) {
+                            ForEach(Array(sdi.loras.enumerated()), id: \.offset) { index, lora in
+                                InfoGridRow(
+                                    type: LocalizedStringKey(Metadata.lora.rawValue),
+                                    text: lora.description,
+                                    showCopyToPromptOption: controller.canCopyLoRA(lora),
+                                    callback: { controller.copyLoRAToPrompt(lora) }
+                                )
+                            }
+                        }
                         if metadataFields.contains(.size), let size = sdi.generationSize {
                             InfoGridRow(
                                 type: LocalizedStringKey(Metadata.size.rawValue),
@@ -222,13 +232,6 @@ struct InspectorView: View {
                             InfoGridRow(
                                 type: LocalizedStringKey("Image Size"),
                                 text: "\(sdi.width) x \(sdi.height)",
-                                showCopyToPromptOption: false
-                            )
-                        }
-                        if metadataFields.contains(.quality), !sdi.quality.isEmpty {
-                            InfoGridRow(
-                                type: LocalizedStringKey(Metadata.quality.rawValue),
-                                text: sdi.quality,
                                 showCopyToPromptOption: false
                             )
                         }

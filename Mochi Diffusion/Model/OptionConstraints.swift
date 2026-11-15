@@ -137,12 +137,7 @@ nonisolated enum SizeConstraint: Sendable, Equatable {
     /// The model produces exactly these sizes and nothing else. Core ML models
     /// are converted at a fixed resolution, so this is usually one entry.
     case pinned([CGSize])
-    case freeform(range: ClosedRange<Int>, step: Int, limits: SizeLimits)
-
-    /// The common case, where each dimension's bounds are the whole story.
-    static func freeform(range: ClosedRange<Int>, step: Int) -> SizeConstraint {
-        .freeform(range: range, step: step, limits: .none)
-    }
+    case freeform(range: ClosedRange<Int>, step: Int)
 
     var isEditable: Bool {
         if case .freeform = self { return true }
@@ -155,18 +150,13 @@ nonisolated enum SizeConstraint: Sendable, Equatable {
     }
 
     var bounds: ClosedRange<Int>? {
-        if case .freeform(let bounds, _, _) = self { return bounds }
+        if case .freeform(let bounds, _) = self { return bounds }
         return nil
     }
 
     var step: Int? {
-        if case .freeform(_, let step, _) = self { return step }
+        if case .freeform(_, let step) = self { return step }
         return nil
-    }
-
-    var limits: SizeLimits {
-        if case .freeform(_, _, let limits) = self { return limits }
-        return .none
     }
 
     func resolved(_ requested: CGSize) -> CGSize {
@@ -175,126 +165,13 @@ nonisolated enum SizeConstraint: Sendable, Equatable {
             // The requested size if the model offers it, otherwise the first —
             // which for a single-size model is the only answer there is.
             return sizes.contains(requested) ? requested : (sizes.first ?? requested)
-        case .freeform(let bounds, let step, let limits):
+        case .freeform(let bounds, let step):
             let dimension = IntConstraint.range(bounds, step: step)
-            let snapped = CGSize(
+            return CGSize(
                 width: dimension.resolved(Int(requested.width)) ?? Int(requested.width),
                 height: dimension.resolved(Int(requested.height)) ?? Int(requested.height)
             )
-            return limits.applied(to: snapped, bounds: bounds, step: step)
         }
-    }
-}
-
-/// Rules that constrain a size's dimensions *together*, which per-dimension
-/// bounds cannot express.
-///
-/// The local engines need none of these: a Core ML model's size is pinned, and Iris
-/// takes any multiple of 16 within its range. A hosted model does — the OpenAI image
-/// API accepts an arbitrary `WIDTHxHEIGHT` on a 16px grid, but also caps how
-/// elongated it may be and how many pixels it may total.
-///
-/// Limits rather than an `aspectRatios` case, because the API takes pixels, not
-/// ratios: only the legality of a pair is jointly constrained.
-nonisolated struct SizeLimits: Sendable, Equatable {
-    /// Largest permitted long-edge ÷ short-edge. `nil` for no cap.
-    var maxAspectRatio: Double?
-    /// Inclusive bounds on width × height. `nil` for no budget.
-    var pixelBounds: ClosedRange<Int>?
-
-    static let none = SizeLimits(maxAspectRatio: nil, pixelBounds: nil)
-
-    var isEmpty: Bool { maxAspectRatio == nil && pixelBounds == nil }
-
-    /// Corrects `size` into the legal region.
-    ///
-    /// One corrective pass in a fixed order rather than a search: establish the
-    /// ratio, then the pixel budget. That order works because the ratio step
-    /// changes one edge while both pixel steps scale *both* edges, so satisfying
-    /// the budget cannot undo the ratio — which is what would otherwise oscillate.
-    ///
-    /// Scaling proportionally for the budget, rather than nibbling one edge, also
-    /// keeps the shape the user asked for. Being handed 4000x2000 when the cap is
-    /// 8.29M pixels should give back something still 2:1, not something square.
-    ///
-    /// Assumes the limits are self-consistent — a ratio of at least 1, a pixel
-    /// range wide enough to contain some size the bounds allow. Nothing validates
-    /// that, because the values come from our own engine definitions rather than
-    /// from input.
-    func applied(to size: CGSize, bounds: ClosedRange<Int>, step: Int) -> CGSize {
-        guard !isEmpty else { return size }
-        var width = Int(size.width)
-        var height = Int(size.height)
-
-        if let maxAspectRatio, maxAspectRatio >= 1 {
-            (width, height) = Self.applyingRatio(
-                maxAspectRatio, width: width, height: height, bounds: bounds, step: step)
-        }
-
-        if let pixelBounds {
-            if width * height > pixelBounds.upperBound {
-                (width, height) = Self.scaled(
-                    width: width, height: height,
-                    toward: pixelBounds.upperBound, rounding: .down,
-                    bounds: bounds, step: step)
-            }
-            // Growing to reach a floor is the one case that enlarges an image the
-            // user may have asked to shrink. The alternative is sending a request
-            // the service will reject, so the size has to move; scaling both edges
-            // at least keeps it the shape they chose.
-            if width * height < pixelBounds.lowerBound {
-                (width, height) = Self.scaled(
-                    width: width, height: height,
-                    toward: pixelBounds.lowerBound, rounding: .up,
-                    bounds: bounds, step: step)
-            }
-        }
-
-        return CGSize(width: width, height: height)
-    }
-
-    /// Brings an over-elongated size into the ratio cap by reducing its long edge.
-    ///
-    /// Reducing the long edge is always sufficient, and never needs a fallback that
-    /// grows the short one: both edges are already inside `bounds`, and a cap of at
-    /// least 1 means `short × maxRatio >= short >= bounds.lowerBound`, so the
-    /// permitted long edge cannot fall below the floor.
-    private static func applyingRatio(
-        _ maxRatio: Double, width: Int, height: Int, bounds: ClosedRange<Int>, step: Int
-    ) -> (Int, Int) {
-        let long = max(width, height)
-        let short = min(width, height)
-        guard short > 0, Double(long) / Double(short) > maxRatio else { return (width, height) }
-
-        let permittedLong = snap(Double(short) * maxRatio, .down, bounds: bounds, step: step)
-        return width >= height ? (permittedLong, height) : (width, permittedLong)
-    }
-
-    /// Scales both edges toward a pixel target, preserving the aspect ratio.
-    private static func scaled(
-        width: Int, height: Int, toward targetPixels: Int,
-        rounding: FloatingPointRoundingRule, bounds: ClosedRange<Int>, step: Int
-    ) -> (Int, Int) {
-        let pixels = Double(width * height)
-        guard pixels > 0, targetPixels > 0 else { return (width, height) }
-        let factor = (Double(targetPixels) / pixels).squareRoot()
-        return (
-            snap(Double(width) * factor, rounding, bounds: bounds, step: step),
-            snap(Double(height) * factor, rounding, bounds: bounds, step: step)
-        )
-    }
-
-    /// Rounds to the step grid in the given direction, then clamps to `bounds`.
-    /// Rounding direction is explicit so a correction cannot overshoot the limit
-    /// it was applied to satisfy.
-    private static func snap(
-        _ value: Double, _ rounding: FloatingPointRoundingRule,
-        bounds: ClosedRange<Int>, step: Int
-    ) -> Int {
-        guard step > 0 else { return min(max(Int(value), bounds.lowerBound), bounds.upperBound) }
-        let steps = (value / Double(step)).rounded(rounding)
-        let snapped = Int(steps) * step
-        return min(max(snapped, bounds.lowerBound), bounds.upperBound)
     }
 }
 
@@ -335,7 +212,7 @@ nonisolated enum StartingImageConstraint: Sendable, Equatable {
 /// an unsupported one.
 ///
 /// `maxCount` is the model's own limit, not a UI preference: `iris_multiref`
-/// accepts up to four references for Klein, and a hosted API states its own cap.
+/// accepts up to four references for Klein.
 /// Exceeding it is not something to warn about — `resolved(_:)` drops the extras
 /// before the request is built, the same as every other constraint.
 ///
@@ -387,6 +264,67 @@ nonisolated enum ControlNetConstraint: Sendable, Equatable {
     var names: [String] {
         if case .supported(let names) = self { return names }
         return []
+    }
+}
+
+/// A LoRA a model can apply, as its server describes it.
+nonisolated struct LoRAOption: Sendable, Equatable, Identifiable {
+    /// The server's filename, which identifies the LoRA.
+    let file: String
+    let name: String
+    /// Words the LoRA was trained to respond to, shown for the user to copy into
+    /// the prompt. Empty when the server names none.
+    let triggerWords: String
+    /// The weights the server suggests, which the slider spans. Draw Things only
+    /// uses it as a hint, so a weight typed outside it is still sent.
+    let weightRange: ClosedRange<Double>
+    /// The weight a newly added LoRA starts at.
+    let defaultWeight: Double
+
+    var id: String { file }
+}
+
+/// A LoRA the user chose, and its weight. The sidebar saves these across model
+/// switches and relaunch, and shows the ones the selected model can use.
+nonisolated struct LoRASelection: Codable, Sendable, Equatable, Identifiable {
+    /// The server's filename, matching `LoRAOption.file`.
+    var file: String
+    var weight: Double
+
+    var id: String { file }
+}
+
+/// Which LoRAs a model can apply. Per model, because a LoRA works only with
+/// models of the version it was trained for.
+nonisolated enum LoRAsConstraint: Sendable, Equatable {
+    case unsupported
+    case supported([LoRAOption])
+
+    var isSupported: Bool {
+        if case .supported = self { return true }
+        return false
+    }
+
+    var options: [LoRAOption] {
+        if case .supported(let options) = self { return options }
+        return []
+    }
+
+    /// The selections this model can use, in the order the user added them.
+    ///
+    /// Weights are not clamped to the LoRA's range, which Draw Things treats as a
+    /// suggestion, except where the range is a single value: the sidebar shows that
+    /// LoRA's weight as pinned, so the request uses the pinned value.
+    func resolved(_ requested: [LoRASelection]) -> [LoRASelection] {
+        requested.compactMap { selection in
+            guard let option = options.first(where: { $0.file == selection.file }) else {
+                return nil
+            }
+            let range = option.weightRange
+            return LoRASelection(
+                file: selection.file,
+                weight: range.lowerBound == range.upperBound ? range.lowerBound : selection.weight)
+        }
     }
 }
 
@@ -455,13 +393,13 @@ nonisolated struct OptionConstraints: Sendable {
     var startingImage: StartingImageConstraint
     var inputImages: InputImagesConstraint
     var controlNet: ControlNetConstraint
-    /// Hosted vocabulary; the local engines declare `.unsupported`.
-    var quality: ChoiceConstraint<ImageQuality>
     var numberOfImages: IntConstraint
     /// How many prompt tokens the model can attend to, for the sidebar's counter.
     /// Not a constraint the sidebar enforces — over-long prompts are truncated by
     /// the model, and warning is more useful than refusing to type.
     var promptTokenLimit: Int?
+    /// Only Draw Things models apply LoRAs, so the others leave this out.
+    var loras: LoRAsConstraint = .unsupported
 
     /// What the sidebar shows when no model is selected: every control visible,
     /// with permissive bounds.
@@ -478,7 +416,6 @@ nonisolated struct OptionConstraints: Sendable {
         startingImage: .supported(strength: .range(0...1, step: nil)),
         inputImages: .supported(maxCount: 1),
         controlNet: .unsupported,
-        quality: .unsupported,
         numberOfImages: .range(1...100, step: 1, acceptsBeyondUpperBound: true),
         promptTokenLimit: nil
     )

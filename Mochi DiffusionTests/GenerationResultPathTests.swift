@@ -72,6 +72,7 @@ struct GenerationResultPathTests {
         struct NotPlanned: Error {}
 
         static let id = EngineID(rawValue: "scripted")
+        static let modelListSource = ModelListSource.modelsFolder
         let runtime: ScriptedRuntime
         var displayName: String { "Scripted" }
 
@@ -126,7 +127,6 @@ struct GenerationResultPathTests {
             stepCount: 1,
             guidanceScale: nil,
             scheduler: .pndmScheduler,
-            quality: nil,
             mlComputeUnit: nil,
             useDenoisedIntermediates: false,
             seed: 7,
@@ -148,13 +148,12 @@ struct GenerationResultPathTests {
                 engine: request.modelID.engine.rawValue,
                 modelKey: request.modelID.key,
                 architecture: nil,
-                quality: nil,
                 startingImage: nil,
                 strength: nil,
                 controlNet: nil,
                 controlNetImage: nil,
                 inputImages: nil,
-                scheduler: .pndmScheduler,
+                scheduler: .pndmScheduler, samplerName: nil,
                 mlComputeUnit: nil,
                 seed: request.seed,
                 steps: 1,

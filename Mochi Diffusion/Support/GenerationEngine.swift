@@ -15,6 +15,25 @@ import Foundation
 nonisolated struct EngineSettings: Sendable {
     var modelDirectory: URL
     var controlNetDirectory: URL
+    var drawThings: DrawThingsConnection = DrawThingsConnection()
+}
+
+/// What an engine's model list depends on, which decides the refreshes that ask it.
+///
+/// A change in the models folder refreshes only `.modelsFolder` engines, so a folder
+/// event never contacts a server. `.connection` engines are asked at launch, when the
+/// user switches Draw Things on or off, and when they save its details, which is how
+/// they reconnect.
+nonisolated enum ModelListSource: Sendable, Hashable, CaseIterable {
+    case modelsFolder
+    case connection
+}
+
+/// A generation error that a fresh model list may explain, such as a model removed
+/// from a server. The generation alert offers to refresh that source's models.
+nonisolated protocol ModelListMayBeOutdated: Error {
+    /// The source to refresh, or `nil` when this error is not one a refresh explains.
+    var outdatedModelListSource: ModelListSource? { get }
 }
 
 /// One discovery pass, with the work that does not vary by engine done once.
@@ -29,7 +48,7 @@ nonisolated struct ModelDiscoveryContext: Sendable {
     let settings: EngineSettings
 
     /// A `Result` rather than an array, so an unreadable models folder fails only
-    /// the engines that looked at it. A hosted engine never calls
+    /// the engines that looked at it. A server engine never calls
     /// `localModelDirectories()`, so a missing local folder cannot take its models
     /// down with it.
     private let localDirectories: Result<[URL], any Error>
@@ -86,7 +105,6 @@ nonisolated struct GenerationDraft: Sendable {
     var stepCount: Int
     var guidanceScale: Float
     var scheduler: Scheduler
-    var quality: ImageQuality
     var seed: UInt32
     var numberOfImages: Int
     var computeUnitPreference: ComputeUnitPreference
@@ -97,6 +115,9 @@ nonisolated struct GenerationDraft: Sendable {
     /// Where the shared ControlNet bundles live. Only Core ML Stable Diffusion
     /// reads it.
     var controlNetDirectory: URL
+    /// Every saved LoRA, including ones the model cannot use. An engine applies
+    /// the ones its `LoRAsConstraint` offers.
+    var loras: [LoRASelection] = []
 }
 
 nonisolated struct ControlNetDraft: Sendable {
@@ -127,8 +148,8 @@ nonisolated struct GenerationPlan<Payload: Sendable>: Sendable {
     /// no source filename.
     var controlNetImageNames: [String?]
     /// `nil` where the model does not use the option at all, so the queue hides a
-    /// row rather than printing a number that had no effect. A hosted engine has no
-    /// concept of `stepCount` or `scheduler`, which is why those are optional too.
+    /// row rather than printing a number that had no effect. Draw Things always uses
+    /// its model's recommended sampler, which is why `scheduler` is optional too.
     ///
     /// A runtime that does use one of these reads the resolved value from its own
     /// payload.
@@ -136,7 +157,6 @@ nonisolated struct GenerationPlan<Payload: Sendable>: Sendable {
     var scheduler: Scheduler?
     var strength: Float?
     var guidanceScale: Float?
-    var quality: ImageQuality?
     var numberOfImages: Int
     var mlComputeUnit: MLComputeUnits?
     /// Core ML records a starting image; Iris records input images. Same sidebar
@@ -145,6 +165,8 @@ nonisolated struct GenerationPlan<Payload: Sendable>: Sendable {
     /// Positionally aligned with `inputImageData`; nil means those pixels had no
     /// source filename.
     var inputImageNames: [String?]
+    /// The LoRAs that will be applied, with their resolved weights.
+    var loras: [LoRASelection] = []
 }
 
 nonisolated extension GenerationPlan {
@@ -162,11 +184,11 @@ nonisolated extension GenerationPlan {
             scheduler: scheduler,
             strength: strength,
             guidanceScale: guidanceScale,
-            quality: quality,
             numberOfImages: numberOfImages,
             mlComputeUnit: mlComputeUnit,
             startingImageName: startingImageName,
-            inputImageNames: inputImageNames
+            inputImageNames: inputImageNames,
+            loras: loras
         )
     }
 }
@@ -210,21 +232,14 @@ nonisolated protocol GenerationEngineRuntime: Sendable {
     /// enough to allow one is too loose to catch a hang.
     ///
     /// Per request, because the bound depends on what the request asked for: a
-    /// hosted runtime streaming partial images has a heartbeat and can be held to a
-    /// tight idle bound, while one with no intermediate events at all would see the
-    /// same number become a total budget.
+    /// runtime that reports every step has a heartbeat and can be held to a tight
+    /// idle bound, while one with no intermediate events at all would see the same
+    /// number become a total budget.
     ///
     /// The queue enforces it, since it owns the request lifecycle and can guarantee
     /// an expiry releases the drain exactly as a completion does. Local runtimes
     /// leave this `nil`.
     func idleTimeout(for request: GenerationRequest) -> Duration?
-
-    /// Whether stopping this runtime leaves work running somewhere we cannot reach.
-    /// `false` — the default — for anything in this process.
-    ///
-    /// A hosted service may finish an image we stopped waiting for, and bill for it,
-    /// so the UI says so rather than implying a cancel is free.
-    var cancellationMayLeaveWorkBilled: Bool { get }
 
     /// Called when the queue holds no further request for this runtime: it has
     /// emptied, or the next request belongs to another engine. A runtime that keeps
@@ -236,7 +251,6 @@ nonisolated protocol GenerationEngineRuntime: Sendable {
 
 nonisolated extension GenerationEngineRuntime {
     func idleTimeout(for request: GenerationRequest) -> Duration? { nil }
-    var cancellationMayLeaveWorkBilled: Bool { false }
     func queueDrained() async {}
 }
 
@@ -258,6 +272,7 @@ nonisolated protocol GenerationEngineDescriptor: Sendable {
     associatedtype Payload: Sendable
 
     static var id: EngineID { get }
+    static var modelListSource: ModelListSource { get }
     var displayName: String { get }
 
     func availability(_ settings: EngineSettings) async -> EngineAvailability
@@ -308,6 +323,7 @@ nonisolated protocol GenerationEngineDescriptor: Sendable {
 nonisolated struct AnyGenerationEngine: Sendable, Identifiable {
     let id: EngineID
     let displayName: String
+    let modelListSource: ModelListSource
 
     private let _availability: @Sendable (EngineSettings) async -> EngineAvailability
     private let _discoverModels: @Sendable (ModelDiscoveryContext) async throws -> [any EngineModel]
@@ -321,6 +337,7 @@ nonisolated struct AnyGenerationEngine: Sendable, Identifiable {
     init<Engine: GenerationEngineDescriptor>(_ engine: Engine) {
         id = Engine.id
         displayName = engine.displayName
+        modelListSource = Engine.modelListSource
         _availability = { await engine.availability($0) }
         _discoverModels = { try await engine.discoverModels($0) }
         _plan = { draft, model in

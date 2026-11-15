@@ -18,8 +18,8 @@ import os
 nonisolated protocol SecretStore: Sendable {
     /// Whether a secret exists, without reading it.
     func hasSecret(for account: String) -> Bool
-    /// The secret itself. Only generation and ``OpenAICredentialCheck`` need this;
-    /// no caller may put the value into a view.
+    /// The secret itself. Only discovery, generation and the Draw Things details
+    /// sheet read it; the sheet shows it only in a secure field.
     func secret(for account: String) -> String?
     /// Stores, or removes when `secret` is `nil`.
     func setSecret(_ secret: String?, for account: String) throws
@@ -107,8 +107,8 @@ nonisolated struct KeychainSecretStore: SecretStore {
 
         var item = baseQuery(for: account)
         item[kSecValueData as String] = data
-        // An API key is needed only while the app is in use, and this keeps it out
-        // of a backup restored onto another machine.
+        // A secret is needed only while the app is in use, and this keeps it out of
+        // a backup restored onto another machine.
         item[kSecAttrAccessible as String] = kSecAttrAccessibleWhenUnlockedThisDeviceOnly
         let added = SecItemAdd(item as CFDictionary, nil)
         guard added == errSecSuccess else { throw SecretStoreError.keychain(added) }

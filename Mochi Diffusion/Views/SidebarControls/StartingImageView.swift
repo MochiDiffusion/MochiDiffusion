@@ -106,15 +106,11 @@ struct StartingImageView: View {
             }
 
             // Bounds from the constraint rather than a literal 0...1, so a model that
-            // accepts a narrower range gets a slider that matches it. A model with no
-            // strength at all falls through to the placeholder rather than dropping the
-            // row, so the section does not change shape.
+            // accepts a narrower range gets a slider that matches it.
             if let bounds = constraint.strength.bounds {
                 MochiSlider(value: $configStore.strength, bounds: bounds, step: 0.05)
             } else if let pinned = constraint.strength.resolved(configStore.strength) {
                 PinnedValueField(text: pinned.formatted(.number.precision(.fractionLength(2))))
-            } else {
-                UnsupportedValueField()
             }
         }
     }

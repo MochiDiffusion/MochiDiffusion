@@ -36,7 +36,7 @@ struct GalleryToolbarView: View {
                         .progressViewStyle(.circular)
                         .controlSize(.small)
                 }
-            } else if case .canceling(_) = generationState.state {
+            } else if case .canceling = generationState.state {
                 queueButton {
                     ProgressView()
                         .progressViewStyle(.circular)

@@ -69,13 +69,13 @@ struct CompatibilityTextTests {
         model: String,
         engine: EngineID = .coreMLStableDiffusion,
         architecture: String?,
-        quality: String? = nil,
         startingImage: String? = nil,
         strength: Double? = nil,
         controlNet: String? = nil,
         controlNetImage: String? = nil,
         inputImages: [String]? = nil,
         scheduler: Scheduler?,
+        samplerName: String? = nil,
         mlComputeUnit: MLComputeUnits? = .cpuAndNeuralEngine,
         seed: UInt32?,
         steps: Int?,
@@ -84,9 +84,10 @@ struct CompatibilityTextTests {
         GenerationMetadata(
             prompt: prompt, negativePrompt: negativePrompt, width: 24, height: 16, model: model,
             engine: engine.rawValue, modelKey: model, architecture: architecture,
-            quality: quality, startingImage: startingImage, strength: strength,
+            startingImage: startingImage, strength: strength,
             controlNet: controlNet, controlNetImage: controlNetImage, inputImages: inputImages,
-            scheduler: scheduler, mlComputeUnit: mlComputeUnit, seed: seed, steps: steps,
+            scheduler: scheduler, samplerName: samplerName, mlComputeUnit: mlComputeUnit,
+            seed: seed, steps: steps,
             guidanceScale: guidanceScale,
             generatedDate: Date(timeIntervalSince1970: 1_790_000_000), metadataFields: [])
     }
@@ -148,14 +149,19 @@ struct CompatibilityTextTests {
                 Steps: 4, Sampler: Flow Match Euler Discrete, CFG scale: 1.0, Seed: 9, \
                 Size: 24x16, Model: flux-klein, \(software)
                 """),
-        // A hosted record has no steps, seed or guidance, and none is invented.
+        // A Draw Things image records the seed, steps and guidance it ran with,
+        // and its model's recommended sampler under Draw Things' own name.
         generated(
-            "hosted",
+            "drawthings",
             metadata(
-                negativePrompt: nil, model: "gpt-image-2", engine: .openAI, architecture: nil,
-                quality: "high", inputImages: [], scheduler: nil, mlComputeUnit: nil, seed: nil,
-                steps: nil, guidanceScale: nil),
-            parameters: "a red cube on a table\nSize: 24x16, Model: gpt-image-2, \(software)"),
+                negativePrompt: nil, model: "flux_2_klein_4b_q8p.ckpt", engine: .drawThings,
+                architecture: nil, scheduler: nil, samplerName: "DDIM Trailing",
+                mlComputeUnit: nil, seed: 11, steps: 4, guidanceScale: 1),
+            parameters: """
+                a red cube on a table
+                Steps: 4, Sampler: DDIM Trailing, CFG scale: 1.0, Seed: 11, Size: 24x16, \
+                Model: flux_2_klein_4b_q8p.ckpt, \(software)
+                """),
         // An empty negative prompt is not written, the same as AUTOMATIC1111.
         // SD 1.x DPM-Solver++ spaces its steps linearly.
         generated(

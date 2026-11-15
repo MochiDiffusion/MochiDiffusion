@@ -117,7 +117,6 @@ struct IrisCancelledWaiterTests {
             stepCount: 4,
             guidanceScale: nil,
             scheduler: .discreteFlowScheduler,
-            quality: nil,
             mlComputeUnit: nil,
             useDenoisedIntermediates: false,
             seed: 1,

@@ -27,13 +27,11 @@ struct JobQueueView: View {
                     comment: "Fallback text displayed while an engine prepares a generation"
                 )
             return (-1, progressLabel)
-        } else if case .canceling(let stage) = generationState.state {
-            let progressLabel =
-                stage
-                ?? String(
-                    localized: "Canceling...",
-                    comment: "Text displayed while waiting for generation cancellation cleanup"
-                )
+        } else if case .canceling = generationState.state {
+            let progressLabel = String(
+                localized: "Canceling...",
+                comment: "Text displayed while waiting for generation cancellation cleanup"
+            )
             return (-1, progressLabel)
         } else {
             return nil
@@ -227,6 +225,12 @@ private struct InfoPopoverView: View {
         request.guidanceScale
     }
 
+    /// The LoRAs `plan` resolved, shown as the image will record them. Empty
+    /// when the model applies none, so there is no row.
+    private var loras: [RecordedLoRA] {
+        request.loras.map { RecordedLoRA(name: $0.file, weight: $0.weight) }
+    }
+
     func copyOptionsToSidebar() {
         Task {
             await controller.copyToPrompt(request)
@@ -242,6 +246,14 @@ private struct InfoPopoverView: View {
                             type: LocalizedStringKey(Metadata.model.rawValue),
                             text: request.displayName,
                             showCopyToPromptOption: false
+                        )
+                    }
+                    ForEach(Array(loras.enumerated()), id: \.offset) { index, lora in
+                        InfoGridRow(
+                            type: LocalizedStringKey(Metadata.lora.rawValue),
+                            text: lora.description,
+                            showCopyToPromptOption: controller.canCopyLoRA(lora),
+                            callback: { controller.copyLoRAToPrompt(lora) }
                         )
                     }
                     if metadataFields.contains(.prompt) {

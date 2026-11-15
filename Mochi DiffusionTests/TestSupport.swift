@@ -191,7 +191,6 @@ func makeTestGenerationController(
     engineRegistry: EngineRegistry = EngineRegistry(),
     engineSettings: EngineSettingsStore? = nil,
     fullImageProvider: GalleryFullImageProvider = GalleryFullImageProvider(),
-    modelSelectionMode: GenerationController.ModelSelectionMode = .combined,
     startsObserving: Bool = true
 ) -> GenerationController {
     GenerationController(
@@ -205,7 +204,6 @@ func makeTestGenerationController(
         engineRegistry: engineRegistry,
         engineSettings: engineSettings,
         fullImageProvider: fullImageProvider,
-        modelSelectionMode: modelSelectionMode,
         startsObserving: startsObserving
     )
 }
@@ -372,4 +370,10 @@ nonisolated final class InMemorySecretStore: SecretStore, @unchecked Sendable {
         defer { lock.unlock() }
         return secrets[account]
     }
+}
+
+/// Collects what a runtime hands to `onResult`, in order.
+actor ResultCollector {
+    private(set) var all: [GenerationResult] = []
+    func add(_ result: GenerationResult) { all.append(result) }
 }

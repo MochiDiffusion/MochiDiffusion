@@ -178,6 +178,7 @@ extension QueueLivenessTests {
         typealias Payload = SignallingEngine.Payload
 
         static let id = EngineID(rawValue: "timed")
+        static let modelListSource = ModelListSource.modelsFolder
         let makeIt: @Sendable () -> any GenerationEngineRuntime
         var displayName: String { "Timed" }
 
@@ -211,7 +212,6 @@ extension QueueLivenessTests {
             stepCount: nil,
             guidanceScale: nil,
             scheduler: nil,
-            quality: nil,
             mlComputeUnit: nil,
             useDenoisedIntermediates: false,
             seed: 1,
@@ -250,12 +250,10 @@ extension QueueLivenessTests {
         await service.enqueue(makeTimedRequest(prompt: "stalls"))
         await started.wait(untilRuns: 1)
 
-        // Reported as an error rather than going quietly `.ready`, and honest that
-        // a remote service may still bill for it.
+        // Reported as an error rather than going quietly `.ready`.
         await waitForState { status in
             if case .error(let message) = status {
                 return message.contains("Stopped waiting")
-                    && message.contains("charge")
             }
             return false
         }

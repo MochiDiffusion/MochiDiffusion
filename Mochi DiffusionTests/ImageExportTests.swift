@@ -122,7 +122,7 @@ struct ImageExportTests {
 
         #expect(description.contains("Sampler: \(label),"))
         let converted = try #require(createImageRecordFromURL(destination))
-        #expect(converted.scheduler != nil)
+        #expect(converted.metadataFields.contains(.scheduler))
         #expect(converted.scheduler == Scheduler(samplerLabel: released))
     }
 

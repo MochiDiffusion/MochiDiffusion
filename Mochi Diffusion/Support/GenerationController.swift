@@ -51,10 +51,11 @@ private struct SidebarRestoreSource {
     var steps: Int?
     var guidanceScale: Double?
     var scheduler: Scheduler?
-    var quality: ImageQuality?
     var computeUnits: MLComputeUnits?
     var seed: UInt32?
     var numberOfImages: Int?
+    /// `nil` when the source does not record LoRAs; empty when it records none.
+    var loras: [RecordedLoRA]?
 
     init(galleryImage: SDImage, metadataFields: Set<MetadataField>) {
         if metadataFields.contains(.engine) || metadataFields.contains(.modelKey) {
@@ -101,12 +102,11 @@ private struct SidebarRestoreSource {
         guidanceScale =
             metadataFields.contains(.guidanceScale) ? galleryImage.guidanceScale : nil
         scheduler = metadataFields.contains(.scheduler) ? galleryImage.scheduler : nil
-        quality =
-            metadataFields.contains(.quality) ? ImageQuality(galleryImage.quality) : nil
         computeUnits =
             metadataFields.contains(.mlComputeUnit) ? galleryImage.mlComputeUnit : nil
         seed = metadataFields.contains(.seed) ? galleryImage.seed : nil
         numberOfImages = nil
+        loras = metadataFields.contains(.loras) ? galleryImage.loras : nil
     }
 
     init(request: GenerationRequest) {
@@ -137,29 +137,24 @@ private struct SidebarRestoreSource {
         steps = request.stepCount
         guidanceScale = request.guidanceScale.map(Double.init)
         scheduler = request.scheduler
-        quality = request.quality
         computeUnits = request.mlComputeUnit
         seed = request.metadataFields.contains(.seed) ? request.seed : nil
         numberOfImages = request.numberOfImages
+        loras =
+            request.metadataFields.contains(.loras)
+            ? request.loras.map { RecordedLoRA(name: $0.file, weight: $0.weight) } : nil
     }
 }
 
 @MainActor
 @Observable
 final class GenerationController {
-    /// How model restoration treats the per-engine selection.
-    ///
-    /// The app uses `.combined`: one picker over every engine's models.
-    /// `.engineScoped` backs the explicit engine picker, where a chosen engine
-    /// stays selected even when it has no models.
-    enum ModelSelectionMode {
-        case combined
-        case engineScoped
-    }
-
     struct ModelPickerItem: Identifiable, Equatable {
         let id: ModelID?
         let name: String
+        /// The header the picker shows this model under, or `nil` when every model
+        /// is in one group and the picker shows no headers.
+        let section: String?
     }
 
     enum GalleryImageDestination: Equatable {
@@ -179,7 +174,6 @@ final class GenerationController {
     private let engineRegistry: EngineRegistry
     private let imageRepository: ImageRepository
     private let fullImageProvider: GalleryFullImageProvider
-    private let modelSelectionMode: ModelSelectionMode
     /// The gallery finished images are inserted into, and the one "copy to sidebar"
     /// reads its selection from.
     private let imageGallery: ImageGallery
@@ -193,6 +187,12 @@ final class GenerationController {
     /// the generation banner rather than through it — see
     /// ``discoveryMessage(failures:engines:foundModels:modelDir:)``.
     private(set) var discoveryMessage: String?
+    /// What Settings says about the Draw Things model list: the result of the last
+    /// fetch. Generations do not change it.
+    private(set) var drawThingsStatus = DrawThingsStatus.inactive
+    /// The server `drawThingsStatus.lastFetch` describes, so a fetch from a different
+    /// one starts without it.
+    private var lastFetchedDrawThingsConnection: DrawThingsConnection?
     private(set) var controlNet: [String] = []
     /// The image to denoise from, for a model that does img2img.
     ///
@@ -228,11 +228,7 @@ final class GenerationController {
                 currentControlNets = []
                 return
             }
-            // The combined picker's selection is global. The per-engine copy lets
-            // the explicit engine picker return to each engine's last model.
             configStore.selectedModel = model.id
-            engineSettings.selectedEngine = model.id.engine
-            engineSettings.setSelectedModel(model.id, for: model.id.engine)
             // Read from the model's constraints rather than its concrete type.
             controlNet = model.constraints.controlNet.names
             currentControlNets = []
@@ -240,7 +236,7 @@ final class GenerationController {
     }
 
     /// Every registered engine, including unconfigured ones and ones with no
-    /// models. Used by the explicit engine picker.
+    /// models.
     var engines: [AnyGenerationEngine] {
         engineRegistry.allEngines
     }
@@ -248,95 +244,82 @@ final class GenerationController {
     /// Why each engine can or cannot be used, refreshed with every discovery pass.
     private(set) var engineAvailability: [EngineID: EngineAvailability] = [:]
 
-    /// Increments per `loadModels()` call, so a pass that finishes after a newer one
-    /// can tell and discard itself rather than overwriting it.
-    private var loadGeneration = 0
+    /// Increments per refresh of each source, so a pass that finishes after a newer
+    /// one for the same source can tell and discard itself rather than overwriting it.
+    private var loadGenerations: [ModelListSource: Int] = [:]
 
-    var selectedEngine: EngineID? {
-        engineSettings.selectedEngine
-    }
+    /// Sources whose latest refresh has not been applied yet.
+    private var loadingSources: Set<ModelListSource> = []
 
-    /// Every model shown by the combined model picker.
+    /// The latest applied discovery for each engine. Each source's refresh replaces
+    /// only its own engines' entries, so a folder change keeps the server's models.
+    private var discoveriesByEngine: [EngineID: EngineRegistry.Discovery] = [:]
+
+    /// Every model shown by the combined model picker, in `models` order.
     ///
-    /// Discovery has already sorted the models. Names stay untouched unless two
-    /// models collide under the same case- and diacritic-insensitive comparison
-    /// used by that sort, in which case the engine name distinguishes them.
+    /// Models are grouped by where they come from: the models folder on this Mac,
+    /// or the Draw Things server. Headers appear only when more than one group has
+    /// models. Names stay untouched unless two models in the same group collide
+    /// under the same case- and diacritic-insensitive comparison used by the sort,
+    /// in which case the engine name distinguishes them.
     var modelPickerItems: [ModelPickerItem] {
-        let collisionCounts = Dictionary(grouping: models) { model in
-            model.name.folding(
-                options: [.caseInsensitive, .diacriticInsensitive],
-                locale: nil
-            )
-        }.mapValues(\.count)
+        let sources = Dictionary(uniqueKeysWithValues: engines.map { ($0.id, $0.modelListSource) })
         let engineNames = Dictionary(uniqueKeysWithValues: engines.map { ($0.id, $0.displayName) })
+        func groupKey(_ model: any EngineModel) -> GroupedName {
+            GroupedName(
+                source: sources[model.id.engine],
+                name: model.name.folding(
+                    options: [.caseInsensitive, .diacriticInsensitive],
+                    locale: nil
+                )
+            )
+        }
+        let collisionCounts = Dictionary(grouping: models, by: groupKey).mapValues(\.count)
+        let showsSections = Set(models.map { sources[$0.id.engine] }).count > 1
 
         return models.map { model in
-            let key = model.name.folding(
-                options: [.caseInsensitive, .diacriticInsensitive],
-                locale: nil
-            )
-            guard collisionCounts[key, default: 0] > 1 else {
-                return ModelPickerItem(id: model.id, name: model.name)
+            let source = sources[model.id.engine]
+            let section =
+                showsSections
+                ? source.map { Self.pickerSectionTitle($0, location: model.location) } : nil
+            guard collisionCounts[groupKey(model), default: 0] > 1 else {
+                return ModelPickerItem(id: model.id, name: model.name, section: section)
             }
             let engineName = engineNames[model.id.engine] ?? model.id.engine.rawValue
-            return ModelPickerItem(id: model.id, name: "\(model.name) — \(engineName)")
+            return ModelPickerItem(
+                id: model.id, name: "\(model.name) — \(engineName)", section: section)
         }
     }
 
-    /// The models the model picker shows: the selected engine's own.
-    ///
-    /// Falls back to every model when no engine is selected, which is the state
-    /// before the first discovery pass finishes.
-    var visibleModels: [any EngineModel] {
-        guard let selectedEngine else { return models }
-        return models.filter { $0.id.engine == selectedEngine }
+    private struct GroupedName: Hashable {
+        let source: ModelListSource?
+        let name: String
     }
 
-    /// Whether `engine` can be generated with right now.
-    ///
-    /// Both halves are needed and neither implies the other: a local engine is
-    /// `.ready` as soon as its folder exists but has no models until one is put
-    /// there, and a hosted engine always has a model but is not `.ready` until a
-    /// key is entered.
-    func isUsable(_ engine: EngineID) -> Bool {
-        engineAvailability[engine] == .ready && hasModels(engine)
-    }
-
-    /// The engines the explicit engine picker offers: the usable ones.
-    ///
-    /// The selected engine is always included, even when it stops being usable.
-    /// `restoreSelection` keeps a chosen engine whose models have disappeared so
-    /// the picker can say why.
-    ///
-    /// May be empty; `EngineView` renders a placeholder for that case.
-    var pickerEngines: [AnyGenerationEngine] {
-        engines.filter { isUsable($0.id) || $0.id == selectedEngine }
+    /// The model picker's header for the models from one source. A server's
+    /// header names the server its models were fetched from.
+    nonisolated static func pickerSectionTitle(
+        _ source: ModelListSource, location: ModelLocation? = nil
+    ) -> String {
+        switch source {
+        case .modelsFolder:
+            String(
+                localized: "This Mac",
+                comment: "Model picker header above the models in the models folder")
+        case .connection:
+            // A name, so it is not localized.
+            if case .server(let serverName, _) = location {
+                "Draw Things — \(serverName)"
+            } else {
+                "Draw Things"
+            }
+        }
     }
 
     func hasModels(_ engine: EngineID) -> Bool {
         models.contains { $0.id.engine == engine }
     }
 
-    /// Switches engine, restoring the model that engine was last using.
-    ///
-    /// An engine with no models leaves the selection empty rather than borrowing
-    /// another engine's model, so nothing generates with a model the user did not
-    /// pick.
-    func selectEngine(_ engine: EngineID) {
-        guard engine != engineSettings.selectedEngine else { return }
-        engineSettings.selectedEngine = engine
-        currentModelId = rememberedOrFirstModel(for: engine)
-    }
-
-    private func rememberedOrFirstModel(for engine: EngineID) -> ModelID? {
-        let candidates = models.filter { $0.id.engine == engine }
-        if let remembered = engineSettings.selectedModel(for: engine),
-            candidates.contains(where: { $0.id == remembered })
-        {
-            return remembered
-        }
-        return candidates.first?.id
-    }
     var currentModel: (any EngineModel)? {
         models.first(where: { $0.id == self.currentModelId })
     }
@@ -345,6 +328,51 @@ final class GenerationController {
     /// `OptionConstraints.unconstrained` when no model is selected.
     var currentConstraints: OptionConstraints {
         currentModel?.constraints ?? .unconstrained
+    }
+
+    /// Sets the sidebar's steps and guidance to the selected model's
+    /// recommendations, each only when the model has one. Runs only from the
+    /// model info popover's button; selecting a model never applies them.
+    func applyRecommendedSettings() {
+        applyRecommendedSetting(.steps)
+        applyRecommendedSetting(.guidanceScale)
+    }
+
+    /// Sets one sidebar setting to the selected model's recommendation, if it has one.
+    func applyRecommendedSetting(_ setting: RecommendedSetting) {
+        guard let model = currentModel else { return }
+        switch setting {
+        case .steps:
+            if let steps = model.recommendedSteps {
+                configStore.steps = Double(steps)
+            }
+        case .guidanceScale:
+            if let guidanceScale = model.recommendedGuidanceScale {
+                configStore.guidanceScale = guidanceScale
+            }
+        }
+    }
+
+    enum RecommendedSetting: Hashable {
+        case steps
+        case guidanceScale
+    }
+
+    /// The sidebar settings that differ from the selected model's recommendations,
+    /// which the model info button points out. Empty when the model
+    /// recommends nothing.
+    var settingsDifferingFromRecommendations: Set<RecommendedSetting> {
+        guard let model = currentModel else { return [] }
+        var differing: Set<RecommendedSetting> = []
+        if let steps = model.recommendedSteps, Double(steps) != configStore.steps {
+            differing.insert(.steps)
+        }
+        if let guidanceScale = model.recommendedGuidanceScale,
+            guidanceScale != configStore.guidanceScale
+        {
+            differing.insert(.guidanceScale)
+        }
+        return differing
     }
 
     private(set) var currentControlNets: [ControlNetInput] = []
@@ -389,24 +417,15 @@ final class GenerationController {
         engineRegistry: EngineRegistry = EngineRegistry(),
         engineSettings: EngineSettingsStore? = nil,
         fullImageProvider: GalleryFullImageProvider = GalleryFullImageProvider(),
-        modelSelectionMode: ModelSelectionMode = .combined,
         startsObserving: Bool = true
     ) {
         self.configStore = configStore
         self.engineRegistry = engineRegistry
         self.imageRepository = imageRepository
         self.fullImageProvider = fullImageProvider
-        self.modelSelectionMode = modelSelectionMode
         self.imageGallery = imageGallery
         self.generationService = generationService
-        // Defaulted from the registry rather than by the caller, so the store only
-        // ever loads selections for engines that actually exist.
-        self.engineSettings =
-            engineSettings
-            ?? EngineSettingsStore(
-                store: configStore.defaults,
-                engines: engineRegistry.engineIDs
-            )
+        self.engineSettings = engineSettings ?? EngineSettingsStore(store: configStore.defaults)
         guard startsObserving else { return }
         initialLoadTask = Task { [weak self] in
             await self?.loadModels()
@@ -419,45 +438,109 @@ final class GenerationController {
         observeGenerationResults()
     }
 
-    func loadModels() async {
-        loadGeneration += 1
-        let generation = loadGeneration
-        logger.info("Started loading model directory at: \"\(self.configStore.modelDir)\"")
-        let modelDirectoryURL = ModelRepository.modelDirectoryURL(
-            fromPath: configStore.modelDir
-        )
-        let controlNetDirectoryURL = ModelRepository.controlNetDirectoryURL(
-            fromPath: configStore.controlNetDir)
-
-        let settings = EngineSettings(
-            modelDirectory: modelDirectoryURL,
-            controlNetDirectory: controlNetDirectoryURL
-        )
-        // One aggregate pass: availability and discovery gathered together, so
-        // this cannot pair one engine's availability with another pass's models.
-        let refresh = await engineRegistry.refresh(settings: settings)
-
-        // The two guards that make a refresh abandonable. `loadModels` is
-        // started by the initial load, two folder monitors and two debounced
-        // settings paths, and `@MainActor` serialises the *mutations* without
-        // preventing reentrancy across the await above. The epoch stops an older
-        // pass that finishes late from overwriting a newer one.
-        guard generation == loadGeneration else {
-            logger.info("Discarding a superseded model load")
-            return
+    /// Refreshes the models from `sources`, applying each source's result as soon as
+    /// it arrives, so a slow server does not hold back the models folder.
+    ///
+    /// Launch asks every source. A change in the models or ControlNet folder asks
+    /// only `.modelsFolder`; switching Draw Things on or off and saving its details
+    /// ask only `.connection`.
+    func loadModels(from sources: Set<ModelListSource> = Set(ModelListSource.allCases)) async {
+        guard !sources.isEmpty else { return }
+        var generations: [ModelListSource: Int] = [:]
+        for source in sources {
+            loadGenerations[source, default: 0] += 1
+            generations[source] = loadGenerations[source]
         }
-        guard !isShutDown else { return }
+        loadingSources.formUnion(sources)
+        if sources.contains(.modelsFolder) {
+            logger.info("Started loading model directory at: \"\(self.configStore.modelDir)\"")
+        }
+        if sources.contains(.connection) {
+            logger.info("Started loading models from connections")
+            let connection = engineSettings.drawThings
+            if connection.isActive {
+                if connection != lastFetchedDrawThingsConnection {
+                    drawThingsStatus.lastFetch = nil
+                }
+                drawThingsStatus.isFetching = true
+            } else {
+                drawThingsStatus = .inactive
+            }
+        }
+        let settings = EngineSettings(
+            modelDirectory: ModelRepository.modelDirectoryURL(fromPath: configStore.modelDir),
+            controlNetDirectory: ModelRepository.controlNetDirectoryURL(
+                fromPath: configStore.controlNetDir),
+            drawThings: engineSettings.drawThings
+        )
+        let engineRegistry = engineRegistry
 
-        engineAvailability = refresh.availability
-        let discoveries = refresh.discoveries
-        let discoveredModels = refresh.models
+        await withTaskGroup(of: (ModelListSource, EngineRegistry.Refresh).self) { group in
+            for source in sources {
+                group.addTask {
+                    // One aggregate pass per source: availability and discovery
+                    // gathered together, so this cannot pair one engine's
+                    // availability with another pass's models.
+                    (source, await engineRegistry.refresh(settings: settings, sources: [source]))
+                }
+            }
+            for await (source, refresh) in group {
+                // The two guards that make a refresh abandonable. Refreshes are
+                // started by the initial load, two folder monitors, two debounced
+                // settings paths and connection settings, and `@MainActor`
+                // serialises the *mutations* without preventing reentrancy across
+                // the await. The epoch stops an older pass that finishes late from
+                // overwriting a newer one for the same source.
+                guard generations[source] == loadGenerations[source] else {
+                    logger.info("Discarding a superseded model load")
+                    continue
+                }
+                guard !isShutDown else { return }
+                loadingSources.remove(source)
+                apply(refresh, from: source)
+            }
+        }
+    }
+
+    private func apply(_ refresh: EngineRegistry.Refresh, from source: ModelListSource) {
+        for engine in engines where engine.modelListSource == source {
+            discoveriesByEngine[engine.id] = nil
+            engineAvailability[engine.id] = nil
+        }
+        for discovery in refresh.discoveries {
+            discoveriesByEngine[discovery.engine] = discovery
+        }
+        engineAvailability.merge(refresh.availability) { _, new in new }
+
+        if source == .connection {
+            let connection = engineSettings.drawThings
+            if connection.isActive {
+                drawThingsStatus = DrawThingsStatus(
+                    lastFetch: Self.drawThingsFetch(
+                        discoveriesByEngine[.drawThings], at: .now))
+                lastFetchedDrawThingsConnection = connection
+            } else {
+                drawThingsStatus = .inactive
+            }
+        }
+
+        // Registration order, as one refresh of every engine would produce.
+        let discoveries = engines.compactMap { discoveriesByEngine[$0.id] }
+        // Grouped in the model picker's order, so the first model here is the first
+        // one the picker shows.
+        let discoveredModels = ModelListSource.allCases.flatMap { source in
+            discoveries.filter { discovery in
+                engines.first { $0.id == discovery.engine }?.modelListSource == source
+            }.allModels
+        }
         // Assigned before the check below, so a pass that finds nothing empties
         // the picker instead of leaving the previous pass's models on screen.
         self.models = discoveredModels
         discoveryMessage = Self.discoveryMessage(
             failures: discoveries.failures,
             engines: engines,
-            foundModels: !discoveredModels.isEmpty,
+            // A source still loading may yet find models, so "no models" waits for it.
+            foundModels: !discoveredModels.isEmpty || !loadingSources.isEmpty,
             modelDir: configStore.modelDir
         )
         guard !discoveredModels.isEmpty else {
@@ -465,30 +548,9 @@ final class GenerationController {
             return
         }
 
-        // Two migrations, in order, both idempotent. The first recovers the
-        // engine for a legacy `Model` URL by matching what discovery just found;
-        // the second records that selection as an engine plus a per-engine model.
-        let discoveredIDs = self.models.map(\.id)
-        let globalMigration = configStore.migrateSelectedModelIfNeeded(discovered: discoveredIDs)
-        var engineMigrationSelection = configStore.selectedModel
-        // `SelectedModel` may hold a hosted model picked as a fallback while the
-        // legacy local model was missing. The legacy identity is still recovered
-        // for its per-engine slot, without replacing the current selection.
-        if globalMigration == .alreadyMigrated,
-            let current = configStore.selectedModel,
-            !PreferenceMigration.legacyEnginePreference.contains(current.engine),
-            case .migrated(let legacySelection) = PreferenceMigration.selectedModel(
-                legacyURL: configStore.legacyModelId,
-                existing: nil,
-                discovered: discoveredIDs
-            )
-        {
-            engineMigrationSelection = legacySelection
-        }
-        engineSettings.migrateSelectedEngineIfNeeded(
-            from: engineMigrationSelection,
-            discovered: discoveredIDs
-        )
+        // Idempotent: recovers the engine for a legacy `Model` URL by matching what
+        // discovery just found.
+        configStore.migrateSelectedModelIfNeeded(discovered: self.models.map(\.id))
 
         logger.info("Found \(self.models.count) model(s)")
         restoreSelection()
@@ -501,18 +563,21 @@ final class GenerationController {
     /// and generation are different subjects, and sharing one banner means they
     /// overwrite each other.
     ///
-    /// Failures are reported per engine, since a hosted engine always has a model
-    /// and would otherwise keep the combined list from ever being empty.
+    /// Failures are reported per engine, so one engine cannot hide another's
+    /// unreadable models folder. A server that cannot be reached is not reported
+    /// here: Settings shows it, in `drawThingsStatus`.
     ///
-    /// Availability is not reported here: "Add an API key" is a standing fact about
-    /// an engine rather than a problem with this pass, and the picker already says it
-    /// next to the engine's name.
+    /// Availability is not reported here: "Set up a Draw Things server" is a
+    /// standing fact about an engine rather than a problem with this pass.
     nonisolated static func discoveryMessage(
         failures: [(engine: EngineID, error: any Error)],
         engines: [AnyGenerationEngine],
         foundModels: Bool,
         modelDir: String
     ) -> String? {
+        let failures = failures.filter { failure in
+            engines.first { $0.id == failure.engine }?.modelListSource == .modelsFolder
+        }
         if !failures.isEmpty {
             let names = failures.map { failure in
                 engines.first { $0.id == failure.engine }?.displayName
@@ -530,42 +595,42 @@ final class GenerationController {
         )
     }
 
+    /// The result of a model-list fetch from the Draw Things server.
+    nonisolated static func drawThingsFetch(_ discovery: EngineRegistry.Discovery?, at date: Date)
+        -> DrawThingsStatus.Fetch
+    {
+        switch discovery?.failure {
+        case nil:
+            .models(count: discovery?.models.count ?? 0, at: date)
+        case DrawThingsError.unusableModelList(let reason)?:
+            .noModels(reason, at: date)
+        case let failure?:
+            .failed(DrawThingsError.connectionFailureDescription(failure), at: date)
+        }
+    }
+
     /// Picks the exact model to show after a discovery pass.
     ///
-    /// The selected engine's remembered model comes first, because the global
-    /// preference may still hold a stale migration value. `currentModelId.didSet`
-    /// writes both stores, so after one selection they agree. Without a usable
-    /// selection this falls back to the first runnable model in discovery order.
+    /// The saved model is selected whenever it is available. While it is not,
+    /// nothing is selected and the saved model is kept, so a later pass that finds
+    /// it, such as a server answering again, selects it without guessing how long
+    /// it might be unavailable. Choosing another model replaces it. Only with
+    /// nothing saved, as on a fresh install, is the first runnable model in the
+    /// picker's order selected, and saved.
     private func restoreSelection() {
-        if modelSelectionMode == .engineScoped,
-            let engine = engineSettings.selectedEngine,
-            engines.contains(where: { $0.id == engine })
-        {
-            currentModelId = rememberedOrFirstModel(for: engine)
+        guard let selection = configStore.selectedModel else {
+            currentModelId =
+                models.first(where: {
+                    engineAvailability[$0.id.engine] == .ready
+                })?.id
             return
         }
-
-        let activeEngineSelection = engineSettings.selectedEngine.flatMap {
-            engineSettings.selectedModel(for: $0)
-        }
-        for selection in [activeEngineSelection, configStore.selectedModel].compactMap({ $0 }) {
-            if models.contains(where: { $0.id == selection }),
-                engineAvailability[selection.engine] == .ready
-            {
-                currentModelId = selection
-                return
-            }
-        }
-
-        guard
-            let firstModel = models.first(where: {
-                engineAvailability[$0.id.engine] == .ready
-            })
-        else {
-            currentModelId = nil
-            return
-        }
-        currentModelId = firstModel.id
+        let isAvailable =
+            models.contains(where: { $0.id == selection })
+            && engineAvailability[selection.engine] == .ready
+        // Setting nil leaves `configStore.selectedModel` alone: `currentModelId`'s
+        // didSet saves only a model that is in the list.
+        currentModelId = isAvailable ? selection : nil
     }
 
     func generate() async {
@@ -717,6 +782,40 @@ final class GenerationController {
         case .startingImage:
             setStartingImage(image: image, filename: filename)
         }
+    }
+
+    // MARK: - LoRAs
+
+    /// The saved LoRAs the selected model can use, in the order they were added,
+    /// each with the weight the generation will use.
+    ///
+    /// The saved list keeps the others, which reappear when the user selects a
+    /// model that can use them.
+    var shownLoRAs: [(option: LoRAOption, selection: LoRASelection)] {
+        let constraint = currentConstraints.loras
+        return constraint.resolved(configStore.loras).compactMap { selection in
+            constraint.options.first { $0.file == selection.file }.map { ($0, selection) }
+        }
+    }
+
+    /// The selected model's LoRAs that are not in the saved list.
+    var addableLoRAs: [LoRAOption] {
+        let saved = Set(configStore.loras.map(\.file))
+        return currentConstraints.loras.options.filter { !saved.contains($0.file) }
+    }
+
+    func addLoRA(_ option: LoRAOption) {
+        guard !configStore.loras.contains(where: { $0.file == option.file }) else { return }
+        configStore.loras.append(LoRASelection(file: option.file, weight: option.defaultWeight))
+    }
+
+    func removeLoRA(file: String) {
+        configStore.loras.removeAll { $0.file == file }
+    }
+
+    func setLoRAWeight(_ weight: Double, file: String) {
+        guard let index = configStore.loras.firstIndex(where: { $0.file == file }) else { return }
+        configStore.loras[index].weight = weight
     }
 
     // MARK: - Per-image crop
@@ -1045,11 +1144,6 @@ final class GenerationController {
         {
             configStore.scheduler = scheduler
         }
-        if constraints.quality.isEditable, let quality = source.quality,
-            constraints.quality.options.contains(quality)
-        {
-            configStore.quality = quality
-        }
         if constraints.startingImage.strength.isEditable, let strength = source.strength {
             configStore.strength = strength
         }
@@ -1063,6 +1157,51 @@ final class GenerationController {
             let preference = source.computeUnits.flatMap(ComputeUnitPreference.init(exact:))
         {
             configStore.mlComputeUnitPreference = preference
+        }
+        // Replaces the saved list, including LoRAs the selected model cannot use,
+        // so the sidebar holds exactly the image's LoRAs.
+        if let loras = source.loras {
+            var restored: [LoRASelection] = []
+            for lora in loras {
+                guard let selection = loraSelection(for: lora),
+                    !restored.contains(where: { $0.file == selection.file })
+                else { continue }
+                restored.append(selection)
+            }
+            configStore.loras = restored
+        }
+    }
+
+    /// The server LoRA an image's LoRA names, with the image's weight or, when it
+    /// records none, the LoRA's default. `nil` when no Draw Things model offers
+    /// a LoRA of that name, as for a LoRA from another application.
+    private func loraSelection(for lora: RecordedLoRA) -> LoRASelection? {
+        guard let option = loraOption(named: lora.name) else { return nil }
+        return LoRASelection(file: option.file, weight: lora.weight ?? option.defaultWeight)
+    }
+
+    private func loraOption(named name: String) -> LoRAOption? {
+        for model in models {
+            if let option = model.constraints.loras.options.first(where: { $0.file == name }) {
+                return option
+            }
+        }
+        return nil
+    }
+
+    /// Whether `copyLoRAToPrompt(_:)` can add `lora`: a Draw Things model offers it.
+    func canCopyLoRA(_ lora: RecordedLoRA) -> Bool {
+        loraOption(named: lora.name) != nil
+    }
+
+    /// Adds one of an image's LoRAs to the saved list, or sets its weight when it
+    /// is already there. The other saved LoRAs stay.
+    func copyLoRAToPrompt(_ lora: RecordedLoRA) {
+        guard let selection = loraSelection(for: lora) else { return }
+        if let index = configStore.loras.firstIndex(where: { $0.file == selection.file }) {
+            configStore.loras[index].weight = selection.weight
+        } else {
+            configStore.loras.append(selection)
         }
     }
 
@@ -1192,7 +1331,6 @@ final class GenerationController {
             stepCount: Int(configStore.steps),
             guidanceScale: Float(configStore.guidanceScale),
             scheduler: configStore.scheduler,
-            quality: configStore.quality,
             seed: seed == 0 ? GenerationSeed.random() : seed,
             numberOfImages: Int(numberOfImages),
             computeUnitPreference: configStore.mlComputeUnitPreference,
@@ -1202,7 +1340,8 @@ final class GenerationController {
             imageDir: configStore.imageDir,
             controlNetDirectory: ModelRepository.controlNetDirectoryURL(
                 fromPath: configStore.controlNetDir
-            )
+            ),
+            loras: configStore.loras
         )
 
         let plan: GenerationPlan<any Sendable>
@@ -1233,12 +1372,12 @@ final class GenerationController {
             stepCount: plan.stepCount,
             guidanceScale: plan.guidanceScale,
             scheduler: plan.scheduler,
-            quality: plan.quality,
             mlComputeUnit: plan.mlComputeUnit,
             useDenoisedIntermediates: draft.showGenerationPreview,
             seed: draft.seed,
             numberOfImages: plan.numberOfImages,
-            imageDir: draft.imageDir
+            imageDir: draft.imageDir,
+            loras: plan.loras
         )
     }
 
@@ -1386,12 +1525,12 @@ final class GenerationController {
 
     private func updateModelFolderMonitor() async {
         startModelFolderMonitor()
-        await loadModels()
+        await loadModels(from: [.modelsFolder])
     }
 
     private func updateControlNetFolderMonitor() async {
         startControlNetFolderMonitor()
-        await loadModels()
+        await loadModels(from: [.modelsFolder])
     }
 
     private func startModelFolderMonitor() {
@@ -1404,7 +1543,7 @@ final class GenerationController {
             let stream = await FolderMonitorService.shared.updates(for: path)
             for await _ in stream {
                 guard let self else { return }
-                await self.loadModels()
+                await self.loadModels(from: [.modelsFolder])
             }
         }
     }
@@ -1417,7 +1556,7 @@ final class GenerationController {
             let stream = await FolderMonitorService.shared.updates(for: path)
             for await _ in stream {
                 guard let self else { return }
-                await self.loadModels()
+                await self.loadModels(from: [.modelsFolder])
             }
         }
     }

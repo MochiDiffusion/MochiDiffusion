@@ -48,6 +48,7 @@ nonisolated extension GenerationMetadata {
     func snapshot(appVersion: String = NSApplication.appVersion) -> MochiGenerationSnapshot {
         var resources: [GenerationResource] = []
         if let controlNet { resources.append(GenerationResource(kind: .control, name: controlNet)) }
+        resources += loras.map { GenerationResource(kind: .lora, name: $0.file, weight: $0.weight) }
 
         var parameters: [GenerationParameter] = []
         if let architecture {
@@ -63,7 +64,7 @@ nonisolated extension GenerationMetadata {
                 positivePrompt: prompt,
                 negativePrompt: negativePrompt,
                 model: model,
-                sampler: scheduler?.samplerLabel,
+                sampler: scheduler?.samplerLabel ?? samplerName,
                 scheduler: stepSpacing,
                 steps: steps,
                 cfgScale: guidanceScale,
@@ -77,7 +78,6 @@ nonisolated extension GenerationMetadata {
             details: MochiGenerationDetails(
                 engine: engine,
                 modelKey: modelKey,
-                quality: quality,
                 computeUnit: mlComputeUnit.map(MLComputeUnits.toString),
                 startingImage: startingImage,
                 controlNetImage: controlNetImage,
@@ -209,6 +209,17 @@ nonisolated enum ImageMetadataWriter {
 nonisolated struct MetadataDetail: Sendable, Hashable {
     let label: String
     let value: String
+}
+
+/// A LoRA an image records: its name, which for a Draw Things image is the
+/// server's filename, and its weight when recorded.
+nonisolated struct RecordedLoRA: Sendable, Hashable, CustomStringConvertible {
+    let name: String
+    let weight: Double?
+
+    var description: String {
+        weight.map { "\(name) (\($0))" } ?? name
+    }
 }
 
 /// Reads generation metadata from image files through Musubi.
@@ -382,11 +393,11 @@ nonisolated enum ImageMetadataReader {
             record.generatedDate = generatedAt
             record.generatedDateIsRecorded = true
         }
-        let loras = generation.resources.filter { $0.kind == .lora }.compactMap { resource in
-            resource.name.map { name in resource.weight.map { "\(name) (\($0))" } ?? name }
+        record.loras = generation.resources.filter { $0.kind == .lora }.compactMap { resource in
+            resource.name.map { RecordedLoRA(name: $0, weight: resource.weight) }
         }
-        if !loras.isEmpty {
-            shown.append(MetadataDetail(label: "LoRAs", value: loras.joined(separator: "\n")))
+        if !record.loras.isEmpty {
+            fields.insert(.loras)
         }
 
         if let details {
@@ -394,10 +405,6 @@ nonisolated enum ImageMetadataReader {
                 record.engine = engine
                 record.modelKey = modelKey
                 fields.formUnion([.engine, .modelKey])
-            }
-            if let quality = details.quality {
-                record.quality = quality
-                fields.insert(.quality)
             }
             if let computeUnit = details.computeUnit.flatMap(computeUnits(named:)) {
                 record.mlComputeUnit = computeUnit
@@ -414,6 +421,13 @@ nonisolated enum ImageMetadataReader {
             if let inputImages = details.inputImages {
                 record.inputImages = inputImages
                 fields.insert(.inputImages)
+            }
+            // Mochi records every LoRA a Draw Things image used, so listing none
+            // means it used none.
+            if details.engine == EngineID.drawThings.rawValue,
+                producer?.name == ImageMetadataReader.producerName
+            {
+                fields.insert(.loras)
             }
         }
 

@@ -16,7 +16,6 @@ struct ImageRecord: Sendable, Identifiable {
     var model: String
     var engine: String
     var modelKey: String
-    var quality: String
     var startingImage: String
     var controlNetImage: String
     var inputImages: [String]
@@ -41,6 +40,8 @@ struct ImageRecord: Sendable, Identifiable {
     /// The size the metadata says the image was generated at. `width` and
     /// `height` are the file's own pixel size.
     var generationSize: CGSize?
+    /// The LoRAs the image records, in order.
+    var loras: [RecordedLoRA] = []
     /// Settings shown but not restorable, such as an unknown sampler.
     var details: [MetadataDetail] = []
     /// Shown instead of settings when the metadata is ambiguous.
@@ -66,7 +67,6 @@ struct ImageRecord: Sendable, Identifiable {
             model: "",
             engine: "",
             modelKey: "",
-            quality: "",
             startingImage: "",
             controlNetImage: "",
             inputImages: [],

@@ -71,6 +71,7 @@ struct QueueLivenessTests {
         struct Payload: Sendable {}
 
         static let id = EngineID(rawValue: "signalling")
+        static let modelListSource = ModelListSource.modelsFolder
         let signal: RunSignal
         var displayName: String { "Signalling" }
 
@@ -127,7 +128,6 @@ struct QueueLivenessTests {
             stepCount: 1,
             guidanceScale: nil,
             scheduler: .pndmScheduler,
-            quality: nil,
             mlComputeUnit: nil,
             useDenoisedIntermediates: false,
             seed: 1,
@@ -151,7 +151,7 @@ struct QueueLivenessTests {
         arguments: [
             GenerationState.Status.error("an earlier failure"),
             .ready("a message"),
-            .canceling(nil),
+            .canceling,
         ]
     )
     func requestRunsFromAnyUIState(state: GenerationState.Status) async throws {
@@ -321,6 +321,7 @@ struct QueueLivenessTests {
         struct Payload: Sendable {}
 
         static var id: EngineID { EngineID(rawValue: Name.name) }
+        static var modelListSource: ModelListSource { .modelsFolder }
         let log: EventLog
         let gate: Gate
         var displayName: String { Name.name }
