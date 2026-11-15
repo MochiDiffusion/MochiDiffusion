@@ -173,7 +173,6 @@ No comment provided by engineer. */
 "Release Notes" = "Notas de Nueva Versión";
 /* en.lproj/Localizable.strings
 Remove
-Button to delete a stored API key
 Remove image from the gallery
 Toolbar button to remove the selected image */
 "Remove" = "Eliminar";
@@ -225,12 +224,9 @@ Toolbar button to show the system share sheet */
 "Share..." = "Compartir...";
 /* en.lproj/Localizable.strings
 Show in Finder
+Model info button that shows the model's folder in Finder
 Show image with Finder */
 "Show in Finder" = "Mostrar en el Finder";
-/* en.lproj/Localizable.strings
-Show models in Finder
-No comment provided by engineer. */
-"Show models in Finder" = "Mostrar modelos en el Finder";
 /* en.lproj/Localizable.strings
 Starting Image
 Label for setting the starting image (commonly known as image2image) */

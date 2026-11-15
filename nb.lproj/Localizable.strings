@@ -202,7 +202,6 @@ No comment provided by engineer. */
 "Release Notes" = "Versjonsmerknader";
 /* en.lproj/Localizable.strings
 Remove
-Button to delete a stored API key
 Remove image from the gallery
 Toolbar button to remove the selected image */
 "Remove" = "Fjern";
@@ -246,6 +245,7 @@ Toolbar button to show the system share sheet */
 "Share..." = "Del...";
 /* en.lproj/Localizable.strings
 Show in Finder
+Model info button that shows the model's folder in Finder
 Show image with Finder */
 "Show in Finder" = "Vis i Finder";
 /* en.lproj/Localizable.strings

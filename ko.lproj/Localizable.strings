@@ -226,7 +226,6 @@ No comment provided by engineer. */
 "Release Notes" = "릴리스 노트";
 /* en.lproj/Localizable.strings
 Remove
-Button to delete a stored API key
 Remove image from the gallery
 Toolbar button to remove the selected image */
 "Remove" = "삭제";
@@ -282,6 +281,7 @@ No comment provided by engineer. */
 "Show Image Preview" = "이미지 미리보기";
 /* en.lproj/Localizable.strings
 Show in Finder
+Model info button that shows the model's folder in Finder
 Show image with Finder */
 "Show in Finder" = "Finder에서 보기";
 /* en.lproj/Localizable.strings
