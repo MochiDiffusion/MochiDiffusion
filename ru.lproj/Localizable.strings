@@ -245,7 +245,6 @@ No comment provided by engineer. */
 "Release Notes" = "Заметки о выпуске";
 /* en.lproj/Localizable.strings
 Remove
-Button to delete a stored API key
 Remove image from the gallery
 Toolbar button to remove the selected image */
 "Remove" = "Удалить";
@@ -301,12 +300,9 @@ No comment provided by engineer. */
 "Show Image Preview" = "Показывать предпросмотр изображения";
 /* en.lproj/Localizable.strings
 Show in Finder
+Model info button that shows the model's folder in Finder
 Show image with Finder */
 "Show in Finder" = "Показать в Finder";
-/* en.lproj/Localizable.strings
-Show models in Finder
-No comment provided by engineer. */
-"Show models in Finder" = "Показать модели в Finder";
 /* en.lproj/Localizable.strings
 Show the image as its being generated.
 Help text for Show Image Preview setting */
